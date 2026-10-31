@@ -84,26 +84,32 @@ public sealed partial class PristonRenderer
         var skyColor = sky.SkyColor;
         var sunDirection = sky.SunDirection;
         var horizontal = sky.HorizontalIlluminance;
+        var metered = horizontal;
         if (Underground)
         {
             sunIlluminance = Vector3.Zero;
             skyIlluminance = PristonPhotometry.LevelToIlluminance(UndergroundAmbient);
             lampFactor = 1f;
             skyColor = new Vector3(0.02f, 0.02f, 0.03f);
-            horizontal = PristonPhotometry.Luminance(skyIlluminance);
+            horizontal = metered = PristonPhotometry.Luminance(skyIlluminance);
+        }
+        else
+        {
+            (sunIlluminance, skyIlluminance, horizontal, metered, lampFactor) = WeatherLight(sunIlluminance, skyIlluminance, horizontal, lampFactor);
         }
 
         SkyColor = new Color(skyColor);
         _lampFactor = lampFactor;
         _towardSun = sky.TowardSun;
         _sunElevation = Underground ? -1f : sky.SunElevation;
-        _exposure = PristonFrameExposure.ForIlluminance(horizontal, Underground, ExposureCompensation, EmissiveLuminance);
+        _exposure = PristonFrameExposure.ForIlluminance(metered, Underground, ExposureCompensation, EmissiveLuminance);
         var radianceScale = _exposure.PreExposure / MathF.PI;
         var sunColor = sunIlluminance * radianceScale;
         var ambient = skyIlluminance * radianceScale;
         var ground = PristonPhotometry.Hue(Vector3.Lerp(sunIlluminance, skyIlluminance, 0.5f))
             * (horizontal * PristonPhotometry.GroundAlbedo * radianceScale);
         _fogSunColour = sunColor;
+        RainRadiance = Vector3.Max(ambient + sunColor * RainSunShare, new Vector3(RainLeastLight));
         var sun = new PristonDirectionalLight(Vector3.Normalize(sunDirection), sunColor);
         // Transient combat lights come first, then the stage lamps nearest the focus, up to the shader's light count.
         _activeLights.Clear();

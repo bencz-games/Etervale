@@ -78,7 +78,7 @@ public sealed partial class PristonRenderer
         Texture2D capture = null;
         if (skyVisible)
         {
-            var currentProfile = SkyProfiles.Select(TimeOfDay);
+            var currentProfile = SkyProfileNow;
             var transition = _previousSkyProfile >= 0 && _skyBlend < 1f;
             var animated = Sky.IsAnimated(currentProfile) || (transition && Sky.IsAnimated(_previousSkyProfile));
             if (_skyCapture.ShouldRefresh(currentProfile, _previousSkyProfile, _skyBlend, skyPosition.Y, animated, _renderTime))
@@ -156,7 +156,7 @@ public sealed partial class PristonRenderer
                 _shaders.ApplyFrame(CreateSkyFrame(frame, PristonEnvironmentLighting.FaceView(face, skyPosition), projection, skyPosition));
                 _stateCache.SetDepthStencilState(DepthStencilState.None);
                 DrawSkyLayers(
-                    SkyProfiles.Select(TimeOfDay),
+                    SkyProfileNow,
                     ref staticBatches,
                     ref dynamicBatches,
                     ref drawCalls,

@@ -88,6 +88,7 @@ public sealed partial class GameScene
         _actorScene = new RendererActorScene(_renderer);
         CreateSkillPresentation();
         CreateItemEffects();
+        CreateRain();
         var actorScene = _actorScene;
         _playerComposer = new PlayerActorComposer(actorScene, _actorLoader);
         _monsterComposer = new ModelActorComposer(actorScene, _actorLoader);
@@ -113,7 +114,7 @@ public sealed partial class GameScene
 
         var loaded = LoadFieldResources(assetRoot, field);
         _fields.Add(loaded);
-        _groundLoot?.InvalidateFloor();
+        InvalidateGround();
         return loaded;
     }
 
@@ -135,7 +136,7 @@ public sealed partial class GameScene
         foreach (var field in _fields)
             _renderer.RemoveStage(field.RenderHandle);
         _fields.Clear();
-        _groundLoot?.InvalidateFloor();
+        InvalidateGround();
         _activeField = null;
     }
 
@@ -242,6 +243,7 @@ public sealed partial class GameScene
             return;
         _activeField = field;
         _currentField = field.Definition;
+        SnapWeatherToField();
         _renderer.Underground = field.Definition.Underground;
         // A field may clear part of the haze; sight cells (64 units each) push its start out.
         _renderer.FieldHaze = 1f - Math.Clamp(field.Definition.HazeReduction, 0f, 1f);
@@ -268,7 +270,7 @@ public sealed partial class GameScene
     {
         _renderer.RemoveStage(field.RenderHandle);
         _fields.Remove(field);
-        _groundLoot?.InvalidateFloor();
+        InvalidateGround();
     }
 
     private void ConfigureFieldLighting(FieldLighting lighting)

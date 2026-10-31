@@ -11,6 +11,7 @@ sources are in [shaders.md](shaders.md); option fields in [client-settings.md](c
 - Loading a new original asset kind, or a stage/model/texture fails to load or looks wrong.
 - Field streaming hitches (GPU upload steps) or a frame costs too much (statistics, profiler, `--benchmark-render`).
 - Adding something that draws into the HDR scene (effects, portraits, tools).
+- Changing how the weather tints the sky, light and fog, or how the rain and its splashes draw.
 - Touching the boundary with the MonoGame Vulkan fork.
 
 ## Code map
@@ -40,6 +41,7 @@ sources are in [shaders.md](shaders.md); option fields in [client-settings.md](c
 | `Rendering/Lighting/` | Photometry and exposure, stage baked light and floor light field, shadow cascades, lamp shadows, light culling, transient lights, environment lighting, volumetric light, calibration spheres. |
 | `Rendering/Post/` | Post chain (`PristonPostProcessor`), auto exposure, bloom, colour grade, display transform CPU reference, GTAO/contact shadows, SSR, TAA, SMAA (`Smaa/` tables and credits), full-screen triangle. |
 | `Rendering/Sky/` | Sky manifest (layers per profile), sky model library, profile selection, the fog's sky capture. |
+| `Rendering/Weather/`, `PristonRenderer.Weather.cs` | `PristonWeather` (cloud, rain, flash, wind), the weather's sky, light and fog, `PristonRain` (GPU rain streaks and splashes) and `PristonRainOcclusion` (the surfaces rain stops on). |
 | `Rendering/GlowRenderer.cs`, `PristonUnlitEffect.cs`, `PristonVfxEffect.cs`, `PristonMeshEffect.cs` | Lamp coronas and the effect shaders other projects draw with. |
 | `Rendering/ClientSettings.cs`, `GraphicsOptions.cs`, `DistanceFogMode.cs`, `PresentationSettings.cs` | Options and the change event the renderer listens to. |
 | `Diagnostics/` | `PristonFrameProfiler` (CPU and GPU timestamps per `RenderSection`), `PristonStreamingStats`, `FrameTiming`, `FramePacer`, `IClientLog`. |
@@ -161,7 +163,7 @@ Described in Etervale's terms; readers keep every field, including padding, for 
 | - | (calibration) | `calibrationSpheres` | Grey and chrome sphere through the lit pass. |
 | 14 | `Glow` | always | Coronas of glow lights and glow-emitter props, scaled by the lamp factor. |
 | 15 | `Volumetric` | pre-pass, volumetric on, sun shadows on, sun up | March, accumulate, composite over the scene. |
-| - | effects | caller | Particles, VFX, mesh effects into the bound HDR scene. |
+| - | effects | caller | Rain (`PristonRain`), then particles, VFX, mesh effects into the bound HDR scene. |
 | 16 | `Temporal` | TAA | Resolve into history (`ComposeScene`). |
 | 17 | `Exposure` | auto exposure | Histogram and adaptation, no read-back. |
 | 18 | `Bloom` | bloom not `Off` | Six-level pyramid. |
@@ -233,6 +235,35 @@ All light is photometric (`Lighting/PristonPhotometry.cs`, `PristonDayNightCycle
 - **Foliage:** every cut-out outside the blended queue, including late-flagged leaves, is drawn opaque by the pre-pass
   with its own depth, motion and occlusion; the lit pass shades it at that depth. Two-sided lit cut-outs transmit 45 %
   of the sun from behind.
+
+## Weather
+
+`PristonRenderer.Weather` (`PristonWeather`: cloud and rain 0..1, the lightning flash 0..1, the wind) changes the frame
+(`PristonRenderer.Weather.cs`):
+
+- Sky: with half the sky clouded the sky shows the rain dome (`FIELD_BACKIMAGE_RAIN`, profile 7) at every hour, as
+  the original switched to it, cross-faded like any profile change (`SkyProfileNow`).
+- Light (`WeatherLight`, in `BuildFrameLighting`): full cloud keeps 12 % of the direct sun and 70 % of the sky light,
+  60 % of it turned grey; the exposure meters the scene 0.62 times as bright (and 0.85 of that in full rain) so the
+  weather darkens it; full rain lights the lamps at 0.6 at least; a flash adds 60000 lux of cold sky light the
+  exposure does not meter.
+- Fog (`WeatherFog`): full rain starts the distance fog at 35 % of its distance and makes it four times as dense.
+- `RainRadiance`: a drop's light, the sky light plus a quarter of the sun on a white surface, at least 0.07 of the
+  metered level.
+
+`PristonRain` draws between the opaque scene and the effects, testing the depth buffer without writing it:
+
+- Drops (`Rain.fx` `Drops`): a fixed buffer of 18000 near and 10000 far streaks with seeds; the shader places each in a
+  box 900 (near) or 2600 (far) units wide and 900 tall around a point 240 units ahead of the eye, falling at 0.8 to 1.2
+  times 850 units per second plus the wind, wrapping as the camera moves, so nothing moves on the CPU. The rain's share
+  of each layer is drawn. A streak spans 1/26 s of its velocity seen from the moving camera, at least 1.3 pixels wide at
+  1080 lines; a drop thinner than that (0.5 units) fades by the ratio, so far rain reads as a veil. The part of a
+  streak under the occlusion map's surface is discarded.
+- Occlusion (`PristonRainOcclusion`): the highest walkable surface of every 8-unit cell in 256 x 256 cells around the
+  player, from the loaded fields' collision, kept toroidally so a walk reads only the new rows (at most 4096 cells a
+  frame); uploaded to an R32F texture at most every 0.1 s while it changes.
+- Splashes (`Rain.fx` `Splashes`): up to 520 at full rain within 460 units of the player, on the map's surfaces (roofs
+  and ground), 0.3 s each: a spreading ring and a camera-facing spray.
 
 ## Shadows
 
@@ -354,6 +385,8 @@ All light is photometric (`Lighting/PristonPhotometry.cs`, `PristonDayNightCycle
 - Transient lights fill the first local-light slots; with `localLightLimit` 8 a fight can leave no stage lamps.
 - Texture cache keys include the full directory: the same file name in two directories is two textures.
 - Some comments in `Formats/` name functions of the original client; do not copy those names into new code or docs.
+- A tool that renders every frame into a new 1920x1080 render target (created and disposed each frame) loses the
+  Vulkan device after a few hundred frames; keep one target and reuse it, as `WeatherCaptureProbe` does.
 
 ## Related
 

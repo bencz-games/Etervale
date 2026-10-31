@@ -55,6 +55,8 @@ public sealed record ClientSettings
     public bool ClassicNamePlates { get; init; }
     // The level guide's notice on reaching a level it has a guide for (its On/Off switch in the guide window).
     public bool LevelGuide { get; init; } = true;
+    // The weather the server sends: clouds, rain, lightning and their sounds; off keeps the sky clear.
+    public bool WeatherEnabled { get; init; } = true;
     // Atmospheric fades distant geometry toward the captured sky up to a capped opacity; Classic is still accepted but
     // is drawn as Atmospheric; Off disables it.
     public DistanceFogMode DistanceFog { get; init; } = DistanceFogMode.Atmospheric;

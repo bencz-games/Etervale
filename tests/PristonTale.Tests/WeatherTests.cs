@@ -4,6 +4,10 @@ using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Protocol.Packets;
 using PristonTale.Simulation.World;
+using PristonTale.Engine3D.Physics;
+using PristonTale.Engine3D.Rendering.Weather;
+using PristonTale.Gameplay.Weather;
+using Xna = Microsoft.Xna.Framework;
 
 namespace PristonTale.Tests;
 
@@ -15,6 +19,9 @@ internal static class WeatherTests
         yield return ("dungeons, rooms, the ice fields and Bellatra never take rain", FieldsAsync);
         yield return ("a game master's /weather sets every open field's weather, a dungeon stays clear, and auto gives it back", GameMasterAsync);
         yield return ("the weather reaches the client once when it changes and its packet refuses an unknown kind", WireAsync);
+        yield return ("the client eases the clouds and the rain in and out, blows the wind its way and shows nothing with the setting off", PresentationAsync);
+        yield return ("a storm flashes every few seconds and thunders after each flash, nearer strikes louder; plain rain never does", LightningAsync);
+        yield return ("the rain stops on the highest surface of each cell, reading only the cells a moving centre uncovers", OcclusionAsync);
     }
 
     private static long At(long cycle, int minute) => (cycle * WeatherSchedule.DefaultCycleMinutes + minute) * WorldClock.MinuteMs;
@@ -97,5 +104,99 @@ internal static class WeatherTests
         Assert.True(Received(WeatherState.Clear) is null, "an unchanged weather was sent again");
         Assert.True(Received(storm) == storm, "the storm did not reach the client");
         return Task.CompletedTask;
+    }
+
+    private static Task PresentationAsync()
+    {
+        var rain = new WeatherState(WeatherKind.Rain, 204, 64, 255);
+        var weather = new WeatherPresentation(new Random(1));
+        weather.Update(rain, enabled: true, WeatherPresentation.RainSeconds / 2f);
+        Assert.True(weather.Rain is > 0.45f and < 0.55f && weather.Cloud is > 0.3f and < 0.4f,
+            $"the rain eased in to {weather.Rain} and the clouds to {weather.Cloud} in two seconds");
+        for (var second = 0; second < 10; second++)
+        {
+            weather.Update(rain, enabled: true, 1f);
+        }
+
+        Assert.True(weather.Cloud == 1f && MathF.Abs(weather.Rain - 0.8f) < 1e-4f, $"the rain settled at {weather.Rain}, the clouds at {weather.Cloud}");
+        Assert.True(weather.Wind.X > WeatherPresentation.MaxWind * 0.99f && MathF.Abs(weather.Wind.Y) < 1f, $"the wind toward +X blew {weather.Wind}");
+        weather.Update(rain, enabled: false, 1f);
+        Assert.True(weather.Rain < 0.8f && weather.Rain > 0.5f, "turning the setting off did not ease the rain out");
+        weather.Snap(rain, enabled: false);
+        Assert.True(weather.View == PristonWeather.Clear with { Wind = Xna.Vector2.Zero }, "the setting off still showed weather");
+        weather.Snap(WeatherState.Clear with { Kind = WeatherKind.Overcast }, enabled: true);
+        Assert.True(weather.Cloud == 1f && weather.Rain == 0f, "an overcast sky did not snap to full cloud without rain");
+        return Task.CompletedTask;
+    }
+
+    private static Task LightningAsync()
+    {
+        var weather = new WeatherPresentation(new Random(7));
+        var thunders = new List<float>();
+        weather.Thunder += thunders.Add;
+        var flashes = 0;
+        var flashing = false;
+        const float step = 1f / 60f;
+        for (var frame = 0; frame < 60 * 60; frame++)
+        {
+            weather.Update(new WeatherState(WeatherKind.Storm, 255, 0, 200), enabled: true, step);
+            flashes += weather.Flash > 0.3f && !flashing ? 1 : 0;
+            flashing = weather.Flash > 0.3f;
+        }
+
+        Assert.True(flashes is >= 60 / (int)WeatherPresentation.StrikeMaxSeconds and <= 60 / (int)WeatherPresentation.StrikeMinSeconds * 3,
+            $"a minute of storm flashed {flashes} times");
+        Assert.True(thunders.Count >= 60 / (int)WeatherPresentation.StrikeMaxSeconds && thunders.All(static volume => volume is >= 0.45f and <= 1f),
+            $"a minute of storm thundered {thunders.Count} times at {string.Join(", ", thunders)}");
+
+        var rain = new WeatherPresentation(new Random(7));
+        rain.Thunder += _ => Assert.True(false, "plain rain thundered");
+        for (var frame = 0; frame < 60 * 60; frame++)
+        {
+            rain.Update(new WeatherState(WeatherKind.Rain, 255, 0, 200), enabled: true, step);
+            Assert.True(rain.Flash == 0f, "plain rain flashed");
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static Task OcclusionAsync()
+    {
+        // A roof 100 units up over x in [0, 64), the ground at 0 elsewhere, nothing past x = 1500.
+        var stage = new CountingStage();
+        var map = new PristonRainOcclusion();
+        map.Reset(stage);
+        for (var frame = 0; frame < 16; frame++)
+        {
+            map.Update(Xna.Vector3.Zero);
+        }
+
+        Assert.True(map.Ready && stage.Reads == PristonRainOcclusion.Cells * PristonRainOcclusion.Cells, $"filling the map read {stage.Reads} cells");
+        Assert.True(map.HeightAt(30f, 10f) == 100f && map.HeightAt(-30f, 10f) == 0f && map.HeightAt(5000f, 0f) == PristonRainOcclusion.NoSurface,
+            "the map did not hold the roof, the ground and nothing outside it");
+        Assert.True(map.Sheltered(new Xna.Vector3(30f, 0f, 10f), 40f) && !map.Sheltered(new Xna.Vector3(-30f, 0f, 10f), 40f), "the roof did not shelter");
+        var before = stage.Reads;
+        map.Update(new Xna.Vector3(PristonRainOcclusion.CellSize * 3f, 0f, 0f));
+        Assert.True(stage.Reads - before == PristonRainOcclusion.Cells * 3, $"moving three cells read {stage.Reads - before} cells");
+        Assert.True(map.HeightAt(1500f, 0f) == PristonRainOcclusion.NoSurface, "a cell past the stage held a surface");
+        return Task.CompletedTask;
+    }
+
+    private sealed class CountingStage : IPristonCollisionQuery
+    {
+        public int Reads { get; private set; }
+
+        public bool TryGetFloorHeight(Xna.Vector3 position, float referenceHeight, float stepUp, out float height)
+        {
+            Reads++;
+            height = position.X is >= 0f and < 64f ? 100f : 0f;
+            return position.X < 1500f;
+        }
+
+        public bool TryTraceSegment(Xna.Vector3 start, Xna.Vector3 end, out Xna.Vector3 hitPoint, out Xna.Vector3 hitNormal)
+        {
+            (hitPoint, hitNormal) = (default, default);
+            return false;
+        }
     }
 }

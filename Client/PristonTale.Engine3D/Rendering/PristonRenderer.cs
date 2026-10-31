@@ -388,7 +388,7 @@ public sealed partial class PristonRenderer : IDisposable
         _lastDeltaSeconds = dt;
         _dayNight.Update(dt);
         TransientLights.Update(MathF.Max(0, dt));
-        var profile = SkyProfiles.Select(TimeOfDay);
+        var profile = SkyProfileNow;
         if (_skyProfile != profile)
         {
             _previousSkyProfile = _skyProfile;
@@ -586,10 +586,10 @@ public sealed partial class PristonRenderer : IDisposable
             sunShadowsEnabled ? _shadowMap : _textureLoader.White,
             sunShadowsEnabled,
             _lampFactor,
-            DistanceFog with
+            WeatherFog(DistanceFog with
             {
                 Color = skyRadiance, MaxOpacity = DistanceFog.MaxOpacity * FieldHaze, StartDistance = DistanceFog.StartDistance + FieldSightDistance
-            },
+            }),
             DebugView,
             Exposure: displayScale,
             EmissionScale: _exposure.EmissionScale,
@@ -653,7 +653,7 @@ public sealed partial class PristonRenderer : IDisposable
             _shaders.ApplyFrame(CreateSkyFrame(frame, skyView, skyProjection, skyPosition));
             _stateCache.SetDepthStencilState(DepthStencilState.None);
             skyBatchCount = DrawSkyLayers(
-                SkyProfiles.Select(TimeOfDay),
+                SkyProfileNow,
                 ref staticBatches,
                 ref dynamicBatches,
                 ref drawCalls,

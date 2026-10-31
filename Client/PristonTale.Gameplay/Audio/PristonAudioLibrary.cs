@@ -119,6 +119,10 @@ public sealed class PristonAudioLibrary : IDisposable
     public SoundEffect WhisperSound { get; private set; }
 
     public SoundEffect CraftFailureSound { get; private set; }
+
+    // The rain's loop and a lightning strike's thunder.
+    public SoundEffect RainSound { get; private set; }
+    public SoundEffect ThunderSound { get; private set; }
     public bool MusicEnabled { get; private set; } = true;
     public bool SoundEnabled { get; private set; } = true;
     public int AmbientCount => _ambients.Length;
@@ -151,6 +155,8 @@ public sealed class PristonAudioLibrary : IDisposable
             library.QuestFanfareSound = library.Load(assetRoot, "image/Sinimage/Sound/drink2.wav", byPath);
             library.WhisperSound = library.Load(assetRoot, "wav/Effects/event/hosound.wav", byPath);
             library.CraftFailureSound = library.Load(assetRoot, "image/Sinimage/Sound/sheltom-failure.wav", byPath);
+            library.RainSound = library.Load(assetRoot, "wav/rain01.wav", byPath);
+            library.ThunderSound = library.Load(assetRoot, "wav/thunder1.wav", byPath);
             foreach (var (code, path) in FieldMusicFiles)
             {
                 library._fieldMusic.Add(code, library.Load(assetRoot, path, byPath));

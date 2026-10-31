@@ -433,6 +433,7 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
         UpdateMonsterEffects((float)gameTime.ElapsedGameTime.TotalSeconds);
         UpdateCombatSounds();
         var frameDt = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        UpdateWeather(frameDt);
         if (_playerBody is not null)
         {
             _fieldAudio?.Update(_playerBody.Position, TimeOfDay, frameDt);
@@ -441,7 +442,7 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
         if (completedField is not null)
         {
             _fields.Add(completedField);
-            _groundLoot?.InvalidateFloor();
+            InvalidateGround();
         }
         _skillClockMs = gameTime.TotalGameTime.TotalMilliseconds;
         DrainPresence(frameDt);
@@ -547,6 +548,7 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
         if (_renderer != null && _camera != null)
         {
             _renderer.Draw(_camera);
+            DrawRain();
             DrawSkillEffects();
             _renderer.ComposeScene();
         }
@@ -575,6 +577,7 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
         _groundLoot?.Dispose();
         _looks?.Clear();
         _skillFx?.Dispose();
+        _rain?.Dispose();
         _renderer?.Dispose();
         _monsterFx?.Clear();
         _combatSounds?.Dispose();
