@@ -12,6 +12,8 @@ public sealed class FieldPreyView : IPreyView
     private readonly SpatialIndex _index = new();
     private readonly List<SpatialEntry> _query = new();
     private readonly List<PreyCandidate> _nearby = new();
+    // Hidden game masters: out of monsters' sight, still in the field for the spawner (rarely any).
+    private readonly List<Vector3> _hidden = new();
 
     public IReadOnlyList<PreyCandidate> Nearby(Vector3 position, float radius)
     {
@@ -27,8 +29,28 @@ public sealed class FieldPreyView : IPreyView
 
     public IReadOnlyList<PreyCandidate> Candidates => _candidates;
 
-    // Whether a player stands strictly inside the planar circle (the spawner's proximity test).
-    public bool AnyWithin(Vector3 position, float radius) => _index.AnyWithin(position, radius);
+    // Whether a player, a hidden game master too, stands strictly inside the planar circle (the spawner's proximity test):
+    // hiding takes a player out of monsters' sight, not out of the field, so the monsters around one neither leave nor
+    // spawn on top of them.
+    public bool AnyWithin(Vector3 position, float radius)
+    {
+        if (_index.AnyWithin(position, radius))
+        {
+            return true;
+        }
+
+        foreach (var hidden in _hidden)
+        {
+            var dx = hidden.X - position.X;
+            var dz = hidden.Z - position.Z;
+            if (dx * dx + dz * dz < radius * radius)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public bool TryGet(ulong entityId, out PreyCandidate prey) => _byId.TryGetValue(entityId, out prey);
 
@@ -40,11 +62,13 @@ public sealed class FieldPreyView : IPreyView
         _candidates.Clear();
         _byId.Clear();
         _index.Clear();
+        _hidden.Clear();
         foreach (var p in players)
         {
             // A hidden game master is invisible to monsters as well as to players.
             if (p.Hidden)
             {
+                _hidden.Add(p.Position);
                 continue;
             }
 

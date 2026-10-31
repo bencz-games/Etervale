@@ -40,6 +40,7 @@ internal static class GameMasterCommandTests
         yield return ("kick, kill, near, call and where act on the named player on the server", PlayerCommandsAsync);
         yield return ("a hidden game master leaves other players' views and monsters' sight, and shows again", HideAsync);
         yield return ("monster calls spawn on the server without drops below the highest level, and pets take the caller's side", MonstersAsync);
+        yield return ("a hidden game master's called monsters and pet stay and show to the caller", HiddenMonstersAsync);
         yield return ("event monsters, field reports, absorption and monster speech", MonsterDetailsAsync);
         yield return ("item commands drop rolled, perfect and specialized copies and gold, and gifts are stored before delivery", ItemsAsync);
         yield return ("experience, premium resets, force orb and premium reports", CharacterAsync);
@@ -214,6 +215,19 @@ internal static class GameMasterCommandTests
         var pet = ChatFixture.Latest(guide)!.Value.Entities.Single(entity => entity.Kind == EntityKind.Monster && entity.OwnerId == guide.Id);
         Assert.True(field.TryGetMonster(pet.EntityId, out var owned) && owned.Def.Brood == Simulation.World.Monsters.MonsterBrood.User && owned.Aggressive,
             "a pet does not take the caller's side");
+    }
+
+    private static async Task HiddenMonstersAsync()
+    {
+        var fixture = new ChatFixture();
+        var gm = await fixture.JoinAsync("Shade", 0, 0, GameMasterLevel.Guide);
+        await fixture.SayAsync(gm, "/hide");
+        await fixture.SayAsync(gm, "/monster Hopy 2");
+        await fixture.SayAsync(gm, "/mymonster Hopy");
+        fixture.Tick(40);
+        var seen = ChatFixture.Latest(gm)!.Value.Entities.Where(entity => entity.Kind == EntityKind.Monster).ToArray();
+        Assert.True(seen.Count(entity => entity.OwnerId == 0) == 3 && seen.Count(entity => entity.OwnerId == gm.Id) == 1,
+            $"a hidden game master saw {seen.Length} monsters of 3 called and a pet");
     }
 
     private static async Task MonsterDetailsAsync()

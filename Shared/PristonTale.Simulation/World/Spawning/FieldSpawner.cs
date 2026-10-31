@@ -208,6 +208,9 @@ public sealed class FieldSpawner
     private float IdleBudgetFor(MonsterDefinition def)
         => def.IsBoss ? _data.IdleDespawnMs * (float)_data.BossIdleDespawnFactor : _data.IdleDespawnMs;
 
+    // A monster placed outside the spawn points (a game master's call) leaves after the same idle time as a spawned one.
+    public void SeedIdleDespawn(MonsterInstance m) => SeedIdleDespawn(m, m.Def);
+
     private void SeedIdleDespawn(MonsterInstance m, MonsterDefinition def) => m.IdleDespawnMsLeft = IdleBudgetFor(def);
 
     private MonsterDefinition PickWeightedMonster()

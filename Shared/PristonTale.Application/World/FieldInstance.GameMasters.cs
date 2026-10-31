@@ -57,6 +57,7 @@ public sealed partial class FieldInstance
     {
         var monster = ((ISpawnSink)this).Spawn(definition, position, -1, _rng.NextUnit() * MathF.Tau);
         monster.DropsDisabled = !drops;
+        _spawner.SeedIdleDespawn(monster);
         return monster;
     }
 

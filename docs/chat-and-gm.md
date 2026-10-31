@@ -162,7 +162,10 @@ Commands match by exact, case-sensitive prefix in table order. Levels:
   server `/` and an item code drops that item; `gm.potion_monitor` (default on) enables `/get_potion`.
 - `/reload_settings` reads the settings table at once and lists the refused values; `/setting name` shows a row and its
   meaning, `/setting name value` writes it (refused when the value is not valid) and applies the table.
-- Hidden game masters are left out of other players' presence. Game masters have no special name colour.
+- Hidden game masters are left out of other players' presence and out of monsters' sight, but they still stand in the
+  field: the monsters around one (the ones they call too) do not leave as idle, and no spawn point near one spawns
+  (`FieldPreyView.AnyWithin`). A called monster leaves after the same idle time as a spawned one. Game masters have no
+  special name colour.
 
 ## How to
 
