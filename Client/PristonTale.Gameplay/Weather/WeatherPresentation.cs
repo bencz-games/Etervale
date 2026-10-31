@@ -21,7 +21,7 @@ public sealed class WeatherPresentation(Random random)
     public const float ThunderMaxDelay = 3f;
     // The flashes of a strike start this far apart and each dies away at this rate.
     private const float PulseSpacing = 0.11f;
-    private const float PulseDecay = 16f;
+    private const float PulseDecay = 8f;
 
     private readonly float[] _pulses = new float[3];
     private int _pulseCount;

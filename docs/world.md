@@ -382,7 +382,10 @@ it in `WorldJoined`; each tick it sets `FieldInstance.Night` for every field.
 game minutes (8192 by default, about 1 h 49 min) the sky clouds over after minute 512, rains from 60 minutes later until
 60 minutes before minute 932 (4 real minutes of rain), then clears. The original always rained the same; here each
 cycle's number draws its rain (`WeatherState`, Contracts): light, steady or heavy rain, or a storm (rain with lightning
-and thunder), with a wind heading and strength, so every restart agrees on it. Dungeons, rooms, the ice fields and
+and thunder), with a wind heading and strength, so every restart agrees on it. The rain does not fall evenly
+(`WeatherSchedule.Varied`): it starts at a third of the cycle's rain and swells to it over 30 game minutes, eases off
+over the last 30, and between them comes and goes in spells of 15 game minutes (60 % to all of it, eased from one
+spell's draw to the next), in steps of 8, so the server sends a new weather about once a spell. Dungeons, rooms, the ice fields and
 Bellatra never take rain (`WeatherSchedule.Rains`, set as `FieldInstance.Rains` when the field opens).
 
 Each tick `WorldServer` takes the weather (a game master's `/weather` while one is set, else the schedule while

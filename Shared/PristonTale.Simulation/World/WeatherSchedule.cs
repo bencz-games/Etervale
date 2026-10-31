@@ -5,7 +5,8 @@ namespace PristonTale.Simulation.World;
 // The original's rain on the world clock: in every cycle of 8192 game minutes (about 1 h 49 min) the sky clouds over at
 // minute 512, rains from 60 minutes later until 60 minutes before minute 932 (4 real minutes), then clears; never in a
 // dungeon, a room, an ice field or Bellatra. The original's rain was always the same; here each cycle's number draws its
-// rain (light, steady or heavy, or a storm) and its wind, so every server and client restart agrees on it.
+// rain (light, steady or heavy, or a storm) and its wind, and the rain swells, comes and goes and eases off as it
+// falls (Varied), so every server and client restart agrees on it.
 public static class WeatherSchedule
 {
     public const int DefaultCycleMinutes = 8192;
@@ -15,7 +16,12 @@ public static class WeatherSchedule
     // A cycle needs room for the cloudy spell.
     public const int MinimumCycleMinutes = CloudsMinute + CloudyMinutes + 1;
 
-    // Light, steady and heavy rain; a storm rains at the most.
+    // The rain swells and eases over this long, and comes and goes in spells this long (game minutes; 24 s and 12 s).
+    public const int RainSwellMinutes = 30;
+    public const int SpellMinutes = 15;
+    public const int DensityStep = 8;
+
+    // The cycle's rain at its fullest: light, steady or heavy; a storm rains at the most.
     public const byte LightRain = 96;
     public const byte SteadyRain = 160;
     public const byte HeavyRain = 224;
@@ -46,9 +52,27 @@ public static class WeatherSchedule
             _ => (WeatherKind.Storm, StormRain, 128 + (int)((draw >> 16) % 128))
         };
         return raining
-            ? new WeatherState(kind, intensity, heading, (byte)wind)
+            ? new WeatherState(kind, Varied(intensity, minutes, minute - CloudsMinute - RampMinutes, draw), heading, (byte)wind)
             : new WeatherState(WeatherKind.Overcast, 0, heading, (byte)(wind / 2));
     }
+
+    // The rain's density as it falls: it starts at a third of the cycle's rain and swells to it over RainSwellMinutes,
+    // eases off over the last RainSwellMinutes, and between them comes and goes in spells of SpellMinutes (from 60% to
+    // all of it, eased from one spell's draw to the next); in steps of DensityStep, so it changes about once a spell.
+    private static byte Varied(byte peak, long minutes, long sinceRain, ulong draw)
+    {
+        var rainMinutes = CloudyMinutes - 2 * RampMinutes;
+        var swell = MathF.Min(1f, MathF.Min(sinceRain, rainMinutes - sinceRain) / (float)RainSwellMinutes);
+        var spell = minutes / SpellMinutes;
+        var along = Smooth((minutes % SpellMinutes) / (float)SpellMinutes);
+        var spells = float.Lerp(Spell(draw, spell), Spell(draw, spell + 1), along);
+        var density = peak * float.Lerp(1f / 3f, 1f, swell) * float.Lerp(0.6f, 1f, spells);
+        return (byte)Math.Clamp(MathF.Round(density / DensityStep) * DensityStep, DensityStep, peak);
+    }
+
+    private static float Spell(ulong draw, long spell) => (Mix(draw ^ (ulong)spell) & 0xFFFF) / 65535f;
+
+    private static float Smooth(float t) => t * t * (3f - 2f * t);
 
     // SplitMix64's finaliser: one well-spread draw per cycle number.
     private static ulong Mix(ulong value)

@@ -5,23 +5,28 @@ using PristonTale.Engine3D.Rendering.Weather;
 namespace PristonTale.Engine3D.Rendering;
 
 // The weather's share of the frame (Weather): an overcast sky shows the rain dome at every hour, as the original
-// switched to it, the clouds take most of the direct sun, dim and grey the
-// sky light and darken the metered scene, rain thickens the distance fog and lights the town lamps, and a lightning
-// flash adds a burst of cold sky light the exposure does not follow.
+// switched to it; the gathering clouds veil the sun, thinner over a light rain (soft shadows still fall) and closing
+// in a downpour, dim and grey the sky light and darken the metered scene; rain thickens the distance fog and lights the town lamps, fully in
+// a downpour; a lightning flash lights the sky dome and adds a burst of cold sky light the exposure does not follow.
 public sealed partial class PristonRenderer
 {
-    // At full cloud: the direct sun kept, the sky light kept and its share turned grey, the scene's brightness against
-    // a clear sky (rain darkens it further), the lamps' least factor in full rain.
-    private const float OvercastSun = 0.12f;
+    // At full cloud: the sky light kept and its share turned grey, the scene's brightness against a clear sky (rain
+    // darkens it further), the lamps' least factor in full rain. The clouds' cover runs from OvercastCover without rain
+    // to all of the sky in full rain, and the direct sun falls with the clear share to the power SunVeil: a quarter
+    // through an overcast sky, an eighth through a light rain, nearly none in a downpour.
+    private const float OvercastCover = 0.6f;
+    private const float SunVeil = 1.5f;
     private const float OvercastSky = 0.7f;
     private const float OvercastGrey = 0.6f;
     private const float OvercastBrightness = 0.62f;
     private const float RainBrightness = 0.85f;
-    private const float RainLamps = 0.6f;
+    private const float RainLamps = 1f;
     // A full lightning flash adds this share of the metered illuminance as sky light (about twice a storm's light at
     // its peak, at any hour), in this colour.
     private const float FlashShare = 0.6f;
     private static readonly Vector3 FlashColour = new(0.82f, 0.88f, 1f);
+    // The sky dome at a full flash is this many times as bright.
+    private const float FlashSky = 3f;
     // In full rain the fog starts this share of its distance and grows this many times as dense.
     private const float RainFogStart = 0.35f;
     private const float RainFogDensity = 4f;
@@ -56,7 +61,7 @@ public sealed partial class PristonRenderer
             return (sun, sky, horizontal, horizontal, lamps);
         }
 
-        var sunScale = MathHelper.Lerp(1f, OvercastSun, cloud);
+        var sunScale = MathF.Pow(1f - cloud * MathHelper.Lerp(OvercastCover, 1f, rain), SunVeil);
         var skyScale = MathHelper.Lerp(1f, OvercastSky, cloud);
         var grey = new Vector3(PristonPhotometry.Luminance(sky));
         var litSky = Vector3.Lerp(sky, grey, OvercastGrey * cloud) * skyScale;
@@ -73,6 +78,9 @@ public sealed partial class PristonRenderer
         var total = PristonPhotometry.Luminance(sun) + PristonPhotometry.Luminance(sky);
         return total > 0f ? PristonPhotometry.Luminance(sun) / total : 0f;
     }
+
+    // How much brighter the sky dome draws this frame (1 without a flash).
+    private float SkyFlash => 1f + (FlashSky - 1f) * MathHelper.Clamp(Weather.Flash, 0f, 1f);
 
     private PristonDistanceFog WeatherFog(PristonDistanceFog fog)
     {

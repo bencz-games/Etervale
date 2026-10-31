@@ -243,10 +243,13 @@ All light is photometric (`Lighting/PristonPhotometry.cs`, `PristonDayNightCycle
 
 - Sky: with half the sky clouded the sky shows the rain dome (`FIELD_BACKIMAGE_RAIN`, profile 7) at every hour, as
   the original switched to it, cross-faded like any profile change (`SkyProfileNow`).
-- Light (`WeatherLight`, in `BuildFrameLighting`): full cloud keeps 12 % of the direct sun and 70 % of the sky light,
-  60 % of it turned grey; the exposure meters the scene 0.62 times as bright (and 0.85 of that in full rain) so the
-  weather darkens it; full rain lights the lamps at 0.6 at least; a full flash adds 0.6 of the metered illuminance as
-  cold sky light the exposure does not meter (about twice a storm's light at its peak, at any hour).
+- Light (`WeatherLight`, in `BuildFrameLighting`): the clouds cover 60 % of the sky without rain and all of it in full
+  rain, and the direct sun keeps the clear share to the power 1.5 (a quarter through an overcast sky, an eighth through
+  a light rain, so soft shadows still fall, nearly none in a downpour); full cloud keeps 70 % of the sky light, 60 % of
+  it turned grey; the exposure meters the scene 0.62 times as bright (and 0.85 of that in full rain) so the weather
+  darkens it; rain lights the lamps by its share, fully in a downpour; a full flash adds 0.6 of the metered
+  illuminance as cold sky light the exposure does not meter (about twice a storm's light at its peak, at any hour) and
+  draws the sky dome three times as bright (`SkyFlash`).
 - Fog (`WeatherFog`): full rain starts the distance fog at 35 % of its distance and makes it four times as dense.
 - `RainRadiance`: a drop's light, the sky light plus a quarter of the sun on a white surface, at least 0.07 of the
   metered level.

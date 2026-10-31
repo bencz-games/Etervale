@@ -15,7 +15,7 @@ internal static class WeatherTests
 {
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
-        yield return ("the rain follows the original's cycle of clouds, rain and clouds, and each cycle draws its own rain and wind", ScheduleAsync);
+        yield return ("the rain follows the original's cycle of clouds, rain and clouds; each cycle draws its own rain and wind, and the rain swells and comes and goes", ScheduleAsync);
         yield return ("dungeons, rooms, the ice fields and Bellatra never take rain", FieldsAsync);
         yield return ("a game master's /weather sets every open field's weather, a dungeon stays clear, and auto gives it back", GameMasterAsync);
         yield return ("the weather reaches the client once when it changes and its packet refuses an unknown kind", WireAsync);
@@ -35,20 +35,28 @@ internal static class WeatherTests
             "the sky was not clear at the cloudy spell's edges");
         Assert.True(WeatherSchedule.At(At(3, start + 1)).Kind == WeatherKind.Overcast && WeatherSchedule.At(At(3, start + ramp)).Kind == WeatherKind.Overcast
             && WeatherSchedule.At(At(3, end - ramp)).Kind == WeatherKind.Overcast, "the clouds did not come an hour before and after the rain");
-        var raining = WeatherSchedule.At(At(3, start + ramp + 1));
-        Assert.True(raining.Raining && raining.Intensity > 0 && WeatherSchedule.At(At(3, end - ramp - 1)) == raining
-            && WeatherSchedule.At(At(3, start + 1)).Intensity == 0, $"the rain in the cloudy spell was {raining}");
+        var first = WeatherSchedule.At(At(3, start + ramp + 1));
+        Assert.True(first.Raining && WeatherSchedule.At(At(3, start + 1)).Intensity == 0, $"the rain after the clouds was {first}");
 
-        var kinds = new HashSet<(WeatherKind, byte)>();
+        var kinds = new HashSet<WeatherKind>();
         for (var cycle = 0; cycle < 200; cycle++)
         {
-            var rain = WeatherSchedule.At(At(cycle, start + 200));
-            Assert.True(rain.Raining && rain == WeatherSchedule.At(At(cycle, start + 200)), $"cycle {cycle} did not rain the same at its middle");
-            kinds.Add((rain.Kind, rain.Intensity));
+            // The rain of a cycle keeps its kind and wind, starts lighter than it falls later and comes and goes.
+            var densities = new List<byte>();
+            for (var minute = start + ramp + 1; minute < end - ramp; minute++)
+            {
+                var rain = WeatherSchedule.At(At(cycle, minute));
+                Assert.True(rain.Raining && rain.Kind == WeatherSchedule.At(At(cycle, start + 200)).Kind
+                    && rain.WindHeading == WeatherSchedule.At(At(cycle, start + 200)).WindHeading, $"cycle {cycle} changed its rain at {minute}");
+                densities.Add(rain.Intensity);
+            }
+
+            kinds.Add(WeatherSchedule.At(At(cycle, start + 200)).Kind);
+            Assert.True(densities[0] < densities.Max() && densities.Max() <= WeatherSchedule.StormRain && densities.Min() >= WeatherSchedule.DensityStep
+                && densities.Distinct().Count() > 3, $"cycle {cycle} rained {string.Join(",", densities.Distinct())}");
         }
 
-        Assert.True(kinds.SetEquals([(WeatherKind.Rain, WeatherSchedule.LightRain), (WeatherKind.Rain, WeatherSchedule.SteadyRain),
-            (WeatherKind.Rain, WeatherSchedule.HeavyRain), (WeatherKind.Storm, WeatherSchedule.StormRain)]), "the cycles did not draw every rain");
+        Assert.True(kinds.SetEquals([WeatherKind.Rain, WeatherKind.Storm]), "the cycles did not draw both rain and storms");
         var shortCycle = WeatherSchedule.MinimumCycleMinutes;
         Assert.True(WeatherSchedule.At((shortCycle + start + ramp + 1) * (long)WorldClock.MinuteMs, shortCycle).Raining,
             "a shorter cycle did not rain in its second cycle");

@@ -665,7 +665,7 @@ public sealed partial class PristonRenderer : IDisposable
                 ref visibleStaticMeshDiagnostics);
         }
 
-        _sceneTargets.Fill(skyVisible, displayScale, skyRadiance);
+        _sceneTargets.Fill(skyVisible, displayScale / SkyFlash, skyRadiance * SkyFlash);
         Profiler.End(RenderSection.Sky);
 
         _stateCache.InvalidateDeviceState();
