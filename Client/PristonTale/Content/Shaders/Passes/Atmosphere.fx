@@ -23,7 +23,7 @@ cbuffer AtmosphereConstants : register(b0)
     float4 Flash;           // xyz toward the lightning, w its radiance
     float4 Target;          // xy target size, zw its inverse
     float4 CloudShadowArea; // x extent (km), y overcast grey without clouds (0..1), z unused, w 1 while clouds draw
-    float4 CloudMapSize;    // xy texels of the clouds' hemisphere, zw unused
+    float4 CloudMapSize;    // xy texels of the clouds' hemisphere, zw this frame's texel of each 2x2 block
 };
 
 Texture2D<float4> TransmittanceLut : register(t0);
@@ -47,6 +47,8 @@ SamplerState CloudNoiseSampler : register(s3) = sampler_state
     Texture = (CloudNoise); MinFilter = Linear; MagFilter = Linear; MipFilter = Point; AddressU = Wrap; AddressV = Wrap; AddressW = Wrap;
 };
 Texture2D<float4> CloudMap : register(t4);
+// This frame's marched texels of the clouds' hemisphere (PS_Clouds), half its width and height; read per texel.
+Texture2D<float4> CloudUpdate : register(t5);
 SamplerState CloudMapSampler : register(s4) = sampler_state
 {
     Texture = (CloudMap); MinFilter = Linear; MagFilter = Linear; MipFilter = Point; AddressU = Wrap; AddressV = Clamp;
@@ -76,7 +78,12 @@ static const float CloudCoverageTile = 60.0;
 static const float CloudExtinction = 40.0;
 static const float CloudFarthest = 60.0;
 static const int CloudSteps = 48;
-static const int CloudLightSteps = 5;
+static const int CloudLeastSteps = 12;
+static const float CloudStepKilometres = 0.25;
+static const int CloudLightSteps = 4;
+// The eroding detail fades out between these distances (km).
+static const float CloudDetailNear = 12.0;
+static const float CloudDetailFar = 30.0;
 // The clouds' own glow at night against the airglow's level.
 static const float NightCloudGlow = 10.0;
 // Cirrus at this altitude (km), a sheet the sky pass draws over the clouds' hemisphere.
@@ -358,7 +365,7 @@ float CoverageAt(float2 position)
 
 // Density (0..1) at a position whose height runs 0..1 through the layer: cumulus rounded below and rising with the
 // coverage, eroded by detail; a closing sky lays a stratus deck in the lower half of the layer.
-float CloudDensityAt(float3 position, float height, bool detail)
+float CloudDensityAt(float3 position, float height, float detail)
 {
     if (height <= 0.0 || height >= 1.0)
     {
@@ -377,12 +384,14 @@ float CloudDensityAt(float3 position, float height, bool detail)
     float fbm = shapeNoise.g * 0.625 + shapeNoise.b * 0.25 + shapeNoise.a * 0.125;
     float shape = CloudRemap(shapeNoise.r, fbm - 1.0, 1.0, 0.0, 1.0) * profile;
     float density = saturate(CloudRemap(shape, 1.0 - local, 1.0, 0.0, 1.0)) * local;
-    if (detail && density > 0.0)
+    // The eroding detail, by its weight: far clouds take none, as its fine cells would shimmer between the texels of a
+    // distant stretch of sky.
+    if (detail > 0.0 && density > 0.0)
     {
         float4 detailNoise = SmoothNoise(position / (CloudNoiseTile * 0.12));
         float erosion = detailNoise.g * 0.625 + detailNoise.b * 0.25 + detailNoise.a * 0.125;
         erosion = lerp(erosion, 1.0 - erosion, saturate(height * 4.0));
-        density = saturate(CloudRemap(density, erosion * 0.5, 1.0, 0.0, 1.0));
+        density = lerp(density, saturate(CloudRemap(density, erosion * 0.38, 1.0, 0.0, 1.0)), detail);
     }
 
     return max(density, stratus);
@@ -464,7 +473,7 @@ float CloudLightDepth(float3 position, float3 toLight)
         travelled += step;
         float3 p = position + toLight * (travelled - step * 0.5);
         float3 c = CloudPosition(p);
-        depth += CloudDensityAt(c, c.y / CloudThickness, false) * step;
+        depth += CloudDensityAt(c, c.y / CloudThickness, 0.0) * step;
         step *= 1.8;
     }
 
@@ -479,9 +488,16 @@ float3 SkyViewAt(float3 direction)
 // One texel of the clouds' hemisphere: rgb the light they send toward the viewer, a the share of the sky behind they
 // let through; blended with the last frame's by Clouds.z, the march jittered per frame and per texel so the blend
 // averages it out. Every texel renders every frame, so no texel lags its neighbours.
+// The march (Clouds) renders into a target of half the hemisphere's width and height: each fragment marches the texel of
+// its 2x2 block that this frame's phase (CloudMapSize.zw) names, so neighbouring fragments march neighbouring
+// directions and no lane idles. The merge (CloudMerge) blends those texels into the hemisphere's history; the other
+// three of each block keep their last value. A texel waits four frames at most, while the clouds drift far less than a
+// texel, so no block of stale texels shows.
 float4 PS_Clouds(FullscreenOut i) : SV_Target0
 {
-    float3 direction = CloudDirection(i.Uv);
+    int2 texel = int2(i.Position.xy) * 2 + int2(CloudMapSize.zw);
+    float2 uv = (texel + 0.5) / CloudMapSize.xy;
+    float3 direction = CloudDirection(uv);
     if (direction.y < 0.003 || Clouds.x <= 0.0)
     {
         return float4(0.0, 0.0, 0.0, 1.0);
@@ -490,8 +506,10 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
     float3 origin = ObserverPosition();
     float start = SphereExit(origin, direction, BottomRadius + CloudBottom);
     float end = min(SphereExit(origin, direction, BottomRadius + CloudBottom + CloudThickness), start + CloudFarthest);
-    float noise = frac(InterleavedGradientNoise(i.Position.xy) + Clouds.w * 0.618034);
-    float dt = (end - start) / CloudSteps;
+    float noise = frac(InterleavedGradientNoise(float2(texel)) + Clouds.w * 0.618034);
+    // Steps by the stretch of the layer crossed: a few straight up, all of them toward the horizon.
+    int steps = (int)clamp(ceil((end - start) / CloudStepKilometres), (float)CloudLeastSteps, (float)CloudSteps);
+    float dt = (end - start) / steps;
     // The dominant light of the hour lights the clouds; the sky's zenith and horizon give their ambient light.
     // The sun lights the clouds while it is up, the moon after it sets.
     bool moonLights = ToSun.y < -0.02;
@@ -503,12 +521,14 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
     float throughput = 1.0;
     float3 radiance = 0.0;
     [loop]
-    for (int s = 0; s < CloudSteps && throughput > 0.01; s++)
+    for (int s = 0; s < steps && throughput > 0.01; s++)
     {
-        float3 p = origin + direction * (start + (s + noise) * dt);
+        float travelled = start + (s + noise) * dt;
+        float3 p = origin + direction * travelled;
         float3 c = CloudPosition(p);
         float height = c.y / CloudThickness;
-        float density = CloudDensityAt(c, height, (s + noise) * dt < 40.0) * Clouds.y;
+        float detail = saturate((CloudDetailFar - travelled) / (CloudDetailFar - CloudDetailNear));
+        float density = CloudDensityAt(c, height, detail) * Clouds.y;
         if (density <= 0.0)
         {
             continue;
@@ -537,12 +557,23 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
 
     // Far clouds fade into the haze between them and the viewer; under a closing sky the deck goes on past the march,
     // so the haze takes the deck's grey instead of opening onto the sky.
-    float haze = exp(-start / 45.0);
+    float haze = exp(-start / 35.0);
     float closed = DeckClosure();
     float3 deck = (Luminance(lerp(horizon, zenith, 0.3)) * 0.6 / Clouds.y + Night.z * NightCloudGlow) * float3(0.92, 0.95, 1.0);
-    float4 current = float4(radiance * haze + deck * (1.0 - haze) * closed, lerp(1.0, throughput, haze) * (1.0 - (1.0 - haze) * closed));
-    float4 history = CloudMap.SampleLevel(CloudMapSampler, i.Uv, 0);
-    return lerp(history, current, Clouds.z);
+    return float4(radiance * haze + deck * (1.0 - haze) * closed, lerp(1.0, throughput, haze) * (1.0 - (1.0 - haze) * closed));
+}
+
+// This frame's marched texels blended into the hemisphere's history (Clouds.z: the share of the new value).
+float4 PS_CloudMerge(FullscreenOut i) : SV_Target0
+{
+    int2 texel = int2(i.Position.xy);
+    float4 history = CloudMap.Load(int3(texel, 0));
+    if (any((texel & 1) != int2(CloudMapSize.zw)))
+    {
+        return history;
+    }
+
+    return lerp(history, CloudUpdate.Load(int3(texel / 2, 0)), Clouds.z);
 }
 
 // The clouds' shadow on the ground: the transmittance toward the light of every texel of CloudShadowArea.x km around
@@ -562,7 +593,7 @@ float4 PS_CloudShadow(FullscreenOut i) : SV_Target0
     {
         float3 q = p + toLight * (enter + (s + 0.5) * dt);
         float3 c = CloudPosition(q);
-        depth += CloudDensityAt(c, c.y / CloudThickness, false) * dt;
+        depth += CloudDensityAt(c, c.y / CloudThickness, 0.0) * dt;
     }
 
     return float4(exp(-depth * CloudExtinction * Clouds.y * 0.5), 0.0, 0.0, 1.0);
@@ -787,5 +818,6 @@ technique Transmittance { pass P0 { VertexShader = compile vs_6_0 VS_Fullscreen(
 technique Multiple { pass P0 { VertexShader = compile vs_6_0 VS_Fullscreen(); PixelShader = compile ps_6_0 PS_Multiple(); } }
 technique SkyView { pass P0 { VertexShader = compile vs_6_0 VS_Fullscreen(); PixelShader = compile ps_6_0 PS_SkyView(); } }
 technique Clouds { pass P0 { VertexShader = compile vs_6_0 VS_Fullscreen(); PixelShader = compile ps_6_0 PS_Clouds(); } }
+technique CloudMerge { pass P0 { VertexShader = compile vs_6_0 VS_Fullscreen(); PixelShader = compile ps_6_0 PS_CloudMerge(); } }
 technique CloudShadow { pass P0 { VertexShader = compile vs_6_0 VS_Fullscreen(); PixelShader = compile ps_6_0 PS_CloudShadow(); } }
 technique Sky { pass P0 { VertexShader = compile vs_6_0 VS_Fullscreen(); PixelShader = compile ps_6_0 PS_Sky(); } }
