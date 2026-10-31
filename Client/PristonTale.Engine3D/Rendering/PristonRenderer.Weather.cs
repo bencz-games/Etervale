@@ -18,8 +18,9 @@ public sealed partial class PristonRenderer
     private const float OvercastBrightness = 0.62f;
     private const float RainBrightness = 0.85f;
     private const float RainLamps = 0.6f;
-    // Sky illuminance of a full lightning flash (lux) and its colour.
-    private const float FlashIlluminance = 60000f;
+    // A full lightning flash adds this share of the metered illuminance as sky light (about twice a storm's light at
+    // its peak, at any hour), in this colour.
+    private const float FlashShare = 0.6f;
     private static readonly Vector3 FlashColour = new(0.82f, 0.88f, 1f);
     // In full rain the fog starts this share of its distance and grows this many times as dense.
     private const float RainFogStart = 0.35f;
@@ -61,8 +62,9 @@ public sealed partial class PristonRenderer
         var litSky = Vector3.Lerp(sky, grey, OvercastGrey * cloud) * skyScale;
         var lit = horizontal * (sunScale * Share(sun, sky) + skyScale * (1f - Share(sun, sky)));
         var brightness = MathHelper.Lerp(1f, OvercastBrightness, cloud) * MathHelper.Lerp(1f, RainBrightness, rain);
-        var flash = MathHelper.Clamp(Weather.Flash, 0f, 1f) * FlashIlluminance;
-        return (sun * sunScale, litSky + FlashColour * flash, lit + flash, lit / brightness, MathF.Max(lamps, RainLamps * rain));
+        var metered = lit / brightness;
+        var flash = MathHelper.Clamp(Weather.Flash, 0f, 1f) * FlashShare * metered;
+        return (sun * sunScale, litSky + FlashColour * flash, lit + flash, metered, MathF.Max(lamps, RainLamps * rain));
     }
 
     // The sun's share of the horizontal illuminance.
