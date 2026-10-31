@@ -6,9 +6,10 @@ using PristonTale.Gameplay.World.Remote;
 namespace PristonTale.Gameplay.UI.Widgets;
 
 // Drop names over the scene: the name box 36 pixels above the drop's point, the text 9 pixels in at the HUD text size,
-// its capitals centred with room for descenders (HudPainter.NameBoxLineAt). Labels come nearest first; each keeps its spot unless it would cover a label already placed, and then rises
-// just above it, so a pile of drops reads as a column of names. Labels are moved by whole pixels, not snapped to a grid,
-// and come in an order kept from frame to frame, so the column follows the pile without reshuffling.
+// its capitals centred with room for descenders (HudPainter.NameBoxLineAt). Labels come nearest first; each keeps its
+// spot unless it would cover a label already placed, and then rises just above it, so a pile of drops reads as a column
+// of names. Labels are moved by whole pixels, not snapped to a grid, and come in an order kept from frame to frame, so
+// the column follows the pile without reshuffling.
 // A box that would leave the screen is not drawn. Labels draw before the monster and NPC names, which cover them; the
 // text is lavender, brighter under the cursor.
 public sealed class HudGroundLabels

@@ -227,8 +227,8 @@ public sealed class HudPainter : IDisposable
         return (_letterHeights.Value.Capitals * scale, _letterHeights.Value.Descent * scale);
     }
 
-    // One line of a name box at a scale: the capitals centred, with room for descenders plus padY on both sides. Pad is the
-    // room above the capitals; text for the line goes at its top + Pad - CapTop.
+    // One line of a name box at a scale: the capitals centred, with room for descenders plus padY on both sides. Pad is
+    // the room above the capitals; text for the line goes at its top + Pad - CapTop.
     public (int Line, int Pad) NameBoxLineAt(float scale, int padY)
     {
         var (capitals, descent) = LetterHeightsAt(scale);
