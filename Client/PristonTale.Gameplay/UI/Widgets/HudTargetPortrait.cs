@@ -46,7 +46,7 @@ public sealed class HudTargetPortrait : IDisposable
     private static readonly Vector3 RimColor = new(0.7f, 0.74f, 0.82f);
 
     private readonly GraphicsDevice _device;
-    private readonly RenderTargetBinding[] _previous = new RenderTargetBinding[1];
+    private readonly PristonBoundTargets _previous = new();
     private RenderTarget2D _target;
     private PristonPortraitAnchor _anchor;
     private ulong _anchorEntity;
@@ -145,12 +145,7 @@ public sealed class HudTargetPortrait : IDisposable
         var view = Matrix.CreateLookAt(camera.Position, camera.Target, camera.Up);
         var projection = PristonDepth.Perspective(camera.FieldOfView, camera.AspectRatio, camera.Near, camera.Far);
         var light = Lighting(camera);
-        var restore = _device.RenderTargetCount == 1;
-        if (restore)
-        {
-            _device.GetRenderTargets(_previous);
-        }
-
+        _previous.Save(_device);
         _device.SetRenderTarget(_target);
         try
         {
@@ -159,15 +154,8 @@ public sealed class HudTargetPortrait : IDisposable
         }
         finally
         {
-            if (restore)
-            {
-                _device.SetRenderTargets(_previous);
-                _previous[0] = default;
-            }
-            else
-            {
-                _device.SetRenderTarget(null);
-            }
+            _previous.Restore(_device);
+            _previous.Forget();
         }
 
         _drawnEntity = subject.EntityId;

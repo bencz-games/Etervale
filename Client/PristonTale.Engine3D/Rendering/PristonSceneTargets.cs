@@ -34,12 +34,11 @@ internal sealed class PristonSceneTargets : IDisposable
     private readonly EffectParameter _backgroundRadiance;
     private readonly PristonPostProcessor _post;
     private readonly PristonTemporalAntiAliasing _temporal;
-    private readonly RenderTargetBinding[] _callerTargets = new RenderTargetBinding[8];
+    private readonly PristonBoundTargets _callerTargets = new();
     private readonly RenderTargetBinding[] _temporalBinding = new RenderTargetBinding[2];
     private readonly RenderTargetBinding[] _prepassBinding = new RenderTargetBinding[3];
     private readonly RenderTargetBinding[] _prepassTemporalBinding = new RenderTargetBinding[4];
     private readonly Action _bindCaller;
-    private int _callerTargetCount;
     private Viewport _callerViewport;
     private RenderTarget2D _color;
     private RenderTarget2D _motion;
@@ -92,16 +91,11 @@ internal sealed class PristonSceneTargets : IDisposable
     // Binds the scene target in place of the caller's, at the caller's target size and viewport.
     public void Begin(int multiSampleCount, bool temporal, bool prepass = false)
     {
-        _callerTargetCount = _device.RenderTargetCount;
-        if (_callerTargetCount > 0)
-        {
-            _device.GetRenderTargets(_callerTargets);
-        }
-
+        _callerTargets.Save(_device);
         _callerViewport = _device.Viewport;
         int width;
         int height;
-        if (_callerTargetCount > 0 && _callerTargets[0].RenderTarget is Texture2D target)
+        if (_callerTargets.First is { } target)
         {
             width = target.Width;
             height = target.Height;
@@ -220,15 +214,7 @@ internal sealed class PristonSceneTargets : IDisposable
 
     private void BindCaller()
     {
-        if (_callerTargetCount == 0)
-        {
-            _device.SetRenderTarget(null);
-        }
-        else
-        {
-            _device.SetRenderTargets(_callerTargets[.._callerTargetCount]);
-        }
-
+        _callerTargets.Restore(_device);
         _device.Viewport = _callerViewport;
     }
 

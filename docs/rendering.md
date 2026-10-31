@@ -193,7 +193,9 @@ and lamps at full.
 | Post | bloom pyramid (6 levels from half resolution), 8-bit LDR target for FXAA/SMAA, SMAA edges/weights | |
 
 The caller's targets and viewport are captured in `PristonSceneTargets.Begin` and restored by `Compose`, so a scene can
-render into the back buffer or any 8-bit target (portraits, captures).
+render into the back buffer or any 8-bit target (portraits, captures). `PristonBoundTargets` saves and restores them,
+and also does so for the fog's sky capture and the target portrait, without allocating: the device copies exactly as
+many bindings as are bound (a Debug build asserts it), so it keeps one array for every count.
 
 ## Light model
 

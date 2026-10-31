@@ -26,7 +26,7 @@ internal sealed class PristonSkyCapture : IDisposable
 
     private readonly GraphicsDevice _device;
     private RenderTarget2D _target;
-    private RenderTargetBinding[] _restore;
+    private readonly PristonBoundTargets _restore = new();
     private CaptureKey _key;
     private bool _valid;
     private int _framesSinceRefresh;
@@ -82,8 +82,7 @@ internal sealed class PristonSkyCapture : IDisposable
     public void Begin(Color clearColour, uint renderTime)
     {
         _target ??= new RenderTarget2D(_device, TileSize * TileCount, TileSize, false, SurfaceFormat.Color, DepthFormat.None);
-        var bound = _device.RenderTargetCount;
-        _restore = bound == 0 ? null : _device.GetRenderTargets();
+        _restore.Save(_device);
         _device.SetRenderTarget(_target);
         _device.Clear(clearColour);
         _framesSinceRefresh = 0;
@@ -97,16 +96,8 @@ internal sealed class PristonSkyCapture : IDisposable
 
     public void End()
     {
-        if (_restore is null)
-        {
-            _device.SetRenderTarget(null);
-        }
-        else
-        {
-            _device.SetRenderTargets(_restore);
-        }
-
-        _restore = null;
+        _restore.Restore(_device);
+        _restore.Forget();
         _valid = true;
         Refreshes++;
     }
