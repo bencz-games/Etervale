@@ -436,7 +436,7 @@ public sealed partial class PristonRenderer : IDisposable
             actor.Advance(dt);
             if (!actor.Parent.IsValid)
             {
-                var (interval, onScreen) = PoseLevel(actor);
+                var (interval, onScreen) = PoseLevel(actor, slot);
                 // An actor coming into view shows its current pose at once.
                 var refresh = CrowdAnimationLod.Due(interval, _animationFrame, slot) || onScreen && !actor.WasOnScreen;
                 actor.WasOnScreen = onScreen;
@@ -466,14 +466,20 @@ public sealed partial class PristonRenderer : IDisposable
     // The root actors of the last animation update whose pose was sampled again, and those that kept theirs.
     public (int Posed, int Reused) LastAnimationCounts { get; private set; }
 
+    // The root actor the target frame's portrait shows: sampled every frame whatever its distance, since the portrait
+    // shows it close up.
+    public ActorHandle PortraitActor { get; set; } = ActorHandle.None;
+
     // The crowd level of detail of an actor, from the view of the last frame drawn (every frame before the first): its
-    // distance from the camera's focus, so what the player looks at stays at full rate whatever the zoom.
-    private (int Interval, bool OnScreen) PoseLevel(ActorRuntime actor)
+    // distance from the camera's focus, so what the player looks at stays at full rate whatever the zoom; the portrait's
+    // actor always at full rate.
+    private (int Interval, bool OnScreen) PoseLevel(ActorRuntime actor, int slot)
     {
         if (!_lodCameraKnown)
             return (1, true);
         var onScreen = !actor.HasWorldBounds || _lodFrustum.Intersects(actor.WorldBounds);
-        return (CrowdAnimationLod.Interval(Vector3.Distance(actor.World.Translation, _lodFocus), onScreen), onScreen);
+        var portrait = PortraitActor.Slot == slot && actor.Generation == PortraitActor.Generation;
+        return (CrowdAnimationLod.Interval(Vector3.Distance(actor.World.Translation, _lodFocus), onScreen, portrait), onScreen);
     }
 
     public void SetSceneAnimationFrame(float ticks)

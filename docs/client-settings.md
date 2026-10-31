@@ -171,7 +171,9 @@ High). Re-measure after renderer changes; see [testing.md](testing.md) for the b
 
 ## Debug keys (not saved)
 
-In the gameplay screen (`GameplayScreen.UpdateDebugKeys`): `Ctrl+F3` toggles the render statistics in the window title,
+Anywhere, `F9` shows or hides the diagnostics at the top left, as the original's debug display (`GameClient.Diagnostics`:
+the frame rate and timing and the screen's status); the window title stays "Etervale". In the gameplay screen
+(`GameplayScreen.UpdateDebugKeys`): `Ctrl+F3` adds the render statistics to those diagnostics,
 `Ctrl+F5` toggles the renderer's shadows, `Ctrl+F10` cycles `debugView`, `,` and `.` move the time of day by one hour,
 `P` pauses or resumes the day cycle. These change the live renderer only; the file keeps its values.
 

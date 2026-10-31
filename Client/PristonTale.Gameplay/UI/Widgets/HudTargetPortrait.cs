@@ -103,7 +103,13 @@ public sealed class HudTargetPortrait : IDisposable
         }
 
         var renderer = scene?.Renderer;
-        if (renderer is null || subject.EntityId == 0)
+        if (renderer is null)
+        {
+            return;
+        }
+
+        renderer.PortraitActor = ActorHandle.None;
+        if (subject.EntityId == 0)
         {
             return;
         }
@@ -116,6 +122,8 @@ public sealed class HudTargetPortrait : IDisposable
         }
 
         handles = handles[..Math.Min(count, MaxHandles)];
+        // Close up, the crowd's slower pose sampling of a far actor would show as a halting animation.
+        renderer.PortraitActor = handles[0];
         if (!_hasAnchor)
         {
             _hasAnchor = renderer.TryGetActorPortraitAnchor(handles[0], HeadBone, out _anchor);

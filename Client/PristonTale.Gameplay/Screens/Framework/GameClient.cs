@@ -90,6 +90,11 @@ public sealed class GameClient : IDisposable
 
     public bool HandleEscape() => _screen?.HandleEscape() == true;
 
+    // The diagnostics overlay (F9, as the original's debug display): the frame timing and the screen's status, drawn at
+    // the top left over everything.
+    public bool DiagnosticsShown { get; set; }
+    public string Diagnostics { get; set; } = string.Empty;
+
     // A character from the window's text input (the chat line reads it).
     public void TypeCharacter(char value) => _context?.TypedText.Push(value);
 
@@ -121,12 +126,26 @@ public sealed class GameClient : IDisposable
         {
             _screen?.Draw();
             _displayConfirmation?.Draw();
+            DrawDiagnostics();
             return;
         }
 
         _graphicsDevice.Clear(Color.Black);
         _spriteBatch.Begin();
         _spriteBatch.DrawString(_font, StatusText, new Vector2(24f, 24f), Color.White);
+        _spriteBatch.End();
+    }
+
+    private void DrawDiagnostics()
+    {
+        if (!DiagnosticsShown || Diagnostics.Length == 0)
+        {
+            return;
+        }
+
+        _spriteBatch.Begin();
+        _spriteBatch.DrawString(_font, Diagnostics, new Vector2(9f, 9f), Color.Black);
+        _spriteBatch.DrawString(_font, Diagnostics, new Vector2(8f, 8f), Color.White);
         _spriteBatch.End();
     }
 

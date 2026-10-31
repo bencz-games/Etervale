@@ -378,7 +378,8 @@ Renderer side of stage publication: [rendering.md](rendering.md).
 | `F1`-`F8` | `HudSkillBindings` | Select a skill shortcut; while pressing a skill in the tree, bind it ([skills.md](skills.md)) |
 | `Enter`, `Page Up`/`Page Down`, `Up`/`Down` | `HudChat.Update` | Open the chat input or send its line, scroll the chat, recall commands; while typing, HUD, binding, debug and motion keys and the `A` labels are suppressed |
 | `Esc` | `Game1` | Close the chat window first, then HUD panels, else quit |
-| `Ctrl+F3` / `Ctrl+F5` / `Ctrl+F10` | `GameplayScreen.UpdateDebugKeys` | Toggle render stats in the window title / toggle shadows / cycle `PristonDebugView` |
+| `F9` | `Game1.Update` | Show or hide the diagnostics overlay (frame rate and timing, the screen's status; `GameClient.Diagnostics`) |
+| `Ctrl+F3` / `Ctrl+F5` / `Ctrl+F10` | `GameplayScreen.UpdateDebugKeys` | Add the render stats to the F9 diagnostics / toggle shadows / cycle `PristonDebugView` |
 | `Ctrl+1`..`Ctrl+7` | `GameplayScreen.UpdateMotionKeys` | Force Stand, Walk, Run, Attack, Damage, Dead, Skill on the local avatar |
 
 `GameplayHud.PointerCaptured` (pointer over a HUD element or dragging, or any of the NPC and quest dialogs, message

@@ -10,7 +10,7 @@ internal static class CrowdAnimationLodTests
 {
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
-        yield return ("an actor samples its pose every frame near the camera, less often farther and off screen, each on its own frames", PolicyAsync);
+        yield return ("an actor samples its pose every frame near the camera or in the portrait, less often farther and off screen, each on its own frames", PolicyAsync);
         yield return ("a kept pose is a copy the animator cannot overwrite, sampled again for a new motion or a refresh that moved on", PoseAsync);
     }
 
@@ -22,6 +22,9 @@ internal static class CrowdAnimationLodTests
             && CrowdAnimationLod.Interval(0f, false) == 1
             && CrowdAnimationLod.Interval(CrowdAnimationLod.NearDistance + 1f, false) == CrowdAnimationLod.OffScreenInterval,
             "the intervals do not follow distance and visibility");
+        Assert.True(CrowdAnimationLod.Interval(CrowdAnimationLod.FarDistance * 3f, true, portrait: true) == 1
+            && CrowdAnimationLod.Interval(CrowdAnimationLod.FarDistance * 3f, false, portrait: true) == 1,
+            "the portrait's actor did not sample every frame far away");
 
         for (var interval = 1; interval <= CrowdAnimationLod.OffScreenInterval; interval++)
         {

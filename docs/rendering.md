@@ -102,7 +102,8 @@ Described in Etervale's terms; readers keep every field, including padding, for 
 - Crowd level of detail (`CrowdAnimationLod`): a root actor samples its skeleton again every frame within 400 units of
   the focus of the last frame drawn (on screen or not), every second frame to 900, every fourth beyond and every eighth
   off screen (its last world bounds outside the view), staggered by its slot; a new motion is sampled at once, an actor
-  coming into view at once, and its world moves the palette every frame. The palette's pose is a copy (`ActorPose`), so
+  coming into view at once, and its world moves the palette every frame; the target frame's portrait actor
+  (`PortraitActor`, set by `HudTargetPortrait`) samples every frame wherever it stands. The palette's pose is a copy (`ActorPose`), so
   bone queries and portraits evaluating into the animator's buffer never change what is drawn; an attached actor (a
   held weapon) hangs from that pose. The render statistics show the actors posed and the actors in the last update
   (`Pose n/m`, `LastAnimationCounts`). With 176 actors in Ricarten (`--benchmark-render` with a crowd of 150, GTX 1050
