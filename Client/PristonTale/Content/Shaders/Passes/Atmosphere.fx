@@ -379,10 +379,10 @@ float CloudDensityAt(float3 position, float height, bool detail)
     float density = saturate(CloudRemap(shape, 1.0 - local, 1.0, 0.0, 1.0)) * local;
     if (detail && density > 0.0)
     {
-        float4 detailNoise = SmoothNoise(position / (CloudNoiseTile * 0.18));
+        float4 detailNoise = SmoothNoise(position / (CloudNoiseTile * 0.12));
         float erosion = detailNoise.g * 0.625 + detailNoise.b * 0.25 + detailNoise.a * 0.125;
         erosion = lerp(erosion, 1.0 - erosion, saturate(height * 4.0));
-        density = saturate(CloudRemap(density, erosion * 0.35, 1.0, 0.0, 1.0));
+        density = saturate(CloudRemap(density, erosion * 0.5, 1.0, 0.0, 1.0));
     }
 
     return max(density, stratus);
@@ -406,28 +406,35 @@ float CloudPhase(float cosine)
     return lerp(HenyeyGreenstein(cosine, 0.8), HenyeyGreenstein(cosine, -0.3), 0.3);
 }
 
-// The clouds' hemisphere read through a cubic B-spline (four bilinear fetches): magnified several times on screen, a
-// bilinear read shows the texel grid as soft squares.
+// The clouds' hemisphere read through a Catmull-Rom spline (nine bilinear fetches): it passes through every texel, so
+// the clouds keep their edges, and bends smoothly between them, so the magnified texels show no grid.
 float4 SmoothClouds(float2 uv)
 {
     float2 size = CloudMapSize.xy;
     float2 p = uv * size - 0.5;
     float2 cell = floor(p);
     float2 f = p - cell;
-    float2 f2 = f * f;
-    float2 f3 = f2 * f;
-    float2 w0 = (1.0 - 3.0 * f + 3.0 * f2 - f3) / 6.0;
-    float2 w1 = (4.0 - 6.0 * f2 + 3.0 * f3) / 6.0;
-    float2 w2 = (1.0 + 3.0 * f + 3.0 * f2 - 3.0 * f3) / 6.0;
-    float2 w3 = f3 / 6.0;
-    float2 g0 = w0 + w1;
-    float2 g1 = w2 + w3;
-    float2 h0 = (cell - 0.5 + w1 / g0) / size;
-    float2 h1 = (cell + 1.5 + w3 / g1) / size;
-    return (CloudMap.SampleLevel(CloudMapSampler, float2(h0.x, h0.y), 0) * g0.x
-        + CloudMap.SampleLevel(CloudMapSampler, float2(h1.x, h0.y), 0) * g1.x) * g0.y
-        + (CloudMap.SampleLevel(CloudMapSampler, float2(h0.x, h1.y), 0) * g0.x
-        + CloudMap.SampleLevel(CloudMapSampler, float2(h1.x, h1.y), 0) * g1.x) * g1.y;
+    float2 w0 = f * (-0.5 + f * (1.0 - 0.5 * f));
+    float2 w1 = 1.0 + f * f * (-2.5 + 1.5 * f);
+    float2 w2 = f * (0.5 + f * (2.0 - 1.5 * f));
+    float2 w3 = f * f * (-0.5 + 0.5 * f);
+    float2 w12 = w1 + w2;
+    float2 offset12 = w2 / w12;
+    float2 t0 = (cell - 0.5) / size;
+    float2 t3 = (cell + 2.5) / size;
+    float2 t12 = (cell + 0.5 + offset12) / size;
+    float4 result = 0.0;
+    result += CloudMap.SampleLevel(CloudMapSampler, float2(t0.x, t0.y), 0) * w0.x * w0.y;
+    result += CloudMap.SampleLevel(CloudMapSampler, float2(t12.x, t0.y), 0) * w12.x * w0.y;
+    result += CloudMap.SampleLevel(CloudMapSampler, float2(t3.x, t0.y), 0) * w3.x * w0.y;
+    result += CloudMap.SampleLevel(CloudMapSampler, float2(t0.x, t12.y), 0) * w0.x * w12.y;
+    result += CloudMap.SampleLevel(CloudMapSampler, float2(t12.x, t12.y), 0) * w12.x * w12.y;
+    result += CloudMap.SampleLevel(CloudMapSampler, float2(t3.x, t12.y), 0) * w3.x * w12.y;
+    result += CloudMap.SampleLevel(CloudMapSampler, float2(t0.x, t3.y), 0) * w0.x * w3.y;
+    result += CloudMap.SampleLevel(CloudMapSampler, float2(t12.x, t3.y), 0) * w12.x * w3.y;
+    result += CloudMap.SampleLevel(CloudMapSampler, float2(t3.x, t3.y), 0) * w3.x * w3.y;
+    // The spline overshoots a little at sharp edges: keep the light non-negative and the transmittance in range.
+    return float4(max(result.rgb, 0.0), saturate(result.a));
 }
 
 // The clouds' hemisphere by azimuth (u, wrapping) and elevation (v: the square root of its share of a right angle, 0 at
@@ -501,7 +508,7 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
         float3 p = origin + direction * (start + (s + noise) * dt);
         float3 c = CloudPosition(p);
         float height = c.y / CloudThickness;
-        float density = CloudDensityAt(c, height, (s + noise) * dt < 25.0) * Clouds.y;
+        float density = CloudDensityAt(c, height, (s + noise) * dt < 40.0) * Clouds.y;
         if (density <= 0.0)
         {
             continue;

@@ -274,10 +274,10 @@ lighting take it as they took the domes.
   the sky's light; a strike lights the clouds from inside on its side of the sky (`PristonWeather.FlashAzimuth`, added
   as the sky draws, since the flash is too brief for the clouds' history). The clouds drift with a base wind plus the
   weather's and stay in place as the camera moves. Their hemisphere (azimuth by elevation, the elevation's square root
-  down the height, so the low sky holds most texels) renders every texel every frame at 768 x 192, 1024 x 256 or 1536 x
-  384, blended 10 % into the last frame's: the march's jitter averages over about ten frames, and moving and changing
-  clouds never leave blocks of older texels; the sky reads it through a cubic B-spline, so the magnified texels show no
-  grid. The sun lights the clouds by day and the moon by night, and at night they keep a glow of their own (the night
+  down the height, so the low sky holds most texels) renders every texel every frame at 1024 x 256, 1536 x 384 or 2048
+  x 512, blended 20 % into the last frame's: the march's jitter averages over about five frames, and moving and changing
+  clouds never leave blocks of older texels; the sky reads it through a Catmull-Rom spline, which keeps the clouds' edges
+  and shows no grid. The eroding detail (a 1.4 km tile) cuts the edges up to 40 km away. The sun lights the clouds by day and the moon by night, and at night they keep a glow of their own (the night
   sky's, the moon's and the town's), so a stormy night shows its deck; under a closing sky the far haze takes the deck's
   grey instead of opening onto the horizon. A cloud with a body hides the stars and the moon as it hides the sun. Off:
   an overcast sky turns a flat grey instead.

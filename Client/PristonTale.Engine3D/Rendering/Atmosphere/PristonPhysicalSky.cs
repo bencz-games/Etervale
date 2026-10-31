@@ -52,9 +52,9 @@ public sealed class PristonPhysicalSky : IDisposable
     // units, stands about 2 m tall).
     public const float CloudShadowExtent = 6f;
     public const float WorldUnitsPerKilometre = 25000f;
-    // The share of the last frame's clouds each frame keeps: the march's jitter averages over about ten frames, while
-    // the clouds drift far less than a texel in that time.
-    private const float CloudHistory = 0.9f;
+    // The share of the last frame's clouds each frame keeps: the march's jitter averages over about five frames without
+    // smearing the clouds' edges.
+    private const float CloudHistory = 0.8f;
 
     private readonly GraphicsDevice _device;
     private readonly PristonFullscreenTriangle _triangle;
@@ -117,9 +117,9 @@ public sealed class PristonPhysicalSky : IDisposable
         // The hemisphere's texels around the horizon (four times as many up to the zenith's share of the height).
         var size = inputs.Quality switch
         {
-            CloudQuality.Low => 768,
-            CloudQuality.Medium => 1024,
-            CloudQuality.High => 1536,
+            CloudQuality.Low => 1024,
+            CloudQuality.Medium => 1536,
+            CloudQuality.High => 2048,
             _ => 0
         };
         CloudsDrawn = size > 0 && inputs.Coverage > 0f;
