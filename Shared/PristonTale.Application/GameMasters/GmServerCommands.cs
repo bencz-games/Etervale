@@ -43,7 +43,7 @@ internal static class GmServerCommands
         WeatherState? weather = word switch
         {
             "clear" => WeatherState.Clear,
-            "overcast" => new WeatherState(WeatherKind.Overcast, 0, GmWindHeading, GmWind / 2),
+            "overcast" => new WeatherState(WeatherKind.Overcast, 0, GmWindHeading, WeatherSchedule.OvercastWind(GmWind)),
             "rain" => new WeatherState(WeatherKind.Rain, intensity, GmWindHeading, GmWind),
             "storm" => new WeatherState(WeatherKind.Storm, intensity, GmWindHeading, GmStormWind),
             _ => null

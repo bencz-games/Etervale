@@ -6,7 +6,6 @@
 // under a roof or the ground. Splashes: the CPU's quads on those surfaces, a ring that spreads and a spray that rises.
 // Both test the scene's depth buffer and do not write it.
 #include "../Core/Common.hlsli"
-#include "../Core/Color.hlsli"
 
 cbuffer RainVertexConstants : register(b0)
 {
@@ -23,10 +22,7 @@ cbuffer RainPixelConstants : register(b0)
 {
     float4 RainColor;        // rgb: radiance of a lit drop (pre-exposed scene units), a: a streak's opacity
     float4 Occlusion;        // xy: centre of the occlusion map, z: cell size, w: 1 while the map holds the field
-    float Exposure;          // the scene's exposure (display output only)
-    float DisplayOutput;     // 1: write display-referred sRGB into an 8-bit target; 0: HDR radiance
     float OcclusionCells;    // cells along a side of the occlusion map (a power of two)
-    float Unused;
 };
 
 // R32F heights, toroidal: cell (x, z) of the world at texel (x & (n-1), z & (n-1)); read per pixel, no sampler.
@@ -156,13 +152,7 @@ float SurfaceAt(float3 world)
 
 float4 Output(float3 rgb, float alpha)
 {
-    float3 radiance = min(RainColor.rgb * rgb, HdrCap);
-    if (DisplayOutput > 0.5)
-    {
-        return float4(DisplayEncode(radiance, Exposure), alpha);
-    }
-
-    return float4(radiance, alpha);
+    return float4(min(RainColor.rgb * rgb, HdrCap), alpha);
 }
 
 float4 PS_Drop(RainOut i) : SV_Target0

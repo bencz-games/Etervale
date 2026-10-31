@@ -1,7 +1,7 @@
 namespace PristonTale.Engine3D.Rendering;
 
-// The physical sky's volumetric clouds: off (an overcast sky turns grey instead), or their hemisphere rendered at 256,
-// 384 or 512 texels a side every frame.
+// The physical sky's volumetric clouds: off (an overcast sky turns grey instead), or their hemisphere at 768 x 192,
+// 1024 x 256 or 1536 x 384 texels, a quarter of them marched each frame (PristonPhysicalSky).
 public enum CloudQuality
 {
     Off,

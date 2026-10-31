@@ -58,8 +58,10 @@ public sealed class PristonRain : IDisposable
     public const float SplashSeconds = 0.3f;
     private const float RingSize = 4.5f;
     private const float SpraySize = 2.6f;
-    // The drop clock starts over after this many seconds, so float precision holds in the wrap.
-    private const float ClockPeriod = 1200f;
+    // The drop clock runs from the rain's start and starts over after this many seconds, so float precision holds in
+    // the wrap (a quarter of a unit at its end). Its drops jump once then, which only an hour of rain without a pause
+    // shows: the schedule's rain lasts minutes and the clock restarts at each.
+    private const float ClockPeriod = 3600f;
     private const float CameraVelocitySmoothing = 10f;
     private const int Layers = 2;
     // Seconds between two uploads of the occlusion map while its cells change.
@@ -129,8 +131,6 @@ public sealed class PristonRain : IDisposable
 
     public PristonRainOcclusion Occlusion { get; }
 
-    public bool DisplayOutput { get; set; }
-
     // Before the frame's draw: the occlusion map read and uploaded around the player, the splashes aged and landed and
     // the drop clock moved, for the eye's position, the seconds since the last update and the rain (0..1).
     public void Update(Vector3 eye, Vector3 focus, float seconds, float rain)
@@ -175,8 +175,6 @@ public sealed class PristonRain : IDisposable
         parameters["Occlusion"].SetValue(new Vector4(Occlusion.Centre, PristonRainOcclusion.CellSize, Occlusion.Ready ? 1f : 0f));
         parameters["OcclusionCells"].SetValue((float)PristonRainOcclusion.Cells);
         parameters["OcclusionMap"].SetValue(_occlusionMap);
-        parameters["Exposure"].SetValue(PristonUnlitEffect.SceneExposure);
-        parameters["DisplayOutput"].SetValue(DisplayOutput ? 1f : 0f);
 
         _device.DepthStencilState = PristonDepth.Read;
         _device.RasterizerState = RasterizerState.CullNone;
@@ -219,7 +217,8 @@ public sealed class PristonRain : IDisposable
         _hasCamera = true;
     }
 
-    // Splashes age and new ones land at random points of the disc around the player, on the surface the map holds there.
+    // Splashes age and new ones land at random points of the disc around the player, on the surface the map holds
+    // there.
     private void StepSplashes(Vector3 focus, float seconds, float rain)
     {
         for (var index = 0; index < _liveCount;)

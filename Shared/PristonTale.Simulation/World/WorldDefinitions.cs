@@ -138,6 +138,11 @@ public sealed record FieldDef(
     // The morning mist's strength (1 a forest's; null: a forest's for a forest, none elsewhere); the client lays it
     // from 4:30 to 9:00.
     public float? MorningMist { get; init; }
+
+    public float MorningMistStrength => MorningMist ?? (State == FieldState.Forest ? 1f : 0f);
+
+    // The ice fields show the aurora at night.
+    public bool ShowsAurora => State == FieldState.Ice;
     public int SightCells { get; init; }
     public int LimitLevel { get; init; }
 

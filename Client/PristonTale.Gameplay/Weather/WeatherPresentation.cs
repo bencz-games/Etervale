@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Contracts.World;
 using PristonTale.Engine3D.Rendering.Weather;
+using PristonTale.Simulation.World;
 
 namespace PristonTale.Gameplay.Weather;
 
@@ -10,8 +11,8 @@ namespace PristonTale.Gameplay.Weather;
 // quiet and fierce spells (ActivitySpellSeconds), the time to the next strike is drawn from an exponential law around
 // MeanStrikeSeconds over the activity, and a strike often brings another soon after (FollowUpChance). Most strikes are
 // far off: a faint flash and a late, low rumble, or none at all for the farthest; a few are near, bright and loud at
-// once. Each flickers in one to four flashes at uneven intervals. Thunder hears each strike's volume. Under a light rain
-// the clouds now and then break over the sun for a while (SunBreak), the light and the rainbow a sunshower brings.
+// once. Each flickers in one to four flashes at uneven intervals. Thunder hears each strike's volume. Under a light
+// rain the clouds now and then break over the sun for a while (SunBreak), the light and the rainbow a sunshower brings.
 public sealed class WeatherPresentation(Random random)
 {
     public const float CloudSeconds = 6f;
@@ -33,9 +34,8 @@ public sealed class WeatherPresentation(Random random)
     public const float ThunderMinDelay = 0.2f;
     public const float ThunderMaxDelay = 6f;
     public const float LeastThunder = 0.18f;
-    // A sunshower: the densest rain whose clouds break, how often and how long a spell lasts, and how long a break takes
-    // to open or close.
-    public const byte LightRainMost = 110;
+    // A sunshower: the densest rain whose clouds break, how often and how long a spell lasts, and how long a break
+    // takes to open or close.
     public const float BreakChance = 0.4f;
     public const float BreakMinSeconds = 20f;
     public const float BreakMaxSeconds = 60f;
@@ -95,7 +95,7 @@ public sealed class WeatherPresentation(Random random)
     // the break opening and closing over BreakSeconds; no other weather breaks.
     private void UpdateSunBreaks(WeatherState weather, float seconds)
     {
-        var light = weather.Raining && weather.Intensity <= LightRainMost;
+        var light = weather.Raining && weather.Intensity <= WeatherSchedule.LightRainMost;
         if ((_untilBreak -= seconds) <= 0f)
         {
             _untilBreak = Between(BreakMinSeconds, BreakMaxSeconds);

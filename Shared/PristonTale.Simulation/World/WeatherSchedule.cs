@@ -4,8 +4,8 @@ namespace PristonTale.Simulation.World;
 
 // The original's rain on the world clock: in every cycle of 8192 game minutes (about 1 h 49 min) the sky clouds over at
 // minute 512, rains from 60 minutes later until 60 minutes before minute 932 (4 real minutes), then clears; never in a
-// dungeon, a room, an ice field or Bellatra. The original's rain was always the same; here each cycle's number draws its
-// rain (light, steady or heavy, or a storm) and its wind, and the rain swells, comes and goes and eases off as it
+// dungeon, a room, an ice field or Bellatra. The original's rain was always the same; here each cycle's number draws
+// its rain (light, steady or heavy, or a storm) and its wind, and the rain swells, comes and goes and eases off as it
 // falls (Varied), so every server and client restart agrees on it.
 public static class WeatherSchedule
 {
@@ -26,6 +26,8 @@ public static class WeatherSchedule
     public const byte SteadyRain = 160;
     public const byte HeavyRain = 224;
     public const byte StormRain = 255;
+    // The densest rain that is light: halfway from a light rain to a steady one.
+    public const byte LightRainMost = (LightRain + SteadyRain) / 2;
 
     public static bool Rains(FieldDef field) =>
         field.State is not (FieldState.Dungeon or FieldState.Room or FieldState.Ice) && field.FieldCode != FieldCodes.Bellatra;
@@ -53,7 +55,7 @@ public static class WeatherSchedule
         };
         return raining
             ? new WeatherState(kind, Varied(intensity, minutes, minute - CloudsMinute - RampMinutes, draw), heading, (byte)wind)
-            : new WeatherState(WeatherKind.Overcast, 0, heading, (byte)(wind / 2));
+            : new WeatherState(WeatherKind.Overcast, 0, heading, OvercastWind(wind));
     }
 
     // The rain's density as it falls: it starts at a third of the cycle's rain and swells to it over RainSwellMinutes,
@@ -73,6 +75,9 @@ public static class WeatherSchedule
     private static float Spell(ulong draw, long spell) => (Mix(draw ^ (ulong)spell) & 0xFFFF) / 65535f;
 
     private static float Smooth(float t) => t * t * (3f - 2f * t);
+
+    // The clouds before and after a rain blow at half its wind.
+    public static byte OvercastWind(int rainWind) => (byte)(rainWind / 2);
 
     // SplitMix64's finaliser: one well-spread draw per cycle number.
     private static ulong Mix(ulong value)

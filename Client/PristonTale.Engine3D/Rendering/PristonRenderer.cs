@@ -471,8 +471,8 @@ public sealed partial class PristonRenderer : IDisposable
     public ActorHandle PortraitActor { get; set; } = ActorHandle.None;
 
     // The crowd level of detail of an actor, from the view of the last frame drawn (every frame before the first): its
-    // distance from the camera's focus, so what the player looks at stays at full rate whatever the zoom; the portrait's
-    // actor always at full rate.
+    // distance from the camera's focus, so what the player looks at stays at full rate whatever the zoom; the
+    // portrait's actor always at full rate.
     private (int Interval, bool OnScreen) PoseLevel(ActorRuntime actor, int slot)
     {
         if (!_lodCameraKnown)

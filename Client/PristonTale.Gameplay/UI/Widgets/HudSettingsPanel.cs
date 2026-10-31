@@ -13,6 +13,7 @@ internal sealed class HudSettingsPanel
     public const int SizeW = 9;
     public const int SizeH = 14;
     private const int RowHeight = 17;
+    private const int CloudQualities = (int)CloudQuality.High + 1;
 
     private static readonly int[] FrameLimits = [0, 30, 60, 90, 120, 144, 165, 240, 360];
     private static readonly int[] ShadowSizes = [1024, 2048, 4096, 8192];
@@ -66,7 +67,7 @@ internal sealed class HudSettingsPanel
                 15 => current with { ClassicNamePlates = !current.ClassicNamePlates },
                 16 => current with { WeatherEnabled = !current.WeatherEnabled },
                 17 => current with { RealisticSky = !current.RealisticSky },
-                18 => current with { Quality = GraphicsQuality.Custom, CloudQuality = (CloudQuality)(((int)current.CloudQuality + direction + 4) % 4) },
+                18 => current with { Quality = GraphicsQuality.Custom, CloudQuality = (CloudQuality)(((int)current.CloudQuality + direction + CloudQualities) % CloudQualities) },
                 _ => current
             };
             return;

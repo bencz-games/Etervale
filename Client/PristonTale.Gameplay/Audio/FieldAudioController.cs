@@ -68,8 +68,8 @@ public sealed class FieldAudioController : IDisposable
         UpdatePositionalAmbience(listenerPosition, seconds);
     }
 
-    // The weather's sound, before Update: the rain's loop by the rain, softer under a roof, and the field ambience fading
-    // as the clouds gather, as the original stopped it under its clouds and its rain.
+    // The weather's sound, before Update: the rain's loop by the rain, softer under a roof, and the field ambience
+    // fading as the clouds gather, as the original stopped it under its clouds and its rain.
     public void UpdateWeather(float cloud, float rain, bool sheltered, float seconds)
     {
         _ambienceScale = 1f - MathHelper.Clamp(cloud, 0f, 1f);

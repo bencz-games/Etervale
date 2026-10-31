@@ -4,10 +4,12 @@ using PristonTale.Engine3D.Rendering.Weather;
 
 namespace PristonTale.Engine3D.Rendering;
 
-// The weather's share of the frame (Weather): an overcast sky shows the rain dome at every hour, as the original
-// switched to it; the gathering clouds hide the sun (an overcast sky and its rain light the scene only from the sky,
-// diffuse and without shadows, save the brief breaks a light rain opens), dim and grey the sky light and darken the
-// metered scene; rain thickens the distance fog and lights the town lamps, fully in a downpour; a lightning flash lights the sky dome and adds a burst of cold sky light the exposure does not follow.
+// The weather's share of the frame (Weather): with the classic sky an overcast sky shows the rain dome at every hour,
+// as the original switched to it (the realistic sky draws the clouds instead); the gathering clouds hide the sun (an
+// overcast sky and its rain light the scene only from the sky, diffuse and without shadows, save the brief breaks a
+// light rain opens), dim and grey the sky light and darken the metered scene; rain thickens the distance fog and lights
+// the town lamps, fully in a downpour; a lightning flash lights the sky dome and adds a burst of cold sky light the
+// exposure does not follow.
 public sealed partial class PristonRenderer
 {
     // At full cloud: the sky light kept and its share turned grey, the scene's brightness against a clear sky (rain
@@ -27,8 +29,8 @@ public sealed partial class PristonRenderer
     // The sky dome at a full flash is this many times as bright.
     private const float FlashSky = 3f;
     // In full rain the fog starts this share of its distance and grows this many times as dense; a mist of strength 1
-    // at its thickest brings it to 1 / (1 + MistFogNear) of its distance, makes it 1 + MistFogDensity times as dense and
-    // the volumetric light's medium 1 + MistShafts times, so the low morning sun draws shafts through it.
+    // at its thickest brings it to 1 / (1 + MistFogNear) of its distance, makes it 1 + MistFogDensity times as dense
+    // and the volumetric light's medium 1 + MistShafts times, so the low morning sun draws shafts through it.
     private const float MistFogNear = 3f;
     private const float MistFogDensity = 3f;
     private const float MistShafts = 6f;

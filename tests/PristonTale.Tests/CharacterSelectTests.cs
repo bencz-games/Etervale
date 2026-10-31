@@ -20,7 +20,7 @@ internal static class CharacterSelectTests
         yield return ("character-select roster and class positions preserve the original ordering", OriginalPlacementAsync);
         yield return ("character-select face layout scales the authored canvas uniformly", FaceLayoutAsync);
         yield return ("Assassin and Shaman use the original creation definitions", ExtendedClassDefinitionsAsync);
-        yield return ("the login and name boxes take the window's typed text, so a held Backspace or key repeats", TypedTextAsync);
+        yield return ("a text box takes the window's typed text, so a held Backspace or key repeats, and only while focused", TypedTextAsync);
     }
 
     private static Task TypedTextAsync()

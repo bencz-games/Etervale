@@ -9,11 +9,9 @@ namespace PristonTale.Engine3D.Rendering;
 // (Aurora) at night. The domes stay the classic sky.
 public sealed partial class PristonRenderer
 {
-    // The sun's illuminance outside the atmosphere and a full moon's (lux); the sky's brightness against the painted
-    // domes it replaces.
+    // The sun's illuminance outside the atmosphere and a full moon's (lux).
     private const float SolarIlluminance = 120000f;
     private const float MoonIlluminance = 0.3f;
-    private const float SkyBrightness = 1f;
     // The night's sights at full dark, display-referred: the brightest stars, the airglow, the aurora, the moon's disc
     // (and its faint day disc).
     private const float StarLevel = 0.9f;
@@ -22,18 +20,29 @@ public sealed partial class PristonRenderer
     private const float MoonDayLevel = 0.12f;
     private const float MoonNightLevel = 1.1f;
     private const float FlashCloudLevel = 4f;
+    // The night's sights fade in as the sun sinks from NightBeginsDegrees to NightBeginsDegrees + NightFadeDegrees
+    // below the horizon; a strike lights the clouds from this sine of elevation.
+    private const float NightBeginsDegrees = 2f;
+    private const float NightFadeDegrees = 10f;
+    private const float FlashElevation = 0.35f;
+    // The cirrus's share of a clear sky, the rain clouds' extra density in full rain, and how far an overcast sky turns
+    // grey without drawn clouds.
+    private const float ClearCirrus = 0.5f;
+    private const float RainCloudDensity = 1.5f;
+    private const float OvercastSkyGrey = 0.85f;
     // The fair sky's share under cumulus, the share as the weather clouds over, and the clouds' drift (km per second)
     // with the strongest weather wind's share of it per world unit per second.
     private const float FairCloudCover = 0.3f;
     private const float OvercastCloudCover = 0.95f;
     private static readonly Vector2 CloudWind = new(0.012f, 0.004f);
     private const float CloudWindPerUnit = 0.00012f;
-    private const float CloudFieldTile = 60f;
     // Rain closes this share of the clear sky left; the stratus deck fills the rest, so the clouds keep their shape.
     private const float RainClosing = 0.6f;
 
-    // The covered share of the visible sky for the coverage parameter in steps of 0.05 (low views cross many km of the
-    // layer, so the visible sky fills faster than the layer itself).
+    // The covered share of the visible sky for the coverage parameter in steps of CoverageStep, measured over
+    // Atmosphere.fx's CoverageAt and CloudDensityAt (low views cross many km of the layer, so the visible sky fills
+    // faster than the layer itself).
+    private const float CoverageStep = 0.05f;
     private static readonly float[] SkyShareOfCoverage = [0f, 0.004f, 0.017f, 0.045f, 0.102f, 0.187f, 0.358f, 0.539f, 0.679f, 0.78f, 0.87f,
         0.939f, 0.976f, 0.99f, 0.997f, 1f];
 
@@ -57,7 +66,7 @@ public sealed partial class PristonRenderer
     private void DriftClouds(float seconds)
     {
         var drift = CloudWind + Weather.Wind * CloudWindPerUnit;
-        _cloudDrift = new Vector2((_cloudDrift.X + drift.X * seconds) % CloudFieldTile, (_cloudDrift.Y + drift.Y * seconds) % CloudFieldTile);
+        _cloudDrift = new Vector2(Wrap(_cloudDrift.X + drift.X * seconds), Wrap(_cloudDrift.Y + drift.Y * seconds));
     }
 
     // Before the frame's sky draws: the tables, clouds and cloud shadow of this frame's lights and weather.
@@ -69,7 +78,7 @@ public sealed partial class PristonRenderer
         }
 
         var pre = _exposure.PreExposure;
-        var night = MathHelper.Clamp((-MathHelper.ToDegrees(_sunElevation) - 2f) / 10f, 0f, 1f);
+        var night = MathHelper.Clamp((-MathHelper.ToDegrees(_sunElevation) - NightBeginsDegrees) / NightFadeDegrees, 0f, 1f);
         var phase = MoonPhase * MathF.Tau;
         var towardMoon = PristonDayNightCycle.TowardMoon;
         var side = Vector3.Normalize(Vector3.Cross(Vector3.Up, towardMoon));
@@ -79,9 +88,9 @@ public sealed partial class PristonRenderer
         var flashAngle = Weather.FlashAzimuth;
         var inputs = new PristonSkyInputs(
             _towardSun,
-            SolarIlluminance * pre * SkyBrightness,
+            SolarIlluminance * pre,
             towardMoon,
-            MoonIlluminance * fullness * pre * SkyBrightness,
+            MoonIlluminance * fullness * pre,
             towardMoon * MathF.Cos(phase) + side * MathF.Sin(phase),
             MathHelper.Lerp(MoonDayLevel, MoonNightLevel, night) / displayScale,
             night * night * StarLevel / displayScale,
@@ -89,20 +98,20 @@ public sealed partial class PristonRenderer
             night * AirglowLevel / displayScale,
             Aurora ? night * AuroraLevel / displayScale : 0f,
             RainbowStrength(cloud, rain, _sunElevation, Weather.SunBreak),
-            0.5f * (1f - cloud),
+            ClearCirrus * (1f - cloud),
             _renderTime / 1000f,
             displayScale,
             CloudCoverage(cloud, rain),
-            1f + 1.5f * rain,
-            cloud * 0.85f,
+            1f + RainCloudDensity * rain,
+            cloud * OvercastSkyGrey,
             new Vector2(Wrap(_cloudDrift.X + camera.X / PristonPhysicalSky.WorldUnitsPerKilometre),
                 Wrap(_cloudDrift.Y + camera.Z / PristonPhysicalSky.WorldUnitsPerKilometre)),
-            Vector3.Normalize(new Vector3(MathF.Sin(flashAngle), 0.35f, MathF.Cos(flashAngle))),
+            Vector3.Normalize(new Vector3(MathF.Sin(flashAngle), FlashElevation, MathF.Cos(flashAngle))),
             MathHelper.Clamp(Weather.Flash, 0f, 1f) * FlashCloudLevel / displayScale,
             CloudQuality,
             MathHelper.Clamp(Mist, 0f, 1f));
         // The clouds' moving shadows show under a fair or broken sky; an overcast one already dims the light evenly.
-        _physicalSky.Update(inputs, camera, _sunElevation > 0f ? SunThrough(cloud, Weather.SunBreak) : 0f);
+        _physicalSky.Update(inputs, camera, MathF.Sin(_sunElevation) > PristonPhysicalSky.SunCastsCloudShadows ? SunThrough(cloud, Weather.SunBreak) : 0f);
         _stateCache.InvalidateDeviceState();
     }
 
@@ -130,12 +139,12 @@ public sealed partial class PristonRenderer
     internal static float CloudCoverage(float cloud, float rain)
     {
         var share = FairCloudCover + (OvercastCloudCover - FairCloudCover) * cloud;
-        var coverage = 0.05f * (SkyShareOfCoverage.Length - 1);
+        var coverage = CoverageStep * (SkyShareOfCoverage.Length - 1);
         for (var index = 1; index < SkyShareOfCoverage.Length; index++)
         {
             if (share <= SkyShareOfCoverage[index])
             {
-                coverage = 0.05f * (index - 1 + (share - SkyShareOfCoverage[index - 1]) / (SkyShareOfCoverage[index] - SkyShareOfCoverage[index - 1]));
+                coverage = CoverageStep * (index - 1 + (share - SkyShareOfCoverage[index - 1]) / (SkyShareOfCoverage[index] - SkyShareOfCoverage[index - 1]));
                 break;
             }
         }
@@ -143,16 +152,27 @@ public sealed partial class PristonRenderer
         return coverage + (1f - coverage) * RainClosing * rain;
     }
 
-    // A light rain with the sun low enough for the bow to stand above the horizon (below 42 degrees) and shining
-    // through the clouds (a broken sky, or a break passing the sun); a downpour hides it.
+    // A light rain with the sun low enough for the bow to stand above the horizon (below its radius, Atmosphere.fx's
+    // RainbowPrimary, about 42 degrees) and shining through the clouds (a broken sky, or a break passing the sun); a
+    // downpour hides it. Elevations in radians.
+    private const float RainbowRadius = 0.73f;
+    private const float RainbowLeastSun = 0.05f;
+    private const float RainbowSunFade = 0.1f;
+    // The bow shows once a third of the sun gets through; it fades in over the first RainbowRainStart of the rain and
+    // out from RainbowRainFadeStart over RainbowRainFade.
+    private const float RainbowSunShare = 3f;
+    private const float RainbowRainStart = 0.08f;
+    private const float RainbowRainFadeStart = 0.4f;
+    private const float RainbowRainFade = 0.35f;
+
     internal static float RainbowStrength(float cloud, float rain, float sunElevation, float sunBreak = 0f)
     {
-        var sun = SunThrough(cloud, sunBreak);
-        var light = MathHelper.Clamp(sun * 3f, 0f, 1f);
-        var falling = MathHelper.SmoothStep(0f, 1f, rain / 0.08f) * (1f - MathHelper.SmoothStep(0f, 1f, (rain - 0.4f) / 0.35f));
-        var low = MathHelper.Clamp(sunElevation / 0.05f, 0f, 1f) * MathHelper.Clamp((0.73f - sunElevation) / 0.1f, 0f, 1f);
+        var light = MathHelper.Clamp(SunThrough(cloud, sunBreak) * RainbowSunShare, 0f, 1f);
+        var falling = MathHelper.SmoothStep(0f, 1f, rain / RainbowRainStart)
+            * (1f - MathHelper.SmoothStep(0f, 1f, (rain - RainbowRainFadeStart) / RainbowRainFade));
+        var low = MathHelper.Clamp(sunElevation / RainbowLeastSun, 0f, 1f) * MathHelper.Clamp((RainbowRadius - sunElevation) / RainbowSunFade, 0f, 1f);
         return light * falling * low;
     }
 
-    private static float Wrap(float kilometres) => (kilometres % CloudFieldTile + CloudFieldTile) % CloudFieldTile;
+    private static float Wrap(float kilometres) => (kilometres % PristonPhysicalSky.CloudOffsetTile + PristonPhysicalSky.CloudOffsetTile) % PristonPhysicalSky.CloudOffsetTile;
 }

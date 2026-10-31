@@ -103,11 +103,11 @@ Described in Etervale's terms; readers keep every field, including padding, for 
   the focus of the last frame drawn (on screen or not), every second frame to 900, every fourth beyond and every eighth
   off screen (its last world bounds outside the view), staggered by its slot; a new motion is sampled at once, an actor
   coming into view at once, and its world moves the palette every frame; the target frame's portrait actor
-  (`PortraitActor`, set by `HudTargetPortrait`) samples every frame wherever it stands. The palette's pose is a copy (`ActorPose`), so
-  bone queries and portraits evaluating into the animator's buffer never change what is drawn; an attached actor (a
-  held weapon) hangs from that pose. The render statistics show the actors posed and the actors in the last update
-  (`Pose n/m`, `LastAnimationCounts`). With 176 actors in Ricarten (`--benchmark-render` with a crowd of 150, GTX 1050
-  Ti) the animation update costs about 1 ms of CPU a frame and allocates about 0.3 KB.
+  (`PortraitActor`, set by `HudTargetPortrait`) samples every frame wherever it stands. The palette's pose is a copy
+  (`ActorPose`), so bone queries and portraits evaluating into the animator's buffer never change what is drawn; an
+  attached actor (a held weapon) hangs from that pose. The render statistics show the actors posed and the actors in the
+  last update (`Pose n/m`, `LastAnimationCounts`). With 176 actors in Ricarten (`--benchmark-render` with a crowd of
+  150, GTX 1050 Ti) the animation update costs about 1 ms of CPU a frame and allocates about 0.3 KB.
 - Materials: a TGA or opacity-mapped texture is a cut-out (alpha test at 60/255). Original blend types 2-6 draw late
   (blended queue) unless the material is an opaque cut-out; one layer above the base is carried over (multiply, add or
   sphere-map shine); there is no roughness or metalness in the data (`PristonMaterialAdapter` assigns 0.85 rough
@@ -185,7 +185,7 @@ and lamps at full.
 | Scene colour + depth | HalfVector4, Depth32Float (reversed) | Pre-exposed linear radiance; MSAA when `Msaa`; `PreserveContents`, filled by `SkyComposite`. |
 | Motion | HalfVector4 | TAA only: uv motion, previous view depth, view depth (negative on cut-outs). |
 | Linear depth, normals | R32F, RGBA8 | Pre-pass only; `SceneLinearDepth` exposes the depth to effects (null without pre-pass). |
-| Sky | 8-bit sRGB | Dome layers with original blends, decoded into the scene. |
+| Sky | sRGB codes in half floats | Dome layers with original blends, or the realistic sky, decoded into the scene. |
 | Sun shadow atlas | D32F depth surface, `shadowMapSize` | 2x2 tiles from two cascades; casters write depth only (an opaque caster runs no pixel shader) and the lighting samples it; falls back by halves to 1024 if allocation fails. |
 | Lamp shadow atlas | R32F | One row per lamp, six faces of `lampShadowTileSize`. |
 | TAA history | 2 x HalfVector4 | Compressed colour and view depth, ping-pong. |
@@ -241,11 +241,11 @@ All light is photometric (`Lighting/PristonPhotometry.cs`, `PristonDayNightCycle
 
 ## Realistic sky
 
-With `realisticSky` on (`PristonRenderer.RealisticSky`), `PristonPhysicalSky` (`Shaders/Passes/Atmosphere.fx`) paints the
-sky instead of the painted domes over a game field outdoors (`FieldSky`, set by the game scene; the opening and the other
-screens keep their domes); the domes stay the classic sky. It writes display-referred sRGB into the
-same sky targets the domes use (`DrawPhysicalSky`), so the scene, the fog's sky capture and the image-based
-lighting take it as they took the domes.
+With `realisticSky` on (`PristonRenderer.RealisticSky`), `PristonPhysicalSky` (`Shaders/Passes/Atmosphere.fx`) paints
+the sky instead of the painted domes over a game field outdoors (`FieldSky`, set by the game scene; the opening and the
+other screens keep their domes); the domes stay the classic sky. It writes display-referred sRGB into the same sky
+targets the domes use (`DrawPhysicalSky`), so the scene, the fog's sky capture and the image-based lighting take it as
+they took the domes.
 
 - Atmosphere (after Hillaire 2020): the transmittance table (256 x 64) and the multiple scattering table (32 x 32) are
   built once; the sky view (256 x 128, the sky's radiance around the viewer for the sun and the moon) every frame
@@ -266,27 +266,32 @@ lighting take it as they took the domes.
 - Rainbow (`RainbowStrength`): the primary bow at 40.6 to 42.5 degrees from the antisolar point and the fainter
   reversed secondary at 50.5 to 53.5, while a light rain falls (none in a downpour or without rain) through a sky the
   sun shines through, with the sun between 3 and 42 degrees up.
-- Cirrus: a thin stretched sheet at 8 km under a clear sky, fading as the clouds gather.
-- Volumetric clouds (`cloudQuality`; after Schneider's Nubis): a cumulus layer from 1.5 to 4 km in a 64^3 half-float tiling
-  noise volume (`PristonCloudNoise`: Perlin-Worley shape, Worley fBm detail) under a broad coverage pattern; the coverage
-  grows from a fair sky's 30 % to 95 % of the visible sky as the clouds gather and closes further in rain, where a
-  stratus deck fills the layer's lower half and the denser clouds go dark below. 48 marching steps, 5 toward the
-  light; single scattering with the powder effect, a diffuse multiple-scattering term that keeps a deck's base grey, and
-  the sky's light; a strike lights the clouds from inside on its side of the sky (`PristonWeather.FlashAzimuth`, added
+- Cirrus: a few patches of fine fibres combed along the wind at 8 km, most of the sky left clear, under a clear sky
+  and fading as the clouds gather.
+- Volumetric clouds (`cloudQuality`; after Schneider's Nubis): a cumulus layer from 1.5 to 4 km in a 64^3 half-float
+  tiling noise volume (`PristonCloudNoise`: Perlin-Worley shape, Worley fBm detail) under a broad coverage pattern; the
+  coverage grows from a fair sky's 30 % to 95 % of the visible sky as the clouds gather and closes further in rain,
+  where a stratus deck fills the layer's lower half and the denser clouds go dark below. Single scattering with the
+  powder effect, a diffuse multiple-scattering term that keeps a deck's base grey, and the sky's light; a strike lights the clouds from inside on its side of the sky (`PristonWeather.FlashAzimuth`, added
   as the sky draws, since the flash is too brief for the clouds' history). The clouds drift with a base wind plus the
   weather's and stay in place as the camera moves. Their hemisphere (azimuth by elevation, the elevation's square root
   down the height, so the low sky holds most texels) at 768 x 192, 1024 x 256 or 1536 x 384 marches one texel of each
-  2x2 block in turn each frame, blended 25 % into its last value: a texel waits four frames at most and the march's
-  jitter averages over about sixteen, so moving and changing clouds leave no stale blocks and their edges stay still.
+  2x2 block in turn each frame, blended 25 % into its history: a texel waits four frames at most and the march's jitter
+  averages over about sixteen. The history follows the clouds: each frame it is read where the cloud at a texel's
+  direction (a third of the way up the layer) was seen last frame, moved by the wind's and the camera's motion
+  (`CloudMotion`; a jump past 2 km, a warp, starts the clouds over), so a drifting cloud leaves no second, wavering
+  edge. The light march's samples are jittered each frame too, so the clouds' shading shows no drifting contour bands.
   The march takes a step every 0.25 km of the layer crossed (12 to 48 steps) and 4 toward the light. The sky reads the
   hemisphere through a Catmull-Rom spline, which keeps the clouds' edges and shows no grid. The eroding detail (a 1.4 km
-  tile) fades out between 12 and 30 km, where its cells would shimmer, and far clouds fade into the haze over 35 km. The sun lights the clouds by day and the moon by night, and at night they keep a glow of their own (the night
-  sky's, the moon's and the town's), so a stormy night shows its deck; under a closing sky the far haze takes the deck's
-  grey instead of opening onto the horizon. A cloud with a body hides the stars and the moon as it hides the sun. Off:
-  an overcast sky turns a flat grey instead.
+  tile) fades out between 12 and 30 km, where its cells would shimmer, and far clouds fade into the haze over 35 km. The
+  sun lights the clouds by day and the moon by night, and at night they keep a glow of their own (the night sky's, the
+  moon's and the town's), so a stormy night shows its deck; under a closing sky the far haze takes the deck's grey
+  instead of opening onto the horizon. A cloud with a body hides the stars and the moon as it hides the sun. Off: an
+  overcast sky turns a flat grey instead.
 - Cloud shadows: the clouds' transmittance toward the sun over 6 km around the camera (256^2), read by the surfaces'
   sun term (`Surface.fx` `CloudShadowAt`, `PristonCloudShadowFrame`) at the clear share of the sky (an overcast sky
-  already dims the sun evenly), only by day.
+  already dims the sun evenly), only while the sun stands more than about 3 degrees up
+  (`PristonPhysicalSky.SunCastsCloudShadows`, a sine of 0.05).
 
 ## Weather
 
@@ -296,10 +301,10 @@ lighting take it as they took the domes.
 - Sky: with the classic sky, half the sky clouded shows the rain dome (`FIELD_BACKIMAGE_RAIN`, profile 7) at every
   hour, as the original switched to it, cross-faded like any profile change (`SkyProfileNow`); the realistic sky draws
   the weather's clouds instead.
-- Light (`WeatherLight`, in `BuildFrameLighting`): the clouds cover 60 % of the sky without rain and all of it in full
-  rain, and the direct sun keeps the clear share to the power 1.5 (a quarter through an overcast sky, an eighth through
-  a light rain, so soft shadows still fall, nearly none in a downpour); full cloud keeps 70 % of the sky light, 60 % of
-  it turned grey; the exposure meters the scene 0.62 times as bright (and 0.85 of that in full rain) so the weather
+- Light (`WeatherLight`, in `BuildFrameLighting`): an overcast or rainy sky is fully clouded, eased in and out over
+  6 s; the direct sun keeps the clear share squared (`SunThrough`: none under a full cover, so an overcast day casts no
+  shadows), or 70 % of it while a sunshower's break passes the sun (`PristonWeather.SunBreak`); full cloud keeps 70 % of
+  the sky light, 60 % of it turned grey; the exposure meters the scene 0.62 times as bright (and 0.85 of that in full rain) so the weather
   darkens it; rain lights the lamps by its share, fully in a downpour; a full flash adds 0.6 of the metered
   illuminance as cold sky light the exposure does not meter (about twice a storm's light at its peak, at any hour) and
   draws the sky dome three times as bright (`SkyFlash`).
@@ -315,10 +320,11 @@ lighting take it as they took the domes.
 
 - Drops (`Rain.fx` `Drops`): a fixed buffer of 18000 near and 10000 far streaks with seeds; the shader places each in a
   box 900 (near) or 2600 (far) units wide and 900 tall around a point 240 units ahead of the eye, falling at 0.8 to 1.2
-  times 850 units per second plus the wind, wrapping as the camera moves, so nothing moves on the CPU. The rain's share
-  of each layer is drawn. A streak spans 1/26 s of its velocity seen from the moving camera, at least 1.3 pixels wide at
-  1080 lines; a drop thinner than that (0.5 units) fades by the ratio, so far rain reads as a veil. The part of a
-  streak under the occlusion map's surface is discarded.
+  times 850 units per second plus the wind, wrapping as the camera moves, so nothing moves on the CPU. The shader's
+  clock runs while it rains and wraps after an hour (`ClockPeriod`), so the drops jump only after an hour of rain. The
+  rain's share of each layer is drawn. A streak spans 1/26 s of its velocity seen from the moving camera, at least 1.3
+  pixels wide at 1080 lines; a drop thinner than that (0.5 units) fades by the ratio, so far rain reads as a veil. The
+  part of a streak under the occlusion map's surface is discarded.
 - Occlusion (`PristonRainOcclusion`): the highest walkable surface of every 8-unit cell in 256 x 256 cells around the
   player, from the loaded fields' collision, kept toroidally so a walk reads only the new rows (at most 4096 cells a
   frame); uploaded to an R32F texture at most every 0.1 s while it changes.

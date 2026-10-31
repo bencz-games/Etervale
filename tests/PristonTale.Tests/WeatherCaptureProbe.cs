@@ -6,6 +6,7 @@ using PristonTale.Engine3D.Physics;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Engine3D.Rendering.Weather;
 using PristonTale.Simulation.World;
+using PristonTale.Simulation.World.Fields;
 using PristonTale.Assets;
 
 namespace PristonTale.Tests;
@@ -18,7 +19,7 @@ namespace PristonTale.Tests;
 internal sealed class WeatherCaptureProbe : Game
 {
     private sealed record Shot(string Name, float Hour, PristonWeather Weather, bool Close = false, bool Sky = false, float Moon = 0.5f,
-        bool Aurora = false, bool Classic = false, float Heading = 0f, bool Mist = false);
+        bool Aurora = false, bool Classic = false, float Heading = 0f, bool Mist = false, int Frames = 1);
 
     private static readonly Vector2 Breeze = new(60f, 20f);
 
@@ -50,7 +51,9 @@ internal sealed class WeatherCaptureProbe : Game
         new("sky-lightning", 14f, new PristonWeather(1f, 1f, 1f, Breeze * 3f, 0.4f), Sky: true),
         new("sky-rainbow", 16.8f, new PristonWeather(0.25f, 0.2f, 0f, Breeze), Sky: true, Heading: 1.6f),
         new("sky-aurora", 0.5f, PristonWeather.Clear, Sky: true, Aurora: true, Heading: 0.6f),
-        new("sky-classic", 12f, PristonWeather.Clear, Sky: true, Classic: true)
+        new("sky-classic", 12f, PristonWeather.Clear, Sky: true, Classic: true),
+        // Broken clouds in a strong wind over consecutive frames: their edges must glide, not waver.
+        new("sky-drift", 14f, new PristonWeather(0.45f, 0f, 0f, new Vector2(360f, 0f)), Sky: true, Heading: 1.2f, Frames: 8)
     ];
 
     private const int Width = 1920;
@@ -67,7 +70,9 @@ internal sealed class WeatherCaptureProbe : Game
     private PristonCamera _camera = null!;
     private PristonCollisionWorld _collision = null!;
     private RenderTarget2D _target = null!;
-    private readonly Color[] _pixels = new Color[Width * Height];
+    private Color[] _pixels = new Color[Width * Height];
+    private Color[]? _previous;
+    private int _frame;
     private Vector3 _focus;
     private int _shot;
     private double _seconds;
@@ -125,7 +130,7 @@ internal sealed class WeatherCaptureProbe : Game
         _renderer.Weather = shot.Weather;
         _renderer.MoonPhase = shot.Moon;
         _renderer.Aurora = shot.Aurora;
-        _renderer.MorningMist = shot.Mist ? 0.8f : 0f;
+        _renderer.MorningMist = shot.Mist ? RicartenField.Definition.MorningMistStrength : 0f;
         if (_renderer.RealisticSky == shot.Classic)
         {
             _presentation.ApplyRendering(new ClientSettings { RealisticSky = !shot.Classic });
@@ -175,12 +180,42 @@ internal sealed class WeatherCaptureProbe : Game
 
         using var opaque = new Texture2D(GraphicsDevice, Width, Height);
         opaque.SetData(pixels);
-        using (var stream = File.Create(Path.Combine(_output, $"{shot.Name}.png")))
+        using (var stream = File.Create(Path.Combine(_output, shot.Frames > 1 ? $"{shot.Name}-{_frame}.png" : $"{shot.Name}.png")))
         {
             opaque.SaveAsPng(stream, Width, Height);
         }
 
+        // Consecutive frames of a moving sky: the change from the previous frame, eight times brighter, and the pixels
+        // that changed by more than 6 levels; a steady drift moves edges a little each frame, a wavering one flickers
+        // over the clouds' bodies too.
+        if (_previous is not null)
+        {
+            var changed = 0;
+            var difference = new Color[pixels.Length];
+            for (var index = 0; index < pixels.Length; index++)
+            {
+                var delta = Math.Max(Math.Abs(pixels[index].R - _previous[index].R),
+                    Math.Max(Math.Abs(pixels[index].G - _previous[index].G), Math.Abs(pixels[index].B - _previous[index].B)));
+                changed += delta > 6 ? 1 : 0;
+                var shade = (byte)Math.Min(255, delta * 8);
+                difference[index] = new Color(shade, shade, shade, (byte)255);
+            }
+
+            opaque.SetData(difference);
+            using var change = File.Create(Path.Combine(_output, $"{shot.Name}-{_frame}-change.png"));
+            opaque.SaveAsPng(change, Width, Height);
+            Console.WriteLine($"Weather {shot.Name}-{_frame}: {changed} pixels changed from the previous frame");
+        }
+
         Console.WriteLine($"Weather {shot.Name}: captured");
+        if (++_frame < shot.Frames)
+        {
+            (_previous, _pixels) = (pixels, _previous ?? new Color[Width * Height]);
+            return;
+        }
+
+        _previous = null;
+        _frame = 0;
         _shotSeconds = 0;
         _shot++;
     }

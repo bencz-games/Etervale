@@ -19,10 +19,10 @@ internal static class WeatherTests
     {
         yield return ("the rain follows the original's cycle of clouds, rain and clouds; each cycle draws its own rain and wind, and the rain swells and comes and goes", ScheduleAsync);
         yield return ("dungeons, rooms, the ice fields and Bellatra never take rain", FieldsAsync);
-        yield return ("a game master's /weather sets every open field's weather, a dungeon stays clear, and auto gives it back", GameMasterAsync);
+        yield return ("a game master's /weather sets an open field's weather, a dungeon stays clear, and auto gives it back", GameMasterAsync);
         yield return ("the weather reaches the client once when it changes and its packet refuses an unknown kind", WireAsync);
         yield return ("the client eases the clouds and the rain in and out, blows the wind its way and shows nothing with the setting off", PresentationAsync);
-        yield return ("a storm's lightning keeps no beat, mostly far and faint with a few near and bright, thunders by its distance; plain rain never does", LightningAsync);
+        yield return ("a storm's lightning keeps no beat, mostly far and faint with a few near and bright, and thunders; plain rain never does", LightningAsync);
         yield return ("the rain stops on the highest surface of each cell, reading only the cells a moving centre uncovers", OcclusionAsync);
         yield return ("the realistic sky's clouds gather with the weather, its rainbow needs a light rain under a low sun, the moon turns through its phases and the cloud noise tiles", SkyAsync);
     }
@@ -169,7 +169,8 @@ internal static class WeatherTests
         for (var frame = 0; frame < 60 * 60 * minutes; frame++)
         {
             weather.Update(new WeatherState(WeatherKind.Storm, 255, 0, 200), enabled: true, step);
-            // A strike begins when the sky flashes after a dark moment; its brightness is the brightest of its flickers.
+            // A strike begins when the sky flashes after a dark moment; its brightness is the brightest of its
+            // flickers.
             if (weather.Flash > 0.2f && !flashing)
             {
                 strikes.Add(frame * step);

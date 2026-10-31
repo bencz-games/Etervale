@@ -2,10 +2,10 @@ using Microsoft.Xna.Framework.Graphics.PackedVector;
 
 namespace PristonTale.Engine3D.Rendering.Atmosphere;
 
-// The clouds' tiling noise volume (Atmosphere.fx): Size^3 half-float RGBA texels (eight bits left contour steps where the
-// coverage threshold stretches the density), R the Perlin-Worley shape (billowing cells
-// with gradient noise between them) and G, B, A Worley fBm at rising frequencies for the eroding detail. Every channel
-// wraps at the volume's edges and is stretched to the full range, so the coverage threshold carves clear sky.
+// The clouds' tiling noise volume (Atmosphere.fx): Size^3 half-float RGBA texels (eight bits left contour steps where
+// the coverage threshold stretches the density), R the Perlin-Worley shape (billowing cells with gradient noise between
+// them) and G, B, A Worley fBm at rising frequencies for the eroding detail. Every channel wraps at the volume's edges
+// and is stretched to the full range, so the coverage threshold carves clear sky.
 public static class PristonCloudNoise
 {
     public const int Size = 64;

@@ -36,9 +36,9 @@ public readonly record struct PristonSkyInputs(
 // The physical sky (Shaders/Passes/Atmosphere.fx): the transmittance and multiple-scattering tables built once, then
 // each frame (Update, before the scene's targets are bound) the sky view, the clouds' hemisphere and their shadow on
 // the ground; Draw paints the sky into the bound sky target, for any view (the scene, the fog's capture, the
-// environment's faces). The clouds' hemisphere (azimuth by elevation, most texels near the horizon) renders every
-// texel of each 2x2 block in turn every frame, blended with its last value (CloudHistory), so moving and changing
-// clouds never leave blocks of older texels.
+// environment's faces). The clouds' hemisphere (azimuth by elevation, most texels near the horizon) marches one texel
+// of each 2x2 block in turn each frame and blends it into a history that moves with the clouds (CloudHistory), so
+// moving and changing clouds leave neither blocks of older texels nor a trailing edge.
 public sealed class PristonPhysicalSky : IDisposable
 {
     public const string AssetName = "Effects/Atmosphere";
@@ -52,11 +52,17 @@ public sealed class PristonPhysicalSky : IDisposable
     // units, stands about 2 m tall).
     public const float CloudShadowExtent = 6f;
     public const float WorldUnitsPerKilometre = 25000f;
-    // A texel marches once every four frames (one of each 2x2 block in turn) and keeps this share of its last value:
-    // the march's jitter averages over about sixteen frames, so the edges stay still. The hemisphere is indexed by
-    // direction and the clouds drift slowly, so a long history does not smear them; their sharpness comes from the
-    // Catmull-Rom read.
-    private const float CloudHistory = 0.75f;
+    // The sine of the sun's elevation above which the clouds cast shadows (Atmosphere.fx CloudShadow marches toward
+    // it).
+    public const float SunCastsCloudShadows = 0.05f;
+    // A texel marches once every four frames (one of each 2x2 block in turn) and keeps this share of its history: the
+    // march's jitter averages over about forty frames, so the edges stay still. The history is moved with the clouds
+    // each frame (CloudMotion), so a long one leaves no trailing edge; their sharpness comes from the Catmull-Rom read.
+    private const float CloudHistory = 0.9f;
+    // The cloud offset wraps at this tile (km, the coverage pattern's); a motion beyond LargestCloudMotion in a frame
+    // is a jump.
+    public const float CloudOffsetTile = 60f;
+    private const float LargestCloudMotion = 2f;
 
     private readonly GraphicsDevice _device;
     private readonly PristonFullscreenTriangle _triangle;
@@ -70,6 +76,7 @@ public sealed class PristonPhysicalSky : IDisposable
     private RenderTarget2D _cloudsHistory;
     private RenderTarget2D _cloudsUpdate;
     private bool _tablesBuilt;
+    private Vector2 _lastCloudOffset;
     private float _overcast;
     private bool _cloudsValid;
     private int _frame;
@@ -144,6 +151,18 @@ public sealed class PristonPhysicalSky : IDisposable
             _cloudsValid = false;
         }
 
+        // The field's motion since the last frame (the offset wraps at the coverage tile); a jump (a warp, a new field)
+        // starts the clouds over.
+        var motion = inputs.CloudOffset - _lastCloudOffset;
+        motion = new Vector2(Unwrap(motion.X), Unwrap(motion.Y));
+        _lastCloudOffset = inputs.CloudOffset;
+        if (motion.Length() > LargestCloudMotion)
+        {
+            _cloudsValid = false;
+            motion = Vector2.Zero;
+        }
+
+        Set("CloudMotion", new Vector4(motion, 0f, 0f));
         // A new sky marches all four texels of each block at once; afterwards one a frame, in turn.
         var phases = _cloudsValid ? 1 : 4;
         for (var phase = 0; phase < phases; phase++)
@@ -192,6 +211,9 @@ public sealed class PristonPhysicalSky : IDisposable
         _overcast = inputs.Quality == CloudQuality.Off ? inputs.Overcast : 0f;
     }
 
+    private static float Unwrap(float kilometres) =>
+        kilometres > CloudOffsetTile / 2f ? kilometres - CloudOffsetTile : kilometres < -CloudOffsetTile / 2f ? kilometres + CloudOffsetTile : kilometres;
+
     // A parameter the compiled techniques may have left out.
     private void Set(string name, Vector4 value) => _effect.Parameters[name]?.SetValue(value);
 
@@ -202,7 +224,6 @@ public sealed class PristonPhysicalSky : IDisposable
     private void Pass(RenderTarget2D target, string technique)
     {
         _device.SetRenderTarget(target);
-        Set("Target", new Vector4(target.Width, target.Height, 1f / target.Width, 1f / target.Height));
         _effect.CurrentTechnique = _effect.Techniques[technique];
         _triangle.Draw(_effect, DepthStencilState.None);
     }
