@@ -499,7 +499,9 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   aged or normal colour), attack power, weapon speed, range, critical, defence, attack rating, absorb (with the catalog
   correction, one decimal), block, speed, integrity, the eight resistances, regeneration, added pools, potion storage,
   the requirements (orange when met, red when not), then the class specialization header and its bonuses in green, the
-  shop price and the action hint. An aged copy shows its gauge under the name: the bar (`Aging/Bar.bmp`) filling toward
+  shop price and the action hint. With an item carried (from the bag or the warehouse) the window takes no hover, but
+  the item under the pointer still shows its box, drawn over the carried item and without an action hint
+  (`HudInventoryPanel.CarriedOver`), as in the original. An aged copy shows its gauge under the name: the bar (`Aging/Bar.bmp`) filling toward
   the goal while it matures (with the live count from `AgingProgress` for worn copies), else the small plate
   (`Aging/Aging.bmp`), with `+level` in black; the stats its aging raises are light blue (119, 200, 254). A mixed copy's
   name is cyan (150, 255, 255) and the stats its mix raised are blue (110, 165, 250).

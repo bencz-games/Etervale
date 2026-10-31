@@ -35,6 +35,7 @@ internal static class HudInteractionTests
         yield return ("owner combat statistics survive the owner-status packet", OwnerStatsAsync);
         yield return ("original HUD hit rectangles stay inside their windows without overlapping", HitRectsAsync);
         yield return ("a carried item is set down by a second click on an original equipment slot with the owner revision", EquipmentDragAsync);
+        yield return ("with an item carried, the item under it is described but not hovered, and the carried one's own cells describe nothing", CarriedOverAsync);
         yield return ("a number typed above the count box's maximum shows the maximum at once", CountBoxAsync);
         yield return ("the weapon pair key holds the other pair with the window closed once the motion in progress ends, the next swing's start included", WeaponPairKeyAsync);
         yield return ("a worn two-handed weapon is also shown, taken and exchanged in the empty off-hand slot", TwoHandedShadowAsync);
@@ -222,6 +223,25 @@ internal static class HudInteractionTests
         controller.PickupLocked = false;
         controller.Update(swapped, layout, false, default, default);
         Assert.True(sent is { Action: InventoryAction.SwitchWeaponSet, Destination: 0 }, $"the pair did not change once the player stopped: {sent}");
+        return Task.CompletedTask;
+    }
+
+    private static Task CarriedOverAsync()
+    {
+        var layout = HudLayout.Create(800, 600);
+        var carried = new OwnedItemView(Guid.NewGuid(), 1, "Carried", ItemKind.Axe, 1, 0, -1, 1, 1);
+        var other = new OwnedItemView(Guid.NewGuid(), 2, "Other", ItemKind.Axe, 1, 4, -1, 1, 1);
+        var state = OwnerState.Capture(new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Carry")) with { Items = [carried, other], InventoryRevision = 1 };
+        var controller = new HudInventoryController(null!, _ => Task.FromResult(new InventoryOutcome(true, 2, "")));
+        var origin = HudInventoryLayout.Origin(layout);
+        var start = HudInventoryLayout.Bounds(origin, carried).Center;
+        var over = HudInventoryLayout.Bounds(origin, other).Center;
+        controller.Update(state, layout, true, default, MouseAt(start, layout.Scale, ButtonState.Pressed));
+        Assert.True(controller.Dragging == carried.InstanceId, "bag item was not picked up");
+        controller.Update(state, layout, true, default, MouseAt(over, layout.Scale, ButtonState.Released));
+        Assert.True(controller.Hovered is null, "an item under a carried one took the hover, which picks up on a click");
+        Assert.True(HudInventoryPanel.CarriedOver(origin, state, controller, carried, over) == other, "the item under a carried one was not described");
+        Assert.True(HudInventoryPanel.CarriedOver(origin, state, controller, carried, start) is null, "the carried item's own cells described it");
         return Task.CompletedTask;
     }
 

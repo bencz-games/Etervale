@@ -19,6 +19,8 @@ public sealed class HudInventoryPanel
     private string _weight = "";
     private OwnerState _state;
     private OwnedItemView _hovered;
+    // An item is on the cursor (from the bag or the warehouse), so _hovered is only described.
+    private bool _carrying;
     // The item on the cursor or just set down (HudInventoryController.Held) and where it is drawn.
     private OwnedItemView _held;
     private Point _heldAt;
@@ -39,6 +41,7 @@ public sealed class HudInventoryPanel
         Point pointer, bool interactive, OwnedItemView stored = null)
     {
         _hovered = null;
+        _carrying = false;
         _held = null;
         _beltSelection = Rectangle.Empty;
         _beltPlacement = default;
@@ -149,7 +152,8 @@ public sealed class HudInventoryPanel
         painter.TextCentered(_gold, money.Left, money.Right, money.Y);
         var weight = HudInventoryLayout.Weight(origin);
         painter.TextCentered(_weight, weight.Left, weight.Right, weight.Y);
-        _hovered = hovered;
+        _carrying = interactive && (dragged ?? stored) is not null;
+        _hovered = _carrying ? CarriedOver(origin, state, controller, dragged, pointer) : hovered;
         _held = OwnedItemView.Find(state.Items, controller.Held);
         _heldAt = controller.HeldAt(pointer);
     }
@@ -188,14 +192,24 @@ public sealed class HudInventoryPanel
         _heldAt = pointer;
     }
 
-    // Drawn after the bottom bar so the held item and the item box stay on top, as the original draws items after the interface.
+    // The item under a carried one: the window takes no hover then (HudInventoryController.Hovered), but the original
+    // still shows the item box of what the pointer is over.
+    internal static OwnedItemView CarriedOver(Point origin, OwnerState state, HudInventoryController controller, OwnedItemView dragged, Point pointer)
+    {
+        var under = HudInventoryLayout.ItemAt(origin, state.Items, pointer, controller.QuestBoxShown);
+        return under is null || under.InstanceId == dragged?.InstanceId || controller.Hides(under) ? null : under;
+    }
+
+    // Drawn after the bottom bar so the held item and the item box stay on top, as the original draws items after the
+    // interface; the item box goes over the carried item, as there.
     public void DrawOverlay(HudPainter painter, HudLayout layout, HudItemIcons icons, Point pointer)
     {
         if (_held is not null)
         {
             _counts.Draw(painter, icons, _held, HudGridPlacement.Frame(_held, _heldAt), Color.White);
         }
-        else if (_hovered is not null)
+
+        if (_hovered is not null)
         {
             DrawTooltip(painter, layout, _hovered, pointer);
         }
@@ -280,7 +294,9 @@ public sealed class HudInventoryPanel
     private void DrawTooltip(HudPainter painter, HudLayout layout, OwnedItemView item, Point pointer)
     {
         var usable = item.InBag && UsableItemCatalog.IsUsable(item.CatalogKey);
-        var action = item.Equipped ? "Right-click: unequip"
+        // A click with an item carried sets it down, so no action is offered for the item under it.
+        var action = _carrying ? ""
+            : item.Equipped ? "Right-click: unequip"
             : item.QuestBox >= 0 ? "Click: carry"
             : item.Kind == ItemKind.Potion ? "Right-click: drink one"
             : usable ? "Right-click: use"
