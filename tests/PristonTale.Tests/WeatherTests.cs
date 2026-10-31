@@ -5,6 +5,8 @@ using PristonTale.Contracts.World;
 using PristonTale.Protocol.Packets;
 using PristonTale.Simulation.World;
 using PristonTale.Engine3D.Physics;
+using PristonTale.Engine3D.Rendering;
+using PristonTale.Engine3D.Rendering.Atmosphere;
 using PristonTale.Engine3D.Rendering.Weather;
 using PristonTale.Gameplay.Weather;
 using Xna = Microsoft.Xna.Framework;
@@ -22,6 +24,7 @@ internal static class WeatherTests
         yield return ("the client eases the clouds and the rain in and out, blows the wind its way and shows nothing with the setting off", PresentationAsync);
         yield return ("a storm flashes every few seconds and thunders after each flash, nearer strikes louder; plain rain never does", LightningAsync);
         yield return ("the rain stops on the highest surface of each cell, reading only the cells a moving centre uncovers", OcclusionAsync);
+        yield return ("the realistic sky's clouds gather with the weather, its rainbow needs a light rain under a low sun, the moon turns through its phases and the cloud noise tiles", SkyAsync);
     }
 
     private static long At(long cycle, int minute) => (cycle * WeatherSchedule.DefaultCycleMinutes + minute) * WorldClock.MinuteMs;
@@ -187,6 +190,36 @@ internal static class WeatherTests
         map.Update(new Xna.Vector3(PristonRainOcclusion.CellSize * 3f, 0f, 0f));
         Assert.True(stage.Reads - before == PristonRainOcclusion.Cells * 3, $"moving three cells read {stage.Reads - before} cells");
         Assert.True(map.HeightAt(1500f, 0f) == PristonRainOcclusion.NoSurface, "a cell past the stage held a surface");
+        return Task.CompletedTask;
+    }
+
+    private static Task SkyAsync()
+    {
+        var fair = PristonRenderer.CloudCoverage(0f, 0f);
+        var overcast = PristonRenderer.CloudCoverage(1f, 0f);
+        var storm = PristonRenderer.CloudCoverage(1f, 1f);
+        Assert.True(fair is > 0.2f and < 0.45f && overcast > fair && storm > overcast && storm < 1f,
+            $"the coverage ran {fair} fair, {overcast} overcast, {storm} in a storm");
+
+        var lowSun = 0.3f;
+        Assert.True(PristonRenderer.RainbowStrength(0.2f, 0.2f, lowSun) > 0.5f, "a light rain under a low sun showed no rainbow");
+        Assert.True(PristonRenderer.RainbowStrength(0.2f, 0f, lowSun) == 0f && PristonRenderer.RainbowStrength(1f, 1f, lowSun) < 0.01f
+            && PristonRenderer.RainbowStrength(0.2f, 0.2f, 1.2f) == 0f && PristonRenderer.RainbowStrength(0.2f, 0.2f, -0.1f) == 0f,
+            "a rainbow showed without rain, in a downpour, at noon or after sunset");
+
+        const long day = WorldClock.MinuteMs * (long)WorldClock.MinutesPerDay;
+        Assert.True(WorldClock.MoonPhaseAt(0) == 0f && MathF.Abs(WorldClock.MoonPhaseAt(day * WorldClock.LunarDays / 2) - 0.5f) < 1e-4f
+            && WorldClock.MoonPhaseAt(day * WorldClock.LunarDays) == 0f, "the moon did not run from new to full and back in its days");
+
+        Span<float> low = stackalloc float[4];
+        Span<float> high = stackalloc float[4];
+        PristonCloudNoise.At(0f, 0.3f, 0.7f, low);
+        PristonCloudNoise.At(1f, 0.3f, 0.7f, high);
+        for (var channel = 0; channel < 4; channel++)
+        {
+            Assert.True(MathF.Abs(low[channel] - high[channel]) < 1e-4f && low[channel] is >= 0f and <= 1f, $"the noise's channel {channel} did not tile");
+        }
+
         return Task.CompletedTask;
     }
 

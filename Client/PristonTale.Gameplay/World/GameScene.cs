@@ -363,6 +363,7 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
 
         _renderer.DayLengthSeconds = 0f;
         _renderer.SetTimeOfDay(WorldClock.HoursAt(clock));
+        _renderer.MoonPhase = WorldClock.MoonPhaseAt(clock);
     }
     public void SetTimeOfDay(float hours) => _renderer?.SetTimeOfDay(hours);
 

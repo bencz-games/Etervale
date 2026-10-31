@@ -343,6 +343,8 @@ internal sealed class PristonShaderLibrary : IDisposable
         private readonly EffectParameter _environmentMap;
         private readonly EffectParameter _environmentSh;
         private readonly EffectParameter _brdfLut;
+        private readonly EffectParameter _cloudShadowMap;
+        private readonly EffectParameter _cloudShadowParams;
         private readonly EffectParameter _shadowMap;
         private readonly EffectParameter _localLightCount;
         private readonly EffectParameter _transientLightCount;
@@ -460,6 +462,9 @@ internal sealed class PristonShaderLibrary : IDisposable
             _environmentMap?.SetValue(neutral);
             _environmentSh?.SetValue(noEnvironment);
             _brdfLut?.SetValue(neutral);
+            _cloudShadowMap = Parameter("CloudShadowMap");
+            _cloudShadowParams = Parameter("CloudShadowParams");
+            _cloudShadowMap?.SetValue(neutral);
             _shadowMap = Parameter("ShadowMap");
             _localLightCount = Parameter("LocalLightCount");
             _transientLightCount = Parameter("TransientLightCount");
@@ -597,6 +602,9 @@ internal sealed class PristonShaderLibrary : IDisposable
             _environmentMap?.SetValue(environmentOn ? environment.Atlas : _neutralTexture);
             _environmentSh?.SetValue(environmentOn ? environment.Sh : _noEnvironment);
             _brdfLut?.SetValue(environmentOn ? environment.BrdfLut : _neutralTexture);
+            var clouds = frame.CloudShadow;
+            _cloudShadowMap?.SetValue(clouds.Map ?? _neutralTexture);
+            _cloudShadowParams?.SetValue(clouds.Map is null ? Vector4.Zero : clouds.Params);
             _environmentParams?.SetValue(environmentOn
                 ? new Vector4(1f, PristonEnvironmentLighting.BaseSize, PristonEnvironmentLighting.AtlasWidth, PristonEnvironmentLighting.Levels)
                 : Vector4.Zero);

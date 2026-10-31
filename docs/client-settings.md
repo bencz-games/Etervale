@@ -75,6 +75,8 @@ renderer through `PresentationSettings.ApplyRendering` and apply at once.
 | `classicTargetHealthBar` | bool, `false` | | yes (Target HP) | `false`: the target frame always shows the HP bar with level and life percentage. `true`: the bar, without numbers, appears only after you attack a monster at full life. Either way the frame shows a live 3D portrait of the target's head, its name and, for monsters, the race icon. |
 | `classicNamePlates` | bool, `false` | | yes (Name plates) | `false`: the name boxes over monsters and NPCs (rounded, in the speech bubble's colours) hold smaller text, a monster's life bar shows once it was clicked or attacked, and NPCs get no hover outline. `true`: the same box, the HUD text size, the bar while the cursor is on the monster, and a green NPC outline. |
 | `levelGuide` | bool, `true` | | yes (the guide window's On/Off) | On reaching a level the game guide has a page for, a blinking notice offers its summary. |
+| `realisticSky` | bool, `true` | | yes (Sky) | The physical sky (sun, moon, stars, aurora, rainbow, clouds) instead of the original's painted domes ([rendering.md](rendering.md#realistic-sky)). |
+| `cloudQuality` | `Off`, `Low`, `Medium` (default), `High` | others: the default | yes (Clouds) | The realistic sky's volumetric clouds and their shadows: off, or rendered at 256, 384 or 512 texels a side; presets Low and Medium take `Low`, High `Medium`, Ultra `High`. |
 | `weatherEnabled` | bool, `true` | | yes (Weather) | The weather the server sends: clouds, rain, splashes, lightning, the rain and thunder sounds ([client.md](client.md#weather)). `false` keeps the sky clear and the field ambience on, as the original's rain switch did. |
 
 ### Rendering
@@ -114,7 +116,8 @@ booleans have no validation. An unknown enum name is a JSON error (whole file ig
 ## In-game Settings panel
 
 `HudSettingsPanel` rows, in order: Window, Monitor, Resolution, Frequency, VSync, BGM, Audio, Maximum FPS, Background
-FPS, Anti-aliasing, Sun shadow, Graphics quality, Shadow animation, Shadows, Target HP, Name plates, Weather. Click cycles
+FPS, Anti-aliasing, Sun shadow, Graphics quality, Shadow animation, Shadows, Target HP, Name plates, Weather, Sky,
+Clouds. Click cycles
 forward, Shift+click backward. Resolution offers only the sizes the primary monitor reports (at least 800x600,
 `HudSettingsPanel.Resolutions`): any of them in fullscreen, those that fit on the desktop below the window's title bar
 when windowed, and none when borderless (it covers the desktop). Graphics quality cycles Low, Medium, High, Ultra;

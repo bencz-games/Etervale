@@ -43,6 +43,12 @@
 /processorParam:DebugMode=Auto
 /build:Shaders/Passes/Vfx.fx;Effects/Vfx.fx
 
+#begin Shaders/Passes/Atmosphere.fx
+/importer:EffectImporter
+/processor:SpirvEffectProcessor
+/processorParam:DebugMode=Auto
+/build:Shaders/Passes/Atmosphere.fx;Effects/Atmosphere.fx
+
 #begin Shaders/Passes/Rain.fx
 /importer:EffectImporter
 /processor:SpirvEffectProcessor

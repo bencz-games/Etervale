@@ -39,7 +39,10 @@ public sealed class WeatherPresentation(Random random)
     public float Flash { get; private set; }
     public Vector2 Wind { get; private set; }
 
-    public PristonWeather View => new(Cloud, Rain, Flash, Wind);
+    // The last strike's compass heading (radians), where its flash lights the clouds.
+    public float FlashAzimuth { get; private set; }
+
+    public PristonWeather View => new(Cloud, Rain, Flash, Wind, FlashAzimuth);
 
     public event Action<float> Thunder;
 
@@ -96,6 +99,7 @@ public sealed class WeatherPresentation(Random random)
     {
         _untilStrike = Between(StrikeMinSeconds, StrikeMaxSeconds);
         _sinceStrike = 0f;
+        FlashAzimuth = Between(0f, MathF.Tau);
         // A near strike flashes hardest and thunders soonest and loudest; the later flashes are fainter.
         var nearness = random.NextSingle();
         _pulseCount = 2 + random.Next(2);

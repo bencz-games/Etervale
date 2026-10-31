@@ -80,7 +80,7 @@ public sealed partial class PristonRenderer
         {
             var currentProfile = SkyProfileNow;
             var transition = _previousSkyProfile >= 0 && _skyBlend < 1f;
-            var animated = Sky.IsAnimated(currentProfile) || (transition && Sky.IsAnimated(_previousSkyProfile));
+            var animated = PhysicalSkyShown || Sky.IsAnimated(currentProfile) || (transition && Sky.IsAnimated(_previousSkyProfile));
             if (_skyCapture.ShouldRefresh(currentProfile, _previousSkyProfile, _skyBlend, skyPosition.Y, animated, _renderTime))
             {
                 Profiler.Begin(RenderSection.SkyCapture);
@@ -117,6 +117,11 @@ public sealed partial class PristonRenderer
             _skyCapture.BeginTile(tile);
             _shaders.ApplyFrame(CreateSkyFrame(frame, PristonSkyCapture.TileView(tile, skyPosition), projection, skyPosition));
             _stateCache.SetDepthStencilState(DepthStencilState.None);
+            if (DrawPhysicalSky(PristonSkyCapture.TileView(tile, skyPosition), projection))
+            {
+                continue;
+            }
+
             DrawSkyLayers(
                 currentProfile,
                 ref staticBatches,
@@ -155,6 +160,11 @@ public sealed partial class PristonRenderer
                 _graphicsDevice.Viewport = PristonEnvironmentLighting.FaceViewport(face);
                 _shaders.ApplyFrame(CreateSkyFrame(frame, PristonEnvironmentLighting.FaceView(face, skyPosition), projection, skyPosition));
                 _stateCache.SetDepthStencilState(DepthStencilState.None);
+                if (DrawPhysicalSky(PristonEnvironmentLighting.FaceView(face, skyPosition), projection))
+                {
+                    continue;
+                }
+
                 DrawSkyLayers(
                     SkyProfileNow,
                     ref staticBatches,

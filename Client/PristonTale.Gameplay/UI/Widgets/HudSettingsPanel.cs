@@ -11,7 +11,7 @@ internal sealed class HudSettingsPanel
     public const int BoxX = 50;
     public const int BoxY = 45;
     public const int SizeW = 9;
-    public const int SizeH = 13;
+    public const int SizeH = 14;
     private const int RowHeight = 17;
 
     private static readonly int[] FrameLimits = [0, 30, 60, 90, 120, 144, 165, 240, 360];
@@ -19,7 +19,7 @@ internal sealed class HudSettingsPanel
     private static readonly GraphicsQuality[] Presets = [GraphicsQuality.Low, GraphicsQuality.Medium, GraphicsQuality.High, GraphicsQuality.Ultra];
     private static readonly int[] ShadowUpdateRates = [30, 60, 120, 0];
     private readonly PresentationSettings _settings;
-    private readonly string[] _labels = new string[17];
+    private readonly string[] _labels = new string[19];
     private ClientSettings _labelSettings;
 
     public HudSettingsPanel(PresentationSettings settings) => _settings = settings;
@@ -65,6 +65,8 @@ internal sealed class HudSettingsPanel
                 14 => current with { ClassicTargetHealthBar = !current.ClassicTargetHealthBar },
                 15 => current with { ClassicNamePlates = !current.ClassicNamePlates },
                 16 => current with { WeatherEnabled = !current.WeatherEnabled },
+                17 => current with { RealisticSky = !current.RealisticSky },
+                18 => current with { Quality = GraphicsQuality.Custom, CloudQuality = (CloudQuality)(((int)current.CloudQuality + direction + 4) % 4) },
                 _ => current
             };
             return;
@@ -210,5 +212,7 @@ internal sealed class HudSettingsPanel
         _labels[14] = settings.ClassicTargetHealthBar ? "Target HP: classic (after first hit)" : "Target HP: always, with percentage";
         _labels[15] = settings.ClassicNamePlates ? "Name plates: classic" : "Name plates: compact";
         _labels[16] = settings.WeatherEnabled ? "Weather: on" : "Weather: off";
+        _labels[17] = settings.RealisticSky ? "Sky: realistic" : "Sky: classic";
+        _labels[18] = $"Clouds: {settings.CloudQuality}";
     }
 }

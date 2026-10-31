@@ -39,7 +39,7 @@ Default case files by area (all `tests/PristonTale.Tests/<Name>.cs`):
 | Domain | `DomainTests`, `ProgressionAndOwnershipTests`, `ProgressionDataTests`, `AuthTests`, `OutboxTests` | Attributes, ownership, mailbox, XP, login, outbox |
 | Transactions | `ProgressionTransactionTests`, `InventoryTransactionTests`, `GroundPickupTransactionTests`, `PotionTests` | Storage-first commit, replay |
 | Yahoo | `YahooTests` | Chat words, the Space window and its stamina, queued cheers, the capsule, motion and wire |
-| Weather | `WeatherTests` (with `ChatFixture`) | The rain schedule and its draws, the fields without rain, `/weather`, the snapshot and wire; the client's easing, lightning and thunder, the rain occlusion map |
+| Weather | `WeatherTests` (with `ChatFixture`) | The rain schedule and its draws, the fields without rain, `/weather`, the snapshot and wire; the client's easing, lightning and thunder, the rain occlusion map; the realistic sky's coverage, rainbow, moon phase and noise tiling |
 | Usable items | `SpecialItemTests` | Item rules, premium timers and formulas, use flow, pets, persistence, wire |
 | Crystals | `MonsterCrystalTests` | Crystal tables, pet summon and hunt, the pet following and recalled, its own status per pet and the crystal it shows, dismissal box and wire, its end with a dismissal, its death, the owner's death or field change, pets parting from one spot, the shared delay, clan, mercenary, soul and town refusals |
 | Castle items | `CastleItemTests` | Castle-only scrolls and stones, scroll exclusions and replacement, leaving the castle, Restoration |
@@ -186,7 +186,7 @@ when reading those assets is authorized. GPU probes:
 | `--capture-login <assets> <content> <output-dir> <background.png>` | yes | Login screen edge cases (see below) |
 | `--capture-skills <assets> <content> <output-dir> [<hex,hex,...>]` | yes | Casts skills with the server timeline (see below) |
 | `--capture-sky <assets> <content> <output-dir>` | yes | One `sky-NN.png` per sky profile |
-| `--capture-weather <assets> <content> <output-dir>` | yes | Ricarten's start under each weather at 1920x1080 after two seconds of rain: clear, overcast, light, heavy and storm rain, a lightning flash, rain at dusk and at night, and close under the eaves (`WeatherCaptureProbe`) |
+| `--capture-weather <assets> <content> <output-dir>` | yes | Ricarten's start under each weather at 1920x1080 after two seconds: clear, overcast, light, heavy and storm rain, a lightning flash, rain at dusk and at night, close under the eaves, the clouds' shadows and a morning mist; the realistic sky toward the horizon at noon, in a broken afternoon, at sunset and dusk, under a full and a new moon, overcast, in a storm and its lightning, with a rainbow and the aurora, and the classic dome (`WeatherCaptureProbe`) |
 | `--capture-npcs <assets> <content> <output.png>` | yes | NPC presentation capture |
 | `--capture-job-heads <assets> <content> <output.png>` | yes | Job-head presentation capture |
 | `--capture-equipment <assets> <content> <output-dir>` | yes | Equipment captures |

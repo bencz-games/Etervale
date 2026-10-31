@@ -28,7 +28,12 @@ internal readonly record struct PristonFrameContext(
     PristonShadowFrame Shadows = default,
     PristonLampShadowFrame LampShadows = default,
     Lighting.PristonTileLights Tiles = default,
-    PristonEnvironmentFrame Environment = default);
+    PristonEnvironmentFrame Environment = default,
+    PristonCloudShadowFrame CloudShadow = default);
+
+// The clouds' shadow of the realistic sky (Atmosphere/PristonPhysicalSky): their transmittance map and how surfaces read
+// it (x one over its extent, yz its centre, w strength); Map null: none.
+internal readonly record struct PristonCloudShadowFrame(Texture2D Map, Vector4 Params);
 
 // The image-based lighting of the frame (Lighting/PristonEnvironmentLighting): the prefiltered atlas, the irradiance's
 // spherical harmonics and the split-sum table; Atlas null: the hemispherical ambient instead.

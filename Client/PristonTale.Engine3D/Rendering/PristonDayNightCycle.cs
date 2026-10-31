@@ -31,7 +31,7 @@ internal sealed class PristonDayNightCycle
     // reddened. The gradient's blue night levels give its brightness only: the blue of a moonlit night is the eye's (the
     // final pass's mesopic vision), and a blue light would give every surface a blue specular sheen its diffuse colour
     // does not have.
-    private static readonly Vector3 TowardMoon = Vector3.Normalize(new Vector3(-0.45f, 0.78f, -0.42f));
+    internal static readonly Vector3 TowardMoon = Vector3.Normalize(new Vector3(-0.45f, 0.78f, -0.42f));
     private static readonly Vector3 MoonlightHue = PristonPhotometry.Hue(new Vector3(1f, 0.96f, 0.9f));
     // Colour of clear-sky diffuse light (about 10000 K) and its share in the daytime sky light.
     private static readonly Vector3 ClearSkyHue = PristonPhotometry.Hue(new Vector3(0.78f, 0.9f, 1.2f));

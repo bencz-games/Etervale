@@ -12,6 +12,7 @@ sources are in [shaders.md](shaders.md); option fields in [client-settings.md](c
 - Field streaming hitches (GPU upload steps) or a frame costs too much (statistics, profiler, `--benchmark-render`).
 - Adding something that draws into the HDR scene (effects, portraits, tools).
 - Changing how the weather tints the sky, light and fog, or how the rain and its splashes draw.
+- Changing the realistic sky: its atmosphere, sun, moon, stars, clouds, their shadow, the aurora or the rainbow.
 - Touching the boundary with the MonoGame Vulkan fork.
 
 ## Code map
@@ -41,6 +42,7 @@ sources are in [shaders.md](shaders.md); option fields in [client-settings.md](c
 | `Rendering/Lighting/` | Photometry and exposure, stage baked light and floor light field, shadow cascades, lamp shadows, light culling, transient lights, environment lighting, volumetric light, calibration spheres. |
 | `Rendering/Post/` | Post chain (`PristonPostProcessor`), auto exposure, bloom, colour grade, display transform CPU reference, GTAO/contact shadows, SSR, TAA, SMAA (`Smaa/` tables and credits), full-screen triangle. |
 | `Rendering/Sky/` | Sky manifest (layers per profile), sky model library, profile selection, the fog's sky capture. |
+| `Rendering/Atmosphere/`, `PristonRenderer.Atmosphere.cs` | The realistic sky (`PristonPhysicalSky`, `PristonCloudNoise`): physical atmosphere, sun, moon, stars, aurora, rainbow, cirrus, volumetric clouds and their shadow. |
 | `Rendering/Weather/`, `PristonRenderer.Weather.cs` | `PristonWeather` (cloud, rain, flash, wind), the weather's sky, light and fog, `PristonRain` (GPU rain streaks and splashes) and `PristonRainOcclusion` (the surfaces rain stops on). |
 | `Rendering/GlowRenderer.cs`, `PristonUnlitEffect.cs`, `PristonVfxEffect.cs`, `PristonMeshEffect.cs` | Lamp coronas and the effect shaders other projects draw with. |
 | `Rendering/ClientSettings.cs`, `GraphicsOptions.cs`, `DistanceFogMode.cs`, `PresentationSettings.cs` | Options and the change event the renderer listens to. |
@@ -236,13 +238,51 @@ All light is photometric (`Lighting/PristonPhotometry.cs`, `PristonDayNightCycle
   with its own depth, motion and occlusion; the lit pass shades it at that depth. Two-sided lit cut-outs transmit 45 %
   of the sun from behind.
 
+## Realistic sky
+
+With `realisticSky` on (`PristonRenderer.RealisticSky`), `PristonPhysicalSky` (`Shaders/Passes/Atmosphere.fx`) paints the
+sky instead of the painted domes, outdoors only; the domes stay the classic sky. It writes display-referred sRGB into the
+same 8-bit sky targets the domes use (`DrawPhysicalSky`), so the scene, the fog's sky capture and the image-based
+lighting take it as they took the domes.
+
+- Atmosphere (after Hillaire 2020): the transmittance table (256 x 64) and the multiple scattering table (32 x 32) are
+  built once; the sky view (256 x 128, the sky's radiance around the viewer for the sun and the moon) every frame
+  (`UpdatePhysicalSky`, before the scene's targets bind). Rayleigh, Mie and ozone of a clear Earth day, lengths in km.
+- Sun: the hour's direction (`PristonDayNightCycle`), 120000 lux outside the atmosphere in the frame's pre-exposed
+  units; its disc (0.008 rad, limb-darkened) dimmed by the transmittance. A soft knee above 0.75 of the display keeps a
+  bright sky's and a sunlit cloud's hue.
+- Moon: a fixed high direction, its light 0.3 lux times its lit share; its disc (0.013 rad) lit as a sphere by its
+  phase (`MoonPhase`, from the server clock: `WorldClock.MoonPhaseAt`, a cycle of 8 game days), mottled maria and a
+  faint earthshine.
+- Stars and the Milky Way: one star in a share of cells of a sky turning with the hour, twinkling, tinted; a faint
+  mottled band; with the airglow they fade in as the sun sinks from 2 to 12 degrees below the horizon.
+- Aurora (`Aurora`, the ice fields at night): thin folded green curtains turning violet at their tops, in 20 layers
+  that stand them in rays, waving slowly between the horizon and the zenith.
+- Rainbow (`RainbowStrength`): the primary bow at 40.6 to 42.5 degrees from the antisolar point and the fainter
+  reversed secondary at 50.5 to 53.5, while a light rain falls (none in a downpour or without rain) through a sky the
+  sun shines through, with the sun between 3 and 42 degrees up.
+- Cirrus: a thin stretched sheet at 8 km under a clear sky, fading as the clouds gather.
+- Volumetric clouds (`cloudQuality`; after Schneider's Nubis): a cumulus layer from 1.5 to 4 km in a 64^3 tiling noise
+  volume (`PristonCloudNoise`: Perlin-Worley shape, Worley fBm detail) under a broad coverage pattern; the coverage
+  grows from a fair sky's 30 % to 95 % of the visible sky as the clouds gather and closes further in rain, where a
+  stratus deck fills the layer's lower half and the denser clouds go dark below. 48 marching steps, 5 toward the
+  light; single scattering with the powder effect, a diffuse multiple-scattering term that keeps a deck's base grey, and
+  the sky's light; a strike lights the clouds on its side (`PristonWeather.FlashAzimuth`). The clouds drift with a base
+  wind plus the weather's and stay in place as the camera moves. Their hemisphere (stereographic: zenith at the
+  centre) renders every texel every frame at 256, 384 or 512 texels a side, blended 20 % into the last frame's, so
+  moving and changing clouds never leave blocks of older texels. Off: an overcast sky turns a flat grey instead.
+- Cloud shadows: the clouds' transmittance toward the sun over 6 km around the camera (256^2), read by the surfaces'
+  sun term (`Surface.fx` `CloudShadowAt`, `PristonCloudShadowFrame`) at the clear share of the sky (an overcast sky
+  already dims the sun evenly), only by day.
+
 ## Weather
 
 `PristonRenderer.Weather` (`PristonWeather`: cloud and rain 0..1, the lightning flash 0..1, the wind) changes the frame
 (`PristonRenderer.Weather.cs`):
 
-- Sky: with half the sky clouded the sky shows the rain dome (`FIELD_BACKIMAGE_RAIN`, profile 7) at every hour, as
-  the original switched to it, cross-faded like any profile change (`SkyProfileNow`).
+- Sky: with the classic sky, half the sky clouded shows the rain dome (`FIELD_BACKIMAGE_RAIN`, profile 7) at every
+  hour, as the original switched to it, cross-faded like any profile change (`SkyProfileNow`); the realistic sky draws
+  the weather's clouds instead.
 - Light (`WeatherLight`, in `BuildFrameLighting`): the clouds cover 60 % of the sky without rain and all of it in full
   rain, and the direct sun keeps the clear share to the power 1.5 (a quarter through an overcast sky, an eighth through
   a light rain, so soft shadows still fall, nearly none in a downpour); full cloud keeps 70 % of the sky light, 60 % of
@@ -250,7 +290,9 @@ All light is photometric (`Lighting/PristonPhotometry.cs`, `PristonDayNightCycle
   darkens it; rain lights the lamps by its share, fully in a downpour; a full flash adds 0.6 of the metered
   illuminance as cold sky light the exposure does not meter (about twice a storm's light at its peak, at any hour) and
   draws the sky dome three times as bright (`SkyFlash`).
-- Fog (`WeatherFog`): full rain starts the distance fog at 35 % of its distance and makes it four times as dense.
+- Fog (`WeatherFog`): full rain starts the distance fog at 35 % of its distance and makes it four times as dense; a
+  field with a morning mist (`MorningMist`, the forests) brings it to 15 % and makes it six times as dense at 6:00,
+  rising from 4:30 and lifting by 9:00.
 - `RainRadiance`: a drop's light, the sky light plus a quarter of the sun on a white surface, at least 0.07 of the
   metered level.
 

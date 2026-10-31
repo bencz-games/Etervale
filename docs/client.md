@@ -734,7 +734,9 @@ first the brightest, and the
 thunder 0.3 to 3 s later, sooner and louder the nearer the strike. Each frame the scene hands the blend to the
 renderer (`PristonRenderer.Weather`: sky, light and fog, [rendering.md](rendering.md#weather)), steps `PristonRain`
 (occlusion map around the player, splashes) before the draw, draws it between the opaque scene and the skill effects,
-and updates the weather sound. The loaded fields changing reads the occlusion map again (`InvalidateGround`).
+and updates the weather sound. The loaded fields changing reads the occlusion map again (`InvalidateGround`). The
+renderer's moon follows the server clock (`WorldClock.MoonPhaseAt`, in `FollowServerClock`); the field shown sets the
+aurora (ice fields) and the morning mist (forests) in `SetActiveField`.
 
 ## How to
 

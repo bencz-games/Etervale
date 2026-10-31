@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.Formats;
+using PristonTale.Engine3D.Rendering.Atmosphere;
 using PristonTale.Engine3D.Rendering.Lighting;
 using PristonTale.Engine3D.Rendering.Post;
 using PristonTale.Contracts.Motion;
@@ -184,6 +185,7 @@ public sealed partial class PristonRenderer : IDisposable
         _lightCulling = new PristonLightCulling(graphicsDevice, PristonShaderLibrary.LoadRequired(content, PristonLightCulling.Asset, _log));
         _screenOcclusion = new PristonScreenOcclusion(graphicsDevice, _sceneTargets.Triangle,
             PristonShaderLibrary.LoadRequired(content, PristonScreenOcclusion.Asset, _log));
+        _physicalSky = new PristonPhysicalSky(graphicsDevice, content, _sceneTargets.Triangle, _log);
         ApplyQuality(presentation?.Rendering ?? new ClientSettings());
         if (_presentation is not null)
         {
@@ -212,6 +214,8 @@ public sealed partial class PristonRenderer : IDisposable
         _screenReflections = settings.ScreenSpaceReflections;
         _calibrationSpheres = settings.CalibrationSpheres;
         _volumetricLight = settings.VolumetricLight;
+        RealisticSky = settings.RealisticSky;
+        CloudQuality = settings.CloudQuality;
         _fullShadowRefresh = true;
         _multiSampleCount = settings.AntiAliasing == AntiAliasingMode.Msaa ? Math.Clamp(settings.MultiSampleCount, 2, 4) : 0;
         ShadowsEnabled = settings.ShadowsEnabled;
@@ -397,6 +401,7 @@ public sealed partial class PristonRenderer : IDisposable
         }
 
         _skyBlend = MathF.Min(1f, _skyBlend + MathF.Max(0f, dt) / 2f);
+        DriftClouds(dt);
         _renderClock.Advance(gameTime.ElapsedGameTime);
         if (UseExternalAnimationClock)
             return;
@@ -629,6 +634,12 @@ public sealed partial class PristonRenderer : IDisposable
         _stateCache.InvalidateDeviceState();
         var skyVisible = Sky != null && !Underground && DebugView != PristonDebugView.Overdraw;
         var skyPosition = new Vector3(0f, MathF.Min(camera.Position.Y, 150000f / 256f) / 8f, 0f);
+        if (skyVisible)
+        {
+            UpdatePhysicalSky(camera.Position, displayScale);
+            frame = frame with { CloudShadow = CloudShadowFrame() };
+        }
+
         frame = frame with { FogSky = PrepareFogSky(frame, skyVisible, skyPosition) };
         if (_imageBasedLighting && DebugView != PristonDebugView.Overdraw)
         {
@@ -652,7 +663,7 @@ public sealed partial class PristonRenderer : IDisposable
             var skyProjection = PristonDepth.InfiniteFar(frame.Projection);
             _shaders.ApplyFrame(CreateSkyFrame(frame, skyView, skyProjection, skyPosition));
             _stateCache.SetDepthStencilState(DepthStencilState.None);
-            skyBatchCount = DrawSkyLayers(
+            skyBatchCount = DrawPhysicalSky(skyView, skyProjection) ? 0 : DrawSkyLayers(
                 SkyProfileNow,
                 ref staticBatches,
                 ref dynamicBatches,
@@ -958,6 +969,7 @@ public sealed partial class PristonRenderer : IDisposable
         _environment.Dispose();
         _reflections.Dispose();
         _volumetric.Dispose();
+        _physicalSky.Dispose();
         _shaders.Dispose();
         _textureLoader.Dispose();
         _disposed = true;

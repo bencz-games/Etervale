@@ -22,6 +22,16 @@ public static class WorldClock
     }
 
     public static bool IsNight(float hours) => hours < DayStartHour || hours >= NightStartHour;
+
+    // The moon runs through its phases in LunarDays game days (2 h 34 min): 0 new, 0.5 full.
+    public const int LunarDays = 8;
+
+    public static float MoonPhaseAt(long gameMs)
+    {
+        var days = gameMs / ((double)MinuteMs * MinutesPerDay);
+        var phase = days / LunarDays % 1.0;
+        return (float)(phase < 0 ? phase + 1.0 : phase);
+    }
 }
 
 // A field's event: nightmare fields spawn their monsters only at night, and their people turn into the night creature.

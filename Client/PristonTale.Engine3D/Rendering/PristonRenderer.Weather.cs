@@ -27,7 +27,13 @@ public sealed partial class PristonRenderer
     private static readonly Vector3 FlashColour = new(0.82f, 0.88f, 1f);
     // The sky dome at a full flash is this many times as bright.
     private const float FlashSky = 3f;
-    // In full rain the fog starts this share of its distance and grows this many times as dense.
+    // In full rain the fog starts this share of its distance and grows this many times as dense; the morning mist
+    // brings it this near and makes it this dense at its thickest, between these hours.
+    private const float MistFogStart = 0.15f;
+    private const float MistFogDensity = 6f;
+    private const float MistStart = 4.5f;
+    private const float MistPeak = 6f;
+    private const float MistEnd = 9f;
     private const float RainFogStart = 0.35f;
     private const float RainFogDensity = 4f;
     // A drop's light: the sky light plus this share of the sun on a white surface, and at least the faint light of a
@@ -40,6 +46,9 @@ public sealed partial class PristonRenderer
 
     public PristonWeather Weather { get; set; }
 
+    // The field lays a mist from 4:30 to 9:00, thickest at 6:00 (the forests).
+    public bool MorningMist { get; set; }
+
     // The radiance of a lit raindrop in the scene's pre-exposed units, set with each frame's lighting.
     public Vector3 RainRadiance { get; private set; }
 
@@ -47,7 +56,7 @@ public sealed partial class PristonRenderer
     private int SkyProfileNow => WeatherSkyProfile(SkyProfiles.Select(TimeOfDay));
 
     private int WeatherSkyProfile(int profile) =>
-        Weather.Cloud >= OvercastSkyCover && (Sky is null || RainSkyProfile < Sky.ProfileCount) ? RainSkyProfile : profile;
+        !PhysicalSkyShown && Weather.Cloud >= OvercastSkyCover && (Sky is null || RainSkyProfile < Sky.ProfileCount) ? RainSkyProfile : profile;
 
     // The clouds' and the flash's light: the sun and sky illuminance and the horizontal illuminance lit, the one the
     // exposure meters (without the flash and above the lit one by the weather's darkening) and the lamps' factor.
@@ -85,12 +94,30 @@ public sealed partial class PristonRenderer
     private PristonDistanceFog WeatherFog(PristonDistanceFog fog)
     {
         var rain = MathHelper.Clamp(Weather.Rain, 0f, 1f);
-        return rain <= 0f || Underground
+        var mist = Mist;
+        return rain <= 0f && mist <= 0f || Underground
             ? fog
             : fog with
             {
-                StartDistance = fog.StartDistance * MathHelper.Lerp(1f, RainFogStart, rain),
-                Density = fog.Density * MathHelper.Lerp(1f, RainFogDensity, rain)
+                StartDistance = fog.StartDistance * MathHelper.Lerp(1f, RainFogStart, rain) * MathHelper.Lerp(1f, MistFogStart, mist),
+                Density = fog.Density * MathHelper.Lerp(1f, RainFogDensity, rain) * MathHelper.Lerp(1f, MistFogDensity, mist)
             };
+    }
+
+    // The morning mist's share of the hour (0 outside 4:30 to 9:00, 1 at 6:00).
+    private float Mist
+    {
+        get
+        {
+            if (!MorningMist)
+            {
+                return 0f;
+            }
+
+            var hour = TimeOfDay;
+            var rising = MathHelper.Clamp((hour - MistStart) / (MistPeak - MistStart), 0f, 1f);
+            var lifting = MathHelper.Clamp((MistEnd - hour) / (MistEnd - MistPeak), 0f, 1f);
+            return MathHelper.SmoothStep(0f, 1f, MathF.Min(rising, lifting));
+        }
     }
 }

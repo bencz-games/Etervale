@@ -50,11 +50,29 @@ cbuffer SurfacePixelConstants : register(b0)
     LIGHTING_CONSTANTS
     MATERIAL_CONSTANTS
     float4 OutlineColor;              // skinned outline: display-referred colour, a its strength
+    float4 CloudShadowParams;         // x one over the shadow's extent (world), yz its centre, w strength (0: none)
 };
 
 MATERIAL_RESOURCES
 LIGHTING_RESOURCES(2, 4, 5, 6, 7, 8, 9)
 FOG_RESOURCES(3)
+// The clouds' shadow (Passes/Atmosphere.fx CloudShadow): their transmittance toward the sun around the camera.
+Texture2D<float4> CloudShadowMap : register(t10);
+SamplerState CloudShadowSampler : register(s10) = sampler_state
+{
+    Texture = (CloudShadowMap); MinFilter = Linear; MagFilter = Linear; MipFilter = Point; AddressU = Clamp; AddressV = Clamp;
+};
+
+float CloudShadowAt(float3 world)
+{
+    if (CloudShadowParams.w <= 0.0)
+    {
+        return 1.0;
+    }
+
+    float2 uv = (world.xz - CloudShadowParams.yz) * CloudShadowParams.x + 0.5;
+    return lerp(1.0, CloudShadowMap.SampleLevel(CloudShadowSampler, uv, 0).r, CloudShadowParams.w);
+}
 
 #include "../Atmosphere/Fog.hlsli"
 #include "../Lighting/Shading.hlsli"
@@ -289,7 +307,7 @@ float4 ShadeSurface(VSOut i, bool masked)
         // view and the pose.
         bool actor = ActorReceiver > 0.5;
         float shadow = SunShadow(i.WorldPosition, shadowNormal, max(nl, transmits ? back : 0.0), i.ViewDepth, i.Position.xy,
-            actor ? ActorShadowBias : 0.0, actor ? 1.0 : occlusion.y);
+            actor ? ActorShadowBias : 0.0, actor ? 1.0 : occlusion.y) * CloudShadowAt(i.WorldPosition);
         AddDirectLight(SunDirection, SunColor * shadow, s.Normal, v, s.Albedo, s.F0, s.Metallic, a, lighting.Diffuse, lighting.Specular);
         // Transmission through leaves: diffuse through the blade, stronger looking toward the sun (forward scattering).
         float forward = pow(saturate(dot(-v, SunDirection)), 4.0);
