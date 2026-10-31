@@ -15,13 +15,17 @@ namespace PristonTale.Tests;
 // flash, rain at dusk and at night, and the camera close under the eaves: the sky, the light, the fog, the streaks
 // and their splashes, the roofs keeping the rain off. Then the realistic sky looking toward the horizon: noon, a broken
 // afternoon, sunset, the stars at dusk, a full and a new moon, an overcast and a stormy sky, a rainbow, the aurora and
-// the classic dome; the clouds' shadows on the town and a morning mist. At 1920x1080, after two seconds.
+// the classic dome; the clouds' shadows on the town and a morning mist, also over the harbour toward the sunrise. At
+// 1920x1080, after two seconds.
 internal sealed class WeatherCaptureProbe : Game
 {
     private sealed record Shot(string Name, float Hour, PristonWeather Weather, bool Close = false, bool Sky = false, float Moon = 0.5f,
-        bool Aurora = false, bool Classic = false, float Heading = 0f, bool Mist = false, int Frames = 1);
+        bool Aurora = false, bool Classic = false, float Heading = 0f, bool Mist = false, int Frames = 1, Vector2? At = null);
 
     private static readonly Vector2 Breeze = new(60f, 20f);
+
+    // The harbour square (world x, z) by the sea, where the morning sun rises over the water and the far quays.
+    private static readonly Vector2 Harbour = new(214f, 17618f);
 
     private static readonly Shot[] Shots =
     [
@@ -52,6 +56,7 @@ internal sealed class WeatherCaptureProbe : Game
         new("sky-rainbow", 16.8f, new PristonWeather(0.25f, 0.2f, 0f, Breeze), Sky: true, Heading: 1.6f),
         new("sky-aurora", 0.5f, PristonWeather.Clear, Sky: true, Aurora: true, Heading: 0.6f),
         new("sky-classic", 12f, PristonWeather.Clear, Sky: true, Classic: true),
+        new("mist-harbour", 6.1f, PristonWeather.Clear, Mist: true, Heading: 1.57f, At: Harbour),
         // Broken clouds in a strong wind over consecutive frames: their edges must glide, not waver.
         new("sky-drift", 14f, new PristonWeather(0.45f, 0f, 0f, new Vector2(360f, 0f)), Sky: true, Heading: 1.2f, Frames: 8)
     ];
@@ -108,9 +113,7 @@ internal sealed class WeatherCaptureProbe : Game
         _renderer.AddStage(stage, models);
         _collision = new PristonCollisionWorld(stage);
         var start = field.StartPoints[0];
-        _focus = _collision.TryGetFloorHeight(new Vector3(start.X, 5000f, -start.Z), out var height)
-            ? new Vector3(start.X, height, -start.Z)
-            : new Vector3(start.X, 0f, -start.Z);
+        _focus = Ground(new Vector2(start.X, -start.Z));
         _rain = new PristonRain(GraphicsDevice, Content);
         _target = new RenderTarget2D(GraphicsDevice, Width, Height, false, SurfaceFormat.Color, DepthFormat.Depth24Stencil8);
         _rain.Occlusion.Reset(_collision);
@@ -142,11 +145,18 @@ internal sealed class WeatherCaptureProbe : Game
         _rain.Update(Eye(shot), _focus, Step, shot.Weather.Rain);
     }
 
-    private Vector3 Eye(Shot shot) => shot.Sky ? _focus + new Vector3(0f, 60f, 0f)
+    private Vector3 Ground(Vector2 at) => _collision.TryGetFloorHeight(new Vector3(at.X, 5000f, at.Y), out var height)
+        ? new Vector3(at.X, height, at.Y) : new Vector3(at.X, 0f, at.Y);
+
+    private static Vector3 Toward(Shot shot) => new(MathF.Sin(shot.Heading), 0f, MathF.Cos(shot.Heading));
+
+    private Vector3 Eye(Shot shot) => shot.At is { } at ? Ground(at) - Toward(shot) * 260f + Vector3.Up * 170f
+        : shot.Sky ? _focus + new Vector3(0f, 60f, 0f)
         : shot.Close ? _focus + new Vector3(40f, 55f, 90f) : _focus + new Vector3(160f, 170f, 360f);
 
     // Sky shots look toward the horizon along the shot's heading, 14 degrees up.
-    private Vector3 Target(Shot shot) => shot.Sky
+    private Vector3 Target(Shot shot) => shot.At is { } at ? Ground(at) + Toward(shot) * 500f
+        : shot.Sky
         ? Eye(shot) + new Vector3(MathF.Sin(shot.Heading), 0.25f, MathF.Cos(shot.Heading)) * 100f
         : _focus + Vector3.Up * 30f;
 

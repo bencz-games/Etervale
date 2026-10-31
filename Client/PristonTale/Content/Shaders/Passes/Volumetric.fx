@@ -9,8 +9,10 @@
 //    jitter of successive frames integrates to a smooth estimate with or without the temporal anti-aliasing;
 //  - Composite: the accumulated in-scatter upsampled by a joint bilateral filter (4x4 texels, Gaussian in distance,
 //    steep in depth: at an edge the texels of the pixel's own surface win) and the fog's transmittance in front of the
-//    pixel; the blend multiplies the scene by the transmittance and adds the in-scatter. In front of the sky dome, which
-//    already holds the air's in-scatter, only the shadowed share is taken out (the shafts darken the sky).
+//    pixel; the blend multiplies the scene by the transmittance and adds the in-scatter. The sky dome already holds the
+//    air's own haze (SkyHaze.x of the medium): in front of it that share only darkens it where shadowed (the shafts),
+//    and a mist the air lacks (the rest of the medium) veils and dims it like any surface, so a misty sky and what has
+//    no depth before it (water) take the haze the surfaces do.
 // The distance fog of the lit passes covers the medium beyond the march distance (its start distance).
 #include "../Core/Common.hlsli"
 #include "../Core/Fullscreen.hlsli"
@@ -37,6 +39,7 @@ cbuffer VolumetricConstants : register(b0)
     float4 CascadeAtlas[MAX_CASCADES];
     float4 CascadeSplits;
     float4x4 PreviousViewProjection;
+    float4 SkyHaze;             // x the share of the medium the sky dome already holds; the rest is a mist it lacks
 };
 
 Texture2D<float4> DepthMap : register(t0);
@@ -138,11 +141,11 @@ float4 PS_March(FullscreenOut i) : SV_Target0
         entering = leaving;
     }
 
-    // The sky dome already holds the light the whole air scatters along its rays, this haze included: in front of it only
-    // the light the shadows take out of the haze counts (crepuscular rays darken the sky), and the dome is not dimmed.
+    // The sky dome already holds the light its share of the medium scatters unshadowed: that much is taken out, so the
+    // shadows darken it (crepuscular rays) and only a mist's extra haze adds to it.
     if (depth >= SkyDepthThreshold)
     {
-        scattered -= 1.0 - entering;
+        scattered -= 1.0 - pow(entering, SkyHaze.x);
     }
 
     // The sun's radiance is that of a white surface facing it (E / pi): the in-scattered radiance is E * phase per unit
@@ -222,7 +225,8 @@ float4 PS_Composite(FullscreenOut i) : SV_Target0
 
     float3 ray = ViewRay(i.Uv);
     float rayLength = length(ray);
-    float transmittance = depth >= SkyDepthThreshold ? 1.0 : exp(-OpticalDepth(ray / rayLength, MarchDistance(depth, rayLength)));
+    float opticalDepth = OpticalDepth(ray / rayLength, MarchDistance(depth, rayLength));
+    float transmittance = exp(-opticalDepth * (depth >= SkyDepthThreshold ? 1.0 - SkyHaze.x : 1.0));
     return float4(sum / max(weights, 1.0e-6), transmittance);
 }
 

@@ -28,6 +28,7 @@ internal sealed partial class ShaderValidationProbe
         VerifyMesopicVision();
         VerifyVolumetricComposite();
         VerifyVolumetricShafts();
+        VerifyVolumetricMistOverSky();
     }
 
     private void VerifyNightReflections()
@@ -156,6 +157,28 @@ internal sealed partial class ShaderValidationProbe
         _verified++;
     }
 
+    // The sky already holds the air's own haze: without a mist the volumetric pass leaves an unshadowed sky as it is; a
+    // mist of four times the medium veils and dims it by the three quarters the sky lacks, T = exp(-density * scale * d)
+    // over a march of 2000 units (farther, the quarter-resolution texels' rays cross the height falloff unevenly):
+    // sky * T^(3/4) + E * phase * (T^(1/4) - T).
+    private void VerifyVolumetricMistOverSky()
+    {
+        var sun = Vector3.Normalize(new Vector3(0.2f, 0.25f, 1f));
+        const float march = 2000f;
+        var (clear, _) = RunVolumetric(striped: false, sun, firstFrame: 1, frames: 1, depthValue: SkyDepthValue, marchDistance: march);
+        Assert.True(Vector3.Distance(clear, VolumetricScene) < 0.01f * VolumetricScene.Length(), $"volumetric over a clear sky: expected {VolumetricScene}, got {clear}");
+        const float mist = 4f;
+        var (misty, _) = RunVolumetric(striped: false, sun, firstFrame: 1, frames: 1, depthValue: SkyDepthValue, densityScale: mist, marchDistance: march);
+        var transmittance = MathF.Exp(-PristonVolumetricLight.Density * mist * march);
+        var g = PristonVolumetricLight.Anisotropy;
+        var cosine = Vector3.Dot(Vector3.UnitZ, sun);
+        var phase = (1f - g * g) / (4f * MathF.PI * MathF.Pow(1f + g * g - 2f * g * cosine, 1.5f));
+        var expected = VolumetricScene * MathF.Pow(transmittance, 1f - 1f / mist)
+            + VolumetricSun * (MathF.PI * phase * (MathF.Pow(transmittance, 1f / mist) - transmittance));
+        Assert.True(Vector3.Distance(misty, expected) < 0.01f * expected.Length(), $"volumetric mist over the sky: expected {expected}, got {misty}");
+        _verified += 2;
+    }
+
     // Shadow stripes two texels wide alias into grain in one frame's 16 jittered samples. Against the mean of 64 frames
     // of jitter (the converged in-scatter), the accumulated in-scatter of 24 successive frames deviates less than 40 % as
     // much as a single frame does.
@@ -190,7 +213,11 @@ internal sealed partial class ShaderValidationProbe
 
     // Runs the volumetric light over a 128x128 scene of the given radiance at view depth 2000 for some successive frames;
     // returns the centre pixel and the luminance of the accumulated quarter-resolution in-scatter.
-    private (Vector3 Centre, float[] Accumulated) RunVolumetric(bool striped, Vector3 towardSun, uint firstFrame, int frames)
+    // The cleared depth of a pixel without a surface (PristonSceneTargets).
+    private const float SkyDepthValue = 65000f;
+
+    private (Vector3 Centre, float[] Accumulated) RunVolumetric(bool striped, Vector3 towardSun, uint firstFrame, int frames, float depthValue = 2000f,
+        float densityScale = 1f, float marchDistance = PristonVolumetricLight.MaxDistance)
     {
         const int size = 128;
         using var triangle = new PristonFullscreenTriangle(GraphicsDevice);
@@ -199,7 +226,7 @@ internal sealed partial class ShaderValidationProbe
         using var scene = new RenderTarget2D(GraphicsDevice, size, size, false, SurfaceFormat.HalfVector4, DepthFormat.None, 0,
             RenderTargetUsage.PreserveContents);
         using var depth = new Texture2D(GraphicsDevice, size, size, false, SurfaceFormat.Single);
-        depth.SetData(Enumerable.Repeat(2000f, size * size).ToArray());
+        depth.SetData(Enumerable.Repeat(depthValue, size * size).ToArray());
         const int shadowSize = 256;
         using var shadow = new Texture2D(GraphicsDevice, shadowSize, shadowSize, false, SurfaceFormat.Single);
         var stored = new float[shadowSize * shadowSize];
@@ -221,7 +248,7 @@ internal sealed partial class ShaderValidationProbe
             GraphicsDevice.SetRenderTarget(scene);
             GraphicsDevice.Clear(ClearOptions.Target, new Vector4(VolumetricScene, 1f), 1f, 0);
             volumetric.Run(depth, shadow, cascades, view, projection, position, focus, towardSun, VolumetricSun,
-                PristonVolumetricLight.MaxDistance, frame, () => GraphicsDevice.SetRenderTarget(scene));
+                marchDistance, frame, () => GraphicsDevice.SetRenderTarget(scene), densityScale);
         }
 
         GraphicsDevice.SetRenderTarget(null);

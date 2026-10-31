@@ -235,7 +235,8 @@ All light is photometric (`Lighting/PristonPhotometry.cs`, `PristonDayNightCycle
   (character select) and portraits use full light. The authored light also occludes the sky's reflections.
 - **Distance fog** (`PristonDistanceFog`): from 2208 units, opacity 0.85 x (1 - exp(-0.0003 d)), colour from the sky
   capture plus forward-scattered sun (Henyey-Greenstein g = 0.7, Schlick form); the sun term fades out by 7 degrees
-  below the horizon.
+  below the horizon, and as the opacity reaches its cap, since the capture already holds the sky's glow around the sun:
+  a surface the fog hides takes the sky behind it, not a brighter silhouette.
   `Classic` draws as `Atmospheric`.
 - **Foliage:** every cut-out outside the blended queue, including late-flagged leaves, is drawn opaque by the pre-pass
   with its own depth, motion and occlusion; the lit pass shades it at that depth. Two-sided lit cut-outs transmit 45 %
@@ -312,8 +313,8 @@ they took the domes.
   draws the sky dome three times as bright (`SkyFlash`).
 - Fog (`WeatherFog`): full rain starts the distance fog at 35 % of its distance and makes it four times as dense; a
   field with a morning mist (`MorningMist`: a forest's 1, or the strength `FieldDef.MorningMist` names, Ricarten's 0.8
-  for a town in the clouds) brings it to 1 / (1 + 3 x strength) of its distance and makes it 1 + 3 x strength times
-  as dense at 6:00, rising from 4:30 and lifting by 9:00, and thickens the volumetric light's medium 1 + 6 x strength
+  for a town in the clouds) brings it to 1 / (1 + 2 x strength) of its distance and makes it 1 + 2 x strength times
+  as dense at 6:00, rising from 4:30 and lifting by 9:00, and thickens the volumetric light's medium 1 + 3 x strength
   times, so the low sun draws shafts through it.
 - `RainRadiance`: a drop's light, the sky light plus a quarter of the sun on a white surface, at least 0.07 of the
   metered level.
@@ -382,7 +383,10 @@ they took the domes.
   hemispherical sky/ground ambient.
 - **SSR** (`Post/PristonScreenReflections.cs`): rays up to 3000 units, after the opaque queues; a miss keeps the IBL.
 - **Volumetric light** (`Lighting/PristonVolumetricLight.cs`): extinction 4e-5 per unit with a 600-unit scale height
-  around 50 units below the focus, anisotropy 0.6, march to the fog start (at most 6000), history weight 0.125.
+  around 50 units below the focus, anisotropy 0.6, march to the fog start (at most 6000), history weight 0.125. The sky
+  holds the air's own haze, so in front of it (and of what writes no depth, such as water) that share only darkens
+  where shadowed; a thicker medium (the morning mist's) veils and dims it by the share the sky lacks (`SkyHaze`), so a
+  misty sky and the water take the haze the surfaces do.
 
 ## Anti-aliasing
 

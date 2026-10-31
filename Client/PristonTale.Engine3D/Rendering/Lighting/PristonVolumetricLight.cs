@@ -93,6 +93,7 @@ internal sealed class PristonVolumetricLight : IDisposable
         _parameters["CameraForward"].SetValue(-new Vector3(view.M13, view.M23, view.M33));
         _parameters["CameraPosition"].SetValue(cameraPosition);
         _parameters["FogDensity"].SetValue(Density * densityScale);
+        _parameters["SkyHaze"].SetValue(new Vector4(1f / MathF.Max(densityScale, 1f), 0f, 0f, 0f));
         _parameters["FogFalloff"].SetValue(1f / ScaleHeight);
         _parameters["FogReferenceHeight"].SetValue(focus.Y - ReferenceBelowFocus);
         _parameters["PhaseG"].SetValue(Anisotropy);

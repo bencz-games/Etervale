@@ -31,9 +31,9 @@ public sealed partial class PristonRenderer
     // In full rain the fog starts this share of its distance and grows this many times as dense; a mist of strength 1
     // at its thickest brings it to 1 / (1 + MistFogNear) of its distance, makes it 1 + MistFogDensity times as dense
     // and the volumetric light's medium 1 + MistShafts times, so the low morning sun draws shafts through it.
-    private const float MistFogNear = 3f;
-    private const float MistFogDensity = 3f;
-    private const float MistShafts = 6f;
+    private const float MistFogNear = 2f;
+    private const float MistFogDensity = 2f;
+    private const float MistShafts = 3f;
     private const float MistStart = 4.5f;
     private const float MistPeak = 6f;
     private const float MistEnd = 9f;
