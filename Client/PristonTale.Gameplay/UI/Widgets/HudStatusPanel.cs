@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Xna.Framework;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Characters;
@@ -9,6 +10,12 @@ namespace PristonTale.Gameplay.UI.Widgets;
 public sealed class HudStatusPanel
 {
     private const int TextShift = 2;
+    // The experience and the next level's take a smaller face to fit their boxes; past level 79 they read in millions.
+    private const float ExperienceTextScale = 12f / HudPainter.BakePixels;
+    private const int ExperienceIndex = 3;
+    private const int NextLevelIndex = 4;
+    private const int MillionsAboveLevel = 79;
+    private const ulong Million = 1_000_000;
     private static readonly int[] PointButtonY = [431, 452, 472, 491, 511];
     private static readonly (int Left, int Right, int Y)[] Values =
     [
@@ -56,7 +63,14 @@ public sealed class HudStatusPanel
         for (var index = 0; index < Values.Length; index++)
         {
             var (left, right, y) = Values[index];
-            painter.TextCentered(_text[index], origin.X + left, origin.X + right, origin.Y + y);
+            if (index is ExperienceIndex or NextLevelIndex)
+            {
+                painter.TextCentered(_text[index], origin.X + left, origin.X + right, origin.Y + y, ExperienceTextScale);
+            }
+            else
+            {
+                painter.TextCentered(_text[index], origin.X + left, origin.X + right, origin.Y + y);
+            }
         }
     }
 
@@ -71,8 +85,8 @@ public sealed class HudStatusPanel
         _text[0] = ClassName;
         _text[1] = Name;
         _text[2] = state.Level.ToString();
-        _text[3] = state.Experience.ToString();
-        _text[4] = state.NextLevel.ToString();
+        _text[ExperienceIndex] = ExperienceText(state.Experience, state.Level);
+        _text[NextLevelIndex] = ExperienceText(state.NextLevel, state.Level);
         _text[5] = $"{state.Life}/{state.MaxLife}";
         _text[6] = $"{state.Mana}/{state.MaxMana}";
         _text[7] = $"{state.Stamina}/{state.MaxStamina}";
@@ -96,4 +110,7 @@ public sealed class HudStatusPanel
     }
 
     public void Invalidate() => _state = null;
+
+    public static string ExperienceText(ulong experience, int level) =>
+        level > MillionsAboveLevel ? $"{experience / Million}M" : experience.ToString(CultureInfo.InvariantCulture);
 }

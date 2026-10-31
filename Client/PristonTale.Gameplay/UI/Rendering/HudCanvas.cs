@@ -108,11 +108,12 @@ public sealed class HudCanvas(SpriteBatch batch, SpriteFont font, HudAtlas atlas
 
         if (label.Length > 0)
         {
-            Text(label, bounds, Color.White, 0.62f, centered: true);
+            Text(label, bounds, Color.White, 15f, centered: true);
         }
     }
 
-    public void Text(string value, Rectangle bounds, Color? color = null, float scale = 0.8f, bool centered = false)
+    // Text at an em of at most pixels, shrunk to fit the bounds.
+    public void Text(string value, Rectangle bounds, Color? color = null, float pixels = 19f, bool centered = false)
     {
         if (string.IsNullOrEmpty(value) || bounds.Width <= 0 || bounds.Height <= 0)
         {
@@ -120,7 +121,7 @@ public sealed class HudCanvas(SpriteBatch batch, SpriteFont font, HudAtlas atlas
         }
 
         var size = font.MeasureString(value);
-        var fitted = Math.Min(scale, Math.Min(bounds.Width / Math.Max(1, size.X), bounds.Height / Math.Max(1, size.Y)));
+        var fitted = Math.Min(pixels / HudPainter.BakePixels, Math.Min(bounds.Width / Math.Max(1, size.X), bounds.Height / Math.Max(1, size.Y)));
         var x = centered ? bounds.X + (bounds.Width - size.X * fitted) / 2 : bounds.X;
         var y = bounds.Y + (bounds.Height - size.Y * fitted) / 2;
         _text.Add(new TextRun(value, new Vector2(x, y), color ?? Gold, fitted));

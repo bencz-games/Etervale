@@ -297,14 +297,16 @@ dotnet run --project tools/PristonTale.VfxImport -c Release --no-build -- import
 Development-time font preparation; the game never converts fonts at run time. Needs Python 3 with `fontTools`.
 
 ```bash
-python3 tools/ui/build_font.py <NotoSansCJK.ttc> <OFL.txt>
+python3 tools/ui/build_font.py <DejaVuSans.ttf> <LICENSE>
 ```
 
-- `collection`: a TrueType collection containing `Noto Sans CJK KR`; `license`: its license text.
-- Subsets to Latin, Latin Extended, Greek, Cyrillic, general punctuation, Hangul compatibility jamo and Hangul
-  syllables; drops vertical tables; instances weight 400; renames the family to `Priston UI Sans`.
-- Writes `assets/Hud/Fonts/PristonUiSans-Regular.otf`, copies the license to `assets/Hud/Fonts/OFL.txt` and regenerates
-  `Client/PristonTale/Content/Fonts/UI.spritefont` (size 18, kerning, one character region per contiguous run).
+- `font`: `DejaVuSans.ttf` of the DejaVu fonts release (2.37, `dejavu-fonts-ttf-2.37.zip`); `license`: its `LICENSE`.
+- The interface text is DejaVu Sans, the default face the original's portable build draws its 14-pixel interface
+  text with; Etervale shows no Korean text, so the font carries Latin only.
+- Copies the font to `assets/Hud/Fonts/DejaVuSans.ttf` and the license to `assets/Hud/Fonts/DejaVu-LICENSE.txt`, and
+  regenerates `Client/PristonTale/Content/Fonts/UI.spritefont`: 21 points (a 28-pixel em at the pipeline's 96 dpi,
+  drawn at half scale for the 14-pixel text: `HudPainter.BakePixels`, `TextScale`), kerning, and one character region
+  per contiguous run of the glyphs it has among Basic Latin, Latin-1, Latin Extended-A and general punctuation.
   Rebuild the client afterwards to bake the glyphs.
 
 ## Blender scripts (`3d_glb/blender/`)

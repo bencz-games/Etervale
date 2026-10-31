@@ -664,6 +664,8 @@ internal static class HudInteractionTests
             "the experience hover is not the slot right of the mana");
         Assert.True(HudBar.ExperienceText(halfway) == "EXP: 50.000%" && HudBar.ExperienceText(owner with { Experience = owner.NextLevel }) == "EXP: 99.999%",
             $"the experience text is not in thousandths with a dot: {HudBar.ExperienceText(halfway)}");
+        Assert.True(HudStatusPanel.ExperienceText(1_234_567_890, 79) == "1234567890" && HudStatusPanel.ExperienceText(1_234_567_890, 80) == "1234M",
+            "the status window's experience does not read in millions past level 79");
         Assert.True(HudCombat.StateColor(0, 10) == new Color(255, 0, 0) && HudCombat.StateColor(10, 10) == new Color(1, 255, 0),
             "target bar color differs from DrawStateBar");
         return Task.CompletedTask;

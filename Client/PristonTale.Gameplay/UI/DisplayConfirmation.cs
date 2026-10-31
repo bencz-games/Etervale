@@ -60,7 +60,7 @@ internal sealed class DisplayConfirmation
         _canvas.Begin(layout.Scale);
         _canvas.Frame(panel);
         _canvas.Text("Keep these display settings?", new Rectangle(panel.X + 20, panel.Y + 14, panel.Width - 40, 32), centered: true);
-        _canvas.Text(_context.Presentation.EffectiveDisplay, new Rectangle(panel.X + 20, panel.Y + 50, panel.Width - 40, 28), scale: 0.65f, centered: true);
+        _canvas.Text(_context.Presentation.EffectiveDisplay, new Rectangle(panel.X + 20, panel.Y + 50, panel.Width - 40, 28), pixels: 16f, centered: true);
         _canvas.Text(_countdown, new Rectangle(panel.X + 20, panel.Y + 82, panel.Width - 40, 25), centered: true);
         _canvas.Frame(Confirm(panel), "Button", 6);
         _canvas.Frame(Revert(panel), "Button", 6);

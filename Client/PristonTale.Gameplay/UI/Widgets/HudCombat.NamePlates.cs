@@ -21,7 +21,7 @@ public sealed partial class HudCombat
     private const int ClassicPlateLift = 36;
     private const int PlateLift = 12;
     private const int PlatePadY = 1;
-    private const float PlateTextScale = 0.6f;
+    private const float PlateTextScale = 12f / HudPainter.BakePixels;
     // The original's 100x16 life bar drawn at 0.6 x 0.7.
     private const int PlateBarWidth = 60;
     private const int PlateBarHeight = 11;

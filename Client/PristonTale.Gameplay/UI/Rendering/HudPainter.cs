@@ -7,8 +7,11 @@ namespace PristonTale.Gameplay.UI.Rendering;
 // Text is queued and drawn in a linear-filtered pass because the UI font is a scaled vector bake.
 public sealed class HudPainter : IDisposable
 {
-    // The original used 14-16 px Comic Sans through GDI TextOut, whose y is the top of a cell with ~2 px leading.
-    public const float TextScale = 0.7f;
+    // UI.spritefont bakes DejaVu Sans at 21 points, rasterized at 96 dpi: a 28-pixel em (tools/ui/build_font.py).
+    public const float BakePixels = 28f;
+    // The original's interface text: a 14-pixel font through GDI TextOut (DejaVu Sans, the system's default face, in its
+    // portable build), whose y is the top of a cell with ~2 px leading.
+    public const float TextScale = 14f / BakePixels;
     public const int LineHeight = 16;
     public const float CapTop = 2f;
 
@@ -189,6 +192,16 @@ public sealed class HudPainter : IDisposable
         if (!string.IsNullOrEmpty(value))
         {
             Text(value, left + (right - left - Measure(value)) / 2, y, color, shadow, shadowOffset);
+        }
+    }
+
+    // Shadowed text at its own scale of the UI font, centred between left and right, its y the top of the capitals.
+    public void TextCentered(string value, int left, int right, int y, float scale)
+    {
+        if (!string.IsNullOrEmpty(value))
+        {
+            var x = left + (right - left - MeasureAt(value, scale)) / 2;
+            _text.Add(new TextRun(value, new Vector2(x, y + MathF.Round(CapTop - _capCropping * scale)), Color.White, true, Vector2.One, scale));
         }
     }
 
