@@ -227,6 +227,15 @@ public sealed class HudPainter : IDisposable
         return (_letterHeights.Value.Capitals * scale, _letterHeights.Value.Descent * scale);
     }
 
+    // One line of a name box at a scale: the capitals centred, with room for descenders plus padY on both sides. Pad is the
+    // room above the capitals; text for the line goes at its top + Pad - CapTop.
+    public (int Line, int Pad) NameBoxLineAt(float scale, int padY)
+    {
+        var (capitals, descent) = LetterHeightsAt(scale);
+        var pad = (int)MathF.Ceiling(descent) + padY;
+        return ((int)MathF.Ceiling(capitals) + pad * 2, pad);
+    }
+
     public string Fit(string value, int width)
     {
         if (Measure(value) <= width)
@@ -392,6 +401,9 @@ public sealed class HudPainter : IDisposable
         }
     }
 
+    // The name box's content sits under a 4-pixel top border and over a 2-pixel bottom one.
+    public const int NameBoxTop = 4;
+    public const int NameBoxBorders = 6;
     private const int NameBoxSize = 20;
     private const int NameBoxCorner = 8;
     private const float NameBoxRadius = 7f;

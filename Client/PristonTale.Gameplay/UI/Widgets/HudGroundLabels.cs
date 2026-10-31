@@ -5,8 +5,8 @@ using PristonTale.Gameplay.World.Remote;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
-// Drop names over the scene, in the classic name box geometry: the box 36 pixels above the drop's point and the text 9
-// pixels in. Labels come nearest first; each keeps its spot unless it would cover a label already placed, and then rises
+// Drop names over the scene: the name box 36 pixels above the drop's point, the text 9 pixels in at the HUD text size,
+// its capitals centred with room for descenders (HudPainter.NameBoxLineAt). Labels come nearest first; each keeps its spot unless it would cover a label already placed, and then rises
 // just above it, so a pile of drops reads as a column of names. Labels are moved by whole pixels, not snapped to a grid,
 // and come in an order kept from frame to frame, so the column follows the pile without reshuffling.
 // A box that would leave the screen is not drawn. Labels draw before the monster and NPC names, which cover them; the
@@ -15,6 +15,7 @@ public sealed class HudGroundLabels
 {
     private const int Lift = 36;
     private const int Gap = 2;
+    private const int PadY = 1;
     private static readonly Color Named = new(150, 144, 206);
     private static readonly Color Hovered = new(196, 186, 255);
     private readonly List<Rectangle> _placed = [];
@@ -22,8 +23,9 @@ public sealed class HudGroundLabels
     public void Draw(HudPainter painter, HudLayout layout, IReadOnlyList<GroundLabel> labels, Action<Guid, Rectangle> placed)
     {
         var scale = Math.Max(1, layout.Scale);
-        var lineHeight = Math.Max(16, painter.TextHeight);
-        var height = 4 + lineHeight + 6 + 2;
+        var (line, pad) = painter.NameBoxLineAt(HudPainter.TextScale, PadY);
+        var height = line + HudPainter.NameBoxBorders;
+        var textTop = (int)(HudPainter.NameBoxTop + pad - HudPainter.CapTop);
         _placed.Clear();
         foreach (var label in labels)
         {
@@ -39,7 +41,7 @@ public sealed class HudGroundLabels
             painter.Flush();
             painter.NameBox(box);
             painter.Flush();
-            painter.Text(label.Text, box.X + 9, box.Y + 5 + 2, label.Hovered ? Hovered : Named, false);
+            painter.Text(label.Text, box.X + 9, box.Y + textTop, label.Hovered ? Hovered : Named, HudPainter.TextScale);
             placed?.Invoke(label.Id, new Rectangle(box.X * scale, box.Y * scale, box.Width * scale, box.Height * scale));
         }
     }

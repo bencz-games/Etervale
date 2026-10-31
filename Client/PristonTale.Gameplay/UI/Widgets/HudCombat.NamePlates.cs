@@ -128,13 +128,11 @@ public sealed partial class HudCombat
     {
         var nameWidth = painter.MeasureAt(name, PlateTextScale);
         var ownerWidth = owner is null ? 0 : painter.MeasureAt(owner, PlateTextScale);
-        var (capitals, descent) = painter.LetterHeightsAt(PlateTextScale);
-        var pad = (int)MathF.Ceiling(descent) + PlatePadY;
-        var line = (int)MathF.Ceiling(capitals) + pad * 2;
+        var (line, pad) = painter.NameBoxLineAt(PlateTextScale, PlatePadY);
         var content = owner is null ? line : line * 2;
-        // The frame: a 4-pixel top and 2-pixel bottom border around the content, 9 pixels each side of the text.
+        // The frame: 9 pixels each side of the text.
         var width = Math.Max(nameWidth, ownerWidth) + 18;
-        var height = content + 6;
+        var height = content + HudPainter.NameBoxBorders;
         var x = anchorX - width / 2;
         var y = anchorY - PlateLift - height;
         if (x < 0 || y < 0 || x + width > layout.Width || y + height + 1 + PlateBarHeight > layout.Height)
@@ -145,7 +143,7 @@ public sealed partial class HudCombat
         painter.Flush();
         painter.NameBox(new Rectangle(x, y, width, height), hovered);
         painter.Flush();
-        var top = (int)(y + 4 + pad - HudPainter.CapTop);
+        var top = (int)(y + HudPainter.NameBoxTop + pad - HudPainter.CapTop);
         painter.Text(name, anchorX - nameWidth / 2, top, color, PlateTextScale);
         if (owner is not null)
         {

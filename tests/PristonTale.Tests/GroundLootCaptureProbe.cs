@@ -129,10 +129,8 @@ internal sealed class GroundLootCaptureProbe : Game
             }
         }
 
-        // Labels stay at their own drops as in the original, so the two gold drops on one spot share a label: one is
-        // picked by it, the other once the first is gone.
-        var spots = _drops.Select(drop => (drop.Position.X, drop.Position.Z)).Distinct().Count();
-        Assert.True(clicked.Count == spots, "a drop on its own spot cannot be selected by its label");
+        // Labels never overlap, so the two gold drops on one spot get a label each, one stacked above the other.
+        Assert.True(clicked.Count == _drops.Length, "a drop cannot be selected by its label");
         DrawLabels(Guid.Empty, showAll: false);
         for (int y = 0; y < 540; y += 4)
         {
@@ -161,7 +159,7 @@ internal sealed class GroundLootCaptureProbe : Game
             target.SaveAsPng(close, 960, 540);
         }
 
-        Console.WriteLine($"Verified ground elevation, coordinate remapping and a label click target on each of {spots} drop spots: {_output}");
+        Console.WriteLine($"Verified ground elevation, coordinate remapping and a label click target on each of {_drops.Length} drops: {_output}");
         Exit();
     }
 

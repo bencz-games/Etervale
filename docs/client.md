@@ -286,7 +286,8 @@ coordinates; their consumers mirror them with `WorldSpace` instead of negating Z
   (`InsertByDepth`), and two neighbours swap only once the first lies more than `OrderHysteresis` (12 units, half a drop
   cell) farther than the second (`SettleOrder`), so drops of one row, at nearly one depth, do not trade places as the
   camera turns slightly while the player walks. `HudGroundLabels` draws them first in `GameplayHud.Draw`, under the
-  monster and NPC names: a `HudPainter.NameBox` 36 pixels above the point in the classic name box geometry, the text in
+  monster and NPC names: a `HudPainter.NameBox` 36 pixels above the point, the name at the HUD text size with its
+  capitals centred and room for descenders (`HudPainter.NameBoxLineAt`, as the compact name plates), the text in
   (150, 144, 206), (196, 186, 255) under the cursor. Labels never overlap: each keeps its spot unless it would cover a
   label already placed, and then rises just above it, 2 pixels apart (`HudGroundLabels.Stack`), so a pile of drops
   reads as a column of names over the nearest one. Labels move by whole pixels, with no grid, and keep their order, so
