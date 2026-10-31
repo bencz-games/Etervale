@@ -456,6 +456,10 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   box (`GameplayHud.GoldFromInventory`). With the warehouse open it stores it (`DepositGold`, at most what is carried and
   what the warehouse still holds); otherwise it drops it on the ground (`InventoryAction.DropGold`), not while a work
   window or the wing gate is open, as the original refuses it. The warehouse's own coin takes gold out.
+- Bottom bar gauges (`HudBar`): life, mana and stamina (`Bar_Life`, `Bar_Mana`, `Bar_Stamina`, 94, 94 and 76 pixels)
+  and the experience (`sinGage/Bar_Exp.bmp`, 6 x 86 at (485, 508), Menu-1's slot right of the mana under its "NL." label)
+  fill from the bottom up; the experience is the level's share. Pointed at, each shows its value; the experience reads
+  `EXP: 50.000%` (thousandths, truncated, at most 99.999).
 - Potion belt (`HudInventoryPanel.DrawBelt`, after the bottom bar, the window open or not): the three boxes of
   `PotionBack.bmp` at (495 + 26 x box, 565), each potion centred with its count. A right click drinks one (the window
   closed too); keys 1 to 3 drink from their box, and Shift with them fills the box from the bag potion under the pointer

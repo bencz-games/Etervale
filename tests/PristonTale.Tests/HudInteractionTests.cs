@@ -656,6 +656,14 @@ internal static class HudInteractionTests
         var owner = OwnerState.Capture(new CharacterClassRegistry().CreatePlayer(PlayerClass.Mechanician, "Exp"));
         Assert.True(HudBar.ExperienceFraction(owner with { Experience = owner.LevelStart }) == 0, "level start shows experience");
         Assert.True(HudBar.ExperienceFraction(owner with { Experience = owner.NextLevel + 10 }) == 1, "experience escaped its bar");
+        var halfway = owner with { Experience = owner.LevelStart + (owner.NextLevel - owner.LevelStart) / 2 };
+        var experience = (int)(HudBar.ExperienceLength * HudBar.ExperienceFraction(halfway));
+        Assert.True(experience == HudBar.ExperienceLength / 2 && HudBar.GaugeSource(6, HudBar.ExperienceLength, experience) == new Rectangle(0, 43, 6, 43),
+            "half a level does not fill the lower half of the 6x86 experience gauge");
+        Assert.True(HudBar.ExperienceHover.Contains(new Point(487, 550)) && !HudBar.ExperienceHover.Intersects(HudBar.ManaHover),
+            "the experience hover is not the slot right of the mana");
+        Assert.True(HudBar.ExperienceText(halfway) == "EXP: 50.000%" && HudBar.ExperienceText(owner with { Experience = owner.NextLevel }) == "EXP: 99.999%",
+            $"the experience text is not in thousandths with a dot: {HudBar.ExperienceText(halfway)}");
         Assert.True(HudCombat.StateColor(0, 10) == new Color(255, 0, 0) && HudCombat.StateColor(10, 10) == new Color(1, 255, 0),
             "target bar color differs from DrawStateBar");
         return Task.CompletedTask;
