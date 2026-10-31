@@ -139,7 +139,7 @@ public static class MonsterCrystals
         Pet("GP101", "Hopy", "HOPY 2", "Zzangpy 2");
         Pet("GP102", "Hobgoblin", "Hobgoblin 2", "Wild Goblin");
         Pet("GP103", "Decoy", "Decoy 2", "Maximum Decoy");
-        Pet("GP104", "Bargon", "Bargon", "Bauton 2");
+        Pet("GP104", "Bargon", "Bargon 2", "Bauton 2");
         Pet("GP105", "Head Cutter", "Head Cutter 2", "Vega Demir");
         Pet("GP106", "Figon", "Figon 2", "HellSing 2");
         Pet("GP107", "King Hopy", "Hopy King 2", "Horropion 2");
@@ -149,12 +149,12 @@ public static class MonsterCrystals
         Pet("GP113", "Iron Guard", "Iron Guard 2", "Imitir Guard");
 
         crystals["GP109"] = new MonsterCrystalDefinition("GP109", "Mystic", CrystalKind.Pet,
-            [new("HOPY 2", 20), new("Hobgoblin 2", 20), new("Decoy 2", 15), new("Bargon", 15), new("Head Cutter 2", 15), new("Figon 2", 10), new("Hopy King 2", 5)],
+            [new("HOPY 2", 20), new("Hobgoblin 2", 20), new("Decoy 2", 15), new("Bargon 2", 15), new("Head Cutter 2", 15), new("Figon 2", 10), new("Hopy King 2", 5)],
             [new("Zzangpy 2", 20), new("Wild Goblin", 20), new("Maximum Decoy", 15), new("Bauton 2", 15), new("Vega Demir", 15), new("HellSing 2", 10),
                 new("Horropion 2", 5)],
             false);
         crystals["GP121"] = new MonsterCrystalDefinition("GP121", "Marvel", CrystalKind.Pet,
-            [new("Bargon", 20), new("Head Cutter 2", 20), new("Figon 2", 15), new("Hopy King 2", 15), new("Hulk 2", 12), new("Web 2", 10), new("Dark Specter 2", 5),
+            [new("Bargon 2", 20), new("Head Cutter 2", 20), new("Figon 2", 15), new("Hopy King 2", 15), new("Hulk 2", 12), new("Web 2", 10), new("Dark Specter 2", 5),
                 new("Iron Guard 2", 3)],
             [new("Bauton 2", 20), new("Vega Demir", 20), new("HellSing 2", 15), new("Horropion 2", 15), new("Typhoon 2", 12), new("CurseWeb", 10), new("Dark Phantom", 5),
                 new("Imitir Guard", 3)],
@@ -183,11 +183,11 @@ public static class MonsterCrystals
         }
 
         Soul("GP201", "Green Soul Stone", "Cokris", "Leech", "Cyclops", "Mephit", "Bee Dog", "Zombi", "Decoy");
-        Soul("GP202", "Yellow Soul Stone", "Vampiric Bat", "Greven", "Evil Snail", "Crypt", "Buma", "Bagon", "Titan");
+        Soul("GP202", "Yellow Soul Stone", "Vampiric Bat", "Greven", "Evil Snail", "Crypt", "Buma", "Bargon", "Titan");
         Soul("GP203", "Blue Soul Stone", "BeEvil", "Slayon", "Slaughter", "Tower Golem", "Mummy", "Naz", "Witch");
         Soul("GP204", "Magenta Soul Stone", "Berserker", "Typhoon", "Lizardfolk", "Rampage", "Avelin", "Incubus", "Sadness");
         Soul("GP205", "Cyan Soul Stone", "D-Machine", "Hopy King", "Omega", "DeadZone", "Icegolem", "Coldeye", "Icegoblin");
-        Soul("GP206", "Violet Soul Stone", "Vampiric Bat", "Greven", "Evil Snail", "Crypt", "Buma", "Bagon", "Muffin");
+        Soul("GP206", "Violet Soul Stone", "Vampiric Bat", "Greven", "Evil Snail", "Crypt", "Buma", "Bargon", "Muffin");
         Soul("GP207", "Red Soul Stone", "BeEvil", "Slayon", "Slaughter", "Tower Golem", "Mummy", "Naz", "Sliver");
         Soul("GP208", "Black Soul Stone", "Berserker", "Typhoon", "Lizardfolk", "Rampage", "Avelin", "Incubus", "Metron");
         Soul("GP209", "Platinum Soul Stone", "D-Machine", "Hopy King", "Omega", "DeadZone", "Icegolem", "Coldeye", "Grotesque");
