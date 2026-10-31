@@ -123,7 +123,7 @@ internal sealed class WeatherCaptureProbe : Game
         _renderer.Weather = shot.Weather;
         _renderer.MoonPhase = shot.Moon;
         _renderer.Aurora = shot.Aurora;
-        _renderer.MorningMist = shot.Mist;
+        _renderer.MorningMist = shot.Mist ? 1.2f : 0f;
         if (_renderer.RealisticSky == shot.Classic)
         {
             _presentation.ApplyRendering(new ClientSettings { RealisticSky = !shot.Classic });

@@ -299,8 +299,10 @@ lighting take it as they took the domes.
   illuminance as cold sky light the exposure does not meter (about twice a storm's light at its peak, at any hour) and
   draws the sky dome three times as bright (`SkyFlash`).
 - Fog (`WeatherFog`): full rain starts the distance fog at 35 % of its distance and makes it four times as dense; a
-  field with a morning mist (`MorningMist`, the forests) brings it to 15 % and makes it six times as dense at 6:00,
-  rising from 4:30 and lifting by 9:00.
+  field with a morning mist (`MorningMist`: a forest's 1, or the strength `FieldDef.MorningMist` names, Ricarten's 1.2
+  for a town in the clouds) brings it to 1 / (1 + 3 x strength) of its distance and makes it 1 + 3 x strength times
+  as dense at 6:00, rising from 4:30 and lifting by 9:00, and thickens the volumetric light's medium 1 + 14 x strength
+  times, so the low sun draws shafts through it.
 - `RainRadiance`: a drop's light, the sky light plus a quarter of the sun on a white surface, at least 0.07 of the
   metered level.
 

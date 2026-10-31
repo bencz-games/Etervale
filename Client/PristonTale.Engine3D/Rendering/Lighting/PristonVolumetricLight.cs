@@ -65,7 +65,7 @@ internal sealed class PristonVolumetricLight : IDisposable
     // the rays march (the distance fog's start, or MaxDistance without it).
     public void Run(Texture2D depth, Texture2D shadowAtlas, PristonShadowCascades cascades, Matrix view, Matrix projection,
         Vector3 cameraPosition, Vector3 focus, Vector3 towardSun, Vector3 sunRadiance, float marchDistance, uint frame,
-        Action bindScene)
+        Action bindScene, float densityScale = 1f)
     {
         var width = Math.Max(depth.Width / 4, 1);
         var height = Math.Max(depth.Height / 4, 1);
@@ -92,7 +92,7 @@ internal sealed class PristonVolumetricLight : IDisposable
         _parameters["CameraUp"].SetValue(new Vector3(view.M12, view.M22, view.M32));
         _parameters["CameraForward"].SetValue(-new Vector3(view.M13, view.M23, view.M33));
         _parameters["CameraPosition"].SetValue(cameraPosition);
-        _parameters["FogDensity"].SetValue(Density);
+        _parameters["FogDensity"].SetValue(Density * densityScale);
         _parameters["FogFalloff"].SetValue(1f / ScaleHeight);
         _parameters["FogReferenceHeight"].SetValue(focus.Y - ReferenceBelowFocus);
         _parameters["PhaseG"].SetValue(Anisotropy);

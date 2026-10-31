@@ -732,9 +732,13 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
 it unless the `weatherEnabled` setting is off or the field shown takes no rain (`WeatherSchedule.Rains`; entering such
 a field clears at once). `WeatherPresentation` eases it in: clouds over 6 s, rain over 4 s, the wind turning over 3 s
 (heading and strength to world units per second, at most 360); the first message after entering the world snaps.
-A storm strikes every 5 to 16 s: two or three flashes 0.11 s apart, each fading over about a tenth of a second, the
-first the brightest, and the
-thunder 0.3 to 3 s later, sooner and louder the nearer the strike. Each frame the scene hands the blend to the
+A storm's lightning keeps no beat: its activity wanders between quiet and fierce spells of about 40 s (0.25 to 1.8),
+the wait to the next strike is drawn from an exponential law around 9 s over the activity, and three strikes in ten
+bring another within 2.5 s. Most strikes are far (their nearness drawn with its square): a faint flash and a late, low
+rumble, the farthest unheard; a few are near, bright and loud at once (thunder 0.2 to 6 s after the flash). Each
+flickers in one to four flashes 0.04 to 0.2 s apart. Under a light rain (a density of 110 or less) the clouds break over
+the sun in four spells of ten, 20 to 60 s each (`SunBreak`), opening and closing over 6 s: the sunshower's light and
+rainbow. Each frame the scene hands the blend to the
 renderer (`PristonRenderer.Weather`: sky, light and fog, [rendering.md](rendering.md#weather)), steps `PristonRain`
 (occlusion map around the player, splashes) before the draw, draws it between the opaque scene and the skill effects,
 and updates the weather sound. The loaded fields changing reads the occlusion map again (`InvalidateGround`). The

@@ -134,6 +134,10 @@ public sealed record FieldDef(
 
     // How much of the distance haze the field clears (0..1), and the cells of sight it adds before the haze starts.
     public float HazeReduction { get; init; }
+
+    // The morning mist's strength (1 a forest's; null: a forest's for a forest, none elsewhere); the client lays it
+    // from 4:30 to 9:00.
+    public float? MorningMist { get; init; }
     public int SightCells { get; init; }
     public int LimitLevel { get; init; }
 

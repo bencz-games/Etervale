@@ -88,7 +88,7 @@ public sealed partial class PristonRenderer
             TimeOfDay / 24f * MathF.Tau,
             night * AirglowLevel / displayScale,
             Aurora ? night * AuroraLevel / displayScale : 0f,
-            RainbowStrength(cloud, rain, _sunElevation),
+            RainbowStrength(cloud, rain, _sunElevation, Weather.SunBreak),
             0.5f * (1f - cloud),
             _renderTime / 1000f,
             displayScale,
@@ -101,7 +101,7 @@ public sealed partial class PristonRenderer
             MathHelper.Clamp(Weather.Flash, 0f, 1f) * FlashCloudLevel / displayScale,
             CloudQuality);
         // The clouds' moving shadows show under a fair or broken sky; an overcast one already dims the light evenly.
-        _physicalSky.Update(inputs, camera, _sunElevation > 0f ? 1f - cloud : 0f);
+        _physicalSky.Update(inputs, camera, _sunElevation > 0f ? SunThrough(cloud, Weather.SunBreak) : 0f);
         _stateCache.InvalidateDeviceState();
     }
 
@@ -143,10 +143,10 @@ public sealed partial class PristonRenderer
     }
 
     // A light rain with the sun low enough for the bow to stand above the horizon (below 42 degrees) and shining
-    // through the clouds; a downpour hides it.
-    internal static float RainbowStrength(float cloud, float rain, float sunElevation)
+    // through the clouds (a broken sky, or a break passing the sun); a downpour hides it.
+    internal static float RainbowStrength(float cloud, float rain, float sunElevation, float sunBreak = 0f)
     {
-        var sun = MathF.Pow(1f - cloud * MathHelper.Lerp(OvercastCover, 1f, rain), SunVeil);
+        var sun = SunThrough(cloud, sunBreak);
         var light = MathHelper.Clamp(sun * 3f, 0f, 1f);
         var falling = MathHelper.SmoothStep(0f, 1f, rain / 0.08f) * (1f - MathHelper.SmoothStep(0f, 1f, (rain - 0.4f) / 0.35f));
         var low = MathHelper.Clamp(sunElevation / 0.05f, 0f, 1f) * MathHelper.Clamp((0.73f - sunElevation) / 0.1f, 0f, 1f);

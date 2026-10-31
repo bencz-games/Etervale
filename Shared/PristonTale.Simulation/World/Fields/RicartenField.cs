@@ -29,6 +29,8 @@ public static class RicartenField
     {
         FieldCode = FieldCodes.Ricarten,
         HazeReduction = 0.2f,
+        // Ricarten stands in the clouds: its mornings are thicker than a forest's.
+        MorningMist = 1.2f,
         Center = new FieldPoint(2596, -18738),
         StartPoints =
         [

@@ -787,7 +787,8 @@ public sealed partial class PristonRenderer : IDisposable
                 lighting.Sun.DiffuseColor,
                 DistanceFog.Enabled ? MathF.Min(DistanceFog.StartDistance, PristonVolumetricLight.MaxDistance) : PristonVolumetricLight.MaxDistance,
                 _motionFrame,
-                _sceneTargets.Bind);
+                _sceneTargets.Bind,
+                VolumetricDensityScale);
             Profiler.End(RenderSection.Volumetric);
             _stateCache.InvalidateDeviceState();
         }

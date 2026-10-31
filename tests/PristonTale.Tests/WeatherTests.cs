@@ -22,7 +22,7 @@ internal static class WeatherTests
         yield return ("a game master's /weather sets every open field's weather, a dungeon stays clear, and auto gives it back", GameMasterAsync);
         yield return ("the weather reaches the client once when it changes and its packet refuses an unknown kind", WireAsync);
         yield return ("the client eases the clouds and the rain in and out, blows the wind its way and shows nothing with the setting off", PresentationAsync);
-        yield return ("a storm flashes every few seconds and thunders after each flash, nearer strikes louder; plain rain never does", LightningAsync);
+        yield return ("a storm's lightning keeps no beat, mostly far and faint with a few near and bright, thunders by its distance; plain rain never does", LightningAsync);
         yield return ("the rain stops on the highest surface of each cell, reading only the cells a moving centre uncovers", OcclusionAsync);
         yield return ("the realistic sky's clouds gather with the weather, its rainbow needs a light rain under a low sun, the moon turns through its phases and the cloud noise tiles", SkyAsync);
     }
@@ -135,6 +135,22 @@ internal static class WeatherTests
         Assert.True(weather.Rain < 0.8f && weather.Rain > 0.5f, "turning the setting off did not ease the rain out");
         weather.Snap(rain, enabled: false);
         Assert.True(weather.View == PristonWeather.Clear with { Wind = Xna.Vector2.Zero }, "the setting off still showed weather");
+        // A light rain breaks over the sun now and then; an overcast sky and a heavy rain never do.
+        var breaks = new WeatherPresentation(new Random(3));
+        var opened = 0f;
+        for (var second = 0; second < 600; second++)
+        {
+            breaks.Update(new WeatherState(WeatherKind.Rain, 90, 0, 40), enabled: true, 1f);
+            opened = MathF.Max(opened, breaks.SunBreak);
+        }
+
+        Assert.True(opened > 0.5f, "ten minutes of a light rain never broke over the sun");
+        for (var second = 0; second < 600; second++)
+        {
+            breaks.Update(new WeatherState(WeatherKind.Rain, 200, 0, 40), enabled: true, 1f);
+        }
+
+        Assert.True(breaks.SunBreak == 0f, "a heavy rain kept a break over the sun");
         weather.Snap(WeatherState.Clear with { Kind = WeatherKind.Overcast }, enabled: true);
         Assert.True(weather.Cloud == 1f && weather.Rain == 0f, "an overcast sky did not snap to full cloud without rain");
         return Task.CompletedTask;
@@ -145,20 +161,39 @@ internal static class WeatherTests
         var weather = new WeatherPresentation(new Random(7));
         var thunders = new List<float>();
         weather.Thunder += thunders.Add;
-        var flashes = 0;
+        var strikes = new List<float>();
+        var brightest = new List<float>();
         var flashing = false;
         const float step = 1f / 60f;
-        for (var frame = 0; frame < 60 * 60; frame++)
+        const int minutes = 30;
+        for (var frame = 0; frame < 60 * 60 * minutes; frame++)
         {
             weather.Update(new WeatherState(WeatherKind.Storm, 255, 0, 200), enabled: true, step);
-            flashes += weather.Flash > 0.3f && !flashing ? 1 : 0;
-            flashing = weather.Flash > 0.3f;
+            // A strike begins when the sky flashes after a dark moment; its brightness is the brightest of its flickers.
+            if (weather.Flash > 0.2f && !flashing)
+            {
+                strikes.Add(frame * step);
+                brightest.Add(0f);
+            }
+
+            flashing = weather.Flash > 0.01f;
+            if (flashing && brightest.Count > 0)
+            {
+                brightest[^1] = MathF.Max(brightest[^1], weather.Flash);
+            }
         }
 
-        Assert.True(flashes is >= 60 / (int)WeatherPresentation.StrikeMaxSeconds and <= 60 / (int)WeatherPresentation.StrikeMinSeconds * 3,
-            $"a minute of storm flashed {flashes} times");
-        Assert.True(thunders.Count >= 60 / (int)WeatherPresentation.StrikeMaxSeconds && thunders.All(static volume => volume is >= 0.45f and <= 1f),
-            $"a minute of storm thundered {thunders.Count} times at {string.Join(", ", thunders)}");
+        // A storm's strikes keep no beat: the waits vary from a quick follow-up to a long lull.
+        var waits = strikes.Zip(strikes.Skip(1), static (a, b) => b - a).ToList();
+        var mean = waits.Average();
+        var spread = MathF.Sqrt(waits.Select(wait => (wait - mean) * (wait - mean)).Average()) / mean;
+        Assert.True(strikes.Count is > minutes * 3 and < minutes * 20 && waits.Min() < 2.5f && waits.Max() > 25f && spread > 0.8f,
+            $"{strikes.Count} strikes in {minutes} minutes, waits {waits.Min():F1} to {waits.Max():F1} s, spread {spread:F2}");
+        Assert.True(brightest.Count(flash => flash < 0.5f) > brightest.Count / 2 && brightest.Max() > 0.8f,
+            "most strikes were not far and faint, or none was near and bright");
+        Assert.True(thunders.Count > minutes * 2 && thunders.Count < strikes.Count * 2
+            && thunders.All(static volume => volume is >= WeatherPresentation.LeastThunder and <= 1f),
+            $"a storm thundered {thunders.Count} times for {strikes.Count} strikes");
 
         var rain = new WeatherPresentation(new Random(7));
         rain.Thunder += _ => Assert.True(false, "plain rain thundered");
@@ -202,7 +237,11 @@ internal static class WeatherTests
             $"the coverage ran {fair} fair, {overcast} overcast, {storm} in a storm");
 
         var lowSun = 0.3f;
-        Assert.True(PristonRenderer.RainbowStrength(0.2f, 0.2f, lowSun) > 0.5f, "a light rain under a low sun showed no rainbow");
+        Assert.True(PristonRenderer.RainbowStrength(0.2f, 0.2f, lowSun) > 0.5f && PristonRenderer.RainbowStrength(1f, 0.2f, lowSun, sunBreak: 1f) > 0.5f,
+            "a light rain under a low sun, or a sunshower's break, showed no rainbow");
+        Assert.True(PristonRenderer.SunThrough(1f, 0f) == 0f && PristonRenderer.SunThrough(0f, 0f) == 1f && PristonRenderer.SunThrough(1f, 1f) > 0.5f,
+            "an overcast sky let the sun through, a clear one held it back, or a break did not open it");
+        Assert.True(PristonRenderer.RainbowStrength(1f, 0.2f, lowSun) == 0f, "an overcast light rain showed a rainbow without a break");
         Assert.True(PristonRenderer.RainbowStrength(0.2f, 0f, lowSun) == 0f && PristonRenderer.RainbowStrength(1f, 1f, lowSun) < 0.01f
             && PristonRenderer.RainbowStrength(0.2f, 0.2f, 1.2f) == 0f && PristonRenderer.RainbowStrength(0.2f, 0.2f, -0.1f) == 0f,
             "a rainbow showed without rain, in a downpour, at noon or after sunset");

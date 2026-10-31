@@ -5,17 +5,16 @@ using PristonTale.Engine3D.Rendering.Weather;
 namespace PristonTale.Engine3D.Rendering;
 
 // The weather's share of the frame (Weather): an overcast sky shows the rain dome at every hour, as the original
-// switched to it; the gathering clouds veil the sun, thinner over a light rain (soft shadows still fall) and closing
-// in a downpour, dim and grey the sky light and darken the metered scene; rain thickens the distance fog and lights the town lamps, fully in
-// a downpour; a lightning flash lights the sky dome and adds a burst of cold sky light the exposure does not follow.
+// switched to it; the gathering clouds hide the sun (an overcast sky and its rain light the scene only from the sky,
+// diffuse and without shadows, save the brief breaks a light rain opens), dim and grey the sky light and darken the
+// metered scene; rain thickens the distance fog and lights the town lamps, fully in a downpour; a lightning flash lights the sky dome and adds a burst of cold sky light the exposure does not follow.
 public sealed partial class PristonRenderer
 {
     // At full cloud: the sky light kept and its share turned grey, the scene's brightness against a clear sky (rain
-    // darkens it further), the lamps' least factor in full rain. The clouds' cover runs from OvercastCover without rain
-    // to all of the sky in full rain, and the direct sun falls with the clear share to the power SunVeil: a quarter
-    // through an overcast sky, an eighth through a light rain, nearly none in a downpour.
-    private const float OvercastCover = 0.6f;
-    private const float SunVeil = 1.5f;
+    // darkens it further), the lamps' least factor in full rain. The direct sun keeps the sky's clear share to the
+    // power SunVeil (none under a full cover), or SunBreakLight of it while a break in the clouds passes the sun.
+    private const float SunVeil = 2f;
+    private const float SunBreakLight = 0.7f;
     private const float OvercastSky = 0.7f;
     private const float OvercastGrey = 0.6f;
     private const float OvercastBrightness = 0.62f;
@@ -27,10 +26,12 @@ public sealed partial class PristonRenderer
     private static readonly Vector3 FlashColour = new(0.82f, 0.88f, 1f);
     // The sky dome at a full flash is this many times as bright.
     private const float FlashSky = 3f;
-    // In full rain the fog starts this share of its distance and grows this many times as dense; the morning mist
-    // brings it this near and makes it this dense at its thickest, between these hours.
-    private const float MistFogStart = 0.15f;
-    private const float MistFogDensity = 6f;
+    // In full rain the fog starts this share of its distance and grows this many times as dense; a mist of strength 1
+    // at its thickest brings it to 1 / (1 + MistFogNear) of its distance, makes it 1 + MistFogDensity times as dense and
+    // the volumetric light's medium 1 + MistShafts times, so the low morning sun draws shafts through it.
+    private const float MistFogNear = 3f;
+    private const float MistFogDensity = 3f;
+    private const float MistShafts = 14f;
     private const float MistStart = 4.5f;
     private const float MistPeak = 6f;
     private const float MistEnd = 9f;
@@ -46,8 +47,8 @@ public sealed partial class PristonRenderer
 
     public PristonWeather Weather { get; set; }
 
-    // The field lays a mist from 4:30 to 9:00, thickest at 6:00 (the forests).
-    public bool MorningMist { get; set; }
+    // The strength of the field's mist from 4:30 to 9:00, thickest at 6:00 (1 a forest's, 0 none).
+    public float MorningMist { get; set; }
 
     // The radiance of a lit raindrop in the scene's pre-exposed units, set with each frame's lighting.
     public Vector3 RainRadiance { get; private set; }
@@ -70,7 +71,7 @@ public sealed partial class PristonRenderer
             return (sun, sky, horizontal, horizontal, lamps);
         }
 
-        var sunScale = MathF.Pow(1f - cloud * MathHelper.Lerp(OvercastCover, 1f, rain), SunVeil);
+        var sunScale = SunThrough(cloud, Weather.SunBreak);
         var skyScale = MathHelper.Lerp(1f, OvercastSky, cloud);
         var grey = new Vector3(PristonPhotometry.Luminance(sky));
         var litSky = Vector3.Lerp(sky, grey, OvercastGrey * cloud) * skyScale;
@@ -88,6 +89,13 @@ public sealed partial class PristonRenderer
         return total > 0f ? PristonPhotometry.Luminance(sun) / total : 0f;
     }
 
+    // The volumetric light's medium: thicker in the morning mist.
+    private float VolumetricDensityScale => 1f + MistShafts * Mist;
+
+    // The share of the direct sun that reaches the ground through the clouds.
+    internal static float SunThrough(float cloud, float sunBreak) =>
+        MathF.Max(MathF.Pow(1f - MathHelper.Clamp(cloud, 0f, 1f), SunVeil), SunBreakLight * MathHelper.Clamp(sunBreak, 0f, 1f));
+
     // How much brighter the sky dome draws this frame (1 without a flash).
     private float SkyFlash => 1f + (FlashSky - 1f) * MathHelper.Clamp(Weather.Flash, 0f, 1f);
 
@@ -99,17 +107,17 @@ public sealed partial class PristonRenderer
             ? fog
             : fog with
             {
-                StartDistance = fog.StartDistance * MathHelper.Lerp(1f, RainFogStart, rain) * MathHelper.Lerp(1f, MistFogStart, mist),
-                Density = fog.Density * MathHelper.Lerp(1f, RainFogDensity, rain) * MathHelper.Lerp(1f, MistFogDensity, mist)
+                StartDistance = fog.StartDistance * MathHelper.Lerp(1f, RainFogStart, rain) / (1f + MistFogNear * mist),
+                Density = fog.Density * MathHelper.Lerp(1f, RainFogDensity, rain) * (1f + MistFogDensity * mist)
             };
     }
 
-    // The morning mist's share of the hour (0 outside 4:30 to 9:00, 1 at 6:00).
+    // The morning mist now: its strength times the hour's share (0 outside 4:30 to 9:00, 1 at 6:00).
     private float Mist
     {
         get
         {
-            if (!MorningMist)
+            if (MorningMist <= 0f)
             {
                 return 0f;
             }
@@ -117,7 +125,7 @@ public sealed partial class PristonRenderer
             var hour = TimeOfDay;
             var rising = MathHelper.Clamp((hour - MistStart) / (MistPeak - MistStart), 0f, 1f);
             var lifting = MathHelper.Clamp((MistEnd - hour) / (MistEnd - MistPeak), 0f, 1f);
-            return MathHelper.SmoothStep(0f, 1f, MathF.Min(rising, lifting));
+            return MorningMist * MathHelper.SmoothStep(0f, 1f, MathF.Min(rising, lifting));
         }
     }
 }

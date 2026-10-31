@@ -245,9 +245,9 @@ public sealed partial class GameScene
         _currentField = field.Definition;
         SnapWeatherToField();
         _renderer.Underground = field.Definition.Underground;
-        // The ice fields show the aurora at night; the forests a mist in the early morning.
+        // The ice fields show the aurora at night; the forests and the fields that name one a mist in the early morning.
         _renderer.Aurora = field.Definition.State == FieldState.Ice;
-        _renderer.MorningMist = field.Definition.State == FieldState.Forest;
+        _renderer.MorningMist = field.Definition.MorningMist ?? (field.Definition.State == FieldState.Forest ? 1f : 0f);
         // A field may clear part of the haze; sight cells (64 units each) push its start out.
         _renderer.FieldHaze = 1f - Math.Clamp(field.Definition.HazeReduction, 0f, 1f);
         _renderer.FieldSightDistance = field.Definition.SightCells * 64f;
