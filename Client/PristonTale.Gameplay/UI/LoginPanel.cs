@@ -40,12 +40,14 @@ public sealed class LoginPanel
     public string Status { get; set; } = string.Empty;
     public bool InputEnabled { get; set; } = true;
 
-    public LoginIntent Update(in KeyboardState keyboard, in KeyboardState previousKeyboard, double dtSeconds, Viewport viewport)
+    // typed: the characters the window typed since the last frame (TypedText), for the focused field.
+    public LoginIntent Update(in KeyboardState keyboard, in KeyboardState previousKeyboard, ReadOnlySpan<char> typed, double dtSeconds, Viewport viewport)
     {
-        return Update(keyboard, previousKeyboard, Mouse.GetState(), dtSeconds, viewport);
+        return Update(keyboard, previousKeyboard, Mouse.GetState(), typed, dtSeconds, viewport);
     }
 
-    internal LoginIntent Update(in KeyboardState keyboard, in KeyboardState previousKeyboard, MouseState mouse, double dtSeconds, Viewport viewport)
+    internal LoginIntent Update(in KeyboardState keyboard, in KeyboardState previousKeyboard, MouseState mouse, ReadOnlySpan<char> typed, double dtSeconds,
+        Viewport viewport)
     {
         var intent = LoginIntent.None;
         if (InputEnabled)
@@ -76,8 +78,8 @@ public sealed class LoginPanel
                 }
             }
 
-            Account.Update(keyboard, previousKeyboard, dtSeconds);
-            Password.Update(keyboard, previousKeyboard, dtSeconds);
+            Account.Update(typed, dtSeconds);
+            Password.Update(typed, dtSeconds);
             if (Pressed(keyboard, previousKeyboard, Keys.Enter)
                 || _focus >= FocusTarget.Login && Pressed(keyboard, previousKeyboard, Keys.Space))
             {

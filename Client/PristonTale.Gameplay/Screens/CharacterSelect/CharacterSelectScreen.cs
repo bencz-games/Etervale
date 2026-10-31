@@ -148,6 +148,8 @@ public sealed class CharacterSelectScreen : GameScreen
 
         var mouse = Mouse.GetState();
         var keyboard = Keyboard.GetState();
+        // Drained every frame, so keys typed before the name box opens never reach it.
+        var typed = Context.TypedText.Drain();
 
         if (_busy != Busy.None)
         {
@@ -168,7 +170,7 @@ public sealed class CharacterSelectScreen : GameScreen
                     break;
                 case State.FaceSelect:
                 case State.Name:
-                    UpdateFaceSelect(mouse, keyboard, gameTime.ElapsedGameTime.TotalSeconds);
+                    UpdateFaceSelect(mouse, typed, gameTime.ElapsedGameTime.TotalSeconds);
                     break;
             }
         }
@@ -595,9 +597,9 @@ public sealed class CharacterSelectScreen : GameScreen
 
     private void ReturnChosenJobToLineup() => _scene.ReturnToLineup(_jobSelected);
 
-    private void UpdateFaceSelect(MouseState mouse, KeyboardState keyboard, double dtSeconds)
+    private void UpdateFaceSelect(MouseState mouse, ReadOnlySpan<char> typed, double dtSeconds)
     {
-        _nameField.Update(keyboard, _lastKeyboard, dtSeconds);
+        _nameField.Update(typed, dtSeconds);
         _faceHovered = -1;
         for (var index = 0; index < CharSelectLayout.FacesPerJob; index++)
         {

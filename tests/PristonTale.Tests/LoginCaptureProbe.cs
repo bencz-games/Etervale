@@ -71,23 +71,16 @@ internal sealed class LoginCaptureProbe : Game
     private LoginPanel CreatePanel(Scenario scenario)
     {
         var panel = new LoginPanel(_batch, _font, _atlas);
-        foreach (var key in new[] { Keys.P, Keys.A, Keys.N, Keys.Z, Keys.E, Keys.R })
-        {
-            panel.Account.Update(new KeyboardState(key), default, 0);
-        }
-
+        panel.Account.Update("panzer", 0);
         panel.Password.Focused = true;
-        foreach (var key in new[] { Keys.S, Keys.E, Keys.C, Keys.R, Keys.E, Keys.T })
-        {
-            panel.Password.Update(new KeyboardState(key), default, 0);
-        }
+        panel.Password.Update("secret", 0);
 
         panel.Password.Focused = false;
         if (scenario.LoginFocus)
         {
             for (var index = 0; index < 2; index++)
             {
-                panel.Update(new KeyboardState(Keys.Tab), default, default, 0, new Viewport(0, 0, scenario.Width, scenario.Height));
+                panel.Update(new KeyboardState(Keys.Tab), default, default, [], 0, new Viewport(0, 0, scenario.Width, scenario.Height));
             }
         }
 
@@ -102,19 +95,19 @@ internal sealed class LoginCaptureProbe : Game
         var panel = CreatePanel(Scenarios[0]);
         panel.InputEnabled = false;
         var original = panel.Account.Text;
-        var intent = panel.Update(new KeyboardState(Keys.A, Keys.Enter), default, default, 0, viewport);
+        var intent = panel.Update(new KeyboardState(Keys.A, Keys.Enter), default, default, [], 0, viewport);
         Assert.True(intent == LoginIntent.None && panel.Account.Text == original, "disabled login accepted input");
         panel.InputEnabled = true;
-        panel.Update(new KeyboardState(Keys.LeftShift, Keys.Tab), default, default, 0, viewport);
-        intent = panel.Update(new KeyboardState(Keys.Enter), default, default, 0, viewport);
+        panel.Update(new KeyboardState(Keys.LeftShift, Keys.Tab), default, default, [], 0, viewport);
+        intent = panel.Update(new KeyboardState(Keys.Enter), default, default, [], 0, viewport);
         Assert.True(intent == LoginIntent.SubmitLogin, "keyboard focus could not activate login");
         var layout = LoginLayout.Create(viewport.Width, viewport.Height);
         var center = layout.Login.Center;
         var mouse = new MouseState((int)(center.X * layout.Scale), (int)(center.Y * layout.Scale), 0,
             ButtonState.Pressed, ButtonState.Released, ButtonState.Released, ButtonState.Released, ButtonState.Released);
-        intent = panel.Update(default, default, mouse, 0, viewport);
+        intent = panel.Update(default, default, mouse, [], 0, viewport);
         Assert.True(intent == LoginIntent.SubmitLogin, "scaled login hit region differs from rendering");
-        Assert.True(panel.Update(default, default, mouse, 0, viewport) == LoginIntent.None, "held button submitted twice");
+        Assert.True(panel.Update(default, default, mouse, [], 0, viewport) == LoginIntent.None, "held button submitted twice");
         Assert.True(panel.Password.DisplayText == "******", "password was exposed in presentation");
     }
 

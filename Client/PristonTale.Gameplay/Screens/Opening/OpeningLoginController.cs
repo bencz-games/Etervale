@@ -29,7 +29,8 @@ internal sealed class OpeningLoginController : IDisposable
 
     public LoginResult Update(in KeyboardState keyboard, in KeyboardState lastKeyboard, float dt)
     {
-        if (_phase == Phase.Login && _login.Update(keyboard, lastKeyboard, dt, _context.GraphicsDevice.Viewport) == LoginIntent.SubmitLogin)
+        var typed = _context.TypedText.Drain();
+        if (_phase == Phase.Login && _login.Update(keyboard, lastKeyboard, typed, dt, _context.GraphicsDevice.Viewport) == LoginIntent.SubmitLogin)
         {
             BeginLogin();
         }

@@ -20,6 +20,21 @@ internal static class CharacterSelectTests
         yield return ("character-select roster and class positions preserve the original ordering", OriginalPlacementAsync);
         yield return ("character-select face layout scales the authored canvas uniformly", FaceLayoutAsync);
         yield return ("Assassin and Shaman use the original creation definitions", ExtendedClassDefinitionsAsync);
+        yield return ("the login and name boxes take the window's typed text, so a held Backspace or key repeats", TypedTextAsync);
+    }
+
+    private static Task TypedTextAsync()
+    {
+        var field = new PristonTale.Gameplay.UI.TextInputField { MaxLength = 8, Focused = true };
+        field.Update("Pan zer!_9.-", 0);
+        Assert.True(field.Text == "Panzer_9", $"the box took {field.Text}");
+        // A held Backspace arrives as the system repeats it, one '\b' per repeat.
+        field.Update(new string('\b', 10), 0);
+        Assert.True(field.Text.Length == 0, $"a held Backspace left {field.Text}");
+        field.Focused = false;
+        field.Update("abc", 0);
+        Assert.True(field.Text.Length == 0, "an unfocused box took typed text");
+        return Task.CompletedTask;
     }
 
     private static async Task EquipmentSummaryAsync()
