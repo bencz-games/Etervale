@@ -12,15 +12,19 @@ public interface IMovementVerdictSink
 // the same ordered queue as every other command, but as plain values: no closure, task or completion per report.
 public sealed partial class WorldServer
 {
-    // Queued like any command of the player (same quota, same order); false when the quota or the queue is full, and the
-    // caller drops the report like a lost packet (the next one carries a newer position).
+    // A client reports five times a second and the tick takes them twenty times a second: more reports than this waiting
+    // means the world is held, and newer reports replace the ones dropped.
+    public const int MostPendingMovements = 8;
+
+    // Queued in order with the player's commands but on a quota of its own (MostPendingMovements); false when that quota
+    // or the queue is full, and the caller drops the report like a lost packet (the next one carries a newer position).
     public bool TryReportMovement(int fieldId, ulong entityId, Vector3 position, float facing, bool moving, bool running, ulong actionTarget,
         IMovementVerdictSink? sink)
     {
         var pending = _pendingByPlayer.GetOrAdd(entityId, static _ => new PendingCommands());
-        if (Interlocked.Increment(ref pending.Count) > _options.MaxPendingCommandsPerPlayer)
+        if (Interlocked.Increment(ref pending.Movements) > MostPendingMovements)
         {
-            Interlocked.Decrement(ref pending.Count);
+            Interlocked.Decrement(ref pending.Movements);
             return false;
         }
 
@@ -30,13 +34,13 @@ public sealed partial class WorldServer
             return true;
         }
 
-        Interlocked.Decrement(ref pending.Count);
+        Interlocked.Decrement(ref pending.Movements);
         return false;
     }
 
     private void ApplyMovement(in MovementCommand report)
     {
-        Interlocked.Decrement(ref report.Pending.Count);
+        Interlocked.Decrement(ref report.Pending.Movements);
         var verdict = MovementVerdict.Ignored;
         if (_connections.TryGetValue(report.EntityId, out var connection) && connection.FieldId == report.FieldId
             && _fields.TryGetValue(report.FieldId, out var field))

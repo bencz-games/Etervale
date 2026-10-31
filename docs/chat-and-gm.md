@@ -120,7 +120,8 @@ summons, monsters, NPCs); the hovered or selected speaker draws brighter.
 The account's `gm_level` (0 Player, 1 Guide, 2 Moderator, 3 Operator, 4 Administrator) is loaded at login into the
 session and the chat directory; a higher level may use every command of the levels below. Set it with
 `DevAccounts set-gm <user> <level>`; it applies at the next login. Every line that matches a command is written to
-`gm_audit` (account, character, level, line, required level, accepted, result), denied ones included; read it with
+`gm_audit` (account, character, level, line, required level, accepted, result), denied ones included, in the background
+(`IGmAudit`, `GmAuditQueue`): the command answers at once even while the database is slow or locked; read it with
 `DevAccounts gm-audit [count]`. A game master below the level is told the level the command needs
 (`> /cmd needs game-master level N (yours is M)`); a player gets no answer.
 

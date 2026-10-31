@@ -77,6 +77,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
     private readonly PacketRateLimiter _packetRate;
     private readonly TokenBucket _playerInfoRate;
     private readonly TokenBucket _storedRate;
+    private readonly SessionPacketQueue _packets = new();
 
     public ClientSession(FrameConnection connection, SessionServices services)
     {
@@ -104,21 +105,34 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         var hello = new ServerHelloPacket(ProtocolVersion.Current, ProtocolVersion.Minimum, _services.Control.Full(players) ? Math.Max(1, players) : 0,
             _services.Control.ServerName);
         SendLarge(hello.Write, ServerHelloPacket.MaxSize);
+        var handling = HandleQueuedAsync();
         try
         {
-            await _connection.RunAsync(HandleAsync, cancellationToken);
+            await _connection.RunAsync(ReceiveAsync, cancellationToken);
         }
         finally
         {
-            await ClosePlayAsync();
-            if (_token is not null)
+            _packets.Complete();
+            try
             {
-                _services.Registry.Remove(_token);
+                await handling;
+            }
+            finally
+            {
+                await ClosePlayAsync();
+                if (_token is not null)
+                {
+                    _services.Registry.Remove(_token);
+                }
+
+                _packets.Dispose();
             }
         }
     }
 
-    private async ValueTask HandleAsync(ReadOnlyMemory<byte> memory)
+    // The receive loop only reads: it answers heartbeats at once and queues every other packet for HandleQueuedAsync, so
+    // nothing a handler waits on (storage above all) stops the connection from being read or kept alive.
+    private ValueTask ReceiveAsync(ReadOnlyMemory<byte> memory)
     {
         var now = Environment.TickCount64;
         LastReceivedMs = now;
@@ -130,24 +144,62 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         {
             LogRejected(code, "packet flood, closing");
             _connection.Close("packet flood");
-            return;
+        }
+        else if (code == EtervaleOpcodes.Heartbeat)
+        {
+            AnswerHeartbeat(HeartbeatPacket.Read(memory.Span));
+        }
+        else if (!_packets.TryEnqueue(memory.Span, code == EtervaleOpcodes.MovementReport))
+        {
+            LogRejected(code, "command backlog, closing");
+            _connection.Close("command backlog");
         }
 
+        return ValueTask.CompletedTask;
+    }
+
+    private void AnswerHeartbeat(HeartbeatPacket heartbeat)
+    {
+        var beat = heartbeat with { TimeMs = Environment.TickCount64 };
+        SendLarge(beat.Write, HeartbeatPacket.Size);
+        if (_player is not null && _session is { } playing)
+        {
+            _services.Chat.Heartbeat(playing.EntityId);
+        }
+    }
+
+    // Handles the queued packets one at a time, in order. A handler's unexpected failure closes the connection and is
+    // rethrown once the session has closed its play, as when it escaped the receive loop.
+    private async Task HandleQueuedAsync()
+    {
+        while (await _packets.DequeueAsync() is { } packet)
+        {
+            try
+            {
+                if (!_connection.IsClosed)
+                {
+                    await HandleAsync(packet.Memory);
+                }
+            }
+            catch
+            {
+                _connection.Close("handler failed");
+                throw;
+            }
+            finally
+            {
+                SessionPacketQueue.Return(packet);
+            }
+        }
+    }
+
+    private async ValueTask HandleAsync(ReadOnlyMemory<byte> memory)
+    {
+        var code = BinaryPrimitives.ReadUInt32LittleEndian(memory.Span[4..]);
         try
         {
             switch (code)
             {
-                case EtervaleOpcodes.Heartbeat:
-                {
-                    var beat = HeartbeatPacket.Read(memory.Span) with { TimeMs = Environment.TickCount64 };
-                    SendLarge(beat.Write, HeartbeatPacket.Size);
-                    if (_player is not null && _session is { } playing)
-                    {
-                        _services.Chat.Heartbeat(playing.EntityId);
-                    }
-
-                    break;
-                }
                 case EtervaleOpcodes.ChatSay:
                     await SayAsync(ChatSayPacket.Read(memory.Span));
                     break;

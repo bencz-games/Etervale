@@ -97,6 +97,7 @@ All registrations are singletons in `HostingExtensions.AddPristonServer`.
 | `FieldTerrainCatalog` | type | Filled by `FieldTerrainLoadService`. |
 | `WorldServer` | factory with `WorldServerOptions` (`World:MaxPendingCommandsPerPlayer` and `World:CheckpointSeconds` from the host), the save queue and the game log | The game settings arrive from the settings table through `ApplyOptionsAsync`. |
 | `GameLogQueue`, `IGameLog` | factory: `IGameLogRepository` | The item transfer writer ([application.md](application.md#game-logs)); a failed batch is logged as an error. |
+| `GmAuditQueue` | factory: `IGameMasterRepository` | The game masters' audit writer, run by `GameLogService`; a failed row is logged as an error and retried. |
 | `CharacterSaveQueue`, `ICharacterSaves` | factory: the character repository, `SaveJournal` (`Database:SaveJournalPath`), `Database:SaveBatchSize` | The background character store ([application.md](application.md#character-saves)); a failed batch is logged as an error. |
 | `ServerSettingsAppService` | factory | Reads the settings table and applies it to the world, `GameMasterCommands.Options` and `GameServerControl` (name, player limit). |
 | `IServerStatusReadModel` | `WorldStatusReadModel` | Registered for status queries; nothing in the server consumes it. |
@@ -222,12 +223,18 @@ experience, item event and aging values.
 
 ### Inbound packet mapping
 
-`ClientSession.HandleAsync` switches on the decoded code. Encryption is not required per opcode; both envelopes reach
-the same switch.
+The receive loop (`ClientSession.ReceiveAsync`) only reads: it applies the flood limit, answers `Heartbeat` at once and
+copies every other packet into the session's `SessionPacketQueue`; `HandleQueuedAsync` takes them out one at a time, in
+order, and `ClientSession.HandleAsync` switches on the decoded code. So a handler waiting on storage (a purchase, a
+game master's account command, a slow or locked database) holds only the packets behind it, never the connection's
+reading or its heartbeats. A movement report queued right behind another replaces it (the newer position wins), so a
+held session catches up with one move. More than 512 waiting packets close the connection (`command backlog`); a
+handler's unexpected failure closes it too, and is logged once the session has closed its play. Encryption is not
+required per opcode; both envelopes reach the same switch.
 
 | Packet | Handler | Application call | Reply |
 | --- | --- | --- | --- |
-| `Heartbeat` | inline | `ChatAppService.Heartbeat` (the standing notice) | Echo with the server's `Environment.TickCount64`. |
+| `Heartbeat` | receive loop | `ChatAppService.Heartbeat` (the standing notice) | Echo with the server's `Environment.TickCount64`. |
 | `ChatSay` | `SayAsync` | `ChatAppService.SayAsync` (spoken line, player or game-master command) or `PartyAsync` (party flag) | Chat lines to the hearers or the other party members ([chat-and-gm.md](chat-and-gm.md)). |
 | `PartyInvite`, `PartyAnswer`, `PartyCommand` | `InviteToPartyAsync`, `AnswerPartyAsync`, `CommandPartyAsync` | `PartyAppService` | None; chat lines, and `PartyRequest` / `PartyMembers` from the snapshots ([application.md](application.md#parties)). |
 | `TradeRequest`, `TradeAnswer`, `TradeOffer`, `TradeLock`, `TradeCancel` | `RequestTradeAsync`, `AnswerTradeAsync`, `OfferTradeAsync`, `SignalTradeAsync` | `TradeAppService` | None; chat lines, and `TradeAsked` / `TradeDetails` + `TradeState` from the snapshots ([application.md](application.md#trades)). |
@@ -295,8 +302,8 @@ events stays on that client until its own time runs out.
   a forced `FieldWarp` back to the encoder's last known self position.
 - Other reports go to `WorldServer.TryReportMovement` as values; the session is the `IMovementVerdictSink`. A rejection
   queues the correction on the thread pool (the tick never waits for the encoder), which sends a forced `FieldWarp`,
-  at most once per 300 ms. A full queue or quota silently drops the report; the next report carries a
-  newer position.
+  at most once per 300 ms. Reports keep a quota of their own (`WorldServer.MostPendingMovements`, 8), apart from
+  the player's commands; a full queue or quota silently drops the report; the next report carries a newer position.
 - `ClientSession` serialises its own scratch buffer with `_sendGate`.
 
 ### Presence propagation
@@ -383,7 +390,8 @@ or login timeout, packet flood, protocol error, send backlog, send stalled, pres
 - An un-imported database starts cleanly with no monsters or NPCs; check the `World catalogs loaded` line.
 - `Assets:AllowMissingTerrain` leaves the affected fields on `FieldTerrain.None`: no floor or wall checks for movement
   reports, and positions keep the heights they are given.
-- `HandleAsync` awaits application calls in the receive loop; never block there on the tick. World calls return tasks
+- `HandleAsync` awaits application calls on the session's queue, never in the receive loop; never block there on the
+  tick, and keep storage writes that need no answer (logs, the audit) on their background queues. World calls return tasks
   that complete inside the tick, so attacks are fire-and-forget; movement verdicts come back through the sink on the
   tick thread, where nothing may block (not even the encoder's lock).
 - `WorldSnapshot.ReleaseFrame` must follow every snapshot read from a `WorldOutbox`: a pinned frame is never reused,

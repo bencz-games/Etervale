@@ -140,10 +140,14 @@ public static class HostingExtensions
         builder.Services.AddSingleton(services =>
         {
             var logger = services.GetRequiredService<ILogger<GameLogQueue>>();
-            return new GameLogQueue(services.GetRequiredService<PristonTale.Persistence.Abstractions.GameLogs.IGameLogRepository>())
-            {
-                Failed = exception => logger.LogError(exception, "An item transfer log batch failed; it is retried")
-            };
+            return new GameLogQueue(services.GetRequiredService<PristonTale.Persistence.Abstractions.GameLogs.IGameLogRepository>(),
+                failed: exception => logger.LogError(exception, "An item transfer log batch failed; it is retried"));
+        });
+        builder.Services.AddSingleton(services =>
+        {
+            var logger = services.GetRequiredService<ILogger<GmAuditQueue>>();
+            return new GmAuditQueue(services.GetRequiredService<IGameMasterRepository>(),
+                failed: exception => logger.LogError(exception, "A game-master audit row failed; it is retried"));
         });
         builder.Services.AddSingleton<IGameLog>(services => services.GetRequiredService<GameLogQueue>());
         builder.Services.AddSingleton(GameLogOptions.From(builder.Configuration));
@@ -156,10 +160,9 @@ public static class HostingExtensions
         builder.Services.AddSingleton<GameServerControl>();
         builder.Services.AddSingleton(services =>
         {
-            var logger = services.GetRequiredService<ILogger<GameMasterCommands>>();
             return new GameMasterCommands(services.GetRequiredService<ChatDirectory>(), services.GetRequiredService<WorldServer>(),
                 services.GetRequiredService<WorldDataHolder>(), GameMasterOptions.Default, services.GetRequiredService<GameServerControl>(),
-                services.GetRequiredService<IGameMasterRepository>(), ex => logger.LogError(ex, "Could not write the game-master audit."))
+                services.GetRequiredService<IGameMasterRepository>(), services.GetRequiredService<GmAuditQueue>())
             {
                 Accounts = services.GetRequiredService<IAccountRepository>(),
                 Saves = services.GetRequiredService<ICharacterSaves>(),

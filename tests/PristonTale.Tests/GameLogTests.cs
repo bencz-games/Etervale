@@ -17,6 +17,72 @@ internal static class GameLogTests
         yield return ("the currency ledger hands each sink's gold to the log once, and takes back a take the log could not store", CurrencyAsync);
         yield return ("the log service records the start under the configured server name once the host started, and the currency and stop at stop",
             ServiceAsync);
+        yield return ("a game master's command returns while the audit's storage is locked; the row is stored once it frees, never twice", AuditAsync);
+    }
+
+    private static async Task AuditAsync()
+    {
+        var store = new LockedAudit();
+        var audit = new GmAuditQueue(store, TimeSpan.FromMilliseconds(5));
+        using var stop = new CancellationTokenSource();
+        var writing = audit.RunAsync(stop.Token);
+        var fixture = new ChatFixture(audit: audit);
+        var gm = await fixture.JoinAsync("Keeper", 0, 0, GameMasterLevel.Guide);
+        var command = fixture.SayAsync(gm, "/hide");
+        var first = await Task.WhenAny(command, Task.Delay(TimeSpan.FromSeconds(5)));
+        Assert.True(first == command && gm.Link.Last == "Hide OK!", "the command waited for the locked audit storage");
+        await fixture.SayAsync(gm, "/show");
+        Assert.True(store.Rows.Count == 0, "a row was stored while the storage was locked");
+        store.Fail = true;
+        store.Unlock();
+        for (var wait = 0; audit.Stats.Failures == 0 && wait < 500; wait++)
+        {
+            await Task.Delay(2);
+        }
+
+        store.Fail = false;
+        for (var wait = 0; store.Rows.Count < 2 && wait < 500; wait++)
+        {
+            await Task.Delay(2);
+        }
+
+        stop.Cancel();
+        await writing;
+        Assert.True(store.Rows.Select(row => row.Command).SequenceEqual(["/hide", "/show"]) && audit.Stats is { Written: 2, Dropped: 0 },
+            $"the audit stored {string.Join(", ", store.Rows.Select(row => row.Command))} ({audit.Stats})");
+    }
+
+    // An audit storage that holds every write until unlocked, then refuses while Fail is set.
+    private sealed class LockedAudit : PristonTale.Persistence.Abstractions.GameMasters.IGameMasterRepository
+    {
+        private readonly TaskCompletionSource _unlocked = new(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        public List<PristonTale.Persistence.Abstractions.GameMasters.GmAuditEntry> Rows { get; } = new();
+        public volatile bool Fail;
+
+        public void Unlock() => _unlocked.TrySetResult();
+
+        public async Task AppendAuditAsync(PristonTale.Persistence.Abstractions.GameMasters.GmAuditEntry entry, CancellationToken ct = default)
+        {
+            await _unlocked.Task;
+            if (Fail)
+            {
+                throw new InvalidOperationException("database is locked");
+            }
+
+            lock (Rows)
+            {
+                Rows.Add(entry);
+            }
+        }
+
+        public Task<bool> SetGmLevelAsync(string userId, int level, CancellationToken ct = default) => Task.FromResult(true);
+
+        public Task<IReadOnlyList<PristonTale.Persistence.Abstractions.GameMasters.GmAuditRecord>> RecentAuditAsync(int limit, CancellationToken ct = default) =>
+            Task.FromResult<IReadOnlyList<PristonTale.Persistence.Abstractions.GameMasters.GmAuditRecord>>([]);
+
+        public Task<PristonTale.Persistence.Abstractions.GameMasters.CharacterTransfer> MoveCharacterAsync(string characterName, string targetUserId, int maxSlots,
+            CancellationToken ct = default) => Task.FromResult(PristonTale.Persistence.Abstractions.GameMasters.CharacterTransfer.NoAccount);
     }
 
     private static ItemTransferRecord Transfer(DateTime at, long amount) =>
@@ -96,7 +162,7 @@ internal static class GameLogTests
         var world = new PristonTale.Application.World.WorldServer(new PristonTale.Application.World.WorldDataHolder());
         var control = new PristonTale.Server.Net.GameServerControl(new PristonTale.Application.Chat.ChatDirectory(), lifetime,
             Microsoft.Extensions.Logging.Abstractions.NullLogger<PristonTale.Server.Net.GameServerControl>.Instance);
-        var service = new PristonTale.Server.Hosting.GameLogService(new GameLogQueue(logs), logs, world, control,
+        var service = new PristonTale.Server.Hosting.GameLogService(new GameLogQueue(logs), new GmAuditQueue(new MemoryGameMasters()), logs, world, control,
             new PristonTale.Server.Hosting.GameLogOptions(1, 0), lifetime,
             Microsoft.Extensions.Logging.Abstractions.NullLogger<PristonTale.Server.Hosting.GameLogService>.Instance);
         await service.StartAsync(CancellationToken.None);

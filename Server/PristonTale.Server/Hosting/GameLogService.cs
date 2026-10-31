@@ -1,4 +1,5 @@
 using PristonTale.Application.GameLogs;
+using PristonTale.Application.GameMasters;
 using PristonTale.Application.World;
 using PristonTale.Persistence.Abstractions.GameLogs;
 using PristonTale.Server.Net;
@@ -25,13 +26,15 @@ public sealed record GameLogOptions(int CurrencyMinutes, int RetentionDays)
     }
 }
 
-// Writes the game logs: the item transfers the world reports (GameLogQueue), the gold each currency sink took every
-// Logs:CurrencyMinutes, the server's start and stop, and once a day prunes rows older than Logs:RetentionDays. The start
-// is logged, and the first prune runs, once the host has started: the server's name comes from the settings table, and
-// pruning must not hold the start. Registered before the world and the game server, it stops after them, so their last
-// transfers are written. A log write that fails is reported and never holds the game: currency is kept for the next period.
+// Writes the game logs: the item transfers the world reports (GameLogQueue), the game masters' audit (GmAuditQueue), the
+// gold each currency sink took every Logs:CurrencyMinutes, the server's start and stop, and once a day prunes rows older
+// than Logs:RetentionDays. The start is logged, and the first prune runs, once the host has started: the server's name
+// comes from the settings table, and pruning must not hold the start. Registered before the world and the game server, it
+// stops after them, so their last transfers and audit rows are written. A log write that fails is reported and never
+// holds the game: currency is kept for the next period.
 public sealed class GameLogService(
     GameLogQueue queue,
+    GmAuditQueue audit,
     IGameLogRepository logs,
     WorldServer world,
     GameServerControl control,
@@ -44,6 +47,7 @@ public sealed class GameLogService(
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var writing = queue.RunAsync(stoppingToken);
+        var auditing = audit.RunAsync(stoppingToken);
         if (await StartedAsync(stoppingToken))
         {
             await ServerEventAsync(ServerEventKind.Started);
@@ -62,6 +66,7 @@ public sealed class GameLogService(
 
         await CurrencyAsync();
         await writing;
+        await auditing;
         await ServerEventAsync(ServerEventKind.Stopped, $"{queue.Stats}");
     }
 

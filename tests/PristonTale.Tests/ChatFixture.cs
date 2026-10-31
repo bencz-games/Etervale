@@ -29,7 +29,8 @@ internal sealed class ChatFixture
     private long _accounts;
 
     public ChatFixture(GameMasterOptions? options = null, IPartyRoster? parties = null, IClanRoster? clans = null,
-        FieldTerrain? terrain = null, IReadOnlyList<FieldPoint>? startPoints = null, FieldState state = FieldState.Forest, TimeProvider? clock = null)
+        FieldTerrain? terrain = null, IReadOnlyList<FieldPoint>? startPoints = null, FieldState state = FieldState.Forest, TimeProvider? clock = null,
+        IGmAudit? audit = null)
     {
         var empty = WorldData.Empty;
         Data = new WorldDataHolder
@@ -51,7 +52,7 @@ internal sealed class ChatFixture
         World = new WorldServer(Data, catalog, clock, terrain: terrains, log: Log);
         Directory = new ChatDirectory();
         Server = new FakeServer();
-        GameMasters = new GameMasterCommands(Directory, World, Data, options, Server, Audit)
+        GameMasters = new GameMasterCommands(Directory, World, Data, options, Server, Audit, audit ?? Audit)
         {
             Accounts = Accounts,
             Saves = new ImmediateSaves(Characters),
@@ -227,7 +228,7 @@ internal sealed class FakeServer : IServerOperations
     public bool ReleaseBlockedLogin(string account) => Blocked.RemoveAll(entry => entry.Account == account) > 0;
 }
 
-internal sealed class MemoryGameMasters : IGameMasterRepository
+internal sealed class MemoryGameMasters : IGameMasterRepository, IGmAudit
 {
     public List<GmAuditEntry> Entries { get; } = new();
     public Dictionary<string, int> Levels { get; } = new(StringComparer.OrdinalIgnoreCase);
@@ -241,12 +242,16 @@ internal sealed class MemoryGameMasters : IGameMasterRepository
 
     public Task AppendAuditAsync(GmAuditEntry entry, CancellationToken ct = default)
     {
+        Append(entry);
+        return Task.CompletedTask;
+    }
+
+    public void Append(GmAuditEntry entry)
+    {
         lock (Entries)
         {
             Entries.Add(entry);
         }
-
-        return Task.CompletedTask;
     }
 
     public Task<IReadOnlyList<GmAuditRecord>> RecentAuditAsync(int limit, CancellationToken ct = default) =>

@@ -55,9 +55,12 @@ public sealed partial class WorldServer
     // Commands each player has waiting in the shared queue; entries are dropped when the player leaves the world.
     private readonly ConcurrentDictionary<ulong, PendingCommands> _pendingByPlayer = new();
 
+    // A player's commands waiting in the queue, and apart from them their movement reports: a burst of reports a held
+    // session sends at once must never fill the quota of the commands behind it.
     private sealed class PendingCommands
     {
         public int Count;
+        public int Movements;
     }
 
     private sealed record Connection(

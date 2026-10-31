@@ -24,6 +24,8 @@ internal static class NetworkHardeningTests
         yield return ("a full outbox's events and a full crowd encoded above the presence backlog fit the send limit", SendLimitAsync);
         yield return ("requests that copy the character are refused as busy past their bucket", StoredOperationsAsync);
         yield return ("world command quota and a full queue refuse synchronously and per player", CommandQuotaAsync);
+        yield return ("a burst of movement reports fills only their own quota, never the commands behind them", MovementQuotaAsync);
+        yield return ("a session's packets wait in order off its receive loop; a move behind a move replaces it", SessionQueueAsync);
         yield return ("world options validate the experience multiplier", WorldOptionsAsync);
         yield return ("server startup fails without field terrain unless explicitly allowed", TerrainStartupAsync);
     }
@@ -233,6 +235,66 @@ internal static class NetworkHardeningTests
         }
 
         Assert.True(leave.IsCompletedSuccessfully, "leaving the world waited forever behind a full queue");
+    }
+
+    private static async Task MovementQuotaAsync()
+    {
+        var catalog = new WorldCatalog([new FieldDef("fixture", "Fixture", FieldState.Forest, new FieldBackdrop("", "", ""), "", []) { FieldCode = 3 }]);
+        var world = new WorldServer(new WorldDataHolder(), catalog, options: new WorldServerOptions { MaxPendingCommandsPerPlayer = 2 });
+        var player = new WorldPlayer(7, new Vector3(100, 0, 100), new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Moves"), false, default);
+        var join = world.JoinAsync(3, player, Channel.CreateUnbounded<WorldSnapshot>().Writer);
+        world.Tick(0.05f, 1);
+        Assert.True(await join, "fixture join failed");
+        var reported = 0;
+        while (reported <= WorldServer.MostPendingMovements && world.TryReportMovement(3, player.EntityId, new Vector3(101 + reported, 0, 100), 0f, true, false, 0, null))
+        {
+            reported++;
+        }
+
+        Assert.True(reported == WorldServer.MostPendingMovements, $"{reported} movement reports waited, not {WorldServer.MostPendingMovements}");
+        var commands = new[]
+        {
+            world.ReportMovementAsync(3, player.EntityId, new Vector3(120, 0, 100), 0f, true, false, 0),
+            world.ReportMovementAsync(3, player.EntityId, new Vector3(121, 0, 100), 0f, true, false, 0)
+        };
+        Assert.True(world.PendingCommandsOf(player.EntityId) == 2, "the movement reports took the commands' quota");
+        world.Tick(0.05f, 2);
+        await Task.WhenAll(commands);
+        Assert.True(world.TryReportMovement(3, player.EntityId, new Vector3(130, 0, 100), 0f, true, false, 0, null),
+            "the tick did not release the movement quota");
+    }
+
+    private static async Task SessionQueueAsync()
+    {
+        using var queue = new SessionPacketQueue();
+        Assert.True(queue.TryEnqueue([1], movement: true) && queue.TryEnqueue([2], movement: true) && queue.TryEnqueue([3], movement: false)
+            && queue.TryEnqueue([4], movement: true) && queue.TryEnqueue([5], movement: false), "a packet was refused below the capacity");
+        var order = new List<byte>();
+        while (order.Count < 3 && await queue.DequeueAsync() is { } packet)
+        {
+            order.Add(packet.Memory.Span[0]);
+            SessionPacketQueue.Return(packet);
+        }
+
+        Assert.True(order.SequenceEqual(new byte[] { 2, 3, 4 }), $"queued packets came out as {string.Join(",", order)}");
+        Assert.True(queue.TryEnqueue([6], movement: true), "a move behind a handled one was refused");
+        var accepted = 2;
+        while (queue.TryEnqueue([7], movement: false))
+        {
+            accepted++;
+        }
+
+        Assert.True(accepted == SessionPacketQueue.Capacity, $"the queue held {accepted} packets, not {SessionPacketQueue.Capacity}");
+        queue.Complete();
+        Assert.True(!queue.TryEnqueue([8], movement: false), "a completed queue took a packet");
+        var drained = 0;
+        while (await queue.DequeueAsync() is { } packet)
+        {
+            drained++;
+            SessionPacketQueue.Return(packet);
+        }
+
+        Assert.True(drained == SessionPacketQueue.Capacity, $"a completed queue handed out {drained} of its packets");
     }
 
     private static Task WorldOptionsAsync()

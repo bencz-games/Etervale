@@ -423,6 +423,8 @@ migrates before running a command.
 
 ## Pitfalls
 
+- Stop the server before importing into its database: the import rewrites the catalog in one long transaction that
+  holds SQLite's write lock for tens of seconds, and the running server keeps the catalog it loaded at start anyway.
 - Never trim identity names: spawn tables and placements reference monster and NPC identities with their spaces,
   and the registry matches them byte for byte.
 - A monster or NPC added to the source keeps an id only once its registry entry is added: until then each import gives

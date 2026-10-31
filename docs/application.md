@@ -52,7 +52,7 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | `World/*Transactions.cs`, `World/Prepared*Operation.cs` | Prepare side of durable operations (pickup, progression, NPC services, quests); `PreparedOperation` is the base |
 | `Services/DurableOperations.cs` | `DurableOperations`, `DurableLease`, `DurableFailure`: the admit, prepare, commit (and store-first, abort) runner every durable service uses |
 | `Saves/` | `ICharacterSaves`, `CharacterSaveQueue` (background character storage), `SaveJournal` (captures storage could not take at shutdown) |
-| `GameLogs/` | `IGameLog`, `GameLogQueue` (background writer of item transfers), `TransferLog` (the rows of one transfer) |
+| `GameLogs/` | `IGameLog`, `GameLogQueue` (background writer of item transfers), `LogRowQueue<T>` (the bounded background row writer it and the game-master audit share), `TransferLog` (the rows of one transfer) |
 | `World/WorldSnapshot.cs` | Published view types: `EntityView`, `CombatEventView`, `SkillEventView`, `StatusEventView`, `WorldSnapshot` |
 | `World/WorldOutbox.cs` | Per-connection coalescing channel between the tick and the edge; pins frames on read, keeps events per tick |
 | `World/SubscriberPresence.cs` | Spawn/state/remove diff of snapshots per subscriber (used by tests; the server encoder diffs itself) |
@@ -155,8 +155,10 @@ run back to back, and a stall of more than 5 ticks is skipped and counted. `Tick
 All world access from other threads goes through `EnqueueAsync`, which wraps a closure into a bounded
 (`CommandQueueCapacity`, 65536, single reader) channel and returns a `Task` completed on the tick thread. A closure that throws faults the task.
 Movement reports, the bulk of the traffic, use `TryReportMovement`: the report travels in the same ordered queue as a
-value (no closure, task or completion), counts against the same quota, and its verdict is handed to the caller's
-`IMovementVerdictSink` on the tick thread; `false` means quota or queue full and the report is dropped.
+value (no closure, task or completion) on a quota of its own (`MostPendingMovements`, 8: a client reports five times a
+second and the tick takes them twenty times a second), so a burst of reports never fills the commands' quota, and its
+verdict is handed to the caller's `IMovementVerdictSink` on the tick thread; `false` means quota or queue full and the
+report is dropped.
 
 - Per-player quota: commands tagged with the player's entity id count against `MaxPendingCommandsPerPlayer`
   (default 16, config `World:MaxPendingCommandsPerPlayer`), so 4096 players at their quota fit the queue. Over quota, or
@@ -432,10 +434,12 @@ A transfer's items are the owned items (bag, equipment, belt, quest box) the can
 character before the commit, by instance id and count; the comparison runs on the tick, at a transfer's commit only. Monster drops, NPC shop purchases and sales, crafting and consumption are
 not transfers between holders and are not logged.
 
-`GameLogQueue` (the server's `IGameLog`) keeps up to 65536 rows; a full queue drops new rows and counts them, so a log
-never holds the game. One writer inserts up to 500 rows per transaction and retries a refused batch (`RetryBackoff`,
-0.5 s doubling up to 30 s, the same as the character store); on stop it tries what is left once, a batch at a time, and
-counts what storage refuses as dropped. `CurrencyLedger` keeps, besides the totals the game-master report shows, the
+`GameLogQueue` (the server's `IGameLog`) and the game masters' `GmAuditQueue` write through `LogRowQueue<T>`: up to
+65536 rows wait; a full queue drops new rows and counts them, so a log never holds the game or a player's commands. One
+writer stores a batch (500 transfers per transaction; one audit row at a time, as the repository stores row by row, so
+a retry never stores a row twice) and retries a refused batch (`RetryBackoff`, 0.5 s doubling up to 30 s, the same as
+the character store); on stop it tries what is left once, a batch at a time, and counts what storage refuses as
+dropped. `CurrencyLedger` keeps, besides the totals the game-master report shows, the
 gold each sink took since the last take (`TakeUnrecorded`, `Restore` for a take the log could not store).
 
 ## NPC services
