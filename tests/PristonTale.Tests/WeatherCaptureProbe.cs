@@ -43,6 +43,8 @@ internal sealed class WeatherCaptureProbe : Game
         new("sky-new-moon", 1f, PristonWeather.Clear, Sky: true, Moon: 0.08f, Heading: 3.9f),
         new("sky-overcast", 11f, new PristonWeather(1f, 0f, 0f, Breeze), Sky: true),
         new("sky-storm", 14f, new PristonWeather(1f, 1f, 0f, Breeze * 3f), Sky: true),
+        new("sky-night-storm", 23f, new PristonWeather(1f, 0.88f, 0f, Breeze * 3f), Sky: true, Heading: 3.9f),
+        new("sky-dawn-storm", 5.4f, new PristonWeather(1f, 0.88f, 0f, Breeze * 3f), Sky: true, Heading: 1.6f),
         new("sky-lightning", 14f, new PristonWeather(1f, 1f, 1f, Breeze * 3f, 0.4f), Sky: true),
         new("sky-rainbow", 16.8f, new PristonWeather(0.25f, 0.2f, 0f, Breeze), Sky: true, Heading: 1.6f),
         new("sky-aurora", 0.5f, PristonWeather.Clear, Sky: true, Aurora: true, Heading: 0.6f),

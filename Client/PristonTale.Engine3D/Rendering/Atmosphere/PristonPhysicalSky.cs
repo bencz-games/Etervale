@@ -155,6 +155,7 @@ public sealed class PristonPhysicalSky : IDisposable
         view.Translation = Vector3.Zero;
         Set("InverseViewProjection", Matrix.Invert(view * projection));
         Set("CloudMap", CloudsDrawn ? _clouds : null);
+        Set("CloudMapSize", CloudsDrawn ? new Vector4(_clouds.Width, _clouds.Height, 0f, 0f) : Vector4.One);
         Set("CloudShadowArea", new Vector4(CloudShadowExtent, _overcast, 0f, CloudsDrawn ? 1f : 0f));
         _effect.CurrentTechnique = _effect.Techniques["Sky"];
         _device.BlendState = BlendState.Opaque;

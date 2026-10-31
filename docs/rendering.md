@@ -274,7 +274,11 @@ lighting take it as they took the domes.
   weather's and stay in place as the camera moves. Their hemisphere (azimuth by elevation, the elevation's square root
   down the height, so the low sky holds most texels) renders every texel every frame at 768 x 192, 1024 x 256 or 1536 x
   384, blended 10 % into the last frame's: the march's jitter averages over about ten frames, and moving and changing
-  clouds never leave blocks of older texels. Off: an overcast sky turns a flat grey instead.
+  clouds never leave blocks of older texels; the sky reads it through a cubic B-spline, so the magnified texels show no
+  grid. The sun lights the clouds by day and the moon by night, and at night they keep a glow of their own (the night
+  sky's, the moon's and the town's), so a stormy night shows its deck; under a closing sky the far haze takes the deck's
+  grey instead of opening onto the horizon. A cloud with a body hides the stars and the moon as it hides the sun. Off:
+  an overcast sky turns a flat grey instead.
 - Cloud shadows: the clouds' transmittance toward the sun over 6 km around the camera (256^2), read by the surfaces'
   sun term (`Surface.fx` `CloudShadowAt`, `PristonCloudShadowFrame`) at the clear share of the sky (an overcast sky
   already dims the sun evenly), only by day.

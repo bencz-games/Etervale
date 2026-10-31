@@ -23,6 +23,7 @@ cbuffer AtmosphereConstants : register(b0)
     float4 Flash;           // xyz toward the lightning, w its radiance
     float4 Target;          // xy target size, zw its inverse
     float4 CloudShadowArea; // x extent (km), y overcast grey without clouds (0..1), z unused, w 1 while clouds draw
+    float4 CloudMapSize;    // xy texels of the clouds' hemisphere, zw unused
 };
 
 Texture2D<float4> TransmittanceLut : register(t0);
@@ -76,6 +77,8 @@ static const float CloudExtinction = 40.0;
 static const float CloudFarthest = 60.0;
 static const int CloudSteps = 48;
 static const int CloudLightSteps = 5;
+// The clouds' own glow at night against the airglow's level.
+static const float NightCloudGlow = 10.0;
 // Cirrus at this altitude (km), a sheet the sky pass draws over the clouds' hemisphere.
 static const float CirrusAltitude = 8.0;
 
@@ -334,6 +337,12 @@ float4 SmoothNoise(float3 uvw)
     return CloudNoise.SampleLevel(CloudNoiseSampler, (cell + f - 0.5) / CloudNoiseCells, 0);
 }
 
+// How far the deck closes the low sky: none under a fair sky, a third overcast, all of it in a storm.
+float DeckClosure()
+{
+    return saturate((Clouds.x - 0.45) / 0.35);
+}
+
 float CloudRemap(float value, float low, float high, float newLow, float newHigh)
 {
     return newLow + (value - low) * (newHigh - newLow) / max(high - low, 1e-5);
@@ -396,6 +405,30 @@ float CloudPhase(float cosine)
     return lerp(HenyeyGreenstein(cosine, 0.8), HenyeyGreenstein(cosine, -0.3), 0.3);
 }
 
+// The clouds' hemisphere read through a cubic B-spline (four bilinear fetches): magnified several times on screen, a
+// bilinear read shows the texel grid as soft squares.
+float4 SmoothClouds(float2 uv)
+{
+    float2 size = CloudMapSize.xy;
+    float2 p = uv * size - 0.5;
+    float2 cell = floor(p);
+    float2 f = p - cell;
+    float2 f2 = f * f;
+    float2 f3 = f2 * f;
+    float2 w0 = (1.0 - 3.0 * f + 3.0 * f2 - f3) / 6.0;
+    float2 w1 = (4.0 - 6.0 * f2 + 3.0 * f3) / 6.0;
+    float2 w2 = (1.0 + 3.0 * f + 3.0 * f2 - 3.0 * f3) / 6.0;
+    float2 w3 = f3 / 6.0;
+    float2 g0 = w0 + w1;
+    float2 g1 = w2 + w3;
+    float2 h0 = (cell - 0.5 + w1 / g0) / size;
+    float2 h1 = (cell + 1.5 + w3 / g1) / size;
+    return (CloudMap.SampleLevel(CloudMapSampler, float2(h0.x, h0.y), 0) * g0.x
+        + CloudMap.SampleLevel(CloudMapSampler, float2(h1.x, h0.y), 0) * g1.x) * g0.y
+        + (CloudMap.SampleLevel(CloudMapSampler, float2(h0.x, h1.y), 0) * g0.x
+        + CloudMap.SampleLevel(CloudMapSampler, float2(h1.x, h1.y), 0) * g1.x) * g1.y;
+}
+
 // The clouds' hemisphere by azimuth (u, wrapping) and elevation (v: the square root of its share of a right angle, 0 at
 // the horizon), so the low sky the camera looks at holds most of the texels.
 float2 CloudUv(float3 direction)
@@ -452,7 +485,8 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
     float noise = frac(InterleavedGradientNoise(i.Position.xy) + Clouds.w * 0.618034);
     float dt = (end - start) / CloudSteps;
     // The dominant light of the hour lights the clouds; the sky's zenith and horizon give their ambient light.
-    bool moonLights = ToMoon.w * 20.0 > ToSun.w;
+    // The sun lights the clouds while it is up, the moon after it sets.
+    bool moonLights = ToSun.y < -0.02;
     float3 toLight = moonLights ? ToMoon.xyz : ToSun.xyz;
     float lightLevel = moonLights ? ToMoon.w : ToSun.w;
     float phase = CloudPhase(dot(direction, toLight));
@@ -484,15 +518,21 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
         float3 ambient = lerp(horizon, zenith, height) * (0.5 + 0.5 * height) / Clouds.y;
         // Under a closing sky the clouds light each other: their ambient light turns grey.
         ambient = lerp(ambient, Luminance(ambient).xxx, saturate(Clouds.x));
+        // At night the clouds keep a glow of their own (the night sky's, the moon's and the town's light below them), so
+        // a stormy night shows its deck against the darker sky.
+        ambient += Night.z * NightCloudGlow * float3(0.75, 0.8, 1.0) * (1.2 - height * 0.4);
         float3 scattered = sunLight * (single + diffuse * (0.4 + 0.6 * height) / Clouds.y) + ambient;
         float stepTransmittance = exp(-extinction * dt);
         radiance += throughput * scattered * (1.0 - stepTransmittance);
         throughput *= stepTransmittance;
     }
 
-    // Far clouds fade into the haze between them and the viewer.
+    // Far clouds fade into the haze between them and the viewer; under a closing sky the deck goes on past the march,
+    // so the haze takes the deck's grey instead of opening onto the sky.
     float haze = exp(-start / 45.0);
-    float4 current = float4(radiance * haze, lerp(1.0, throughput, haze));
+    float closed = DeckClosure();
+    float3 deck = (Luminance(lerp(horizon, zenith, 0.3)) * 0.6 / Clouds.y + Night.z * NightCloudGlow) * float3(0.92, 0.95, 1.0);
+    float4 current = float4(radiance * haze + deck * (1.0 - haze) * closed, lerp(1.0, throughput, haze) * (1.0 - (1.0 - haze) * closed));
     float4 history = CloudMap.SampleLevel(CloudMapSampler, i.Uv, 0);
     return lerp(history, current, Clouds.z);
 }
@@ -673,7 +713,7 @@ float4 PS_Sky(FullscreenOut i) : SV_Target0
     float4 clouds = float4(0.0, 0.0, 0.0, 1.0);
     if (CloudShadowArea.w > 0.5 && direction.y > 0.0)
     {
-        clouds = CloudMap.SampleLevel(CloudMapSampler, CloudUv(direction), 0);
+        clouds = SmoothClouds(CloudUv(direction));
     }
 
     float4 cirrus = Cirrus(direction, sky);
@@ -682,7 +722,9 @@ float4 PS_Sky(FullscreenOut i) : SV_Target0
     // sky thousands of times, so the share of it a cloud lets through would still clip white: any cloud with a body
     // (and an overcast sky without drawn clouds) hides it, and the light it sends through the cloud is the cloud's own
     // forward scattering.
-    float3 space = Stars(direction) + Night.z * (1.0 + 3.0 * pow(1.0 - saturate(direction.y), 4.0)) + Aurora(direction) + Moon(direction);
+    // The stars and the moon outshine a dark cloud's share of them too: a cloud with a body hides them.
+    float behind = smoothstep(0.5, 0.95, clouds.a);
+    float3 space = (Stars(direction) + Aurora(direction) + Moon(direction)) * behind + Night.z * (1.0 + 3.0 * pow(1.0 - saturate(direction.y), 4.0));
     float sunCosine = dot(direction, ToSun.xyz);
     if (sunCosine > cos(SunRadius))
     {
@@ -699,6 +741,14 @@ float4 PS_Sky(FullscreenOut i) : SV_Target0
         // A strike lights the clouds from inside, on its side of the sky; it flashes too briefly for their history.
         float flash = exp(-(1.0 - dot(direction, Flash.xyz)) * 6.0) * Flash.w;
         colour = colour * clouds.a + clouds.rgb + flash * (1.0 - clouds.a) * float3(0.85, 0.9, 1.0);
+    }
+
+    // Under a closing sky the deck reaches the horizon: the band below the clouds' hemisphere takes the deck of its
+    // azimuth instead of the clear sky's glow.
+    if (CloudShadowArea.w > 0.5 && direction.y <= 0.004)
+    {
+        float4 edge = SmoothClouds(CloudUv(normalize(float3(direction.x, 0.01, direction.z))));
+        colour = lerp(colour, colour * edge.a + edge.rgb, DeckClosure());
     }
 
     // Without drawn clouds an overcast sky turns a flat grey of its own light.
