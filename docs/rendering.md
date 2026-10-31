@@ -154,7 +154,7 @@ Described in Etervale's terms; readers keep every field, including padding, for 
 | 4 | `LampShadows` | shadows on, lamps lit, rows to redraw | Cube faces of new lamp rows and one other row in turn. |
 | 5 | `SkyCapture` | fog on, sky visible, sky changed | Four 32-px tiles of the dome for the fog colour. |
 | 6 | `Environment` | IBL on, every 250 ms | Six dome faces, SH irradiance, octahedral map, prefiltered atlas. |
-| 7 | `Sky` | always | Dome layers into the 8-bit sky target, then `SkyComposite` fills every scene target. |
+| 7 | `Sky` | always | Dome layers into the sky target (sRGB codes in half floats), then `SkyComposite` fills every scene target. |
 | 8 | `Prepass` | no MSAA, not `Overdraw` | Depth, linear depth, normals (smoothness in alpha), motion of opaque surfaces and cut-outs. |
 | 9 | `AmbientOcclusion` | pre-pass ran and AO or contact shadows on | GTAO and contact shadows at half resolution, blur. |
 | 10 | `LightCulling` | any local light | 16x16 tile masks (depth-bounded after the pre-pass). |
@@ -241,16 +241,18 @@ All light is photometric (`Lighting/PristonPhotometry.cs`, `PristonDayNightCycle
 ## Realistic sky
 
 With `realisticSky` on (`PristonRenderer.RealisticSky`), `PristonPhysicalSky` (`Shaders/Passes/Atmosphere.fx`) paints the
-sky instead of the painted domes, outdoors only; the domes stay the classic sky. It writes display-referred sRGB into the
-same 8-bit sky targets the domes use (`DrawPhysicalSky`), so the scene, the fog's sky capture and the image-based
+sky instead of the painted domes over a game field outdoors (`FieldSky`, set by the game scene; the opening and the other
+screens keep their domes); the domes stay the classic sky. It writes display-referred sRGB into the
+same sky targets the domes use (`DrawPhysicalSky`), so the scene, the fog's sky capture and the image-based
 lighting take it as they took the domes.
 
 - Atmosphere (after Hillaire 2020): the transmittance table (256 x 64) and the multiple scattering table (32 x 32) are
   built once; the sky view (256 x 128, the sky's radiance around the viewer for the sun and the moon) every frame
   (`UpdatePhysicalSky`, before the scene's targets bind). Rayleigh, Mie and ozone of a clear Earth day, lengths in km.
 - Sun: the hour's direction (`PristonDayNightCycle`), 120000 lux outside the atmosphere in the frame's pre-exposed
-  units; its disc (0.008 rad, limb-darkened) dimmed by the transmittance. A soft knee above 0.75 of the display keeps a
-  bright sky's and a sunlit cloud's hue.
+  units; its disc (0.008 rad, limb-darkened) dimmed by the transmittance and hidden by any cloud with a body (the share
+  a cloud lets through would still clip white; the light through it is the cloud's own scattering). A soft knee above
+  0.6 of the display keeps a bright sky's and a sunlit cloud's hue and shading.
 - Moon: a fixed high direction, its light 0.3 lux times its lit share; its disc (0.013 rad) lit as a sphere by its
   phase (`MoonPhase`, from the server clock: `WorldClock.MoonPhaseAt`, a cycle of 8 game days), mottled maria and a
   faint earthshine.
@@ -262,15 +264,17 @@ lighting take it as they took the domes.
   reversed secondary at 50.5 to 53.5, while a light rain falls (none in a downpour or without rain) through a sky the
   sun shines through, with the sun between 3 and 42 degrees up.
 - Cirrus: a thin stretched sheet at 8 km under a clear sky, fading as the clouds gather.
-- Volumetric clouds (`cloudQuality`; after Schneider's Nubis): a cumulus layer from 1.5 to 4 km in a 64^3 tiling noise
-  volume (`PristonCloudNoise`: Perlin-Worley shape, Worley fBm detail) under a broad coverage pattern; the coverage
+- Volumetric clouds (`cloudQuality`; after Schneider's Nubis): a cumulus layer from 1.5 to 4 km in a 64^3 half-float tiling
+  noise volume (`PristonCloudNoise`: Perlin-Worley shape, Worley fBm detail) under a broad coverage pattern; the coverage
   grows from a fair sky's 30 % to 95 % of the visible sky as the clouds gather and closes further in rain, where a
   stratus deck fills the layer's lower half and the denser clouds go dark below. 48 marching steps, 5 toward the
   light; single scattering with the powder effect, a diffuse multiple-scattering term that keeps a deck's base grey, and
-  the sky's light; a strike lights the clouds on its side (`PristonWeather.FlashAzimuth`). The clouds drift with a base
-  wind plus the weather's and stay in place as the camera moves. Their hemisphere (stereographic: zenith at the
-  centre) renders every texel every frame at 256, 384 or 512 texels a side, blended 20 % into the last frame's, so
-  moving and changing clouds never leave blocks of older texels. Off: an overcast sky turns a flat grey instead.
+  the sky's light; a strike lights the clouds from inside on its side of the sky (`PristonWeather.FlashAzimuth`, added
+  as the sky draws, since the flash is too brief for the clouds' history). The clouds drift with a base wind plus the
+  weather's and stay in place as the camera moves. Their hemisphere (azimuth by elevation, the elevation's square root
+  down the height, so the low sky holds most texels) renders every texel every frame at 768 x 192, 1024 x 256 or 1536 x
+  384, blended 10 % into the last frame's: the march's jitter averages over about ten frames, and moving and changing
+  clouds never leave blocks of older texels. Off: an overcast sky turns a flat grey instead.
 - Cloud shadows: the clouds' transmittance toward the sun over 6 km around the camera (256^2), read by the surfaces'
   sun term (`Surface.fx` `CloudShadowAt`, `PristonCloudShadowFrame`) at the clear share of the sky (an overcast sky
   already dims the sun evenly), only by day.

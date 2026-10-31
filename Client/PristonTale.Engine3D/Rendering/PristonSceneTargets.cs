@@ -16,8 +16,9 @@ namespace PristonTale.Engine3D.Rendering;
 // colour target's depth buffer, so the lit pass shades each pixel once (BindPrepass).
 // The caller's render targets and viewport are captured when the scene begins and restored when it is composed, so the
 // scene can be drawn into the back buffer or any 8-bit target. The sky dome is composed display-referred in its own
-// 8-bit target (its layers are authored for sRGB blending) and decoded behind the scene (Shaders/Passes/SkyComposite.fx),
-// which also fills the temporal targets.
+// target (its layers are authored for sRGB blending, so its values are sRGB codes; half floats keep the slow gradients
+// of the realistic sky's clouds from banding) and decoded behind the scene (Shaders/Passes/SkyComposite.fx), which also
+// fills the temporal targets.
 internal sealed class PristonSceneTargets : IDisposable
 {
     public const string SkyCompositeAsset = "Effects/SkyComposite";
@@ -153,13 +154,13 @@ internal sealed class PristonSceneTargets : IDisposable
 
     private const float SkyDepth = 65000f;
 
-    // Binds the 8-bit sky target, cleared to the sRGB colour behind the dome, for the dome's layers.
+    // Binds the sky target, cleared to the sRGB colour behind the dome, for the dome's layers.
     public void BeginSky(Color background)
     {
         if (_sky is null || _sky.Width != _color.Width || _sky.Height != _color.Height)
         {
             _sky?.Dispose();
-            _sky = new RenderTarget2D(_device, _color.Width, _color.Height, false, SurfaceFormat.Color, DepthFormat.None, 0,
+            _sky = new RenderTarget2D(_device, _color.Width, _color.Height, false, SurfaceFormat.HalfVector4, DepthFormat.None, 0,
                 RenderTargetUsage.PreserveContents);
         }
 

@@ -89,7 +89,7 @@ internal sealed class WeatherCaptureProbe : Game
         Directory.CreateDirectory(_output);
         var field = new WorldCatalog().AllFields.Single(candidate => candidate.FieldCode == FieldCodes.Ricarten);
         _sky = PristonSkyLibrary.LoadBootstrap(GraphicsDevice, _assetRoot);
-        _renderer = new PristonRenderer(GraphicsDevice, Content, presentation: _presentation) { Sky = _sky, DayLengthSeconds = 0 };
+        _renderer = new PristonRenderer(GraphicsDevice, Content, presentation: _presentation) { Sky = _sky, DayLengthSeconds = 0, FieldSky = true };
         _renderer.SkyProfiles = new PristonSkyProfiles(PristonSkyProfiles.Resolve(field.Backdrop.Day),
             PristonSkyProfiles.Resolve(field.Backdrop.Glow), PristonSkyProfiles.Resolve(field.Backdrop.Night));
         var reader = new PristonSmdReader();

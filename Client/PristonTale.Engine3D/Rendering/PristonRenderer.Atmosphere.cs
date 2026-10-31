@@ -41,6 +41,9 @@ public sealed partial class PristonRenderer
     private Vector2 _cloudDrift;
 
     public bool RealisticSky { get; set; } = true;
+
+    // A game field's sky, which the realistic sky may replace; the opening and other screens keep their painted domes.
+    public bool FieldSky { get; set; }
     public CloudQuality CloudQuality { get; set; } = CloudQuality.Medium;
 
     // 0 new moon, 0.5 full, back to 1.
@@ -49,7 +52,7 @@ public sealed partial class PristonRenderer
     // The field shows the aurora at night (the ice fields).
     public bool Aurora { get; set; }
 
-    private bool PhysicalSkyShown => RealisticSky && !Underground;
+    private bool PhysicalSkyShown => RealisticSky && FieldSky && !Underground;
 
     private void DriftClouds(float seconds)
     {

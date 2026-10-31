@@ -48,7 +48,7 @@ SamplerState CloudNoiseSampler : register(s3) = sampler_state
 Texture2D<float4> CloudMap : register(t4);
 SamplerState CloudMapSampler : register(s4) = sampler_state
 {
-    Texture = (CloudMap); MinFilter = Linear; MagFilter = Linear; MipFilter = Point; AddressU = Clamp; AddressV = Clamp;
+    Texture = (CloudMap); MinFilter = Linear; MagFilter = Linear; MipFilter = Point; AddressU = Wrap; AddressV = Clamp;
 };
 
 // Earth's atmosphere (clear day).
@@ -320,6 +320,20 @@ float4 PS_SkyView(FullscreenOut i) : SV_Target0
     return float4(radiance, 1.0);
 }
 
+// Cells along each side of the noise volume (PristonCloudNoise.Size).
+static const float CloudNoiseCells = 64.0;
+
+// The noise volume read with its fraction eased between texels (one bilinear fetch): plain linear interpolation bends
+// at every texel, and the coverage threshold that stretches the density turns those bends into contour lines.
+float4 SmoothNoise(float3 uvw)
+{
+    float3 p = uvw * CloudNoiseCells + 0.5;
+    float3 cell = floor(p);
+    float3 f = p - cell;
+    f = f * f * (3.0 - 2.0 * f);
+    return CloudNoise.SampleLevel(CloudNoiseSampler, (cell + f - 0.5) / CloudNoiseCells, 0);
+}
+
 float CloudRemap(float value, float low, float high, float newLow, float newHigh)
 {
     return newLow + (value - low) * (newHigh - newLow) / max(high - low, 1e-5);
@@ -328,7 +342,7 @@ float CloudRemap(float value, float low, float high, float newLow, float newHigh
 // Coverage at a horizontal position: the weather's, varied by a broad pattern so clear and clouded regions alternate.
 float CoverageAt(float2 position)
 {
-    float pattern = CloudNoise.SampleLevel(CloudNoiseSampler, float3(position.x, 0.37 * CloudCoverageTile, position.y) / CloudCoverageTile, 0).r;
+    float pattern = SmoothNoise(float3(position.x, 0.37 * CloudCoverageTile, position.y) / CloudCoverageTile).r;
     return saturate(Clouds.x + (pattern - 0.5) * 0.7);
 }
 
@@ -349,13 +363,13 @@ float CloudDensityAt(float3 position, float height, bool detail)
     }
 
     float profile = saturate(height * 5.0) * saturate((1.0 - height) * (1.0 + 2.0 * (1.0 - local)));
-    float4 shapeNoise = CloudNoise.SampleLevel(CloudNoiseSampler, position / CloudNoiseTile, 0);
+    float4 shapeNoise = SmoothNoise(position / CloudNoiseTile);
     float fbm = shapeNoise.g * 0.625 + shapeNoise.b * 0.25 + shapeNoise.a * 0.125;
     float shape = CloudRemap(shapeNoise.r, fbm - 1.0, 1.0, 0.0, 1.0) * profile;
     float density = saturate(CloudRemap(shape, 1.0 - local, 1.0, 0.0, 1.0)) * local;
     if (detail && density > 0.0)
     {
-        float4 detailNoise = CloudNoise.SampleLevel(CloudNoiseSampler, position / (CloudNoiseTile * 0.18), 0);
+        float4 detailNoise = SmoothNoise(position / (CloudNoiseTile * 0.18));
         float erosion = detailNoise.g * 0.625 + detailNoise.b * 0.25 + detailNoise.a * 0.125;
         erosion = lerp(erosion, 1.0 - erosion, saturate(height * 4.0));
         density = saturate(CloudRemap(density, erosion * 0.35, 1.0, 0.0, 1.0));
@@ -382,24 +396,19 @@ float CloudPhase(float cosine)
     return lerp(HenyeyGreenstein(cosine, 0.8), HenyeyGreenstein(cosine, -0.3), 0.3);
 }
 
-// The clouds' hemisphere in a stereographic projection: the zenith at the centre, the horizon on the inscribed circle.
+// The clouds' hemisphere by azimuth (u, wrapping) and elevation (v: the square root of its share of a right angle, 0 at
+// the horizon), so the low sky the camera looks at holds most of the texels.
 float2 CloudUv(float3 direction)
 {
-    float2 p = direction.xz / (1.0 + max(direction.y, 0.0));
-    return p * 0.5 + 0.5;
+    float elevation = asin(saturate(direction.y));
+    return float2(atan2(direction.x, direction.z) / (2.0 * PI) + 0.5, sqrt(elevation / (PI * 0.5)));
 }
 
 float3 CloudDirection(float2 uv)
 {
-    float2 p = uv * 2.0 - 1.0;
-    float r2 = dot(p, p);
-    if (r2 > 1.0)
-    {
-        p /= sqrt(r2);
-        r2 = 1.0;
-    }
-
-    return normalize(float3(2.0 * p.x, 1.0 - r2, 2.0 * p.y));
+    float elevation = uv.y * uv.y * (PI * 0.5);
+    float azimuth = (uv.x - 0.5) * 2.0 * PI;
+    return float3(sin(azimuth) * cos(elevation), sin(elevation), cos(azimuth) * cos(elevation));
 }
 
 // Optical depth from a point toward a light through the layer, in lengthening steps without detail.
@@ -428,7 +437,7 @@ float3 SkyViewAt(float3 direction)
 
 // One texel of the clouds' hemisphere: rgb the light they send toward the viewer, a the share of the sky behind they
 // let through; blended with the last frame's by Clouds.z, the march jittered per frame and per texel so the blend
-// averages it. Every texel renders every frame, so no texel lags its neighbours.
+// averages it out. Every texel renders every frame, so no texel lags its neighbours.
 float4 PS_Clouds(FullscreenOut i) : SV_Target0
 {
     float3 direction = CloudDirection(i.Uv);
@@ -449,7 +458,6 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
     float phase = CloudPhase(dot(direction, toLight));
     float3 zenith = SkyViewAt(float3(0.0, 1.0, 0.0));
     float3 horizon = SkyViewAt(float3(direction.x, 0.05, direction.z));
-    float flashNear = exp(-(1.0 - dot(direction, Flash.xyz)) * 12.0) * Flash.w;
     float throughput = 1.0;
     float3 radiance = 0.0;
     [loop]
@@ -469,14 +477,14 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
         // Single scattering by Beer's law with the dark sunward edges of a dense cloud (powder), and the light that
         // scatters many times and diffuses through thick cloud (two-stream transmittance, white and nearly isotropic),
         // which keeps an overcast deck's base grey instead of the sky's blue.
-        float single = exp(-depth) * (1.0 - exp(-depth * 2.0 - 0.1)) * 2.0 * phase;
+        float single = exp(-depth) * lerp(1.0, 1.0 - exp(-depth * 2.0 - 0.1), 0.5) * phase;
         float diffuse = 0.25 / (1.0 + 0.11 * depth);
         float3 sunLight = TransmittanceToSpace(p, toLight) * lightLevel;
         // A rain cloud's denser body keeps the sky's light from its base.
         float3 ambient = lerp(horizon, zenith, height) * (0.5 + 0.5 * height) / Clouds.y;
         // Under a closing sky the clouds light each other: their ambient light turns grey.
         ambient = lerp(ambient, Luminance(ambient).xxx, saturate(Clouds.x));
-        float3 scattered = sunLight * (single + diffuse * (0.4 + 0.6 * height) / Clouds.y) + ambient + flashNear * (1.0 - height * 0.5);
+        float3 scattered = sunLight * (single + diffuse * (0.4 + 0.6 * height) / Clouds.y) + ambient;
         float stepTransmittance = exp(-extinction * dt);
         radiance += throughput * scattered * (1.0 - stepTransmittance);
         throughput *= stepTransmittance;
@@ -604,19 +612,30 @@ float3 Rainbow(float3 direction)
     return bow * Effects.x * saturate(direction.y * 8.0);
 }
 
-// Thin cirrus high above the cumulus: a sheet of stretched noise lit by the light of the hour.
+// Cirrus high above the cumulus: a few patches of fine fibres combed along the wind. A broad pattern places the
+// patches and leaves most of the sky clear; fine stretched noise draws the fibres inside them, so they read as hair-thin
+// wisps instead of smears. Lit by the hour's light, faint against the sky.
 float4 Cirrus(float3 direction, float3 sky)
 {
-    if (Effects.z <= 0.0 || direction.y < 0.02)
+    if (Effects.z <= 0.0 || direction.y < 0.03)
     {
         return float4(0.0, 0.0, 0.0, 1.0);
     }
 
     float2 at = direction.xz / direction.y * CirrusAltitude + CloudOffset.xy * 2.0;
-    float n = CloudNoise.SampleLevel(CloudNoiseSampler, float3(at.x * 0.02, 0.73, at.y * 0.06), 0).b;
-    float wisp = saturate((n - (1.0 - Effects.z * 0.6)) * 3.0) * saturate(direction.y * 6.0);
-    float3 light = TransmittanceToSpace(ObserverPosition() + float3(0.0, CirrusAltitude, 0.0), ToSun.xyz) * ToSun.w * 0.06 + sky * 1.5;
-    return float4(light * wisp * 0.5, 1.0 - wisp * 0.5);
+    float patch = CloudNoise.SampleLevel(CloudNoiseSampler, float3(at.x * 0.012, 0.73, at.y * 0.012), 0).r;
+    float placed = saturate((patch - (1.0 - Effects.z * 0.5)) * 4.0);
+    if (placed <= 0.0)
+    {
+        return float4(0.0, 0.0, 0.0, 1.0);
+    }
+
+    float fibres = CloudNoise.SampleLevel(CloudNoiseSampler, float3(at.x * 0.03, 0.31, at.y * 0.6), 0).g;
+    float fine = CloudNoise.SampleLevel(CloudNoiseSampler, float3(at.x * 0.08, 0.57, at.y * 1.7), 0).b;
+    float wisp = placed * saturate((fibres * 0.6 + fine * 0.4 - 0.55) * 5.0) * saturate((direction.y - 0.03) * 8.0);
+    float3 light = TransmittanceToSpace(ObserverPosition() + float3(0.0, CirrusAltitude, 0.0), ToSun.xyz) * ToSun.w * 0.04 + sky * 1.2;
+    float opacity = wisp * 0.3;
+    return float4(light * opacity, 1.0 - opacity);
 }
 
 float3 Moon(float3 direction)
@@ -651,34 +670,47 @@ float4 PS_Sky(FullscreenOut i) : SV_Target0
     float3 sky = SkyViewAt(direction);
     float above = saturate(direction.y * 30.0 + 0.5);
 
-    // Behind the clouds: the stars and the Milky Way, the aurora, the moon and the sun's disc.
+    float4 clouds = float4(0.0, 0.0, 0.0, 1.0);
+    if (CloudShadowArea.w > 0.5 && direction.y > 0.0)
+    {
+        clouds = CloudMap.SampleLevel(CloudMapSampler, CloudUv(direction), 0);
+    }
+
+    float4 cirrus = Cirrus(direction, sky);
+
+    // Behind the clouds: the stars and the Milky Way, the aurora, the moon and the sun's disc. The disc outshines the
+    // sky thousands of times, so the share of it a cloud lets through would still clip white: any cloud with a body
+    // (and an overcast sky without drawn clouds) hides it, and the light it sends through the cloud is the cloud's own
+    // forward scattering.
     float3 space = Stars(direction) + Night.z * (1.0 + 3.0 * pow(1.0 - saturate(direction.y), 4.0)) + Aurora(direction) + Moon(direction);
     float sunCosine = dot(direction, ToSun.xyz);
     if (sunCosine > cos(SunRadius))
     {
         float centre = saturate(1.0 - acos(min(sunCosine, 1.0)) / SunRadius);
+        float veiled = smoothstep(0.6, 0.97, clouds.a) * cirrus.a * saturate(1.0 - CloudShadowArea.y * 1.5);
         // Limb darkening.
-        space += SunDiscRadiance * ToSun.w * (0.4 + 0.6 * sqrt(centre)) * TransmittanceToSpace(ObserverPosition(), ToSun.xyz);
+        space += SunDiscRadiance * ToSun.w * veiled * (0.4 + 0.6 * sqrt(centre)) * TransmittanceToSpace(ObserverPosition(), ToSun.xyz);
     }
 
     float3 colour = sky + space * TransmittanceToSpace(ObserverPosition(), direction) * above;
-    float4 cirrus = Cirrus(direction, sky);
     colour = colour * cirrus.a + cirrus.rgb;
     if (CloudShadowArea.w > 0.5 && direction.y > 0.0)
     {
-        float4 clouds = CloudMap.SampleLevel(CloudMapSampler, CloudUv(direction), 0);
-        colour = colour * clouds.a + clouds.rgb;
+        // A strike lights the clouds from inside, on its side of the sky; it flashes too briefly for their history.
+        float flash = exp(-(1.0 - dot(direction, Flash.xyz)) * 6.0) * Flash.w;
+        colour = colour * clouds.a + clouds.rgb + flash * (1.0 - clouds.a) * float3(0.85, 0.9, 1.0);
     }
 
     // Without drawn clouds an overcast sky turns a flat grey of its own light.
     colour = lerp(colour, Luminance(sky).xxx * 0.8, CloudShadowArea.y * above);
     colour += Rainbow(direction) * sky * 1.6;
-    // A soft knee above 0.75 keeps the hue of a bright sky and of sunlit clouds instead of clipping each channel.
+    // A soft knee above 0.6 keeps the hue and the shading of a bright sky and of sunlit clouds instead of clipping
+    // each channel or flattening them into plateaus.
     float3 shown = colour * Effects.w;
     float peak = max(max(shown.r, shown.g), shown.b);
-    if (peak > 0.75)
+    if (peak > 0.6)
     {
-        shown *= (0.75 + 0.25 * (1.0 - exp(-(peak - 0.75) * 4.0))) / peak;
+        shown *= (0.6 + 0.4 * (1.0 - exp(-(peak - 0.6) * 1.5))) / peak;
     }
 
     float3 display = LinearToSrgb(saturate(shown));

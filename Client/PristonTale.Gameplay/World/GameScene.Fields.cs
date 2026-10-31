@@ -84,7 +84,7 @@ public sealed partial class GameScene
     {
         if (_renderer != null)
             return;
-        _renderer = new PristonRenderer(_graphicsDevice, _content, _log, _presentation) { Sky = _sky };
+        _renderer = new PristonRenderer(_graphicsDevice, _content, _log, _presentation) { Sky = _sky, FieldSky = true };
         _actorScene = new RendererActorScene(_renderer);
         CreateSkillPresentation();
         CreateItemEffects();

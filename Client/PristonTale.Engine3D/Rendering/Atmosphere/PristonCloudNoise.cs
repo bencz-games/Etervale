@@ -1,15 +1,18 @@
+using Microsoft.Xna.Framework.Graphics.PackedVector;
+
 namespace PristonTale.Engine3D.Rendering.Atmosphere;
 
-// The clouds' tiling noise volume (Atmosphere.fx): Size^3 RGBA8 texels, R the Perlin-Worley shape (billowing cells
+// The clouds' tiling noise volume (Atmosphere.fx): Size^3 half-float RGBA texels (eight bits left contour steps where the
+// coverage threshold stretches the density), R the Perlin-Worley shape (billowing cells
 // with gradient noise between them) and G, B, A Worley fBm at rising frequencies for the eroding detail. Every channel
 // wraps at the volume's edges and is stretched to the full range, so the coverage threshold carves clear sky.
 public static class PristonCloudNoise
 {
     public const int Size = 64;
 
-    public static byte[] Generate(int size = Size)
+    public static HalfVector4[] Generate(int size = Size)
     {
-        var texels = new byte[size * size * size * 4];
+        var values = new float[size * size * size * 4];
         Parallel.For(0, size, z =>
         {
             Span<float> rgba = stackalloc float[4];
@@ -18,29 +21,32 @@ public static class PristonCloudNoise
                 for (var x = 0; x < size; x++)
                 {
                     At((x + 0.5f) / size, (y + 0.5f) / size, (z + 0.5f) / size, rgba);
-                    var texel = ((z * size + y) * size + x) * 4;
-                    for (var channel = 0; channel < 4; channel++)
-                    {
-                        texels[texel + channel] = (byte)MathF.Round(Math.Clamp(rgba[channel], 0f, 1f) * 255f);
-                    }
+                    rgba.CopyTo(values.AsSpan(((z * size + y) * size + x) * 4, 4));
                 }
             }
         });
 
+        Span<float> least = stackalloc float[4];
+        Span<float> span = stackalloc float[4];
         for (var channel = 0; channel < 4; channel++)
         {
-            int least = 255, most = 0;
-            for (var index = channel; index < texels.Length; index += 4)
+            float low = float.MaxValue, high = float.MinValue;
+            for (var index = channel; index < values.Length; index += 4)
             {
-                least = Math.Min(least, texels[index]);
-                most = Math.Max(most, texels[index]);
+                low = MathF.Min(low, values[index]);
+                high = MathF.Max(high, values[index]);
             }
 
-            var span = Math.Max(most - least, 1);
-            for (var index = channel; index < texels.Length; index += 4)
-            {
-                texels[index] = (byte)((texels[index] - least) * 255 / span);
-            }
+            least[channel] = low;
+            span[channel] = MathF.Max(high - low, 1e-6f);
+        }
+
+        var texels = new HalfVector4[size * size * size];
+        for (var texel = 0; texel < texels.Length; texel++)
+        {
+            var at = texel * 4;
+            texels[texel] = new HalfVector4((values[at] - least[0]) / span[0], (values[at + 1] - least[1]) / span[1],
+                (values[at + 2] - least[2]) / span[2], (values[at + 3] - least[3]) / span[3]);
         }
 
         return texels;

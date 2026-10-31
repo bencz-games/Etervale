@@ -34,9 +34,10 @@ public readonly record struct PristonSkyInputs(
 
 // The physical sky (Shaders/Passes/Atmosphere.fx): the transmittance and multiple-scattering tables built once, then
 // each frame (Update, before the scene's targets are bound) the sky view, the clouds' hemisphere and their shadow on
-// the ground; Draw paints the sky into the bound 8-bit sky target, for any view (the scene, the fog's capture, the
-// environment's faces). The clouds' hemisphere renders every texel every frame, blended with the last frame's
-// (CloudHistory), so moving and changing clouds never leave blocks of older texels.
+// the ground; Draw paints the sky into the bound sky target, for any view (the scene, the fog's capture, the
+// environment's faces). The clouds' hemisphere (azimuth by elevation, most texels near the horizon) renders every
+// texel every frame, blended with the last frame's (CloudHistory), so moving and changing clouds never leave blocks of
+// older texels.
 public sealed class PristonPhysicalSky : IDisposable
 {
     public const string AssetName = "Effects/Atmosphere";
@@ -50,8 +51,9 @@ public sealed class PristonPhysicalSky : IDisposable
     // units, stands about 2 m tall).
     public const float CloudShadowExtent = 6f;
     public const float WorldUnitsPerKilometre = 25000f;
-    // The share of the last frame's clouds each frame keeps.
-    private const float CloudHistory = 0.8f;
+    // The share of the last frame's clouds each frame keeps: the march's jitter averages over about ten frames, while
+    // the clouds drift far less than a texel in that time.
+    private const float CloudHistory = 0.9f;
 
     private readonly GraphicsDevice _device;
     private readonly PristonFullscreenTriangle _triangle;
@@ -78,7 +80,7 @@ public sealed class PristonPhysicalSky : IDisposable
         _skyView = Target(SkyViewWidth, SkyViewHeight);
         _cloudShadow = new RenderTarget2D(device, CloudShadowSize, CloudShadowSize, false, SurfaceFormat.Color, DepthFormat.None, 0,
             RenderTargetUsage.PreserveContents);
-        _noise = new Texture3D(device, PristonCloudNoise.Size, PristonCloudNoise.Size, PristonCloudNoise.Size, false, SurfaceFormat.Color);
+        _noise = new Texture3D(device, PristonCloudNoise.Size, PristonCloudNoise.Size, PristonCloudNoise.Size, false, SurfaceFormat.HalfVector4);
         _noise.SetData(PristonCloudNoise.Generate());
     }
 
@@ -111,11 +113,12 @@ public sealed class PristonPhysicalSky : IDisposable
         Set("SkyViewLut", _skyView);
         Set("CloudNoise", _noise);
 
+        // The hemisphere's texels around the horizon (four times as many up to the zenith's share of the height).
         var size = inputs.Quality switch
         {
-            CloudQuality.Low => 256,
-            CloudQuality.Medium => 384,
-            CloudQuality.High => 512,
+            CloudQuality.Low => 768,
+            CloudQuality.Medium => 1024,
+            CloudQuality.High => 1536,
             _ => 0
         };
         CloudsDrawn = size > 0 && inputs.Coverage > 0f;
@@ -130,8 +133,8 @@ public sealed class PristonPhysicalSky : IDisposable
         {
             _clouds?.Dispose();
             _cloudsHistory?.Dispose();
-            _clouds = Target(size, size);
-            _cloudsHistory = Target(size, size);
+            _clouds = Target(size, size / 4);
+            _cloudsHistory = Target(size, size / 4);
             _cloudsValid = false;
         }
 
