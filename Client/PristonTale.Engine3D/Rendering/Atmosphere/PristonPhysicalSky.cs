@@ -30,7 +30,8 @@ public readonly record struct PristonSkyInputs(
     Vector2 CloudOffset,
     Vector3 TowardFlash,
     float FlashLight,
-    CloudQuality Quality);
+    CloudQuality Quality,
+    float Haze = 0f);
 
 // The physical sky (Shaders/Passes/Atmosphere.fx): the transmittance and multiple-scattering tables built once, then
 // each frame (Update, before the scene's targets are bound) the sky view, the clouds' hemisphere and their shadow on
@@ -169,7 +170,7 @@ public sealed class PristonPhysicalSky : IDisposable
         Set("MoonFace", new Vector4(inputs.MoonFace, inputs.MoonDisc));
         Set("Night", new Vector4(inputs.Stars, inputs.SkyTurn, inputs.Airglow, inputs.Aurora));
         Set("Effects", new Vector4(inputs.Rainbow, inputs.Seconds, inputs.Cirrus, inputs.DisplayScale));
-        Set("CloudOffset", new Vector4(inputs.CloudOffset, 0f, 0f));
+        Set("CloudOffset", new Vector4(inputs.CloudOffset, inputs.Haze, 0f));
         Set("Flash", new Vector4(inputs.TowardFlash, inputs.FlashLight));
         Set("CloudShadowArea", new Vector4(CloudShadowExtent, 0f, 0f, 0f));
         // Without drawn clouds the overcast fallback greys the sky.

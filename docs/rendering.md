@@ -250,9 +250,11 @@ lighting take it as they took the domes.
   built once; the sky view (256 x 128, the sky's radiance around the viewer for the sun and the moon) every frame
   (`UpdatePhysicalSky`, before the scene's targets bind). Rayleigh, Mie and ozone of a clear Earth day, lengths in km.
 - Sun: the hour's direction (`PristonDayNightCycle`), 120000 lux outside the atmosphere in the frame's pre-exposed
-  units; its disc (0.008 rad, limb-darkened) dimmed by the transmittance and hidden by any cloud with a body (the share
-  a cloud lets through would still clip white; the light through it is the cloud's own scattering). A soft knee above
-  0.6 of the display keeps a bright sky's and a sunlit cloud's hue and shading.
+  units; its disc (0.008 rad, limb-darkened, a soft edge) dimmed once by the air toward it, with the aureole the air
+  scatters around it, and hidden by any cloud with a body (the share a cloud lets through would still clip white; the
+  light through it is the cloud's own scattering). A morning mist veils the disc and widens the glow, so the sun shows
+  as a soft bright patch. A soft knee above 0.6 of the display keeps a bright sky's and a sunlit cloud's hue and
+  shading, and far past white (the sun) bleaches toward white-gold.
 - Moon: a fixed high direction, its light 0.3 lux times its lit share; its disc (0.013 rad) lit as a sphere by its
   phase (`MoonPhase`, from the server clock: `WorldClock.MoonPhaseAt`, a cycle of 8 game days), mottled maria and a
   faint earthshine.
@@ -299,9 +301,9 @@ lighting take it as they took the domes.
   illuminance as cold sky light the exposure does not meter (about twice a storm's light at its peak, at any hour) and
   draws the sky dome three times as bright (`SkyFlash`).
 - Fog (`WeatherFog`): full rain starts the distance fog at 35 % of its distance and makes it four times as dense; a
-  field with a morning mist (`MorningMist`: a forest's 1, or the strength `FieldDef.MorningMist` names, Ricarten's 1.2
+  field with a morning mist (`MorningMist`: a forest's 1, or the strength `FieldDef.MorningMist` names, Ricarten's 0.8
   for a town in the clouds) brings it to 1 / (1 + 3 x strength) of its distance and makes it 1 + 3 x strength times
-  as dense at 6:00, rising from 4:30 and lifting by 9:00, and thickens the volumetric light's medium 1 + 14 x strength
+  as dense at 6:00, rising from 4:30 and lifting by 9:00, and thickens the volumetric light's medium 1 + 6 x strength
   times, so the low sun draws shafts through it.
 - `RainRadiance`: a drop's light, the sky light plus a quarter of the sun on a white surface, at least 0.07 of the
   metered level.

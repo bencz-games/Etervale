@@ -19,7 +19,7 @@ cbuffer AtmosphereConstants : register(b0)
     float4 Night;           // x stars (0..1), y the sky's turn (radians), z airglow radiance, w aurora (0..1)
     float4 Effects;         // x rainbow (0..1), y seconds, z cirrus cover (0..1), w display scale
     float4 Clouds;          // x coverage, y density scale, z history weight (1 refreshes), w frame
-    float4 CloudOffset;     // xy km of wind and camera (wrapped), zw unused
+    float4 CloudOffset;     // xy km of wind and camera (wrapped), z the haze veiling the sun (0..1), w unused
     float4 Flash;           // xyz toward the lightning, w its radiance
     float4 Target;          // xy target size, zw its inverse
     float4 CloudShadowArea; // x extent (km), y overcast grey without clouds (0..1), z unused, w 1 while clouds draw
@@ -85,8 +85,9 @@ static const float CirrusAltitude = 8.0;
 // Angular radii (radians) of the sun's disc (a little larger than true, to read at the game's view) and the moon's.
 static const float SunRadius = 0.008;
 static const float MoonRadius = 0.013;
-// The sun disc's radiance per unit illuminance: bright enough to clip white.
+// The sun disc's radiance per unit illuminance: bright enough to clip white; and its aureole's at the disc's edge.
 static const float SunDiscRadiance = 2.0e4;
+static const float SunAureole = 6.0;
 
 float3 ObserverPosition()
 {
@@ -725,16 +726,20 @@ float4 PS_Sky(FullscreenOut i) : SV_Target0
     // The stars and the moon outshine a dark cloud's share of them too: a cloud with a body hides them.
     float behind = smoothstep(0.5, 0.95, clouds.a);
     float3 space = (Stars(direction) + Aurora(direction) + Moon(direction)) * behind + Night.z * (1.0 + 3.0 * pow(1.0 - saturate(direction.y), 4.0));
-    float sunCosine = dot(direction, ToSun.xyz);
-    if (sunCosine > cos(SunRadius))
-    {
-        float centre = saturate(1.0 - acos(min(sunCosine, 1.0)) / SunRadius);
-        float veiled = smoothstep(0.6, 0.97, clouds.a) * cirrus.a * saturate(1.0 - CloudShadowArea.y * 1.5);
-        // Limb darkening.
-        space += SunDiscRadiance * ToSun.w * veiled * (0.4 + 0.6 * sqrt(centre)) * TransmittanceToSpace(ObserverPosition(), ToSun.xyz);
-    }
-
     float3 colour = sky + space * TransmittanceToSpace(ObserverPosition(), direction) * above;
+
+    // The sun: a limb-darkened disc with a soft edge and the aureole the air and the haze scatter around it, both behind
+    // the clouds and dimmed once by the air toward the sun. A haze (the morning mist) veils the disc and widens the
+    // glow, so the sun shows as a soft bright patch through it.
+    float haze = saturate(CloudOffset.z);
+    float angle = acos(clamp(dot(direction, ToSun.xyz), -1.0, 1.0));
+    float veiled = smoothstep(0.6, 0.97, clouds.a) * cirrus.a * saturate(1.0 - CloudShadowArea.y * 1.5);
+    float3 sunLight = ToSun.w * TransmittanceToSpace(ObserverPosition(), ToSun.xyz) * veiled * above;
+    float edge = saturate((SunRadius - angle) / (SunRadius * 0.15));
+    float centre = saturate(1.0 - angle / SunRadius);
+    float disc = SunDiscRadiance * edge * (0.45 + 0.55 * sqrt(centre)) * lerp(1.0, 0.04, haze);
+    float aureole = SunAureole * (exp(-angle * 60.0) + 0.25 * exp(-angle * lerp(14.0, 5.0, haze))) * (1.0 + 3.0 * haze);
+    colour += sunLight * (disc + aureole);
     colour = colour * cirrus.a + cirrus.rgb;
     if (CloudShadowArea.w > 0.5 && direction.y > 0.0)
     {
@@ -755,12 +760,14 @@ float4 PS_Sky(FullscreenOut i) : SV_Target0
     colour = lerp(colour, Luminance(sky).xxx * 0.8, CloudShadowArea.y * above);
     colour += Rainbow(direction) * sky * 1.6;
     // A soft knee above 0.6 keeps the hue and the shading of a bright sky and of sunlit clouds instead of clipping
-    // each channel or flattening them into plateaus.
+    // each channel or flattening them into plateaus; far past the display's white (the sun) it bleaches toward white,
+    // as film and the eye do, so the sun burns white-gold instead of a flat orange coin.
     float3 shown = colour * Effects.w;
     float peak = max(max(shown.r, shown.g), shown.b);
     if (peak > 0.6)
     {
-        shown *= (0.6 + 0.4 * (1.0 - exp(-(peak - 0.6) * 1.5))) / peak;
+        float3 kneed = shown * ((0.6 + 0.4 * (1.0 - exp(-(peak - 0.6) * 1.5))) / peak);
+        shown = lerp(kneed, float3(1.0, 0.97, 0.9), saturate((peak - 2.0) / 30.0));
     }
 
     float3 display = LinearToSrgb(saturate(shown));

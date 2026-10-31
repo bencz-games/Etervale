@@ -99,7 +99,8 @@ public sealed partial class PristonRenderer
                 Wrap(_cloudDrift.Y + camera.Z / PristonPhysicalSky.WorldUnitsPerKilometre)),
             Vector3.Normalize(new Vector3(MathF.Sin(flashAngle), 0.35f, MathF.Cos(flashAngle))),
             MathHelper.Clamp(Weather.Flash, 0f, 1f) * FlashCloudLevel / displayScale,
-            CloudQuality);
+            CloudQuality,
+            MathHelper.Clamp(Mist, 0f, 1f));
         // The clouds' moving shadows show under a fair or broken sky; an overcast one already dims the light evenly.
         _physicalSky.Update(inputs, camera, _sunElevation > 0f ? SunThrough(cloud, Weather.SunBreak) : 0f);
         _stateCache.InvalidateDeviceState();

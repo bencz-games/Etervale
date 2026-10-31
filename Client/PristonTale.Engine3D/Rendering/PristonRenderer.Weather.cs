@@ -31,7 +31,7 @@ public sealed partial class PristonRenderer
     // the volumetric light's medium 1 + MistShafts times, so the low morning sun draws shafts through it.
     private const float MistFogNear = 3f;
     private const float MistFogDensity = 3f;
-    private const float MistShafts = 14f;
+    private const float MistShafts = 6f;
     private const float MistStart = 4.5f;
     private const float MistPeak = 6f;
     private const float MistEnd = 9f;

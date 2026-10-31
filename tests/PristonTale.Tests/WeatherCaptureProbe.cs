@@ -36,6 +36,8 @@ internal sealed class WeatherCaptureProbe : Game
         new("cloud-shadows", 12.5f, new PristonWeather(0.35f, 0f, 0f, Breeze * 4f)),
         new("morning-mist", 6f, PristonWeather.Clear, Mist: true),
         new("sky-noon", 12f, PristonWeather.Clear, Sky: true),
+        new("sky-sunrise", 6.1f, PristonWeather.Clear, Sky: true, Heading: 1.6f),
+        new("sky-sunrise-mist", 6.1f, PristonWeather.Clear, Sky: true, Heading: 1.6f, Mist: true),
         new("sky-afternoon", 15.5f, new PristonWeather(0.45f, 0f, 0f, Breeze), Sky: true, Heading: 1.2f),
         new("sky-sunset", 18.4f, new PristonWeather(0.2f, 0f, 0f, Breeze), Sky: true, Heading: -1.6f),
         new("sky-dusk", 19.6f, PristonWeather.Clear, Sky: true, Heading: -1.6f),
@@ -123,7 +125,7 @@ internal sealed class WeatherCaptureProbe : Game
         _renderer.Weather = shot.Weather;
         _renderer.MoonPhase = shot.Moon;
         _renderer.Aurora = shot.Aurora;
-        _renderer.MorningMist = shot.Mist ? 1.2f : 0f;
+        _renderer.MorningMist = shot.Mist ? 0.8f : 0f;
         if (_renderer.RealisticSky == shot.Classic)
         {
             _presentation.ApplyRendering(new ClientSettings { RealisticSky = !shot.Classic });
