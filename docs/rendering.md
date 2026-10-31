@@ -332,7 +332,9 @@ they took the domes.
   player, from the loaded fields' collision, kept toroidally so a walk reads only the new rows (at most 4096 cells a
   frame); uploaded to an R32F texture at most every 0.1 s while it changes.
 - Splashes (`Rain.fx` `Splashes`): up to 520 at full rain within 460 units of the player, on the map's surfaces (roofs
-  and ground), 0.3 s each: a spreading ring and a camera-facing spray.
+  and ground), 0.3 s each: a faint spreading ring and four fine droplets thrown up and out on a camera-facing quad. A
+  lighter rain lands fewer (the rain's share to the power 1.5), smaller (half the size at the lightest) and fainter
+  (35 % the opacity) splashes (`SplashesPerSecond`, `SplashSize`, `SplashOpacity`).
 
 ## Shadows
 

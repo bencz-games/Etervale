@@ -24,7 +24,20 @@ internal static class WeatherTests
         yield return ("the client eases the clouds and the rain in and out, blows the wind its way and shows nothing with the setting off", PresentationAsync);
         yield return ("a storm's lightning keeps no beat, mostly far and faint with a few near and bright, and thunders; plain rain never does", LightningAsync);
         yield return ("the rain stops on the highest surface of each cell, reading only the cells a moving centre uncovers", OcclusionAsync);
+        yield return ("a lighter rain lands fewer, smaller and fainter splashes than its share of a downpour's", SplashesAsync);
         yield return ("the realistic sky's clouds gather with the weather, its rainbow needs a light rain under a low sun, the moon turns through its phases and the cloud noise tiles", SkyAsync);
+    }
+
+    private static Task SplashesAsync()
+    {
+        var light = WeatherSchedule.LightRain / 255f;
+        Assert.True(PristonRain.SplashesPerSecond(light) < light * PristonRain.SplashesPerSecond(1f),
+            "a light rain landed its share of a downpour's splashes or more");
+        Assert.True(PristonRain.SplashSize(light) < PristonRain.SplashSize(1f) && PristonRain.SplashOpacity(light) < PristonRain.SplashOpacity(1f),
+            "a light rain's splashes were as large or as bright as a downpour's");
+        Assert.True(PristonRain.SplashesPerSecond(0f) == 0f && PristonRain.SplashSize(1f) == 1f && PristonRain.SplashOpacity(1f) == 1f,
+            "the splashes did not stop without rain or keep their full size and opacity in a downpour");
+        return Task.CompletedTask;
     }
 
     private static long At(long cycle, int minute) => (cycle * WeatherSchedule.DefaultCycleMinutes + minute) * WorldClock.MinuteMs;

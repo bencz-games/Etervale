@@ -3,7 +3,8 @@
 // by time alone, so no drop moves on the CPU. A streak runs from the drop back along its velocity seen from the moving
 // camera, at least StreakPixels wide on screen; a drop thinner than that fades by the ratio instead, so far rain reads
 // as a veil. The rain occlusion map (the highest surface of every cell around the camera) hides the part of a streak
-// under a roof or the ground. Splashes: the CPU's quads on those surfaces, a ring that spreads and a spray that rises.
+// under a roof or the ground. Splashes: the CPU's quads on those surfaces, a faint ring that spreads and a few fine
+// droplets thrown up and out.
 // Both test the scene's depth buffer and do not write it.
 #include "../Core/Common.hlsli"
 
@@ -168,6 +169,11 @@ float4 PS_Drop(RainOut i) : SV_Target0
     return Output(i.Color.rgb, RainColor.a * i.Color.a * across * along);
 }
 
+// The ring's share of a splash's opacity, and the spray's droplets and how small each is in the quad.
+static const float SplashRing = 0.6;
+static const int SplashDroplets = 4;
+static const float SplashDropletSharpness = 220.0;
+
 float4 PS_Splash(RainOut i) : SV_Target0
 {
     float age = i.Age;
@@ -175,15 +181,25 @@ float4 PS_Splash(RainOut i) : SV_Target0
     float alpha;
     if (i.Shape.z < 0.5)
     {
-        // A thin ring spreading to the quad's edge.
+        // A thin, faint ring spreading to the quad's edge.
         float ring = r - lerp(0.15, 0.95, age);
-        alpha = exp(-ring * ring * 180.0) * (1.0 - age);
+        alpha = exp(-ring * ring * 300.0) * (1.0 - age) * SplashRing;
     }
     else
     {
-        // A spray rising from the quad's foot and falling back.
-        float2 p = float2(i.Shape.x, i.Shape.y * 0.5 + 0.5);
-        alpha = saturate(1.0 - length(float2(p.x * 1.6, (p.y - age * 0.7) * 2.2))) * (1.0 - age * age);
+        // Droplets thrown from the quad's foot (y -1) on arcs that spread sideways, rise and fall back: fine points, not
+        // a blob.
+        alpha = 0.0;
+        [unroll]
+        for (int k = 0; k < SplashDroplets; k++)
+        {
+            float side = (k - (SplashDroplets - 1) * 0.5) / SplashDroplets;
+            float2 droplet = float2(side * 1.6 * age, -1.0 + (1.6 - abs(side)) * 4.0 * age * (1.0 - age));
+            float2 d = i.Shape.xy - droplet;
+            alpha += exp(-dot(d, d) * SplashDropletSharpness);
+        }
+
+        alpha *= 1.0 - age * age;
     }
 
     return Output(i.Color.rgb, RainColor.a * i.Color.a * alpha);

@@ -52,12 +52,17 @@ public sealed class PristonRain : IDisposable
     public const float DropWidth = 0.5f;
     public const float StreakPixels = 1.3f;
     public const float Opacity = 0.38f;
-    // Splashes alive at full rain, how far around the player they land and how long one lasts.
+    // Splashes alive at full rain, how far around the player they land and how long one lasts. A lighter rain lands
+    // fewer (the rain's share to the power SplashCountPower), smaller and fainter drops: a splash's size and opacity
+    // grow from their light-rain share to all of it in full rain.
     public const int MaxSplashes = 520;
     public const float SplashRadius = 460f;
     public const float SplashSeconds = 0.3f;
-    private const float RingSize = 4.5f;
-    private const float SpraySize = 2.6f;
+    public const float SplashCountPower = 1.5f;
+    private const float RingSize = 3.5f;
+    private const float SpraySize = 1.8f;
+    private const float LightSplashSize = 0.5f;
+    private const float LightSplashOpacity = 0.35f;
     // The drop clock runs from the rain's start and starts over after this many seconds, so float precision holds in
     // the wrap (a quarter of a unit at its end). Its drops jump once then, which only an hour of rain without a pause
     // shows: the schedule's rain lasts minutes and the clock restarts at each.
@@ -239,7 +244,9 @@ public sealed class PristonRain : IDisposable
             return;
         }
 
-        _spawnDebt += rain * MaxSplashes / SplashSeconds * seconds;
+        _spawnDebt += SplashesPerSecond(rain) * seconds;
+        var size = SplashSize(rain);
+        var opacity = SplashOpacity(rain);
         for (; _spawnDebt >= 1f && _liveCount < MaxSplashes; _spawnDebt -= 1f)
         {
             var angle = _random.NextSingle() * MathF.Tau;
@@ -249,7 +256,7 @@ public sealed class PristonRain : IDisposable
             var height = Occlusion.HeightAt(x, z);
             if (height > PristonRainOcclusion.NoSurface)
             {
-                _live[_liveCount++] = new Splash(new Vector3(x, height, z), 0f, 0.5f + 0.5f * _random.NextSingle());
+                _live[_liveCount++] = new Splash(new Vector3(x, height, z), 0f, (0.5f + 0.5f * _random.NextSingle()) * opacity, size);
             }
         }
 
@@ -270,8 +277,10 @@ public sealed class PristonRain : IDisposable
         {
             var splash = _live[index];
             var ground = splash.Position + new Vector3(0f, 0.6f, 0f);
-            Quad(ref vertex, ground, Vector3.UnitX * RingSize, Vector3.UnitZ * RingSize, splash, 0f);
-            Quad(ref vertex, ground + Vector3.UnitY * SpraySize, right * SpraySize * 0.6f, Vector3.UnitY * SpraySize, splash, 1f);
+            var ring = RingSize * splash.Size;
+            var spray = SpraySize * splash.Size;
+            Quad(ref vertex, ground, Vector3.UnitX * ring, Vector3.UnitZ * ring, splash, 0f);
+            Quad(ref vertex, ground + Vector3.UnitY * spray, right * spray, Vector3.UnitY * spray, splash, 1f);
         }
 
         _splashVertices.SetData(_splashScratch, 0, vertex, SetDataOptions.Discard);
@@ -294,5 +303,11 @@ public sealed class PristonRain : IDisposable
         }
     }
 
-    private record struct Splash(Vector3 Position, float Age, float Opacity);
+    internal static float SplashesPerSecond(float rain) => MathF.Pow(rain, SplashCountPower) * MaxSplashes / SplashSeconds;
+
+    internal static float SplashSize(float rain) => MathHelper.Lerp(LightSplashSize, 1f, rain);
+
+    internal static float SplashOpacity(float rain) => MathHelper.Lerp(LightSplashOpacity, 1f, rain);
+
+    private record struct Splash(Vector3 Position, float Age, float Opacity, float Size);
 }
