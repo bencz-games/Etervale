@@ -13,7 +13,7 @@ internal static class PhotorealTests
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
         yield return ("graphics settings validate post options and presets set every rendering option", PresetsAsync);
-        yield return ("the sun is low and warm at 18:00 and the moon lights the night", DaylightAsync);
+        yield return ("the sun keeps the game's hours, low and warm before the evening glow, and the moon lights the night", DaylightAsync);
         yield return ("incident exposure shows a white surface under the metered light at the day key", ExposureAsync);
         yield return ("temporal jitter is centred and the projection moves by whole clip offsets", JitterAsync);
         yield return ("scene depth is reversed: the near plane is 1, the far plane 0, and both planes are recoverable", ReversedDepthAsync);
@@ -63,8 +63,11 @@ internal static class PhotorealTests
 
     private static Task DaylightAsync()
     {
-        var elevation18 = MathHelper.ToDegrees(MathF.Asin(PristonDayNightCycleProbe.TowardSun(18f).Y));
-        Assert.True(elevation18 is > 6f and < 14f, $"the 18:00 sun stands at {elevation18:F1} degrees");
+        // The sun keeps the game's hours: low before the evening glow, below the horizon from the night's start to dawn.
+        var lowElevation = MathHelper.ToDegrees(MathF.Asin(PristonDayNightCycleProbe.TowardSun(21.5f).Y));
+        Assert.True(lowElevation is > 6f and < 14f, $"the 21:30 sun stands at {lowElevation:F1} degrees");
+        Assert.True(PristonDayNightCycleProbe.TowardSun(23f).Y < -0.2f && PristonDayNightCycleProbe.TowardSun(3.9f).Y < 0f
+            && PristonDayNightCycleProbe.TowardSun(4.25f).Y > 0f, "the sun is up in the game's night or down after its dawn");
         Assert.True(PristonDayNightCycleProbe.TowardSun(12f).Y > 0.85f, "the noon sun is not high");
         Assert.True(PristonDayNightCycleProbe.TowardSun(0f).Y < -0.5f, "the midnight sun is not below the horizon");
         var noon = PristonPhotometry.SunIlluminance(MathHelper.ToRadians(60f));
@@ -73,9 +76,9 @@ internal static class PhotorealTests
             $"sun illuminance noon {noon}, low {low}");
         Assert.True(PristonPhotometry.SkyIlluminance(MathHelper.ToRadians(-10f)) < 5f && PristonPhotometry.SkyIlluminance(MathHelper.ToRadians(45f)) > 10000f,
             "sky light does not fade through twilight");
-        var night = PristonDayNightCycleProbe.State(22f);
-        var dusk = PristonDayNightCycleProbe.State(18f);
-        Assert.True(night.LampFactor == 1f && dusk.LampFactor == 0f, "lamps are not off in the 18:00 sun and on at night");
+        var night = PristonDayNightCycleProbe.State(23.5f);
+        var dusk = PristonDayNightCycleProbe.State(21.5f);
+        Assert.True(night.LampFactor == 1f && dusk.LampFactor == 0f, "lamps are not off in the 21:30 sun and on at night");
         Assert.True(night.SunDirection.Y < 0f && night.HorizontalIlluminance is > 0.5f and < 20f, $"night light {night.HorizontalIlluminance} lux");
         Assert.True(dusk.SunIlluminance.X > dusk.SunIlluminance.Z * 2.5f, "the low sun is not warm");
         // Moonlight is sunlight off a grey surface: a blue moon gives every surface a blue sheen its diffuse colour lacks.

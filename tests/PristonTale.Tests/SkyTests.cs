@@ -38,8 +38,9 @@ internal static class SkyTests
         {
             var profiles = new PristonSkyProfiles(PristonSkyProfiles.Resolve(backdrop.Day),
                 PristonSkyProfiles.Resolve(backdrop.Glow), PristonSkyProfiles.Resolve(backdrop.Night));
-            Assert.True(profiles.Select(12) == profiles.Day && profiles.Select(18) == profiles.Glow
-                && profiles.Select(0) == profiles.Night, "sky phase disagrees with the existing 24-hour light cycle");
+            Assert.True(profiles.Select(12) == profiles.Day && profiles.Select(4) == profiles.Day && profiles.Select(22.5f) == profiles.Glow
+                && profiles.Select(23) == profiles.Night && profiles.Select(0) == profiles.Night && profiles.Select(3.9f) == profiles.Night,
+                "the sky's profile does not follow the game's day, glow and night");
         }
 
         Assert.True(PristonSkyProfiles.Opening.Select(12) == 22, "opening lost its 0x80 sky");

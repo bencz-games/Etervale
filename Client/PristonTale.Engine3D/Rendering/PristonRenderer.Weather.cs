@@ -34,9 +34,9 @@ public sealed partial class PristonRenderer
     private const float MistFogNear = 2f;
     private const float MistFogDensity = 2f;
     private const float MistShafts = 3f;
-    private const float MistStart = 4.5f;
-    private const float MistPeak = 6f;
-    private const float MistEnd = 9f;
+    private const float MistStart = 3f;
+    private const float MistPeak = 4.5f;
+    private const float MistEnd = 8f;
     private const float RainFogStart = 0.35f;
     private const float RainFogDensity = 4f;
     // A drop's light: the sky light plus this share of the sun on a white surface, and at least the faint light of a
@@ -49,7 +49,7 @@ public sealed partial class PristonRenderer
 
     public PristonWeather Weather { get; set; }
 
-    // The strength of the field's mist from 4:30 to 9:00, thickest at 6:00 (1 a forest's, 0 none).
+    // The strength of the field's mist from 3:00 to 8:00, thickest at 4:30 as the day breaks (1 a forest's, 0 none).
     public float MorningMist { get; set; }
 
     // The radiance of a lit raindrop in the scene's pre-exposed units, set with each frame's lighting.
@@ -114,7 +114,7 @@ public sealed partial class PristonRenderer
             };
     }
 
-    // The morning mist now: its strength times the hour's share (0 outside 4:30 to 9:00, 1 at 6:00).
+    // The morning mist now: its strength times the hour's share (0 outside 3:00 to 8:00, 1 at 4:30).
     private float Mist
     {
         get

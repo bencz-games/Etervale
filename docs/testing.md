@@ -295,7 +295,7 @@ Draws the static and skinned surface effects into a float target and checks agai
 | `charselect` | Character-select stage, braziers with their green flames (`CharSelectFlames`), roster: > 2 % of the frame clipped to white or > 5 % with a clipped channel |
 | `actor` | NPCs at noon, front and back: the two-pixel silhouette ring is more than 1.25 times the interior luminance |
 | `opening` | Login flythrough with meteors: the town in the lower third is more than 1.8 times redder than blue |
-| `scenery` | Ricarten metal on a stage quad vs an animated scenery model, noon and 17:00: luminance > 8 % apart, saturation > 0.05 apart, |
+| `scenery` | Ricarten metal on a stage quad vs an animated scenery model, noon and 20:00: luminance > 8 % apart, saturation > 0.05 apart, |
 | | or animated `Specular` debug view > 1.25 x the stage quad's |
 | `shade` | NPC on an open floor and on a dark-lit (shaded) floor at 10:00: actor shade/open ratio off the floor's by > 1.5 x |
 

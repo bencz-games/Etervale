@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using PristonTale.Contracts.World;
 using PristonTale.Engine3D.Rendering.Lighting;
 
 namespace PristonTale.Engine3D.Rendering;
@@ -21,10 +22,10 @@ internal readonly record struct PristonSkyState(
 
 internal sealed class PristonDayNightCycle
 {
-    // The sun rises at 05:30 and sets at 18:45, so the gradient's warm 17:30 key and the dusk skies meet a low sun
-    // rather than one already on the horizon.
-    public const float Sunrise = 5.5f;
-    public const float Sunset = 18.75f;
+    // The sun keeps the game's hours (GameHours): it rises as the day starts and sets a quarter hour into the evening
+    // glow, so the glow hour meets a low red sun and the night's start (45 minutes later) a sky already dark.
+    public const float Sunrise = GameHours.DayStart;
+    public const float Sunset = GameHours.GlowStart + 0.25f;
     // Tilt of the sun's path toward -Z (the path's horizontal offset, as a share of the east-west radius).
     private const float PathTilt = 0.35f;
     // The moon lights the night from a fixed, high position with the sunlight its grey surface reflects, slightly

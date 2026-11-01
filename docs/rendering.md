@@ -201,7 +201,11 @@ many bindings as are bound (a Debug build asserts it), so it keeps one array for
 
 All light is photometric (`Lighting/PristonPhotometry.cs`, `PristonDayNightCycle.cs`):
 
-- **Sun:** rises 05:30, sets 18:45 (`Sunrise`, `Sunset`), arc east (+X) to west, tilted toward -Z. Direct illuminance
+- **Sun:** keeps the game's hours (`GameHours`, which the server's night rules use too: day from 4:00, the evening glow
+  from 22:00, night from 23:00): it rises at 4:00 and sets at 22:15 (`Sunrise`, `Sunset`), so the glow hour meets a low
+  red sun and the night's start a dark sky; arc east (+X) to west, tilted toward -Z. The light gradient's keys
+  (`DayNightSettings.DefaultGradient`) follow the same hours. The classic sky picks the day, glow and night profiles by
+  those periods (`PristonSkyProfiles.Select`). Direct illuminance
   120000 lux reduced by air mass (Kasten-Young) and broadband extinction, faded over the disc crossing the horizon;
   reddened per channel by spectral extinction (the low sun turns orange).
 - **Sky:** 1200 lux at the horizon plus 20000 x sin(elevation)^0.8, falling by e every 1.6 degrees below the horizon;
@@ -314,7 +318,7 @@ they took the domes.
 - Fog (`WeatherFog`): full rain starts the distance fog at 35 % of its distance and makes it four times as dense; a
   field with a morning mist (`MorningMist`: a forest's 1, or the strength `FieldDef.MorningMist` names, Ricarten's 0.8
   for a town in the clouds) brings it to 1 / (1 + 2 x strength) of its distance and makes it 1 + 2 x strength times
-  as dense at 6:00, rising from 4:30 and lifting by 9:00, and thickens the volumetric light's medium 1 + 3 x strength
+  as dense at 4:30 as the day breaks, rising from 3:00 and lifting by 8:00, and thickens the volumetric light's medium 1 + 3 x strength
   times, so the low sun draws shafts through it.
 - `RainRadiance`: a drop's light, the sky light plus a quarter of the sun on a white surface, at least 0.07 of the
   metered level.
@@ -429,7 +433,7 @@ they took the domes.
   `SceneLinearDepth` only when non-null.
 - **Change a lighting constant:** the CPU side lives in `PristonPhotometry`, `PristonDayNightCycle` or the constants at
   the top of `PristonRenderer`; mirrored shader values are listed in [shaders.md](shaders.md#pitfalls). Re-run
-  `--verify-shaders`, the render tests and `--benchmark-render` captures by day and at 21:00.
+  `--verify-shaders`, the render tests and `--benchmark-render` captures by day and at night (23:30).
 - **Support a new original asset variant:** extend the reader in `Formats/`, keep unknown bytes in metadata, resolve paths
   through `AssetFiles`, add a fixture test (`BinaryCursorTests`, `RenderTests`), and describe the format here
   without citing the original source.

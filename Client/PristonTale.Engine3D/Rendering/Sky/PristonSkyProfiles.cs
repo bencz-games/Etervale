@@ -1,3 +1,5 @@
+using PristonTale.Contracts.World;
+
 namespace PristonTale.Engine3D.Rendering;
 
 public readonly record struct PristonSkyProfiles(int Day, int Glow, int Night)
@@ -5,20 +7,16 @@ public readonly record struct PristonSkyProfiles(int Day, int Glow, int Night)
     public static readonly PristonSkyProfiles Opening = new(22, 22, 22);
     public static readonly PristonSkyProfiles Forest = new(4, 5, 6);
 
-    // Follow the remake's existing 24-hour lighting gradient, not the original 32-hour clock.
+    // The game's periods (GameHours): the day profile by day, the glow profile in the evening glow, the night profile at
+    // night.
     public int Select(float hour)
     {
-        if (hour < 5.5f || hour >= 20f)
+        if (GameHours.IsNight(hour))
         {
             return Night;
         }
 
-        if (hour < 8f || hour >= 17f)
-        {
-            return Glow;
-        }
-
-        return Day;
+        return hour >= GameHours.GlowStart ? Glow : Day;
     }
 
     public static int Resolve(string code) => code switch

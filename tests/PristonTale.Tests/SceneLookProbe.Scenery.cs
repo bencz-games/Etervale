@@ -87,7 +87,7 @@ internal sealed partial class SceneLookProbe
     {
         if (_frames == 160)
         {
-            _sceneryHour = 17f;
+            _sceneryHour = 20f;
             _renderer.SetTimeOfDay(_sceneryHour);
             _renderer.ResetTemporalState();
         }

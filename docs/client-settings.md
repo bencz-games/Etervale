@@ -164,7 +164,7 @@ values. The defaults equal the High preset (checked by `PhotorealTests`).
 | `shadowsEnabled`, `autoExposure`, `colorGrading` | on | on | on | on |
 
 Reference GPU frame totals, measured with `--benchmark-render` at 1920x1080 on a GTX 1050 Ti in Ricarten at noon and in
-the lamp-lit street at 21:00, cascades refreshed at 60 Hz: Low about 2.6 ms (day) and 3.4 ms (night; FXAA would add
+the lamp-lit street at night, cascades refreshed at 60 Hz: Low about 2.6 ms (day) and 3.4 ms (night; FXAA would add
 about 0.7 ms), Medium about 3.6 ms and 4.8 ms, High about 5.7 ms and 5.7 ms; Ultra costs High plus the every-frame
 cascades and the reflections. At 60 frames per second or less every frame refreshes the cascades (about 1 ms more on
 High). Re-measure after renderer changes; see [testing.md](testing.md) for the benchmark arguments.

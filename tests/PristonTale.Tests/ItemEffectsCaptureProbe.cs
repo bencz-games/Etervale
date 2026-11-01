@@ -97,7 +97,7 @@ internal sealed class ItemEffectsCaptureProbe : Game
         var field = new WorldCatalog().AllFields.Single(candidate => candidate.Id == "village-2");
         _sky = PristonSkyLibrary.LoadBootstrap(GraphicsDevice, _assetRoot);
         _renderer = new PristonRenderer(GraphicsDevice, Content, presentation: _presentation) { Sky = _sky, DayLengthSeconds = 0 };
-        _renderer.SetTimeOfDay(21f);
+        _renderer.SetTimeOfDay(23.5f);
         _renderer.SkyProfiles = new PristonSkyProfiles(PristonSkyProfiles.Resolve(field.Backdrop.Day),
             PristonSkyProfiles.Resolve(field.Backdrop.Glow), PristonSkyProfiles.Resolve(field.Backdrop.Night));
         var reader = new PristonSmdReader();

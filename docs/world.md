@@ -359,9 +359,10 @@ crystal pets follow the same orders ([special-items.md](special-items.md#monster
 
 ## Night and day
 
-`WorldClock` (Simulation): one game minute lasts 800 ms, a day 19.2 real minutes; night runs from 23:00 to 4:00. The
-server keeps the clock (`WorldServer.GameClockMs`, the Unix time plus `world.clock_offset_minutes` game minutes) and sends
-it in `WorldJoined`; each tick it sets `FieldInstance.Night` for every field.
+`WorldClock` (Simulation): one game minute lasts 800 ms, a day 19.2 real minutes; night runs from 23:00 to 4:00
+(`GameHours`, Contracts, which the client's sky follows too: its sun sets in the 22:00 glow and rises at 4:00). The
+server keeps the clock (`WorldServer.GameClockMs`, the Unix time plus `world.clock_offset_minutes` game minutes) and
+sends it in `WorldJoined`; each tick it sets `FieldInstance.Night` for every field.
 
 `FieldInstance.Night` (`FieldInstance.Night.cs`), applied at the first step and at each change:
 
