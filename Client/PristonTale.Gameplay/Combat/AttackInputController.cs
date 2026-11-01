@@ -53,6 +53,21 @@ public sealed class AttackInputController
         }
     }
 
+    // Drops the target the player leaves (a ground click, a cast, a warp). The server keeps chasing a target held or
+    // latched with Shift until told, so a dropped target asks it to stop: an attack on no one, as the next gesture.
+    public AttackRequest? Stop()
+    {
+        var chasing = TargetId != 0;
+        Cancel();
+        if (!chasing)
+        {
+            return null;
+        }
+
+        Sequence++;
+        return new AttackRequest(0, false, Sequence);
+    }
+
     public void Cancel()
     {
         TargetId = 0;

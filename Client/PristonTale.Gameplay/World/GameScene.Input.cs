@@ -273,10 +273,15 @@ public sealed partial class GameScene
         SendUpstream(_playChannel.SendAttackAsync(request.TargetId, request.Sustained, _presenceCts.Token, request.Sequence), "attack");
     }
 
-    // Like the original client's attack cancel, this drops the trace but keeps the target frame open.
+    // Like the original client's attack cancel, this drops the trace but keeps the target frame open; the server stops
+    // chasing the target too.
     private void ClearAttackTarget()
     {
-        _attackInput.Cancel();
+        if (_attackInput.Stop() is { } stop)
+        {
+            SendAttackIntent(stop);
+        }
+
         _targetSelection.ClearTrace();
         _npcTargetId = 0;
         _npcMoveSent = false;
