@@ -182,7 +182,7 @@ internal sealed class PristonShaderLibrary : IDisposable
         _skinned.SetDrawLight(floorLight);
         var overlay = shade?.Overlay;
         _skinned.ApplyMaterial(material, texture, uvScrollOffset, overlay is null ? layerOffset : new Vector2(overlayOffset, 0f), 1f, rimColor, overlay);
-        _skinned.ApplyActor(shade is null ? new Vector4(0f, 0f, 0f, 1f) : new Vector4(shade.Tint, shade.Opacity),
+        _skinned.ApplyActor(shade is null ? new Vector4(0f, 0f, 0f, 1f) : new Vector4(shade.ShownTint, shade.ShownOpacity),
             new Vector4(shade is { Wobble: true } ? ActorShade.WobbleAmplitude : 0f, wobblePhase, overlay is null ? 0f : 1f, 0f), actor);
         return _skinned.Select(_skinned.SurfaceTechnique(material.AlphaTest, prepass));
     }

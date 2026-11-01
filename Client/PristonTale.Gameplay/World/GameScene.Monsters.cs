@@ -91,4 +91,19 @@ public sealed partial class GameScene : IMonsterScene
             _renderer.SetActorColorAdd(handles[index], tint);
         }
     }
+
+    void IMonsterScene.SetEntityCorpse(ulong entityId, float fade, float dim)
+    {
+        if (_renderer is null || _remote is null)
+        {
+            return;
+        }
+
+        Span<ActorHandle> handles = stackalloc ActorHandle[8];
+        var count = _remote.CopyActorHandles(entityId, handles);
+        for (var index = 0; index < count; index++)
+        {
+            _renderer.SetActorCorpse(handles[index], fade, dim);
+        }
+    }
 }

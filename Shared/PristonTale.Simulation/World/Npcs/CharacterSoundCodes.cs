@@ -15,6 +15,8 @@ public static class CharacterSoundCodes
     public const int Watermelon = 0x5130;
     public const int MetalGolem = 0x3020;
     public const int FireElemental = 0x3030;
+    public const int Figon = 0x1180;
+    public const int StygianLord = 0x1350;
     public const int CastleDoor = 0x5010;
     // The castle tower crystals: red fire, green lightning, blue ice.
     public const int CastleCrystalFire = 0x5020;

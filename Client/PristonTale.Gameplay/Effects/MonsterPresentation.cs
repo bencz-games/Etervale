@@ -54,6 +54,9 @@ public interface IMonsterScene
 
     // Adds a colour to every actor of an entity (players included); zero clears it.
     void SetEntityTint(ulong entityId, Vector3 tint);
+
+    // A corpse's look on every actor of an entity: fade multiplies its opacity, dim takes light away.
+    void SetEntityCorpse(ulong entityId, float fade, float dim);
 }
 
 // Plays the visuals of monsters the way the original client did: it follows each monster's animation and starts the
@@ -70,6 +73,15 @@ public sealed class MonsterPresentation
     private const int SkillState = 0x150;
     private const int DeadState = 0x120;
     private const int MinigSound = 0x1030;
+
+    // A corpse darkens from DimStartTicks after its death clip starts, by half a light unit a tick, up to DimMost at
+    // DimFullTicks; the bodies of light (Figon, Stygian Lord, Guardian Saint, the fire elemental, Chaos Cara) fade by two
+    // alpha units a tick until they are gone. Light and alpha units are 1/256 of a full light and of opaque.
+    private const float DimStartTicks = 200f;
+    private const float DimFullTicks = 400f;
+    private const float DimMost = 100f;
+    private const float FadePerTick = 2f;
+    private const float Units = 256f;
 
     private static readonly Vector3 IceTint = new(0f, 0f, 160f / 256f);
     private static readonly Vector3 PoisonTint = new(0f, 100f / 256f, 0f);
@@ -176,6 +188,19 @@ public sealed class MonsterPresentation
         }
 
         _soundById[monster.EntityId] = monster.SoundCode;
+        if (tracked.DeathShown)
+        {
+            tracked.DeathTicks += seconds * GameUnits.TicksPerSecond;
+            var fade = CorpseFade(monster.SoundCode, tracked.DeathTicks);
+            var dim = CorpseDim(tracked.DeathTicks);
+            if (fade != tracked.Fade || dim != tracked.Dim)
+            {
+                tracked.Fade = fade;
+                tracked.Dim = dim;
+                _scene.SetEntityCorpse(monster.EntityId, fade, dim);
+            }
+        }
+
         if (tracked.Aura is null && tracked.AuraTried != _effects.DefinitionCount && !monster.IsDead && !tracked.DeathShown)
         {
             // Effects register over several frames after loading; the aura is looked up again whenever more arrived.
@@ -239,6 +264,16 @@ public sealed class MonsterPresentation
                 break;
         }
     }
+
+    // The light a corpse has lost, as a share of a full light, this many ticks after its death clip started.
+    public static float CorpseDim(float ticks) =>
+        ticks >= DimFullTicks ? DimMost / Units : ticks > DimStartTicks ? (ticks - DimStartTicks) / 2f / Units : 0f;
+
+    // The opacity left to a corpse: a body of light fades out, every other corpse stays.
+    public static float CorpseFade(int soundCode, float ticks) => FadesOnDeath(soundCode) ? Math.Max(0f, 1f - FadePerTick * ticks / Units) : 1f;
+
+    private static bool FadesOnDeath(int soundCode) => soundCode is CharacterSoundCodes.Figon or CharacterSoundCodes.StygianLord
+        or CharacterSoundCodes.GuardianSaint or CharacterSoundCodes.FireElemental or CharacterSoundCodes.ChaosCara;
 
     // A Minig grows red while it fights: +2 per frame in attack or flinch clips, -1 otherwise, at most 100.
     private void StepAnger(Tracked tracked, ulong entityId, int state, float seconds)
@@ -404,6 +439,9 @@ public sealed class MonsterPresentation
         public IMonsterEffect Aura;
         public int AuraTried = -1;
         public bool DeathShown;
+        public float DeathTicks;
+        public float Fade = 1f;
+        public float Dim;
         public float Anger;
     }
 }

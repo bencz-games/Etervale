@@ -331,6 +331,10 @@ internal sealed class MonsterSkillCaptureProbe : Game, ISkillSceneHost, IMonster
 
     public bool TryGetActorMotion(ActorHandle actor, out PristonMotionInfo motion, out float ticks) => _renderer.TryGetActorMotion(actor, out motion, out ticks);
 
+    public void SetEntityCorpse(ulong entityId, float fade, float dim)
+    {
+    }
+
     public void SetEntityTint(ulong entityId, Vector3 tint)
     {
         if (entityId == PlayerId)

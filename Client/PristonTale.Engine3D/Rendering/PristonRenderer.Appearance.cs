@@ -30,6 +30,9 @@ internal sealed class ActorShade
 
     public Vector3 Tint;
     public float Opacity = 1f;
+    // A corpse's look over the appearance: Fade multiplies its opacity, Dim takes light away (in the Tint's units).
+    public float Fade = 1f;
+    public float Dim;
     public bool Wobble;
     public bool CastsShadow = true;
     public Texture2D Overlay;
@@ -37,9 +40,13 @@ internal sealed class ActorShade
     public float Scale = 1f;
     public bool EchoHidden;
 
-    public bool Hidden => Opacity <= 0.004f || EchoHidden;
+    public float ShownOpacity => Opacity * Fade;
 
-    public bool Translucent => Opacity < 0.999f;
+    public Vector3 ShownTint => Tint - new Vector3(Dim);
+
+    public bool Hidden => ShownOpacity <= 0.004f || EchoHidden;
+
+    public bool Translucent => ShownOpacity < 0.999f;
 
     public bool Shadowed => CastsShadow && !Hidden && !Translucent;
 }
@@ -65,6 +72,19 @@ public sealed partial class PristonRenderer
         shade.OverlayForm = appearance.OverlayForm;
         shade.Overlay = string.IsNullOrEmpty(appearance.Overlay) ? null : PreparedOverlay(appearance.Overlay);
         shade.Scale = appearance.Scale > 0f ? appearance.Scale : 1f;
+    }
+
+    // A corpse's darkening and fading, kept apart from the appearance gameplay paints each frame.
+    public void SetActorCorpse(ActorHandle handle, float fade, float dim)
+    {
+        if (!TryResolveActor(handle, out var runtime))
+        {
+            return;
+        }
+
+        var shade = ShadeOf(runtime);
+        shade.Fade = Math.Clamp(fade, 0f, 1f);
+        shade.Dim = Math.Max(dim, 0f);
     }
 
     // A copy of an actor that plays its clip lagFrames behind (an afterimage) or, for an attached item, the same item

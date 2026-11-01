@@ -237,6 +237,11 @@ mephit; witch, succubus, incubus and incubus summoner; evil plant and maple; doo
 larger; the level-50 scorpion's snail shot). An undefined name shows nothing. Shared helpers of a family use other
 roles (`vfx.monster.hulk.hit`, `vfx.monster.revived.fx.*`).
 
+A corpse darkens from 200 70 Hz ticks after its death clip starts, by half a light unit a tick, to 100 of 256 at 400
+ticks (`MonsterPresentation.CorpseDim`); the bodies of light (Figon, Stygian Lord, Guardian Saint, the fire elemental,
+Chaos Cara) fade by two alpha units of 256 a tick and are gone in about 1.8 s (`CorpseFade`). The renderer keeps this
+apart from the skill looks (`PristonRenderer.SetActorCorpse`: a fade multiplying the opacity and light taken away).
+
 Statuses that monster skills put on players and monsters (`MonsterStatuses`) show while they run: poison
 (`vfx.monster.status.poison` and a green tint), the bloody knight's stun (`vfx.monster.status.bloodyknightstun`), the
 lightning crystal's stun (`vfx.debuff.stun`), the defence and attack curses (`vfx.monster.status.cursedefence`,
@@ -448,8 +453,7 @@ bow's along it).
 ## Limitations
 
 - There is no mixing yet, so no item carries a mixing colour.
-- Monsters that fade out or darken as corpses keep their full colour; monster effects keep their authored size whatever
-  the model size.
+- Monster effects keep their authored size whatever the model size.
 - Skill events carry no critical flag (Double Crash's critical flash), no block, reflect or absorb event (the Divine
   Inhalation and Godly Shield block flash, Holy Reflection's reflected blow, Energy Shield's absorb burst, enchanted
   weapon hits, the enchant flash on an ally) and only the primary target of an area (Divine Lightning, Extinction, Soul
