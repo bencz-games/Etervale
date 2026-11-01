@@ -19,10 +19,11 @@ internal static class ProgressionTransactions
         }
 
         if (player.IsDead || command.Action == ProgressionAction.LearnSkill
-            && (!field.TryGetNpc(command.NpcEntityId, out var npc) || !npc.Definition.Has(NpcServiceKind.SkillMaster) || !NpcServiceTransactions.CanReach(player, npc)))
+            && (!field.TryGetNpc(command.NpcEntityId, out var npc) || !npc.Definition.Has(NpcServiceKind.SkillMaster) || !NpcServiceTransactions.CanReach(player, npc)
+                || !Simulation.Quests.QuestClasses.IsHomeTown(player.Character, field.FieldId)))
         {
             return new PreparedCharacterOperation<ProgressionOutcome>(original, null, null,
-                new ProgressionOutcome(false, original.ProgressionRevision, "approach a skill master while alive"));
+                new ProgressionOutcome(false, original.ProgressionRevision, "approach your town's skill master while alive"));
         }
 
         var candidate = original.CloneForInventoryOperation();

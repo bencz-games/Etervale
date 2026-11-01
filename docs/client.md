@@ -521,10 +521,18 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
 - Overweight: while the owner state reports more carried weight than the limit, `GameScene` only walks (run toggles,
   Shift and double clicks walk), matching the server.
 - NPC dialog (`HudNpcPanel`): name, the NPC's line, one button per offered service (grey when `Available` is false;
-  quest roles get none); skill masters get the skill master box, whose class-change button works when the quests offer
-  a rank-up; teleporter destinations replace the buttons. An NPC whose only working service is a shop, warehouse or the aging
-  opens it directly (`DirectService`); the aging NPC also keeps its quest role (the rank-up brew). An NPC with a quest role also gets a quest `Talk` (`HudQuestController`); a quest
-  dialog it answers with takes the help box, and its confirmation box is modal.
+  quest roles get none); teleporter destinations replace the buttons. An NPC whose only working service is a shop,
+  warehouse, the aging or the mixing opens it directly (`DirectService`), and a skill master opens the skill window in
+  training mode (the server refuses another town's master: Ricarten trains the Tempskron, Pillai the Morion); the aging
+  NPC also keeps its quest role (the rank-up brew). An NPC with a quest role also gets a quest `Talk`
+  (`HudQuestController`); a quest dialog it answers with takes the help box, and its confirmation box is modal.
+- Skill window (`HudSkillsPanel`, `Skil24.bmp`): the titles and skills of the tiers the class has reached only (4, 8,
+  12 or 16 skills; later tiers stay empty frames until the rank-up), the learned skills in colour; in training mode the
+  skills the master can teach now in colour and a skill at rank 10 gray. To a pupil whose tier's skills all have a rank
+  the class change button shows at (240, 380) (`HudSkillTreeLayout.ClassChange`): lit while the master offers the next
+  rank-up quest (`ClassChangeOffered` of the quest `Talk`), gray while the level (20, 40, 60) or a running quest holds it
+  back; clicking it asks for the quest's start dialog and ends the training. The arrows at (765, 482) and (12, 482) turn
+  to the empty second page (`Skil25.bmp`, a fifth tier this version has no skills for) and back.
 - HUD controllers keep their one request in flight in a `HudRequest<TOutcome>` (`UI/HudRequest.cs`): `Start(send,
   failed)` turns a thrown send into the controller's failure outcome (logged unless cancelled) and `TryTake` hands the
   outcome over once (progression, item use, NPC dialog and services, wing gates, quests).

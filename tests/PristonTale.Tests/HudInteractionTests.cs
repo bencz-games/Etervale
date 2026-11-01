@@ -159,8 +159,10 @@ internal static class HudInteractionTests
             && HudMessageBox.Bounds.Contains(HudMessageBox.Reject), "the message box is not centred on a wide screen, or its buttons stayed behind");
         var layout = HudLayout.Create(800, 600);
         HudMessageBox.Place(layout);
-        Assert.True(HudNpcPanel.SkillMasterBox(layout).Contains(HudNpcPanel.TrainingButton(layout))
-            && HudNpcPanel.SkillMasterBox(layout).Contains(HudNpcPanel.ExitButton(layout)), "skill master buttons escaped ReStartMain");
+        var skills = HudInventoryLayout.Origin(layout);
+        Assert.True(HudSkillTreeLayout.ClassChange(skills) == new Rectangle(skills.X + 240, skills.Y + 380, 44, 44)
+            && HudSkillTreeLayout.Window(skills).Contains(HudSkillTreeLayout.PageForward(skills)) && HudSkillTreeLayout.Window(skills).Contains(HudSkillTreeLayout.PageBack(skills)),
+            "the class change button or the page arrows left their places on the skill window");
         return Task.CompletedTask;
     }
 

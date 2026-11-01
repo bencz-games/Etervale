@@ -278,12 +278,6 @@ public sealed partial class GameplayHud
     private bool ClickNpc(OwnerState state, HudLayout layout, Point pointer)
     {
         var current = _npc.Current;
-        if (_npc.CanTrain && _npc.Destinations.Count == 0 && HudNpcPanel.TrainingButton(layout).Contains(pointer))
-        {
-            _services.Request(current.EntityId, current.Name, NpcServiceKind.SkillMaster, NpcServiceAction.Open);
-            return true;
-        }
-
         if (_npc.DestinationAt(pointer) is { } destination && state is not null)
         {
             _services.Request(current.EntityId, current.Name, NpcServiceKind.Teleporter, NpcServiceAction.Teleport, state.InventoryRevision,
@@ -297,7 +291,7 @@ public sealed partial class GameplayHud
             return true;
         }
 
-        if (HudNpcPanel.OkButton.Contains(pointer) || _npc.CanTrain && HudNpcPanel.ExitButton(layout).Contains(pointer))
+        if (HudNpcPanel.OkButton.Contains(pointer))
         {
             _npcOpen = false;
             _npc.Dismiss();
@@ -305,7 +299,7 @@ public sealed partial class GameplayHud
             return true;
         }
 
-        return HudNpcPanel.Box.Contains(pointer) || _npc.CanTrain && HudNpcPanel.SkillMasterBox(layout).Contains(pointer);
+        return HudNpcPanel.Box.Contains(pointer);
     }
 
     private void PressButton(HudMenuButton button)
@@ -373,6 +367,20 @@ public sealed partial class GameplayHud
                 return;
             }
 
+            if (_skills.ClickPage(origin, pointer))
+            {
+                return;
+            }
+
+            // The class change button: the master's next rank-up quest, which ends the training as the original does.
+            if (_skillMaster != 0 && _quests.ClassChangeNpc == _skillMaster && HudSkillTreeLayout.ClassChange(origin).Contains(pointer))
+            {
+                _quests.ChangeClass(_skillMaster);
+                _skillSlide.Open = false;
+                _skillMaster = 0;
+                return;
+            }
+
             _skills.HandleTrainingClick(origin, pointer, state, _skillMaster, _progression);
         }
     }
@@ -417,7 +425,8 @@ public sealed partial class GameplayHud
         }
 
         if (HudBar.Captures(design) || MinimapShown && HudMinimap.Box(layout).Contains(pointer) || _skillHud.BuffAt(pointer) != 0
-            || WindowContains(layout, _inventorySlide, pointer) || WindowContains(layout, _statusSlide, pointer) || WindowContains(layout, _skillSlide, pointer))
+            || WindowContains(layout, _inventorySlide, pointer) || WindowContains(layout, _statusSlide, pointer) || WindowContains(layout, _skillSlide, pointer)
+            || _skills.ClassChangeShown && HudSkillTreeLayout.ClassChange(PanelOrigin(layout, _skillSlide)).Contains(pointer))
         {
             return true;
         }
@@ -436,7 +445,7 @@ public sealed partial class GameplayHud
         return _restart.Open && HudRestartPanel.Box(layout).Contains(pointer)
             || _systemMenu && HudSystemMenu.Bounds.Contains(design)
             || _settingsOpen && HudSettingsPanel.Box.Contains(pointer)
-            || _npcOpen && (HudNpcPanel.Box.Contains(pointer) || _npc.CanTrain && HudNpcPanel.SkillMasterBox(layout).Contains(pointer))
+            || _npcOpen && HudNpcPanel.Box.Contains(pointer)
             || _skills.TrainingPending && HudMessageBox.Bounds.Contains(pointer);
     }
 

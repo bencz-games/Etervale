@@ -50,10 +50,11 @@ public sealed class HudNpcPanel(
         || offer.Kind == NpcServiceKind.WarpGate && offer.Value <= 1;
 
     // As in the original, an NPC whose only working service is a shop, a warehouse, the aging or the mixing opens that
-    // window at once.
+    // window at once, and a skill master opens the skill window in training mode (its class change is a button there).
     public NpcServiceOffer DirectService =>
-        Current is { Ok: true } && !CanTrain && _services.Length == 1
-        && _services[0].Kind is NpcServiceKind.Shop or NpcServiceKind.Warehouse or NpcServiceKind.ItemAging or NpcServiceKind.ItemMix
+        Current is not { Ok: true } ? null
+        : CanTrain ? _services.Length == 0 ? Current.Services.First(static offer => offer.Kind == NpcServiceKind.SkillMaster) : null
+        : _services.Length == 1 && _services[0].Kind is NpcServiceKind.Shop or NpcServiceKind.Warehouse or NpcServiceKind.ItemAging or NpcServiceKind.ItemMix
             ? _services[0]
             : null;
     public IReadOnlyList<TeleportOffer> Destinations { get; private set; } = [];
@@ -73,24 +74,6 @@ public sealed class HudNpcPanel(
     }
 
     public static Rectangle DestinationButton(int index, int count) => ServiceButton(index, count, 1);
-
-    // The skill master box is centred on the window; the original showed no help box beside it, so it moves right of the dialog.
-    public static Point SkillMasterOrigin(HudLayout layout)
-    {
-        var origin = new Point(layout.Width / 2 - 93 - 30, layout.Height / 2 - 63 - 100);
-        return new Rectangle(origin, new Point(188, 128)).Intersects(Box) ? new Point(Box.Right + 8, origin.Y) : origin;
-    }
-
-    public static Rectangle SkillMasterBox(HudLayout layout) => new(SkillMasterOrigin(layout), new Point(188, 128));
-    public static Rectangle TrainingButton(HudLayout layout) => SkillMasterButton(layout, 0);
-    public static Rectangle ClassChangeButton(HudLayout layout) => SkillMasterButton(layout, 1);
-    public static Rectangle ExitButton(HudLayout layout) => SkillMasterButton(layout, 2);
-
-    private static Rectangle SkillMasterButton(HudLayout layout, int index)
-    {
-        var origin = SkillMasterOrigin(layout);
-        return new Rectangle(origin.X + 21 + 51 * index, origin.Y + 22, 44, 44);
-    }
 
     public void Request(ulong entityId)
     {
@@ -204,7 +187,7 @@ public sealed class HudNpcPanel(
         }
     }
 
-    public void Draw(HudPainter painter, HudLayout layout, Point pointer, bool showSkillMaster, bool classChange = false)
+    public void Draw(HudPainter painter, Point pointer)
     {
         if (Current is null)
         {
@@ -233,10 +216,6 @@ public sealed class HudNpcPanel(
         var ok = OkButton;
         painter.Sprite(HudArt.HelpButton, ok.X - 9, ok.Y - 4);
         painter.Sprite(ok.Contains(pointer) ? HudArt.OkYellow : HudArt.OkGray, ok.X, ok.Y);
-        if (showSkillMaster && CanTrain && Destinations.Count == 0)
-        {
-            DrawSkillMaster(painter, layout, pointer, classChange);
-        }
     }
 
     private void DrawButtons(HudPainter painter, Point pointer)
@@ -290,22 +269,5 @@ public sealed class HudNpcPanel(
         painter.Stretch(HudArt.HelpTitle, new Rectangle(bounds.X + End, bounds.Y, bounds.Width - End * 2, ButtonHeight),
             new Rectangle(End, 0, ButtonWidth - End * 2, ButtonHeight), tint);
         painter.Sprite(HudArt.HelpTitle, bounds.Right - End, bounds.Y, new Rectangle(ButtonWidth - End, 0, End, ButtonHeight), tint);
-    }
-
-    private static void DrawSkillMaster(HudPainter painter, HudLayout layout, Point pointer, bool classChange)
-    {
-        var origin = SkillMasterOrigin(layout);
-        painter.Sprite(HudArt.SkillMasterBox, origin.X, origin.Y);
-        var training = TrainingButton(layout);
-        painter.Sprite(training.Contains(pointer) ? HudArt.SelectSkill : HudArt.SelectSkillGray, training.X, training.Y);
-        var job = ClassChangeButton(layout);
-        painter.Sprite(classChange && job.Contains(pointer) ? HudArt.SelectJob : HudArt.SelectJobGray, job.X, job.Y);
-        var exit = ExitButton(layout);
-        if (exit.Contains(pointer))
-        {
-            painter.Sprite(HudArt.SkillMasterExit, exit.X, exit.Y);
-        }
-
-        painter.Text(classChange && job.Contains(pointer) ? "Rank up" : "Skill training", origin.X + 23, origin.Y + 73);
     }
 }

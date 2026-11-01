@@ -115,13 +115,6 @@ public sealed partial class GameplayHud
             return HudQuestDialog.Box.Contains(pointer);
         }
 
-        if (_npcOpen && _npc.CanTrain && _npc.Destinations.Count == 0 && HudNpcPanel.ClassChangeButton(layout).Contains(pointer)
-            && _quests.ClassChangeNpc == _npc.Current?.EntityId)
-        {
-            _quests.ChangeClass(_quests.ClassChangeNpc);
-            return true;
-        }
-
         return _questWindow.Click(layout, pointer, _questView);
     }
 }

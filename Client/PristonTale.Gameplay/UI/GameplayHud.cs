@@ -611,7 +611,8 @@ public sealed partial class GameplayHud : IDisposable
 
         if (_skillSlide.Visible)
         {
-            _skills.Draw(_painter, PanelOrigin(layout, _skillSlide), pointer, _state, _bindings, _skillMaster, pressed, _skillSlide.FullyOpen);
+            _skills.Draw(_painter, PanelOrigin(layout, _skillSlide), pointer, _state, _bindings, _skillMaster, pressed, _skillSlide.FullyOpen,
+                _skillMaster != 0 && _quests.ClassChangeNpc == _skillMaster);
         }
 
         if (_inventorySlide.Visible)
@@ -683,7 +684,7 @@ public sealed partial class GameplayHud : IDisposable
         else if (_npcOpen)
         {
             _painter.Flush();
-            _npc.Draw(_painter, layout, pointer, true, _quests.ClassChangeNpc != 0 && _quests.ClassChangeNpc == _npc.Current?.EntityId);
+            _npc.Draw(_painter, pointer);
         }
 
         if (_itemUse.Teleport.IsOpen || _itemUse.Confirming)

@@ -40,10 +40,7 @@ public static class HudArt
     public const string RestartField = Inter + "ReStart/ReStart_Field.bmp";
     public const string RestartTown = Inter + "ReStart/ReStart_Town.bmp";
     public const string RestartExit = Inter + "ReStart/ReStart_Exit.bmp";
-    public const string SkillMasterBox = RestartMain;
-    public const string SkillMasterExit = RestartExit;
-    public const string SelectSkill = Inter + "SkillIcon/Select_Skill.bmp";
-    public const string SelectSkillGray = Inter + "SkillIcon/G_Select_Skill.bmp";
+    // The class change button of the skill window, gray until a rank-up quest is open to the pupil.
     public const string SelectJobGray = Inter + "SkillIcon/G_Select_ChangeJob.bmp";
     public const string SelectJob = Inter + "SkillIcon/Select_ChangeJob.bmp";
 
@@ -57,6 +54,10 @@ public static class HudArt
 
     public const string SkillNormal = Sin + "skill/Skill_Normal.bmp";
     public const string SkillWindow = Sin + "skill/Skil24.bmp";
+    // The skill window's second page (a fifth tier this version has no skills for) and the arrows between the pages.
+    public const string SkillWindowSecond = Sin + "skill/Skil25.bmp";
+    public const string SkillPageForward = Sin + "skill/RightArrow.bmp";
+    public const string SkillPageBack = Sin + "skill/LeftArrow.bmp";
     public const string SkillSelect = Sin + "skill/SelectSkill.bmp";
     public const string SkillGauge = Sin + "skill/Gage.bmp";
     public const string SkillGaugeBack = Sin + "skill/Gage-3.bmp";
@@ -147,9 +148,9 @@ public static class HudArt
     [
         Menu1, Menu2, GrowLeft, GrowMiddle, GrowRight, Life, Mana, Stamina, Experience, Time, Sun, Moon,
         Walk, CameraAuto, CameraFixed, MapOn, RunInfo, WalkInfo, CameraHandInfo, MapOnInfo, MapOffInfo,
-        SystemMenu, SystemSettings, SystemHelp, SystemExit, RestartMain, RestartField, RestartTown, RestartExit, SelectSkill, SelectSkillGray, SelectJobGray, SelectJob,
+        SystemMenu, SystemSettings, SystemHelp, SystemExit, RestartMain, RestartField, RestartTown, RestartExit, SelectJobGray, SelectJob,
         .. MenuButtons, .. MenuButtonsDown, .. MenuInfo,
-        SkillNormal, SkillWindow, SkillSelect, SkillGauge, SkillGaugeBack, SkillGaugePassive, .. ShortKeys,
+        SkillNormal, SkillWindow, SkillWindowSecond, SkillPageForward, SkillPageBack, SkillSelect, SkillGauge, SkillGaugeBack, SkillGaugePassive, .. ShortKeys,
         Inventory, PuzzleBoard, CoverLarge, CoverMiddle, CoverSmall, PotionBack, SideLeft, SideRight, .. PageHints, .. PairHints, CloseHint,
         QuestBoxButton, QuestBoxButtonOpen, QuestBoxTile, QuestBoxHint, QuestBoxCloseHint,
         Status, StatusPoint, StatusArrow, StatusArrowDown,

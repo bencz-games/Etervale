@@ -35,6 +35,12 @@ internal static class NpcServiceTransactions
             return NpcServiceOutcome.Failed(NpcServiceStatus.NotAvailable, "this service is not available yet");
         }
 
+        // A skill master trains only the classes of its own town: Ricarten's the Tempskron, Pillai's the Morion.
+        if (command.Service == NpcServiceKind.SkillMaster && !Simulation.Quests.QuestClasses.IsHomeTown(player.Character, field.FieldId))
+        {
+            return NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, "this master trains another town's classes");
+        }
+
         // A character over the weight limit cannot open the warehouse.
         if (command.Service == NpcServiceKind.Warehouse && command.Action == NpcServiceAction.Open && CarriedWeight.IsOverweight(player.Character))
         {

@@ -392,7 +392,6 @@ internal sealed class HudCaptureProbe : Game
             _helpReady = scenario.Help == ProbeHelp.None;
             if (scenario.Training)
             {
-                Click(state, layout, HudNpcPanel.TrainingButton(layout).Center);
                 Click(state, layout, HudSkillsPanel.ClassRow(HudInventoryLayout.Origin(layout), 0).Center);
             }
 
@@ -535,7 +534,7 @@ internal sealed class HudCaptureProbe : Game
             Hover.WarehouseCell => HudStoreLayout.Cell(HudStoreLayout.Origin(0), 40).Center,
             Hover.Buff => new Point(10 + 16, 26),
             Hover.QuestTimer => new Point(10 + 16, 26),
-            Hover.ClassChange => HudNpcPanel.ClassChangeButton(layout).Center,
+            Hover.ClassChange => HudSkillTreeLayout.ClassChange(origin).Center,
             Hover.QuestOk => HudQuestDialog.OkButton.Center,
             Hover.RestartField => HudRestartPanel.Button(layout, RestartChoice.Field).Center,
             Hover.RestartTown => HudRestartPanel.Button(layout, RestartChoice.Town).Center,
