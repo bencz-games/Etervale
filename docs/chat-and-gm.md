@@ -149,9 +149,10 @@ Commands match by exact, case-sensitive prefix in table order. Levels:
   a copy into a player's bag before delivering it, `/AgingSetting code level [class 1-8]` drops a weapon or armour aged
   to the level; `/specific job` and `/Performance value` force the class and middle
   roll of items made in the next minute; `/init_premiumitem n` ends a premium timer.
-- Monsters: `/monster name [count]` spawns up to 21 (only the highest level drops items), `/mymonster name` a pet for
-  four minutes, `/event_monster name minutes permille` replaces spawns by chance, `/set_absorb id value`, `/talk
-  id text` makes an entity speak in a bubble.
+- Monsters: `/monster name [count]` spawns up to 21 (only the highest level drops items), `/mymonster name [count]` as
+  many pets for four minutes (each call adds to the ones still standing; none replaces another or the caller's skill
+  summon), `/event_monster name minutes permille` replaces spawns by chance, `/set_absorb id value`, `/talk id text`
+  makes an entity speak in a bubble.
 - Server: `/user_limit [n]`, the blocked-login list, `/shutdown` (8 minutes: five notices, reminders every 30 s and
   every 5 s in the last minute, then every client is asked to close and the server stops), `/weather
   clear|overcast|rain|storm [1-255]` sets the weather of every field that takes rain (the density, heavy by default)

@@ -175,6 +175,11 @@ internal sealed partial class FieldSkills
             return StepCrystalPet(summon, tuning, dtMs);
         }
 
+        if (_gameMasterPets.Contains(summon.EntityId))
+        {
+            return StepGameMasterPet(summon, tuning, dtMs);
+        }
+
         var ownerId = summon.OwnerId;
         var current = _summons.TryGetValue(ownerId, out var id) && id == summon.EntityId;
         if (!summon.IsAlive)
@@ -207,6 +212,12 @@ internal sealed partial class FieldSkills
             return null;
         }
 
+        return FollowAndFight(summon, owner, tuning, dtMs);
+    }
+
+    // A summon or pet that may go on: it follows its owner and fights the target its orders name.
+    private MonsterAttackEvent? FollowAndFight(MonsterInstance summon, WorldPlayer owner, MonsterAiTuning tuning, float dtMs)
+    {
         summon.SinceRetargetMs += dtMs;
         var target = SummonTarget(summon, owner, tuning);
         var orders = target is null

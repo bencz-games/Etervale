@@ -174,20 +174,32 @@ public sealed partial class WorldServer
                 return new GmSpawnResult(false, 0);
             }
 
+            // The first beside the caller, the extra ones scattered around; pets as many as monsters, none replacing another.
             var origin = connection.Player.Position;
             if (pet)
             {
                 field.CallGameMasterPet(connection.Player, definition, GameMasterPetLifetimeMs);
-                return new GmSpawnResult(true, 1);
+            }
+            else
+            {
+                field.SpawnForGameMaster(definition, origin, drops);
             }
 
-            field.SpawnForGameMaster(definition, origin, drops);
             var spawned = 1;
             for (var index = 0; index < extra; index++)
             {
                 var x = field.Rng.NextUnit() * 2f * GameMasterSpawnScatter - GameMasterSpawnScatter;
                 var z = field.Rng.NextUnit() * 2f * GameMasterSpawnScatter - GameMasterSpawnScatter;
-                field.SpawnForGameMaster(definition, origin + new Vector3(x, 0f, z), drops);
+                var position = origin + new Vector3(x, 0f, z);
+                if (pet)
+                {
+                    field.CallGameMasterPet(connection.Player, definition, GameMasterPetLifetimeMs, position);
+                }
+                else
+                {
+                    field.SpawnForGameMaster(definition, position, drops);
+                }
+
                 spawned++;
             }
 

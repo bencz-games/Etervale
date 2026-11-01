@@ -215,6 +215,11 @@ internal static class GameMasterCommandTests
         var pet = ChatFixture.Latest(guide)!.Value.Entities.Single(entity => entity.Kind == EntityKind.Monster && entity.OwnerId == guide.Id);
         Assert.True(field.TryGetMonster(pet.EntityId, out var owned) && owned.Def.Brood == Simulation.World.Monsters.MonsterBrood.User && owned.Aggressive,
             "a pet does not take the caller's side");
+        await fixture.SayAsync(guide, "/mymonster Hopy");
+        await fixture.SayAsync(guide, "/mymonster Hopy 2");
+        fixture.Tick(1);
+        var pets = ChatFixture.Latest(guide)!.Value.Entities.Count(entity => entity.Kind == EntityKind.Monster && entity.OwnerId == guide.Id);
+        Assert.True(pets == 5, $"a later pet replaced an earlier one or the extra count was ignored: {pets} pets of 5");
     }
 
     private static async Task HiddenMonstersAsync()

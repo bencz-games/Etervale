@@ -161,12 +161,7 @@ internal sealed partial class FieldSkills
             return null;
         }
 
-        pet.SinceRetargetMs += dtMs;
-        var target = SummonTarget(pet, owner, tuning);
-        var orders = target is null
-            ? new SummonOrders(owner.Position, default, false)
-            : new SummonOrders(owner.Position, new PreyCandidate(target.EntityId, target.Position, target.IsAlive), true);
-        return _summonBrain.Tick(pet, tuning, orders, dtMs);
+        return FollowAndFight(pet, owner, tuning, dtMs);
     }
 
     // A pet that died, expired, cannot follow its owner or whose owner is gone or in a town: it falls, and the owner's
