@@ -12,7 +12,7 @@ public enum HudQuestPage
     Finished
 }
 
-// The quest page of the original party window: 256x256 at x = 539 of the 800-wide frame (right anchored) and y = 155,
+// The quest page of the original party window: 256x256 at (539, 155) of the 800x600 frame (right and bottom anchored),
 // sliding in from the right edge. Five quest titles per page at 30 px steps with the running-quest mark; below them the
 // page arrows, the running/finished tabs and close. A clicked title opens its description on the panel to the left
 // (eight lines of 20 px, wrapped to 160 px) with its own arrows and close.
@@ -43,7 +43,7 @@ public sealed class HudQuestWindow
     public bool DescriptionOpen => _selected >= 0;
 
     public static Point Origin(HudLayout layout, int slideMove = HudSlide.Full) =>
-        new(layout.Width - (HudLayout.DesignWidth - DesignX) * Math.Clamp(slideMove, 0, HudSlide.Full) / HudSlide.Full, DesignY);
+        new(layout.Width - (HudLayout.DesignWidth - DesignX) * Math.Clamp(slideMove, 0, HudSlide.Full) / HudSlide.Full, DesignY + layout.BottomOffset);
 
     public static Rectangle Bounds(Point origin) => new(origin.X, origin.Y - 8, Width, Height + 8);
 

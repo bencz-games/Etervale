@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using PristonTale.Client.Net.Presence;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Gameplay.UI;
+using PristonTale.Gameplay.UI.Parties;
 using PristonTale.Gameplay.UI.Quests;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Quests;
@@ -127,7 +128,8 @@ internal static class QuestHudTests
 
         var layout = HudLayout.Create(800, 600);
         var origin = HudQuestWindow.Origin(layout);
-        Assert.True(origin == new Point(539, 155) && HudQuestWindow.Origin(HudLayout.Create(1024, 768)).X == 1024 - 261, "the quest window is not right anchored");
+        Assert.True(origin == new Point(539, 155) && HudQuestWindow.Origin(HudLayout.Create(1024, 768)) == new Point(1024 - 261, 155 + 168)
+            && HudPartyWindow.Origin(HudLayout.Create(1024, 768)) == new Point(1024 - 261, 155 + 168), "the quest and party windows are not right and bottom anchored");
         Assert.True(HudQuestWindow.ListButton(origin, 0) == new Rectangle(639, 375, 20, 20) && HudQuestWindow.ListButton(origin, 4).X == 639 + 4 * 23
             && HudQuestWindow.Row(origin, 1) == new Rectangle(649, 225, 120, 20) && HudQuestWindow.DescriptionBounds(origin).X == 344,
             "the quest window layout differs");

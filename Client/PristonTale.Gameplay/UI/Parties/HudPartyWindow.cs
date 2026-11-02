@@ -7,7 +7,7 @@ using PristonTale.Gameplay.UI.Widgets;
 namespace PristonTale.Gameplay.UI.Parties;
 
 // The party window's party and friends pages (its "Party" and "chatting" tabs over the frame, at x 60 and 120), where its
-// quest page (HudQuestWindow) stands: 256x256 at x = 539 of the 800-wide frame (right anchored) and y = 155, sliding in
+// quest page (HudQuestWindow) stands: 256x256 at (539, 155) of the 800x600 frame (right and bottom anchored), sliding in
 // from the right edge. The friends page is HudFriendsPage. On the party page, members go down from (80, 38) at 30 px
 // steps: the life bar (94 px) under the name, the member's mark (the leader's own) before it and the level after it,
 // shown in tens past level 10 ("L4x"). Under them the delegate, disband, kick, leave and close buttons: the first three
@@ -47,7 +47,7 @@ public sealed class HudPartyWindow
     public Action<string> Whispered { get; set; }
 
     public static Point Origin(HudLayout layout, int slideMove = HudSlide.Full) =>
-        new(layout.Width - (HudLayout.DesignWidth - DesignX) * Math.Clamp(slideMove, 0, HudSlide.Full) / HudSlide.Full, DesignY);
+        new(layout.Width - (HudLayout.DesignWidth - DesignX) * Math.Clamp(slideMove, 0, HudSlide.Full) / HudSlide.Full, DesignY + layout.BottomOffset);
 
     public static Rectangle Bounds(Point origin) => new(origin.X, origin.Y - 8, Width, Height + 8);
 
