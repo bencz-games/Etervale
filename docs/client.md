@@ -445,8 +445,10 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   button under the pointer. A click or the keys E and W switch (`SwitchBagPage`, `SwitchWeaponSet`). The page switches
   with an item carried too: a carried bag item goes along to the page shown (the command names it, and
   `PlayerCharacter.TrySwitchBagPage` lays it on that page's first free cells, refusing the switch without room) and
-  stays on the cursor; the pair does not switch while an item is carried. The side buttons take their clicks with an
-  item carried, which is never set down on them. A pair asked for while the player swings or casts is held once that
+  stays on the cursor; the pair switches with an item carried too (a carried item is never in a hand slot: taking one
+  off lays it in the bag first). Neither switches while the warehouse is open with an item on the cursor
+  (`HudInventoryController.SidesLocked`). The side buttons take their clicks with an item carried, which is never set
+  down on them. A pair asked for while the player swings or casts is held once that
   motion ends (the player stops, or the next swing or cast begins: `ActorMotionController.ActionStarts`), as the
   original swaps at the end of the motion.
   The button under the pointer shows its label `HudInventoryLayout.HintRise` (27) pixels above it, as the original's
@@ -737,7 +739,10 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   move, split, merge, equip or unequip (`HudInventoryController.ItemSound`), a shop buy or sell or a warehouse
   deposit, withdrawal or move (`HudNpcServiceController.Succeeded`), and, as the original sounds every item it sets,
   an item the owner state shows arriving without a command of the window (a gift, a quest prize, a trade:
-  `HudInventoryController.SoundArrival`; nothing for the first state after login or a bag page or weapon pair switch).
+  `HudInventoryController.SoundArrival`; nothing for the first state after login or a bag page switch). A weapon pair
+  switch sounds the pair now held, weapon then off-hand. A carried item set into the closed special item box also rings
+  `drink2.wav` and lights `UC-hall.tga` where it was carried (`HudQuestBoxGlow`: two copies, 20 px at 12 px right of the
+  item's top left, 2 px larger and 6/255 fainter each tick for 40 ticks).
   `FieldAudioController.PlayItem` plays the same sound asked again within 300 ms once (a reply and its owner state).
 - Weather sound (`FieldAudioController.UpdateWeather`, before `Update`): `wav/rain01.wav` loops at the rain's share of
   0.8, at 0.45 of that under a roof (`PristonRainOcclusion.Sheltered`, a surface over 40 units above the player), on top

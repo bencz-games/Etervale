@@ -84,6 +84,7 @@ public sealed partial class GameplayHud : IDisposable
     private int _wingGateCompletions;
     private int _shopsOpened;
     private readonly Stopwatch _clock = Stopwatch.StartNew();
+    private readonly HudQuestBoxGlow _questBoxGlow = new();
     private KeyboardState _previousKeyboard;
     private MouseState _previousMouse;
     private OwnerState _state;
@@ -151,6 +152,11 @@ public sealed partial class GameplayHud : IDisposable
             }
         };
         _inventory.ItemSound = key => ItemSound?.Invoke(key);
+        _inventory.QuestBoxStored = frame =>
+        {
+            _questBoxGlow.Start(frame, _clock.Elapsed.TotalMilliseconds);
+            QuestFanfare?.Invoke();
+        };
         _services.Succeeded = ServiceSucceeded;
         _storedPlacement = StoredPlacement;
         _inventoryPanel.Note = InventoryNote;
@@ -252,7 +258,8 @@ public sealed partial class GameplayHud : IDisposable
 
     public void ShowNotice(string message) => _notice.Show(message);
 
-    // The quest fanfare: a quest started, moved on or ended.
+    // The quest fanfare (the drink sound): a quest started, moved on or ended, or a carried item set into the closed
+    // special item box.
     public event Action QuestFanfare;
 
     public event Action<bool> CraftResult;
@@ -483,6 +490,7 @@ public sealed partial class GameplayHud : IDisposable
         }
 
         var typing = boxTyping || _chat.KeyboardCaptured;
+        _inventory.SidesLocked = _warehouse.IsOpen && (_inventory.Dragging != Guid.Empty || _warehouse.Dragging != Guid.Empty);
         if (!typing)
         {
             UpdateKeys(keyboard);
@@ -730,6 +738,8 @@ public sealed partial class GameplayHud : IDisposable
         {
             _inventoryPanel.DrawOverlay(_painter, layout, _icons, pointer);
         }
+
+        _questBoxGlow.Draw(_painter, _clock.Elapsed.TotalMilliseconds);
 
         if (_skillSlide.FullyOpen)
         {

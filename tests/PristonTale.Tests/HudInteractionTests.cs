@@ -43,6 +43,8 @@ internal static class HudInteractionTests
         yield return ("an item set down stays where it was set down, not back in its old cell, until the owner state shows it moved", SettleAsync);
         yield return ("an item thrown to the ground shows nowhere until the owner state shows it gone, and back in its place when refused", ThrownAsync);
         yield return ("an item that arrives by itself sounds, a moved item sounds on its reply, and a page switch sounds nothing", ArrivalSoundAsync);
+        yield return ("the weapon pair switches with an item on the cursor and sounds the pair now held; a quest item set into the closed box rings and glows",
+            CarriedSidesAsync);
         yield return ("a ground item picked up with the window open comes to the cursor, and goes where any item goes with it closed", PickupToCursorAsync);
         yield return ("the pointer attacks over wild monsters, talks over NPCs and stays the arrow elsewhere", CursorKindAsync);
         yield return ("drop names on one spot rise into a column above the nearest, which keeps its place", DropNameColumnAsync);
@@ -522,6 +524,64 @@ internal static class HudInteractionTests
         Assert.True(controller.Completions == 2 && controller.Held == id, "a later refused command put the set-down stone back in its old cell");
         controller.Update(state with { Items = new[] { stone with { Anchor = 5 } }, InventoryRevision = 4 }, layout, true, default, default);
         Assert.True(controller.Held == Guid.Empty, "the stone stayed held once the owner state showed it moved");
+    }
+
+    private static async Task CarriedSidesAsync()
+    {
+        var layout = HudLayout.Create(800, 600);
+        var origin = HudInventoryLayout.Origin(layout);
+        var character = new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Carrier");
+        var stone = new OwnedItemView(Guid.NewGuid(), 1, "Stone", ItemKind.Material, 1, 0, -1, 1, 1, "MA101");
+        var claw = new OwnedItemView(Guid.NewGuid(), 2, "Claw", ItemKind.Claw, 1, -1, (int)EquipmentSlot.Weapon, 1, 3, "WC101");
+        var shield = new OwnedItemView(Guid.NewGuid(), 3, "Shield", ItemKind.Shield, 1, -1, (int)EquipmentSlot.OffHand, 2, 2, "DS101");
+        var state = OwnerState.Capture(character) with { Items = new[] { stone }, InventoryRevision = 3 };
+        InventoryCommand? sent = null;
+        var sounds = new List<string>();
+        Rectangle? glowAt = null;
+        var controller = new HudInventoryController(null!, command =>
+        {
+            sent = command;
+            return Task.FromResult(new InventoryOutcome(true, command.ExpectedRevision + 1, ""));
+        })
+        { ItemSound = sounds.Add, QuestBoxStored = frame => glowAt = frame };
+        controller.Update(state, layout, true, default, default);
+        controller.Update(state, layout, true, default, MouseAt(HudInventoryLayout.Cell(origin, 0).Center, layout.Scale, ButtonState.Pressed));
+        controller.Update(state, layout, true, default, default);
+        Assert.True(controller.Dragging == stone.InstanceId, "the stone was not picked up");
+
+        controller.SidesLocked = true;
+        controller.ToggleWeaponPair();
+        controller.Update(state, layout, true, default, default);
+        Assert.True(sent is null, "the pair switched with the warehouse open and an item on the cursor");
+        controller.SidesLocked = false;
+        controller.ToggleWeaponPair();
+        controller.Update(state, layout, true, default, default);
+        Assert.True(sent is { Action: InventoryAction.SwitchWeaponSet, Destination: 1 } && controller.Dragging == stone.InstanceId,
+            $"the pair did not switch with the stone carried: {sent}");
+
+        sounds.Clear();
+        controller.Update(state with { Items = new[] { stone, claw, shield }, InventoryRevision = 4, WeaponSet = 1 }, layout, true, default, default);
+        Assert.True(sounds.Contains("WC101") && sounds.Contains("DS101") && controller.Dragging == stone.InstanceId,
+            $"the pair now held sounded {string.Join(", ", sounds)}");
+
+        var hammer = new OwnedItemView(Guid.NewGuid(), 4, "Lost Hammer", ItemKind.Quest, 1, 5, -1, 1, 1, "QT116");
+        state = state with { Items = new[] { stone, claw, shield, hammer }, InventoryRevision = 5, WeaponSet = 1 };
+        controller.Update(state, layout, true, default, default);
+        controller.Update(state, layout, true, default, MouseAt(HudInventoryLayout.Cell(origin, 0).Center, layout.Scale, ButtonState.Pressed));
+        controller.Update(state, layout, true, default, default);
+        var dropAt = HudInventoryLayout.Cell(origin, 10).Center;
+        controller.Update(state, layout, true, default, MouseAt(HudInventoryLayout.Cell(origin, 5).Center, layout.Scale, ButtonState.Pressed));
+        controller.Update(state, layout, true, default, default);
+        Assert.True(controller.Dragging == hammer.InstanceId, "the quest item was not picked up");
+        controller.Update(state, layout, true, default, MouseAt(dropAt, layout.Scale, ButtonState.Pressed));
+        await Task.Yield();
+        controller.Update(state, layout, true, default, default);
+        Assert.True(sent is { Action: InventoryAction.StoreQuestItem } && glowAt == HudGridPlacement.Frame(hammer, dropAt),
+            $"the quest item set into the closed box did not glow where it was carried: {sent}, {glowAt}");
+        var glow = new HudQuestBoxGlow();
+        glow.Start(new Rectangle(100, 200, 22, 22), 0);
+        Assert.True(glow.Tick(0) < 0 && glow.Bounds(glow.Tick(100)) == new Rectangle(105, 193, 34, 34) && glow.Tick(700) < 0,
+            "the box glow does not grow 2 px a tick from 20 px at 12 px right of the item, for 40 ticks");
     }
 
     private static async Task ArrivalSoundAsync()

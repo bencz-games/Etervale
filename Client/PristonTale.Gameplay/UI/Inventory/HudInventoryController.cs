@@ -141,6 +141,15 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
     // The catalog key of an item lifted from or set into the pack or the equipment, for its sound.
     public Action<string> ItemSound { get; set; }
     private string _pendingSound;
+
+    // A carried item set into the closed special item box (where it was carried): the original rings the drink sound
+    // over its own and lights the box glow there.
+    public Action<Rectangle> QuestBoxStored { get; set; }
+    private static readonly EquipmentSlot[] HandSlots = [EquipmentSlot.Weapon, EquipmentSlot.OffHand];
+    private Rectangle? _storedFrame;
+
+    // The warehouse is open with an item on the cursor: the original switches neither the bag page nor the weapon pair.
+    public bool SidesLocked { get; set; }
     // The owned items of the last owner state seen (revision -1: none yet), to sound an item the server lays on the
     // character by itself.
     private readonly HashSet<Guid> _owned = [];
@@ -183,6 +192,13 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
             {
                 ItemSound?.Invoke(_pendingSound);
             }
+
+            if (completed.Ok && _storedFrame is { } stored)
+            {
+                QuestBoxStored?.Invoke(stored);
+            }
+
+            _storedFrame = null;
 
             if (completed.Ok && _carryOnSuccess != Guid.Empty)
             {
@@ -371,6 +387,7 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
         if (GoesToQuestBox(carried))
         {
             Send(InventoryAction.StoreQuestItem, carried, 0);
+            _storedFrame = QuestBoxShown ? null : HudGridPlacement.Frame(carried, pointer);
             return;
         }
 
@@ -434,7 +451,8 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
     }
 
     // The bag page (the side buttons, key E): not while a command waits. A carried bag item goes along to the page shown
-    // and stays on the cursor. The weapon pair (key W): not while an item is carried.
+    // and stays on the cursor. The weapon pair (key W) switches with an item on the cursor too, as the original's does: a
+    // carried item is never in a hand slot (taking one off puts it in the bag first). Neither switches while SidesLocked.
     public void ShowBagPage(int page)
     {
         // With the special item box open the page buttons close it instead, as the original does.
@@ -444,7 +462,7 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
             return;
         }
 
-        if (!_pendingOperation && _state is not null && page != _state.BagPage)
+        if (!_pendingOperation && !SidesLocked && _state is not null && page != _state.BagPage)
         {
             var carried = OwnedItemView.Find(_state.Items, _dragging) is { InBag: true } item ? item.InstanceId : Guid.Empty;
             SendInventory(new InventoryCommand(Guid.NewGuid(), _state.InventoryRevision, InventoryAction.SwitchBagPage, carried, page, 0, default));
@@ -453,7 +471,7 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
 
     public void HoldWeaponPair(int pair)
     {
-        if (_state is not null && _dragging == Guid.Empty && pair != _state.WeaponSet)
+        if (_state is not null && !SidesLocked && pair != _state.WeaponSet)
         {
             _pairWanted = pair;
             _pairWantedDuring = ActionStarts;
@@ -501,8 +519,9 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
 
     // An item that arrives without a command of this window (a gift, a quest prize, a trade, a pickup) sounds as the
     // original's client sounds every item it sets; one already sounding for its own reply is not repeated
-    // (FieldAudioController.PlayItem). The first state after login and a switch of the bag page or the weapon pair, which
-    // show the other side's items, sound nothing.
+    // (FieldAudioController.PlayItem). The first state after login and a switch of the bag page, which shows the other
+    // page's items, sound nothing; a switch of the weapon pair sounds the pair now held, weapon then off-hand, as the
+    // original sounds each item it sets in the hands.
     private void SoundArrival(OwnerState state)
     {
         if (state is null || state.InventoryRevision == _ownedRevision)
@@ -511,7 +530,8 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
         }
 
         OwnedItemView arrived = null;
-        if (_ownedRevision >= 0 && state.BagPage == _ownedPage && state.WeaponSet == _ownedWeaponSet)
+        var pairSwitched = _ownedRevision >= 0 && state.WeaponSet != _ownedWeaponSet;
+        if (_ownedRevision >= 0 && state.BagPage == _ownedPage && !pairSwitched)
         {
             foreach (var item in state.Items)
             {
@@ -533,6 +553,17 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
         if (arrived is not null)
         {
             ItemSound?.Invoke(arrived.CatalogKey);
+        }
+
+        if (pairSwitched)
+        {
+            foreach (var slot in HandSlots)
+            {
+                if (OwnedItemView.InSlot(state.Items, (int)slot) is { } held)
+                {
+                    ItemSound?.Invoke(held.CatalogKey);
+                }
+            }
         }
     }
 

@@ -86,6 +86,7 @@ public static class HudArt
     public const string QuestBoxTile = Sin + "Inven/QuestItembox.bmp";
     public const string QuestBoxHint = Sin + "Inven/InfoBox/Questitem.bmp";
     public const string QuestBoxCloseHint = Sin + "Inven/InfoBox/close.bmp";
+    public const string QuestBoxGlow = Sin + "Effect/InterEffect/UC-hall.tga";
 
     public const string Status = Sin + "Status/Status.bmp";
     public const string StatusPoint = Sin + "Status/StatusPoint.bmp";
@@ -152,7 +153,7 @@ public static class HudArt
         .. MenuButtons, .. MenuButtonsDown, .. MenuInfo,
         SkillNormal, SkillWindow, SkillWindowSecond, SkillPageForward, SkillPageBack, SkillSelect, SkillGauge, SkillGaugeBack, SkillGaugePassive, .. ShortKeys,
         Inventory, PuzzleBoard, CoverLarge, CoverMiddle, CoverSmall, PotionBack, SideLeft, SideRight, .. PageHints, .. PairHints, CloseHint,
-        QuestBoxButton, QuestBoxButtonOpen, QuestBoxTile, QuestBoxHint, QuestBoxCloseHint,
+        QuestBoxButton, QuestBoxButtonOpen, QuestBoxTile, QuestBoxHint, QuestBoxCloseHint, QuestBoxGlow,
         Status, StatusPoint, StatusArrow, StatusArrowDown,
         .. InfoBox,
         HelpTopLeft, HelpTop, HelpTopRight, HelpLeft, HelpCenter, HelpRight, HelpBottomLeft, HelpBottom, HelpBottomRight, HelpLine,
