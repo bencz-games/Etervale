@@ -22,7 +22,7 @@ quest data the importer reads, and the client's quest dialog, quest window, clas
 | [QuestJournal.cs](../Shared/PristonTale.Simulation/Quests/QuestJournal.cs) | `ActiveQuest` (the single running quest), `QuestTimerKind`, `QuestJournal` (logs, finished history, applied operations, revision, commit merge) |
 | [QuestRequests.cs](../Shared/PristonTale.Simulation/Quests/QuestRequests.cs) | `QuestAction`, `QuestStatus`, `QuestFollowup`, `QuestNoticeKind`, `QuestCommand`, `QuestPrompt`, `QuestTravel`, `QuestArenaDuel`, `QuestOutcome` |
 | [QuestContext.cs](../Shared/PristonTale.Simulation/Quests/QuestContext.cs) | `QuestNpc` (what a clicked NPC does for quests), `IQuestItemSource`, `QuestContext` (one request against one character) |
-| [QuestEngine.cs](../Shared/PristonTale.Simulation/Quests/QuestEngine.cs) | Dispatch of `Talk`, `Proceed`, `Accept`, `ChangeClass`, `ChooseReward`, `ResetSkills` to the families |
+| [QuestEngine.cs](../Shared/PristonTale.Simulation/Quests/QuestEngine.cs) | Dispatch of `Talk`, `Proceed`, `Accept`, `ChangeClass`, `ChooseReward`, `ResetSkills`, `DeclineSkillReset` to the families |
 | `Shared/PristonTale.Simulation/Quests/LevelQuests.cs` | Level 30, 55 (two branches), 70, 80, 85 and 90 milestone hunts |
 | `Shared/PristonTale.Simulation/Quests/LevelBonusQuests.cs` | Level 80 and level 90 bonus chains (extra stat points per level) |
 | `Shared/PristonTale.Simulation/Quests/ElementaryQuests.cs` | The seven beginner quests (A..G) up to level 39 |
@@ -123,6 +123,8 @@ current tier opened has a rank.
    duel goes back to the amulet step.
 
 After each rank-up the master offers one free redistribution of the learned skill ranks (`QuestAction.ResetSkills`).
+The original asks once: No (or Escape) sends `DeclineSkillReset`, which ends the saved offer, so it does not open
+again at the next login.
 
 ## Server authority
 
@@ -174,7 +176,8 @@ quest variant, which the importer stores as the code's quest definition (`item_d
   description (`image/party/party_DATA/<file>`) on the panel to the left.
 - A running hunt shows the quest timer icon (`QuestTimer.tga`) after the effect icons, with a gauge for a timed hunt;
   its tooltip shows the quest, the kills and the time left. Chat notices go to the chat's assistant tab, events and
-  messages to the notice strip, the fanfare plays `drink2.wav`. A rank-up's redistribution offer is a yes/no box.
+  messages to the notice strip, the fanfare plays `drink2.wav`. A rank-up's redistribution offer is a yes/no box; Enter answers
+  Yes, as the original's box takes it.
 
 ## How to
 

@@ -76,6 +76,8 @@ internal static class QuestHudTests
         quests.Observe(new PresenceUpdate(1, [], [], [], []) { Quest = offer });
         Assert.True(quests.SkillResetBox, "the redistribution offer did not show");
         quests.AnswerSkillReset(false);
+        await Settle(quests);
+        Assert.True(sent[^1] is { Action: QuestAction.DeclineSkillReset }, "No did not end the offer on the server");
         quests.Observe(new PresenceUpdate(2, [], [], [], []) { Quest = offer with { Revision = 10 } });
         Assert.True(!quests.SkillResetBox, "a declined offer showed again");
         quests.Observe(new PresenceUpdate(3, [], [], [], []) { Quest = offer with { Revision = 11, SkillResetOffered = false } });

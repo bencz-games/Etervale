@@ -488,6 +488,10 @@ public sealed partial class GameplayHud : IDisposable
         {
             _skills.AcceptTraining(state, _skillMaster, _progression);
         }
+        else if (_quests.SkillResetBox && !_chat.Window.Focused && Pressed(keyboard, Keys.Enter))
+        {
+            _quests.AnswerSkillReset(true);
+        }
         else
         {
             _chat.Update(keyboard, _previousKeyboard, typedText, _clock.Elapsed.TotalMilliseconds, _chat.Window.Log.Tab);

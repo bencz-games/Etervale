@@ -195,6 +195,11 @@ internal static class QuestTests
         Assert.True(fighter.Skills.Ranks.Values.Sum() == 0 && fighter.SkillPoints >= points + learned && !fighter.Quests.SkillResetOffered,
             "the redistribution did not refund the ranks");
         Assert.True(Run(fighter, QuestNpc.None, QuestAction.ResetSkills, QuestCode.None, 0).Status == QuestStatus.Rejected, "a second redistribution ran");
+        fighter.Quests.SkillResetOffered = true;
+        Expect(fighter, QuestNpc.None, QuestAction.DeclineSkillReset, QuestCode.None, 0, "No did not end the redistribution offer");
+        Assert.True(!fighter.Quests.SkillResetOffered
+            && Run(fighter, QuestNpc.None, QuestAction.ResetSkills, QuestCode.None, 0).Status == QuestStatus.Rejected,
+            "a declined offer still stood (it opened again at the next login)");
         return Task.CompletedTask;
     }
 

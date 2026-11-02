@@ -18,6 +18,7 @@ public static class QuestEngine
             QuestAction.ChooseReward => command.Code == QuestCode.FuryOfPhantom ? FuryOfPhantomQuest.Choose(context, command.State, command.Choice)
                 : QuestSteps.Stale(context),
             QuestAction.ResetSkills => RankUpRules.ResetSkills(context),
+            QuestAction.DeclineSkillReset => RankUpRules.DeclineSkillReset(context),
             _ => context.Fail(QuestStatus.Rejected, "unknown quest action")
         };
     }

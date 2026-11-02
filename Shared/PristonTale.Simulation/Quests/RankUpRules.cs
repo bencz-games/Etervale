@@ -121,6 +121,18 @@ public static class RankUpRules
         context.Notice(QuestNoticeKind.Fanfare, "");
     }
 
+    // The original asks once, right after the rank-up: No ends the offer.
+    public static bool DeclineSkillReset(QuestContext context)
+    {
+        if (!context.Journal.SkillResetOffered)
+        {
+            return context.Fail(QuestStatus.Rejected, "no skill redistribution is offered");
+        }
+
+        context.Journal.SkillResetOffered = false;
+        return true;
+    }
+
     public static bool ResetSkills(QuestContext context)
     {
         if (!context.Journal.SkillResetOffered)

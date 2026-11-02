@@ -167,9 +167,9 @@ public sealed class HudQuestController(Func<QuestCommand, Task<QuestOutcome>> re
 
         SkillResetBox = false;
         _resetDeclined = true;
-        if (yes && !Pending)
+        if (!Pending)
         {
-            Send(new QuestCommand(Guid.NewGuid(), 0, QuestAction.ResetSkills, QuestCode.None, 0, 0));
+            Send(new QuestCommand(Guid.NewGuid(), 0, yes ? QuestAction.ResetSkills : QuestAction.DeclineSkillReset, QuestCode.None, 0, 0));
         }
     }
 

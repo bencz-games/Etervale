@@ -19,7 +19,10 @@ public enum QuestAction : byte
     ChooseReward = 5,
 
     // The free skill redistribution a rank-up offers.
-    ResetSkills = 6
+    ResetSkills = 6,
+
+    // The redistribution offer answered No: the offer ends.
+    DeclineSkillReset = 7
 }
 
 public enum QuestStatus : byte
