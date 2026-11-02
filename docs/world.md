@@ -367,9 +367,10 @@ sends it in `WorldJoined`; each tick it sets `FieldInstance.Night` for every fie
 `FieldInstance.Night` (`FieldInstance.Night.cs`), applied at the first step and at each change:
 
 - Event creatures (`MonsterDefinition.EventCode` 100, field `EventInfo`: the bronze, silver and golden wolverines) walk
-  at night at a random active spawn point of their field and come back when killed (once the corpse is gone); they stay
-  until dawn even with no player near (`StaysUntilDawn`). At dawn they play their warp clip and leave (`VanishOnWarp`);
-  clients show the return sparkle with the skill-learn sound for a wolverine's warp.
+  at night from the field's first active spawn point a player stands near (its first active point when nobody is near,
+  so night on an empty field finds them at the same spot) and come back there when killed (once the corpse is gone);
+  they stay until dawn even with no player near (`StaysUntilDawn`). At dawn they play their warp clip and leave
+  (`VanishOnWarp`); clients show the return sparkle with the skill-learn sound for a wolverine's warp.
 - NPCs with the event creature service (`NpcServiceKind.EventMonster` 100: the town's wolverine pets) leave at night and
   return at dawn.
 - A nightmare field (`FieldDef.FieldEvent` = `Nightmare`: Navisko) spawns its monsters only at night; at nightfall each
