@@ -27,8 +27,10 @@ public static class HudSkillTreeLayout
     public static Point Title(Point origin, int tier) => new(origin.X + Titles[tier].X, origin.Y + Titles[tier].Y);
     public static Rectangle Close(Point origin) => new(origin.X + 269, origin.Y + 571, 20, 20);
 
-    // The class change button over the window's left half, shown only to a skill master's pupil (44x44).
-    public static Rectangle ClassChange(Point origin) => new(origin.X + 240, origin.Y + 380, 44, 44);
+    // A skill master's training box (13 by 21 tiles of 16 pixels) at the screen's top left, and its class change button
+    // (44x44): screen design coordinates, not the window's.
+    public static Rectangle MasterBox => new(90, 100, 13 * 16, 21 * 16);
+    public static Rectangle ClassChange => new(240, 380, 44, 44);
 
     // The arrows of the window's two pages: forward on the first page's right edge, back on the second page's left.
     public static Rectangle PageForward(Point origin) => new(origin.X + 765, origin.Y + 482, 20, 20);

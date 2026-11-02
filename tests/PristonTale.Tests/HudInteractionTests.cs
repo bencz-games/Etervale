@@ -160,9 +160,9 @@ internal static class HudInteractionTests
         var layout = HudLayout.Create(800, 600);
         HudMessageBox.Place(layout);
         var skills = HudInventoryLayout.Origin(layout);
-        Assert.True(HudSkillTreeLayout.ClassChange(skills) == new Rectangle(skills.X + 240, skills.Y + 380, 44, 44)
+        Assert.True(HudSkillTreeLayout.ClassChange == new Rectangle(240, 380, 44, 44) && HudSkillTreeLayout.MasterBox.Contains(HudSkillTreeLayout.ClassChange)
             && HudSkillTreeLayout.Window(skills).Contains(HudSkillTreeLayout.PageForward(skills)) && HudSkillTreeLayout.Window(skills).Contains(HudSkillTreeLayout.PageBack(skills)),
-            "the class change button or the page arrows left their places on the skill window");
+            "the class change button left the training box, or the page arrows the skill window");
         return Task.CompletedTask;
     }
 

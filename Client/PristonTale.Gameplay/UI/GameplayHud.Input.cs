@@ -373,7 +373,7 @@ public sealed partial class GameplayHud
             }
 
             // The class change button: the master's next rank-up quest, which ends the training as the original does.
-            if (_skillMaster != 0 && _quests.ClassChangeNpc == _skillMaster && HudSkillTreeLayout.ClassChange(origin).Contains(pointer))
+            if (_skillMaster != 0 && _quests.ClassChangeNpc == _skillMaster && HudSkillTreeLayout.ClassChange.Contains(pointer))
             {
                 _quests.ChangeClass(_skillMaster);
                 _skillSlide.Open = false;
@@ -426,7 +426,7 @@ public sealed partial class GameplayHud
 
         if (HudBar.Captures(design) || MinimapShown && HudMinimap.Box(layout).Contains(pointer) || _skillHud.BuffAt(pointer) != 0
             || WindowContains(layout, _inventorySlide, pointer) || WindowContains(layout, _statusSlide, pointer) || WindowContains(layout, _skillSlide, pointer)
-            || _skills.ClassChangeShown && HudSkillTreeLayout.ClassChange(PanelOrigin(layout, _skillSlide)).Contains(pointer))
+            || _skills.MasterBoxShown && HudSkillTreeLayout.MasterBox.Contains(pointer))
         {
             return true;
         }

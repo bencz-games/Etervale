@@ -11,7 +11,8 @@ namespace PristonTale.Gameplay.UI.Widgets;
 
 // The original skill window and its text: Skil24.bmp, the titles and skills of the tiers the class has reached (later
 // tiers stay empty until the rank-up), skill buttons (gray "_" variant when unusable), rank gauges, F1-F8 short keys,
-// the selected-skill hover frame, the class change button of a skill master's pupil and the empty second page.
+// the selected-skill hover frame, the empty second page, and for a skill master's pupil the training box: the skill and
+// elite points left (or that there are none) and the class change button.
 public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
 {
     private const int TooltipWidth = 260;
@@ -36,7 +37,13 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     private bool _secondPage;
     private int _shownTier;
 
-    // The class change button is on screen (gray or lit): it takes clicks over the scene above the window.
+    private int _boxPoints = -1;
+    private int _boxElitePoints = -1;
+    private string _boxPointsText = "";
+    private string _boxElitePointsText = "";
+
+    // The training box and its class change button (gray or lit) are on screen; they take clicks over the scene.
+    public bool MasterBoxShown { get; private set; }
     public bool ClassChangeShown { get; private set; }
 
     public bool TrainingPending => _trainingIndex >= 0;
@@ -178,13 +185,12 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     private int Shown => Math.Min(Math.Min(_entries.Length, HudSkillTreeLayout.NodeCount), SkillLearning.OpenedBy(_shownTier));
 
     public void Draw(HudPainter painter, Point origin, Point pointer, OwnerState state, HudSkillBindings bindings, ulong skillMaster, bool pressed,
-        bool interactive, bool classChangeOffered)
+        bool interactive)
     {
         RefreshRanks(state);
         _hovered = null;
         _hoveredBasic = false;
         _shownTier = state?.Tier ?? 0;
-        ClassChangeShown = false;
         if (_secondPage)
         {
             painter.Sprite(HudArt.SkillWindowSecond, origin.X, origin.Y + 400);
@@ -261,19 +267,67 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             painter.TextCentered(_pointsText, origin.X + 165, origin.X + 253, origin.Y + 578);
             painter.TextCentered(_finalPointsText, origin.X + 250, origin.X + 253, origin.Y + 578);
         }
-
-        // The class change button shows to a pupil whose tier's skills all have a rank: lit while the master offers the
-        // next rank-up quest, gray while the level or a running quest still holds it back.
-        if (skillMaster != 0 && state is not null && _trainingIndex < 0 && (classChangeOffered || _shownTier < LastTier && TierLearned()))
-        {
-            ClassChangeShown = true;
-            var button = HudSkillTreeLayout.ClassChange(origin);
-            painter.Sprite(classChangeOffered ? HudArt.SelectJob : HudArt.SelectJobGray, button.X, button.Y);
-        }
     }
 
     private const int SkillMaxRank = 10;
     private const int LastTier = 3;
+
+    // The training box's lines (their tops), centred in the box, and their colours.
+    private const int BoxTitleY = 145;
+    private const int BoxFirstLineY = 180;
+    private const int BoxSecondLineY = 200;
+    private const int BoxPointsY = 230;
+    private const int BoxElitePointsY = 255;
+    private const int BoxMessageY = 290;
+    private static readonly Color BoxTitle = new(222, 231, 255);
+    private static readonly Color BoxPoints = new(247, 243, 193);
+    private static readonly Color BoxElitePoints = new(147, 243, 193);
+    private static readonly Color BoxShort = new(255, 64, 64);
+
+    // A skill master's pupil, no skill being confirmed: the training box at the screen's top left with the points left
+    // (or, with none, that there are none), the class change button inside it once the tier's skills all have a rank (lit
+    // while the master offers the next rank-up quest, gray while the level or a running quest still holds it back), and
+    // the last refusal under the points.
+    private void DrawMasterBox(HudPainter painter, OwnerState state, bool classChangeOffered, string message)
+    {
+        MasterBoxShown = true;
+        var box = HudSkillTreeLayout.MasterBox;
+        painter.Flush();
+        painter.InfoBox(box);
+        painter.TextCentered("Train Skill/Magic", box.Left, box.Right, BoxTitleY, BoxTitle);
+        if (state.SkillPoints > 0 || state.EliteSkillPoints > 0)
+        {
+            if (_boxPoints != state.SkillPoints || _boxElitePoints != state.EliteSkillPoints)
+            {
+                _boxPoints = state.SkillPoints;
+                _boxElitePoints = state.EliteSkillPoints;
+                _boxPointsText = $"Skill Points : {_boxPoints}";
+                _boxElitePointsText = $"Elite Skill Points : {_boxElitePoints}";
+            }
+
+            painter.TextCentered("Select a Skill or Magic", box.Left, box.Right, BoxFirstLineY);
+            painter.TextCentered("To learn or train", box.Left, box.Right, BoxSecondLineY);
+            painter.TextCentered(_boxPointsText, box.Left, box.Right, BoxPointsY, BoxPoints);
+            painter.TextCentered(_boxElitePointsText, box.Left, box.Right, BoxElitePointsY, BoxElitePoints);
+        }
+        else
+        {
+            painter.TextCentered("Not enough Skill Points", box.Left, box.Right, BoxFirstLineY, BoxShort);
+            painter.TextCentered("to learn or practice", box.Left, box.Right, BoxSecondLineY, BoxShort);
+        }
+
+        if (message.Length > 0)
+        {
+            painter.TextCentered(painter.Fit(message, box.Width - 20), box.Left, box.Right, BoxMessageY, BoxShort);
+        }
+
+        if (classChangeOffered || _shownTier < LastTier && TierLearned())
+        {
+            ClassChangeShown = true;
+            var button = HudSkillTreeLayout.ClassChange;
+            painter.Sprite(classChangeOffered ? HudArt.SelectJob : HudArt.SelectJobGray, button.X, button.Y);
+        }
+    }
 
     private bool TierLearned()
     {
@@ -288,8 +342,16 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         return true;
     }
 
-    public void DrawOverlay(HudPainter painter, HudLayout layout, Point pointer, ulong skillMaster, string message)
+    public void DrawOverlay(HudPainter painter, HudLayout layout, Point pointer, OwnerState state, ulong skillMaster, bool classChangeOffered,
+        string message)
     {
+        MasterBoxShown = false;
+        ClassChangeShown = false;
+        if (skillMaster != 0 && state is not null && _trainingIndex < 0 && !_secondPage)
+        {
+            DrawMasterBox(painter, state, classChangeOffered, message);
+        }
+
         if (_trainingIndex >= 0)
         {
             painter.Flush();
@@ -304,10 +366,6 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         else if (_hoveredBasic)
         {
             DrawLines(painter, layout, pointer, "Basic attack", ["Release LMB or RMB to select.", "Hold the button + F1-F8 to bind."]);
-        }
-        else if (skillMaster != 0 && message.Length > 0)
-        {
-            DrawLines(painter, layout, new Point(layout.Width / 2, layout.BottomOffset + 400), "Skill master", [message]);
         }
     }
 

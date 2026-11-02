@@ -99,8 +99,8 @@ quest data the importer reads, and the client's quest dialog, quest window, clas
 
 ### Rank-ups and the class tier
 
-The class tier (0..3) advances only in `RankUpRules.RankUp`. The class-change button of the skill window, which a
-home-town skill master opens in training mode (`QuestAction.ChangeClass`), opens the next rank-up quest when the master is in the class's home town, its class-change
+The class tier (0..3) advances only in `RankUpRules.RankUp`. The class-change button of the training box a home-town
+skill master opens with the skill window (`QuestAction.ChangeClass`), opens the next rank-up quest when the master is in the class's home town, its class-change
 group is 1 (first rank-up only) or 2 and above (all three), the level is reached (20, 40, 60) and every skill the
 current tier opened has a rank.
 
@@ -167,7 +167,7 @@ quest variant, which the importer stores as the code's quest definition (`item_d
 - The quest dialog takes the NPC help box (50,45, 9x10 tiles): the quest title, the document text (Windows-1252,
   reflowed to the box: blank lines and list marks start paragraphs, column lines and rules keep their own line), OK,
   reward buttons or reward arrows. The yes/no box replaces it for confirmations.
-- The skill window's class-change button (training mode, at (240, 380)) lights when the talk offered a rank-up and
+- The training box's class-change button (at (240, 380) of the screen) lights when the talk offered a rank-up and
   sends `ChangeClass`; it shows gray while the tier's skills are learned but the level or a running quest holds it back.
 - The quest window (`Q` or the bottom bar's quest button) is the party window's quest page at x = 539 of the 800-wide
   frame (right anchored), y = 155: five titles per page, page arrows, running/finished tabs, close; a title opens its
