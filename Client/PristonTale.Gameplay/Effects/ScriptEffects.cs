@@ -8,6 +8,9 @@ namespace PristonTale.Gameplay.Effects;
 // live particles play out).
 public interface IScriptEffect
 {
+    // False once the effect and its particles have ended (or the effect system dropped it).
+    bool Alive { get; }
+
     void MoveTo(Vector3 position);
 
     void Stop();
@@ -21,6 +24,8 @@ public interface IScriptEffects
 
 internal sealed class VfxScriptHandle(VfxHandle instance) : IScriptEffect
 {
+    public bool Alive => instance.Alive;
+
     public void MoveTo(Vector3 position) => instance.MoveTo(position);
 
     public void Stop() => instance.Stop();

@@ -111,7 +111,8 @@ Described in Etervale's terms; readers keep every field, including padding, for 
 - Materials: a TGA or opacity-mapped texture is a cut-out (alpha test at 60/255). Original blend types 2-6 draw late
   (blended queue) unless the material is an opaque cut-out; one layer above the base is carried over (multiply, add or
   sphere-map shine); there is no roughness or metalness in the data (`PristonMaterialAdapter` assigns 0.85 rough
-  dielectric, water 0.12, ice 0.3, shine 0.4).
+  dielectric, water 0.12, shine 0.4). The ice surface flag is slippery floor only: the ice fields set it on snow,
+  footprints and grass-to-snow tiles but not on the grass beside them, so it keeps the ground's 0.85.
 
 ## Scene data
 

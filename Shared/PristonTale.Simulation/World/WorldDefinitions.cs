@@ -143,6 +143,8 @@ public sealed record FieldDef(
 
     // The ice fields show the aurora at night.
     public bool ShowsAurora => State == FieldState.Ice;
+    // The snow skies bring falling snow at every hour.
+    public bool Snows => Backdrop == FieldBackdrops.Snow;
     public int SightCells { get; init; }
     public int LimitLevel { get; init; }
 

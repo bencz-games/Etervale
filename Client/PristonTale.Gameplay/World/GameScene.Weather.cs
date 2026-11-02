@@ -1,6 +1,7 @@
 using PristonTale.Client.Net.Presence;
 using PristonTale.Contracts.World;
 using PristonTale.Engine3D.Rendering.Weather;
+using PristonTale.Gameplay.Effects;
 using PristonTale.Gameplay.Weather;
 using PristonTale.Simulation.World;
 
@@ -8,7 +9,8 @@ namespace PristonTale.Gameplay.World;
 
 // The weather of the local player's field: the server's (clear until it sends one) eased in by WeatherPresentation,
 // unless the Weather setting is off or the field shown takes no rain; the renderer's sky, light and fog, the rain and
-// its splashes (PristonRain, drawn after the opaque scene), the rain's sound, softer under a roof, and the thunder.
+// its splashes (PristonRain, drawn after the opaque scene), the rain's sound, softer under a roof, and the thunder; and the
+// falling snow of the snow skies (FieldSnow).
 public sealed partial class GameScene
 {
     // A roof this far above the player shelters it from the rain's sound.
@@ -16,6 +18,7 @@ public sealed partial class GameScene
 
     private readonly WeatherPresentation _weather = new();
     private PristonRain _rain;
+    private FieldSnow _snow;
     private bool _weatherSeen;
 
     public WeatherState ServerWeather { get; private set; }
@@ -74,6 +77,21 @@ public sealed partial class GameScene
 
         var sheltered = _rain is not null && _playerBody is not null && _rain.Occlusion.Sheltered(_playerBody.Position, ShelterClearance);
         _fieldAudio?.UpdateWeather(_weather.Rain, sheltered, seconds);
+        UpdateSnow(seconds);
+    }
+
+    // The snow belongs to the field's sky, not to the server's weather: the Weather setting leaves it falling.
+    private void UpdateSnow(float seconds)
+    {
+        if (_snow is null && _skillFx is not null)
+        {
+            _snow = new FieldSnow(new SystemScriptEffects(_skillFx.System, _skillFx.Library));
+        }
+
+        if (_snow is not null && _playerBody is not null)
+        {
+            _snow.Update(_currentField?.Snows == true, _playerBody.Position, _playerForward, seconds);
+        }
     }
 
     private void DrawRain()

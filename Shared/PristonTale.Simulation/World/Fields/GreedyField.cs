@@ -3,7 +3,7 @@ namespace PristonTale.Simulation.World.Fields;
 public static class GreedyField
 {
     public static readonly FieldDef Definition = new(
-        "Greedy", "Greedy", FieldState.Ice, FieldBackdrops.Snow,
+        "Greedy", "Greedy", FieldState.Ice, FieldBackdrops.Greedy,
         "Field\\Greedy\\Greedy.smd",
         [
             "Field\\Greedy\\vane1_ani.smd",
