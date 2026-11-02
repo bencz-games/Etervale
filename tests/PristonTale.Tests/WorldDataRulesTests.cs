@@ -26,6 +26,7 @@ internal static class WorldDataRulesTests
         yield return ("ten hammer blows in a row give the player a big head and turn the monster into its event form", HammerAsync);
         yield return ("the game clock runs a day in 19.2 minutes with night from 23:00 to 4:00", ClockAsync);
         yield return ("night creatures walk at night and come back when killed, their NPCs leave, and both turn at dawn", NightCreaturesAsync);
+        yield return ("a night creature opens at the field's first active spawn point a player is near, else at its first active point", NightCreaturePointsAsync);
         yield return ("a nightmare field spawns only at night, its people turn into the night creature and return at dawn", NightmareAsync);
         yield return ("a monster's magic resistance cuts a spell's damage from -100 (double) to 100 (only the least hit), not a weapon skill's", MagicResistanceAsync);
     }
@@ -152,6 +153,25 @@ internal static class WorldDataRulesTests
         }
 
         Assert.True(!field.MonstersForInspection.Any(), "the night creature did not leave after its warp");
+        return Task.CompletedTask;
+    }
+
+    private static Task NightCreaturePointsAsync()
+    {
+        var wolverine = Monster(1, MonsterClass.Normal) with { EventCode = 100, EventInfo = 1, SoundCode = 0x11E0, Ai = MonsterAi.Default };
+        var points = new[] { new SpawnPoint(900, 900, false), new SpawnPoint(500, 500, true), new SpawnPoint(4000, 4000, true), new SpawnPoint(8000, 8000, true) };
+        var data = new FieldSpawnData(points, [], [], []);
+        var empty = new FieldInstance(1, data, new MonsterCatalog([wolverine]), new EntityIdAllocator(), new CombatRng(3)) { Night = true };
+        empty.Step(0.05f);
+        Assert.True(Vector3.Distance(empty.MonstersForInspection.Single().Position, new Vector3(500, 0, 500)) < 64,
+            "with nobody near, the creature did not open at the field's first active point");
+
+        var watched = new FieldInstance(1, data, new MonsterCatalog([wolverine]), new EntityIdAllocator(), new CombatRng(3)) { Night = true };
+        watched.Add(new WorldPlayer(1, new Vector3(8000, 0, 8100), new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Hunter", 30), false, default));
+        watched.Step(0.05f);
+        var creature = watched.MonstersForInspection.Single(monster => monster.Def.Code == wolverine.Code);
+        Assert.True(Vector3.Distance(creature.Position, new Vector3(8000, 0, 8000)) < 64,
+            $"the creature opened at {creature.Position}, not at the active point near the player");
         return Task.CompletedTask;
     }
 
