@@ -740,9 +740,9 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   `HudInventoryController.SoundArrival`; nothing for the first state after login or a bag page or weapon pair switch).
   `FieldAudioController.PlayItem` plays the same sound asked again within 300 ms once (a reply and its owner state).
 - Weather sound (`FieldAudioController.UpdateWeather`, before `Update`): `wav/rain01.wav` loops at the rain's share of
-  0.8, at 0.45 of that under a roof (`PristonRainOcclusion.Sheltered`, a surface over 40 units above the player), and
-  the field ambience fades as the clouds gather (the original stopped it under its clouds and its rain);
-  `wav/thunder1.wav` sounds each strike's thunder (`PlayThunder`).
+  0.8, at 0.45 of that under a roof (`PristonRainOcclusion.Sheltered`, a surface over 40 units above the player), on top
+  of the field ambience, which keeps playing under the clouds and the rain as the original's did; `wav/thunder1.wav`
+  sounds each strike's thunder (`PlayThunder`).
 
 ## Weather
 

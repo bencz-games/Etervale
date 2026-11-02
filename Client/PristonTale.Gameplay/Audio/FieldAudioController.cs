@@ -33,8 +33,6 @@ public sealed class FieldAudioController : IDisposable
     private SoundEffect _lastItemSound;
     private SoundEffectInstance _rain;
     private float _rainTarget;
-    // The share of the field ambience the weather leaves (1 under a clear sky).
-    private float _ambienceScale = 1f;
     private long _lastItemSoundAt;
 
     public FieldAudioController(PristonAudioLibrary library)
@@ -68,11 +66,10 @@ public sealed class FieldAudioController : IDisposable
         UpdatePositionalAmbience(listenerPosition, seconds);
     }
 
-    // The weather's sound, before Update: the rain's loop by the rain, softer under a roof, and the field ambience
-    // fading as the clouds gather, as the original stopped it under its clouds and its rain.
-    public void UpdateWeather(float cloud, float rain, bool sheltered, float seconds)
+    // The weather's sound, before Update: the rain's loop by the rain, softer under a roof. The field ambience keeps
+    // playing under the clouds and the rain, as the original's did; the rain only adds its loop.
+    public void UpdateWeather(float rain, bool sheltered, float seconds)
     {
-        _ambienceScale = 1f - MathHelper.Clamp(cloud, 0f, 1f);
         _rainTarget = _library.SoundEnabled ? MathHelper.Clamp(rain, 0f, 1f) * RainVolume * (sheltered ? ShelteredRain : 1f) : 0f;
         if (_rain is null && _rainTarget > 0.001f && _library.RainSound is { } sound)
         {
@@ -314,11 +311,6 @@ public sealed class FieldAudioController : IDisposable
         var code = SelectFieldAmbientCode(_field, timeOfDay);
         if (code == _fieldAmbientCode)
         {
-            if (_fieldAmbient is not null)
-            {
-                _fieldAmbient.Volume = FieldAmbientVolume * _ambienceScale;
-            }
-
             return;
         }
 
@@ -330,7 +322,7 @@ public sealed class FieldAudioController : IDisposable
 
         _fieldAmbient = _library.FieldAmbient(code).CreateInstance();
         _fieldAmbient.IsLooped = true;
-        _fieldAmbient.Volume = FieldAmbientVolume * _ambienceScale;
+        _fieldAmbient.Volume = FieldAmbientVolume;
         _fieldAmbient.Play();
         _fieldAmbientCode = code;
     }

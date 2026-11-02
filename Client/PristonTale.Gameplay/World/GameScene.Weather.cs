@@ -73,7 +73,7 @@ public sealed partial class GameScene
         }
 
         var sheltered = _rain is not null && _playerBody is not null && _rain.Occlusion.Sheltered(_playerBody.Position, ShelterClearance);
-        _fieldAudio?.UpdateWeather(_weather.Cloud, _weather.Rain, sheltered, seconds);
+        _fieldAudio?.UpdateWeather(_weather.Rain, sheltered, seconds);
     }
 
     private void DrawRain()
