@@ -103,7 +103,7 @@ internal sealed class HudCaptureProbe : Game
         bool Training = false, bool LowHealth = false, float Hour = 13, bool ClassicTarget = false, ulong Target = 2, ulong NpcId = SkillMasterNpc,
         int ServiceButton = -1, bool SellMode = false, int ServiceCount = 2, int RightSelect = -1, bool Buffs = false, bool Block = false,
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
-        ProbeHelp Help = ProbeHelp.None);
+        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -151,6 +151,8 @@ internal sealed class HudCaptureProbe : Game
         new("npc-unicode-1280", 1280, 720, Npc: true),
         new("skill-training-800", 800, 600, Npc: true, Learned: true, Training: true),
         new("skill-master-800", 800, 600, Npc: true, Learned: true),
+        new("skill-master-quest-800", 800, 600, Npc: true, Learned: true, Quest: ProbeQuest.Dialog),
+        new("skill-training-enter-800", 800, 600, Npc: true, Learned: true, Training: true, TrainingEnter: true),
         new("npc-merchant-dialog-800", 800, 600, Npc: true, NpcId: MerchantNpc),
         new("npc-teleporter-dialog-800", 800, 600, Npc: true, NpcId: TeleporterNpc),
         new("npc-teleport-destinations-800", 800, 600, Npc: true, NpcId: TeleporterNpc, ServiceButton: 1, ServiceCount: 4),
@@ -394,6 +396,11 @@ internal sealed class HudCaptureProbe : Game
             if (scenario.Training)
             {
                 Click(state, layout, HudSkillsPanel.ClassRow(HudInventoryLayout.Origin(layout), 0).Center);
+                if (scenario.TrainingEnter)
+                {
+                    _hud.Update(state, new KeyboardState(Keys.Enter), default);
+                    _hud.Update(state, default, default);
+                }
             }
 
             _prepared = true;

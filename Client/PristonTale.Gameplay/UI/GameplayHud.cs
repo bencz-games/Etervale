@@ -484,6 +484,10 @@ public sealed partial class GameplayHud : IDisposable
             // Enter answers Yes to the dismiss question instead of opening the chat input.
             RequestCrystalPetDismiss(_crystalDismiss.Accept());
         }
+        else if (_skills.TrainingPending && !_chat.Window.Focused && Pressed(keyboard, Keys.Enter))
+        {
+            _skills.AcceptTraining(state, _skillMaster, _progression);
+        }
         else
         {
             _chat.Update(keyboard, _previousKeyboard, typedText, _clock.Elapsed.TotalMilliseconds, _chat.Window.Log.Tab);
@@ -678,6 +682,15 @@ public sealed partial class GameplayHud : IDisposable
         _helpPet.Draw(_painter, pointer);
         DrawHelp(pointer);
 
+        if (_skillSlide.FullyOpen)
+        {
+            _skills.DrawMasterBox(_painter, _state, _skillMaster, _skillMaster != 0 && _quests.ClassChangeNpc == _skillMaster);
+        }
+        else
+        {
+            _skills.DrawMasterBox(_painter, _state, 0, false);
+        }
+
         // The quest dialog takes the help box from the NPC dialog; its yes/no box replaces both, as the classic client closed
         // the help box before asking.
         if (_quests.Dialog is not null)
@@ -743,8 +756,7 @@ public sealed partial class GameplayHud : IDisposable
 
         if (_skillSlide.FullyOpen)
         {
-            _skills.DrawOverlay(_painter, layout, pointer, _state, _skillMaster, _skillMaster != 0 && _quests.ClassChangeNpc == _skillMaster,
-                _progression.Message);
+            _skills.DrawOverlay(_painter, layout, pointer);
         }
 
         if (Statuses is not null && SelfId != 0)

@@ -135,9 +135,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         {
             if (HudMessageBox.Accept.Contains(pointer))
             {
-                controller.Submit(new ProgressionCommand(Guid.NewGuid(), state.ProgressionRevision, ProgressionAction.LearnSkill,
-                    SkillCode: _entries[_trainingIndex].Skill.Code, NpcEntityId: npcId));
-                _trainingIndex = -1;
+                AcceptTraining(state, npcId, controller);
             }
             else if (HudMessageBox.Reject.Contains(pointer))
             {
@@ -165,6 +163,19 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             _trainingName = entry.Skill.Name;
             _trainingPrice = $"Rank {rank + 1}: {SkillLearning.Price(index, rank):N0} gold";
         }
+    }
+
+    // Yes to the skill being confirmed (its Yes button, or Enter as the original's skill box takes it).
+    public void AcceptTraining(OwnerState state, ulong npcId, HudProgressionController controller)
+    {
+        if (_trainingIndex < 0 || state is null || npcId == 0 || controller.Pending)
+        {
+            return;
+        }
+
+        controller.Submit(new ProgressionCommand(Guid.NewGuid(), state.ProgressionRevision, ProgressionAction.LearnSkill,
+            SkillCode: _entries[_trainingIndex].Skill.Code, NpcEntityId: npcId));
+        _trainingIndex = -1;
     }
 
     // The arrow of the page shown turns to the other page.
@@ -278,7 +289,6 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     private const int BoxSecondLineY = 200;
     private const int BoxPointsY = 230;
     private const int BoxElitePointsY = 255;
-    private const int BoxMessageY = 290;
     private static readonly Color BoxTitle = new(222, 231, 255);
     private static readonly Color BoxPoints = new(247, 243, 193);
     private static readonly Color BoxElitePoints = new(147, 243, 193);
@@ -286,10 +296,17 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
 
     // A skill master's pupil, no skill being confirmed: the training box at the screen's top left with the points left
     // (or, with none, that there are none), the class change button inside it once the tier's skills all have a rank (lit
-    // while the master offers the next rank-up quest, gray while the level or a running quest still holds it back), and
-    // the last refusal under the points.
-    private void DrawMasterBox(HudPainter painter, OwnerState state, bool classChangeOffered, string message)
+    // while the master offers the next rank-up quest, gray while the level or a running quest still holds it back). It is
+    // drawn under the quest dialog and the other windows, as the original draws it with the interface.
+    public void DrawMasterBox(HudPainter painter, OwnerState state, ulong skillMaster, bool classChangeOffered)
     {
+        MasterBoxShown = false;
+        ClassChangeShown = false;
+        if (skillMaster == 0 || state is null || _trainingIndex >= 0 || _secondPage)
+        {
+            return;
+        }
+
         MasterBoxShown = true;
         var box = HudSkillTreeLayout.MasterBox;
         painter.Flush();
@@ -316,11 +333,6 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             painter.TextCentered("to learn or practice", box.Left, box.Right, BoxSecondLineY, BoxShort);
         }
 
-        if (message.Length > 0)
-        {
-            painter.TextCentered(painter.Fit(message, box.Width - 20), box.Left, box.Right, BoxMessageY, BoxShort);
-        }
-
         if (classChangeOffered || _shownTier < LastTier && TierLearned())
         {
             ClassChangeShown = true;
@@ -342,16 +354,8 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         return true;
     }
 
-    public void DrawOverlay(HudPainter painter, HudLayout layout, Point pointer, OwnerState state, ulong skillMaster, bool classChangeOffered,
-        string message)
+    public void DrawOverlay(HudPainter painter, HudLayout layout, Point pointer)
     {
-        MasterBoxShown = false;
-        ClassChangeShown = false;
-        if (skillMaster != 0 && state is not null && _trainingIndex < 0 && !_secondPage)
-        {
-            DrawMasterBox(painter, state, classChangeOffered, message);
-        }
-
         if (_trainingIndex >= 0)
         {
             painter.Flush();

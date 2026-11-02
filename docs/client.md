@@ -401,7 +401,7 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
 - Draw order (`GameplayHud.Draw`): speech bubbles, minimap, target frame, chat window (shrunk while a side window is
   open), status / skills / inventory windows (they share one screen area; opening one closes the others, `OpenOnly`),
   quest window, shop, warehouse, bottom bar, skill sockets, buffs and the quest timer icon, hover text, system menu,
-  quest dialog or NPC dialog, settings, item overlays, quest yes/no boxes, notices.
+  the skill master's training box, quest dialog or NPC dialog, settings, item overlays, quest yes/no boxes, notices.
 - Server results reach the HUD as counters: controllers increment `Completions` and set `Message` and `LastOk`;
   `ForwardMessages` shows each new refusal once as a notice and each confirmation as a chat server line; skill notices
   go to the chat, quest hints to its assistant tab ([chat-and-gm.md](chat-and-gm.md#client-chat-window)).
@@ -535,11 +535,14 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
 - Training box (`HudSkillsPanel.DrawMasterBox`): while a skill master trains the pupil (no skill being confirmed), the
   item-info frame of 13 by 21 tiles stands at (90, 100) of the screen's top left (`HudSkillTreeLayout.MasterBox`):
   "Train Skill/Magic", then "Select a Skill or Magic / To learn or train" with the skill points (pale yellow) and elite
-  skill points (pale green) left, or in red "Not enough Skill Points / to learn or practice" with none, and a refusal
-  under them. Once the tier's skills all have a rank the class change button stands in it at (240, 380)
+  skill points (pale green) left, or in red "Not enough Skill Points / to learn or practice" with none (a refusal goes
+  to the notices, not the box). It is drawn before the quest and NPC dialogs, which cover it. Once the tier's skills all have a rank the class change button stands in it at (240, 380)
   (`HudSkillTreeLayout.ClassChange`): lit while the master offers the next rank-up quest (`ClassChangeOffered` of the
   quest `Talk`), gray while the level (20, 40, 60) or a running quest holds it back; clicking it asks for the quest's
   start dialog and ends the training.
+- A skill clicked at the master asks with the yes/no box (`HudMessageBox`, the skill and its rank's price); Yes or
+  Enter trains it (`HudSkillsPanel.AcceptTraining`), as the original's skill box takes Enter, and the chat does not
+  open for that Enter; No closes it.
 - HUD controllers keep their one request in flight in a `HudRequest<TOutcome>` (`UI/HudRequest.cs`): `Start(send,
   failed)` turns a thrown send into the controller's failure outcome (logged unless cancelled) and `TryTake` hands the
   outcome over once (progression, item use, NPC dialog and services, wing gates, quests).
