@@ -138,7 +138,7 @@ public sealed class CharacterAppService
                 throw new InvalidDataException($"Character '{character.Name}' references unknown equipped item 0x{saved.Code:X8}.");
             }
 
-            if (definition.EquipSlot != saved.Slot)
+            if (!ItemEquipmentMetadata.Fits(definition.Kind, definition.EquipSlot, saved.Slot.Value))
             {
                 throw new InvalidDataException($"Character '{character.Name}' has an item persisted in the wrong equipment slot.");
             }

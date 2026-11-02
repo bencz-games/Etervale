@@ -16,7 +16,7 @@ internal static class CharacterSelectTests
 {
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
-        yield return ("character summary carries persisted equipment into character selection, a stored weapon pair beside it", EquipmentSummaryAsync);
+        yield return ("character summary carries persisted equipment into character selection, a stored weapon pair and a right-hand ring beside it", EquipmentSummaryAsync);
         yield return ("character-select roster and class positions preserve the original ordering", OriginalPlacementAsync);
         yield return ("character-select face layout scales the authored canvas uniformly", FaceLayoutAsync);
         yield return ("Assassin and Shaman use the original creation definitions", ExtendedClassDefinitionsAsync);
@@ -56,11 +56,17 @@ internal static class CharacterSelectTests
         {
             CatalogKey = "WC102"
         };
-        var itemCatalog = new ItemCatalog([armor, weapon, shield, spare]);
+        var ring = new ItemDefinition(0x0100_0006, "Ring", ItemKind.Ring, EquipmentSlot.RingLeft)
+        {
+            CatalogKey = "OR101"
+        };
+        var itemCatalog = new ItemCatalog([armor, weapon, shield, spare, ring]);
         var player = classes.CreatePlayer(PlayerClass.Mechanician, "Armored", 80);
         player.Equip(EquipmentSlot.Armor, new ItemInstance(armor));
         player.Equip(EquipmentSlot.Weapon, new ItemInstance(weapon));
         player.Equip(EquipmentSlot.OffHand, new ItemInstance(shield));
+        player.Equip(EquipmentSlot.RingLeft, new ItemInstance(ring));
+        player.Equip(EquipmentSlot.RingRight, new ItemInstance(ring));
         // The stored weapon pair (key W) is saved in the hand slots beside the held one; the summary shows the held pair.
         Assert.True(player.TrySwitchWeaponSet(1), "pair B was not shown");
         player.Equip(EquipmentSlot.Weapon, new ItemInstance(spare));
