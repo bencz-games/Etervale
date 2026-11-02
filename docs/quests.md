@@ -115,7 +115,9 @@ current tier opened has a rank.
    adds 1-2 damage, attack rating (mana regeneration for staves) and 4 life. Grown, it earns the rank-up and the class
    ring. Both are bound (no sale, no warehouse) and vanish five days after the weapon was made; the master then ends the
    quest and +15 life applies for good. Levelling more than two levels past the weapon without finishing slows it for
-   the session.
+   the session. While it grows, its item box names the stage's hunt under the name, set off by blank lines and in teal,
+   with the kills made and needed ("Bargon:12/30", "Forbidden Land's Monster:5/50": `RankUpByQuestWeapon.HuntLine`,
+   from the journal's stage and kills left).
 4. Third rank-up (`RankUpByMasterTrial`): two hunts of 4,900 seconds of play time each (50 kills below level 80, 30
    from 80; prey by level bracket); a lost hunt goes back a step. Then the royal amulet from the bracket's named
    monster, then a duel in the arena with the skill master (Tempskron side) or the magic master (Morion side). The master yields

@@ -34,6 +34,9 @@ public sealed class HudInventoryPanel
     // An extra tooltip line for the hovered item, such as what an open shop pays for it.
     public Func<OwnedItemView, string> Note { get; set; }
 
+    // The hunt line of a growing quest weapon (empty for any other item).
+    public Func<OwnedItemView, string> Hunt { get; set; }
+
     public Func<Guid, bool> Withheld { get; set; }
 
     // stored: the warehouse item on the cursor, whose landing the window colours too.
@@ -309,7 +312,7 @@ public sealed class HudInventoryPanel
             return;
         }
 
-        HudItemDetailTooltip.Draw(painter, layout, pointer, HudItemDetailTooltip.Lines(named, _state, note, action),
+        HudItemDetailTooltip.Draw(painter, layout, pointer, HudItemDetailTooltip.Lines(named, _state, note, action, Hunt?.Invoke(item)),
             HudItemDetailTooltip.Gauge(item, _state));
     }
 

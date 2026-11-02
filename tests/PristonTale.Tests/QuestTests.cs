@@ -289,6 +289,11 @@ internal static class QuestTests
         Kill(fighter, QuestMonsters.HeadCutter, 50);
         Drop(fighter, QuestItems.Vamp);
         Assert.True(fighter.Quests.Active is { State: 4, WeaponStage: RankUpByQuestWeapon.FinalStage, WeaponLifeBonus: 12 }, "the weapon did not finish growing");
+        Assert.True(RankUpByQuestWeapon.HuntLine(QuestWeaponHunt.Melee, 1, 18) == "Bargon:12/30"
+            && RankUpByQuestWeapon.HuntLine(QuestWeaponHunt.Melee, 2, 40) == "Skeleton Warrior:0/40"
+            && RankUpByQuestWeapon.HuntLine(QuestWeaponHunt.Field, 3, 1) == "Ancient Prison 1F's Monster:99/100"
+            && RankUpByQuestWeapon.HuntLine(QuestWeaponHunt.Melee, RankUpByQuestWeapon.FinalStage, 0) == "",
+            "the quest weapon's box does not name its hunt with the kills made");
         Assert.True(fighter.Effects.TryGet(QuestEffects.QuestWeaponCode, out _), "the wielded quest weapon gives no bonus");
 
         Assert.True(Talk(fighter, HomeMaster).Prompt is { State: 4, Document: "ChangeJob3_4" }, "the second rank-up dialog differs");

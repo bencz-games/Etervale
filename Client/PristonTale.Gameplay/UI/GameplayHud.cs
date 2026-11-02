@@ -160,6 +160,9 @@ public sealed partial class GameplayHud : IDisposable
         _services.Succeeded = ServiceSucceeded;
         _storedPlacement = StoredPlacement;
         _inventoryPanel.Note = InventoryNote;
+        _inventoryPanel.Hunt = item => item.Code == QuestClasses.QuestWeapon(_class) && _questView is { Code: RankUpByQuestWeapon.Code } view
+            ? RankUpByQuestWeapon.HuntLine(QuestClasses.WeaponHunt(_class), view.WeaponStage, view.WeaponKillsLeft)
+            : "";
         _inventoryPanel.Withheld = id => _aging.Holds(id) || _mix.Holds(id) || _personalShop.Holds(id) || _trade.Holds(id);
         _inventory.ShopRequested = OpenOwnShop;
         _sprites.Request(HudChatWindow.Art);

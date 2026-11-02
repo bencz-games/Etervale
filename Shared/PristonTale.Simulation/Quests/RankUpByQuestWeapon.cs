@@ -24,6 +24,12 @@ public static class RankUpByQuestWeapon
     // Kills of each stage, indexed from the hunt's first entry: melee from 0, ranged from 3, field from 6.
     private static readonly int[] StageKills = [30, 40, 50, 25, 35, 45, 50, 70, 100];
     private static readonly int[] StageFields = [8, 10, 13];
+    // What a stage hunts, as the weapon's box names it, indexed like StageKills.
+    private static readonly string[] StageTargets =
+    [
+        "Bargon", "Skeleton Warrior", "Head Cutter", "Armored Beetle", "Skeleton Ranger", "Titan", "Forbidden Land's Monster", "Oasis' Monster",
+        "Ancient Prison 1F's Monster"
+    ];
 
     private static readonly uint StaffFamily = ItemCodes.Family("WM1");
 
@@ -41,6 +47,20 @@ public static class RankUpByQuestWeapon
     public static int StagePrey(QuestWeaponHunt hunt, int stage) => hunt == QuestWeaponHunt.Field ? 0 : HuntBase(hunt) + stage;
 
     public static int StageField(QuestWeaponHunt hunt, int stage) => hunt == QuestWeaponHunt.Field ? StageFields[Math.Clamp(stage - 1, 0, 2)] : 0;
+
+    // The growing weapon's box line: the stage's prey or field, the kills made and the kills the stage needs
+    // ("Bargon:12/30"); empty once grown.
+    public static string HuntLine(QuestWeaponHunt hunt, int stage, int killsLeft)
+    {
+        if (stage is < 1 or >= FinalStage)
+        {
+            return "";
+        }
+
+        var index = Math.Clamp(HuntBase(hunt) + stage - 1, 0, StageKills.Length - 1);
+        var needed = StageKills[index];
+        return $"{StageTargets[index]}:{Math.Clamp(needed - killsLeft, 0, needed)}/{needed}";
+    }
 
     public static bool TalkAtMaster(QuestContext context)
     {

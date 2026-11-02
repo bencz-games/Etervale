@@ -31,13 +31,16 @@ public static class HudItemDetailTooltip
     public static readonly Color AgingColor = new(119, 200, 254);
     public static readonly Color MixedNameColor = new(150, 255, 255);
     public static readonly Color MixedColor = new(110, 165, 250);
+    public static readonly Color HuntColor = new(125, 180, 175);
     private const int GaugeWidth = 130;
     private const int GaugeFill = 125;
 
     private static readonly string[] ResistanceLabels =
         ["Organic Type:  ", "Nature Type:  ", "Flame Type:  ", "Frost Type:  ", "Lightning Type:  ", "Poison Type: ", "Water Type:  ", "Wind Type:  "];
 
-    public static List<(string Text, Color Color)> Lines(OwnedItemView item, OwnerState owner, string price, string hint)
+    // hunt: a growing quest weapon's hunt line (RankUpByQuestWeapon.HuntLine), set off by a blank line on each side under
+    // the name, as the original's box shows it.
+    public static List<(string Text, Color Color)> Lines(OwnedItemView item, OwnerState owner, string price, string hint, string hunt = null)
     {
         var lines = new List<(string, Color)>();
         var details = item.Details;
@@ -56,6 +59,13 @@ public static class HudItemDetailTooltip
         if (aged)
         {
             lines.Add(("", ValueColor));
+            lines.Add(("", ValueColor));
+        }
+
+        if (!string.IsNullOrEmpty(hunt))
+        {
+            lines.Add(("", ValueColor));
+            lines.Add((hunt, HuntColor));
             lines.Add(("", ValueColor));
         }
 
