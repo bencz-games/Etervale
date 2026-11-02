@@ -307,7 +307,12 @@ they took the domes.
 
 - Sky: with the classic sky, half the sky clouded shows the rain dome (`FIELD_BACKIMAGE_RAIN`, profile 7) at every
   hour, as the original switched to it, cross-faded like any profile change (`SkyProfileNow`); the realistic sky draws
-  the weather's clouds instead.
+  the weather's clouds instead. The rain dome is an open cylinder whose rim stands about 22 degrees up: a profile whose
+  opaque layers stop below 0.8 radians (`PristonSkyLibrary.OpenTopElevation`) leaves the zenith open, so at load its
+  outermost opaque layer is mirrored up over its rim to the zenith (`CapAbove`: each vertex keeps its direction,
+  distance and texture coordinates, its elevation below the rim becomes as far above it, stretched so the lowest ring
+  meets at the zenith) and drawn right after that layer. The rim's vertices stay in place, so the clouds go on past the
+  rim without a seam instead of the hour's clear colour showing above it.
 - Light (`WeatherLight`, in `BuildFrameLighting`): an overcast or rainy sky is fully clouded, eased in and out over
   6 s; the direct sun keeps the clear share squared (`SunThrough`: none under a full cover, so an overcast day casts no
   shadows), or 70 % of it while a sunshower's break passes the sun (`PristonWeather.SunBreak`); full cloud keeps 70 % of
