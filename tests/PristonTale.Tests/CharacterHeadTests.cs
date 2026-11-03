@@ -32,6 +32,10 @@ internal static class CharacterHeadTests
         Assert.True(CharacterHead.Resolve(PlayerClass.Atalanta, 1, 9) == "char/tmABCD/Mfh-B10a.inx", "hair variant above three was truncated");
         Assert.True(CharacterHead.Resolve(PlayerClass.Assassin, 2, 2) == "char/tmABCD/tfh-e03b.inx", "Assassin advanced face path changed");
         Assert.True(CharacterHead.Resolve(PlayerClass.Shaman, 3, 2) == "char/tmABCD/Mmh-E03c.inx", "Shaman advanced face path changed");
+        Assert.True(CharacterHead.Resolve(PlayerClass.Mechanician, 4, 0) == "char/tmABCD/Tmh-A01d.inx"
+            && CharacterHead.Resolve(PlayerClass.Priestess, 4, 5) == "char/tmABCD/Mfh-C006d.inx"
+            && CharacterHead.Resolve(PlayerClass.Priestess, 4, 9) == "char/tmABCD/Mfh-C10d.inx"
+            && CharacterHead.Resolve(PlayerClass.Assassin, 4, 2) == "char/tmABCD/tfh-e03d.inx", "fifth-tier heads changed");
         var defaults = new CharacterClassRegistry().Get(PlayerClass.Mechanician).Definition.DefaultVisuals;
         var resolved = CharacterHead.Apply(defaults, PlayerClass.Mechanician, 2, 2, 7);
         Assert.True(CharacterFace.ResolveHeadPath(resolved, 2) == "char/tmABCD/tmh_a08b.inx", "face selection overwrote the hair override");
@@ -41,7 +45,7 @@ internal static class CharacterHeadTests
         var assassinDefaults = new CharacterClassRegistry().Get(PlayerClass.Assassin).Definition.DefaultVisuals;
         var unsupportedCrown = CharacterHead.Apply(assassinDefaults, PlayerClass.Assassin, 2, 1, 8);
         Assert.True(unsupportedCrown.Head.InxExtensionPath == "char/tmABCD/tfh-e02b.inx", "missing Assassin crown did not fall back to the selected face");
-        foreach (var invalid in new[] { -1, 4 })
+        foreach (var invalid in new[] { -1, 5 })
         {
             var rejected = false;
             try

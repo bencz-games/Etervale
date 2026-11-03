@@ -8,7 +8,7 @@ namespace PristonTale.Simulation.Characters.Classes;
 public sealed class PikemanClass : CharacterClass
 {
     public static readonly ClassProfile Profile = new(
-        ["Pikeman", "Combatant", "Lancer", "Lancelot"],
+        ["Pikeman", "Combatant", "Lancer", "Lancelot", "Bayiolunt"],
         new MotionFallback(3680, 22, 2560),
         static weapon => weapon.Definition.Kind == ItemKind.Pole,
         CastingWeapon: null,

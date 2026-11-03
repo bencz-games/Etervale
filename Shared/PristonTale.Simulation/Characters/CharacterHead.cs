@@ -46,7 +46,7 @@ public static class CharacterHead
         }
 
         return string.Create(System.Globalization.CultureInfo.InvariantCulture,
-            $"char/tmABCD/{pattern.Prefix}{hairVariant + 1:D2}{pattern.Suffix}.inx");
+            $"char/tmABCD/{pattern.Prefix}{pattern.Number(hairVariant)}{pattern.Suffix}.inx");
     }
 
     // The big head of the big-head potion: look 1 or 2, cycling three heads by hair. Archer, Atalanta and Priestess ship

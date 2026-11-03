@@ -7,7 +7,7 @@ namespace PristonTale.Simulation.Characters.Classes;
 public sealed class ShamanClass : CharacterClass
 {
     public static readonly ClassProfile Profile = new(
-        ["Shaman", "Clairvoyant", "Soul Mage", "Necromancer"],
+        ["Shaman", "Clairvoyant", "Soul Mage", "Necromancer", "Soul Master"],
         new MotionFallback(3360, 22, 3040),
         static weapon => weapon.Definition.Kind == ItemKind.Phantom,
         CastingWeapon: ItemKind.Phantom,

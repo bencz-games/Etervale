@@ -8,7 +8,7 @@ namespace PristonTale.Simulation.Characters.Classes;
 public sealed class PriestessClass : CharacterClass
 {
     public static readonly ClassProfile Profile = new(
-        ["Priestess", "Saintess", "Bishop", "Celestial"],
+        ["Priestess", "Saintess", "Bishop", "Celestial", "Arc Angel"],
         new MotionFallback(3200, 20, 3040),
         static weapon => weapon.Definition.Kind == ItemKind.Staff,
         CastingWeapon: ItemKind.Staff,

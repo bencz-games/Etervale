@@ -19,7 +19,7 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 | Path | Responsibility |
 |---|---|
 | [ClassSkillCatalog.cs](../Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs) | Loads the embedded class files; `ClassSkillEntry` (definition fields); `SkillJson` options (camel case, string enums, hex codes) |
-| `Shared/PristonTale.Simulation/Skills/Data/Classes/<Class>.json` | One file per `PlayerClass`: 16 skills in skill-window order, definition plus rule. Embedded resources of the Simulation assembly |
+| `Shared/PristonTale.Simulation/Skills/Data/Classes/<Class>.json` | One file per `PlayerClass`: 20 skills in skill-window order, definition plus rule. Embedded resources of the Simulation assembly |
 | [SkillRules.cs](../Shared/PristonTale.Simulation/Skills/SkillRules.cs) | `SkillRule` and its sub-records (damage, buff, passive, summon, charge, companion, counter, burst); `SkillRuleCatalog` and its load-time validation |
 | `Shared/PristonTale.Simulation/Skills/SkillRuleMechanics.cs` | Second half of the rule records: range/damage modes, motion variants, allies, enchant, absorb, reflect, guard, pulse, charm, resurrect; `ForRank`, `HitFrames` |
 | `Shared/PristonTale.Simulation/Skills/Skill.cs` | `Skill` definition, `JobTier`, `SkillCategory`, `SkillMouseUse`; rank-indexed mana and stamina |
@@ -52,16 +52,17 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 ## Skill identity and window order
 
 - Code: `group << 24 | tierBit << 16 | slot`, written as a hex string (`"0x01020001"`). `tierBit` is the `JobTier`
-  value (`Job1` 0x1, `Job2` 0x2, `Job3` 0x4, `Job4` 0x8) and must match `tier`; `slot` is 1..4.
+  value (`Job1` 0x1, `Job2` 0x2, `Job3` 0x4, `Job4` 0x8, `Job5` 0x10) and must match `tier`; `slot` is 1..4.
 - Class groups: Mechanician 0x01, Fighter 0x02, Pikeman 0x03, Archer 0x04, Knight 0x05, Atalanta 0x06,
   Priestess 0x07, Magician 0x08, Assassin 0x10, Shaman 0x50.
-- The file name is the `PlayerClass` enum name. The array order is the skill-window order (window index 0..15): it
+- The file name is the `PlayerClass` enum name. The array order is the skill-window order (window index 0..19): it
   drives learning order, price, tier gates, proficiency streaks and HUD placement. It is not always the slot order:
   Mechanician lists `0x01010004` before `0x01010003`.
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
-- The eight original classes have a rule for all 16 skills. Assassin and Shaman files hold window definitions only,
-  except Assassin's passive `0x10010003`.
+- The eight original classes have a rule for their first four tiers' 16 skills; their fifth tier (levels 80, 83, 86,
+  90) holds definitions only (name, icon, level, costs, weapons) until its rules are ported. Assassin and Shaman files
+  hold window definitions only, except Assassin's passive `0x10010003`.
 
 ## Learning (skill master)
 
@@ -71,11 +72,13 @@ Rules in `SkillLearning` and `PlayerCharacter.ApplyProgression`; the command is 
 - The NPC must offer `NpcServiceKind.SkillMaster` and be within reach (`NpcServiceTransactions.CanReach`); the player
   must be alive. Opening the skill master opens the skill window in training mode
   (`HudSkillsPanel.HandleTrainingClick`).
-- Class tier `t` (0..3) opens window indices `< 4 (t + 1)`. A skill needs rank >= 1 in the window entry before it.
+- Class tier `t` (0..4) opens window indices `< 4 (t + 1)`. A skill needs rank >= 1 in the window entry before it.
 - Training from rank `r` to `r + 1` needs level `RequiredLevel + 2r`, rank < 10, ten mana entries, one point, money.
 - Price: `BasePrices[index] + RankPrices[index] x r`, both tables indexed by window position (500..40000 base).
-- Indices 0..11 spend skill points (one per even level from 10); indices 12..15 spend final-tier points
-  (`EliteSkillPoints`, one per even level from 60).
+- Indices 0..11 spend skill points (one per even level from 10); indices 12..19 (fourth and fifth tiers) share the
+  elite points (`EliteSkillPoints`, one per even level from 60).
+- The fifth tier's prices continue the table: base 50,000, 60,000, 70,000, 80,000, plus 10,000, 12,000, 14,000,
+  16,000 per current rank.
 - Ranks and use counters persist with the character (`CharacterStateCodec`); see [persistence.md](persistence.md).
 
 ## Class skill file format
@@ -96,7 +99,7 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
 | `code` | hex | Skill code (see identity). Non-zero |
 | `name`, `description` | string | Display text; `name` required |
 | `icon` | string | Skill-window button art key (`Skill.IconKey`) |
-| `tier` | `Job1`..`Job4` | Must equal the code's tier bit |
+| `tier` | `Job1`..`Job5` | Must equal the code's tier bit |
 | `category` | `SkillCategory` | `ActiveAttack`, `AreaAttack`, `MultiHit`, `Buff`, `Passive`, `Heal`, `Summon`, `Debuff`; tests require `Passive` iff `kind` is `Passive` |
 | `requiredLevel` | int >= 1 | Level for rank 1 (rank r+1: `+2r`); casting also needs it |
 | `mouse` | `Left`/`Right`/`Both`/`None` | Socket the skill may occupy; `None` is not castable (passives) |
@@ -257,7 +260,7 @@ Example (real entry, Mechanician window index 1):
 ## Shared formulas
 
 - Cooldown (`SkillFormulas.CooldownMs`): proficiency `P = min(min(talent / 3 + itemMastery, 50) x 100 + uses, 10000)`
-  (final-tier skills always 10000; `itemMastery` is the worn magic mastery, truncated); mastery `M = clamp(masteryBase + masteryPerRank x rank - P / 100, 1, 70)`;
+  (fourth- and fifth-tier skills always 10000, `IsFullyTrained`; `itemMastery` is the worn magic mastery, truncated); mastery `M = clamp(masteryBase + masteryPerRank x rank - P / 100, 1, 70)`;
   cooldown = `35 x max(1, 35 / max(1, 70 / M)) x 14 ms`, from 0.49 s to 17.15 s.
 - Proficiency (`UsesAfterCast`): every `CastsPerStep[windowIndex] + (rank - 1) / 3` casts add 100 uses (max 10000).
   The cast counter (`WorldPlayer.SkillCasts`) is per session; uses persist.
@@ -311,7 +314,7 @@ Cooldowns live in `WorldPlayer.Cooldowns` (not persisted); `Rebase` carries them
 ## Wire messages
 
 Etervale extension opcodes `SkillCast` (C→S), `SkillCastResult`, `SkillEvents`, `StatusEffects`, `SkillCooldowns`
-(S→C), plus `Skills` (learned ranks), `OwnerStatus` (final-tier points, class tier) and
+(S→C), plus `Skills` (learned ranks), `OwnerStatus` (elite points, class tier) and
 `ProgressionCommand`/`ProgressionResult`. Layouts, flags, phases and status ops are in [protocol.md](protocol.md).
 
 - The client sends only skill code, target id, its position and a command flag; the server re-derives everything.

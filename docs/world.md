@@ -525,7 +525,7 @@ Shop rules (`NpcShopRules`):
   `MoneyLimits.CarryLimit(level, tier)`.
 - Repair: `(price - worn) / 8` for items below max durability; requires gold strictly greater than the cost.
 - Carry limit: 200,000 up to level 10; tier 0 `max(200,000, level * 200,000 - 1,800,000)`; tier 1 10M; tier 2 50M;
-  higher 100M.
+  tier 3 500M; tier 4 700M.
 
 Warehouse (`WarehouseStorage`, one per account): 9×9 grid, at most 100 items, weight 1000, gold 100,000,000.
 `CanStore` keeps out what the original does: what `BoundItems.CanHandOver` refuses (the bound items and the SP1 and CH1

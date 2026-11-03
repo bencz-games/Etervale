@@ -12,7 +12,7 @@ public readonly record struct RequirementShift(ItemRange Strength, ItemRange Spi
 // clip ticks, and the damage motion's length in frames.
 public readonly record struct MotionFallback(uint AttackEventTicks, int DamageFrames, uint EatEventTicks);
 
-// What the rules know about one class beyond its definition: the titles of its four tiers, its fallback motion timing,
+// What the rules know about one class beyond its definition: the titles of its five tiers, its fallback motion timing,
 // the weapon it deals extra damage with (level / 6), the weapon it casts at range with, the requirement shift of items
 // specialised for it (none for the classes items are not rolled for yet), its quests' weapons, hunt and ring, its
 // realm (whose town it starts and stands up in) and whether its characters are female.

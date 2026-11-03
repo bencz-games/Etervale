@@ -9,10 +9,11 @@ using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
-// The original skill window and its text: Skil24.bmp, the titles and skills of the tiers the class has reached (later
-// tiers stay empty until the rank-up), skill buttons (gray "_" variant when unusable), rank gauges, F1-F8 short keys,
-// the selected-skill hover frame, the empty second page, and for a skill master's pupil the training box: the skill and
-// elite points left (or that there are none) and the class change button.
+// The original skill window and its text: Skil24.bmp with the titles and skills of the first four tiers the class has
+// reached (later tiers stay empty until the rank-up), Skil25.bmp with the fifth tier's title and skills on the first
+// tier's boxes, skill buttons (gray "_" variant when unusable), rank gauges, F1-F8 short keys, the selected-skill hover
+// frame, and for a skill master's pupil the training box: the skill and elite points left (or that there are none) and
+// the class change button.
 public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
 {
     private const int TooltipWidth = 260;
@@ -109,20 +110,15 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     // The basic attack or a learned active skill under the pointer, for selecting it into a mouse socket or a short key.
     public uint HoveredSkill(Point origin, Point pointer)
     {
-        if (_secondPage)
-        {
-            return 0;
-        }
-
         if (HudSkillTreeLayout.BasicAttack(origin).Contains(pointer))
         {
             return HudSkillBindings.BasicAttackId;
         }
 
-        for (var index = 0; index < Shown; index++)
+        for (var index = PageFirst; index < PageEnd; index++)
         {
             var entry = _entries[index];
-            if (entry.Skill.Code != 0 && entry.Rank > 0 && entry.Skill.MouseUse != SkillMouseUse.None && ClassRow(origin, index).Contains(pointer))
+            if (entry.Skill.Code != 0 && entry.Rank > 0 && entry.Skill.MouseUse != SkillMouseUse.None && Box(origin, index).Contains(pointer))
             {
                 return entry.Skill.Code;
             }
@@ -152,9 +148,9 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             return;
         }
 
-        for (var index = 0; index < (_secondPage ? 0 : Shown); index++)
+        for (var index = PageFirst; index < PageEnd; index++)
         {
-            if (!ClassRow(origin, index).Contains(pointer))
+            if (!Box(origin, index).Contains(pointer))
             {
                 continue;
             }
@@ -194,13 +190,34 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             return false;
         }
 
-        _secondPage = !_secondPage;
-        CancelTraining();
+        TurnPage();
         return true;
     }
 
+    // P turns the page once the class reached the fifth tier.
+    public void TurnPageByKey()
+    {
+        if (_shownTier >= PlayerCharacter.LastTier)
+        {
+            TurnPage();
+        }
+    }
+
+    private void TurnPage()
+    {
+        _secondPage = !_secondPage;
+        CancelTraining();
+    }
+
     // The skills the class tier has opened: the first tier's four, then four more with each rank-up.
-    private int Shown => Math.Min(Math.Min(_entries.Length, HudSkillTreeLayout.NodeCount), SkillLearning.OpenedBy(_shownTier));
+    private int Shown => Math.Min(_entries.Length, SkillLearning.OpenedBy(_shownTier));
+
+    // The first page holds the first four tiers' skills, the second the fifth tier's on the first tier's boxes.
+    private int PageFirst => _secondPage ? HudSkillTreeLayout.NodeCount : 0;
+
+    private int PageEnd => _secondPage ? Shown : Math.Min(Shown, HudSkillTreeLayout.NodeCount);
+
+    private Rectangle Box(Point origin, int index) => ClassRow(origin, index - PageFirst);
 
     public void Draw(HudPainter painter, Point origin, Point pointer, OwnerState state, HudSkillBindings bindings, ulong skillMaster, bool pressed,
         bool interactive)
@@ -218,36 +235,42 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
                 painter.Sprite(HudArt.SkillPageBack, back.X + 1, back.Y + 1);
             }
 
-            return;
+            if (_shownTier >= PlayerCharacter.LastTier)
+            {
+                var title = HudSkillTreeLayout.Title(origin, 0);
+                painter.Sprite(_titles[PlayerCharacter.LastTier], title.X, title.Y);
+            }
         }
-
-        painter.Sprite(HudArt.SkillWindow, origin.X, origin.Y + 400);
-        var forward = HudSkillTreeLayout.PageForward(origin);
-        if (interactive && forward.Contains(pointer))
+        else
         {
-            painter.Sprite(HudArt.SkillPageForward, forward.X + 1, forward.Y + 1);
+            painter.Sprite(HudArt.SkillWindow, origin.X, origin.Y + 400);
+            var forward = HudSkillTreeLayout.PageForward(origin);
+            if (interactive && forward.Contains(pointer))
+            {
+                painter.Sprite(HudArt.SkillPageForward, forward.X + 1, forward.Y + 1);
+            }
+
+            for (var tier = 0; tier <= Math.Min(_shownTier, PlayerCharacter.LastTier - 1); tier++)
+            {
+                var title = HudSkillTreeLayout.Title(origin, tier);
+                painter.Sprite(_titles[tier], title.X, title.Y);
+            }
         }
 
-        for (var tier = 0; tier <= Math.Min(_shownTier, PlayerCharacter.LastTier); tier++)
-        {
-            var title = HudSkillTreeLayout.Title(origin, tier);
-            painter.Sprite(_titles[tier], title.X, title.Y);
-        }
-
-        for (var index = 0; index < Shown; index++)
+        for (var index = PageFirst; index < PageEnd; index++)
         {
             var entry = _entries[index];
-            var node = ClassRow(origin, index);
+            var node = Box(origin, index);
             if (entry.Skill.Code != 0)
             {
                 // A pupil sees in colour what the master can teach now (a skill at rank 10 has nothing left to learn);
                 // elsewhere the learned skills are in colour.
                 var usable = skillMaster != 0 ? entry.Rank < SkillLearning.MaxRank && (entry.Rank > 0 || CanTrain(index, state)) : entry.Rank > 0;
                 painter.Sprite(usable ? entry.Button : entry.GrayButton, node.X, node.Y);
-                var mastery = HudSkillTreeLayout.MasteryGauge(origin, index);
+                var mastery = HudSkillTreeLayout.MasteryGauge(origin, index - PageFirst);
                 painter.Sprite(entry.Skill.MouseUse == SkillMouseUse.None ? HudArt.SkillGaugePassive : HudArt.SkillGaugeBack, mastery.X, mastery.Y);
 
-                var rank = HudSkillTreeLayout.RankGauge(origin, index);
+                var rank = HudSkillTreeLayout.RankGauge(origin, index - PageFirst);
                 var length = Math.Clamp(entry.Rank, 0, SkillLearning.MaxRank) * rank.Height / SkillLearning.MaxRank;
                 painter.Sprite(HudArt.SkillGauge, rank.X, rank.Bottom - length, new Rectangle(0, rank.Height - length, rank.Width, length));
                 DrawShortcut(painter, node, entry.Skill.Code, bindings);
@@ -303,7 +326,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     public void DrawMasterBox(HudPainter painter, OwnerState state, ulong skillMaster, bool classChangeOffered)
     {
         MasterBoxShown = false;
-        if (skillMaster == 0 || state is null || _trainingIndex >= 0 || _secondPage)
+        if (skillMaster == 0 || state is null || _trainingIndex >= 0)
         {
             return;
         }

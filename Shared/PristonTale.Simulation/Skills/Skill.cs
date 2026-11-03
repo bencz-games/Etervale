@@ -17,7 +17,8 @@ public enum JobTier
     Job1 = 0x1,
     Job2 = 0x2,
     Job3 = 0x4,
-    Job4 = 0x8
+    Job4 = 0x8,
+    Job5 = 0x10
 }
 
 public enum SkillCategory

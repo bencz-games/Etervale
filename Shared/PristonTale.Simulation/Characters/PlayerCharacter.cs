@@ -42,12 +42,13 @@ public sealed partial class PlayerCharacter
     public int EliteSkillPoints { get; private set; }
     public short Tier { get; private set; }
 
-    // The class's tiers run from 0 to LastTier (each rank-up moves one up). Below the last, experience stops at the start
-    // of CappedLevel: an award that would pass it is discarded whole.
-    public const int LastTier = 3;
+    // The class's tiers run from 0 to LastTier (each rank-up moves one up). Below UncappedTier, experience stops at the
+    // start of CappedLevel: an award that would pass it is discarded whole.
+    public const int LastTier = 4;
+    public const int UncappedTier = 3;
     private const int CappedLevel = 100;
 
-    public ulong ExperienceLimit => Tier < LastTier ? ExperienceTable.ForLevel(CappedLevel) : ExperienceTable.Ceiling;
+    public ulong ExperienceLimit => Tier < UncappedTier ? ExperienceTable.ForLevel(CappedLevel) : ExperienceTable.Ceiling;
 
     public int StarterGiftsReceived { get; private set; } = StarterGifts.Count;
 
@@ -701,13 +702,13 @@ public sealed partial class PlayerCharacter
                 break;
             case ProgressionAction.LearnSkill:
                 if (command.Amount != 0 || command.Attribute != CharacterAttribute.Strength || command.NpcEntityId == 0
-                    || !SkillLearning.TryQuote(this, command.SkillCode, out var price, out var finalTier))
+                    || !SkillLearning.TryQuote(this, command.SkillCode, out var price, out var elite))
                 {
                     return false;
                 }
 
                 Money -= price;
-                if (finalTier)
+                if (elite)
                 {
                     EliteSkillPoints--;
                 }
@@ -763,14 +764,14 @@ public sealed partial class PlayerCharacter
     }
 
     // The free redistribution a rank-up offers: every learned rank returns to its pool (the first twelve window skills to
-    // the skill points, the final tier's to its own points) and the proficiency is forgotten.
+    // the skill points, the fourth and fifth tiers' to the elite points) and the proficiency is forgotten.
     public void ResetLearnedSkills()
     {
         var skills = Class.Skills;
         for (var index = 0; index < skills.Count; index++)
         {
             var rank = Skills.RankOf(skills[index].Code);
-            if (SkillLearning.UsesFinalTierPoints(index))
+            if (SkillLearning.UsesElitePoints(index))
             {
                 EliteSkillPoints += rank;
             }

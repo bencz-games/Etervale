@@ -8,7 +8,7 @@ namespace PristonTale.Simulation.Characters.Classes;
 public sealed class ArcherClass : CharacterClass
 {
     public static readonly ClassProfile Profile = new(
-        ["Archer", "Huntress Master", "Dion's Disciple", "Sagittarion"],
+        ["Archer", "Huntress Master", "Dion's Disciple", "Sagittarion", "Iskar"],
         new MotionFallback(3200, 24, 2400),
         static weapon => weapon.Definition.Kind == ItemKind.Bow,
         CastingWeapon: null,

@@ -36,7 +36,7 @@ that explains it in depth.
 | Function profile | Per-class selectors choosing which derived-stat formula a class uses | simulation.md |
 | Brood (character) | A class's race: Tempskron or Morion (`CharacterBrood`) | simulation.md |
 | Brood (monster) | Monster family: Normal, Undead, Mutant, Demon, Mechanic, User (`MonsterBrood`); used by skill bonuses and filters | skills.md |
-| Tier / job tier | Class rank 0..3 (`Job1`..`Job4`); opens skill-window rows; below tier 3 experience stops at level 100 | simulation.md |
+| Tier / job tier | Class rank 0..4 (`Job1`..`Job5`); opens skill-window rows; below tier 3 experience stops at level 100 | simulation.md |
 | JobBitCode | Class bit mask for item restrictions; mapped from `PlayerClass` by `JobBits`; differs from `MotionJobMask` (`1 << (Class-1)`) used by animation tables | simulation.md |
 | Catalog key | 5-character authored item key, 3-character category + 2 digits (`WA101`) | simulation.md |
 | Entity id | 64-bit id of a player, monster or NPC in the world; the wire, the views and the client use it (`EntityId`, `NpcId`, `TargetId`) | protocol.md |

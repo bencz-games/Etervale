@@ -1,4 +1,4 @@
-// Shaman skills, tiers 1 to 4 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
+// Shaman skills, tiers 1 to 5 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
 [
     { "code": "0x50010001", "name": "Dark Bolt", "tier": "Job1", "category": "ActiveAttack", "icon": "MS10 Darkbolt",
       "description": "Hits the enemy with an almighty bolt of dark magic created with sorcery", "requiredLevel": 10, "mouse": "Both",
@@ -23,5 +23,9 @@
     { "code": "0x50080001", "name": "Recall Hestian", "tier": "Job4", "category": "Summon", "icon": "MS60 R_Knight", "requiredLevel": 59 },
     { "code": "0x50080002", "name": "Judgement", "tier": "Job4", "category": "ActiveAttack", "icon": "MS63 Judge", "requiredLevel": 59 },
     { "code": "0x50080003", "name": "Advent Midranda", "tier": "Job4", "category": "Buff", "icon": "MS66 A_Midranda", "requiredLevel": 59 },
-    { "code": "0x50080004", "name": "Mourning Pray", "tier": "Job4", "category": "Buff", "icon": "MS70 M_pray", "requiredLevel": 59 }
+    { "code": "0x50080004", "name": "Mourning Pray", "tier": "Job4", "category": "Buff", "icon": "MS70 M_pray", "requiredLevel": 59 },
+    { "code": "0x50100001", "name": "Creed", "tier": "Job5", "category": "Buff", "icon": "MS80 Creed", "description": "By the use of powerful sorcery, grants the user extra mana.", "requiredLevel": 80, "mouse": "Right", "mana": [105, 110, 115, 120, 125, 130, 135, 140, 145, 150], "stamina": [43, 1], "weapons": ["Phantom"]},
+    { "code": "0x50100002", "name": "Press Of Deity", "tier": "Job5", "category": "AreaAttack", "icon": "MS83 P_Deity", "description": "Deal cursed damage to nearby enemies.", "requiredLevel": 83, "mouse": "Right", "mana": [120, 125, 130, 135, 140, 145, 150, 155, 160, 165], "stamina": [45, 2], "weapons": ["Phantom"]},
+    { "code": "0x50100003", "name": "Ghostly Nail", "tier": "Job5", "category": "ActiveAttack", "icon": "MS86 G_Nail", "description": "Call upon the spirits of the earth to attack the enemy.", "requiredLevel": 86, "mouse": "Right", "mana": [152, 156, 160, 164, 168, 172, 176, 180, 184, 188], "stamina": [54, 2], "weapons": ["Phantom"]},
+    { "code": "0x50100004", "name": "High Regeneration", "tier": "Job5", "category": "Passive", "icon": "MS90 H_Regene", "description": "Increase life permanently with the power of sorcery.", "requiredLevel": 90, "mouse": "None", "mana": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "stamina": [0, 0], "weapons": []}
 ]

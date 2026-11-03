@@ -541,10 +541,12 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   training mode (the server refuses another town's master: Ricarten trains the Tempskron, Pillai the Morion); the aging
   NPC also keeps its quest role (the rank-up brew). An NPC with a quest role also gets a quest `Talk`
   (`HudQuestController`); a quest dialog it answers with takes the help box, and its confirmation box is modal.
-- Skill window (`HudSkillsPanel`, `Skil24.bmp`): the titles and skills of the tiers the class has reached only (4, 8,
-  12 or 16 skills; later tiers stay empty frames until the rank-up), the learned skills in colour; in training mode the
-  skills the master can teach now in colour and a skill at rank 10 gray. The arrows at (765, 482) and (12, 482) turn to
-  the empty second page (`Skil25.bmp`, a fifth tier this version has no skills for) and back.
+- Skill window (`HudSkillsPanel`, `Skil24.bmp`): the titles and skills of the first four tiers the class has reached
+  only (4, 8, 12 or 16 skills; later tiers stay empty frames until the rank-up), the learned skills in colour; in
+  training mode the skills the master can teach now in colour and a skill at rank 10 gray. The arrows at (765, 482) and
+  (12, 482), or `P` once the class reached the fifth tier, turn to the second page (`Skil25.bmp`) and back: the fifth
+  tier's title on the first title's place and its four skills (window indices 16-19) on the first tier's boxes, with
+  the basic attack, the points and the training box as on the first page.
 - Training box (`HudSkillsPanel.DrawMasterBox`): while a skill master trains the pupil (no skill being confirmed), the
   item-info frame of 13 by 21 tiles stands at (90, 100) of the screen's top left (`HudSkillTreeLayout.MasterBox`):
   "Train Skill/Magic", then "Select a Skill or Magic / To learn or train" with the skill points (pale yellow) and elite

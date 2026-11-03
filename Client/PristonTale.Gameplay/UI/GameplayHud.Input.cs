@@ -110,6 +110,11 @@ public sealed partial class GameplayHud
             _inventory.ToggleBagPage();
         }
 
+        if (Pressed(keyboard, Keys.P) && _skillSlide.Open)
+        {
+            _skills.TurnPageByKey();
+        }
+
         if (Pressed(keyboard, Keys.W))
         {
             _inventory.ToggleWeaponPair();

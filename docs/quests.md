@@ -64,7 +64,7 @@ quest data the importer reads, and the client's quest dialog, quest window, clas
   (`QuestItems.IsQuestDrop`) are taken out of the kill's loot and queued as `PendingQuestDrop`s for the credited
   player. The main drop table gives quest items only to first-tier characters (and the vamp to the second tier); bonus
   drops and the monster's event item pass. A drop is stored only while a running quest wants it, one copy at a time
-  (`QuestDrops.Accepts`). The royal amulet event item drops 21 times in 100 and only below the final tier. Granted
+  (`QuestDrops.Accepts`). The royal amulet event item drops 21 times in 100 and only below the fourth tier (tier 3). Granted
   items reach the character through `PlayerCharacter.TryReceive`, so quest items land in the special item box
   (`QuestItemBox`); quests count and remove them there and on both bag pages.
 - Dialogs name a document; the client shows `image/Sinimage/Quest/<document>.sin`. `QuestFollowup` says what OK does:
@@ -99,7 +99,7 @@ quest data the importer reads, and the client's quest dialog, quest window, clas
 
 ### Rank-ups and the class tier
 
-The class tier (0..3) advances only in `RankUpRules.RankUp`. The class-change button of the training box a home-town
+The class tier (0..4) advances only in `RankUpRules.RankUp`; the fifth tier (4) has no rank-up quest yet. The class-change button of the training box a home-town
 skill master opens with the skill window (`QuestAction.ChangeClass`), opens the next rank-up quest when the master is in the class's home town, its class-change
 group is 1 (first rank-up only) or 2 and above (all three), the level is reached (20, 40, 60) and every skill the
 current tier opened has a rank.

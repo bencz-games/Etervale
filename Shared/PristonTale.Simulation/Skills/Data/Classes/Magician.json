@@ -1,4 +1,4 @@
-// Magician skills, tiers 1 to 4 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
+// Magician skills, tiers 1 to 5 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
 [
   {
     "code": "0x08010001", "name": "Agony", "tier": "Job1", "category": "Buff", "icon": "MM10 Agony",
@@ -197,5 +197,9 @@
       "noCritical": true, "spellPower": true },
     "motionIndex": 72, "motionFrames": 66, "motionEvents": [42], "endHit": true,
     "castEffect": "vfx.magician.castcircle", "impactEffect": "vfx.magician.meteo.fall", "castSound": "wav/Effects/Skill/Morion/Casting_M.wav",
-      "impactEffects": ["vfx.magician.meteo.fall", "-"], "impactSounds": ["wav/Effects/Skill/Morion/Meteo 01.wav", "-"] }
+      "impactEffects": ["vfx.magician.meteo.fall", "-"], "impactSounds": ["wav/Effects/Skill/Morion/Meteo 01.wav", "-"] },
+    { "code": "0x08100001", "name": "Silraphim", "tier": "Job5", "category": "AreaAttack", "icon": "MM80 Silraphim", "description": "Use the power of Silraphim to attack nearby enemies.", "requiredLevel": 80, "mouse": "Right", "mana": [120, 125, 130, 135, 140, 145, 150, 155, 160, 165], "stamina": [45, 2], "weapons": ["Staff"]},
+    { "code": "0x08100002", "name": "Vis Tenus", "tier": "Job5", "category": "Debuff", "icon": "MM83 V_Tenus", "description": "Shrink the enemy, reducing their HP and damage.", "requiredLevel": 83, "mouse": "Right", "mana": [135, 139, 143, 147, 151, 155, 159, 163, 167, 171], "stamina": [50, 2], "weapons": ["Staff"]},
+    { "code": "0x08100003", "name": "Prima Ignis", "tier": "Job5", "category": "ActiveAttack", "icon": "MM86 P_Ignis", "description": "Conjure a primal fireball for a powerful attack.", "requiredLevel": 86, "mouse": "Right", "mana": [152, 156, 160, 164, 168, 172, 176, 180, 184, 188], "stamina": [54, 2], "weapons": ["Staff"]},
+    { "code": "0x08100004", "name": "Third Anima", "tier": "Job5", "category": "Buff", "icon": "MM90 T_Anima", "description": "Decreases your Max MP to increase magical power.", "requiredLevel": 90, "mouse": "Right", "mana": [166, 170, 174, 178, 182, 186, 190, 194, 198, 202], "stamina": [60, 2], "weapons": ["Staff"]}
 ]

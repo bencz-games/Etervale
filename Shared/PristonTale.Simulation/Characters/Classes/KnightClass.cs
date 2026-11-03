@@ -8,7 +8,7 @@ namespace PristonTale.Simulation.Characters.Classes;
 public sealed class KnightClass : CharacterClass
 {
     public static readonly ClassProfile Profile = new(
-        ["Knight", "Paladin", "Holy Knight", "SaintKnight"],
+        ["Knight", "Paladin", "Holy Knight", "SaintKnight", "Valiant"],
         new MotionFallback(3520, 22, 2880),
         static weapon => weapon.Definition.Kind == ItemKind.Sword,
         CastingWeapon: null,

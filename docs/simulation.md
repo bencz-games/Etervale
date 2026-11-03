@@ -128,10 +128,12 @@ The class also loads its skill window from `ClassSkillCatalog.For(class)` (see [
   `CharacterClassDef.MotionJobMask = 1 << (Class - 1)` is used for animation tables. Do not mix them. A class's
   `JobBitCode` comes from `JobBits.Of`; nothing else maps a class to its bit.
 - `GrowthPerLevel` is empty for every class: attributes grow only through allocated status points (5 per level).
-- `Tier` (0..3) is the class rank. It opens skill-window rows, selects head models (`CharacterHead`) and gates
-  experience above level 100. Nothing in this project changes it; it is restored from persistence.
+- `Tier` (0..4, `PlayerCharacter.LastTier`) is the class rank. It opens skill-window rows, selects head models
+  (`CharacterHead`) and gates experience above level 100 (below `UncappedTier` 3). It changes only through the rank-up
+  quests (see [quests.md](quests.md)).
 - Head models: `CharacterHead.Resolve` builds `char/tmABCD/<prefix><variant 01..13><suffix>.inx` from the per-class,
-  per-tier pattern in `CharacterHeadModels`. Assassin and Shaman tiers 1-3 have only the three creation faces;
+  per-tier pattern in `CharacterHeadModels` (the fifth tier's heads end in `d`; the Priestess's 6 to 9 are spelled
+  `006`..`009`). Assassin and Shaman tiers 1-4 have only the three creation faces;
   `Apply` falls back to the face index instead of inventing a file name.
 
 ## Character aggregate
@@ -141,7 +143,7 @@ a transaction candidate) is the only writer.
 
 | Member group | Contract |
 | --- | --- |
-| `Level`, `Experience`, `Money`, point counters, `Tier` | Loaded by `RestoreProgress` (non-negative, tier 0..3) |
+| `Level`, `Experience`, `Money`, point counters, `Tier` | Loaded by `RestoreProgress` (non-negative, tier 0..4) |
 | `Life`, `Mana`, `Stamina` | Plain settable pools; clamped to maxima by every recompute and by `Equip` |
 | `Attributes` | Base plus allocated points; equipment never changes them |
 | `Derived` | Cached `DerivedStats`; reading it recomputes when `Effects.Revision` changed |
@@ -499,9 +501,10 @@ totals.
 - `LevelUp`: +5 status points; +1 skill point at even levels from 10; +1 final-tier (elite) point at even levels from
   60; pools refilled; `OnLevelUp` and `LeveledUp` raised.
 - `TryAllocateAttribute` spends status points one attribute at a time (overflow-checked).
-- `SkillLearning` (skill master): the class window has 16 skills in order; tier `t` opens the first `4 * (t + 1)`.
-  A skill trains when it has ten ranks of costs, rank < 10, its point kind is available (indices 12-15 spend elite
-  points, the rest skill points), `level >= RequiredLevel + 2 * rank`, and the previous window skill has a rank.
+- `SkillLearning` (skill master): the class window has 20 skills in order; tier `t` opens the first `4 * (t + 1)`.
+  A skill trains when it has ten ranks of costs, rank < 10, its point kind is available (indices 12-19, the fourth and
+  fifth tiers, share the elite points, the rest spend skill points), `level >= RequiredLevel + 2 * rank`, and the
+  previous window skill has a rank.
   Price = `BasePrices[index] + RankPrices[index] * currentRank`. `ApplyProgression` requires a non-zero
   `NpcEntityId`; proximity to the master is checked by the Application.
 

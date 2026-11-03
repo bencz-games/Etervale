@@ -157,7 +157,8 @@ internal static class NpcServiceTests
         Assert.True(NpcShopRules.WornValue(60, 0, 36) == 16, "zero durability must count as one");
         var potions = new ItemInstance(Potion() with { MaxStack = 20 }, 7);
         Assert.True(NpcShopRules.SellPrice(potions, 7) == 35 && NpcShopRules.SellPrice(potions, 3) == 15, "stack sell price differs");
-        Assert.True(MoneyLimits.CarryLimit(5, 0) == 200_000 && MoneyLimits.CarryLimit(20, 0) == 2_200_000 && MoneyLimits.CarryLimit(80, 3) == 100_000_000,
+        Assert.True(MoneyLimits.CarryLimit(5, 0) == 200_000 && MoneyLimits.CarryLimit(20, 0) == 2_200_000 && MoneyLimits.CarryLimit(80, 3) == 500_000_000
+            && MoneyLimits.CarryLimit(90, 4) == 700_000_000,
             "carry limit differs");
 
         var character = new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Rules");

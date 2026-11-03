@@ -8,7 +8,7 @@ namespace PristonTale.Simulation.Characters.Classes;
 public sealed class MagicianClass : CharacterClass
 {
     public static readonly ClassProfile Profile = new(
-        ["Magician", "Wizard", "RoyalWizard", "ArchMage"],
+        ["Magician", "Wizard", "RoyalWizard", "ArchMage", "Elemental Master"],
         new MotionFallback(3360, 22, 3040),
         static weapon => weapon.Definition.Kind == ItemKind.Staff,
         CastingWeapon: ItemKind.Staff,

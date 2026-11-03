@@ -8,7 +8,7 @@ namespace PristonTale.Simulation.Characters.Classes;
 public sealed class AtalantaClass : CharacterClass
 {
     public static readonly ClassProfile Profile = new(
-        ["Atalanta", "Valkyrie", "Brunhild", "Valhalla"],
+        ["Atalanta", "Valkyrie", "Brunhild", "Valhalla", "Queen of Valhalla"],
         new MotionFallback(3200, 24, 2400),
         static weapon => weapon.Definition.Kind == ItemKind.ThrowingWeapon,
         CastingWeapon: null,

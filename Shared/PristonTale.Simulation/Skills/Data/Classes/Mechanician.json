@@ -1,4 +1,4 @@
-// Mechanician skills, tiers 1 to 4 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
+// Mechanician skills, tiers 1 to 5 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
 [
     { "code": "0x01010001", "name": "Extreme Shield", "tier": "Job1", "category": "Buff", "icon": "TM10 Ex_shield",
       "description": "Temporarily increases block rating of the current shield", "requiredLevel": 10, "mouse": "Right",
@@ -148,5 +148,9 @@
         "defence": [355, 400, 445, 490, 535, 580, 625, 670, 715, 760], "life": [4100, 4300, 4500, 4700, 4900, 5100, 5300, 5500, 5700, 5900],
         "lifePerStrength": 2, "scaleBase": 256, "scalePerRank": 15, "aggressive": true },
       "motionIndex": 88, "motionFrames": 60, "motionEvents": [48], "motionSpeed": 80, "impactEffect": "vfx.mech.metalgolem.cast",
-      "castSound": "wav/Effects/Skill/Tempskron/MetalGolem 01.wav", "keepIcon": "Mc4_M_GOLEM" }
+      "castSound": "wav/Effects/Skill/Tempskron/MetalGolem 01.wav", "keepIcon": "Mc4_M_GOLEM" },
+    { "code": "0x01100001", "name": "Land Mining", "tier": "Job5", "category": "AreaAttack", "icon": "TM80 landminning", "description": "Quickly land mines nearby to hit enemies within range.", "requiredLevel": 80, "mouse": "Right", "mana": [55, 58, 61, 64, 67, 70, 73, 76, 79, 82], "stamina": [65, 2], "weapons": ["Axe", "Claw", "Hammer", "Pole", "Sword"]},
+    { "code": "0x01100002", "name": "Hyper Sonic", "tier": "Job5", "category": "Buff", "icon": "TM83 H_Sonic", "description": "Increase attack speed temporarily.", "requiredLevel": 83, "mouse": "Right", "mana": [80, 85, 90, 95, 100, 105, 110, 115, 120, 125], "stamina": [90, 2], "weapons": ["Axe", "Claw", "Hammer", "Pole", "Sword", "Bow", "ThrowingWeapon"]},
+    { "code": "0x01100003", "name": "Rolling Smash", "tier": "Job5", "category": "MultiHit", "icon": "TM86 R_Smash", "description": "4 strong attacks dealing fatal damage.", "requiredLevel": 86, "mouse": "Right", "mana": [60, 63, 66, 69, 72, 75, 78, 81, 84, 87], "stamina": [71, 2], "weapons": ["Axe", "Claw", "Hammer", "Pole", "Sword"]},
+    { "code": "0x01100004", "name": "Power Enhancement", "tier": "Job5", "category": "Buff", "icon": "TM90 P_Enhence", "description": "Increase the min/max attack power of yourself and Max attack for party.", "requiredLevel": 90, "mouse": "Right", "mana": [85, 90, 95, 100, 105, 110, 115, 120, 125, 130], "stamina": [95, 2], "weapons": ["Axe", "Claw", "Hammer", "Pole", "Sword", "Bow", "ThrowingWeapon"]}
 ]

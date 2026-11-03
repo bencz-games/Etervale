@@ -1,4 +1,4 @@
-// Fighter skills, tiers 1 to 4 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
+// Fighter skills, tiers 1 to 5 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
 [
     { "code": "0x02010001", "name": "Melee Mastery", "tier": "Job1", "category": "Passive", "icon": "TF10 M_mastery",
       "description": "Increases efficiency in melee weapons, increasing Attack Power permanently", "requiredLevel": 10, "mouse": "None",
@@ -118,5 +118,9 @@
       "impactEffect": "vfx.fighter.cyclone.hit", "castSound": "wav/Effects/Skill/Tempskron/CycloneStrike 01.wav" },
     { "code": "0x02080004", "name": "Boost Health", "tier": "Job4", "category": "Passive", "icon": "TF70 B_Health",
       "description": "It increases HP permanently.", "requiredLevel": 70, "mouse": "None", "mana": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "stamina": [0, 0],
-      "weapons": [], "kind": "Passive", "target": "None", "passive": {"effect": "MaxLife", "values": [10, 20, 30, 40, 50, 70, 90, 110, 130, 150]} }
+      "weapons": [], "kind": "Passive", "target": "None", "passive": {"effect": "MaxLife", "values": [10, 20, 30, 40, 50, 70, 90, 110, 130, 150]} },
+    { "code": "0x02100001", "name": "Down Hit", "tier": "Job5", "category": "MultiHit", "icon": "TF80 D_Hit", "description": "Launch an enemy into the air, attacking 3 times.", "requiredLevel": 80, "mouse": "Right", "mana": [58, 61, 64, 67, 70, 73, 76, 79, 82, 85], "stamina": [68, 2], "weapons": ["Axe", "Hammer", "Pole", "Sword"]},
+    { "code": "0x02100002", "name": "Power Dash", "tier": "Job5", "category": "AreaAttack", "icon": "TF83 P_Dash", "description": "Run to the opponent and turn into Stun status.", "requiredLevel": 83, "mouse": "Right", "mana": [70, 75, 80, 85, 90, 95, 100, 105, 110, 115], "stamina": [81, 2], "weapons": ["Axe", "Hammer", "Sword"]},
+    { "code": "0x02100003", "name": "Mortal Blow", "tier": "Job5", "category": "AreaAttack", "icon": "TF86 M_Blow", "description": "Twist your weapon around in slow, powerful motions.", "requiredLevel": 86, "mouse": "Right", "mana": [63, 66, 69, 72, 75, 78, 81, 84, 87, 90], "stamina": [70, 2], "weapons": ["Axe", "Hammer"]},
+    { "code": "0x02100004", "name": "Bloody Berserker", "tier": "Job5", "category": "Buff", "icon": "TF90 B_Berserker", "description": "Reduce absorbtion to increase attack damage.", "requiredLevel": 90, "mouse": "Right", "mana": [86, 90, 94, 98, 102, 106, 110, 114, 118, 122], "stamina": [93, 2], "weapons": []}
 ]

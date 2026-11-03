@@ -38,18 +38,18 @@ public static partial class SkillFormulas
             return 0;
         }
 
-        // Final-tier skills have no proficiency to train: they always count as fully trained.
-        var proficiency = IsFinalTier(rule.Code) ? LearnedSkills.MaxUses : Math.Min(LearnedSkills.MaxUses, Math.Min(talent / 3 + itemMastery, 50) * 100 + Math.Max(0, uses));
+        // Fourth- and fifth-tier skills have no proficiency to train: they always count as fully trained.
+        var proficiency = IsFullyTrained(rule.Code) ? LearnedSkills.MaxUses : Math.Min(LearnedSkills.MaxUses, Math.Min(talent / 3 + itemMastery, 50) * 100 + Math.Max(0, uses));
         var mastery = Math.Clamp(rule.MasteryBase + rule.MasteryPerRank * rank - proficiency / 100, 1, 70);
         var step = Math.Max(1, 70 / mastery);
         var ticksPerStep = Math.Max(1, Gauge / step);
         return Gauge * ticksPerStep * CooldownTickMs;
     }
 
-    public static bool IsFinalTier(uint code) => (code >> 16 & 0xFF) == (uint)JobTier.Job4;
+    public static bool IsFullyTrained(uint code) => (code >> 16 & 0xFF) is (uint)JobTier.Job4 or (uint)JobTier.Job5;
 
     // Casts per proficiency step by skill-window position; higher ranks need one more cast every three ranks.
-    private static ReadOnlySpan<int> CastsPerStep => [5, 5, 5, 5, 7, 7, 7, 7, 9, 9, 9, 9, 14, 15, 16, 17];
+    private static ReadOnlySpan<int> CastsPerStep => [5, 5, 5, 5, 7, 7, 7, 7, 9, 9, 9, 9, 14, 15, 16, 17, 18, 19, 20, 21];
 
     // Every completed streak of casts adds 100 to the skill's proficiency (one mastery unit), as the original use counter.
     public static int UsesAfterCast(int uses, int casts, int windowIndex, int rank)

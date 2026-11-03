@@ -1,4 +1,4 @@
-// Priestess skills, tiers 1 to 4 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
+// Priestess skills, tiers 1 to 5 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
 [
   {
     "code": "0x07010001", "name": "Healing", "tier": "Job1", "category": "Heal", "icon": "MP10 Healing",
@@ -199,5 +199,9 @@
     "castEffect": "vfx.priestess.muspell.cast", "buffEffect": "vfx.priestess.muspell.spirit", "impactEffect": "vfx.priestess.muspell.strike",
     "castSound": "wav/Effects/Skill/Morion/Muspell 01.wav", "impactSound": "wav/Effects/Skill/Morion/DancingSword_atk_1.wav",
     "keepIcon": "Pr4_S_MUSPELL"
-  }
+  },
+    { "code": "0x07100001", "name": "Spirit Impact", "tier": "Job5", "category": "AreaAttack", "icon": "MP80 S_Impact", "description": "Release a powerful shockwave attack at nearby enemies.", "requiredLevel": 80, "mouse": "Right", "mana": [120, 125, 130, 135, 140, 145, 150, 155, 160, 165], "stamina": [45, 2], "weapons": ["Staff"]},
+    { "code": "0x07100002", "name": "Piercing Ice", "tier": "Job5", "category": "ActiveAttack", "icon": "MP83 P_Ice", "description": "Summon a sharp ice spear to attack the enemy.", "requiredLevel": 83, "mouse": "Right", "mana": [135, 139, 143, 147, 151, 155, 159, 163, 167, 171], "stamina": [50, 2], "weapons": ["Staff"]},
+    { "code": "0x07100003", "name": "Summon Ramiel", "tier": "Job5", "category": "Summon", "icon": "MP86 S_Ramiel", "description": "Summons an angel with a propensity to lighting attack properties.", "requiredLevel": 86, "mouse": "Right", "mana": [152, 156, 160, 164, 168, 172, 176, 180, 184, 188], "stamina": [54, 2], "weapons": ["Staff"]},
+    { "code": "0x07100004", "name": "Blessing Krishna", "tier": "Job5", "category": "Buff", "icon": "MP90 B_Krishna", "description": "Increases the defensive strength and absorption power of yourself with the grace of god.", "requiredLevel": 90, "mouse": "Right", "mana": [166, 170, 174, 178, 182, 186, 190, 194, 198, 202], "stamina": [60, 2], "weapons": ["Staff"]}
 ]

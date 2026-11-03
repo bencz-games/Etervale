@@ -1,4 +1,4 @@
-// Pikeman skills, tiers 1 to 4 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
+// Pikeman skills, tiers 1 to 5 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
 [
     { "code": "0x03010001", "name": "Pike Wind", "tier": "Job1", "category": "AreaAttack", "icon": "TP10 P_wind",
       "description": "Creates a whirlwind to push back and damage enemies", "requiredLevel": 10, "mouse": "Right",
@@ -138,5 +138,9 @@
         [1, 4, 21, 39, 57, 83, 84] ],
       "motionIndex": 88, "motionFrames": 118, "motionEvents": [4, 21, 39, 57], "motionSpeed": 90,
       "impactEffect": "vfx.pike.shadowmaster.hit", "impactSound": "wav/Effects/Skill/Tempskron/ShadowStrike 01.wav",
-      "afterimages": 6, "impactSoundOrder": "Random", "impactSounds": ["wav/Effects/Skill/Tempskron/ShadowStrike 01.wav", "wav/Effects/Skill/Tempskron/ShadowStrike 02.wav", "wav/Effects/Skill/Tempskron/ShadowStrike 03.wav"] }
+      "afterimages": 6, "impactSoundOrder": "Random", "impactSounds": ["wav/Effects/Skill/Tempskron/ShadowStrike 01.wav", "wav/Effects/Skill/Tempskron/ShadowStrike 02.wav", "wav/Effects/Skill/Tempskron/ShadowStrike 03.wav"] },
+    { "code": "0x03100001", "name": "Dancing Reaper", "tier": "Job5", "category": "ActiveAttack", "icon": "TP80 D_Reaper", "description": "Spin in the air vertically, landing a powerful attack.", "requiredLevel": 80, "mouse": "Right", "mana": [58, 61, 64, 67, 70, 73, 76, 79, 82, 85], "stamina": [75, 2], "weapons": ["Claw", "Pole", "Sword"]},
+    { "code": "0x03100002", "name": "Final Spear", "tier": "Job5", "category": "AreaAttack", "icon": "TP83 F_Spear", "description": "Big spears pop up from the ground to attack enemies.", "requiredLevel": 83, "mouse": "Right", "mana": [63, 66, 69, 72, 75, 78, 81, 84, 87, 90], "stamina": [70, 2], "weapons": ["Pole"]},
+    { "code": "0x03100003", "name": "Amplified", "tier": "Job5", "category": "Buff", "icon": "TP86 Amplified", "description": "Decrease absorption to increase damage and accuracy.", "requiredLevel": 86, "mouse": "Right", "mana": [86, 90, 94, 98, 102, 106, 110, 114, 118, 122], "stamina": [93, 2], "weapons": ["Pole", "Sword"]},
+    { "code": "0x03100004", "name": "Side Spin Attack", "tier": "Job5", "category": "AreaAttack", "icon": "TP90 SS_Attack", "description": "Twirl around you to attack, stealing their health.", "requiredLevel": 90, "mouse": "Right", "mana": [70, 75, 80, 85, 90, 95, 100, 105, 110, 115], "stamina": [81, 2], "weapons": ["Pole", "Sword"]}
 ]

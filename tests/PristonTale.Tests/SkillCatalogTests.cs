@@ -30,10 +30,10 @@ internal static class SkillCatalogTests
         var total = 0;
         foreach (var playerClass in Morion)
         {
-            var skills = classes.Get(playerClass).Skills;
-            Assert.True(skills.Count == 16, $"{playerClass} does not list sixteen skills from its class file");
+            var skills = classes.Get(playerClass).Skills.Take(16).ToArray();
+            Assert.True(classes.Get(playerClass).Skills.Count == 20, $"{playerClass} does not list twenty skills from its class file");
             var group = (uint)skills[0].Code & 0xFF000000u;
-            for (var index = 0; index < skills.Count; index++)
+            for (var index = 0; index < skills.Length; index++)
             {
                 var skill = skills[index];
                 var tier = index / 4;

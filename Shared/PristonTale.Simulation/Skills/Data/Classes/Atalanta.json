@@ -1,4 +1,4 @@
-// Atalanta skills, tiers 1 to 4 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
+// Atalanta skills, tiers 1 to 5 in skill-window order. Format: Shared/PristonTale.Simulation/Skills/ClassSkillCatalog.cs.
 [
   {
     "code": "0x06010001", "name": "Shield Strike", "tier": "Job1", "category": "AreaAttack", "icon": "MA10 S_Strike",
@@ -185,5 +185,9 @@
     "damage": { "percent": [10, 20, 30, 40, 50, 60, 70, 80, 90, 100] },
     "motionIndex": 85, "motionFrames": 40, "motionEvents": [14, 30], "motionSpeed": 80, "projectile": true,
     "castEffect": "vfx.atalanta.vengeance.cast",
-      "impactSounds": ["wav/Effects/Skill/Morion/Vengeance 01.wav", "wav/Effects/Skill/Morion/Vengeance 02.wav"] }
+      "impactSounds": ["wav/Effects/Skill/Morion/Vengeance 01.wav", "wav/Effects/Skill/Morion/Vengeance 02.wav"] },
+    { "code": "0x06100001", "name": "Talaria", "tier": "Job5", "category": "Buff", "icon": "MA80 Talaria", "description": "Makes your body light and move fast.", "requiredLevel": 80, "mouse": "Right", "mana": [55, 57, 59, 62, 65, 68, 72, 76, 80, 84], "stamina": [68, 2], "weapons": ["Axe", "Claw", "Hammer", "Pole", "Bow", "ThrowingWeapon"]},
+    { "code": "0x06100002", "name": "Galaxy Coup", "tier": "Job5", "category": "AreaAttack", "icon": "MA83 G_Coup", "description": "Summoning the javelin that aims enemy's heart with Valhala energy and nail it down to the ground.", "requiredLevel": 83, "mouse": "Right", "mana": [40, 43, 46, 49, 52, 55, 58, 61, 64, 67], "stamina": [52, 2], "weapons": ["ThrowingWeapon"]},
+    { "code": "0x06100003", "name": "Summon Arcuda", "tier": "Job5", "category": "Summon", "icon": "MA86 S_Arcuda", "description": "Summons Arcuda.", "requiredLevel": 86, "mouse": "Right", "mana": [73, 75, 77, 80, 83, 86, 90, 94, 98, 102], "stamina": [95, 2], "weapons": []},
+    { "code": "0x06100004", "name": "Snippy Fear", "tier": "Job5", "category": "MultiHit", "icon": "MA90 S_Fear", "description": "Throw 2 javelins in sucession, dealing critical blows.", "requiredLevel": 90, "mouse": "Right", "mana": [45, 48, 51, 54, 57, 60, 63, 66, 69, 72], "stamina": [57, 2], "weapons": ["ThrowingWeapon"]}
 ]

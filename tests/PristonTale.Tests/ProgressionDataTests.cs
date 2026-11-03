@@ -1,7 +1,9 @@
 using PristonTale.Persistence.Abstractions.Characters;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
+using PristonTale.Simulation.Progression;
 using PristonTale.Simulation.Skills;
+using PristonTale.Simulation.World.Npcs;
 using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Tests;
@@ -12,6 +14,34 @@ internal static class ProgressionDataTests
     {
         yield return ("later-tier class skills take the original codes and save their rank and use counter", AdvancedSkillsAsync);
         yield return ("item footprints follow the item table and a saved item whose footprint grew moves to a free place", FootprintsAsync);
+        yield return ("the fifth tier opens its four skills, which share the elite points and continue the price table", FifthTierAsync);
+    }
+
+    private static Task FifthTierAsync()
+    {
+        var classes = new CharacterClassRegistry();
+        var skills = classes.Get(PlayerClass.Mechanician).Skills;
+        var landMining = skills[16];
+        Assert.True(landMining.Code == 0x01100001 && landMining.Tier == JobTier.Job5 && landMining.RequiredLevel == 80, "the fifth tier's first skill moved");
+
+        var player = classes.CreatePlayer(PlayerClass.Mechanician, "Fifth", 90);
+        foreach (var skill in skills.Take(16))
+        {
+            player.Skills.Restore(skill.Code, 1, 0);
+        }
+
+        player.RestoreProgress(0, 1_000_000, tier: PlayerCharacter.LastTier - 1, eliteSkillPoints: 2);
+        Assert.True(!SkillLearning.TryQuote(player, landMining.Code, out _, out _), "a fifth-tier skill was taught at the fourth tier");
+        player.RestoreProgress(0, 1_000_000, tier: PlayerCharacter.LastTier, eliteSkillPoints: 2);
+        Assert.True(SkillLearning.TryQuote(player, landMining.Code, out var price, out var elite) && price == 50_000 && elite,
+            "a fifth-tier skill did not cost elite points and the continued price");
+        Assert.True(SkillLearning.Price(19, 3) == 80_000 + 16_000 * 3, "the last fifth-tier price changed");
+        Assert.True(!SkillLearning.TryQuote(player, skills[17].Code, out _, out _), "a fifth-tier skill skipped the one before it");
+        player.RestoreProgress(0, 1_000_000, tier: PlayerCharacter.LastTier, eliteSkillPoints: 0);
+        Assert.True(!SkillLearning.TryQuote(player, landMining.Code, out _, out _), "a fifth-tier skill was taught without elite points");
+        Assert.True(MoneyLimits.CarryLimit(90, PlayerCharacter.LastTier) == 700_000_000 && player.ExperienceLimit == ExperienceTable.Ceiling,
+            "the fifth tier's gold or experience limit changed");
+        return Task.CompletedTask;
     }
 
     private static Task AdvancedSkillsAsync()
@@ -23,7 +53,7 @@ internal static class ProgressionDataTests
             && mechanician.Single(skill => skill.Name == "Metal Golem").Code == 0x01080004
             && classes.Get(PlayerClass.Fighter).Skills.Single(skill => skill.Name == "Boost Health").Code == 0x02080004,
             "later-tier skills do not take the class group, tier bit and slot");
-        Assert.True(mechanician.Count == 16 && mechanician.Select(skill => skill.Code).Distinct().Count() == 16, "class skill codes collide");
+        Assert.True(mechanician.Count == 20 && mechanician.Select(skill => skill.Code).Distinct().Count() == 20, "class skill codes collide");
 
         var player = classes.CreatePlayer(PlayerClass.Mechanician, "Trained", 90);
         foreach (var skill in mechanician)

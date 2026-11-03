@@ -8,7 +8,7 @@ namespace PristonTale.Simulation.Characters.Classes;
 public sealed class MechanicianClass : CharacterClass
 {
     public static readonly ClassProfile Profile = new(
-        ["Mechanician", "Mechanic Master", "Metal Leader", "Metallion"],
+        ["Mechanician", "Mechanic Master", "Metal Leader", "Metallion", "Metal Rage"],
         new MotionFallback(3520, 22, 2880),
         static weapon => (weapon.JobSpecMask & (uint)JobBitCode.Mechanician) != 0 || weapon.Definition.UniqueItem == 2,
         CastingWeapon: null,

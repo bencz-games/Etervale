@@ -11,13 +11,16 @@ internal static class ClassSkillDataTests
     private sealed record SourceSkill(uint Code, string Name, string Description, string Icon, int Level, int Stamina, int Step, string Use, int[] Mana,
         string[] Weapons);
 
-    // The eight original classes have all sixteen skills ported. The Assassin and the Shaman keep definitions only: their
-    // first tier has costs but no castable rules (the Assassin's dagger mastery is a passive), their later tiers neither.
+    // The eight original classes have their first four tiers' sixteen skills ported; the fifth tier holds definitions. The
+    // Assassin and the Shaman keep definitions only: their first tier has costs but no castable rules (the Assassin's
+    // dagger mastery is a passive), their later tiers neither.
     private static readonly PlayerClass[] Ported =
     [
         PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Knight, PlayerClass.Atalanta,
         PlayerClass.Priestess, PlayerClass.Magician
     ];
+
+    private const int PortedSkills = 16;
 
     // Names whose original spelling was a typo or an abbreviation; the window shows the corrected one.
     private static readonly Dictionary<string, string> Renamed = new()
@@ -49,7 +52,7 @@ internal static class ClassSkillDataTests
         var assembly = typeof(ClassSkillCatalog).Assembly;
         using var stream = assembly.GetManifestResourceStream("PristonTale.Simulation.Skills.Data.Classes.Archer.json")!;
         var json = new StreamReader(stream).ReadToEnd();
-        Assert.True(ClassSkillCatalog.Parse(json, out _).Count == 16, "the shipped Archer file did not parse");
+        Assert.True(ClassSkillCatalog.Parse(json, out _).Count == 20, "the shipped Archer file did not parse");
         const string brood = "\"bonusBroods\": [\"Normal\"]";
         const string percent = "\"bonusPercent\": 30}";
         Assert.True(json.Contains(brood, StringComparison.Ordinal) && json.Contains(percent, StringComparison.Ordinal), "the Archer sample changed");
@@ -80,12 +83,12 @@ internal static class ClassSkillDataTests
     {
         var seen = new HashSet<uint>();
         var classes = new CharacterClassRegistry();
-        var tiers = new[] { JobTier.Job1, JobTier.Job2, JobTier.Job3, JobTier.Job4 };
+        var tiers = new[] { JobTier.Job1, JobTier.Job2, JobTier.Job3, JobTier.Job4, JobTier.Job5 };
         foreach (var playerClass in Enum.GetValues<PlayerClass>())
         {
             var skills = ClassSkillCatalog.For(playerClass);
             var character = classes.CreatePlayer(playerClass, "Metadata");
-            Assert.True(skills.Count == 16 && character.Class.Skills.Count == 16, $"{playerClass} must expose sixteen skills");
+            Assert.True(skills.Count == 20 && character.Class.Skills.Count == 20, $"{playerClass} must expose twenty skills");
             var levels = new[] { 10, 12, 14, 17 };
             for (var index = 0; index < skills.Count; index++)
             {
@@ -118,7 +121,10 @@ internal static class ClassSkillDataTests
             }
         }
 
-        Assert.True(seen.Count == 160, "class skill catalog is incomplete");
+        Assert.True(seen.Count == 200, "class skill catalog is incomplete");
+        Assert.True(Enum.GetValues<PlayerClass>().All(playerClass => ClassSkillCatalog.For(playerClass).Skip(16)
+                .All(skill => skill.RequiredLevel is 80 or 83 or 86 or 90 && skill.ManaByRank.Count == 10)),
+            "a fifth-tier skill lost its level or its costs");
         VerifySourceSnapshot();
         var mechanic = ClassSkillCatalog.For(PlayerClass.Mechanician);
         Assert.True(mechanic[2].Code == 0x01010004 && mechanic[3].Code == 0x01010003, "display order was incorrectly used as skill identity");
@@ -172,7 +178,7 @@ internal static class ClassSkillDataTests
         var count = 0;
         foreach (var playerClass in Ported)
         {
-            var skills = ClassSkillCatalog.For(playerClass);
+            var skills = ClassSkillCatalog.For(playerClass).Take(PortedSkills).ToArray();
             foreach (var skill in skills)
             {
                 Assert.True(skill.ManaByRank.Count == 10, $"{skill.Name} has no ten-rank costs");
@@ -203,7 +209,7 @@ internal static class ClassSkillDataTests
             }
 
             var finalTier = skills.Skip(12).Select(skill => SkillRuleCatalog.TryGet(skill.Code, out var rule) ? rule : null).ToArray();
-            Assert.True(finalTier.All(rule => rule is not null && (rule.Kind == SkillKind.Passive || SkillFormulas.IsFinalTier(rule.Code))),
+            Assert.True(finalTier.All(rule => rule is not null && (rule.Kind == SkillKind.Passive || SkillFormulas.IsFullyTrained(rule.Code))),
                 $"{playerClass} final-tier rules are not recognised");
         }
 

@@ -16,6 +16,7 @@ using PristonTale.Gameplay.UI.Quests;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Characters;
+using PristonTale.Simulation.Skills;
 using PristonTale.Simulation.Combat;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Quests;
@@ -103,7 +104,7 @@ internal sealed class HudCaptureProbe : Game
         bool Training = false, bool LowHealth = false, float Hour = 13, bool ClassicTarget = false, ulong Target = 2, ulong NpcId = SkillMasterNpc,
         int ServiceButton = -1, bool SellMode = false, int ServiceCount = 2, int RightSelect = -1, bool Buffs = false, bool Block = false,
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
-        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false);
+        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -147,6 +148,9 @@ internal sealed class HudCaptureProbe : Game
         new("skills-knight-800", 800, 600, Keys.S, Class: PlayerClass.Knight),
         new("skills-priestess-800", 800, 600, Keys.S, Class: PlayerClass.Priestess),
         new("skills-shaman-800", 800, 600, Keys.S, Class: PlayerClass.Shaman),
+        new("skills-fifth-800", 800, 600, Keys.S, FifthTier: true),
+        new("skills-fifth-page-800", 800, 600, Keys.S, FifthTier: true, SecondPage: true),
+        new("skill-master-fifth-800", 800, 600, Npc: true, FifthTier: true, SecondPage: true),
         new("npc-unicode-800", 800, 600, Npc: true),
         new("npc-unicode-1280", 1280, 720, Npc: true),
         new("skill-training-800", 800, 600, Npc: true, Learned: true, Training: true),
@@ -368,6 +372,11 @@ internal sealed class HudCaptureProbe : Game
             if (scenario.SellMode)
             {
                 Click(state, layout, HudStoreLayout.Sell(HudStoreLayout.Origin(0)).Center);
+            }
+
+            if (scenario.SecondPage)
+            {
+                Click(state, layout, HudSkillTreeLayout.PageForward(HudInventoryLayout.Origin(layout)).Center);
             }
 
             if (scenario.RightSelect >= 0)
@@ -681,6 +690,19 @@ internal sealed class HudCaptureProbe : Game
 
     private OwnerState ScenarioState(Scenario scenario)
     {
+        if (scenario.FifthTier)
+        {
+            var skills = ClassSkillCatalog.For(scenario.Class);
+            return _owner with
+            {
+                Level = 92,
+                Tier = PlayerCharacter.LastTier,
+                EliteSkillPoints = 3,
+                Money = 10_000_000,
+                Skills = skills.Select((skill, index) => new OwnedSkillView(skill.Code, index < 17 ? 10 - index % 4 : 0)).ToArray()
+            };
+        }
+
         if (scenario.Learned)
         {
             return _owner with
