@@ -1,5 +1,6 @@
 using System.Text.Json;
 using PristonTale.WorldImport.Parsers;
+using PristonTale.Assets;
 
 namespace PristonTale.WorldImport;
 
@@ -9,7 +10,7 @@ internal static class ItemNameExport
     {
         var parser = new ItemTxtParser();
         var options = new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive };
-        var entries = Directory.EnumerateFiles(Path.Combine(root, "OpenItem"), "*.txt", options)
+        var entries = Directory.EnumerateFiles(AssetFiles.Resolve(Path.Combine(root, "OpenItem")), "*.txt", options)
             .Order(StringComparer.Ordinal).Select(parser.Parse)
             .Where(item => !string.IsNullOrWhiteSpace(item.Code) && !string.IsNullOrWhiteSpace(item.Name))
             .DistinctBy(item => item.Code, StringComparer.OrdinalIgnoreCase)

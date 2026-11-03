@@ -1,5 +1,6 @@
 using System.Text.Json;
 using PristonTale.WorldImport.Parsers;
+using PristonTale.Assets;
 
 namespace PristonTale.WorldImport;
 
@@ -14,7 +15,7 @@ internal static class MonsterNameExport
         var names = new List<Entry>();
         var seen = new HashSet<string>(StringComparer.Ordinal);
         var options = new EnumerationOptions { MatchCasing = MatchCasing.CaseInsensitive };
-        var paths = Directory.EnumerateFiles(Path.Combine(sourceRoot, "Monster"), "*.inf", options)
+        var paths = Directory.EnumerateFiles(AssetFiles.Resolve(Path.Combine(sourceRoot, "Monster")), "*.inf", options)
             .OrderBy(static path => path, StringComparer.Ordinal);
 
         foreach (var path in paths)

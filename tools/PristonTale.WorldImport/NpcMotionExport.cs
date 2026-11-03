@@ -1,4 +1,5 @@
 using System.Text.Json;
+using PristonTale.Assets;
 using PristonTale.WorldImport.Parsers;
 
 namespace PristonTale.WorldImport;
@@ -16,24 +17,19 @@ internal static class NpcMotionExport
 
         var parser = new NpcParser();
         var extractor = new MotionTableExtractor(assetRoot);
-        var seenNames = new HashSet<string>(StringComparer.Ordinal);
         var unresolved = new List<string>();
         var options = new EnumerationOptions
         {
             MatchCasing = MatchCasing.CaseInsensitive
         };
-        var npcDirectory = Path.Combine(sourceRoot, "NPC");
+        // Every NPC file is an NPC (as the import takes them), whatever names it shares with others.
+        var npcDirectory = AssetFiles.Resolve(Path.Combine(sourceRoot, "NPC"));
         var paths = Directory.EnumerateFiles(npcDirectory, "*.npc", options)
             .OrderBy(static path => path, StringComparer.Ordinal);
 
         foreach (var path in paths)
         {
             var npc = parser.Parse(path);
-            if (string.IsNullOrWhiteSpace(npc.Name) || !seenNames.Add(npc.Name))
-            {
-                continue;
-            }
-
             if (!extractor.TryExtract(npc.Model, out var failure))
             {
                 unresolved.Add($"{Path.GetFileName(path)} ({npc.Name}): {failure}");
