@@ -72,7 +72,6 @@ Default case files by area (all `tests/PristonTale.Tests/<Name>.cs`):
 | Rendering | `RenderTests`, `RenderFidelityTests`, `PhotorealTests`, `MaterialAdapterTests`, `ShadowProjectionTests`, `SkyTests` | CPU-side renderer |
 | Meshes, effects | `SkinPaletteTests`, `ModelNormalTests`, `AnimationFallbackTests`, `TransientLightTests` | Skinning, lights |
 | Formats | `BinaryCursorTests`, `EffectLoadingTests`, `GltfExportTests` | Binary readers, shader load failure, glTF export |
-| Game data import | `DataImportTests` | `ptdata copy`: unmasking, files already present kept, a later SMD format refused |
 
 ## Running
 

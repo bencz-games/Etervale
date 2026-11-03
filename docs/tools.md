@@ -307,7 +307,7 @@ dotnet run --project tools/PristonTale.DataImport -c Release --no-build -- copy 
 - `--mask` XORs every byte of every file with the given byte first (clients that mask their whole data).
 - Copies only `.smd`, `.smb`, `.bmp`, `.tga`, `.png`, `.jpg` and `.wav`; other files are reported as skipped. A file
   already in `assets/` is kept untouched.
-- Refuses (and reports) an SMD whose signature is not a stage or model of version 0.x (the later 2.0 format), a bitmap
+- Refuses (and reports) an SMD whose signature is not one the game's reader knows (`SmdLayout`), a bitmap
   without a `BM`/`A8`/`C8` header, a TGA that is not true colour (stored or run-length) and other damaged headers; exits
   1 when anything was refused.
 - The deep fields' stages that the archive lacked (Stemple, the Heart of Fire, the Crystal Nest and the Land of Nurwn)

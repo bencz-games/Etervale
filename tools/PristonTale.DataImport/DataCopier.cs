@@ -6,8 +6,8 @@ namespace PristonTale.DataImport;
 internal sealed record CopyResult(int Copied, int Kept, int Skipped, int Rejected, IReadOnlyList<string> Report);
 
 // Copies folders of another client's game data into the game data. A file already in the game data is kept as it is;
-// a file of a kind the game does not read is skipped; a model, stage or image the game could not read (a later SMD
-// format, a damaged header) is refused and reported.
+// a file of a kind the game does not read is skipped; a model, stage or image the game could not read (an SMD signature
+// the game's reader does not know, a damaged header) is refused and reported.
 internal static class DataCopier
 {
     private static readonly HashSet<string> Copied = new(StringComparer.OrdinalIgnoreCase)
@@ -74,7 +74,7 @@ internal static class DataCopier
     }
 
     // Why the game could not read the file, or null when it can.
-    internal static string? Problem(string extension, byte[] bytes)
+    private static string? Problem(string extension, byte[] bytes)
     {
         switch (extension.ToLowerInvariant())
         {
@@ -87,9 +87,9 @@ internal static class DataCopier
                     }
 
                     var signature = Encoding.ASCII.GetString(bytes, 0, SmdLayout.SignatureSize).TrimEnd('\0');
-                    var known = signature.StartsWith(SmdLayout.StagePrefix, StringComparison.Ordinal)
-                        || signature.StartsWith(SmdLayout.ModelPrefix, StringComparison.Ordinal);
-                    return known && signature.Contains(" Ver 0.", StringComparison.Ordinal) ? null : $"signature \"{Printable(signature)}\"";
+                    return signature is SmdLayout.StageSignature or SmdLayout.StageSignature73 or SmdLayout.ModelSignature
+                        ? null
+                        : $"signature \"{Printable(signature)}\"";
                 }
 
             case ".bmp":

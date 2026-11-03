@@ -14,8 +14,4 @@
     <!-- The SMD signatures the game reads. -->
     <ProjectReference Include="..\..\Shared\PristonTale.Assets\PristonTale.Assets.csproj" />
   </ItemGroup>
-
-  <ItemGroup>
-    <InternalsVisibleTo Include="PristonTale.Tests" />
-  </ItemGroup>
 </Project>
