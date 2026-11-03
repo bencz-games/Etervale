@@ -92,7 +92,7 @@ renderer through `PresentationSettings.ApplyRendering` and apply at once.
 | `bloom` | `High` (default), `Low`, `Off` | defined enum | | Bloom pyramid mixed at 5 % (High) or 3 % (Low). |
 | `colorGrading` | bool, `true` | | | Applies the 3D LUT grade after the display transform. |
 | `colorGradingLut` | string, `""` | `null` becomes `""` | | Path of a `.cube` file (any size, display-referred sRGB input) replacing the built-in grade. Relative paths resolve against the process working directory; an unreadable or malformed file logs a warning and keeps the built-in grade. |
-| `sharpening` | float, `0.35` | finite, 0-1 | | Contrast-adaptive sharpening in the final pass. |
+| `sharpening` | float, `0.6` | finite, 0-1 | | Contrast-adaptive sharpening in the final pass: 0 turns it off; above 0 the peak weight runs from -1/8 to -1/5 (FidelityFX CAS's range). |
 | `localLightLimit` | int, `32` | 8, 16, 32 | | Local lights shaded per pixel: transient combat lights first (at most 8), then the stage lamps nearest the camera focus. |
 | `shadowsEnabled` | bool, `true` | | yes (Shadows) | All shadows: sun cascades and lamp cube shadows. |
 | `shadowMapSize` | int, `4096` | 1024, 2048, 4096, 8192 | yes (Sun shadow) | Size of the sun's cascade atlas (a 32-bit float depth surface). If allocation fails the renderer halves the size down to 1024. |
@@ -151,7 +151,7 @@ values. The defaults equal the High preset (checked by `PhotorealTests`).
 | Field | Low | Medium | High (default) | Ultra |
 |---|---|---|---|---|
 | `antiAliasing` | `Off` | `Smaa` | `Taa` | `Taa` |
-| `sharpening` | 0 | 0.2 | 0.35 | 0.35 |
+| `sharpening` | 0 | 0.4 | 0.6 | 0.6 |
 | `shadowMapSize` | 2048 | 2048 | 4096 | 4096 |
 | `shadowCascades`, `shadowFilter` | 2, `Pcf` | 3, `Pcf` | 4, `Pcss` | 4, `Pcss` |
 | `shadowUpdateRate` | 30 | 60 | 60 | 0 (every frame) |

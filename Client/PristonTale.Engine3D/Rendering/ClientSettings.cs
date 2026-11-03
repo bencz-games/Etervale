@@ -82,7 +82,7 @@ public sealed record ClientSettings
     public bool ColorGrading { get; init; } = true;
     public string ColorGradingLut { get; init; } = string.Empty;
     // Contrast-adaptive sharpening of the final image, 0..1.
-    public float Sharpening { get; init; } = 0.35f;
+    public float Sharpening { get; init; } = 0.6f;
     // Stage lamps and combat lights shaded per pixel: 8, 16 or 32, the nearest to the camera focus.
     public int LocalLightLimit { get; init; } = PristonShaderLibrary.MaxLocalLightCount;
     // Cascades of the sun's shadow map (1-4) in an atlas of ShadowMapSize, and their filter.
@@ -181,7 +181,7 @@ public sealed record ClientSettings
             Bloom = BloomQuality.High,
             AutoExposure = true,
             ColorGrading = true,
-            Sharpening = 0.2f
+            Sharpening = 0.4f
         },
         GraphicsQuality.High => this with
         {
@@ -203,7 +203,7 @@ public sealed record ClientSettings
             Bloom = BloomQuality.High,
             AutoExposure = true,
             ColorGrading = true,
-            Sharpening = 0.35f
+            Sharpening = 0.6f
         },
         GraphicsQuality.Ultra => this with
         {
@@ -225,7 +225,7 @@ public sealed record ClientSettings
             Bloom = BloomQuality.High,
             AutoExposure = true,
             ColorGrading = true,
-            Sharpening = 0.35f
+            Sharpening = 0.6f
         },
         _ => this with { Quality = GraphicsQuality.Custom }
     };
