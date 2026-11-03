@@ -250,6 +250,12 @@ public sealed partial class PlayerCharacter
     public event Action<PlayerCharacter, int> LeveledUp;
     public event Action<PlayerCharacter, EquipmentSlot, ItemInstance> Equipped;
 
+    // Each level brings StatusPointsPerLevel status points; every even level from SkillPointsFromLevel brings a skill
+    // point, and from ElitePointsFromLevel an elite skill point too.
+    public const int StatusPointsPerLevel = 5;
+    public const int SkillPointsFromLevel = 10;
+    public const int ElitePointsFromLevel = 60;
+
     public void LevelUp()
     {
         if (Level >= ExperienceTable.MaximumLevel)
@@ -258,13 +264,13 @@ public sealed partial class PlayerCharacter
         }
 
         Level++;
-        StatPoints += 5 + QuestRewards.LevelUpBonusStatPoints(Level, Quests.LevelLog);
-        if (Level >= 10 && Level % 2 == 0)
+        StatPoints += StatusPointsPerLevel + QuestRewards.LevelUpBonusStatPoints(Level, Quests.LevelLog);
+        if (Level >= SkillPointsFromLevel && Level % 2 == 0)
         {
             SkillPoints++;
         }
 
-        if (Level >= 60 && Level % 2 == 0)
+        if (Level >= ElitePointsFromLevel && Level % 2 == 0)
         {
             EliteSkillPoints++;
         }
