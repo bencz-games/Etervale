@@ -254,7 +254,7 @@ internal sealed class MaterialFactory
 
         for (var index = 0; index < image.Rgba.Length; index += 4)
         {
-            image.Rgba[index + 3] = (byte)((mask.Rgba[index] + mask.Rgba[index + 1] + mask.Rgba[index + 2]) / 3);
+            image.Rgba[index + 3] = PristonOpacityMask.Alpha(mask.Rgba[index], mask.Rgba[index + 1], mask.Rgba[index + 2]);
         }
     }
 

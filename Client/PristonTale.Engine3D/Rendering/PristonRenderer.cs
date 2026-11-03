@@ -19,7 +19,8 @@ public sealed partial class PristonRenderer : IDisposable
     private static readonly ConditionalWeakTable<PristonActor, PreparedActorGeometry> PreparedActorGeometries = new();
 
     // The original game advances stage-object animation by two ticks per millisecond.
-    private const float StageObjectFrameRate = 2000f;
+    // Animated stage objects advance two clip ticks per millisecond.
+    internal const float StageObjectTicksPerSecond = 2000f;
 
     private static readonly bool ShadowDiagnostics =
         Environment.GetEnvironmentVariable("PRISTON_SHADOW_DIAG") == "1";
@@ -415,7 +416,7 @@ public sealed partial class PristonRenderer : IDisposable
         {
             foreach (var model in stage.AnimatedModels)
             {
-                model.Advance(dt * StageObjectFrameRate);
+                model.Advance(dt * StageObjectTicksPerSecond);
             }
 
             foreach (var group in stage.AnimatedGroups)

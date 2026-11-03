@@ -298,17 +298,14 @@ public sealed class PristonTextureLoader : IDisposable
         if (!image.HasSourceAlpha && !string.IsNullOrWhiteSpace(opacity))
         {
             var alphaPath = ResolvePath(directory, opacity);
-            if (alphaPath.Length > 0 && !string.Equals(path, alphaPath, StringComparison.OrdinalIgnoreCase))
+            var mask = alphaPath.Length > 0 && !string.Equals(path, alphaPath, StringComparison.OrdinalIgnoreCase) ? ReadImage(alphaPath) : null;
+            if (mask is { IsValid: true } && PristonOpacityMask.Applies(path, alphaPath, image.Width, image.Height, mask.Width, mask.Height))
             {
-                var mask = ReadImage(alphaPath);
-                if (mask.IsValid && mask.Width == image.Width && mask.Height == image.Height)
+                for (var index = 0; index < image.Pixels.Length; index++)
                 {
-                    for (var index = 0; index < image.Pixels.Length; index++)
-                    {
-                        var color = image.Pixels[index];
-                        var alpha = mask.Pixels[index];
-                        image.Pixels[index] = new Color(color.R, color.G, color.B, (byte)((alpha.R + alpha.G + alpha.B) / 3));
-                    }
+                    var color = image.Pixels[index];
+                    var alpha = mask.Pixels[index];
+                    image.Pixels[index] = new Color(color.R, color.G, color.B, PristonOpacityMask.Alpha(alpha.R, alpha.G, alpha.B));
                 }
             }
         }

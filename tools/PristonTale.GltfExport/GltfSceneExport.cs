@@ -46,9 +46,9 @@ internal static class GltfSceneExport
 {
     internal const float TicksPerSecond = GameUnits.FrameTicksPerSecond;
 
-    // Animated stage objects advance two ticks per elapsed millisecond and, after the first pass,
-    // wraps playback into the [160, MaxFrame] range.
-    internal const float StageObjectTicksPerSecond = 2000f;
+    // Animated stage objects advance at the renderer's rate and, after the first pass, wrap playback into the
+    // [160, MaxFrame] range.
+    internal const float StageObjectTicksPerSecond = PristonRenderer.StageObjectTicksPerSecond;
     private const int StageObjectLoopStartTicks = GameUnits.FrameTicks;
 
     private const int SampleStepTicks = GameUnits.FrameTicks;
