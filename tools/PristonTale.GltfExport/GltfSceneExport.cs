@@ -615,13 +615,8 @@ internal static class GltfSceneExport
     {
         var usedNames = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
         var actorInfo = actor.Info;
-        for (var index = PristonFormatConstants.CharacterMotionBase; index < actorInfo.Motions.Count; index++)
+        foreach (var (index, motion) in actorInfo.UsableMotions())
         {
-            var motion = actorInfo.Motions[index];
-            if (motion.State == 0 || motion.EndFrame <= motion.StartFrame)
-            {
-                continue;
-            }
 
             // Same job filter as PristonMotionSelection: a zero mask on either side matches every class.
             if (motion.JobCodeBit != 0 && jobMask != 0 && (motion.JobCodeBit & jobMask) == 0)

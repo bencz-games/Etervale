@@ -108,30 +108,18 @@ public sealed class PristonActorLoader
 
     private PristonModelInfo ResolveMotionInfo(string assetRoot, PristonModelInfo visualInfo)
     {
-        if (HasUsableMotions(visualInfo))
+        if (visualInfo.HasUsableMotions)
             return visualInfo;
 
         string linkPath;
         if (TryResolveCachePath(assetRoot, visualInfo.MotionFile, ".inx", out linkPath))
         {
             var linkInfo = _inxReader.Read(linkPath);
-            if (HasUsableMotions(linkInfo))
+            if (linkInfo.HasUsableMotions)
                 return linkInfo;
         }
 
         return visualInfo;
-    }
-
-    private static bool HasUsableMotions(PristonModelInfo info)
-    {
-        for (var i = PristonFormatConstants.CharacterMotionBase; i < info.Motions.Count; i++)
-        {
-            var motion = info.Motions[i];
-            if (motion.State != 0 && motion.EndFrame > motion.StartFrame)
-                return true;
-        }
-
-        return false;
     }
 
     public static string ResolveCachePath(string assetRoot, string sourcePath, string extension)

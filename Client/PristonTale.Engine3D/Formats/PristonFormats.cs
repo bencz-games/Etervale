@@ -458,6 +458,9 @@ public sealed record PristonMotionInfo(
     public uint RawEndFrame { get; init; }
     public bool StartFrameDecoded { get; init; }
     public bool EndFrameDecoded { get; init; }
+
+    // A real clip: it has a state and at least one frame.
+    public bool IsUsable => State != 0 && EndFrame > StartFrame;
 }
 
 public sealed record PristonModelGroup(
@@ -480,6 +483,20 @@ public sealed record PristonModelInfo(
     IReadOnlyList<PristonMotionInfo> TalkMotions,
     uint TalkMotionCount)
 {
+    // The usable clips of the character motion table (from slot CharacterMotionBase), with their slots.
+    public IEnumerable<(int Slot, PristonMotionInfo Motion)> UsableMotions()
+    {
+        for (var slot = PristonFormatConstants.CharacterMotionBase; slot < Motions.Count; slot++)
+        {
+            if (Motions[slot].IsUsable)
+            {
+                yield return (slot, Motions[slot]);
+            }
+        }
+    }
+
+    public bool HasUsableMotions => UsableMotions().Any();
+
     public uint FileTypeKeyword { get; init; }
 
     public uint LinkFileKeyword { get; init; }

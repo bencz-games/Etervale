@@ -5,6 +5,7 @@ using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.AssetDump;
 using PristonTale.Contracts.Motion;
+using PristonTale.Contracts.Units;
 
 if (args.Length == 4 && args[0] == "--export-field-textures")
 {
@@ -265,16 +266,7 @@ void DumpInx(PristonModelInfo info)
     Console.WriteLine($"  motionCount  : {info.MotionCount}  (array {info.Motions.Count})");
     Console.WriteLine($"  talkMotions  : {info.TalkMotionCount}  (array {info.TalkMotions.Count})");
 
-    // "Usable" mirrors PristonActorLoader: a real motion at slot >= CharacterMotionBase (10)
-    // with State != 0 and EndFrame > StartFrame.
-    const int characterMotionBase = 10;
-    var usable = new List<(int slot, PristonMotionInfo m)>();
-    for (var i = characterMotionBase; i < info.Motions.Count; i++)
-    {
-        var m = info.Motions[i];
-        if (m.State != 0 && m.EndFrame > m.StartFrame)
-            usable.Add((i, m));
-    }
+    var usable = info.UsableMotions().ToList();
     Console.WriteLine($"  usable motions: {usable.Count}");
 
     // JobCodeBit gates which classes may wear this armour: bit (class - 1) of PlayerClass (0x1 Fighter, 0x2
@@ -295,11 +287,11 @@ void DumpInx(PristonModelInfo info)
             var name = Enum.IsDefined((MotionCode)m.State) ? ((MotionCode)m.State).ToString() : "";
             var events = string.Join(", ", m.EventFrames
                 .Where(e => e != 0)
-                .Select(e => $"{e} → f{m.StartFrame + (e / 160)}"));
+                .Select(e => $"{e} → f{m.StartFrame + (e / GameUnits.FrameTicks)}"));
             Console.WriteLine($"  {slot,-5} 0x{m.State:X4} {m.StartFrame,8} {m.EndFrame,8} {m.Repeat,7}  [{events}]  {name}");
         }
 
-        if (info.NpcMotionRates.Count > characterMotionBase && info.NpcMotionRates[characterMotionBase] != 0)
+        if (info.NpcMotionRates.Count > PristonFormatConstants.CharacterMotionBase && info.NpcMotionRates[PristonFormatConstants.CharacterMotionBase] != 0)
         {
             Section("NPC MOTION RATES");
             foreach (var (slot, _) in usable)
@@ -342,7 +334,7 @@ static void DumpMaterialAggregates(IReadOnlyList<PristonMaterial> mats)
         if (m.RenderLast) renderLast++;
         if (m.TwoSided) twoSided++;
         if (!string.IsNullOrEmpty(m.OpacityName) || m.TextureName.EndsWith(".tga", StringComparison.OrdinalIgnoreCase)) alphaMaybe++;
-        if ((m.MeshState & 0x1) != 0) checkFace++;           // check-face flag (walkable/collision)
+        if ((m.MeshState & StageCollisionReader.CheckFace) != 0) checkFace++;
         if (m.HasAnimatedTexture) animTex++;
     }
     var hist = string.Join(", ", blendHist.Select(kv => $"{BlendName(kv.Key)}({kv.Key})={kv.Value}"));
@@ -351,7 +343,7 @@ static void DumpMaterialAggregates(IReadOnlyList<PristonMaterial> mats)
     Console.WriteLine($"  formstate hist  : {fsHist}   (5 = FS_REFLEX, 4/6..18 = scroll)");
     Console.WriteLine($"  late-blend(2-6) : {lateBlend}   (NOT shadow casters / late pass)");
     Console.WriteLine($"  alpha-test'ish  : {alphaMaybe}   (.tga or opacity map)");
-    Console.WriteLine($"  collision faces : {checkFace}   (MeshState & 0x1)");
+    Console.WriteLine($"  collision faces : {checkFace}   (MeshState & check face)");
     Console.WriteLine($"  flags           : invisible={invisible} water={water} blinking={blinking} " +
                       $"selfIllum={selfIllum} renderLast={renderLast} twoSided={twoSided} animTex={animTex} wind={wind}");
 }

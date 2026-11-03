@@ -63,7 +63,7 @@ public sealed class MotionTableExtractor
         }
         var tableKey = modelKey;
 
-        if (!HasUsableMotions(info))
+        if (!info.HasUsableMotions)
         {
             // Borrow the MotionFile table (player class bodies → the shared biped INX).
             if (string.IsNullOrWhiteSpace(info.MotionFile))
@@ -86,7 +86,7 @@ public sealed class MotionTableExtractor
                 {
                     return false;
                 }
-                if (!HasUsableMotions(info))
+                if (!info.HasUsableMotions)
                 {
                     failure = $"motion table has no usable motions: {tableKey} (for {modelKey})";
                     return false;
@@ -117,26 +117,11 @@ public sealed class MotionTableExtractor
         }
     }
 
-    private static bool HasUsableMotions(PristonModelInfo info)
-    {
-        for (var i = PristonFormatConstants.CharacterMotionBase; i < info.Motions.Count; i++)
-        {
-            var m = info.Motions[i];
-            if (m.State != 0 && m.EndFrame > m.StartFrame)
-                return true;
-        }
-
-        return false;
-    }
-
     private static IReadOnlyList<ExtractedMotionSlot> ExtractSlots(PristonModelInfo info)
     {
         var slots = new List<ExtractedMotionSlot>();
-        for (var i = PristonFormatConstants.CharacterMotionBase; i < info.Motions.Count; i++)
+        foreach (var (i, m) in info.UsableMotions())
         {
-            var m = info.Motions[i];
-            if (m.State == 0 || m.EndFrame <= m.StartFrame)
-                continue;
 
             var ev = m.EventFrames;
             slots.Add(new ExtractedMotionSlot(
