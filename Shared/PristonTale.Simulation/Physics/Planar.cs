@@ -18,7 +18,7 @@ public static class Planar
     public static bool Within(Vector3 a, Vector3 b, float radius) => DistanceSquared(a, b) < radius * radius;
 
     // The heading (yaw about +Y, 0 along +Z) from one point toward another.
-    public static float Heading(Vector3 from, Vector3 to) => Planar.Heading(from, to);
+    public static float Heading(Vector3 from, Vector3 to) => MathF.Atan2(to.X - from.X, to.Z - from.Z);
 
     // The unit direction of a heading on the ground plane.
     public static Vector3 Forward(float heading) => new(MathF.Sin(heading), 0f, MathF.Cos(heading));
