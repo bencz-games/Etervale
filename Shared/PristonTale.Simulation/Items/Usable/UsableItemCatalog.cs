@@ -1,3 +1,5 @@
+using PristonTale.Simulation.World;
+
 namespace PristonTale.Simulation.Items.Usable;
 
 // What using an item from the inventory does.
@@ -94,9 +96,9 @@ public static class UsableItemCatalog
             ["BI141"] = new(UsableItemAction.SkillMastery, 3),
             ["BI142"] = new(UsableItemAction.MobileShop),
             ["BI184"] = new(UsableItemAction.GravityScroll),
-            ["EC101"] = new(UsableItemAction.ReturnToTown, 3),
-            ["EC102"] = new(UsableItemAction.ReturnToTown, 9),
-            ["EC104"] = new(UsableItemAction.ReturnToTown, 21),
+            ["EC101"] = new(UsableItemAction.ReturnToTown, FieldCodes.Ricarten),
+            ["EC102"] = new(UsableItemAction.ReturnToTown, FieldCodes.Navisko),
+            ["EC104"] = new(UsableItemAction.ReturnToTown, FieldCodes.Pillai),
             ["EC103"] = new(UsableItemAction.ReturnToTown, -1),
             ["EC105"] = new(UsableItemAction.UnionCore),
             ["BC105"] = new(UsableItemAction.Restoration),

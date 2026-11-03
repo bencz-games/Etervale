@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Items.Usable;
+using PristonTale.Simulation.World;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
@@ -11,7 +12,6 @@ public static class HudUsableTooltip
 {
     private static readonly string[] Attributes = ["", "Strength", "Spirit", "Talent", "Agility", "Health"];
     private static readonly string[] AgingTargets = ["weapon", "shield or orb", "armor or robe", "armlet", "gloves", "boots"];
-    private static readonly string[] Towns = ["", "", "", "Ricarten", "", "", "", "", "", "Navisko", "", "", "", "", "", "", "", "", "", "", "", "Pillai"];
 
     public static IReadOnlyList<string> Lines(string catalogKey)
     {
@@ -58,8 +58,8 @@ public static class HudUsableTooltip
                 lines.AddRange(scroll.Kind switch
                 {
                     ScrollEffectKind.Invulnerability => ["Becomes invincible for the set time.", "The attack power decreases by 1/2."],
-                    ScrollEffectKind.Critical => ["15% increase", "on the critical attack."],
-                    _ => ["15% increase of", "evade chance."]
+                    ScrollEffectKind.Critical => [$"{ItemScrolls.Bonus}% increase", "on the critical attack."],
+                    _ => [$"{ItemScrolls.Bonus}% increase of", "evade chance."]
                 });
                 lines.Add($"Duration: {scroll.DurationSeconds}sec");
                 break;
@@ -68,13 +68,13 @@ public static class HudUsableTooltip
                 lines.Add("Teleports you to a field of your choice.");
                 break;
             case UsableItemAction.ReturnToTown when rule.Argument >= 0:
-                lines.Add($"Recall to {Towns[Math.Clamp(rule.Argument, 0, Towns.Length - 1)]}");
+                lines.Add($"Recall to {Town(rule.Argument)}");
                 break;
             case UsableItemAction.HairTint:
                 lines.Add($"Changes your hair to type {(char)('A' + rule.Argument)}.");
                 break;
             case UsableItemAction.BigHead:
-                lines.Add("Gives you a big head for 10 minutes.");
+                lines.Add($"Gives you a big head for {UsableItemEffects.BigHeadSeconds / 60} minutes.");
                 break;
             case UsableItemAction.Firecracker:
                 lines.Add("Fireworks light up the sky around you.");
@@ -111,7 +111,7 @@ public static class HudUsableTooltip
                 lines.Add("Open it to receive a gift.");
                 break;
             case UsableItemAction.SoccerHead:
-                lines.Add("Gives you a soccer-ball head for 3 hours.");
+                lines.Add($"Gives you a soccer-ball head for {Duration(EventFoods.SoccerHeadSeconds)}.");
                 break;
             case UsableItemAction.Chocolate when Chocolates.TryGet(catalogKey, out var chocolate):
                 lines.Add($"Virtual Life Lv {chocolate.Level}");
@@ -122,7 +122,7 @@ public static class HudUsableTooltip
                 lines.Add($"Reveal the puzzle piece inside for {Puzzles.RevealCost} gold.");
                 break;
             case UsableItemAction.PuzzleBag:
-                lines.Add($"Puzzle piece {Puzzles.Number(catalogKey)} of 8");
+                lines.Add($"Puzzle piece {Puzzles.Number(catalogKey)} of {Puzzles.PiecesPerSet}");
                 lines.Add("Lay the set out on the puzzle board.");
                 break;
             case UsableItemAction.UnionCore:
@@ -147,8 +147,19 @@ public static class HudUsableTooltip
     {
         CrystalKind.ClanPet => [$"Summons a {crystal.Name} for your clan.", "Clan members only"],
         CrystalKind.CastleMercenary => [$"Summons a {crystal.Name} to guard", "the castle during a siege."],
-        CrystalKind.SoulStone => ["Releases a hostile soul for 4 minutes."],
-        _ => [$"Summons a {crystal.Name} to fight for you", "for 4 minutes, longer at higher levels."]
+        CrystalKind.SoulStone => [$"Releases a hostile soul for {PetMinutes} minutes."],
+        _ => [$"Summons a {crystal.Name} to fight for you", $"for {PetMinutes} minutes, longer at higher levels."]
+    };
+
+    private const int PetMinutes = (int)(MonsterCrystals.PetBaseLifetimeMs / 60_000);
+
+    // The towns a return scroll recalls to.
+    private static string Town(int fieldCode) => fieldCode switch
+    {
+        FieldCodes.Ricarten => "Ricarten",
+        FieldCodes.Navisko => "Navisko",
+        FieldCodes.Pillai => "Pillai",
+        _ => ""
     };
 
     public static string Duration(long seconds) => seconds switch

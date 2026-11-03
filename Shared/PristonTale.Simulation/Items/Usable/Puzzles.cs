@@ -24,6 +24,8 @@ public static class Puzzles
     public static IReadOnlyList<string> Pieces { get; } =
         ["PZ101", "PZ102", "PZ103", "PZ104", "PZ105", "PZ106", "PZ107", "PZ108", "PZ201", "PZ202", "PZ203", "PZ204", "PZ205", "PZ206", "PZ207", "PZ208"];
 
+    public const int PiecesPerSet = 8;
+
     // Each piece's top-left cell on the board (column, row), pieces 1 to 8.
     private static readonly (int Column, int Row)[] Cells = [(8, 0), (10, 0), (8, 1), (9, 1), (9, 2), (11, 1), (8, 3), (10, 3)];
 
@@ -69,7 +71,7 @@ public static class Puzzles
         for (var set = 1; set <= 2; set++)
         {
             var anchors = placed.Where(item => Set(item.CatalogKey) == set).Select(static item => item.Anchor).Distinct().ToList();
-            if (anchors.Count == 8)
+            if (anchors.Count == PiecesPerSet)
             {
                 return anchors;
             }
@@ -78,7 +80,7 @@ public static class Puzzles
         return [];
     }
 
-    public static bool Complete(IEnumerable<(string CatalogKey, int Anchor)> items, int inventoryWidth) => Board(items, inventoryWidth).Count == 8;
+    public static bool Complete(IEnumerable<(string CatalogKey, int Anchor)> items, int inventoryWidth) => Board(items, inventoryWidth).Count == PiecesPerSet;
 
     // The value of a set of exchanged pieces, or 0 when a piece repeats or is not a piece.
     public static int Value(IEnumerable<string> catalogKeys)
