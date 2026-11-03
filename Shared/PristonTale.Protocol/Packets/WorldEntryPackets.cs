@@ -9,14 +9,6 @@ public static class WorldEntryWire
 {
     public const ushort CurrentVersion = 1;
     public const int MaxNameBytes = 64;
-
-    internal static void ReadVersion(ref PacketReader reader, string what)
-    {
-        if (reader.UInt16() == 0)
-        {
-            throw new InvalidDataException($"{what} has version 0.");
-        }
-    }
 }
 
 // C->S {header, uint16 Version = 1, uint16 0, text Name (64 B)}.
@@ -35,7 +27,7 @@ public readonly record struct EnterWorldPacket(string Name) : IFramePacket
     public static EnterWorldPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, 8 + 4 + 2);
-        WorldEntryWire.ReadVersion(ref reader, "World entry request");
+        WireHeader.ReadVersion(ref reader, "World entry request");
         reader.Skip(2);
         return new EnterWorldPacket(Utf8Text.Read(ref reader, WorldEntryWire.MaxNameBytes, "World entry request"));
     }
@@ -65,7 +57,7 @@ public readonly record struct WorldEntryPacket(byte Status, ulong EntityId, int 
     public static WorldEntryPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        WorldEntryWire.ReadVersion(ref reader, "World entry");
+        WireHeader.ReadVersion(ref reader, "World entry");
         var status = reader.Byte();
         reader.Skip(1);
         var entity = reader.UInt64();
@@ -90,7 +82,7 @@ public readonly record struct JoinWorldPacket(ulong EntityId) : IFramePacket
     public static JoinWorldPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        WorldEntryWire.ReadVersion(ref reader, "World join");
+        WireHeader.ReadVersion(ref reader, "World join");
         reader.Skip(2);
         return new JoinWorldPacket(reader.UInt64());
     }
@@ -118,7 +110,7 @@ public readonly record struct WorldJoinedPacket(ulong EntityId, long ServerTimeM
     public static WorldJoinedPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        WorldEntryWire.ReadVersion(ref reader, "World joined");
+        WireHeader.ReadVersion(ref reader, "World joined");
         var level = reader.Byte();
         reader.Skip(1);
         var entity = reader.UInt64();
@@ -145,7 +137,7 @@ public readonly record struct LeaveWorldPacket(bool Saved) : IFramePacket
     public static LeaveWorldPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        WorldEntryWire.ReadVersion(ref reader, "Leave world");
+        WireHeader.ReadVersion(ref reader, "Leave world");
         return new LeaveWorldPacket(reader.Byte() != 0);
     }
 }

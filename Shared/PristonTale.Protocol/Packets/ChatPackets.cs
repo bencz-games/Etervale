@@ -9,14 +9,6 @@ public static class ChatWire
     public const ushort CurrentVersion = 1;
     public const int MaxTextBytes = 1024;
     public const int HeaderSize = 8 + 4;
-
-    internal static void ReadVersion(ref PacketReader reader, string what)
-    {
-        if (reader.UInt16() == 0)
-        {
-            throw new InvalidDataException($"{what} has version 0.");
-        }
-    }
 }
 
 // C->S {header, uint16 Version = 1, uint8 Party (0 nearby or a command, 1 the party channel), uint8 0, text Text}: a line
@@ -38,7 +30,7 @@ public readonly record struct ChatSayPacket(bool Party, string Text) : IFramePac
     public static ChatSayPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, ChatWire.HeaderSize + 2);
-        ChatWire.ReadVersion(ref reader, "Chat line");
+        WireHeader.ReadVersion(ref reader, "Chat line");
         var party = reader.Byte();
         reader.Skip(1);
         if (party > 1)
@@ -70,7 +62,7 @@ public readonly record struct ChatLinePacket(ChatKind Kind, ulong Speaker, strin
     public static ChatLinePacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, ChatWire.HeaderSize + 8 + 2);
-        ChatWire.ReadVersion(ref reader, "Chat line");
+        WireHeader.ReadVersion(ref reader, "Chat line");
         var kind = (ChatKind)reader.Byte();
         reader.Skip(1);
         var speaker = reader.UInt64();
@@ -93,6 +85,6 @@ public static class CloseRequestPacket
     public static void Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        ChatWire.ReadVersion(ref reader, "Close request");
+        WireHeader.ReadVersion(ref reader, "Close request");
     }
 }

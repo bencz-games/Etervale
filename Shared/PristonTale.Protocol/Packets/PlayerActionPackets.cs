@@ -36,10 +36,7 @@ public readonly record struct MovementReportPacket(MotionState Motion, int Field
     public static MovementReportPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        if (reader.UInt16() == 0)
-        {
-            throw new InvalidDataException("Movement report has version 0.");
-        }
+        WireHeader.ReadVersion(ref reader, "Movement report");
 
         var motion = (MotionState)reader.Byte();
         reader.Skip(1);
@@ -78,10 +75,7 @@ public readonly record struct AttackRequestPacket(ulong Target, bool Sustained, 
     public static AttackRequestPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        if (reader.UInt16() == 0)
-        {
-            throw new InvalidDataException("Attack request has version 0.");
-        }
+        WireHeader.ReadVersion(ref reader, "Attack request");
 
         var flags = reader.Byte();
         reader.Skip(1);
@@ -119,10 +113,7 @@ public readonly record struct FieldWarpPacket(int Field, float X, float Y, float
     public static FieldWarpPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        if (reader.UInt16() == 0)
-        {
-            throw new InvalidDataException("Field warp has version 0.");
-        }
+        WireHeader.ReadVersion(ref reader, "Field warp");
 
         var flags = reader.Byte();
         reader.Skip(1);
@@ -150,9 +141,6 @@ public readonly record struct YahooKeyPacket : IFramePacket
     public static void Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        if (reader.UInt16() == 0)
-        {
-            throw new InvalidDataException("Yahoo key has version 0.");
-        }
+        WireHeader.ReadVersion(ref reader, "Yahoo key");
     }
 }

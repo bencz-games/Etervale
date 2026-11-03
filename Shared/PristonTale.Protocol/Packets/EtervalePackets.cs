@@ -461,13 +461,7 @@ public readonly record struct PresenceClockPacket(uint ServerTick, uint TickInte
     public static PresenceClockPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        var version = reader.UInt16();
-        reader.Skip(2);
-        if (version == 0)
-        {
-            throw new InvalidDataException("Presence clock has version 0.");
-        }
-
+        WireHeader.Read(ref reader, "Presence clock");
         var tick = reader.UInt32();
         var interval = reader.UInt32();
         if (interval == 0)

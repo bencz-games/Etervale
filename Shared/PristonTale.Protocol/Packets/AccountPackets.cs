@@ -21,14 +21,6 @@ public static class AccountWire
     public const int MaxAccountBytes = 64;
     public const int MaxPasswordBytes = 128;
     public const int MaxNameBytes = 64;
-
-    internal static void ReadVersion(ref PacketReader reader, string what)
-    {
-        if (reader.UInt16() == 0)
-        {
-            throw new InvalidDataException($"{what} has version 0.");
-        }
-    }
 }
 
 // S->C on connect {header, uint16 Version = 1, uint16 0, uint32 Protocol, MinimumProtocol, int32 FullPlayers, text
@@ -54,7 +46,7 @@ public readonly record struct ServerHelloPacket(uint Protocol, uint MinimumProto
     public static ServerHelloPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        AccountWire.ReadVersion(ref reader, "Server hello");
+        WireHeader.ReadVersion(ref reader, "Server hello");
         reader.Skip(2);
         var hello = new ServerHelloPacket(reader.UInt32(), reader.UInt32(), reader.Int32());
         return reader.Remaining > 0 ? hello with { ServerName = Utf8Text.Read(ref reader, MaxServerNameBytes, "Server hello") } : hello;
@@ -79,7 +71,7 @@ public readonly record struct LoginPacket(uint Protocol, string Account, string 
     public static LoginPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, 8 + 4 + 4 + 4);
-        AccountWire.ReadVersion(ref reader, "Login");
+        WireHeader.ReadVersion(ref reader, "Login");
         reader.Skip(2);
         var protocol = reader.UInt32();
         var account = Utf8Text.Read(ref reader, AccountWire.MaxAccountBytes, "Login");
@@ -105,7 +97,7 @@ public readonly record struct LoginResultPacket(LoginFailure Status)
     public static LoginResultPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        AccountWire.ReadVersion(ref reader, "Login result");
+        WireHeader.ReadVersion(ref reader, "Login result");
         return new LoginResultPacket((LoginFailure)reader.Byte());
     }
 }
@@ -178,7 +170,7 @@ public sealed record CharacterListPacket(IReadOnlyList<CharacterListEntry> Chara
     public static CharacterListPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, 8 + 4 + 4);
-        AccountWire.ReadVersion(ref reader, "Character list");
+        WireHeader.ReadVersion(ref reader, "Character list");
         reader.Skip(2);
         var count = reader.Int32();
         if (count is < 0 or > MaxCharacters)
@@ -228,7 +220,7 @@ public readonly record struct CharacterCommandPacket(byte Action, PlayerClass Cl
     public static CharacterCommandPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, 8 + 4 + 8 + 2);
-        AccountWire.ReadVersion(ref reader, "Character command");
+        WireHeader.ReadVersion(ref reader, "Character command");
         var action = reader.Byte();
         reader.Skip(1);
         if (action is not (CharacterAction.Create or CharacterAction.Delete))
@@ -262,7 +254,7 @@ public readonly record struct CharacterResultPacket(byte Action, bool Ok, int Fa
     public static CharacterResultPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, 8 + 4 + 4 + 2);
-        AccountWire.ReadVersion(ref reader, "Character result");
+        WireHeader.ReadVersion(ref reader, "Character result");
         var action = reader.Byte();
         var ok = reader.Byte() != 0;
         var failure = reader.Int32();
@@ -288,7 +280,7 @@ public readonly record struct HeartbeatPacket(uint Counter, long TimeMs) : IFram
     public static HeartbeatPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        AccountWire.ReadVersion(ref reader, "Heartbeat");
+        WireHeader.ReadVersion(ref reader, "Heartbeat");
         reader.Skip(2);
         return new HeartbeatPacket(reader.UInt32(), reader.Int64());
     }

@@ -81,7 +81,7 @@ public readonly record struct SkillCastResultPacket(uint Sequence, uint SkillCod
     public static SkillCastResultPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        SkillWire.ReadVersion(ref reader, "Skill cast result");
+        WireHeader.Read(ref reader, "Skill cast result");
         var sequence = reader.UInt32();
         var code = reader.UInt32();
         var status = reader.Byte();
@@ -413,13 +413,11 @@ public sealed record SkillCooldownsPacket(uint ServerTick, IReadOnlyList<SkillCo
     public static SkillCooldownsPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, HeaderSize);
-        SkillWire.ReadVersion(ref reader, "Skill cooldowns");
+        WireHeader.Read(ref reader, "Skill cooldowns");
         var tick = reader.UInt32();
         return new SkillCooldownsPacket(tick, WireList.Read<SkillCooldownEntry>(ref reader, MaxEntries, "Skill cooldown list"));
     }
 }
 
 internal static class SkillWire
-{
-    public static void ReadVersion(ref PacketReader reader, string name) => WireHeader.Read(ref reader, name);
-}
+{}

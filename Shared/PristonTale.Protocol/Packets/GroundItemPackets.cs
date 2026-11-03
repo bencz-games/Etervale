@@ -63,7 +63,7 @@ public static class GroundItemList
     public static GroundItemEntry[] Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, HeaderSize);
-        GroundItemWire.ReadVersion(ref reader, "Ground item list");
+        WireHeader.Read(ref reader, "Ground item list");
         var count = reader.Int32();
         if (count is < 1 or > MaxItems)
         {
@@ -114,7 +114,7 @@ public static class GroundItemRemovals
     public static Guid[] Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, HeaderSize);
-        GroundItemWire.ReadVersion(ref reader, "Ground item removal");
+        WireHeader.Read(ref reader, "Ground item removal");
         var count = reader.Int32();
         if (count is < 1 or > MaxItems || reader.Remaining != count * 16)
         {
@@ -132,6 +132,4 @@ public static class GroundItemRemovals
 }
 
 internal static class GroundItemWire
-{
-    internal static void ReadVersion(ref PacketReader reader, string what) => WireHeader.Read(ref reader, what);
-}
+{}

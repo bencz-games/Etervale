@@ -23,10 +23,7 @@ public sealed record WingGateRequestPacket(Guid OperationId, byte Destination) :
     public static WingGateRequestPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        if (reader.UInt16() == 0)
-        {
-            throw new InvalidDataException("Wing gate request has version 0.");
-        }
+        WireHeader.ReadVersion(ref reader, "Wing gate request");
 
         reader.Skip(2);
         var operation = reader.Guid();
@@ -56,10 +53,7 @@ public sealed record WingGateResultPacket(Guid OperationId, byte Status, byte De
     public static WingGateResultPacket Read(ReadOnlySpan<byte> packet)
     {
         var reader = new PacketReader(packet, Size);
-        if (reader.UInt16() == 0)
-        {
-            throw new InvalidDataException("Wing gate result has version 0.");
-        }
+        WireHeader.ReadVersion(ref reader, "Wing gate result");
 
         reader.Skip(2);
         var operation = reader.Guid();
