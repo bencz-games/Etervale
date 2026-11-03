@@ -138,13 +138,13 @@ public sealed class HudTradeWindow : IHudServiceWindow
             return false;
         }
 
-        var occupied = new bool[TradeLimits.Columns * TradeLimits.Rows];
+        var occupied = HudStoreLayout.NewGrid(TradeLimits.Rows);
         foreach (var view in _own)
         {
             HudStoreLayout.Occupy(occupied, view.Anchor, view.Width, view.Height);
         }
 
-        var cell = HudStoreLayout.FindSpace(occupied, item.Width, item.Height, TradeLimits.Rows);
+        var cell = HudStoreLayout.FindSpace(occupied, item.Width, item.Height);
         if (cell < 0)
         {
             return false;

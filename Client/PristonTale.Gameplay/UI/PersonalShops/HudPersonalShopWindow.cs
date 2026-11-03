@@ -126,7 +126,7 @@ public sealed class HudPersonalShopWindow : IHudServiceWindow
             return false;
         }
 
-        var occupied = new bool[HudStoreLayout.Columns * HudStoreLayout.Rows];
+        var occupied = HudStoreLayout.NewGrid();
         foreach (var offer in _offers)
         {
             HudStoreLayout.Occupy(occupied, offer.Item.Anchor, offer.Item.Width, offer.Item.Height);

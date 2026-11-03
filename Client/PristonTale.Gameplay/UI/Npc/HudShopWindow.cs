@@ -312,7 +312,7 @@ public sealed class HudShopWindow : IHudServiceWindow
     private static List<List<Placed>> Pack(IEnumerable<ShopOffer> offers)
     {
         var pages = new List<List<Placed>>();
-        var occupied = new List<bool[]>();
+        var occupied = new List<uint[]>();
         foreach (var offer in offers)
         {
             if (offer.Width > HudStoreLayout.Columns || offer.Height > HudStoreLayout.Rows || offer.Width < 1 || offer.Height < 1)
@@ -325,7 +325,7 @@ public sealed class HudShopWindow : IHudServiceWindow
             if (anchor < 0)
             {
                 pages.Add([]);
-                occupied.Add(new bool[HudStoreLayout.Columns * HudStoreLayout.Rows]);
+                occupied.Add(HudStoreLayout.NewGrid());
                 page = pages.Count - 1;
                 anchor = HudStoreLayout.FindSpace(occupied[page], offer.Width, offer.Height);
             }

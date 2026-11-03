@@ -23,49 +23,14 @@ public static class HudStoreLayout
     public static Rectangle Cell(Point origin, int anchor, int width = 1, int height = 1) =>
         HudGridPlacement.Cell(Grid(origin), Columns, anchor, width, height);
 
-    // The first free place for an item, down each column from the left as the original's shops lay items, on a grid of
-    // occupied cells (row-major, Columns wide and rows high: the store's, or the trade's shorter one); -1 when none.
-    public static int FindSpace(bool[] occupied, int width, int height, int rows = Rows)
-    {
-        for (var place = 0; place < Columns * rows; place++)
-        {
-            var x = place / rows;
-            var y = place % rows;
-            if (x + width > Columns || y + height > rows)
-            {
-                continue;
-            }
+    // A store page's occupied cells (ItemGrid rows), Columns wide and rows high: the store's, or the trade's shorter one.
+    public static uint[] NewGrid(int rows = Rows) => new uint[rows];
 
-            var free = true;
-            for (var row = y; row < y + height && free; row++)
-            {
-                for (var column = x; column < x + width && free; column++)
-                {
-                    free = !occupied[row * Columns + column];
-                }
-            }
+    // The first free place for an item, down each column from the left as the shops lay items; -1 when none.
+    public static int FindSpace(uint[] occupied, int width, int height) =>
+        ItemGrid.FirstFit(occupied, Columns, Columns * occupied.Length, width, height);
 
-            if (free)
-            {
-                return y * Columns + x;
-            }
-        }
-
-        return -1;
-    }
-
-    public static void Occupy(bool[] occupied, int anchor, int width, int height)
-    {
-        var x = anchor % Columns;
-        var y = anchor / Columns;
-        for (var row = y; row < y + height; row++)
-        {
-            for (var column = x; column < x + width; column++)
-            {
-                occupied[row * Columns + column] = true;
-            }
-        }
-    }
+    public static void Occupy(uint[] occupied, int anchor, int width, int height) => ItemGrid.Occupy(occupied, Columns, anchor, width, height);
 
     public static Point Title(Point origin) => new(origin.X + 225, origin.Y + 47);
     // A personal shop's picture, where the NPC shop shows its tabs.

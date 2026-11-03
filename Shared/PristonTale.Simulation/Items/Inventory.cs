@@ -423,50 +423,11 @@ public sealed class Inventory
     private int Destination(ReadOnlySpan<uint> rows, int preferred, ItemDefinition definition) =>
         Fits(preferred, definition, rows) ? preferred : FindSpace(definition, rows);
 
-    // The first free space down each column from the left, as the original's client fills the bag: items received one
-    // after another stack under each other before taking the next column.
-    private int FindSpace(ItemDefinition definition, ReadOnlySpan<uint> rows)
-    {
-        for (var x = 0; x < Width; x++)
-        {
-            for (var y = 0; y < Height; y++)
-            {
-                if (Fits(y * Width + x, definition, rows))
-                {
-                    return y * Width + x;
-                }
-            }
-        }
+    private int FindSpace(ItemDefinition definition, ReadOnlySpan<uint> rows) =>
+        ItemGrid.FirstFit(rows[..Height], Width, Capacity, definition.GridWidth, definition.GridHeight);
 
-        return -1;
-    }
-
-    private bool Fits(int anchor, ItemDefinition definition, ReadOnlySpan<uint> rows)
-    {
-        if (anchor < 0 || anchor >= Capacity || definition.GridWidth < 1 || definition.GridHeight < 1)
-        {
-            return false;
-        }
-
-        var x = anchor % Width;
-        var y = anchor / Width;
-        if (definition.GridWidth > Width - x || definition.GridHeight > Height - y
-            || (y + definition.GridHeight - 1) * Width + x + definition.GridWidth > Capacity)
-        {
-            return false;
-        }
-
-        var mask = ((1u << definition.GridWidth) - 1u) << x;
-        for (var row = y; row < y + definition.GridHeight; row++)
-        {
-            if ((rows[row] & mask) != 0)
-            {
-                return false;
-            }
-        }
-
-        return true;
-    }
+    private bool Fits(int anchor, ItemDefinition definition, ReadOnlySpan<uint> rows) =>
+        ItemGrid.Fits(rows[..Height], Width, Capacity, anchor, definition.GridWidth, definition.GridHeight);
 
     private bool Overlaps(int anchor, ItemDefinition definition, int x, int y, ItemDefinition other)
     {
