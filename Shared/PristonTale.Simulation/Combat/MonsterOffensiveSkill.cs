@@ -5,7 +5,7 @@ namespace PristonTale.Simulation.Combat;
 
 public static class MonsterOffensiveSkill
 {
-    private const double ConnectedDistanceSquared = 0x120000;
+    private const double ConnectedDistanceSquared = World.ViewRanges.ConnectSquared;
 
     public static Vector3 AreaCenter(Vector3 origin, float facing, MonsterSkillStats skill)
     {

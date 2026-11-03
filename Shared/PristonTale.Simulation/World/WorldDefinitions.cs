@@ -51,7 +51,18 @@ public sealed record FieldWarpGate(
     int DestinationZ,
     int DestinationY,
     int LimitLevel,
-    int SpecialEffect);
+    int SpecialEffect)
+{
+    private const float MinimumRadius = 48f;
+    // The server answers a gate (a warp or a wing stone) this far past its radius, for a report a step late.
+    private const float ServerTolerance = 64f;
+
+    // Where the client's feet trigger the gate: its width, at least MinimumRadius.
+    public float Radius => MathF.Max(Width, MinimumRadius);
+
+    // How far from the gate the server accepts a player standing on it.
+    public float ServerReach => Radius + ServerTolerance;
+}
 
 public sealed record FieldAmbient(
     FieldVector Position,
@@ -122,6 +133,10 @@ public sealed record FieldDef(
     public int FieldCode { get; init; }
     public FieldPoint Center { get; init; } = FieldPoint.Zero;
     public IReadOnlyList<FieldPoint> StartPoints { get; init; } = [];
+
+    // Where a traveller arrives in the field (an entry, a teleport, a warp, a quest's travel): its first start point,
+    // else its centre.
+    public FieldPoint Arrival => StartPoints.Count > 0 ? StartPoints[0] : Center;
     public IReadOnlyList<FieldGate> Gates { get; init; } = [];
     public IReadOnlyList<FieldWarpGate> WarpGates { get; init; } = [];
     public IReadOnlyList<FieldAmbient> Ambients { get; init; } = [];

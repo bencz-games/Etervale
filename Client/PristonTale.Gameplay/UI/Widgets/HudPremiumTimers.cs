@@ -122,7 +122,7 @@ public sealed class HudPremiumTimers
         var remaining = Remaining(entry, nowMs);
         if (entry.Hover is null || entry.HoverSeconds != remaining)
         {
-            entry.Hover = [Name(entry.Kind), Describe(entry.Kind, entry.Value), TimeLeft(remaining)];
+            entry.Hover = [ItemStatuses.PremiumName(entry.Kind), Describe(entry.Kind, entry.Value), TimeLeft(remaining)];
             entry.HoverSeconds = remaining;
         }
 
@@ -162,24 +162,6 @@ public sealed class HudPremiumTimers
 
         return 0;
     }
-
-    public static string Name(PremiumEffectKind kind) => kind switch
-    {
-        PremiumEffectKind.ThirdEyes => "Third Eyes",
-        PremiumEffectKind.ExperienceUp => "EXP Increase Potion",
-        PremiumEffectKind.VampiricCuspid => "Vampiric Cuspid",
-        PremiumEffectKind.ManaRecharging => "Mana Recharging Potion",
-        PremiumEffectKind.MightOfAwell => "Might of Awell",
-        PremiumEffectKind.ManaReduce => "Mana Reduce Potion",
-        PremiumEffectKind.PhoenixPet => "Phoenix",
-        PremiumEffectKind.HelpPetTerry => "Terry",
-        PremiumEffectKind.HelpPetNepsys => "Nepsys",
-        PremiumEffectKind.HelpPetIo => "Io",
-        PremiumEffectKind.HelpPetMute => "Mute",
-        PremiumEffectKind.VampiricCuspidEx => "Super Vampiric Cuspid",
-        PremiumEffectKind.StaminaReduce => "Stamina Reduce Potion",
-        _ => ItemStatuses.Name(ItemStatuses.PremiumKeepCode(kind)) ?? ""
-    };
 
     public static string Describe(PremiumEffectKind kind, int value) => kind switch
     {

@@ -1,3 +1,4 @@
+using PristonTale.Simulation.Items;
 namespace PristonTale.Application.GameMasters;
 
 // Where gold left the economy: the totals since the server started, as the game masters' currency report shows them, and
@@ -66,18 +67,11 @@ public sealed class CurrencyLedger
     }
 
     // A shop purchase counts as potions of its kind when it is a life, mana or stamina potion.
-    public static CurrencySink ShopSinkFor(string catalogKey)
+    public static CurrencySink ShopSinkFor(string catalogKey) => PotionDefinition.FamilyOf(catalogKey) switch
     {
-        if (catalogKey.StartsWith("PL", StringComparison.OrdinalIgnoreCase))
-        {
-            return CurrencySink.LifePotions;
-        }
-
-        if (catalogKey.StartsWith("PM", StringComparison.OrdinalIgnoreCase))
-        {
-            return CurrencySink.ManaPotions;
-        }
-
-        return catalogKey.StartsWith("PS", StringComparison.OrdinalIgnoreCase) ? CurrencySink.StaminaPotions : CurrencySink.Shop;
-    }
+        PotionResource.Life => CurrencySink.LifePotions,
+        PotionResource.Mana => CurrencySink.ManaPotions,
+        PotionResource.Stamina => CurrencySink.StaminaPotions,
+        _ => CurrencySink.Shop
+    };
 }

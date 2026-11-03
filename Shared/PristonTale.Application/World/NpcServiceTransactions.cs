@@ -201,7 +201,7 @@ internal static class NpcServiceTransactions
             return NpcServiceStatus.NotEnoughGold;
         }
 
-        var start = target.StartPoints.Count > 0 ? target.StartPoints[0] : target.Center;
+        var start = target.Arrival;
         arrival = new TeleportArrival(target.FieldCode, new Vector3(start.X, 0f, start.Z));
         return NpcServiceStatus.Ok;
     }

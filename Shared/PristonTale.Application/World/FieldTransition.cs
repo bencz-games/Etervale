@@ -9,7 +9,6 @@ public static class FieldTransition
 {
     // Matches the client's gate residency radius. This authorizes membership, never a teleport.
     public const float GateRadius = 1810f;
-    public const float WarpTolerance = 64f;
 
     public static bool TryResolve(FieldDef source, FieldDef destination, Vector3 origin, int level, out FieldArrival arrival)
     {
@@ -21,7 +20,7 @@ public static class FieldTransition
 
         foreach (var warp in source.WarpGates)
         {
-            var radius = MathF.Max(warp.Width, 48f) + WarpTolerance;
+            var radius = warp.ServerReach;
             if (warp.DestinationFieldId == destination.Id
                 && !WingGates.IsStone(warp)
                 && level >= warp.LimitLevel

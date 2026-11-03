@@ -346,6 +346,8 @@ internal static class GameMasterCommandTests
             && gm.Session.Character.Premium.IsActive(PremiumEffectKind.ExperienceUp), "the premium reset did not end exactly Third Eyes");
         await fixture.SayAsync(gm, "/init_premiumitem 1");
         Assert.True(gm.Link.Last == "(Third Eyes)Item Init Success" && gm.Link.Lines.Count == 4, "resetting a timer that does not run must answer nothing");
+        Assert.True(ItemStatuses.PremiumName(PremiumEffectKind.LifeBooster) != ItemStatuses.PremiumName(PremiumEffectKind.StaminaReduce)
+            && ItemStatuses.PremiumName(PremiumEffectKind.LifeBooster).Length > 0, "a booster's reset reply names the stamina reduce potion");
         Assert.True(ForceOrbs.TryGet("FO101", out var orb), "fixture force orb");
         gm.Session.Character.Effects.Apply(orb.Spec(10), gm.Id, 30_000f, gm.Id);
         await fixture.SayAsync(gm, "/get_forceorb");

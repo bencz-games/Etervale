@@ -192,7 +192,7 @@ internal static class QuestTransactions
             return new Vector3(travel.X, 0f, travel.Z);
         }
 
-        var start = destination.StartPoints.Count > 0 ? destination.StartPoints[0] : destination.Center;
+        var start = destination.Arrival;
         return new Vector3(start.X, 0f, start.Z);
     }
 

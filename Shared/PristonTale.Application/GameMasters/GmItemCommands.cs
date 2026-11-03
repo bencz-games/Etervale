@@ -45,7 +45,7 @@ internal static class GmItemCommands
 
         if (await context.Commands.World.EndPremiumAsync(context.Issuer.EntityId, (PremiumEffectKind)kind))
         {
-            context.Reply(Format("({0})Item Init Success", PremiumName((PremiumEffectKind)kind)));
+            context.Reply(Format("({0})Item Init Success", ItemStatuses.PremiumName((PremiumEffectKind)kind)));
         }
     }
 
@@ -228,23 +228,6 @@ internal static class GmItemCommands
 
         return -1;
     }
-
-    public static string PremiumName(PremiumEffectKind kind) => kind switch
-    {
-        PremiumEffectKind.ThirdEyes => "Third Eyes",
-        PremiumEffectKind.ExperienceUp => "EXP Increase Potion",
-        PremiumEffectKind.VampiricCuspid => "Vampiric Cuspid",
-        PremiumEffectKind.ManaRecharging => "Mana Recharging Potion",
-        PremiumEffectKind.MightOfAwell => "Might of Awell",
-        PremiumEffectKind.ManaReduce => "Mana Reduce Potion",
-        PremiumEffectKind.PhoenixPet => "Phoenix",
-        PremiumEffectKind.HelpPetTerry => "Terry",
-        PremiumEffectKind.HelpPetNepsys => "Nepsys",
-        PremiumEffectKind.HelpPetIo => "Io",
-        PremiumEffectKind.HelpPetMute => "Mute",
-        PremiumEffectKind.VampiricCuspidEx => "Super Vampiric Cuspid",
-        _ => "Stamina Reduce Potion"
-    };
 
     // A code names a non-unique item; a double-quoted phrase names any item by its name.
     private static ItemDefinition? Find(GmCommandContext context, string argument)

@@ -343,7 +343,7 @@ public sealed partial class GameScene
 
     private static Vector2 SpawnPlanarPosition(FieldDef field)
     {
-        var point = field.StartPoints.Count > 0 ? field.StartPoints[0] : field.Center;
+        var point = field.Arrival;
         return WorldSpace.Planar(point.X, point.Z);
     }
 }

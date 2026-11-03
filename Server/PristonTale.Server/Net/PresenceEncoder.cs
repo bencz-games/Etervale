@@ -10,6 +10,7 @@ using PristonTale.Simulation.World.Loot;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Simulation.Physics;
+using PristonTale.Simulation.World;
 
 namespace PristonTale.Server.Net;
 
@@ -20,10 +21,10 @@ namespace PristonTale.Server.Net;
 // ahead of its spawn, and lets the near ring update faster than the far ring.
 internal sealed partial class PresenceEncoder : IEventHandleWriter
 {
-    // Squared view ranges in world units: connect 0x120000, high detail 0x48000, ground items 0xC8000.
-    public static readonly float ViewRadius = MathF.Sqrt(0x120000);
+    // The view ranges: connect and high detail (ViewRanges), ground items 0xC8000 squared world units.
+    public static readonly float ViewRadius = ViewRanges.Connect;
     private static readonly float ForgetRadius = ViewRadius * 1.15f;
-    private static readonly float NearRadius = MathF.Sqrt(0x48000);
+    private static readonly float NearRadius = ViewRanges.Near;
     private static readonly float ItemRadius = MathF.Sqrt(0xC8000);
     // 5 Hz inside the high-detail range and 2 Hz out to the connect range; the original relayed players at about 2.2 Hz and monsters at 1.1 Hz.
     private const uint NearIntervalTicks = 4;

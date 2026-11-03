@@ -240,10 +240,15 @@ public sealed class FieldGroundLoot(ItemCatalog catalog, FieldTerrain? terrain =
         }
     }
 
-    // Gold (no definition), life and stamina potions lie for 90 s; mana potions and other items for 180 s.
+    // Gold (no definition), life and stamina potions lie for ShortLifetimeMs; mana potions and other items for
+    // LongLifetimeMs.
+    private const long ShortLifetimeMs = 90_000;
+    private const long LongLifetimeMs = 180_000;
+
     private static long LifetimeMs(ItemDefinition? definition) =>
-        definition is null || definition.CatalogKey.StartsWith("PL", StringComparison.OrdinalIgnoreCase)
-        || definition.CatalogKey.StartsWith("PS", StringComparison.OrdinalIgnoreCase) ? 90_000 : 180_000;
+        definition is null || PotionDefinition.FamilyOf(definition.CatalogKey) is PotionResource.Life or PotionResource.Stamina
+            ? ShortLifetimeMs
+            : LongLifetimeMs;
 
     private void RemoveEntry(Guid id)
     {

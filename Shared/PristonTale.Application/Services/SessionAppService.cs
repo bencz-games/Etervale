@@ -155,13 +155,7 @@ public sealed class SessionAppService
             return saved;
         }
 
-        if (field.StartPoints.Count > 0)
-        {
-            var start = field.StartPoints[0];
-            return new Vector3(start.X, 0f, start.Z);
-        }
-
-        return new Vector3(field.Center.X, 0f, field.Center.Z);
+        return new Vector3(field.Arrival.X, 0f, field.Arrival.Z);
     }
 
     public Task<bool> SaveCharacterAsync(string sessionToken, CancellationToken ct = default) => SaveAsync(sessionToken, null, ct);

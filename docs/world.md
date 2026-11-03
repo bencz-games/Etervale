@@ -102,8 +102,8 @@ server position; the requested position is never trusted. Rules:
 
 - Refused for an invalid origin, the same field, or `level < destination.LimitLevel`.
 - Warp: a source warp gate to the destination, not a wing warp stone, `level >= warp.LimitLevel`, origin within
-  `max(Width, 48) + 64` planar units of the trigger. Arrival is the warp's authored destination point, settled on the
-  floor within 64 units.
+  `FieldWarpGate.ServerReach` (`max(Width, 48) + 64`) planar units of the trigger. Arrival is the warp's authored
+  destination point, settled on the floor within 64 units.
 - Gate: a gate between the two fields (either direction) within 1810 planar units of the origin. The player keeps the
   position.
 
@@ -598,10 +598,10 @@ Ruinen Village (6), Navisko (9), Forbidden Land (12), Eura (29), Land of Chaos (
   Gold 6, Dia 7, Chaos 8, Extreme (`QW106`) 9.
 - Fee: Ricarten, Pillai and the field the player stands in are free; elsewhere the wing's fee: 100, 300, 500, 1000,
   2000, 4000 gold from Metal to Extreme. It counts as teleport spending in the currency report.
-- The server checks that the living player stands within `max(Width, 48) + 64` planar units of a stone of its field,
-  the reach, the level and the gold. The candidate pays the fee and is stored at the destination, then the commit
-  takes the gold and moves the player (`Arrive`, also within the same field) to the destination stone's exit (its
-  first start point when it has no stone).
+- The server checks that the living player stands within `FieldWarpGate.ServerReach` (`max(Width, 48) + 64`) planar
+  units of a stone of its field, the reach, the level and the gold. The candidate pays the fee and is stored at the
+  destination, then the commit takes the gold and moves the player (`Arrive`, also within the same field) to the
+  destination stone's exit (its first start point when it has no stone).
 - Bless Castle's stone has no map entry: the castle destination belongs to the castle's owner clan, and there is no
   castle ownership yet.
 

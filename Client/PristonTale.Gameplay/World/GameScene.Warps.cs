@@ -124,7 +124,7 @@ public sealed partial class GameScene
     private bool OnGate(FieldWarpGate warp)
     {
         var center = WorldSpace.Planar(warp.X, warp.Z);
-        var radius = MathF.Max(warp.Width, 48f);
+        var radius = warp.Radius;
         var playerFeet = _playerBody.Height + GroundTraversal.VisualOffset;
         var withinHeight = warp.Y == 0 || MathF.Abs(playerFeet - warp.Y) < warp.Height;
         return withinHeight && Vector2.DistanceSquared(_playerBody.PlanarPosition, center) <= radius * radius;

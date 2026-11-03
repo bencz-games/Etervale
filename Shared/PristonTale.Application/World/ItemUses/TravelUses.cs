@@ -17,7 +17,7 @@ internal static class TravelRules
 
     public static TeleportArrival ArrivalAt(FieldDef target)
     {
-        var start = target.StartPoints.Count > 0 ? target.StartPoints[0] : target.Center;
+        var start = target.Arrival;
         return new TeleportArrival(target.FieldCode, new Vector3(start.X, 0f, start.Z));
     }
 }

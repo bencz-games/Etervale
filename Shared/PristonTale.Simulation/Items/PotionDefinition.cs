@@ -18,6 +18,24 @@ public sealed record PotionDefinition(int LifeMin, int LifeMax, int ManaMin, int
     // them bound it); the authored data gives potions no stack size, so a potion stacks to the four digits a bag item shows.
     public const int StackSize = 9999;
 
+    // The potion family a catalog key names by its first two letters (PL life, PM mana, PS stamina); None for any other
+    // item.
+    public static PotionResource FamilyOf(string catalogKey)
+    {
+        if (catalogKey is not { Length: >= 2 } || char.ToUpperInvariant(catalogKey[0]) != 'P')
+        {
+            return PotionResource.None;
+        }
+
+        return char.ToUpperInvariant(catalogKey[1]) switch
+        {
+            'L' => PotionResource.Life,
+            'M' => PotionResource.Mana,
+            'S' => PotionResource.Stamina,
+            _ => PotionResource.None
+        };
+    }
+
     public bool IsValid => LifeMin >= 0 && LifeMax >= LifeMin
         && ManaMin >= 0 && ManaMax >= ManaMin
         && StaminaMin >= 0 && StaminaMax >= StaminaMin

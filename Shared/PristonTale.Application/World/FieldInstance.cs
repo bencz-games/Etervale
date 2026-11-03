@@ -24,8 +24,8 @@ namespace PristonTale.Application.World;
 
 public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IFieldCombatHost, IFieldSkillHost
 {
-    public const int PlayerNearRadiusSquared = 0x120000;
-    public static readonly float PlayerNearRadius = MathF.Sqrt(PlayerNearRadiusSquared);
+    public const int PlayerNearRadiusSquared = ViewRanges.ConnectSquared;
+    public static readonly float PlayerNearRadius = ViewRanges.Connect;
 
     private readonly Dictionary<ulong, WorldPlayer> _players = new();
     private readonly Dictionary<ulong, MonsterInstance> _monsters = new();

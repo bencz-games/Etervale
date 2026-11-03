@@ -19,9 +19,6 @@ public static class WingGates
     public const int FreeReach = 2;
     public const int FreeDestinations = 2;
 
-    // A stone answers within its width plus this tolerance, as a warp gate does.
-    public const float StoneTolerance = 64f;
-
     public const string MapArt = "image/Sinimage/help/WG_map.tga";
     public const string IconArt = "image/Sinimage/help/WG_icon.tga";
     public const string SelectArt = "image/Sinimage/help/WG_slt.tga";
@@ -117,7 +114,7 @@ public static class WingGates
     {
         foreach (var warp in field.WarpGates)
         {
-            var radius = MathF.Max(warp.Width, 48f) + StoneTolerance;
+            var radius = warp.ServerReach;
             var delta = new Vector2(position.X - warp.X, position.Z - warp.Z);
             if (IsStone(warp) && delta.LengthSquared() <= radius * radius)
             {
@@ -139,7 +136,7 @@ public static class WingGates
             }
         }
 
-        var start = field.StartPoints.Count > 0 ? field.StartPoints[0] : field.Center;
+        var start = field.Arrival;
         return new Vector3(start.X, 0f, start.Z);
     }
 }

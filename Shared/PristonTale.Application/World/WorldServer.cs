@@ -202,7 +202,7 @@ public sealed partial class WorldServer
             // A saved place without a floor (outside the stage) enters at the field's first start point instead.
             if (!field.Terrain.TryPlaceOnFloor(player.Position, out var position))
             {
-                var start = definition.StartPoints.Count > 0 ? definition.StartPoints[0] : definition.Center;
+                var start = definition.Arrival;
                 position = field.Terrain.PlaceOnFloor(new Vector3(start.X, 0f, start.Z));
             }
 

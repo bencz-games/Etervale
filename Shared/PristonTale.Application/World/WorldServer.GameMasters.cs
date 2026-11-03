@@ -407,9 +407,13 @@ public sealed partial class WorldServer
             foreach (var item in character.Inventory.Items())
             {
                 var key = item.Definition.CatalogKey;
-                var kind = key.StartsWith("PL", StringComparison.OrdinalIgnoreCase) ? 0
-                    : key.StartsWith("PM", StringComparison.OrdinalIgnoreCase) ? 1
-                    : key.StartsWith("PS", StringComparison.OrdinalIgnoreCase) ? 2 : -1;
+                var kind = PotionDefinition.FamilyOf(key) switch
+                {
+                    PotionResource.Life => 0,
+                    PotionResource.Mana => 1,
+                    PotionResource.Stamina => 2,
+                    _ => -1
+                };
                 if (kind >= 0 && key.Length == 5 && int.TryParse(key.AsSpan(2), out var number) && number is >= 101 and <= 104)
                 {
                     potions[kind, number - 101] += item.Count;
