@@ -260,7 +260,7 @@ internal sealed partial class FieldSkills
     // The monster drops its prey and targets the caster for the duration; the target lock keeps it from retargeting.
     private static void Taunt(WorldPlayer caster, MonsterInstance monster, float durationMs)
     {
-        monster.Facing = MathF.Atan2(caster.Position.X - monster.Position.X, caster.Position.Z - monster.Position.Z);
+        monster.Facing = Planar.Heading(monster.Position, caster.Position);
         MonsterAiBrain.ForceTarget(monster, caster.EntityId, durationMs);
     }
 

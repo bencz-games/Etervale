@@ -11,6 +11,7 @@ using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Motion;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Application.World;
 
@@ -234,7 +235,7 @@ public sealed class WorldPlayer
     {
         if (facingTarget != Position)
         {
-            Facing = MathF.Atan2(facingTarget.X - Position.X, facingTarget.Z - Position.Z);
+            Facing = Planar.Heading(Position, facingTarget);
         }
 
         Action = PlayerActionState.Cast;
@@ -577,7 +578,7 @@ public sealed class WorldPlayer
 
     public void BeginSwing(ulong targetId, Vector3 targetPos, float durationMs, float hitAtMs)
     {
-        Facing = MathF.Atan2(targetPos.X - Position.X, targetPos.Z - Position.Z);
+        Facing = Planar.Heading(Position, targetPos);
         Action = PlayerActionState.Swing;
         MoveState = MotionState.Attack;
         _timeline = ActionTimeline.Start(durationMs, hitAtMs);

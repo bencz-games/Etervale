@@ -1,6 +1,7 @@
 using PristonTale.Contracts.Units;
 #nullable enable
 using System.Numerics;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Simulation.World;
 
@@ -65,7 +66,7 @@ public static class MonsterStepping
     private static bool TryProbe(FieldTerrain terrain, Vector3 from, float heading, float distance, IStepOccupancy? occupancy, ref bool crowded,
         out Vector3 accepted)
     {
-        var end = from + new Vector3(MathF.Sin(heading), 0f, MathF.Cos(heading)) * distance;
+        var end = from + Planar.Forward(heading) * distance;
         if (!terrain.TryBodyStep(from, end, BodyHalfWidth, StepUp, out accepted))
         {
             return false;

@@ -1,5 +1,6 @@
 using System.Numerics;
 using PristonTale.Simulation.World.Monsters;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Simulation.Combat;
 
@@ -14,7 +15,7 @@ public static class MonsterOffensiveSkill
             return origin;
         }
 
-        var forward = new Vector3(MathF.Sin(facing), 0f, MathF.Cos(facing));
+        var forward = Planar.Forward(facing);
         return origin + forward * skill.SkillDistance;
     }
 

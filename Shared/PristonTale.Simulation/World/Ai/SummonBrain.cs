@@ -146,11 +146,11 @@ public sealed class SummonBrain
             return;
         }
 
-        summon.Facing = MathF.Atan2(dx, dz);
+        summon.Facing = Planar.Heading(summon.Position, point);
         var step = MathF.Min(distance - MathF.Max(0f, stopDistance), MonsterLocomotion.UnitsPerSecond(summon.Def, running: summon.Motion == MotionState.Run) * dtMs / 1000f);
         summon.MoveTarget = point;
         summon.Position = new Vector3(summon.Position.X + dx / distance * step, summon.Position.Y, summon.Position.Z + dz / distance * step);
     }
 
-    private static void Face(MonsterInstance summon, Vector3 point) => summon.Facing = MathF.Atan2(point.X - summon.Position.X, point.Z - summon.Position.Z);
+    private static void Face(MonsterInstance summon, Vector3 point) => summon.Facing = Planar.Heading(summon.Position, point);
 }

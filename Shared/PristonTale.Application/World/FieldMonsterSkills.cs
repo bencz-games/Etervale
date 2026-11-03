@@ -166,7 +166,7 @@ internal sealed class FieldMonsterSkills
                 if (FindAlly(monster) is { } ally)
                 {
                     monster.AllyTargetId = ally.EntityId;
-                    monster.Facing = MathF.Atan2(ally.Position.X - monster.Position.X, ally.Position.Z - monster.Position.Z);
+                    monster.Facing = Planar.Heading(monster.Position, ally.Position);
                 }
                 else
                 {
