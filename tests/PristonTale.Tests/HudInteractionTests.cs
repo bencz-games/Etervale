@@ -258,6 +258,9 @@ internal static class HudInteractionTests
             var state = OwnerState.Capture(character);
             Assert.True(state.AttackRating > 0 && state.MoveSpeed > 0, "owner projection omitted derived combat statistics");
             Assert.True(ReferenceEquals(state, OwnerState.Capture(character, state)), "unchanged derived values invalidated owner cache");
+            var allocated = GC.GetAllocatedBytesForCurrentThread();
+            OwnerState.Capture(character, state);
+            Assert.True(GC.GetAllocatedBytesForCurrentThread() == allocated, "capturing an unchanged owner, as the tick does, allocated");
             character.Effects.Apply(new EffectSpec(0x0A00_0003, EffectSourceKind.Item, false, [StatModifier.Flat(StatKind.DamageMax, 10)]), 0, 60_000f);
             var buffed = OwnerState.Capture(character, state);
             Assert.True(!ReferenceEquals(state, buffed) && buffed.DamageMax == state.DamageMax + 10, "a buff that changes only the damage left the owner state stale");

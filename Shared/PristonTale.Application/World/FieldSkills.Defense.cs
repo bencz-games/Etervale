@@ -138,7 +138,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
             return;
         }
 
-        foreach (var (code, rule) in SkillEffects(target, buff => buff.Guard is { } guard && guard.OnBlock == onBlock))
+        foreach (var (code, rule) in SkillEffects(target, onBlock ? GuardsOnBlock : GuardsOnHit))
         {
             var guard = rule.Buff.Guard;
             if (!SkillFormulas.MatchesBrood(guard.Broods, attacker.Def))
@@ -202,18 +202,35 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
         }
     }
 
-    // The holder's running player-skill effects whose rule's buff matches.
-    private IEnumerable<(uint Code, SkillRule Rule)> SkillEffects(WorldPlayer holder, Func<SkillBuffRule, bool> predicate)
+    private static readonly Func<SkillBuffRule, bool> GuardsOnBlock = static buff => buff.Guard is { OnBlock: true };
+    private static readonly Func<SkillBuffRule, bool> GuardsOnHit = static buff => buff.Guard is { OnBlock: false };
+
+    // The holder's running player-skill effects whose rule's buff matches; walked on the tick for every blow, block and
+    // hit, so it allocates nothing.
+    private static SkillEffectRun SkillEffects(WorldPlayer holder, Func<SkillBuffRule, bool> predicate) => new(holder.Character.Effects.Effects, predicate);
+
+    private struct SkillEffectRun(IReadOnlyList<ActiveEffect> effects, Func<SkillBuffRule, bool> predicate)
     {
-        var effects = holder.Character.Effects.Effects;
-        for (var index = 0; index < effects.Count; index++)
+        private int _index = -1;
+
+        public (uint Code, SkillRule Rule) Current { get; private set; }
+
+        public readonly SkillEffectRun GetEnumerator() => this;
+
+        public bool MoveNext()
         {
-            var effect = effects[index];
-            if (effect.Spec.Source == EffectSourceKind.PlayerSkill && !effect.Permanent && SkillRuleCatalog.TryGet(effect.Code, out var rule)
-                && rule.Buff is { } buff && predicate(buff))
+            while (++_index < effects.Count)
             {
-                yield return (effect.Code, rule);
+                var effect = effects[_index];
+                if (effect.Spec.Source == EffectSourceKind.PlayerSkill && !effect.Permanent && SkillRuleCatalog.TryGet(effect.Code, out var rule)
+                    && rule.Buff is { } buff && predicate(buff))
+                {
+                    Current = (effect.Code, rule);
+                    return true;
+                }
             }
+
+            return false;
         }
     }
 }

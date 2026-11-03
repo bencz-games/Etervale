@@ -107,11 +107,26 @@ public sealed record OwnerState(
     public long AgingRevision { get; init; } = -1;
     public IReadOnlyList<AgingProgressView> Aging { get; init; } = Array.Empty<AgingProgressView>();
 
-    // Built in full and compared with the previous capture as a record: every member counts, and the lists are reused
-    // while their revision holds, so an unchanged owner returns the previous instance (which the encoder skips).
+    // What every member is made of: the character's values and the revisions of what derives the rest (the inventory and
+    // equipment, the effects, the skills, the premium timers, the aging counts). An owner whose stamp holds is unchanged,
+    // so the capture the server makes every tick allocates nothing for it.
+    private OwnerStamp Stamp { get; init; }
+
+    // An unchanged owner returns the previous instance (which the encoder skips); otherwise the state is built in full and
+    // compared as a record, the lists reused while their revision holds.
     public static OwnerState Capture(PlayerCharacter character, OwnerState previous = null, long nowSeconds = 0)
     {
         var attributes = character.Attributes;
+        _ = character.Derived;
+        var stamp = new OwnerStamp(character.Level, character.Experience, character.Money, character.Life, character.Mana, character.Stamina,
+            character.StatPoints, character.SkillPoints, character.EliteSkillPoints, character.Tier, character.BagPage, character.WeaponSet, attributes,
+            character.InventoryRevision, character.ProgressionRevision, character.Skills.Revision, character.Premium.Revision, character.AgingRevision,
+            character.Effects.Revision);
+        if (previous is not null && previous.Stamp == stamp)
+        {
+            return previous;
+        }
+
         var items = previous is not null && previous.InventoryRevision == character.InventoryRevision ? previous.Items : ProjectItems(character);
         var damage = Combat.WeaponDamage.Compute(character);
         var current = new OwnerState(character.Level, character.Experience,
@@ -148,6 +163,7 @@ public sealed record OwnerState(
             PremiumTimers = previous is not null && previous.PremiumRevision == character.Premium.Revision ? previous.PremiumTimers
                 : Array.AsReadOnly(character.Premium.Timers.ToArray()),
             PremiumClockSeconds = previous is not null && previous.PremiumRevision == character.Premium.Revision ? previous.PremiumClockSeconds : nowSeconds,
+            Stamp = stamp,
             AgingRevision = character.AgingRevision,
             Aging = previous is not null && previous.AgingRevision == character.AgingRevision && previous.InventoryRevision == character.InventoryRevision
                 ? previous.Aging
@@ -191,3 +207,7 @@ public sealed record OwnerState(
     private static OwnedItemView Project(ItemInstance item, int anchor, int slot, PlayerCharacter owner) =>
         OwnedItemView.Of(item, anchor, slot) with { Details = ItemDetailView.Of(item, owner) };
 }
+
+internal readonly record struct OwnerStamp(int Level, ulong Experience, long Money, int Life, int Mana, int Stamina, int StatPoints, int SkillPoints,
+    int EliteSkillPoints, short Tier, int BagPage, int WeaponSet, CharacterAttributes Attributes, long InventoryRevision, long ProgressionRevision,
+    long SkillsRevision, long PremiumRevision, long AgingRevision, long EffectsRevision);

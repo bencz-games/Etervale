@@ -31,6 +31,7 @@ public sealed partial class GameScene
     private void UpdateShots(float seconds)
     {
         _shotTarget ??= ShotTarget;
+        _shots.Content = _effectLibrary?.Vfx;
         if (_equipmentPresentation is not null && _playerBody is not null && !_playerController.IsDead)
         {
             Shoot(_remote.SelfEntityId, _equipmentPresentation.Handles, _equipmentPresentation.WeaponKey, _ownWeaponGlow,

@@ -131,10 +131,7 @@ public sealed partial class GameScene : ISkillSceneHost
         {
             QueueBlobShadows();
             QueueFootprints();
-            if (_effectLibrary?.Vfx is { } content)
-            {
-                _shots.Draw(_skillFx.Renderer, _skillFx.Library, content);
-            }
+            _shots.Draw(_skillFx.Renderer, _skillFx.Library);
 
             _skillFx.Draw(_camera.View, _camera.Projection, _camera.Position, _renderer.SceneLinearDepth);
         }

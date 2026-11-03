@@ -37,6 +37,10 @@ public sealed partial class WorldServer
     // Movement reports arrive at about 5 Hz per moving player; the budget bounds one tick's command phase.
     private const int CommandsPerTick = 16384;
     private readonly List<FieldInstance> _activeFields = new();
+    // The tick's inputs every field steps with, and the step itself made once, so the tick's parallel pass allocates no
+    // closure.
+    private FieldStepInputs _stepInputs;
+    private Action<FieldInstance>? _stepField;
     private int _playerCount;
     private bool _membershipChanged;
     private IReadOnlyList<(int FieldId, int PlayerCount)> _activeCounts = Array.Empty<(int, int)>();
@@ -718,7 +722,9 @@ public sealed partial class WorldServer
         // Fields share only immutable catalogs and the thread-safe id allocator, so they step in parallel.
         var night = GameHours.IsNight(WorldClock.HoursAt(GameClockMs));
         var weather = Weather;
-        Parallel.ForEach(_activeFields, field => StepField(field, dt, serverTick, bossHour, nowSeconds, night, weather));
+        _stepInputs = new FieldStepInputs(dt, serverTick, bossHour, nowSeconds, night, weather);
+        Parallel.ForEach(_activeFields, _stepField ??= field => StepField(field, _stepInputs.Dt, _stepInputs.ServerTick, _stepInputs.BossHour,
+            _stepInputs.NowSeconds, _stepInputs.Night, _stepInputs.Weather));
         LastPhases = new TickPhases(processed, Stopwatch.GetElapsedTime(started, commandsDone).TotalMilliseconds,
             Stopwatch.GetElapsedTime(commandsDone).TotalMilliseconds);
         ApplyQuestTravels();
@@ -841,3 +847,5 @@ public sealed partial class WorldServer
         }
     }
 }
+
+internal readonly record struct FieldStepInputs(float Dt, uint ServerTick, int? BossHour, long NowSeconds, bool Night, WeatherState Weather);

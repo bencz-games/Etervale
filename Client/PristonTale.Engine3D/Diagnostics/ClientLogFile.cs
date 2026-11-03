@@ -37,7 +37,7 @@ public sealed class ClientLogFile : IDisposable
             }
 
             var stream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-            return new ClientLogFile(new StreamWriter(stream, new UTF8Encoding(false)) { AutoFlush = true });
+            return new ClientLogFile(new StreamWriter(stream, new UTF8Encoding(false)));
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
@@ -61,9 +61,11 @@ public sealed class ClientLogFile : IDisposable
         _file.Dispose();
     }
 
-    // Copies everything to the console and to the file, the file's lines starting with the time they began.
+    // Copies everything to the console and to the file, the file's lines starting with the time they began. The file is
+    // flushed once a line ends (so a crash keeps every finished line), not for every character.
     private sealed class StampedWriter(TextWriter console, TextWriter file) : TextWriter
     {
+        private const string StampFormat = "HH:mm:ss.fff ";
         private bool _lineStart = true;
 
         public override Encoding Encoding => file.Encoding;
@@ -87,11 +89,16 @@ public sealed class ClientLogFile : IDisposable
         {
             if (_lineStart && value != '\n')
             {
-                file.Write(DateTime.Now.ToString("HH:mm:ss.fff "));
+                Span<char> stamp = stackalloc char[StampFormat.Length];
+                file.Write(DateTime.Now.TryFormat(stamp, out var written, StampFormat) ? stamp[..written] : []);
             }
 
             file.Write(value);
             _lineStart = value == '\n';
+            if (_lineStart)
+            {
+                file.Flush();
+            }
         }
 
         public override void WriteLine(string value)
