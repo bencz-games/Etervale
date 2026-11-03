@@ -7,7 +7,8 @@ namespace PristonTale.Effects.Vfx;
 // one. A file that cannot be read, parsed or validated is reported and skipped as a whole.
 public sealed class VfxCatalog
 {
-    public const string Pattern = "*.vfx.json";
+    public const string Extension = ".vfx.json";
+    public const string Pattern = "*" + Extension;
 
     public static string FolderOf(string assetRoot) => Path.Combine(assetRoot, "Effect", "Vfx");
 

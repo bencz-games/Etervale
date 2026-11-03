@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using PristonTale.Assets;
 using PristonTale.Effects.Vfx;
 using PristonTale.VfxImport;
 
@@ -40,7 +41,7 @@ namespace PristonTale.VfxImport
             var report = new List<string>();
             var failed = 0;
             var scripts = 0;
-            foreach (var file in Files(Path.Combine(assetRoot, "Effect", "NewEffect"), "*.lua"))
+            foreach (var file in Files(AssetFiles.Resolve(AssetFiles.Combine(assetRoot, EffectScriptConverter.Folder)), "*.lua"))
             {
                 failed += Write(file, output, ScriptsFolder, report, text => EffectScriptConverter.Convert(Path.GetFileNameWithoutExtension(file), text, assets, report))
                     ? 0 : 1;
@@ -48,7 +49,7 @@ namespace PristonTale.VfxImport
             }
 
             var particles = 0;
-            foreach (var file in Files(Path.Combine(assetRoot, "Effect", "Particle", "Script"), "*.part"))
+            foreach (var file in Files(AssetFiles.Resolve(AssetFiles.Combine(assetRoot, "Effect/Particle/Script")), "*.part"))
             {
                 failed += Write(file, output, ParticlesFolder, report,
                     text => ParticleScriptConverter.Convert(Path.GetFileNameWithoutExtension(file), text, assets, report)) ? 0 : 1;
@@ -124,7 +125,7 @@ namespace PristonTale.VfxImport
                 definition.Validate();
                 var directory = Path.Combine(output, folder);
                 Directory.CreateDirectory(directory);
-                var target = Path.Combine(directory, Path.GetFileNameWithoutExtension(file) + ".vfx.json");
+                var target = Path.Combine(directory, Path.GetFileNameWithoutExtension(file) + VfxCatalog.Extension);
                 File.WriteAllText(target, JsonSerializer.Serialize(new[] { definition }, VfxDefinition.Json) + Environment.NewLine);
                 return true;
             }
