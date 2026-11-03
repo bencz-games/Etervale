@@ -38,6 +38,9 @@ public static class CastleItems
     public const int StoneSeconds = 60;
     public const int ScrollBonus = 5;
     public const int MightPercent = 20;
+    // Restoration raises its dead owner this long after the death, guarded for RestorationGuardMs.
+    public const int RestorationDelayMs = 10_000;
+    public const int RestorationGuardMs = 5000;
 
     public static IReadOnlyList<CastleItemDefinition> All { get; } =
     [

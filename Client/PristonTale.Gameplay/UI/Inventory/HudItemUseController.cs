@@ -17,7 +17,6 @@ public sealed class HudItemUseController(Func<ItemUseCommand, Task<ItemUseOutcom
     private Guid _confirmTeleportItem;
     private double _deadSinceMs = -1d;
     private bool _restoreSent;
-    private const double RestorationDelayMs = 10_000d;
 
     public HudTeleportCore Teleport { get; } = new();
     public bool Pending => _request.Pending;
@@ -109,7 +108,7 @@ public sealed class HudItemUseController(Func<ItemUseCommand, Task<ItemUseOutcom
             _deadSinceMs = nowMs;
         }
 
-        if (!inCastle || Pending || _restoreSent || nowMs - _deadSinceMs < RestorationDelayMs)
+        if (!inCastle || Pending || _restoreSent || nowMs - _deadSinceMs < CastleItems.RestorationDelayMs)
         {
             return;
         }

@@ -102,7 +102,7 @@ public static class HudUsableTooltip
                 break;
             case UsableItemAction.Restoration:
                 lines.Add("Revives you where you fell");
-                lines.Add("ten seconds after death in the castle.");
+                lines.Add($"{CastleItems.RestorationDelayMs / 1000} seconds after death in the castle.");
                 break;
             case UsableItemAction.Food:
                 lines.Add("Restores life, mana and stamina.");

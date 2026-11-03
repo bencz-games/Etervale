@@ -96,7 +96,7 @@ internal static class CastleItemTests
         await harness.AdvanceAsync(early);
         Assert.True((await early).Outcome.Status == ItemUseStatus.Delay && harness.Player.IsDead, "Restoration before ten seconds");
         harness.Tick(20 * 5);
-        Assert.True(harness.Player.IsDead && harness.Player.DeadMs >= Application.World.ItemUses.RestorationUse.DelayMs, "the dead player respawned before his Restoration");
+        Assert.True(harness.Player.IsDead && harness.Player.DeadMs >= CastleItems.RestorationDelayMs, "the dead player respawned before his Restoration");
         var revive = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("BC105")));
         await harness.AdvanceAsync(revive);
         Assert.True((await revive).Outcome.Ok && !harness.Player.IsDead && character.Life == character.MaxLife / 2 && harness.Item("BC105") is null

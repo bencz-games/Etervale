@@ -43,12 +43,10 @@ internal sealed class CastleItemUse : ItemUseAction
     }
 }
 
-// Restoration is used by its dead owner in a castle field after ten seconds down: the owner rises with half its life,
-// guarded for five seconds.
+// Restoration is used by its dead owner in a castle field once down for CastleItems.RestorationDelayMs: the owner rises
+// with half its life, guarded for CastleItems.RestorationGuardMs.
 internal sealed class RestorationUse : ItemUseAction
 {
-    public const float DelayMs = 10_000f;
-    public const float GuardMs = 5000f;
 
     public override bool ForTheDead => true;
 
@@ -59,13 +57,13 @@ internal sealed class RestorationUse : ItemUseAction
             return ItemUseStatus.NotHere;
         }
 
-        return use.Context.Player.DeadMs >= DelayMs ? ItemUseStatus.Used : ItemUseStatus.Delay;
+        return use.Context.Player.DeadMs >= CastleItems.RestorationDelayMs ? ItemUseStatus.Used : ItemUseStatus.Delay;
     }
 
     public override ItemUseEffect Apply(in ItemUseInWorld use)
     {
         var player = use.Player;
-        player.Revive(player.MaxLife / 2, GuardMs);
+        player.Revive(player.MaxLife / 2, CastleItems.RestorationGuardMs);
         use.Field.EmitCombatEvent(new CombatEventView(player.EntityId, player.EntityId, CombatEventKind.Revive, damage: player.Life));
         return new ItemUseEffect(ItemEffectKind.Return);
     }
