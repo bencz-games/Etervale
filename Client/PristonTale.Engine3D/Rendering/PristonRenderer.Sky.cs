@@ -155,12 +155,12 @@ public sealed partial class PristonRenderer
             var diagnostics = new PristonMeshDiagnostics();
             var projection = PristonEnvironmentLighting.FaceProjection();
             _stateCache.InvalidateDeviceState();
-            for (var face = 0; face < 6; face++)
+            for (var face = 0; face < PristonCubeFaces.Count; face++)
             {
                 _graphicsDevice.Viewport = PristonEnvironmentLighting.FaceViewport(face);
-                _shaders.ApplyFrame(CreateSkyFrame(frame, PristonEnvironmentLighting.FaceView(face, skyPosition), projection, skyPosition));
+                _shaders.ApplyFrame(CreateSkyFrame(frame, PristonCubeFaces.View(face, skyPosition), projection, skyPosition));
                 _stateCache.SetDepthStencilState(DepthStencilState.None);
-                if (DrawPhysicalSky(PristonEnvironmentLighting.FaceView(face, skyPosition), projection))
+                if (DrawPhysicalSky(PristonCubeFaces.View(face, skyPosition), projection))
                 {
                     continue;
                 }

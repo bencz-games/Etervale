@@ -6,6 +6,7 @@
 
 #include "Brdf.hlsli"
 #include "Octahedral.hlsli"
+#include "CubeFaces.hlsli"
 
 // Share of a cascade's far end over which it hands over to the next one (dithered), and the last one fades out.
 static const float CascadeBlendBand = 0.12;
@@ -244,25 +245,14 @@ float2 ScreenOcclusion(float2 pixel, float viewDepth)
 }
 
 // The lamps' cube shadows (Lighting/PristonLampShadows.cs): six faces per lamp side by side in its row, each a 90-degree
-// view along a major axis (FaceForward, up FaceUp, as Matrix.CreateLookAt builds it), holding the distance to the lamp
-// over its radius. The 5x5 tent (ShadowTent) softens the edge the same way in every frame; a share of the light stays in
-// the shadow (bounce from the lamp-lit surroundings).
-static const float3 FaceForward[6] = { float3(1, 0, 0), float3(-1, 0, 0), float3(0, 1, 0), float3(0, -1, 0), float3(0, 0, 1), float3(0, 0, -1) };
-static const float3 FaceUp[6] = { float3(0, 1, 0), float3(0, 1, 0), float3(0, 0, -1), float3(0, 0, 1), float3(0, 1, 0), float3(0, 1, 0) };
+// view along a major axis (Lighting/CubeFaces.hlsli), holding the distance to the lamp over its radius. The 5x5 tent
+// (ShadowTent) softens the edge the same way in every frame; a share of the light stays in the shadow (bounce from the
+// lamp-lit surroundings).
 
 float LampShadow(uint row, float3 fromLight, float radius, float nl)
 {
-    float3 a = abs(fromLight);
-    uint face = a.x >= a.y && a.x >= a.z ? (fromLight.x >= 0.0 ? 0 : 1)
-              : a.y >= a.z ? (fromLight.y >= 0.0 ? 2 : 3)
-              : (fromLight.z >= 0.0 ? 4 : 5);
-    float3 forward = FaceForward[face];
-    float3 back = -forward;
-    float3 right = SafeNormalize(cross(FaceUp[face], back));
-    float3 up = cross(back, right);
-    float along = dot(forward, fromLight);
-    float2 ndc = float2(dot(right, fromLight), dot(up, fromLight)) / max(along, 1.0e-3);
-    float2 local = float2(ndc.x, -ndc.y) * 0.5 + 0.5;
+    uint face = CubeFace(fromLight);
+    float2 local = CubeFaceUv(fromLight, face, 1.0e-3);
     float faceSize = LampShadowParams.z;
     float2 texel = LampShadowParams.xy;
     // The tent reaches three texels from the point: keep it inside the face.

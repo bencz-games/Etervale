@@ -12,6 +12,7 @@
 #include "../Core/Color.hlsli"
 #include "../Core/Fullscreen.hlsli"
 #include "../Lighting/Octahedral.hlsli"
+#include "../Lighting/CubeFaces.hlsli"
 
 cbuffer EnvironmentConstants : register(b0)
 {
@@ -40,22 +41,12 @@ RWStructuredBuffer<float4> Sh : register(u0);
 static const float ShWindowBand1 = 0.826993;
 static const float ShWindowBand2 = 0.413497;
 
-static const float3 FaceForward[6] = { float3(1, 0, 0), float3(-1, 0, 0), float3(0, 1, 0), float3(0, -1, 0), float3(0, 0, 1), float3(0, 0, -1) };
-static const float3 FaceUp[6] = { float3(0, 1, 0), float3(0, 1, 0), float3(0, 0, -1), float3(0, 0, 1), float3(0, 1, 0), float3(0, 1, 0) };
 
-// The dome as seen in direction d: the cube face of d's major axis, projected like Matrix.CreateLookAt and a 90-degree
-// perspective (PristonEnvironmentLighting.FaceView).
+// The dome as seen in direction d, from the cube face of d's major axis (Lighting/CubeFaces.hlsli).
 float3 SkyRadiance(float3 d)
 {
-    float3 a = abs(d);
-    uint face = a.x >= a.y && a.x >= a.z ? (d.x >= 0.0 ? 0 : 1) : a.y >= a.z ? (d.y >= 0.0 ? 2 : 3) : (d.z >= 0.0 ? 4 : 5);
-    float3 forward = FaceForward[face];
-    float3 back = -forward;
-    float3 right = SafeNormalize(cross(FaceUp[face], back));
-    float3 up = cross(back, right);
-    float along = max(dot(forward, d), 1.0e-4);
-    float2 ndc = float2(dot(right, d), dot(up, d)) / along;
-    float2 local = clamp(float2(ndc.x, -ndc.y) * 0.5 + 0.5, 0.01, 0.99);
+    uint face = CubeFace(d);
+    float2 local = clamp(CubeFaceUv(d, face, 1.0e-4), 0.01, 0.99);
     float3 display = FaceAtlas.SampleLevel(FaceSampler, float2((face + local.x) / 6.0, local.y), 0).rgb;
     return SrgbToLinear(display) / EnvParams.x;
 }

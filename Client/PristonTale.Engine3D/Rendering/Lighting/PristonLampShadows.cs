@@ -12,18 +12,7 @@ namespace PristonTale.Engine3D.Rendering.Lighting;
 internal sealed class PristonLampShadows : IDisposable
 {
     public const int MaxLamps = 4;
-    public const int Faces = 6;
     private const float NearPlane = 10f;
-
-    private static readonly Vector3[] FaceForward =
-    [
-        Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ
-    ];
-
-    private static readonly Vector3[] FaceUp =
-    [
-        Vector3.UnitY, Vector3.UnitY, -Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitY, Vector3.UnitY
-    ];
 
     private readonly GraphicsDevice _device;
     private readonly IClientLog _log;
@@ -73,12 +62,12 @@ internal sealed class PristonLampShadows : IDisposable
 
         try
         {
-            _atlas = new RenderTarget2D(_device, faceSize * Faces, faceSize * lamps, false, SurfaceFormat.Single, DepthFormat.Depth24, 0,
+            _atlas = new RenderTarget2D(_device, faceSize * PristonCubeFaces.Count, faceSize * lamps, false, SurfaceFormat.Single, DepthFormat.Depth24, 0,
                 RenderTargetUsage.PreserveContents);
         }
         catch (Exception exception) when (exception is ArgumentException or InvalidOperationException or OutOfMemoryException)
         {
-            _log.Warn($"[Rendering] Lamp shadow atlas {faceSize * Faces}x{faceSize * lamps} allocation failed; lamp shadows off: {exception.Message}");
+            _log.Warn($"[Rendering] Lamp shadow atlas {faceSize * PristonCubeFaces.Count}x{faceSize * lamps} allocation failed; lamp shadows off: {exception.Message}");
             Lamps = 0;
         }
     }
@@ -172,7 +161,7 @@ internal sealed class PristonLampShadows : IDisposable
     // The face's view-projection, as LampShadow in Shaders/Lighting/Shading.hlsli inverts it.
     public static Matrix FaceViewProjection(Vector3 position, float radius, int face)
     {
-        var view = Matrix.CreateLookAt(position, position + FaceForward[face], FaceUp[face]);
+        var view = PristonCubeFaces.View(face, position);
         var projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.PiOver2, 1f, NearPlane, MathF.Max(radius, NearPlane * 2f));
         return view * projection;
     }

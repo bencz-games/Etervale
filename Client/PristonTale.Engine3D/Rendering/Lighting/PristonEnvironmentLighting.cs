@@ -6,7 +6,7 @@ using PristonTale.Engine3D.Rendering.Post;
 namespace PristonTale.Engine3D.Rendering.Lighting;
 
 // Image-based lighting from the sky dome (Shaders/Passes/Environment.fx): the dome's six cube faces (drawn by the
-// renderer through FaceView), an HDR octahedral map of them, its GGX-prefiltered levels side by side in one atlas, the
+// renderer through PristonCubeFaces.View), an HDR octahedral map of them, its GGX-prefiltered levels side by side in one atlas, the
 // order-2 spherical harmonics of the irradiance and the split-sum BRDF table, refreshed a few times a second (the dome
 // moves slowly; the scale follows the light model's sky light).
 internal sealed class PristonEnvironmentLighting : IDisposable
@@ -19,16 +19,6 @@ internal sealed class PristonEnvironmentLighting : IDisposable
     public const int BrdfSize = 32;
     public const uint RefreshMilliseconds = 250;
     private const int PrefilterSamples = 64;
-
-    private static readonly Vector3[] FaceForward =
-    [
-        Vector3.UnitX, -Vector3.UnitX, Vector3.UnitY, -Vector3.UnitY, Vector3.UnitZ, -Vector3.UnitZ
-    ];
-
-    private static readonly Vector3[] FaceUp =
-    [
-        Vector3.UnitY, Vector3.UnitY, -Vector3.UnitZ, Vector3.UnitZ, Vector3.UnitY, Vector3.UnitY
-    ];
 
     private readonly GraphicsDevice _device;
     private readonly PristonFullscreenTriangle _triangle;
@@ -67,7 +57,7 @@ internal sealed class PristonEnvironmentLighting : IDisposable
         _octahedralMap = parameters["Octahedral"];
         _lightSh = parameters["LightSh"];
         _sh = parameters["Sh"];
-        _faces = new RenderTarget2D(device, FaceSize * 6, FaceSize, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
+        _faces = new RenderTarget2D(device, FaceSize * PristonCubeFaces.Count, FaceSize, false, SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
         _base = new RenderTarget2D(device, BaseSize, BaseSize, false, SurfaceFormat.HalfVector4, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
         _atlas = new RenderTarget2D(device, AtlasWidth, BaseSize, false, SurfaceFormat.HalfVector4, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
         for (var i = 0; i < 2; i++)
@@ -90,9 +80,6 @@ internal sealed class PristonEnvironmentLighting : IDisposable
     public Texture2D BrdfLut { get; }
 
     public bool ShouldRefresh(uint renderTime) => !_valid || renderTime - _refreshTime >= RefreshMilliseconds;
-
-    public static Matrix FaceView(int face, Vector3 position) =>
-        Matrix.CreateLookAt(position, position + FaceForward[face], FaceUp[face]);
 
     // A 90-degree square face with the sky pass's infinite far plane.
     public static Matrix FaceProjection()

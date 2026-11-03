@@ -96,7 +96,7 @@ public sealed partial class PristonRenderer
             var position = _lampShadows.RowPosition(row);
             var radius = _lampShadows.RowRadius(row);
             var casterLight = new Vector4(position, 1f / MathF.Max(radius, 1f));
-            for (var face = 0; face < PristonLampShadows.Faces; face++)
+            for (var face = 0; face < PristonCubeFaces.Count; face++)
             {
                 var tile = _lampShadows.FaceRectangle(row, face);
                 _graphicsDevice.Viewport = new Viewport(tile.X, tile.Y, tile.Width, tile.Height);
