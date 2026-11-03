@@ -1,4 +1,5 @@
 using System.Globalization;
+using PristonTale.Simulation.Items;
 
 namespace PristonTale.Simulation.Quests;
 
@@ -6,8 +7,8 @@ namespace PristonTale.Simulation.Quests;
 public static class QuestTexts
 {
     public const string QuestInProgress = "You have undergoing Quest";
-    public const string NotEnoughSpace = "Not enough space in inventory";
-    public const string NotEnoughGold = "Not enough gold";
+    public const string NotEnoughSpace = ItemRuleMessages.NoSpace;
+    public const string NotEnoughGold = ItemRuleMessages.NotEnoughGold;
 
     public const string StatPointsFive = "stat point increased by 5";
     public const string SkillPointOne = "skill point increased by 1";

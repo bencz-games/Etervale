@@ -8,5 +8,8 @@ public static class ItemRuleMessages
     public const string CannotDrop = "This item cannot be dropped";
     public const string PotionNotStored = "Potions cannot be stored";
     public const string NotEnoughGold = "Not enough gold";
+    public const string NoSpace = "Not enough space in inventory";
+    public const string GoldLimit = "Exceeds maximum amount of gold in possession";
+    public const string TradeStorageFailed = "storage rejected the trade; nothing changed";
     public const string StaleInventory = "invalid operation or stale inventory revision";
 }

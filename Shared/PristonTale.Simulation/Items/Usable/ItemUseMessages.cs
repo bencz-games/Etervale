@@ -1,3 +1,5 @@
+using PristonTale.Simulation.Items;
+
 namespace PristonTale.Simulation.Items.Usable;
 
 // The line the player reads for each use result.
@@ -21,11 +23,11 @@ public static class ItemUseMessages
         ItemUseStatus.Conflict => "Operation identity conflict",
         ItemUseStatus.StorageFailed => "Storage rejected the operation; character unchanged",
         ItemUseStatus.ClanOnly => "Only members of a regular clan can use this item",
-        ItemUseStatus.NoSpace => "Not enough space in inventory",
-        ItemUseStatus.OverWeight => "You have exceeded the inventory weight limit",
+        ItemUseStatus.NoSpace => ItemRuleMessages.NoSpace,
+        ItemUseStatus.OverWeight => ItemRuleMessages.OverWeight,
         ItemUseStatus.MaleCannotUse => "The male character cannot use",
         ItemUseStatus.FemaleCannotUse => "The female character cannot use",
-        ItemUseStatus.NotEnoughGold => "Not enough gold",
+        ItemUseStatus.NotEnoughGold => ItemRuleMessages.NotEnoughGold,
         ItemUseStatus.CrystalRefused => "You cannot use this crystal",
         ItemUseStatus.SummonLimit => SummonLimit,
         _ => "The item could not be used"

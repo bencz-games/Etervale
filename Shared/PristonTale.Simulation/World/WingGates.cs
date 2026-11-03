@@ -103,7 +103,7 @@ public static class WingGates
         WingGateStatus.NotAtStone => "Stand on the warp gate first",
         WingGateStatus.NotReached => "Your wing does not reach this gate",
         WingGateStatus.LevelTooLow => "Your level is too low",
-        WingGateStatus.NotEnoughGold => "Not enough gold",
+        WingGateStatus.NotEnoughGold => ItemRuleMessages.NotEnoughGold,
         WingGateStatus.Busy => "Another action is pending; try again",
         WingGateStatus.StorageFailed => "Storage rejected the operation; character unchanged",
         _ => "The warp gate refused"

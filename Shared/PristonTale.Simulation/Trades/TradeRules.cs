@@ -196,11 +196,11 @@ public static class TradeMessages
         TradeStatus.TooMany => "Exceeds maximum number of transaction items",
         TradeStatus.NotEnoughGold => ItemRuleMessages.NotEnoughGold,
         TradeStatus.OverWeight => ItemRuleMessages.OverWeight,
-        TradeStatus.NoSpace => "Not enough space in inventory",
-        TradeStatus.GoldLimit => "Exceeds maximum amount of gold in possession",
+        TradeStatus.NoSpace => ItemRuleMessages.NoSpace,
+        TradeStatus.GoldLimit => ItemRuleMessages.GoldLimit,
         TradeStatus.Changed => "Item has been changed. Please check",
         TradeStatus.Cancelled => "Transaction cancelled",
-        TradeStatus.StorageFailed => "storage rejected the trade; nothing changed",
+        TradeStatus.StorageFailed => ItemRuleMessages.TradeStorageFailed,
         _ => "The trade was refused"
     };
 
