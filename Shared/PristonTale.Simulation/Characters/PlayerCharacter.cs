@@ -460,7 +460,7 @@ public sealed partial class PlayerCharacter
     // Sets the attributes and the unallocated points of a stat reset; the total of both must not change.
     public void RedistributeAttributes(CharacterAttributes attributes, int statPoints)
     {
-        if (attributes is null || statPoints < 0 || Sum(attributes) + statPoints != Sum(Attributes) + StatPoints)
+        if (attributes is null || statPoints < 0 || attributes.Total + statPoints != Attributes.Total + StatPoints)
         {
             throw new ArgumentException("A stat reset must keep the total of attributes and points.");
         }
@@ -470,7 +470,6 @@ public sealed partial class PlayerCharacter
         Recompute();
     }
 
-    private static long Sum(CharacterAttributes a) => (long)a.Strength + a.Spirit + a.Talent + a.Agility + a.Health;
 
     // Item kinds in the main and the off hand (bit per kind), for effects bound to a weapon or a shield.
     private static readonly EquipmentSlot[] HandSlots = [EquipmentSlot.Weapon, EquipmentSlot.OffHand];

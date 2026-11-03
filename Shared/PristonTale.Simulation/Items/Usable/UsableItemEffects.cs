@@ -1,4 +1,5 @@
 using PristonTale.Simulation.Characters;
+using PristonTale.Simulation.Progression;
 using PristonTale.Simulation.Skills;
 
 namespace PristonTale.Simulation.Items.Usable;
@@ -123,24 +124,25 @@ public static class UsableItemEffects
             5 => now with { Health = start.Health },
             _ => start
         };
-        return target == now || Sum(target) > Sum(now) ? null : target;
+        return target == now || target.Total > now.Total ? null : target;
     }
 
     private static void ResetAttributes(PlayerCharacter character, int attribute)
     {
         if (ResetTarget(character, attribute) is { } target)
         {
-            character.RedistributeAttributes(target, (int)(character.StatPoints + Sum(character.Attributes) - Sum(target)));
+            character.RedistributeAttributes(target, (int)(character.StatPoints + character.Attributes.Total - target.Total));
         }
     }
 
     // Every learned rank returns its point: the final tier's skills (window 12..15) to the final-tier points.
 
-    // The learned skills of a class tier (1..3: window 0..3, 4..7, 8..11) that are not fully trained.
+    // The learned skills of a class tier (1..3: the tier's window of SkillsPerTier skills) that are not fully trained.
     private static IEnumerable<Skill> MasterySkills(PlayerCharacter character, int tier)
     {
         var skills = character.Class.Skills;
-        for (var index = (tier - 1) * 4; index < tier * 4 && index < skills.Count; index++)
+        var end = SkillLearning.OpenedBy(tier - 1);
+        for (var index = end - SkillLearning.SkillsPerTier; index < end && index < skills.Count; index++)
         {
             var skill = skills[index];
             if (skill.Code != 0 && character.Skills.RankOf(skill.Code) > 0 && character.Skills.UsesOf(skill.Code) < LearnedSkills.MaxUses)
@@ -172,5 +174,4 @@ public static class UsableItemEffects
         return group == 1 && item.Definition.Kind is not (ItemKind.Shield or ItemKind.Orb) ? null : item;
     }
 
-    private static long Sum(CharacterAttributes a) => (long)a.Strength + a.Spirit + a.Talent + a.Agility + a.Health;
 }

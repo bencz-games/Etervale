@@ -9,6 +9,14 @@ public sealed record CharacterAttributes(
 {
     public static readonly CharacterAttributes Empty = new(0, 0, 0, 0, 0);
 
+    // The five attributes together, without overflow.
+    public long Total => (long)Strength + Spirit + Talent + Agility + Health;
+
+    // Every attribute at least the required one.
+    public bool Meets(CharacterAttributes required) =>
+        Strength >= required.Strength && Spirit >= required.Spirit && Talent >= required.Talent && Agility >= required.Agility
+        && Health >= required.Health;
+
     public CharacterAttributes Add(CharacterAttributes other) =>
         new(
             Strength + other.Strength,

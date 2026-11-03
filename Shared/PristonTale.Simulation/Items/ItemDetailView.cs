@@ -40,11 +40,5 @@ public sealed record ItemDetailView(
 
     public bool MeetsLevel(int level) => level >= Roll.RequiredLevel;
 
-    public bool Usable(int level, CharacterAttributes attributes) =>
-        ClassAllowed && MeetsLevel(level)
-        && attributes.Strength >= Roll.Requirements.Strength
-        && attributes.Spirit >= Roll.Requirements.Spirit
-        && attributes.Talent >= Roll.Requirements.Talent
-        && attributes.Agility >= Roll.Requirements.Agility
-        && attributes.Health >= Roll.Requirements.Health;
+    public bool Usable(int level, CharacterAttributes attributes) => ClassAllowed && ItemUsability.MeetsRequirements(Roll, level, attributes);
 }
