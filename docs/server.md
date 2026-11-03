@@ -22,6 +22,7 @@ layouts live in [protocol.md](protocol.md).
 | `Hosting/DatabaseMigrationService.cs` | Hosted service: `IDatabaseMigrator.MigrateAsync` on start. |
 | `Hosting/GameLogService.cs` | Hosted service: the item transfer writer, the currency sinks every `Logs:CurrencyMinutes`, the server's start and stop, the daily prune. |
 | `Hosting/CharacterSaveService.cs` | Hosted service: stores the save journal on start, runs `CharacterSaveQueue` until the host stops, logs its counts every `Server:ReportSeconds`. |
+| `Hosting/ReportInterval.cs` | The period of the report lines (`Server:ReportSeconds`), read once by the world tick, the TCP server and the character saves. |
 | `Hosting/WorldDataLoadService.cs` | Hosted service: `WorldDataAppService.BuildAsync` into `WorldDataHolder.Current`; logs catalog counts. |
 | `Hosting/FieldTerrainLoadService.cs` | Hosted service: reads every field's stage `.smd` collision in parallel into `FieldTerrainCatalog`. |
 | `World/WorldTickService.cs` | `BackgroundService` calling `WorldServer.Tick(1/20 s, tick)` on its own thread, on the absolute timeline of `TickSchedule` (owed ticks run back to back, a stall past 5 ticks is skipped); logs tick percentiles, ticks caught up and skipped, the command and field phases, process CPU, allocation rate, collections, heap and working set. |
@@ -143,8 +144,8 @@ that limit; negative values stop startup. The game settings live in the database
 | `Network:Port` | 10009 | `GameTcpServer` | TCP game port, 0 to 65535; 0 binds a free port (in-process tests read it from `GameTcpServer.BoundPort`). The client always connects to 10009. |
 | `Network:Certificate:Path` | `data/server-certificate.pfx` | `ServerCertificate` | TLS certificate (PKCS#12); relative paths resolve from the solution root. Created self-signed when missing. |
 | `Network:Certificate:Password` | none | `ServerCertificate` | Password of the PKCS#12 file. |
-| `Network:HandshakeTimeoutSeconds` | 10 | `GameTcpServer` | Deadline of the TLS handshake of an accepted socket. |
-| `Server:ReportSeconds` | 30 | `WorldTickService`, `GameTcpServer` | Period of the tick and TCP report lines; at least 1. |
+| `Network:HandshakeTimeoutSeconds` | 10 | `NetworkLimits` | Deadline of the TLS handshake of an accepted socket; at least 1. |
+| `Server:ReportSeconds` | 30 | `ReportInterval` | Period of the tick, TCP and character save report lines; at least 1. |
 | `Network:PacketLimit` | 251 | `NetworkLimits` | Packets per window before the connection closes (`DescribeEntity` excluded). |
 | `Network:PacketWindowSeconds` | 5 | `NetworkLimits` | Fixed window of the packet limit. |
 | `Network:MaxConnectionsPerIp` | 8 | `NetworkLimits` | Open connections per remote address; extra sockets are closed on accept. |

@@ -9,7 +9,6 @@ namespace PristonTale.Server.World;
 public sealed class WorldTickService : BackgroundService
 {
     private const int TickHz = WorldServer.TickHz;
-    public const int DefaultReportSeconds = 30;
     // A stall longer than this many ticks is skipped rather than replayed at once.
     private const int MaxCatchUpTicks = 5;
 
@@ -23,13 +22,7 @@ public sealed class WorldTickService : BackgroundService
         _world = world;
         _chat = chat;
         _logger = logger;
-        var seconds = configuration.GetValue("Server:ReportSeconds", DefaultReportSeconds);
-        if (seconds < 1)
-        {
-            throw new InvalidOperationException("Server:ReportSeconds must be at least 1.");
-        }
-
-        _reportInterval = TimeSpan.FromSeconds(seconds);
+        _reportInterval = Hosting.ReportInterval.From(configuration);
     }
 
     protected override Task ExecuteAsync(CancellationToken stoppingToken) =>

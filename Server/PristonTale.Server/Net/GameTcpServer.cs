@@ -35,12 +35,11 @@ public sealed class GameTcpServer(
 {
     // The client heartbeats every 4 s; silence beyond this closes the connection.
     private static readonly TimeSpan IdleTimeout = TimeSpan.FromSeconds(60);
-    private readonly TimeSpan _reportInterval = TimeSpan.FromSeconds(Math.Max(1, configuration.GetValue("Server:ReportSeconds", World.WorldTickService.DefaultReportSeconds)));
+    private readonly TimeSpan _reportInterval = Hosting.ReportInterval.From(configuration);
     private static readonly HashSet<string> NormalCloseReasons = ["peer closed", "receive ended", "cancelled", "server stopping", "disposed"];
     private readonly ConcurrentDictionary<ClientSession, byte> _clients = new();
     // Every accepted socket, from the TLS handshake until its session ends.
     private readonly ConcurrentDictionary<Task, byte> _connections = new();
-    private readonly TimeSpan _handshakeTimeout = TimeSpan.FromSeconds(Math.Max(1, configuration.GetValue("Network:HandshakeTimeoutSeconds", 10)));
     private readonly NetworkLimits _limits = NetworkLimits.From(configuration);
     private readonly LogSampler _refusedLog = new(5000);
     private readonly LogSampler _closedLog = new(1000);
@@ -187,7 +186,7 @@ public sealed class GameTcpServer(
         FrameConnection connection;
         try
         {
-            connection = await TlsTransport.AcceptAsync(socket, certificate, _handshakeTimeout, cancellationToken);
+            connection = await TlsTransport.AcceptAsync(socket, certificate, TimeSpan.FromMilliseconds(_limits.HandshakeTimeoutMs), cancellationToken);
         }
         catch (Exception ex)
         {

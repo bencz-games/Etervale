@@ -35,9 +35,8 @@ public sealed class CharacterSaveService(
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var reportSeconds = configuration.GetValue("Server:ReportSeconds", World.WorldTickService.DefaultReportSeconds);
         using var reports = new CancellationTokenSource();
-        var reporting = ReportAsync(TimeSpan.FromSeconds(Math.Max(1, reportSeconds)), reports.Token);
+        var reporting = ReportAsync(ReportInterval.From(configuration), reports.Token);
         await queue.RunAsync(lifetime.ApplicationStopping, stoppingToken);
         await reports.CancelAsync();
         await reporting;

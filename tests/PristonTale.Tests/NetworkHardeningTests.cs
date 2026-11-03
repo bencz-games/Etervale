@@ -19,7 +19,7 @@ internal static class NetworkHardeningTests
         yield return ("packet flood limit follows the original 251 packets per 5 s and resets per window", PacketLimitAsync);
         yield return ("player info bucket, per-address connections and sampled logs bound abusive clients", BucketsAsync);
         yield return ("login throttle blocks repeated failures per account and per address", LoginThrottleAsync);
-        yield return ("network limits read configuration and reject negative values", NetworkConfigurationAsync);
+        yield return ("network limits and the report period read configuration and reject values out of range", NetworkConfigurationAsync);
         yield return ("the server closes sockets past its handshake and connection caps before TLS", ConnectionCapsAsync);
         yield return ("a full outbox's events and a full crowd encoded above the presence backlog fit the send limit", SendLimitAsync);
         yield return ("requests that copy the character are refused as busy past their bucket", StoredOperationsAsync);
@@ -108,7 +108,26 @@ internal static class NetworkHardeningTests
         }
 
         Assert.True(threw, "a negative network limit was accepted");
+        Assert.True(defaults.HandshakeTimeoutMs == 10_000
+            && NetworkLimits.From(Configuration(("Network:HandshakeTimeoutSeconds", "3"))).HandshakeTimeoutMs == 3000, "handshake deadline not read");
+        Assert.True(Refused(() => NetworkLimits.From(Configuration(("Network:HandshakeTimeoutSeconds", "0")))), "a handshake without deadline was accepted");
+        Assert.True(PristonTale.Server.Hosting.ReportInterval.From(Configuration()) == TimeSpan.FromSeconds(30)
+            && PristonTale.Server.Hosting.ReportInterval.From(Configuration(("Server:ReportSeconds", "10"))) == TimeSpan.FromSeconds(10), "report period not read");
+        Assert.True(Refused(() => PristonTale.Server.Hosting.ReportInterval.From(Configuration(("Server:ReportSeconds", "0")))), "a report period of 0 was accepted");
         return Task.CompletedTask;
+
+        static bool Refused(Action read)
+        {
+            try
+            {
+                read();
+                return false;
+            }
+            catch (InvalidOperationException)
+            {
+                return true;
+            }
+        }
     }
 
     private static async Task ConnectionCapsAsync()

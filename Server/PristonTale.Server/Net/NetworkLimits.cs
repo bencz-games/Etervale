@@ -16,6 +16,8 @@ internal sealed record NetworkLimits
     public int MaxHandshakes { get; init; } = 128;
     public int MaxHandshakesPerIp { get; init; } = 4;
     public int LoginTimeoutMs { get; init; } = 30_000;
+    // The deadline of an accepted socket's TLS handshake; it cannot be disabled.
+    public int HandshakeTimeoutMs { get; init; } = 10_000;
     public int LoginFailuresPerAccount { get; init; } = 5;
     public int LoginFailuresPerIp { get; init; } = 20;
     public int LoginFailureWindowMs { get; init; } = 300_000;
@@ -39,6 +41,7 @@ internal sealed record NetworkLimits
             MaxHandshakes = Read(configuration, "MaxHandshakes", defaults.MaxHandshakes),
             MaxHandshakesPerIp = Read(configuration, "MaxHandshakesPerIp", defaults.MaxHandshakesPerIp),
             LoginTimeoutMs = Read(configuration, "LoginTimeoutSeconds", defaults.LoginTimeoutMs / 1000) * 1000,
+            HandshakeTimeoutMs = ReadPositive(configuration, "HandshakeTimeoutSeconds", defaults.HandshakeTimeoutMs / 1000) * 1000,
             LoginFailuresPerAccount = Read(configuration, "LoginFailuresPerAccount", defaults.LoginFailuresPerAccount),
             LoginFailuresPerIp = Read(configuration, "LoginFailuresPerIp", defaults.LoginFailuresPerIp),
             LoginFailureWindowMs = Read(configuration, "LoginFailureWindowSeconds", defaults.LoginFailureWindowMs / 1000) * 1000,
@@ -47,6 +50,17 @@ internal sealed record NetworkLimits
             StoredOperationBurst = Read(configuration, "StoredOperationBurst", defaults.StoredOperationBurst),
             StoredOperationsPerSecond = Read(configuration, "StoredOperationsPerSecond", defaults.StoredOperationsPerSecond)
         };
+    }
+
+    private static int ReadPositive(IConfiguration configuration, string key, int fallback)
+    {
+        var value = Read(configuration, key, fallback);
+        if (value < 1)
+        {
+            throw new InvalidOperationException($"Network:{key} must be at least 1.");
+        }
+
+        return value;
     }
 
     private static int Read(IConfiguration configuration, string key, int fallback)
