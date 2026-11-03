@@ -7,10 +7,14 @@ namespace PristonTale.Application.World;
 // other status, ended by the shared timers, death and the status rules of the effect engine.
 internal sealed partial class FieldSkills
 {
+    // The effects of a living player, else of a living monster; null for neither.
+    private EffectContainer? LiveEffects(ulong entity) =>
+        _host.TryGetPlayer(entity, out var player) && !player.IsDead ? player.Character.Effects
+            : _host.TryGetMonster(entity, out var monster) && monster.IsAlive ? monster.Effects : null;
+
     public bool ApplyMonsterStatus(ulong entity, EffectSpec spec, float durationMs, ulong source)
     {
-        var effects = _host.TryGetPlayer(entity, out var player) && !player.IsDead ? player.Character.Effects
-            : _host.TryGetMonster(entity, out var monster) && monster.IsAlive ? monster.Effects : null;
+        var effects = LiveEffects(entity);
         if (effects?.Apply(spec, source, durationMs, entity) is not { } change)
         {
             return false;

@@ -1,7 +1,6 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Engine3D.Formats;
 using PristonTale.Geometry;
-using NumVector3 = System.Numerics.Vector3;
 using PristonTale.Assets;
 
 namespace PristonTale.Engine3D.Physics;

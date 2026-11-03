@@ -53,8 +53,7 @@ internal sealed partial class FieldSkills
         _pendingItemEnds.Clear();
         foreach (var (entity, spec, durationMs, rank) in _pendingItemEffects)
         {
-            var effects = _host.TryGetPlayer(entity, out var player) && !player.IsDead ? player.Character.Effects
-                : _host.TryGetMonster(entity, out var monster) && monster.IsAlive ? monster.Effects : null;
+            var effects = LiveEffects(entity);
             if (effects?.Apply(spec, entity, durationMs, entity) is { } change)
             {
                 _statusEvents.Add(StatusView(change, rank));
