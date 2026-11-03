@@ -35,7 +35,6 @@ progression, regeneration and movement rates. `World/`, `Physics/` and `Skills/`
 | `Characters/StarterGifts.cs` | The starter gifts of a new character: the class's weapon, armour and off-hand and the crystals, created perfect with the class's specialization, their pace and chat line |
 | `Characters/OwnerState.cs` | `OwnerState.Capture`: the owner-only character snapshot sent to the client |
 | `Characters/CharacterHead*.cs`, `CharacterVisuals.cs` | Head/face/hair model path resolution per class and tier; `CharacterVisualSet` |
-| `Characters/CharacterSlots.cs` | Characters per account (6) |
 | `Items/Item.cs` | `ItemKind`, `ItemStatBlock`, `ItemDefinition`, `ItemInstance` |
 | `Items/ItemTemplate.cs`, `ItemRoll.cs` | Authored value ranges of a kind; the values of one copy (`ItemRoll`, `ItemSpecBonus`) |
 | `Items/ItemRoller.cs` | Shop (lowest) form and drop rolls, class specialization and its requirement shift |
