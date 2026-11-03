@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using PristonTale.Contracts.Units;
 using PristonTale.Effects.Vfx;
 using PristonTale.Gameplay.Effects;
 
@@ -6,25 +7,28 @@ namespace PristonTale.Gameplay.Weather;
 
 // The falling snow of the snow skies: the original's "Snow" particle script runs while the field shown snows. Its source
 // follows the player, ahead of its facing and above it, as the original placed it every tick; flakes already born stay
-// where they fall, and stopping lets them play out.
+// where they fall, and stopping lets them play out. A script the effect system cannot start yet (its library still
+// compiling after entry) is tried again every RetrySeconds.
 public sealed class FieldSnow(IScriptEffects scripts)
 {
     public const string Script = "Snow";
     public const float AheadDistance = 40f;
-    // 30000 in the original's fixed point, 256 to the unit.
-    public const float SourceHeight = 30000f / 256f;
+    // 30000 in the authored fixed point.
+    public const float SourceHeight = 30000f / GameUnits.FixedScale;
     // An effect lasts at most VfxDefinition.MaxDuration; a new one starts while the old one's last flakes still fall.
-    public const float RenewSeconds = VfxDefinition.MaxDuration - 10f;
+    public const float RenewLeadSeconds = 10f;
+    public const float RenewSeconds = VfxDefinition.MaxDuration - RenewLeadSeconds;
+    public const float RetrySeconds = 1f;
 
     private IScriptEffect _effect;
     private float _age;
-    private bool _unavailable;
+    private float _retryIn;
 
     public bool Falling => _effect is not null;
 
     public void Update(bool snowing, Vector3 player, Vector3 forward, float seconds)
     {
-        if (!snowing || _unavailable)
+        if (!snowing)
         {
             Stop();
             return;
@@ -32,16 +36,23 @@ public sealed class FieldSnow(IScriptEffects scripts)
 
         var source = SourceFor(player, forward);
         _age += seconds;
-        if (_effect is null || !_effect.Alive || _age >= RenewSeconds)
+        if (_effect is not null && _effect.Alive && _age < RenewSeconds)
         {
-            _effect?.Stop();
-            _effect = scripts.Spawn(Script, source, Matrix.Identity);
-            _unavailable = _effect is null;
-            _age = 0f;
+            _effect.MoveTo(source);
             return;
         }
 
-        _effect.MoveTo(source);
+        _effect?.Stop();
+        _effect = null;
+        _retryIn -= seconds;
+        if (_retryIn > 0f)
+        {
+            return;
+        }
+
+        _effect = scripts.Spawn(Script, source, Matrix.Identity);
+        _age = 0f;
+        _retryIn = _effect is null ? RetrySeconds : 0f;
     }
 
     public void Stop()
@@ -49,6 +60,7 @@ public sealed class FieldSnow(IScriptEffects scripts)
         _effect?.Stop();
         _effect = null;
         _age = 0f;
+        _retryIn = 0f;
     }
 
     public static Vector3 SourceFor(Vector3 player, Vector3 forward)

@@ -781,7 +781,8 @@ and Ice Ura; Greedy has its own sky) `FieldSnow` runs the converted `particle.sn
 hour and whatever the `weatherEnabled` setting. Each frame its source moves 40 units ahead of the player's facing and
 117 units above it (`FieldSnow.SourceFor`); born flakes stay where they fall, and leaving the field stops it so the
 last flakes play out. An effect lasts at most `VfxDefinition.MaxDuration`, so a new one starts 10 s before it ends,
-or at once if the effect system dropped it.
+or at once if the effect system dropped it; a script the effect system cannot start yet (its library compiles over the
+first frames after entry) is tried again every second.
 
 ## How to
 

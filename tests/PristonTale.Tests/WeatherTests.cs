@@ -29,6 +29,7 @@ internal static class WeatherTests
         yield return ("a lighter rain lands fewer, smaller and fainter splashes than its share of a downpour's", SplashesAsync);
         yield return ("the realistic sky's clouds gather with the weather, its rainbow needs a light rain under a low sun, the moon turns through its phases and the cloud noise tiles", SkyAsync);
         yield return ("snow falls on the snow skies' fields ahead of and above the player, plays out when it leaves and starts again when it ends", SnowAsync);
+        yield return ("snow entered before its effect is ready starts once the effect system can run it", SnowLateAsync);
     }
 
     private sealed class FakeScript(Xna.Vector3 position) : IScriptEffect
@@ -46,9 +47,17 @@ internal static class WeatherTests
     private sealed class FakeScripts : IScriptEffects
     {
         public List<(string Script, FakeScript Effect)> Spawned { get; } = [];
+        public bool Ready { get; set; } = true;
+        public int Attempts { get; private set; }
 
-        public IScriptEffect Spawn(string script, Xna.Vector3 position, Xna.Matrix orientation)
+        public IScriptEffect? Spawn(string script, Xna.Vector3 position, Xna.Matrix orientation)
         {
+            Attempts++;
+            if (!Ready)
+            {
+                return null;
+            }
+
             var effect = new FakeScript(position);
             Spawned.Add((script, effect));
             return effect;
@@ -92,6 +101,22 @@ internal static class WeatherTests
 
         snow.Update(false, player, Xna.Vector3.Forward, 0.016f);
         Assert.True(scripts.Spawned[2].Effect.Stopped && !snow.Falling, "leaving the snow did not let the flakes play out");
+        return Task.CompletedTask;
+    }
+
+    private static Task SnowLateAsync()
+    {
+        // The effect library compiles over the first frames, so a player entering Ice 1 asks for the script before it exists.
+        var scripts = new FakeScripts { Ready = false };
+        var snow = new FieldSnow(scripts);
+        var player = new Xna.Vector3(100f, 50f, 200f);
+        snow.Update(true, player, Xna.Vector3.Forward, 0.016f);
+        snow.Update(true, player, Xna.Vector3.Forward, FieldSnow.RetrySeconds / 2f);
+        Assert.True(scripts.Attempts == 1 && !snow.Falling, $"a missing script was asked for {scripts.Attempts} times within the retry delay");
+
+        scripts.Ready = true;
+        snow.Update(true, player, Xna.Vector3.Forward, FieldSnow.RetrySeconds);
+        Assert.True(snow.Falling && scripts.Spawned.Count == 1, "the snow never started once its effect was ready");
         return Task.CompletedTask;
     }
 
