@@ -8,6 +8,9 @@ namespace PristonTale.Gameplay.World.Remote;
 
 public readonly record struct PlayerActorHandles(ActorHandle Body, ActorHandle Head)
 {
+    // The most actors an entity draws with: a player's body, head, weapon and off-hand (a monster has one).
+    public const int Most = 4;
+
     public ActorHandle Weapon { get; init; } = ActorHandle.None;
     public ActorHandle OffHand { get; init; } = ActorHandle.None;
 

@@ -4,6 +4,7 @@ using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Gameplay.Effects;
 using PristonTale.Contracts.Combat;
+using PristonTale.Gameplay.World.Remote;
 
 namespace PristonTale.Gameplay.World;
 
@@ -84,7 +85,7 @@ public sealed partial class GameScene : IMonsterScene
             return;
         }
 
-        Span<ActorHandle> handles = stackalloc ActorHandle[8];
+        Span<ActorHandle> handles = stackalloc ActorHandle[PlayerActorHandles.Most];
         var count = _remote.CopyActorHandles(entityId, handles);
         for (var index = 0; index < count; index++)
         {
@@ -99,7 +100,7 @@ public sealed partial class GameScene : IMonsterScene
             return;
         }
 
-        Span<ActorHandle> handles = stackalloc ActorHandle[8];
+        Span<ActorHandle> handles = stackalloc ActorHandle[PlayerActorHandles.Most];
         var count = _remote.CopyActorHandles(entityId, handles);
         for (var index = 0; index < count; index++)
         {

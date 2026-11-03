@@ -12,6 +12,7 @@ using PristonTale.Simulation.World.Monsters;
 using PristonTale.Simulation.World.Spawning;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.World;
 
 namespace PristonTale.Tests;
 
@@ -114,14 +115,14 @@ internal static class WorldDataRulesTests
         Assert.True(WorldClock.HoursAt(0) == 0f && Math.Abs(WorldClock.HoursAt(60L * WorldClock.MinuteMs) - 1f) < 0.0001f
             && Math.Abs(WorldClock.HoursAt(WorldClock.MinutesPerDay * (long)WorldClock.MinuteMs + 30L * WorldClock.MinuteMs) - 0.5f) < 0.0001f,
             "the game clock does not run 800 ms a minute");
-        Assert.True(WorldClock.IsNight(23f) && WorldClock.IsNight(3.99f) && !WorldClock.IsNight(4f) && !WorldClock.IsNight(22.99f),
+        Assert.True(GameHours.IsNight(23f) && GameHours.IsNight(3.99f) && !GameHours.IsNight(4f) && !GameHours.IsNight(22.99f),
             "night does not run from 23:00 to 4:00");
         return Task.CompletedTask;
     }
 
     private static Task NightCreaturesAsync()
     {
-        var wolverine = Monster(1, MonsterClass.Normal) with { EventCode = 100, EventInfo = 1, SoundCode = 0x11E0, Ai = MonsterAi.Default };
+        var wolverine = Monster(1, MonsterClass.Normal) with { EventCode = FieldInstance.NightCreatureEvent, EventInfo = 1, SoundCode = 0x11E0, Ai = MonsterAi.Default };
         var pet = new NpcDefinition(1, "Wolverine pet", "", [new NpcService(NpcServiceKind.EventMonster, 100, 1)]);
         var data = new FieldSpawnData([new SpawnPoint(500, 500, true)], [], [], [new FixedNpc(1, 0, 0, 0)]);
         var field = new FieldInstance(1, data, new MonsterCatalog([wolverine]), new EntityIdAllocator(), new CombatRng(3), npcs: new NpcCatalog([pet]));
@@ -158,7 +159,7 @@ internal static class WorldDataRulesTests
 
     private static Task NightCreaturePointsAsync()
     {
-        var wolverine = Monster(1, MonsterClass.Normal) with { EventCode = 100, EventInfo = 1, SoundCode = 0x11E0, Ai = MonsterAi.Default };
+        var wolverine = Monster(1, MonsterClass.Normal) with { EventCode = FieldInstance.NightCreatureEvent, EventInfo = 1, SoundCode = 0x11E0, Ai = MonsterAi.Default };
         var points = new[] { new SpawnPoint(900, 900, false), new SpawnPoint(500, 500, true), new SpawnPoint(4000, 4000, true), new SpawnPoint(8000, 8000, true) };
         var data = new FieldSpawnData(points, [], [], []);
         var empty = new FieldInstance(1, data, new MonsterCatalog([wolverine]), new EntityIdAllocator(), new CombatRng(3)) { Night = true };

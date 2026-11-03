@@ -2,15 +2,13 @@ using PristonTale.Contracts.World;
 
 namespace PristonTale.Simulation.World;
 
-// The game's time of day, kept by the server and followed by every client's sky: one game minute lasts 800 ms (a day lasts
-// 19.2 real minutes); day runs from 4:00 to 23:00 and night the rest (GameHours). The clock counts game milliseconds; the server's
-// count is the Unix time plus its configured offset, so every server and restart agree on the hour.
+// The game's time of day, kept by the server and followed by every client's sky: one game minute lasts 800 ms (a day
+// lasts 19.2 real minutes); its periods are GameHours'. The clock counts game milliseconds; the server's count is the
+// Unix time plus its configured offset, so every server and restart agree on the hour.
 public static class WorldClock
 {
     public const int MinuteMs = 800;
     public const int MinutesPerDay = 24 * 60;
-    public const int DayStartHour = GameHours.DayStart;
-    public const int NightStartHour = GameHours.NightStart;
 
     public static float HoursAt(long gameMs)
     {
@@ -22,8 +20,6 @@ public static class WorldClock
 
         return (float)(minutes / 60.0);
     }
-
-    public static bool IsNight(float hours) => GameHours.IsNight(hours);
 
     // The moon runs through its phases in LunarDays game days (2 h 34 min): 0 new, 0.5 full.
     public const int LunarDays = 8;

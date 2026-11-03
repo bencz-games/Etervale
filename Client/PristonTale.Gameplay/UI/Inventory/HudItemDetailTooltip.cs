@@ -18,7 +18,7 @@ public readonly record struct AgingGauge(int Level, int Count, int Goal);
 public static class HudItemDetailTooltip
 {
     public const int LineHeight = 16;
-    public static readonly Color NameColor = new(222, 231, 255);
+    public static readonly Color NameColor = HudTextColors.Title;
     public static readonly Color UniqueColor = new(128, 255, 128);
     public static readonly Color AgedColor = new(255, 250, 0);
     public static readonly Color ValueColor = Color.White;
@@ -26,7 +26,7 @@ public static class HudItemDetailTooltip
     public static readonly Color UnmetColor = new(255, 0, 0);
     public static readonly Color SpecHeaderColor = new(255, 220, 0);
     public static readonly Color SpecColor = new(164, 199, 41);
-    public static readonly Color PriceColor = new(247, 243, 193);
+    public static readonly Color PriceColor = HudTextColors.Highlight;
     public static readonly Color HintColor = new(200, 200, 200);
     public static readonly Color AgingColor = new(119, 200, 254);
     public static readonly Color MixedNameColor = new(150, 255, 255);

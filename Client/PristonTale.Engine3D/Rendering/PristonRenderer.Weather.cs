@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Engine3D.Rendering.Lighting;
 using PristonTale.Engine3D.Rendering.Weather;
+using PristonTale.Contracts.World;
 
 namespace PristonTale.Engine3D.Rendering;
 
@@ -34,8 +35,9 @@ public sealed partial class PristonRenderer
     private const float MistFogNear = 2f;
     private const float MistFogDensity = 2f;
     private const float MistShafts = 3f;
-    private const float MistStart = 3f;
-    private const float MistPeak = 4.5f;
+    // The morning mist gathers an hour before the day starts, is thickest half an hour into it and gone by 8:00.
+    private const float MistStart = GameHours.DayStart - 1f;
+    private const float MistPeak = GameHours.DayStart + 0.5f;
     private const float MistEnd = 8f;
     private const float RainFogStart = 0.35f;
     private const float RainFogDensity = 4f;

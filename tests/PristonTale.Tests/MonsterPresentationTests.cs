@@ -106,12 +106,12 @@ internal static class MonsterPresentationTests
     {
         Assert.True(MonsterPresentation.CorpseDim(200f) == 0f && MonsterPresentation.CorpseDim(300f) == 50f / 256f
             && MonsterPresentation.CorpseDim(500f) == 100f / 256f, "a corpse does not darken from 200 ticks to its most at 400");
-        Assert.True(MonsterPresentation.CorpseFade(0x1180, 0f) == 1f && MonsterPresentation.CorpseFade(0x1180, 64f) == 0.5f
-            && MonsterPresentation.CorpseFade(0x1180, 128f) == 0f && MonsterPresentation.CorpseFade(0x1510, 1000f) == 1f,
+        Assert.True(MonsterPresentation.CorpseFade(CharacterSoundCodes.Figon, 0f) == 1f && MonsterPresentation.CorpseFade(CharacterSoundCodes.Figon, 64f) == 0.5f
+            && MonsterPresentation.CorpseFade(CharacterSoundCodes.Figon, 128f) == 0f && MonsterPresentation.CorpseFade(CharacterSoundCodes.Resolve("DEADZONE"), 1000f) == 1f,
             "a Figon does not fade by two alpha units a tick, or another corpse fades");
         var scene = new Scene { Motion = Clip(0x120, 0, 30, '\0') };
         var presentation = new MonsterPresentation(new Sink(), scene);
-        var figon = new MonsterActorView(3, new ActorHandle(3, 1), 0x1180, 50, 1f, Vector3.Zero, 0f, true);
+        var figon = new MonsterActorView(3, new ActorHandle(3, 1), CharacterSoundCodes.Figon, 50, 1f, Vector3.Zero, 0f, true);
         for (var frame = 0; frame < 140; frame++)
         {
             presentation.Update([figon], 1f / 70f);

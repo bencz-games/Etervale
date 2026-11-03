@@ -716,7 +716,7 @@ public sealed partial class WorldServer
         _activeFields.AddRange(_fields.Values);
         var nowSeconds = _clock.GetUtcNow().ToUnixTimeSeconds();
         // Fields share only immutable catalogs and the thread-safe id allocator, so they step in parallel.
-        var night = WorldClock.IsNight(WorldClock.HoursAt(GameClockMs));
+        var night = GameHours.IsNight(WorldClock.HoursAt(GameClockMs));
         var weather = Weather;
         Parallel.ForEach(_activeFields, field => StepField(field, dt, serverTick, bossHour, nowSeconds, night, weather));
         LastPhases = new TickPhases(processed, Stopwatch.GetElapsedTime(started, commandsDone).TotalMilliseconds,

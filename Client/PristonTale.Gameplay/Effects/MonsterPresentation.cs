@@ -78,6 +78,7 @@ public sealed class MonsterPresentation
     // DimFullTicks; the bodies of light (Figon, Stygian Lord, Guardian Saint, the fire elemental, Chaos Cara) fade by two
     // alpha units a tick until they are gone. Light and alpha units are 1/256 of a full light and of opaque.
     private const float DimStartTicks = 200f;
+    private const float DimPerTick = 0.5f;
     private const float DimFullTicks = 400f;
     private const float DimMost = 100f;
     private const float FadePerTick = 2f;
@@ -267,7 +268,7 @@ public sealed class MonsterPresentation
 
     // The light a corpse has lost, as a share of a full light, this many ticks after its death clip started.
     public static float CorpseDim(float ticks) =>
-        ticks >= DimFullTicks ? DimMost / Units : ticks > DimStartTicks ? (ticks - DimStartTicks) / 2f / Units : 0f;
+        ticks >= DimFullTicks ? DimMost / Units : ticks > DimStartTicks ? (ticks - DimStartTicks) * DimPerTick / Units : 0f;
 
     // The opacity left to a corpse: a body of light fades out, every other corpse stays.
     public static float CorpseFade(int soundCode, float ticks) => FadesOnDeath(soundCode) ? Math.Max(0f, 1f - FadePerTick * ticks / Units) : 1f;

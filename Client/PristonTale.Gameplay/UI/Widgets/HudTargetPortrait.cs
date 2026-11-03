@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Engine3D.Rendering;
+using PristonTale.Gameplay.World.Remote;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -34,7 +35,6 @@ public sealed class HudTargetPortrait : IDisposable
     // The portrait is a head close-up: the frame shows this much less than the screen's actor projection would.
     public const float CloseUp = 1.15f;
     private const float MinimumDistance = 10f;
-    private const int MaxHandles = 4;
     private const int MultiSampleCount = 4;
 
     // Studio light in units of the metered daylight (a white surface facing the key displays at 1 before exposure).
@@ -114,14 +114,14 @@ public sealed class HudTargetPortrait : IDisposable
             return;
         }
 
-        Span<ActorHandle> handles = stackalloc ActorHandle[MaxHandles];
+        Span<ActorHandle> handles = stackalloc ActorHandle[PlayerActorHandles.Most];
         var count = scene.CopyActorHandles(subject.EntityId, handles);
         if (count <= 0)
         {
             return;
         }
 
-        handles = handles[..Math.Min(count, MaxHandles)];
+        handles = handles[..Math.Min(count, PlayerActorHandles.Most)];
         // Close up, the crowd's slower pose sampling of a far actor would show as a halting animation.
         renderer.PortraitActor = handles[0];
         if (!_hasAnchor)

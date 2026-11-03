@@ -21,7 +21,7 @@ internal sealed class CharacterSelectPortrait : IDisposable
 
     public Texture2D Render(PristonRenderer renderer, PlayerActorHandles actor, int width, int height)
     {
-        Span<ActorHandle> handles = stackalloc ActorHandle[4];
+        Span<ActorHandle> handles = stackalloc ActorHandle[PlayerActorHandles.Most];
         var count = 0;
         AddHandle(actor.Body, handles, ref count);
         AddHandle(actor.Head, handles, ref count);

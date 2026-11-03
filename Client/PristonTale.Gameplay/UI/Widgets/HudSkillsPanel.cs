@@ -286,8 +286,6 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     private const int BoxSecondLineY = 200;
     private const int BoxPointsY = 230;
     private const int BoxElitePointsY = 255;
-    private static readonly Color BoxTitle = new(222, 231, 255);
-    private static readonly Color BoxPoints = new(247, 243, 193);
     private static readonly Color BoxElitePoints = new(147, 243, 193);
     private static readonly Color BoxShort = new(255, 64, 64);
 
@@ -308,7 +306,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         var box = HudSkillTreeLayout.MasterBox;
         painter.Flush();
         painter.InfoBox(box);
-        painter.TextCentered("Train Skill/Magic", box.Left, box.Right, BoxTitleY, BoxTitle);
+        painter.TextCentered("Train Skill/Magic", box.Left, box.Right, BoxTitleY, HudTextColors.Title);
         if (state.SkillPoints > 0 || state.EliteSkillPoints > 0)
         {
             if (_boxPoints != state.SkillPoints || _boxElitePoints != state.EliteSkillPoints)
@@ -321,7 +319,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
 
             painter.TextCentered("Select a Skill or Magic", box.Left, box.Right, BoxFirstLineY);
             painter.TextCentered("To learn or train", box.Left, box.Right, BoxSecondLineY);
-            painter.TextCentered(_boxPointsText, box.Left, box.Right, BoxPointsY, BoxPoints);
+            painter.TextCentered(_boxPointsText, box.Left, box.Right, BoxPointsY, HudTextColors.Highlight);
             painter.TextCentered(_boxElitePointsText, box.Left, box.Right, BoxElitePointsY, BoxElitePoints);
         }
         else
