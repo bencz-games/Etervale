@@ -2,12 +2,12 @@ namespace PristonTale.Server.Net;
 
 // Entities one receiver may see in a tick. In a crowd the receiver sees the nearest ones up to a capacity, like the
 // classic server's per-receiver user limit: entities it must not lose (essential) always stay, and an entity it already
-// shows is kept out to 1.15 times the crowd's cut-off distance so that the edge of the crowd does not flicker in and out.
+// shows is kept out to KeepBand times the crowd's cut-off distance so that the edge of the crowd does not flicker in and out.
 internal sealed class VisibleSet
 {
-    // Squared 1.15: the distance band beyond the cut-off in which already shown entities stay.
-    private const float KeepBandSq = 1.3225f;
-    private (int Index, float DistanceSq)[] _entries = new (int, float)[256];
+    public const float KeepBand = 1.15f;
+    private const float KeepBandSq = KeepBand * KeepBand;
+    private (int Index, float DistanceSq)[] _entries = new (int, float)[PresenceEncoder.MaxVisible];
     private int _count;
 
     public int Count => _count;

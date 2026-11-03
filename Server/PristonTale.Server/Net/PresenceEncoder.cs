@@ -23,7 +23,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
 {
     // The view ranges: connect and high detail (ViewRanges), ground items 0xC8000 squared world units.
     public static readonly float ViewRadius = ViewRanges.Connect;
-    private static readonly float ForgetRadius = ViewRadius * 1.15f;
+    private static readonly float ForgetRadius = ViewRadius * VisibleSet.KeepBand;
     private static readonly float NearRadius = ViewRanges.Near;
     private static readonly float ItemRadius = MathF.Sqrt(0xC8000);
     // 5 Hz inside the high-detail range and 2 Hz out to the connect range; the original relayed players at about 2.2 Hz and monsters at 1.1 Hz.
@@ -460,7 +460,9 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
 
     // In a crowd denser than the visible cap, only the neighbourhood that holds the nearest MaxVisible entities (and the
     // keep band around it) is collected: a square of half size h holding at least that many puts all of them within
-    // h times the square root of two.
+    // h times the square root of two (SquareCornerReach, rounded up).
+    private const float SquareCornerReach = 1.42f;
+
     private static float CrowdRadius(EntityGrid grid, Vector3 center)
     {
         if (grid.Count <= MaxVisible * 2)
@@ -468,11 +470,11 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
             return ForgetRadius;
         }
 
-        for (var half = EntityGrid.CellSize * 1.5f; half * 1.42f * 1.15f < ForgetRadius; half *= 1.6f)
+        for (var half = EntityGrid.CellSize * 1.5f; half * SquareCornerReach * VisibleSet.KeepBand < ForgetRadius; half *= 1.6f)
         {
             if (grid.CountInSquare(center, half) >= MaxVisible * 2)
             {
-                return half * 1.42f * 1.15f;
+                return half * SquareCornerReach * VisibleSet.KeepBand;
             }
         }
 
