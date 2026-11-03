@@ -511,6 +511,7 @@ public sealed partial class RemoteEntityManager
         var now = _clock.NowMs;
         foreach (var entity in _entities.Values)
         {
+            entity.SideView = SideView;
             entity.Update(dt, now);
         }
     }
@@ -526,6 +527,37 @@ public sealed partial class RemoteEntityManager
         EntityKind.Npc => NpcPickRadius,
         _ => 0f,
     };
+
+    // Draws every actor facing left or right (an action field).
+    public bool SideView { get; set; }
+
+    // The live entity nearest along x that stands within depth of the origin's z and within reach on the side it faces:
+    // a monster, or with allies a player or a summoned creature.
+    public ulong FindAhead(ulong selfId, XnaVector3 origin, bool facingRight, float reach, float depth, bool allies)
+    {
+        ulong found = 0;
+        var nearest = reach;
+        foreach (var (id, entity) in _entities)
+        {
+            if (id == selfId || entity.IsDead)
+            {
+                continue;
+            }
+
+            var summon = _summonOwners.ContainsKey(id);
+            var wanted = allies ? entity.Kind == EntityKind.Player || summon : entity.Kind == EntityKind.Monster && !summon;
+            var position = entity.DrawnPosition;
+            var across = MathF.Abs(position.X - origin.X);
+            if (wanted && MathF.Abs(position.Z - origin.Z) < depth && across < nearest
+                && (facingRight ? position.X > origin.X : position.X < origin.X))
+            {
+                nearest = across;
+                found = id;
+            }
+        }
+
+        return found;
+    }
 
     public bool TryPick(Microsoft.Xna.Framework.Ray ray, ulong selfId, out ulong entityId, out EntityKind kind)
     {

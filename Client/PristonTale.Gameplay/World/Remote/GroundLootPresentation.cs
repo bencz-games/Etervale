@@ -178,6 +178,26 @@ public sealed class GroundLootPresentation(IActorScene scene, PristonActorLoader
         return false;
     }
 
+    // The drop nearest along x within reach of the origin and within depth of its z.
+    public bool FindNear(Vector3 origin, float reach, float depth, out Guid id, out Vector3 position)
+    {
+        id = Guid.Empty;
+        position = default;
+        var nearest = reach;
+        foreach (var entry in _entries.Values)
+        {
+            var across = MathF.Abs(entry.Position.X - origin.X);
+            if (entry.FloorFound && MathF.Abs(entry.Position.Z - origin.Z) < depth && across < nearest)
+            {
+                nearest = across;
+                id = entry.Drop.Id;
+                position = entry.Position;
+            }
+        }
+
+        return id != Guid.Empty;
+    }
+
     public bool Pick(Point cursor, Ray ray, out Guid id, out Vector3 position, bool showAllLabels = false)
     {
         id = Guid.Empty;

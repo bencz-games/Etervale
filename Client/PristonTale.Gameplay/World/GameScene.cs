@@ -104,8 +104,9 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
 
     public void ToggleRun() => _runFlag = !_runFlag;
 
-    // The original's walk/run rule: the setting decides, except that a player tracing a target or holding the button
-    // keeps its pace while its stamina is at a quarter or less, and walks once it runs out. Overweight only walks.
+    // The original's walk/run rule: the setting (in an action field, the dash) decides, except that a player tracing a
+    // target or holding the button keeps its pace while its stamina is at a quarter or less, and walks once it runs out.
+    // Overweight only walks.
     private void UpdateRunMode(MouseState mouse)
     {
         var tracing = _hasMoveTarget || _followCursor || _attackInput.TargetId != 0 || _npcTargetId != 0
@@ -115,7 +116,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
         var run = _runMode;
         if (!tracing || stamina > maxStamina / 4)
         {
-            run = _runFlag;
+            run = InActionField ? _actionDash : _runFlag;
         }
 
         run = run && stamina > 0 && !Overweight;
@@ -253,7 +254,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     }
     public Vector3 PlayerPosition => _playerBody?.Position ?? Vector3.Zero;
     public Vector3 PlayerForward => _playerForward;
-    private float PlayerYaw => WorldSpace.RenderYaw(_playerForward);
+    private float PlayerYaw => InActionField ? ActionFieldView.Facing(WorldSpace.RenderYaw(_playerForward)) : WorldSpace.RenderYaw(_playerForward);
     public event Action<PresenceUpdate> PresenceObserved;
 
     // What a request answers when the scene has no world connection.
@@ -449,7 +450,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
         UpdateStreaming();
         if (_camera != null && _activeField != null)
         {
-            _camera.Update(gameTime, _graphicsDevice, _playerBody.Position, _playerForward, _fieldCollision, PointerCaptured, CameraInputEnabled);
+            UpdateCamera(gameTime);
         }
 
         if (_renderer != null)

@@ -107,6 +107,9 @@ public abstract class RemoteEntityBase
 
     public bool IsDead => _controller.IsDead;
 
+    // Drawn facing left or right only (an action field).
+    public bool SideView { get; set; }
+
     public void SetTarget(double timeMs, Vector3 position, float facing, MotionState moveState, int life)
     {
         _ = _track.Add(new RemoteSample(timeMs, position, facing, moveState, life), _renderPosition);
@@ -122,7 +125,7 @@ public abstract class RemoteEntityBase
         LearnSpeed(pose);
         UpdateStall(elapsedMs);
         _renderPosition = pose.Position;
-        _renderFacing = pose.Facing;
+        _renderFacing = SideView ? ActionFieldView.Facing(pose.Facing) : pose.Facing;
         ApplyWorld(Matrix.CreateRotationY(_renderFacing) * Matrix.CreateTranslation(_renderPosition));
 
         if (_pendingMotion.Kind != MotionCommandKind.None)

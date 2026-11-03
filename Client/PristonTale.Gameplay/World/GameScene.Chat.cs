@@ -31,7 +31,8 @@ public sealed partial class GameScene
 
     public void PressYahooKey()
     {
-        if (_playChannel is not null && Environment.TickCount64 < _yahooKeyUntilMs)
+        // Space attacks in an action field.
+        if (_playChannel is not null && !InActionField && Environment.TickCount64 < _yahooKeyUntilMs)
         {
             _ = _playChannel.SendYahooKeyAsync(_presenceCts.Token);
         }

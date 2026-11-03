@@ -385,6 +385,15 @@ Renderer side of stage publication: [rendering.md](rendering.md).
 | `F9` | `Game1.Update` | Show or hide the diagnostics overlay (frame rate and timing, the screen's status; `GameClient.Diagnostics`) |
 | `Ctrl+F3` / `Ctrl+F5` / `Ctrl+F10` | `GameplayScreen.UpdateDebugKeys` | Add the render stats to the F9 diagnostics / toggle shadows / cycle `PristonDebugView` |
 | `Ctrl+1`..`Ctrl+7` | `GameplayScreen.UpdateMotionKeys` | Force Stand, Walk, Run, Attack, Damage, Dead, Skill on the local avatar |
+| Arrow keys (action field) | `GameScene.UpdateActionKeys` | Walk along x (left, right) and z (up, down), diagonals included; left or right pressed again within 500 ms of letting it go dashes (runs) until released or turned; letting go stops the walk and the attack |
+| `Space` (action field) | same | Attack the nearest monster ahead (within the attack range along x on the side faced, 32 units of the player's line; `RemoteEntityManager.FindAhead`), else pick up the nearest drop within 32 along x and 16 of the line (`GroundLootPresentation.FindNear`); it does not cheer there |
+| `Ctrl` (action field) | same | The right socket skill: at once when it takes no target, else on the nearest monster ahead, or for a skill on allies the nearest player or summon ahead (the caster when none); the basic attack in the socket attacks as `Space` does |
+
+An action field (`FieldState.Action`, [world.md](world.md#fields)) is seen side-on (`GameScene.UpdateCamera`): the
+camera stands at the field's `ActionCamera` height and depth, follows the player along x within its bounds and looks
+along +z at the player's height, with no orbit or zoom; every actor, the player's own included, is drawn facing left or
+right (`ActionFieldView.Facing`, `RemoteEntityManager.SideView`). Leaving the field snaps the follow camera back. The mouse
+keeps its usual clicks there.
 
 `GameplayHud.PointerCaptured` (pointer over a HUD element or dragging, or any of the NPC and quest dialogs, message
 boxes, the wing warp map, the Teleport Core list, the warehouse, aging and mixing windows open, as the original stops the

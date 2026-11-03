@@ -25,7 +25,7 @@ internal static class FieldOrderTests
         yield return ("a warp with several exits lands where the client came out and asks only its own level", ExitsAsync);
         yield return ("wings and teleporters ask a field's travel level, walking in its own", TravelLevelAsync);
         yield return ("stored characters, logged transfers and imported fields follow the fields that moved up", MigrationAsync);
-        yield return ("the action fields and the deep fields hold their codes, and every warp into them leads back", NewFieldsAsync);
+        yield return ("the action fields and the deep fields hold their codes and levels, the warps into them ask their levels, and every warp leads to a defined field", NewFieldsAsync);
         yield return ("an action field's camera stands at its height and depth and follows the player within its bounds", ActionCameraAsync);
     }
 

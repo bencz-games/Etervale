@@ -93,7 +93,7 @@ the Land of Nurwn. The action fields are reached by no gate; a kill in `fall_gam
 |---|---|
 | `StageSmd` | Asset-relative stage path with Windows separators; source of collision and of the importer's join key |
 | `StageObjectSmds` | Animated stage props; client only |
-| `State` (`FieldState`) | `Village` sets the player's in-village flag on entry; `Dungeon` sets `Underground` (no sky); `Action` is a side-scrolling field (no minimap) |
+| `State` (`FieldState`) | `Village` sets the player's in-village flag on entry; `Dungeon` sets `Underground` (no sky); `Action` is a side-scrolling field (no minimap; controls in [client.md](client.md#input)) |
 | `ActionCamera` | An action field's camera: fixed-point height (the camera rises 80 units above it), depth `Z` and the `LeftX`-`RightX` range it follows the player along x; it looks along +z |
 | `Center`, `StartPoints` | `StartPoints[0]` is the NPC teleport arrival; a field restart stands up at the start point nearest to the fall, a town restart at a random one; `Center` is the fallback |
 | `Gates` | Seamless boundaries to an adjacent field (`DestinationFieldId`, X/Z, angle) |

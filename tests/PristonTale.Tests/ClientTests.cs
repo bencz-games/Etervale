@@ -30,6 +30,7 @@ internal static class ClientTests
         yield return ("pending actor preparation does not block presence or resurrect removals", PendingActorAsync);
         yield return ("remote height follows the server sample instead of the highest floor", ServerHeightAsync);
         yield return ("NPC, monster and player collision survives pending assets", CollisionRosterAsync);
+        yield return ("an action field draws actors facing left or right and finds the nearest one ahead on the player's line", SideViewAsync);
         yield return ("cursor rays originate at the camera and reject an enclosing NPC pick volume", CursorPickingAsync);
     }
 
@@ -249,6 +250,39 @@ internal static class ClientTests
         composer.Ready.TrySetResult();
         manager.Update(0.05f);
         Assert.True(manager.Count == 0 && composer.Composed == 0, "removed pending actor reappeared");
+        return Task.CompletedTask;
+    }
+
+    private static Task SideViewAsync()
+    {
+        Assert.True(PristonTale.Gameplay.World.ActionFieldView.Facing(0.3f) == MathF.PI / 2f
+            && PristonTale.Gameplay.World.ActionFieldView.Facing(-2.5f) == -MathF.PI / 2f
+            && PristonTale.Gameplay.World.ActionFieldView.Facing(0f) == MathF.PI / 2f, "a facing did not turn to its side");
+        var remote = new RemoteModelEntity(new FakeScene(), ActorHandle.None, 1, 0, Vector3.Zero, 2.8f, MotionState.Stand, 1) { SideView = true };
+        remote.Update(0.05f, 50);
+        Assert.True(remote.RenderFacing == MathF.PI / 2f, $"a side-view actor faces {remote.RenderFacing}");
+
+        var composer = new PendingComposer();
+        composer.Ready.TrySetResult();
+        var manager = new RemoteEntityManager(new FakeScene(), composer, composer, new CharacterClassRegistry(), ".");
+        var appearance = new PlayerAppearanceInfo("Remote", PlayerClass.Fighter, 0, 0, 0, "", "", 1);
+        manager.Apply(new PresenceUpdate(1,
+        [
+            new(2, EntityKind.Player, false, new System.Numerics.Vector3(60, 0, 10), 0, MotionState.Stand, 100, 100, appearance, 0),
+            new(3, EntityKind.Player, false, new System.Numerics.Vector3(30, 0, 40), 0, MotionState.Stand, 100, 100, appearance, 0),
+            new(4, EntityKind.Player, false, new System.Numerics.Vector3(-20, 0, 0), 0, MotionState.Stand, 100, 100, appearance, 0)
+        ], [], [], []));
+        for (var frame = 0; frame < 4; frame++)
+        {
+            manager.Update(0.05f);
+        }
+
+        var origin = Vector3.Zero;
+        Assert.True(manager.FindAhead(1, origin, facingRight: true, reach: 100, depth: 32, allies: true) == 2
+            && manager.FindAhead(1, origin, facingRight: false, reach: 100, depth: 32, allies: true) == 4
+            && manager.FindAhead(1, origin, facingRight: true, reach: 50, depth: 32, allies: true) == 0
+            && manager.FindAhead(1, origin, facingRight: true, reach: 100, depth: 32, allies: false) == 0,
+            "the search ahead took one off the line, behind, out of reach or of the wrong side");
         return Task.CompletedTask;
     }
 
