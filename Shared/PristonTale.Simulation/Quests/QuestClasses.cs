@@ -30,7 +30,7 @@ public static class QuestClasses
 
     public static uint QuestWeapon(PlayerClass playerClass) => CodeOrZero(ClassProfiles.Of(playerClass).QuestWeapon);
 
-    // Dagger and phantom codes resolve only once the item codes cover their categories; a class without the item has "".
+    // A class whose quest weapon the item catalog lacks forges none.
     private static uint CodeOrZero(string code) => ItemCodes.TryParse(code, out var value) ? value : 0;
 
     // How the quest weapon counts kills while it grows.

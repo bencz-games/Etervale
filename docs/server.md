@@ -181,7 +181,7 @@ show or write one row with `/setting name [value]` ([chat-and-gm.md](chat-and-gm
 | `server.name` | `Etervale` | Up to 32 characters; sent in `ServerHello` and shown on the character screen. |
 | `server.code` | 0 | Server number that prefixes the game-master information replies. |
 | `server.max_users` | 0 | Players beyond which only game masters may log in; 0 for no limit. A game master's `/user_limit` lasts until this row changes. |
-| `server.test` | false | Every game master may use `/GiveMeExp!` and `/GiveMeMoney!`. |
+| `server.test` | false | Every game master may use `/expup`, `/GiveMeExp!` and `/GiveMeMoney!`. |
 | `server.debug` | false | As `server.test`, and `/` with an item code drops that item. |
 | `server.settings_reload_minutes` | 5 | Minutes between two readings, 1 to 1440. |
 | `players.starter_gifts` | true | A new character receives its starter gifts ([application.md](application.md#starter-gifts)). |
@@ -251,8 +251,14 @@ required per opcode; both envelopes reach the same switch.
 | `NpcServiceRequest` | `RequestNpcServiceAsync` | `NpcAppService.RequestAsync` | State messages, `NpcServiceResult`, and a forced `FieldWarp` for a teleport. |
 | `QuestRequest` | `RequestQuestAsync` | `QuestAppService.RequestAsync` | `QuestResult`; travel to or from the arena arrives as the encoder's `FieldWarp`. |
 | `SkillCast` | `CastSkillAsync` | `WorldServer.CastSkillAsync` | `SkillCastResult`. |
+| `ItemUseCommand` | `UseItemAsync` | `ItemUseAppService.UseAsync` | `ItemUseResult` ([special-items.md](special-items.md)). |
+| `RestartRequest` | `RestartAsync` | `RestartAppService.RestartAsync` | `RestartResult`; the arrival comes as the encoder's `FieldWarp`. |
+| `WingGateRequest` | `TravelWingGateAsync` | `WingGateAppService.TravelAsync` | `WingGateResult`. |
+| `PersonalShopOpen`, `PersonalShopClose`, `PersonalShopView`, `PersonalShopBuy` | `OpenPersonalShopAsync`, `ClosePersonalShopAsync`, `ViewPersonalShopAsync`, `BuyFromPersonalShopAsync` | `PersonalShopAppService` | `PersonalShopListing` and `PersonalShopDetails` for a view, then `PersonalShopResult`. |
+| `YahooKey` | inline | `WorldServer.YahooAsync` | None; the cheer arrives as presence. |
+| `DismissCrystalPets` | inline | `WorldServer.DismissCrystalPetsAsync` | None; the pets' end arrives as presence. |
 | `LeaveWorld` | inline | `ClosePlayAsync` (leave, save) | `LeaveWorld` with `Saved` true when the character was stored. |
-| anything else | ignored | none | none |
+| a code without a handler | ignored | none | none |
 
 Error handling inside `HandleAsync`:
 
@@ -260,7 +266,7 @@ Error handling inside `HandleAsync`:
 | --- | --- |
 | `InvalidSessionException`, `InvalidOperationException` (includes `WorldBusyException`) | Packet dropped, sampled `Rejected` warning; the connection stays open. |
 | `DbException` | `ReplyStorageFailure`: login gets `LoginResult` busy, character commands get a `CharacterResult` with `CreateCharacterFailure.Rejected`, `EnterWorld` gets a `WorldEntry` with `EnterWorldFailure.Rejected`. |
-| `InvalidDataException` (malformed packet from a `Read`) | Escapes to `FrameConnection`, which closes with `protocol: ...`. |
+| `InvalidDataException` (malformed packet from a `Read`) | Closes the connection (`handler failed`) and is logged as `Client session ... failed` once the session has closed its play. |
 | anything else | Ends the session; logged as `Client session ... failed`. |
 
 Inventory, progression, NPC service and quest handlers convert session, operation and storage exceptions into a failed

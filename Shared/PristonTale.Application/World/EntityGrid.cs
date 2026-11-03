@@ -14,8 +14,8 @@ public sealed class EntityGrid
     private long[] _keys;
     private int[] _indices;
     private readonly Dictionary<ulong, int> _byId;
-    // (related entity id << 32 | index) of every entity that targets or is owned by another one, sorted.
-    // (related entity id << 64 | index), sorted, so the entities related to one id are one contiguous run.
+    // (related entity id << 64 | index) of every entity that targets or is owned by another one, sorted, so the entities
+    // related to one id are one contiguous run.
     private UInt128[] _relations = [];
     private int _relationCount;
     private readonly List<int> _npcs = new();

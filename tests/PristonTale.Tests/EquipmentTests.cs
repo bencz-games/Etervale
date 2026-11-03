@@ -101,7 +101,7 @@ internal static class EquipmentTests
         Assert.True(projected.WeaponKey == "WC101" && projected.Name == "Gear", "equipment metadata changed over TCP");
         character.Equip(EquipmentSlot.Weapon, null!);
         var refreshed = wire.PushMerged(new WorldSnapshot(2, [player.ToView()], fieldId: 3));
-        Assert.True(refreshed.Spawns.Single().Player!.WeaponKey == "", "unequip did not refresh the PLAYERINFO description");
+        Assert.True(refreshed.Spawns.Single().Player!.WeaponKey == "", "unequip did not refresh the entity description");
         Assert.True(wire.PushMerged(new WorldSnapshot(3, [player.ToView()], fieldId: 3)).Spawns.Count == 0, "unchanged description was resent");
         character.Equip(EquipmentSlot.Weapon, new ItemInstance(new ItemDefinition(1, "Claw", ItemKind.Claw, EquipmentSlot.Weapon) { CatalogKey = "WC101" }));
         Assert.True(cursor.Diff([player.ToView()]).Spawns.Count == 0, "unchanged equipment resent a descriptor");

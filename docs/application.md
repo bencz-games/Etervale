@@ -37,7 +37,7 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | [`World/WorldServer.cs`](../Shared/PristonTale.Application/World/WorldServer.cs) | Command queue, tick, field registry, connections, prepare/commit entry points |
 | `World/WorldServer.Npc.cs` | NPC interaction, NPC service check/prepare/commit, teleport arrival |
 | `World/WorldServer.Quests.cs`, `World/FieldInstance.Quests.cs`, `World/QuestTransactions.cs`, `World/PlayerQuestState.cs` | Quest prepare/commit, upkeep requests, quest travel; kill credit, quest drops, timers and arena duels on the field |
-| `World/WorldServerOptions.cs` | `ExperienceMultiplier`, `ExperienceEventPercent`, `ClockOffsetMinutes`, `CrystalEvent`, `ItemEvents`, `Aging`, `MaxPendingCommandsPerPlayer`, `GiveStarterGifts`; `WorldBusyException` |
+| `World/WorldServerOptions.cs` | `ExperienceMultiplier`, `ExperienceEventPercent`, `ClockOffsetMinutes`, `CrystalEvent`, `ItemEvents`, `Aging`, `Mixing`, `Weather`, `WeatherCycleMinutes`, `MaxPendingCommandsPerPlayer`, `GiveStarterGifts`, `CheckpointSeconds`; `WorldBusyException` |
 | `World/WorldServer.StarterGifts.cs`, `Services/StarterGiftAppService.cs` | The starter gifts of new characters: their offers on the tick, prepare and commit, the durable operation and its chat line ([Starter gifts](#starter-gifts)) |
 | `Settings/` | `ServerSettings`, `ServerSettingCatalog` (every row of the settings table), `ServerSettingsAppService` (read, apply, write) |
 | [`World/FieldInstance.cs`](../Shared/PristonTale.Application/World/FieldInstance.cs) | One live field: players, monsters, NPCs, spawner, AI, collision index, step order, views |
@@ -215,16 +215,19 @@ Durable entry points (`Prepare*Async`, `Commit*Async`, `CheckNpcServiceAsync`, `
 `FieldInstance.Step(dt, bossHour)` order:
 
 1. Advance the clock, clear events, `FieldSkills.BeginTick` (moves cast start events queued by commands into this
-   tick), rebuild the prey view (players; live summons as target-only).
+   tick), rebuild the prey view (players; live summons as target-only); the night pass (`StepNight`: night creatures,
+   nightmare fields, event NPCs).
 2. Spawner: maintain population and despawns for wild monsters; scheduled bosses when the hour pass is due.
-3. Rebuild the collision index; step wild monsters (AI brain, swing-begin events, `MoveMonster`, hit resolution).
-4. Step summons, then NPC wander with entity collision and terrain step.
+3. Rebuild the collision index; step wild monsters (AI brain, swing-begin events, `MoveMonster`, hit resolution); apply
+   the monsters' shape changes and event forms.
+4. Step summons, expire soul-stone monsters, then NPC wander with entity collision and terrain step.
 5. Per player: the time down when dead (`TickDead`); else action tick (swing hit), potion tick and pending potion start, attack
    lock (`StepPlayerAttack`), stale-motion expiry.
 6. `FieldSkills.Step` (cast timelines, projectiles, familiars, pulses, effect timers, regeneration), then place skill
    kill payouts as loot; `FieldPremium.Step` expires premium timers, returns vampiric life and mana per attack and runs
    the premium pets ([special-items.md](special-items.md)).
-7. Corpse timers, ground loot expiry.
+7. Corpse timers, the aging counters (`StepAging`), the quest timers and duels (`StepQuests`), ground loot expiry, then
+   the status book takes the tick's status events and prunes the absent.
 
 ### Players (`WorldPlayer`)
 

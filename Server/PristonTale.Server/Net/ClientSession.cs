@@ -308,7 +308,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
                     SendLarge(new LeaveWorldPacket(Saved: await ClosePlayAsync()).Write, LeaveWorldPacket.Size);
                     break;
                 default:
-                    // The original dispatcher also ignores codes it does not handle (PlayerInfo2, network-quality reports, ...).
+                    // A code without a handler is ignored, not answered.
                     break;
             }
         }

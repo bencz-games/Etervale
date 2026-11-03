@@ -25,12 +25,11 @@ using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Client.Net;
 
-// Client side of the original Priston flow over one TCP connection. The original protocol has no request ids, so
-// login, character and world-entry requests run one at a time and complete on their reply opcodes; inventory and
-// progression commands and NPC service requests correlate by operation id and NPC clicks by NPC entityId.
+// Client side of Etervale's protocol over one TCP connection. Login, character and world-entry requests run one at a
+// time and complete on their reply opcodes; inventory and progression commands and NPC service requests correlate by
+// operation id and NPC clicks by NPC entityId.
 public sealed class GameServerConnection : IGameBackend
 {
-    // Client version of the English retail build; the server's VERSION reply sets the minimum.
     private static readonly TimeSpan HeartbeatInterval = TimeSpan.FromSeconds(4);
     private static readonly TimeSpan DescriptionRetryInterval = TimeSpan.FromSeconds(1);
 

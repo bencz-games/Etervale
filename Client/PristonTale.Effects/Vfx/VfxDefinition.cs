@@ -17,8 +17,9 @@ public enum VfxAnchor
     Target
 }
 
-// Additive: source x alpha + destination. Alpha: over. Color: source x source + destination x (1 - source). AddColor:
-// source x source + destination. Shadow: destination x source. InvShadow: destination x (1 - source).
+// Additive: source x alpha + destination. Alpha: over. Color and AddColor: source + destination (the renderer's one-one
+// blend, approximating the original's source x source). Shadow: destination x source. InvShadow: destination x
+// (1 - source).
 public enum VfxBlend
 {
     Additive,

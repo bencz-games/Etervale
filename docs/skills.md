@@ -82,7 +82,8 @@ Rules in `SkillLearning` and `PlayerCharacter.ApplyProgression`; the command is 
 
 A JSON array (comments and trailing commas allowed) of objects. Each object is parsed twice: as `ClassSkillEntry`
 (definition) and, when `kind` is present, as `SkillRule` from the same object. Names are camel case, enums are strings
-(flags enums take `"A, B"`), skill codes are hex strings or numbers. Unknown properties are ignored silently.
+(flags enums take `"A, B"`), skill codes are hex strings or numbers. An unknown property is refused (`InvalidDataException` naming the file and the
+property).
 
 Conventions: `[10]` is a per-rank table with exactly ten entries (rank 1..10; validation rejects other lengths, `[]`
 means absent); `SkillRule.At` clamps the rank into the table. Distances are world units (wire scales them by 256).

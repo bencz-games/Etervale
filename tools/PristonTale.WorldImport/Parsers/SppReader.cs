@@ -8,7 +8,8 @@ namespace PristonTale.WorldImport.Parsers;
 // Confirmed against real assets (every *.spp on disk is exactly 2400 bytes).
 //
 // A point is "live" when its state != 0; we import every record (state carried) and let the
-// factory map state != 0 → SpawnPoint.Active. Coords are RAW field coords (fixed-point).
+// factory map state != 0 → SpawnPoint.Active. Coords are world units (FieldSpawner.PointToWorld takes them as
+// they are).
 public sealed class SppReader
 {
     private const int RecordSize = 12;   // 3 × int32

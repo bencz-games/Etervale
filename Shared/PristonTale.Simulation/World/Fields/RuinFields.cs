@@ -55,7 +55,7 @@ public static class Ruin1Field
         "Field\\Ruin\\ruin-1.smd",
         [])
     {
-        FieldCode = 7,
+        FieldCode = FieldCodes.Ruin1,
         Center = new FieldPoint(16362, 14959),
         StartPoints = [new FieldPoint(12242, 16034), new FieldPoint(12194, 8969)],
         Gates = [new FieldGate("De-1", 13319, 7102, 0)],

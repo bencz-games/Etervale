@@ -22,7 +22,6 @@ progression, regeneration and movement rates. `World/`, `Physics/` and `Skills/`
 | --- | --- |
 | `PristonTale.Simulation.csproj` | net10.0, references only `PristonTale.Geometry`; embeds `Skills/Data/Classes/*.json` |
 | `SimulationCore.cs` | Description constant only |
-| `Actors/ActorDefinitions.cs` | `PlayerCompositionFactory` and bone socket names; not referenced by other projects |
 | `Characters/CharacterEnums.cs` | `CharacterBrood`, `JobBitCode`, `EquipmentSlot` (`PlayerClass` is in Contracts) |
 | `Characters/JobBits.cs` | The one map between `PlayerClass` and its `JobBitCode`, both ways |
 | `Characters/CharacterStats.cs` | `CharacterAttributes` (five attributes), `CharacterFunctionProfile` (formula selectors) |
@@ -64,7 +63,6 @@ progression, regeneration and movement rates. `World/`, `Physics/` and `Skills/`
 | `Combat/Elements.cs` | `Element` and `ResistanceBlock` |
 | `Combat/PlayerAttackReach.cs`, `MeleeReach.cs` | Player attack range (melee 50, ranged from the weapon) |
 | `Combat/MonsterAttackReach.cs`, `MonsterOffensiveSkill.cs` | Monster basic-attack reach and offensive-skill areas |
-| `Combat/CombatAntiCheat.cs` | Attack rate/power/monotonic checks; currently not called by any project |
 | [`Modifiers/ModifierTypes.cs`](../Shared/PristonTale.Simulation/Modifiers/ModifierTypes.cs) | `StatKind`, `StatModifier`, `EffectSourceKind`, `ControlFlags`, `StackRule`, `PeriodicEffect` |
 | `Modifiers/EffectContainer.cs` | `EffectSpec`, `ActiveEffect`, `EffectContainer`, `ModifierTotals` |
 | `Modifiers/ModifierRules.cs` | How totals change derived stats, damage, resistances, dealt/taken scaling |
@@ -391,9 +389,9 @@ totals.
 - `Inventory()` is the 12x6 carried grid (72 cells); `Inventory(width, height)` builds any grid up to 32x32 (the
   warehouse and the shops use the 9x9 `StoreGrid`). Cell index = `y * Width + x`; an item is stored only at its top-left
   anchor and its footprint (`GridWidth x GridHeight`) is tracked in one `uint` bit row per grid row.
-- `TryAdd` first tops up compatible stacks, then places new stacks first-fit by anchor index; it plans everything
-  before mutating and fails without change. Compatible stacks need a stackable, equal definition and identical
-  upgrade, durability and roll.
+- `TryAdd` first tops up compatible stacks, then places new stacks in the first free space down each column from the
+  left; it plans everything before mutating and fails without change. Compatible stacks need a stackable, equal
+  definition and identical upgrade, durability and roll.
 - `TryPlace`, `TryMove`, `TrySplit` (new instance id), `TryMerge`, `TryJoin` (a whole stack onto a compatible one),
   `TrySwap`, `TryExchange` (take an item out and put a replacement at a given cell, or at the same anchor or first fit;
   `CanExchange` checks it without changing anything), `TakeAt`, `TakeFrom` (`ItemInstance.Split` for part of a stack),
@@ -579,7 +577,6 @@ server steps it per player in `FieldSkills.StepEffects` and resets it on death. 
 - `Compatible` stacking uses record equality of `ItemDefinition`; two catalogs with equal data compare equal.
 - `ItemEquipmentMetadata` is a data table; edit entries, not structure. Its families are looked up by the
   three-character prefix first, then by the first two characters (`DA` covers every body armour and robe family).
-- `CombatAntiCheat` and `PlayerCompositionFactory` are not used by any project; do not assume they are enforced.
 - Requirements and price live in the copy's roll (a specialization shifts them); read `ItemInstance.Roll`, not the
   definition, for anything about a particular copy.
 

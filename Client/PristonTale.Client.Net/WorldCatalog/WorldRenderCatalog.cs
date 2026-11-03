@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 
 namespace PristonTale.Client.Net.WorldCatalog;
 
-// Filled by the network thread from PLAYERINFO descriptions and read by the game thread; a template is registered
+// Filled by the network thread from entity descriptions and read by the game thread; a template is registered
 // before any spawn that references it is published.
 public sealed class WorldRenderCatalog
 {

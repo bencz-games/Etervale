@@ -53,7 +53,7 @@ public static class ForeverFall3Field
             "Field\\forest\\3ani-07.smd"
         ])
     {
-        FieldCode = 18,
+        FieldCode = FieldCodes.ForeverFall3,
         Center = new FieldPoint(-5823, 43244),
         StartPoints = [new FieldPoint(-1516, 45437), new FieldPoint(-3586, 42886)],
         Gates = [new FieldGate("forever-fall-02", -2349, 49830, 0)],

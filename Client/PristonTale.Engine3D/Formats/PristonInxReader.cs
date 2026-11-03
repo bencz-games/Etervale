@@ -60,7 +60,7 @@ public sealed class PristonInxReader
         var defaultModel = ReadModelGroup(cursor);
         var lowModel = ReadModelGroup(cursor);
 
-        var fileCode = GetSpeedSum(ToCanonicalAssetPath(path));
+        var fileCode = PathHash(ToCanonicalAssetPath(path));
         var motions = new List<PristonMotionInfo>(PristonFormatConstants.MotionInfoCount);
         cursor.Position = MotionInfoOffset;
         for (var i = 0; i < PristonFormatConstants.MotionInfoCount; i++)
@@ -343,7 +343,7 @@ public sealed class PristonInxReader
         };
     }
 
-    // Motion keywords embed the path hash (GetSpeedSum) of the path the INX was encoded under. Some shipped INX
+    // Motion keywords embed the path hash (PathHash) of the path the INX was encoded under. Some shipped INX
     // files were copied to another folder, so a strict per-path check rejects them; when every protected frame
     // carries one identical keyword the frames are intact and that keyword is accepted instead.
     private static uint ResolveMotionKeywordCode(List<PristonMotionInfo> motions, uint motionCount, uint fileCode)
@@ -443,7 +443,7 @@ public sealed class PristonInxReader
             ((linkKeyword & 0x00FF0000u) >> 8) |
             ((fileKeyword & 0x00FF0000u) >> 16);
         var canonicalLinkFile = Path.ChangeExtension(linkFile, ".inx") ?? linkFile;
-        var expectedLinkCode = GetSpeedSum(canonicalLinkFile);
+        var expectedLinkCode = PathHash(canonicalLinkFile);
         return new ModelKeywordValidation(
             decodedFileCodeWithLink,
             decodedLinkCode,
@@ -492,7 +492,7 @@ public sealed class PristonInxReader
         return (keyword != 0 || encodedFrame != 0) && decodedKeyword == code;
     }
 
-    public static uint GetSpeedSum(string name)
+    public static uint PathHash(string name)
     {
         uint sum2 = 0;
         uint sum = 0;

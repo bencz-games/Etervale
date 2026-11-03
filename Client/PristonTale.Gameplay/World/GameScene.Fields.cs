@@ -65,7 +65,7 @@ public sealed partial class GameScene
         _selfLife = _player.Life;
         _selfMaxLife = d.MaxLife;
         var spawn = entered != null && (entered.SpawnX != 0f || entered.SpawnZ != 0f)
-            ? new Vector2(entered.SpawnX, -entered.SpawnZ)
+            ? WorldSpace.Planar(entered.SpawnX, entered.SpawnZ)
             : SpawnPlanarPosition(field);
         _playerBody = new PhysicsBody(spawn) { Radius = PlayerRadius };
         UpdateBodyHeight(_playerBody);

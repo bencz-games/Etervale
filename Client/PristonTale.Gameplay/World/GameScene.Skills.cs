@@ -11,6 +11,7 @@ using NumVector3 = System.Numerics.Vector3;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Skills;
+using PristonTale.Engine3D;
 
 namespace PristonTale.Gameplay.World;
 
@@ -295,8 +296,7 @@ public sealed partial class GameScene : ISkillSceneHost
         _hasMoveTarget = false;
         _reports.Request();
         var planar = _playerBody.PlanarPosition;
-        // Transport is PT-global (x, z); presentation uses (x, -z).
-        var point = new NumVector3(planar.X, _playerBody.Height, -planar.Y);
+        var point = WorldSpace.Mirror(new NumVector3(planar.X, _playerBody.Height, planar.Y));
         SendUpstream(_playChannel.SendSkillCastAsync(++_castSequence, pending.Code, target, point, _presenceCts.Token), "skill cast");
     }
 

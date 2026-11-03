@@ -25,7 +25,7 @@ public static class Forest3Field
             "Field\\forest\\3ani-14.smd"
         ])
     {
-        FieldCode = 0,
+        FieldCode = FieldCodes.Forest3,
         Center = new FieldPoint(-16419, -7054),
         StartPoints =
         [

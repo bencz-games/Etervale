@@ -21,7 +21,7 @@ How the tick calls these rules belongs to [application.md](application.md).
 |---|---|
 | [`WorldDefinitions.cs`](../Shared/PristonTale.Simulation/World/WorldDefinitions.cs) | `FieldDef`, its records (gates, warp gates, ambients, lighting, camera, day/night), `FieldState`, `WorldCatalog` |
 | `World/Fields/*.cs` | One static `Definition` per field, grouped by region (`DungeonFields`, `IceFields`...); `FieldSpawnData` records |
-| `World/FieldCodes.cs` | The field codes rules name (home towns, office room, inner ice field, Bellatra, quest arena, castle, boss field); the definitions and every rule use these, never a bare code |
+| `World/FieldCodes.cs` | The field codes rules name (home towns, the teleporter's hunting grounds, the quest weapon's hunting fields, office room, inner ice field, Bellatra, quest arena, castle, boss field); the definitions and every rule use these, never a bare code |
 | `World/FieldBackdrops.cs` | Sky backdrop texture keys (day, glow, night) shared by fields |
 | [`World/FieldTerrain.cs`](../Shared/PristonTale.Simulation/World/FieldTerrain.cs) | Ground queries for one field: place on floor, step, wall crossing, wall slide, body sweep |
 | `World/MonsterStepping.cs` | Server monster step: full step, then two side probes; `IStepOccupancy` |

@@ -10,7 +10,7 @@ public static class Dungeon1Field
         "Field\\dungeon\\dun-1.smd",
         ["Field\\dungeon\\dun-1-wheel.smd"])
     {
-        FieldCode = 13,
+        FieldCode = FieldCodes.Dungeon1,
         Center = new FieldPoint(-15384, -24310),
         WarpGates =
         [

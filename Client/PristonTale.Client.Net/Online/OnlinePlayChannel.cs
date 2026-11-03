@@ -15,7 +15,7 @@ using PristonTale.Protocol.Packets;
 
 namespace PristonTale.Client.Net.Online;
 
-// Opening sends the client's PLAYERINFO and completes on CONNECTED; disposing sends the Etervale leave request so the
+// Opening sends JoinWorld and completes on WorldJoined; disposing sends the Etervale leave request so the
 // server saves before the client returns to another screen.
 internal sealed class OnlinePlayChannel : IPlayChannel
 {

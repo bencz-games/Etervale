@@ -10,7 +10,7 @@ using PristonTale.Server.Net;
 namespace PristonTale.Tests;
 
 // Runs snapshots through the server's PresenceEncoder and the client's PresenceDecoder over original packet bytes,
-// answering GETPLAYERINFO the way ClientSession does.
+// answering DescribeEntity the way ClientSession does.
 internal sealed class WireRoundTrip
 {
     private readonly PresenceEncoder _encoder;

@@ -207,8 +207,8 @@ lines in `QuestBoard`, and kill credit in `QuestTick.OnKill` when it hunts.
 - A quest grant places all its items or none: they must fit the pack and, together, the carried-weight limit
   (`QuestInventory.Check`). A refusal answers `NoSpace` or `OverWeight` and leaves the quest where it was; a quest
   drop that does not fit is lost. Class rewards are made out for the receiver's class (`ItemRoll.SpecJob`).
-- Dagger and phantom quest weapons need their item codes; until the item categories exist they resolve to none and the
-  second rank-up refuses to forge for those classes.
+- A class whose quest weapon (`ClassProfile.QuestWeapon`, such as the Assassin's WD109) the item catalog lacks cannot have
+  it forged: the second rank-up refuses to forge for it.
 
 ## Related
 

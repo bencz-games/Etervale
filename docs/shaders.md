@@ -55,7 +55,7 @@ Each `.fx` in `Passes/` builds to `Effects/<Name>` (the asset name the C# owner 
 Both stages use one cbuffer at `b0`: vertex `SurfaceVertexConstants` (view-projection, caster matrices, UV scrolls,
 `DrawOpacity`, `DrawLight`, previous view-projection, `MotionParams` and `ActorParams`, then skinning or
 vertex-animation constants); pixel `SurfacePixelConstants` (`FRAME_CONSTANTS`, `FOG_CONSTANTS`, `LIGHTING_CONSTANTS`,
-`MATERIAL_CONSTANTS`, in that order). Actor looks: `ActorParams` (skinned only) holds the wobble amplitude and phase and
+`MATERIAL_CONSTANTS`, then `OutlineColor` and `CloudShadowParams`, in that order). Actor looks: `ActorParams` (skinned only) holds the wobble amplitude and phase and
 whether the second layer is an overlay read on uv0; `ActorReceiver` (material constants) marks a character or monster,
 whose self-illumination stays at the display level and which takes no lamp shadows; `ActorTint` (material constants) adds `albedo x rgb / Exposure` to
 the radiance (clamped at 0) and multiplies the output alpha by `a` after the alpha test.
@@ -69,6 +69,7 @@ the radiance (clamped at 0) and multiplies the output alpha by `a` after the alp
 | t5 | Lamp cube-shadow atlas |
 | t6 | Tile light masks (`StructuredBuffer<uint>`) |
 | t7 / t8 / t9 | Prefiltered environment atlas, SH irradiance (`StructuredBuffer<float4>`, entry 9 holds the atlas scale and fill), split-sum BRDF table |
+| t10 | The clouds' shadow map (`CloudShadowMap`, linear, clamp) |
 
 Material codes (`MaterialDecl.hlsli`, mirrored by `PristonMaterialDescription.cs`): `ShadingModel` 0 lit
 (metallic-roughness), 1 emissive (self-illuminated or additive: the albedo is emitted radiance), 2 colour factor

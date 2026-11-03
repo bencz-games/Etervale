@@ -12,10 +12,10 @@ public static class TeleportRoutes
         {
             [1] =
             [
-                new(1, 0, "Mushroom Cave", 100),
-                new(2, 18, "Beehive Cave", 100),
-                new(3, 7, "Cursed Land", 500),
-                new(4, 12, "Forbidden Land", 1000)
+                new(1, FieldCodes.Forest3, "Mushroom Cave", 100),
+                new(2, FieldCodes.ForeverFall3, "Beehive Cave", 100),
+                new(3, FieldCodes.Ruin1, "Cursed Land", 500),
+                new(4, FieldCodes.Desert4, "Forbidden Land", 1000)
             ]
         };
 

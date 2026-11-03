@@ -26,7 +26,7 @@ public struct VfxVertex : IVertexType
 // Draws every VFX instance into the bound HDR scene target: quads in one growing vertex array, uploaded once per frame
 // to a dynamic buffer with a shared quad index buffer, drawn in runs of (blend, texture). Alpha-blended layers draw
 // first, back to front by instance, then the darkening (shadow) layers, then the order-independent additive light.
-// Effect models draw after the quads through their own mesh draws. Depth is tested, not written.
+// Effect models draw before the quads through their own mesh draws. Depth is tested, not written.
 public sealed partial class VfxRenderer : IDisposable
 {
     private const int MaxQuads = 16384;

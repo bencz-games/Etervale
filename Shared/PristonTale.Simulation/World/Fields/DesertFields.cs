@@ -4,7 +4,7 @@ public static class Desert1Field
 {
     public static readonly FieldDef Definition = new("De-1", "Desert 1", FieldState.Desert, FieldBackdrops.Desert, "Field\\desert\\De-1.smd", [])
     {
-        FieldCode = 8,
+        FieldCode = FieldCodes.Desert1,
         Center = new FieldPoint(15005, -1421),
         StartPoints = [new FieldPoint(13306, 2000), new FieldPoint(13083, -2249)],
         Gates =
@@ -21,7 +21,7 @@ public static class Desert2Field
 {
     public static readonly FieldDef Definition = new("De-2", "Desert 2", FieldState.Desert, FieldBackdrops.Desert, "Field\\desert\\De-2.smd", [])
     {
-        FieldCode = 10,
+        FieldCode = FieldCodes.Desert2,
         Center = new FieldPoint(15887, -11161),
         StartPoints = [new FieldPoint(11859, -11257), new FieldPoint(16169, -12768)],
         BackMusicCode = "BGM_CODE_DESERT",
@@ -54,7 +54,7 @@ public static class Desert4Field
         "Field\\desert\\De-4.smd",
         ["Field\\desert\\d4-ani01.smd"])
     {
-        FieldCode = 12,
+        FieldCode = FieldCodes.Desert4,
         WarpGates = [new FieldWarpGate(33979, 6080, 969, 64, 32, "De-4", 34100, 6214, 940, 0, 2)],
         Center = new FieldPoint(43988, 12053),
         StartPoints = [new FieldPoint(33740, 6491), new FieldPoint(40691, 11056)],

@@ -172,7 +172,7 @@ public sealed partial class GameScene
 
         SetActiveField(dest);
         _hasMoveTarget = false;
-        _playerBody.PlanarPosition = new Vector2(warp.DestinationX, -warp.DestinationZ);
+        _playerBody.PlanarPosition = WorldSpace.Planar(warp.DestinationX, warp.DestinationZ);
         // The authored destination height is near the floor, not on it: stand on the floor nearest it.
         _playerBody.Height = warp.DestinationY - GroundTraversal.VisualOffset;
         PlaceAtHeight(_playerBody, warp.DestinationY);

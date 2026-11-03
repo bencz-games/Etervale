@@ -91,7 +91,7 @@ Described in Etervale's terms; readers keep every field, including padding, for 
 | Textures `.bmp`, `.tga`, `.jpg` | `PristonImageDecoder` | BMP (always opaque; a variant stores its first 14 header bytes with i*i added to byte i), TGA (alpha), others through StbImageSharp; a missing extension is retried as `.bmp`, `.tga`, `.jpg`, `.jpeg`. |
 | Sky manifest | `PristonSkyManifest` | Latin-1 text: profiles in braces, layer lines `FileName: ... FadeDelay: ... RGBA: r g b a`. Profile numbers come from field backdrop codes (`PristonSkyProfiles.Resolve`). |
 
-- Fixed-point coordinates divide by `PristonFormatConstants.FixedScale` = 256. Distances are in Priston units (a map
+- Fixed-point coordinates divide by `GameUnits.FixedScale` = 256. Distances are in Priston units (a map
   cell is 64 units).
 - Animation time is in ticks of 160 per frame. Stage props advance 2000 ticks per second and start one frame in
   (160); actor motions use 160000/33 ticks per second scaled by the motion's playback rate.
@@ -283,8 +283,8 @@ they took the domes.
   as the sky draws, since the flash is too brief for the clouds' history). The clouds drift with a base wind plus the
   weather's and stay in place as the camera moves. Their hemisphere (azimuth by elevation, the elevation's square root
   down the height, so the low sky holds most texels) at 768 x 192, 1024 x 256 or 1536 x 384 marches one texel of each
-  2x2 block in turn each frame, blended 25 % into its history: a texel waits four frames at most and the march's jitter
-  averages over about sixteen. The history follows the clouds: each frame it is read where the cloud at a texel's
+  2x2 block in turn each frame, blended 10 % into its history (`CloudHistory` keeps 90 %): a texel waits four frames at
+  most and the march's jitter averages over about forty. The history follows the clouds: each frame it is read where the cloud at a texel's
   direction (a third of the way up the layer) was seen last frame, moved by the wind's and the camera's motion
   (`CloudMotion`; a jump past 2 km, a warp, starts the clouds over), so a drifting cloud leaves no second, wavering
   edge. The light march's samples are jittered each frame too, so the clouds' shading shows no drifting contour bands.
@@ -462,7 +462,6 @@ they took the domes.
 - Light selection is relative to the camera focus (`camera.Target`), not the camera position.
 - Transient lights fill the first local-light slots; with `localLightLimit` 8 a fight can leave no stage lamps.
 - Texture cache keys include the full directory: the same file name in two directories is two textures.
-- Some comments in `Formats/` name functions of the original client; do not copy those names into new code or docs.
 - A tool that renders every frame into a new 1920x1080 render target (created and disposed each frame) loses the
   Vulkan device after a few hundred frames; keep one target and reuse it, as `WeatherCaptureProbe` does.
 

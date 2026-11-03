@@ -160,7 +160,7 @@ dotnet run --project tools/PristonTale.DevAccounts -c Release --no-build -- add-
 | `create-account <user> <password>` | Creates the account; an existing account is left unchanged (exit 0) |
 | `create-bots <prefix> <count> <password>` | Creates `<prefix>0001` to `<prefix><count:D4>` (1 to 100,000), skipping existing ones |
 | `create-bots ... --class <class> --field <code> --at <x,z> [--spacing <s>] [--level <n>] [--skills <hex:rank,...>]` | Also gives each new account one character `Lt<prefix><index:D4>` of that class and level, with those skills, in that field: inside a 500-unit square around (x, z) when the spacing is 0 (a crowd), else on a square grid with that spacing |
-| `add-char <user> <name> <class> [level]` | Starter in the first free slot (max 6), Ricarten (field 3); see below |
+| `add-char <user> <name> <class> [level]` | Starter in the first free slot (max 6), in its class's town (Ricarten or Pillai); see below |
 | `list <user>` | Slots, names, classes, levels and attributes |
 | `set-gm <user> <level>` | Game-master level 0 (player) to 4 (Administrator); applies at the account's next login ([chat-and-gm.md](chat-and-gm.md)) |
 | `gm-audit [count]` | The newest game-master commands (default 20): time, account, character, level, command and result |

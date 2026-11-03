@@ -1,9 +1,17 @@
 namespace PristonTale.Simulation.World;
 
-// The fields rules name by code: the two home towns, the office room, the inner ice field, Bellatra, the quest arena,
-// Bless Castle and the boss field. Their definitions (World/Fields) use the same constants.
+// The fields rules name by code: the two home towns, the teleporter's hunting grounds, the quest weapon's hunting fields,
+// the office room, the inner ice field, Bellatra, the quest arena, Bless Castle and the boss field. Their definitions
+// (World/Fields) use the same constants.
 public static class FieldCodes
 {
+    public const int Forest3 = 0;
+    public const int Ruin1 = 7;
+    public const int Desert1 = 8;
+    public const int Desert2 = 10;
+    public const int Desert4 = 12;
+    public const int Dungeon1 = 13;
+    public const int ForeverFall3 = 18;
     public const int Ricarten = 3;
     public const int OfficeRoom = 16;
     public const int Pillai = 21;

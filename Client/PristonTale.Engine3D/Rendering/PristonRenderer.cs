@@ -23,7 +23,6 @@ public sealed partial class PristonRenderer : IDisposable
 
     private static readonly bool ShadowDiagnostics =
         Environment.GetEnvironmentVariable("PRISTON_SHADOW_DIAG") == "1";
-    // PlaybackRate supplies the rules-layer frame step / 80 ratio for speed-scaled motions.
     private const int MinimumShadowMapSize = 1024;
     private const float ShadowTeleportRefreshDistance = 350f;
     private const uint TexFormScroll = 4;
@@ -199,7 +198,7 @@ public sealed partial class PristonRenderer : IDisposable
     {
         if (_shadowMap?.Width != settings.ShadowMapSize)
         {
-            // Release first so a size change never holds both maps (an 8192² R32F + D24 pair is ~512 MiB).
+            // Release first so a size change never holds both maps (an 8192² Depth32Float map is 256 MiB).
             _shadowMap?.Dispose();
             _shadowMap = null;
             _shadowMap = CreateShadowTarget(settings.ShadowMapSize);

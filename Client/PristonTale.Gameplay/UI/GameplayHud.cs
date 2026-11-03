@@ -23,9 +23,9 @@ using PristonTale.Contracts.Characters;
 namespace PristonTale.Gameplay.UI;
 
 // The original in-game interface in its draw order: speech bubbles, the chat window, status, skill, inventory, quest and
-// party windows behind the bottom bar, then item overlays, help boxes and message boxes. The system menu entries other
-// than Settings have no server support and are drawn without behaviour. Refusals show in the notice strip; confirmations
-// and server lines go to the chat.
+// party windows behind the bottom bar, then item overlays, help boxes and message boxes. The system menu opens the
+// settings, the help window or the game's exit. Refusals show in the notice strip; confirmations and server lines go to
+// the chat.
 public sealed partial class GameplayHud : IDisposable
 {
     private readonly ScreenContext _context;

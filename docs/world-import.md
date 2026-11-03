@@ -375,18 +375,8 @@ fix the file rather than the parser.
 name, code, model path stem, centre, start points, gates, warp gates) plus streaming radii and camera constants for an
 external field-streaming prototype. No database.
 
-`tools/PristonTale.DevAccounts` (`ptdevaccounts`), not in the solution:
-
-| Command | Effect |
-| --- | --- |
-| `create-account <user> <password>` | Creates the account with `PasswordHasher`; existing accounts are left unchanged |
-| `create-bots <prefix> <count> <password>` | Accounts `<prefix>0001`..; count 1-100000; existing ones skipped |
-| `add-char <user> <name> <class> [level]` | Starter character via `CharacterRecordFactory.NewStarter` in its class's town (Ricarten or Pillai), first free of 6 slots; name 3-16 characters and globally unique; class by `PlayerClass` name or number |
-| `list <user>` | Characters by slot |
-
-Options: `--sqlite <path>` (default `data/pristontale.db`, resolved against the repository root), `--conn "<npgsql>"`.
-Without either, the `PT_PG_CONN` environment variable selects PostgreSQL. Both options together is an error. The tool
-migrates before running a command.
+`tools/PristonTale.DevAccounts` (`ptdevaccounts`, not in the solution) creates accounts, bots and characters and sets
+game-master levels; its commands and options are in [tools.md](tools.md).
 
 ## How to
 

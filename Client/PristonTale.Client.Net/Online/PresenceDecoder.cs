@@ -445,7 +445,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
         Publish(entityId, tracked, states);
     }
 
-    // One GETPLAYERINFO per revision, repeated after a second when its answer does not come: the server drops requests
+    // One DescribeEntity request per revision, repeated after a second when its answer does not come: the server drops requests
     // beyond its rate bucket (a crowd entering view at once), and an object without a description is never shown.
     private void RequestDescription(ulong entityId, Tracked tracked, int revision)
     {

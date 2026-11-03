@@ -177,7 +177,7 @@ public sealed class FieldAudioController : IDisposable
 
     internal static float ProximityVolume(Vector3 listenerPosition, FieldAmbient ambient)
     {
-        var source = new Vector3(ambient.Position.X, ambient.Position.Y, -ambient.Position.Z);
+        var source = PristonTale.Engine3D.WorldSpace.Mirror(new Vector3(ambient.Position.X, ambient.Position.Y, ambient.Position.Z));
         var distanceSquared = Vector3.DistanceSquared(listenerPosition, source);
         var innerRadiusSquared = (float)ambient.Radius * ambient.Radius;
         var attenuation = (int)((distanceSquared - innerRadiusSquared) / 1100f);

@@ -12,7 +12,7 @@ public sealed class CombatRng : ISimRng
     {
         if (max <= min)
             return min;
-        // span = (max + 1) - min, exactly the original's `sb`; Random.Next(0, span) is [0, span).
+        // Inclusive of both bounds: span = (max + 1) - min, and Random.Next(span) is [0, span).
         int span = (max + 1) - min;
         return min + _random.Next(span);
     }

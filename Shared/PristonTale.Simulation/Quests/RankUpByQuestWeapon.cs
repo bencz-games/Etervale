@@ -1,3 +1,4 @@
+using PristonTale.Simulation.World;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 
@@ -23,7 +24,7 @@ public static class RankUpByQuestWeapon
 
     // Kills of each stage, indexed from the hunt's first entry: melee from 0, ranged from 3, field from 6.
     private static readonly int[] StageKills = [30, 40, 50, 25, 35, 45, 50, 70, 100];
-    private static readonly int[] StageFields = [8, 10, 13];
+    private static readonly int[] StageFields = [FieldCodes.Desert1, FieldCodes.Desert2, FieldCodes.Dungeon1];
     // The hunt of each caster stage, as the weapon's box names it (the monsters of StageFields).
     private static readonly string[] StageFieldHunts = ["Forbidden Land's Monster", "Oasis' Monster", "Ancient Prison 1F's Monster"];
 

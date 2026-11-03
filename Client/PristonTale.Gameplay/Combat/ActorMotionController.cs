@@ -26,7 +26,8 @@ public sealed class ActorMotionController
     // Swings and casts begun so far: each one that begins ends the one before it.
     public long ActionStarts { get; private set; }
 
-    // A landing holds the player until its clip ends, as every motion from 0x100 up does in the original.
+    // A flinch, death, drink, landing or cheer holds the player until its clip ends; swings and casts hold it through their
+    // own lock.
     public bool LocomotionFrozen => Current is MotionCode.Damage or MotionCode.Dead or MotionCode.Eat
         or MotionCode.FallStand or MotionCode.FallDamage or MotionCode.Yahoo;
 

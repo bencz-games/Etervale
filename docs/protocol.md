@@ -22,7 +22,7 @@ The codecs live in `Shared/PristonTale.Protocol`; the server edge is `Server/Pri
 | `Binary/PacketReader.cs`, `Binary/PacketWriter.cs` | Little-endian sequential reader/writer; the writer patches the size in `Finish()`. |
 | `Binary/Utf8Text.cs` | Text fields: `{uint16 ByteLength, UTF-8}`, cut at a whole character. |
 | `Binary/WireHeader.cs` | `{uint16 Version, uint16 Flags = 0}` body header: `Write(version)`, `Read(name, minimumVersion = 1)` (newer versions append fields). Domain helpers (`NpcWire.Header`, `ItemUseWire.ReadHeader`...) delegate to it. |
-| `Binary/WireList.cs` | `IWireEntry<T>` (static `Size`, `Read`, instance `Write`) and `WireList`: `{int32 Count, entries}` with the entries filling the rest exactly; every fixed-size list (cooldowns, timers, item effects, shop quotes, item details) uses it. |
+| `Binary/WireList.cs` | `IWireEntry<T>` (static `Size`, `Read`, instance `Write`) and `WireList`: `{int32 Count, entries}` with the entries filling the rest exactly; the cooldown, timer, item effect, shop quote and item detail lists use it (the skill list, the object removals and the aging progress still check their counts themselves). |
 | `Packets/IFramePacket.cs` | `IFramePacket`: a message that writes itself as one frame; every client-to-server message implements it. |
 | `Packets/AccountPackets.cs` | `ProtocolVersion`, `ServerHello`, `Login`/`LoginResult`, `CharacterList`, `CharacterCommand`/`CharacterResult`, `Heartbeat`. |
 | `Packets/PlayerActionPackets.cs` | `MovementReport`, `AttackRequest` and `FieldWarp`. |
@@ -58,7 +58,7 @@ search finds; they are not part of the build.
 | Byte order | Little-endian everywhere. |
 | Header | `{int32 size, uint32 code}`; `size` includes the header. |
 | Positions | Fixed point, world units × 256 (`GameUnits.ToFixed` from Contracts, `FixedShift` 8). |
-| Angles | Skill messages: 4096 per turn (`GameUnits.ToAngle`); presence and movement: `uint16`, 65536 per turn. |
+| Angles | Skill messages: 4096 per turn (`GameUnits.ToAngle`); movement reports: `uint16`, 65536 per turn; presence: `uint8`, 256 per turn. |
 | Entity ids | 64-bit (`uint64` or `varuint`) on the wire and in memory; players count from 1, monsters, NPCs and summons from `2^32`. |
 | Text | UTF-8 with a `uint16` byte length, cut at a whole character to the field's byte limit (`Utf8Text`); malformed UTF-8 is refused. |
 | Item identity | Item codes derived from the item key (`ItemCodes`), e.g. gold is `GG101`. |
@@ -135,7 +135,6 @@ Bodies start with `uint16 Version = 1`; positions are fixed point (x256), entity
 
 Other field values:
 
-- The character slot record (character select) uses `dwArmorCode` and `dwTemp[13]` for the appearance data.
 - A presence spawn carries the descriptor revision (1 to 255) of the entity's description. The field
   keeps one revision per entity for every viewer (`FieldDescriptors`) and increments it when level, max HP, template,
   speed, attack rate, equipment, looks (hair, face, pets, big head), village flag, tier, owner or scale change.
@@ -170,7 +169,7 @@ Every message code has the high word `0x4554` ("ET"); every message keeps the `{
 | --- | --- | --- | --- |
 | `0x45540100` | `OwnerStatus` | S→C | Level, unsigned 64-bit experience (current, level start, next level), 64-bit money, resources, attributes, combat values and revisions, then the final-tier skill points and the class tier (0..3), the bag page shown and the weapon pair held (a byte each, 0 A, 1 B). 158 B. |
 | `0x45540101` | `Skills` | S→C | Skill revision and (code, rank) pairs, at most 512. |
-| `0x45540102` | `Inventory` | S→C | Inventory revision split into parts of up to 100 items; the client replaces its inventory when all parts of a revision arrived. |
+| `0x45540102` | `Inventory` | S→C | Inventory revision split into parts of up to 64 items; the client replaces its inventory when all parts of a revision arrived. |
 | `0x45540110` / `0x45540111` | `InventoryCommand` / `InventoryResult` | C→S / S→C | Transactional inventory operation, correlated by operation id. A ground pickup (`InventoryAction.Pickup`) names the drop in `ItemId`, with `Destination` 0 (received as any item) or `InventoryCommand.PickupToBag` (1: into the bag as a stack of its own, for the client's cursor, or to the hand when the page shown is full; anything else is refused); a throw (`InventoryAction.Drop`) names the bag item or the item in the hand and the amount in `Count`; `Move`, `Merge` and `Swap` naming the item in the hand set it down on the page shown; a gold throw (`InventoryAction.DropGold`) only the amount. |
 | `0x45540120` / `0x45540121` | `ProgressionCommand` / `ProgressionResult` | C→S / S→C | Attribute allocation and skill learning. |
 | `0x45540130` | `NpcResult` | S→C | Completes an NPC click: name, typed services with availability and the line the NPC says. |
@@ -512,7 +511,7 @@ Bodies start with `{uint16 Version = 1, uint16 Flags = 0}`.
 
 ### Quests
 
-Quest bodies start with `{uint16 Version = 1, uint16 Flags = 0}`; text is UTF-8 with a `uint16` byte length (64 bytes,
+Quest bodies start with the NPC header `{uint16 Version = 3, uint16 Flags = 0}` (`NpcWire`); text is UTF-8 with a `uint16` byte length (64 bytes,
 notices 128). A dialog is `{uint16 Code, uint8 Followup, uint8 0, int32 State, int32 Choice, text Document, Title,
 ConfirmLine1, ConfirmLine2, ConfirmDetail, int32 ChoiceCount, (text Choice, text ChoiceDocument)...}` (at most 16
 choices); a notice list is `{int32 Count, (uint8 Kind, uint8 0, text)...}` (at most 32). Codes and enums are

@@ -347,7 +347,8 @@ The client owns its own locomotion; the server validates and corrects.
   it opens again only after the player left the stone. Choosing a destination plays the return sparkle and the portal
   sound on the stone, and the request leaves two seconds later, as the original's wing trip does. The
   server learns the new field code from the next report, which a field change sends at once.
-- `ActorMotionController`: `ApplyLocomotion` is ignored while Damage, Dead or Eat freeze locomotion;
+- `ActorMotionController`: `ApplyLocomotion` is ignored while Damage, Dead, Eat, FallStand, FallDamage or Yahoo freeze
+  locomotion (`LocomotionFrozen`) and while falling;
   `ApplyAuthoritative` always wins.
 - NPC click: `NpcApproach` walks the player to 0.65 x `NpcInteraction.Reach`, sends a stop report, and opens the dialog
   only when the server-echoed position is within 0.9 x reach.
@@ -398,7 +399,7 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   with `HudLayout.ToLogical`.
 - `HudPainter` draws original sprites at the integer scale with point sampling and queues text into a linear-filtered
   pass; call `Flush` before drawing a layer that must cover earlier text.
-- Draw order (`GameplayHud.Draw`): speech bubbles, minimap, target frame, chat window (shrunk while a side window is
+- Draw order (`GameplayHud.Draw`): drop names, name plates, speech bubbles, minimap, target frame, chat window (shrunk while a side window is
   open), status / skills / inventory windows (they share one screen area; opening one closes the others, `OpenOnly`),
   quest window, shop, warehouse, bottom bar, skill sockets, buffs and the quest timer icon, hover text, system menu,
   the skill master's training box, quest dialog or NPC dialog, settings, item overlays, quest yes/no boxes, notices.
@@ -551,7 +552,7 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
 - The service windows implement `IHudServiceWindow` (`UI/Npc/IHudServiceWindow.cs`): open and slide state, `BlocksWorld`
   (the work windows and the personal shop keep every click from the world, the shop only its area), `Contains`, `Hide`,
   body and overlay draw with one `HudServiceFrame`. `GameplayHud` keeps them in one list (`_serviceWindows`, draw order
-  shop, warehouse, aging, mix, personal shop) for closing, advancing, capturing clicks and drawing; a new service window
+  shop, warehouse, aging, mix, personal shop, trade) for closing, advancing, capturing clicks and drawing; a new service window
   joins that list.
 - Personal shop (`UI/PersonalShops/`, `HudPersonalShopController` with `HudPersonalShopWindow` on the store window,
   `HudSignBox`, art `HudPersonalShopArt`; `GameplayHud.PersonalShops.cs`): the inventory's shop button (98, 572) opens

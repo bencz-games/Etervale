@@ -132,7 +132,7 @@ public sealed class HudChatBubbles
     }
 
     // The fill is one translucent tile stretched over the inside; the border is cut from the corner, edge and tail tiles
-    // (the shop sign's own tiles for a sign). The classic name boxes over the scene use it too (HudCombat.DrawNamePlates).
+    // (the shop sign's own tiles for a sign).
     public static void DrawFrame(HudPainter painter, int x, int y, int width, int lineHeight, int lineCount, bool tail, bool selected, bool framed = true,
         bool shop = false)
     {

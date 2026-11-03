@@ -276,9 +276,8 @@ void DumpInx(PristonModelInfo info)
     }
     Console.WriteLine($"  usable motions: {usable.Count}");
 
-    // JobCodeBit gates which class(es) may wear this armour (CharacterEnums.JobBitCode: Mechanician=0x1,
-    // Fighter=0x2, Pikeman=0x4, Archer=0x8, Knight=0x10000, Atalanta=0x20000, Priestess=0x40000,
-    // Magician=0x80000). Reported as the OR of every motion's bits so a body armour's class set is visible.
+    // JobCodeBit gates which classes may wear this armour: bit (class - 1) of PlayerClass (0x1 Fighter, 0x2
+    // Mechanician, ...). Reported as the OR of every motion's bits so a body armour's class set is visible.
     uint jobBits = 0;
     foreach (var m in info.Motions) jobBits |= m.JobCodeBit;
     Console.WriteLine($"  jobCodeBits  : 0x{jobBits:X}");
