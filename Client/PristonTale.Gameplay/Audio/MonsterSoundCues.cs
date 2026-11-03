@@ -66,9 +66,7 @@ public sealed class MonsterSoundCues(CombatSounds sounds, IMonsterScene scene)
         }
 
         var state = (int)motion.State;
-        var start = (float)motion.StartFrame * GameUnits.FrameTicks;
-        var restarted = !ReferenceEquals(motion, tracked.Motion) || ticks < tracked.Ticks;
-        var previous = restarted ? start : tracked.Ticks;
+        var restarted = tracked.Clip.Advance(motion, ticks);
         if (restarted && state != tracked.State)
         {
             tracked.State = state;
@@ -83,18 +81,14 @@ public sealed class MonsterSoundCues(CombatSounds sounds, IMonsterScene scene)
             }
         }
 
-        tracked.Motion = motion;
-        tracked.Ticks = ticks;
         if (state is not (AttackState or SkillState))
         {
             return;
         }
 
-        for (var index = 0; index < SoundEvents && index < motion.EventFrames.Count; index++)
+        for (var index = 0; index < SoundEvents; index++)
         {
-            var frame = motion.EventFrames[index];
-            var at = start + frame;
-            if (frame != 0 && at > previous && at <= ticks)
+            if (tracked.Clip.Passed(index))
             {
                 // A hammer-class monster swings its hammer sound instead of its attack sound.
                 Play(monster, state == SkillState ? CharacterSoundCue.Skill : monster.Hammer ? CharacterSoundCue.Hammer : CharacterSoundCue.Attack, listener);
@@ -118,8 +112,7 @@ public sealed class MonsterSoundCues(CombatSounds sounds, IMonsterScene scene)
 
     private sealed class Tracked
     {
-        public PristonMotionInfo Motion;
-        public float Ticks;
+        public ClipEventCursor Clip;
         public int State = -1;
     }
 }

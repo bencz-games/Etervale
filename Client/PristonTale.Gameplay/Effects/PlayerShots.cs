@@ -6,6 +6,7 @@ using PristonTale.Engine3D.Rendering;
 using PristonTale.Simulation.Items;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.Units;
+using System.Runtime.InteropServices;
 
 namespace PristonTale.Gameplay.Effects;
 
@@ -29,7 +30,7 @@ public sealed class PlayerShots
     private const float SparksPerFrame = 3.5f;
 
     private readonly Dictionary<ulong, ulong> _targets = new();
-    private readonly Dictionary<ulong, (PristonMotionInfo Motion, float Ticks)> _clips = new();
+    private readonly Dictionary<ulong, ClipEventCursor> _clips = new();
     private readonly List<Shot> _shots = new();
     private readonly List<Spark> _sparks = new();
     private readonly HashSet<ulong> _seen = new();
@@ -63,16 +64,9 @@ public sealed class PlayerShots
         in HeldItemGlow glow, Vector3 attackerPosition, bool staffCaster, Func<ulong, Vector3?> targetOf)
     {
         _seen.Add(attackerId);
-        var start = (float)motion.StartFrame * GameUnits.FrameTicks;
-        var previous = _clips.TryGetValue(attackerId, out var last) && ReferenceEquals(last.Motion, motion) && ticks >= last.Ticks ? last.Ticks : start;
-        _clips[attackerId] = (motion, ticks);
-        if (motion.State != (uint)MotionCode.Attack || motion.EventFrames.Count == 0 || weaponKey.Length < 3)
-        {
-            return;
-        }
-
-        var at = start + motion.EventFrames[0];
-        if (motion.EventFrames[0] == 0 || at <= previous || at > ticks || !_targets.TryGetValue(attackerId, out var targetId)
+        ref var clip = ref CollectionsMarshal.GetValueRefOrAddDefault(_clips, attackerId, out _);
+        clip.Advance(motion, ticks);
+        if (motion.State != (uint)MotionCode.Attack || weaponKey.Length < 3 || !clip.Passed(0) || !_targets.TryGetValue(attackerId, out var targetId)
             || targetOf(targetId) is not { } target)
         {
             return;

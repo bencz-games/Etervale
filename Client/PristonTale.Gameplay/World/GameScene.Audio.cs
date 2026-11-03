@@ -7,6 +7,7 @@ using PristonTale.Simulation.World;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.Combat;
 using PristonTale.Contracts.Characters;
+using PristonTale.Gameplay.Effects;
 
 namespace PristonTale.Gameplay.World;
 
@@ -18,8 +19,7 @@ public sealed partial class GameScene
     private CombatSounds _combatSounds;
     private MonsterSoundCues _monsterSounds;
     private int _footsteps;
-    private PristonMotionInfo _stepMotion;
-    private float _stepTicks;
+    private ClipEventCursor _stepClip;
 
     private void CreateCombatSounds()
     {
@@ -59,20 +59,15 @@ public sealed partial class GameScene
             return;
         }
 
-        var start = (float)motion.StartFrame * 160f;
-        var previous = !ReferenceEquals(motion, _stepMotion) || ticks < _stepTicks ? start : _stepTicks;
-        _stepMotion = motion;
-        _stepTicks = ticks;
-        if ((int)motion.State is not (0x50 or 0x60))
+        _stepClip.Advance(motion, ticks);
+        if ((MotionCode)motion.State is not (MotionCode.Walk or MotionCode.Run))
         {
             return;
         }
 
-        for (var index = 0; index < 2 && index < motion.EventFrames.Count; index++)
+        for (var index = 0; index < 2; index++)
         {
-            var frame = motion.EventFrames[index];
-            var at = start + frame;
-            if (frame != 0 && at > previous && at <= ticks)
+            if (_stepClip.Passed(index))
             {
                 PlayFootstep();
                 LeaveStep(index);

@@ -214,28 +214,22 @@ public sealed class MonsterPresentation
             return;
         }
 
-        var start = (float)motion.StartFrame * GameUnits.FrameTicks;
-        var restarted = !ReferenceEquals(motion, tracked.Motion) || ticks < tracked.Ticks;
-        var previous = restarted ? start : tracked.Ticks;
-        if (restarted)
+        if (tracked.Clip.Advance(motion, ticks))
         {
-            tracked.Motion = motion;
             OnClipStart(tracked, motion, monster);
         }
 
-        tracked.Ticks = ticks;
         var state = (int)motion.State;
         var events = state == SkillState ? SkillEvents : state == AttackState ? AttackEvents : 0;
         for (var index = 0; index < events && index < motion.EventFrames.Count; index++)
         {
-            var frame = motion.EventFrames[index];
-            if (frame == 0 || frame > (motion.EndFrame - motion.StartFrame) * 160u)
+            // An event past the clip's end never plays.
+            if (motion.EventFrames[index] > (motion.EndFrame - motion.StartFrame) * (uint)GameUnits.FrameTicks)
             {
                 continue;
             }
 
-            var at = start + frame;
-            if (at > previous && at <= ticks)
+            if (tracked.Clip.Passed(index))
             {
                 Spawn(tracked.Family, state == SkillState ? "skill.hit" : "attack.hit", (char)motion.KeyCode, index + 1, monster, Target(monster.EntityId));
             }
@@ -452,8 +446,7 @@ public sealed class MonsterPresentation
     private sealed class Tracked
     {
         public string Family = "";
-        public PristonMotionInfo Motion;
-        public float Ticks;
+        public ClipEventCursor Clip;
         public IMonsterEffect Aura;
         public int AuraTried = -1;
         public bool DeathShown;
