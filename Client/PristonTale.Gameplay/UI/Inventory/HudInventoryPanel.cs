@@ -333,6 +333,10 @@ public sealed class HudInventoryPanel
         HudItemDetailTooltip.Draw(painter, layout, pointer, _detailTip, _gaugeTip);
     }
 
+    // Whether the bag items lay out a finished puzzle board.
+    public static bool PuzzleFinished(IEnumerable<OwnedItemView> bag) =>
+        Puzzles.Complete(bag.Select(static item => (item.CatalogKey, item.Anchor)), HudInventoryLayout.Columns);
+
     private void Refresh(OwnerState state)
     {
         _counts.Refresh(state.InventoryRevision, state.Items);
@@ -341,7 +345,7 @@ public sealed class HudInventoryPanel
             _puzzleRevision = state.InventoryRevision;
             var bag = state.Items.Where(static item => item.InBag).ToList();
             var shown = bag.Any(static item => Puzzles.IsPiece(item.CatalogKey) || item.CatalogKey.Equals(Puzzles.LuckyBagIcon, StringComparison.OrdinalIgnoreCase));
-            _puzzle = (shown, shown && Puzzles.Complete(bag.Select(static item => (item.CatalogKey, item.Anchor)), HudInventoryLayout.Columns));
+            _puzzle = (shown, shown && PuzzleFinished(bag));
         }
 
         if (_money != state.Money)

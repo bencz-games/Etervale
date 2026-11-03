@@ -9,6 +9,8 @@ public readonly record struct HudLayout(int Scale, int Width, int Height, int Vi
     public const int DesignWidth = 800;
     public const int DesignHeight = 600;
 
+    public static HudLayout Of(Microsoft.Xna.Framework.Graphics.Viewport viewport) => Create(viewport.Width, viewport.Height);
+
     public static HudLayout Create(int viewportWidth, int viewportHeight)
     {
         viewportWidth = Math.Max(1, viewportWidth);

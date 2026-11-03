@@ -240,8 +240,7 @@ public sealed partial class Importer
             return [];
         }
 
-        var text = Cp949.GetString(bytes);
-        var lines = text.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+        var lines = Cp949.Lines(bytes);
         var fields = new List<SourceField>();
 
         for (var index = 0; index < lines.Length; index++)

@@ -17,8 +17,9 @@ public static class Cp949
     public static string GetString(ReadOnlySpan<byte> bytes) => Encoding.GetString(bytes);
 
     // The lines of a file, with CR LF and lone CR read as line breaks.
-    public static IReadOnlyList<string> ReadLines(string path) =>
-        Encoding.GetString(File.ReadAllBytes(path)).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+    public static IReadOnlyList<string> ReadLines(string path) => Lines(File.ReadAllBytes(path));
+
+    public static string[] Lines(ReadOnlySpan<byte> bytes) => Encoding.GetString(bytes).Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
 
     // A fixed-length field of a binary record: the bytes up to the first NUL.
     public static string GetNullTerminated(ReadOnlySpan<byte> field)

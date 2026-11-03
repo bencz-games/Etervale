@@ -158,7 +158,7 @@ internal static class GmServerCommands
 public static class ServerNotices
 {
     public static void Broadcast(ChatDirectory directory, string text) =>
-        directory.Broadcast(new ChatLine(ChatKind.Notice, 0, Simulation.Social.ChatRules.ClipToCapacity("Notice> " + text)));
+        directory.Broadcast(new ChatLine(ChatKind.Notice, 0, Simulation.Social.ChatRules.Notice(text)));
 
     // A line that already carries its own prefix (the shutdown countdown).
     public static void BroadcastRaw(ChatDirectory directory, string text) =>

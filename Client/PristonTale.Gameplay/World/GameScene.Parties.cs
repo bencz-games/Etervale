@@ -40,7 +40,7 @@ public sealed partial class GameScene : IPartyClient
     private void UpdateReachedPlayer()
     {
         if (ReachedPlayerId != 0 && (SelectedTargetId != ReachedPlayerId || _remote is null || !_remote.TryGetTarget(ReachedPlayerId, out var position, out _)
-            || Vector3.DistanceSquared(position, PlayerPosition) >= TradeLimits.Reach * TradeLimits.Reach))
+            || !TradeLimits.InReach(position.ToNumerics(), PlayerPosition.ToNumerics())))
         {
             ReachedPlayerId = 0;
         }

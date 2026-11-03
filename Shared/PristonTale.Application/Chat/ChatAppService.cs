@@ -119,7 +119,7 @@ public sealed class ChatAppService
     {
         if (Directory.TryGet(entityId, out var member) && Directory.TryTakeNotice(member, out var text))
         {
-            member.Link.Deliver(new ChatLine(ChatKind.Notice, 0, ChatRules.ClipToCapacity("Notice> " + text)));
+            member.Link.Deliver(new ChatLine(ChatKind.Notice, 0, ChatRules.Notice(text)));
         }
     }
 
@@ -250,7 +250,7 @@ public sealed class ChatAppService
         {
             if (name.Length > 0)
             {
-                sender.Link.Deliver(ChatLine.Reply(name + " is currently offline, or cannot be found"));
+                sender.Link.Deliver(ChatLine.Reply(string.Format(System.Globalization.CultureInfo.InvariantCulture, Simulation.Parties.PartyMessages.NotFound, name)));
             }
 
             return;

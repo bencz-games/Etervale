@@ -69,11 +69,7 @@ internal sealed class DisplayConfirmation
         _canvas.End();
     }
 
-    private HudLayout Layout()
-    {
-        var viewport = _context.GraphicsDevice.Viewport;
-        return HudLayout.Create(viewport.Width, viewport.Height);
-    }
+    private HudLayout Layout() => HudLayout.Of(_context.GraphicsDevice.Viewport);
 
     // Uses the in-game integer scale; the frame comes from the shared login atlas.
     private static Rectangle Panel(HudLayout layout)

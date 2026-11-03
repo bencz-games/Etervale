@@ -25,8 +25,7 @@ public sealed class HudPuzzleExchange
     // Opens the question for a finished puzzle; returns the help line otherwise.
     public string Offer(OwnerState state, ulong npcId, string npcName)
     {
-        if (state is null || !Puzzles.Complete(state.Items.Where(static item => item.Slot < 0).Select(static item => (item.CatalogKey, item.Anchor)),
-                HudInventoryLayout.Columns))
+        if (state is null || !HudInventoryPanel.PuzzleFinished(state.Items.Where(static item => item.InBag)))
         {
             return Help;
         }

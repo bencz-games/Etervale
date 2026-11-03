@@ -9,6 +9,8 @@ public static class TradeLimits
     public const int Columns = 9;
     public const int Rows = 4;
     public const float Reach = 256;
+
+    public static bool InReach(System.Numerics.Vector3 a, System.Numerics.Vector3 b) => System.Numerics.Vector3.DistanceSquared(a, b) < Reach * Reach;
     public const long RequestMs = 10_000;
     public const long LockDelayMs = 2_000;
 }

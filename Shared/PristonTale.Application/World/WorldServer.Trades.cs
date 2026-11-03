@@ -171,8 +171,7 @@ public sealed partial class WorldServer
         }, waitForCapacity: true);
     }
 
-    private static bool InTradeReach(WorldPlayer player, WorldPlayer other) =>
-        System.Numerics.Vector3.DistanceSquared(player.Position, other.Position) < TradeLimits.Reach * TradeLimits.Reach;
+    private static bool InTradeReach(WorldPlayer player, WorldPlayer other) => TradeLimits.InReach(player.Position, other.Position);
 
     // A player that may start a trade: alive, in none, and not selling from a personal shop.
     private static bool FreeToTrade(WorldPlayer player) => !player.IsDead && player.Trade is null && player.Shop is null;

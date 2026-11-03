@@ -794,11 +794,7 @@ public sealed partial class GameplayHud : IDisposable
         _painter.End();
     }
 
-    private HudLayout Layout()
-    {
-        var viewport = _context.GraphicsDevice.Viewport;
-        return HudLayout.Create(viewport.Width, viewport.Height);
-    }
+    private HudLayout Layout() => HudLayout.Of(_context.GraphicsDevice.Viewport);
 
     private static Point PanelOrigin(HudLayout layout, HudSlide slide) => HudInventoryLayout.Origin(layout, slide.Offset);
 

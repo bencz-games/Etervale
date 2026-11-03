@@ -46,4 +46,7 @@ public static class ChatRules
     public static bool IsWhisper(string text) => text.Length > 1 && text[0] == '/' && (text[1] == ':' || text[1] == ';');
 
     public static string ClipToCapacity(string text) => text.Length > MessageCapacity ? text[..MessageCapacity] : text;
+
+    // A notice line every player sees, clipped to a message.
+    public static string Notice(string text) => ClipToCapacity("Notice> " + text);
 }
