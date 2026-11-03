@@ -61,8 +61,8 @@ public sealed class HudNpcPanel(
     public IReadOnlyList<NpcServiceOffer> Services => _services;
 
     public static Rectangle Box => HudPainter.HelpBoxBounds(BoxX, BoxY, SizeW, SizeH);
-    public static Rectangle Title => new(BoxX + (SizeW * 32 + 64) / 2 - 76, BoxY + 14, 152, 28);
-    public static Rectangle OkButton => new(BoxX + (SizeW * 32 + 64) / 2 - 24 + 9, BoxY + SizeH * 32 - 2 + 4, 32, 16);
+    public static Rectangle Title => HudPainter.HelpBoxTitle(BoxX, BoxY, SizeW);
+    public static Rectangle OkButton => HudPainter.HelpBoxOk(BoxX, BoxY, SizeW, SizeH);
 
     // Service buttons fill two columns upward from the OK button, at most three rows; destinations take one wide row each.
     public static Rectangle ServiceButton(int index, int count, int columns = ButtonColumns)

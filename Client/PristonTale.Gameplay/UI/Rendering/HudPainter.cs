@@ -383,6 +383,11 @@ public sealed class HudPainter : IDisposable
 
     public static Rectangle HelpBoxBounds(int x, int y, int sizeW, int sizeH) => new(x, y, Math.Max(2, sizeW) * 32 + 64, Math.Max(2, sizeH) * 32 + 32);
 
+    // A help box's title plate, centred at its top, and its OK button, centred at its bottom.
+    public static Rectangle HelpBoxTitle(int x, int y, int sizeW) => new(x + (sizeW * 32 + 64) / 2 - 76, y + 14, 152, 28);
+
+    public static Rectangle HelpBoxOk(int x, int y, int sizeW, int sizeH) => new(x + (sizeW * 32 + 64) / 2 - 24 + 9, y + sizeH * 32 - 2 + 4, 32, 16);
+
     // The box behind a name over the scene (monsters, NPCs, drops): the speech bubble's dark fill and gold rim with
     // rounded corners. Nine slices of a 20-pixel texture: fixed corners, stretched edges and centre.
     public void NameBox(Rectangle bounds, bool highlighted = false)

@@ -30,12 +30,12 @@ public sealed class HudHelpWindow(HudTextFiles texts, Action<string> requestArt)
     public static readonly Rectangle Switch = new(557, 361, 36, 24);
     private static readonly Point HelpIconAt = new(233, 24);
     private static readonly Point GuideIconAt = new(513, 25);
-    private static readonly Rectangle Title = new(340, 25, 152, 28);
+    private static readonly Rectangle Title = HudPainter.HelpBoxTitle(BoxX, BoxY, SizeW);
     private static readonly Color TitleColor = HudTextColors.HelpText;
     private static readonly Color Highlight = HudTextColors.Marked;
     // The footer: OK in its plate, and on the guide pages the list link, the notice label and the On/Off switch.
     private static readonly Point OkPlateAt = new(392, 361);
-    public static readonly Rectangle OkButton = new(401, 365, 32, 16);
+    public static readonly Rectangle OkButton = HudPainter.HelpBoxOk(BoxX, BoxY, SizeW, SizeH);
     private static readonly Rectangle ListLink = new(234, 359, 85, 32);
     private static readonly Point ListLabelAt = new(255, 359);
     private static readonly Point NoticeLabelAt = new(493, 359);

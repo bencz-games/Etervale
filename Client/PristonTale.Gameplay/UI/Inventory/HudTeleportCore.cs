@@ -39,8 +39,8 @@ public sealed class HudTeleportCore
     public TeleportCoreDestination Selected { get; private set; }
 
     public static Rectangle Box => HudPainter.HelpBoxBounds(BoxX, BoxY, SizeW, SizeH);
-    public static Rectangle Title => new(BoxX + (SizeW * 32 + 64) / 2 - 76, BoxY + 14, 152, 28);
-    public static Rectangle OkButton => new(BoxX + (SizeW * 32 + 64) / 2 - 24 + 9, BoxY + SizeH * 32 - 2 + 4, 32, 16);
+    public static Rectangle Title => HudPainter.HelpBoxTitle(BoxX, BoxY, SizeW);
+    public static Rectangle OkButton => HudPainter.HelpBoxOk(BoxX, BoxY, SizeW, SizeH);
     public static Rectangle PreviousPage => new(100, 365, 20, 20);
     public static Rectangle NextPage => new(330, 365, 20, 20);
 
