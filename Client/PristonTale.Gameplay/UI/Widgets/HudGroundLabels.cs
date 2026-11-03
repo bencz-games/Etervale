@@ -24,14 +24,12 @@ public sealed class HudGroundLabels
     public void Draw(HudPainter painter, HudLayout layout, IReadOnlyList<GroundLabel> labels, Action<Guid, Rectangle> placed)
     {
         var scale = Math.Max(1, layout.Scale);
-        var (line, pad) = painter.NameBoxLineAt(HudPainter.TextScale, PadY);
-        var height = line + HudPainter.NameBoxBorders;
-        var textTop = (int)(HudPainter.NameBoxTop + pad - HudPainter.CapTop);
+        var (line, textTop) = painter.NameBoxText(HudPainter.TextScale, PadY);
         _placed.Clear();
         foreach (var label in labels)
         {
-            var width = painter.Measure(label.Text) + 18;
-            var natural = new Rectangle((int)(label.Anchor.X / scale) - width / 2, (int)(label.Anchor.Y / scale) - Lift, width, height);
+            var size = HudPainter.NameBoxExtent(painter.Measure(label.Text), line, 1);
+            var natural = new Rectangle((int)(label.Anchor.X / scale) - size.X / 2, (int)(label.Anchor.Y / scale) - Lift, size.X, size.Y);
             var box = Stack(natural, CollectionsMarshal.AsSpan(_placed));
             if (box.X < 0 || box.Y < 0 || box.Right > layout.Width || box.Bottom > layout.Height)
             {
@@ -39,10 +37,8 @@ public sealed class HudGroundLabels
             }
 
             _placed.Add(box);
-            painter.Flush();
-            painter.NameBox(box);
-            painter.Flush();
-            painter.Text(label.Text, box.X + 9, box.Y + textTop, label.Hovered ? Hovered : Named, HudPainter.TextScale);
+            painter.DrawNameBox(box);
+            painter.Text(label.Text, box.X + HudPainter.NameBoxSide, box.Y + textTop, label.Hovered ? Hovered : Named, HudPainter.TextScale);
             placed?.Invoke(label.Id, new Rectangle(box.X * scale, box.Y * scale, box.Width * scale, box.Height * scale));
         }
     }

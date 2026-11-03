@@ -432,9 +432,29 @@ public sealed class HudPainter : IDisposable
         }
     }
 
-    // The name box's content sits under a 4-pixel top border and over a 2-pixel bottom one.
+    // The name box's content sits under a 4-pixel top border and over a 2-pixel bottom one, with NameBoxSide pixels of
+    // frame each side of the text.
     public const int NameBoxTop = 4;
     public const int NameBoxBorders = 6;
+    public const int NameBoxSide = 9;
+
+    // A name box's line height at this text scale and where its first line's text starts below the box's top.
+    public (int Line, int TextTop) NameBoxText(float scale, int padY)
+    {
+        var (line, pad) = NameBoxLineAt(scale, padY);
+        return (line, (int)(NameBoxTop + pad - CapTop));
+    }
+
+    // A name box around text this wide and this many lines tall.
+    public static Point NameBoxExtent(int textWidth, int line, int lines) => new(textWidth + 2 * NameBoxSide, line * lines + NameBoxBorders);
+
+    // The box drawn between the batches of text around it.
+    public void DrawNameBox(Rectangle bounds, bool highlighted = false)
+    {
+        Flush();
+        NameBox(bounds, highlighted);
+        Flush();
+    }
     private const int NameBoxSize = 20;
     private const int NameBoxCorner = 8;
     private const float NameBoxRadius = 7f;
