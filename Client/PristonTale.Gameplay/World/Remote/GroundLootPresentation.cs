@@ -8,6 +8,7 @@ using PristonTale.Simulation.Items;
 using PristonTale.Simulation.World.Loot;
 using PristonTale.Contracts.Motion;
 using PristonTale.Engine3D;
+using PristonTale.Contracts.Units;
 
 namespace PristonTale.Gameplay.World.Remote;
 
@@ -139,8 +140,8 @@ public sealed class GroundLootPresentation(IActorScene scene, PristonActorLoader
     // about X so it lies flat instead of standing on its tip.
     internal static Matrix Orientation(GroundDropView drop)
     {
-        int turn = (int)MathF.Round(drop.Position.X * 256f) + (int)MathF.Round(drop.Position.Z * 256f) >> 2 & 4095;
-        var yaw = Matrix.CreateRotationY(turn * MathHelper.TwoPi / 4096f);
+        int turn = (int)MathF.Round(drop.Position.X * GameUnits.FixedScale) + (int)MathF.Round(drop.Position.Z * GameUnits.FixedScale) >> 2;
+        var yaw = Matrix.CreateRotationY(GameUnits.FromAngle(turn));
         return IsWeapon(drop) ? Matrix.CreateRotationX(MathHelper.PiOver2) * yaw : yaw;
     }
 

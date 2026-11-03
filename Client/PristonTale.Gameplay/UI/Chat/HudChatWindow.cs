@@ -120,7 +120,7 @@ public sealed class HudChatWindow
 
         if (!side)
         {
-            for (var tab = 0; tab < 5; tab++)
+            for (var tab = 0; tab < Tabs.Length; tab++)
             {
                 if (TabButton(layout, tab).Contains(pointer))
                 {
@@ -184,7 +184,7 @@ public sealed class HudChatWindow
             painter.Stretch(Default, new Rectangle(0, 600 - 192 + bottom, 305, 210));
             painter.Stretch(TabBar, new Rectangle(100, 564 + bottom, 256, 16));
             var tab = (int)Log.Tab;
-            painter.Sprite(Tabs[Math.Clamp(tab, 0, 4)], 100 + Math.Clamp(tab, 0, 4) * 40, 564 + bottom);
+            painter.Sprite(Tabs[Math.Clamp(tab, 0, Tabs.Length - 1)], 100 + Math.Clamp(tab, 0, Tabs.Length - 1) * 40, 564 + bottom);
             painter.Sprite(NoticeButtons[NoticeMode], 4, 564 + bottom);
             if (NoticeMode == 1)
             {

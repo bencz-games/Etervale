@@ -17,6 +17,8 @@ internal sealed class HudSettingsPanel
 
     private static readonly int[] FrameLimits = [0, 30, 60, 90, 120, 144, 165, 240, 360];
     private static readonly int[] ShadowSizes = [1024, 2048, 4096, 8192];
+    private static readonly int WindowModes = Enum.GetValues<WindowMode>().Length;
+    private static readonly int AntiAliasingModes = Enum.GetValues<AntiAliasingMode>().Length;
     private static readonly GraphicsQuality[] Presets = [GraphicsQuality.Low, GraphicsQuality.Medium, GraphicsQuality.High, GraphicsQuality.Ultra];
     private static readonly int[] ShadowUpdateRates = [30, 60, 120, 0];
     private readonly PresentationSettings _settings;
@@ -49,7 +51,7 @@ internal sealed class HudSettingsPanel
             var direction = backwards ? -1 : 1;
             _settings.Requested = row switch
             {
-                0 => current with { WindowMode = (WindowMode)(((int)current.WindowMode + direction + 3) % 3) },
+                0 => current with { WindowMode = (WindowMode)(((int)current.WindowMode + direction + WindowModes) % WindowModes) },
                 1 => current with { Monitor = ((current.Monitor + 1 + direction + _settings.MonitorCount + 1) % (_settings.MonitorCount + 1)) - 1 },
                 2 => NextResolution(current, direction),
                 3 => current with { RefreshRate = NextFrequency(current, direction) },
@@ -58,7 +60,7 @@ internal sealed class HudSettingsPanel
                 6 => current with { SoundEnabled = !current.SoundEnabled },
                 7 => current with { MaxFps = Cycle(FrameLimits, current.MaxFps, direction) },
                 8 => current with { BackgroundMaxFps = Cycle(FrameLimits, current.BackgroundMaxFps, direction) },
-                9 => current with { Quality = GraphicsQuality.Custom, AntiAliasing = (AntiAliasingMode)(((int)current.AntiAliasing + direction + 5) % 5) },
+                9 => current with { Quality = GraphicsQuality.Custom, AntiAliasing = (AntiAliasingMode)(((int)current.AntiAliasing + direction + AntiAliasingModes) % AntiAliasingModes) },
                 10 => current with { Quality = GraphicsQuality.Custom, ShadowMapSize = Cycle(ShadowSizes, current.ShadowMapSize, direction) },
                 11 => current.WithQuality(NextPreset(current.Quality, direction)),
                 12 => current with { Quality = GraphicsQuality.Custom, ShadowUpdateRate = Cycle(ShadowUpdateRates, current.ShadowUpdateRate, direction) },

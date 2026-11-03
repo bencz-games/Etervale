@@ -25,6 +25,7 @@ using PristonTale.Contracts.Combat;
 using PristonTale.Engine3D;
 using PristonTale.Assets;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Units;
 
 namespace PristonTale.Gameplay.World;
 
@@ -235,8 +236,8 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
             }
 
             // Stage map rectangles are fixed point with the original's z, the engine's -z.
-            var x = Math.Clamp(position.X, map.Left / 256f, map.Right / 256f) - position.X;
-            var z = Math.Clamp(-position.Z, map.Top / 256f, map.Bottom / 256f) + position.Z;
+            var x = Math.Clamp(position.X, GameUnits.FromFixed(map.Left), GameUnits.FromFixed(map.Right)) - position.X;
+            var z = Math.Clamp(-position.Z, GameUnits.FromFixed(map.Top), GameUnits.FromFixed(map.Bottom)) + position.Z;
             var distance = x * x + z * z;
             if (distance < best)
             {
