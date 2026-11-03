@@ -17,17 +17,17 @@ internal static class MobileShopTransactions
         var original = player.Character;
         if (!session.MobileShopOpen || player.IsDead)
         {
-            return Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.OutOfReach, "no shop is open here", original.InventoryRevision));
+            return NpcServiceTransactions.Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.OutOfReach, "no shop is open here", original.InventoryRevision));
         }
 
         switch (command.Action)
         {
             case NpcServiceAction.Close:
                 session.MobileShopOpen = false;
-                return new PreparedNpcOperation(original, null, null, new NpcServiceReply(Done(original, "")));
+                return new PreparedNpcOperation(original, null, null, new NpcServiceReply(NpcServiceTransactions.Done(original, null, "")));
             case NpcServiceAction.Open:
             case NpcServiceAction.Refresh:
-                return new PreparedNpcOperation(original, null, null, new NpcServiceReply(Done(original, ""))
+                return new PreparedNpcOperation(original, null, null, new NpcServiceReply(NpcServiceTransactions.Done(original, null, ""))
                 {
                     Catalog = command.Action == NpcServiceAction.Open ? [] : null,
                     Quotes = NpcServiceTransactions.Quotes(original)
@@ -37,44 +37,24 @@ internal static class MobileShopTransactions
             case NpcServiceAction.RepairAll:
                 break;
             default:
-                return Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, "this shop only buys and repairs", original.InventoryRevision));
+                return NpcServiceTransactions.Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, "this shop only buys and repairs", original.InventoryRevision));
         }
 
-        if (original.ServiceOperations.Find(command.OperationId) is { } applied)
+        if (NpcServiceTransactions.Settled(original, null, command) is { } settled)
         {
-            return applied.Command == command
-                ? new PreparedNpcOperation(original, null, null,
-                    new NpcServiceReply(Done(original, "already committed")) { Quotes = NpcServiceTransactions.Quotes(original) })
-                : Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.Conflict, "operation identity conflict", original.InventoryRevision));
-        }
-
-        if (command.OperationId == Guid.Empty || command.ExpectedRevision != original.InventoryRevision)
-        {
-            return Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.Stale, ItemRuleMessages.StaleInventory, original.InventoryRevision));
+            return settled;
         }
 
         var candidate = original.CloneForInventoryOperation();
-        var status = command.Action switch
-        {
-            NpcServiceAction.Sell => NpcShopRules.TrySell(candidate, command.ItemId, command.Count, MoneyLimits.CarryLimit(candidate.Level, candidate.Tier), out _),
-            NpcServiceAction.Repair => NpcShopRules.TryRepair(candidate, command.ItemId, out _),
-            _ => NpcShopRules.TryRepairAll(candidate, out _)
-        };
+        var status = NpcServiceTransactions.SellOrRepair(candidate, command);
         if (status != NpcServiceStatus.Ok)
         {
-            var message = status == NpcServiceStatus.NotEnoughGold ? "not enough gold" : "the shop refused";
-            return Final(original, NpcServiceOutcome.Failed(status, message, original.InventoryRevision));
+            return NpcServiceTransactions.Final(original, NpcServiceOutcome.Failed(status, NpcServiceTransactions.Describe(status, "the shop refused"), original.InventoryRevision));
         }
 
         candidate.RecordServiceOperation(command);
         var snapshot = CharacterRecordFactory.Capture(session.Loaded!, candidate, field.FieldId, player.Position);
-        var reply = new NpcServiceReply(Done(candidate, "")) { Quotes = NpcServiceTransactions.Quotes(candidate) };
+        var reply = new NpcServiceReply(NpcServiceTransactions.Done(candidate, null, "")) { Quotes = NpcServiceTransactions.Quotes(candidate) };
         return new PreparedNpcOperation(original, candidate, snapshot, reply, candidate.Money - original.Money);
     }
-
-    private static NpcServiceOutcome Done(PlayerCharacter character, string message) =>
-        new(true, NpcServiceStatus.Ok, character.InventoryRevision, 0, message);
-
-    private static PreparedNpcOperation Final(PlayerCharacter original, NpcServiceOutcome outcome) =>
-        new(original, null, null, new NpcServiceReply(outcome));
 }
