@@ -21,6 +21,11 @@ public enum HudWorkActionKind
 // placed item that leaves the bag leaves the window. The start button runs the work once the window is ready.
 public abstract class HudWorkbench : IHudServiceWindow
 {
+    private OwnedItemView _described;
+    private OwnerState _describedState;
+    private List<(string Text, Color Color)> _description;
+    private AgingGauge? _describedGauge;
+
 
     private readonly HudSlide _slide = new();
     private OwnedItemView _hovered;
@@ -203,8 +208,15 @@ public abstract class HudWorkbench : IHudServiceWindow
         }
         else if (_hovered is not null)
         {
-            HudItemDetailTooltip.Draw(painter, layout, pointer, HudItemDetailTooltip.Lines(_hovered, state, "", "Right-click: take back"),
-                HudItemDetailTooltip.Gauge(_hovered, state));
+            // The box's lines are made again only when the hovered item or the owner state change.
+            if (!ReferenceEquals(_hovered, _described) || !ReferenceEquals(state, _describedState))
+            {
+                (_described, _describedState) = (_hovered, state);
+                _description = HudItemDetailTooltip.Lines(_hovered, state, "", "Right-click: take back");
+                _describedGauge = HudItemDetailTooltip.Gauge(_hovered, state);
+            }
+
+            HudItemDetailTooltip.Draw(painter, layout, pointer, _description, _describedGauge);
         }
     }
 

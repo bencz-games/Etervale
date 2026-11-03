@@ -29,6 +29,9 @@ public enum HudShopAction
 public sealed class HudShopWindow : IHudServiceWindow
 {
     private static readonly HudShopButton[] Buttons = Enum.GetValues<HudShopButton>();
+    // The hovered offer's price line, made once per offer.
+    private object _pricedOffer;
+    private string _priceText = "";
     private const int GoodsTab = 2;
     private readonly HudSlide _slide = new();
     private readonly List<List<Placed>>[] _pages = [[], [], []];
@@ -195,9 +198,13 @@ public sealed class HudShopWindow : IHudServiceWindow
         }
 
         var offer = _hovered;
-        var price = $"Price: {offer.Price:N0} gold";
+        if (!ReferenceEquals(offer, _pricedOffer))
+        {
+            (_pricedOffer, _priceText) = (offer, $"Price: {offer.Price:N0} gold");
+        }
+
         const string action = "Click: buy";
-        HudItemTooltip.Draw(painter, layout, pointer, offer.Name, price, action);
+        HudItemTooltip.Draw(painter, layout, pointer, offer.Name, _priceText, action);
     }
 
     private void DrawTabs(HudPainter painter, Point origin)

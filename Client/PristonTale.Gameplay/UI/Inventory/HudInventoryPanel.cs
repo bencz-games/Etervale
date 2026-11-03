@@ -9,6 +9,11 @@ namespace PristonTale.Gameplay.UI.Inventory;
 // The original inventory window and its text, with the original equipment covers and selection colors.
 public sealed class HudInventoryPanel
 {
+    private (OwnedItemView Item, OwnerState State, string Note, string Action, string Hunt) _tipKey;
+    private IReadOnlyList<string> _usableTip;
+    private List<(string Text, Color Color)> _detailTip;
+    private AgingGauge? _gaugeTip;
+
     private readonly HudItemCounts _counts = new();
     // Whether the bag holds a puzzle piece or lucky bag (the board shows) and the puzzle is finished, per revision.
     private (bool Shown, bool Complete) _puzzle;
@@ -306,14 +311,25 @@ public sealed class HudInventoryPanel
             : "Click: carry  Shift-click: split  Right-click: equip";
         var named = _counts.Named(item);
         var note = Note?.Invoke(item) ?? "";
-        if (usable && note.Length == 0)
+        // The box's lines are made again only when the item, the owner state or the texts around them change, as the trade
+        // and personal shop windows keep theirs.
+        var hunt = Hunt?.Invoke(item);
+        var key = (item, _state, note, action, hunt);
+        if (!_tipKey.Equals(key))
         {
-            HudUsableTooltip.Draw(painter, layout, pointer, named.Name, HudUsableTooltip.Lines(item.CatalogKey), action);
+            _tipKey = key;
+            _usableTip = usable && note.Length == 0 ? HudUsableTooltip.Lines(item.CatalogKey) : null;
+            _detailTip = _usableTip is null ? HudItemDetailTooltip.Lines(named, _state, note, action, hunt) : null;
+            _gaugeTip = _usableTip is null ? HudItemDetailTooltip.Gauge(item, _state) : null;
+        }
+
+        if (_usableTip is not null)
+        {
+            HudUsableTooltip.Draw(painter, layout, pointer, named.Name, _usableTip, action);
             return;
         }
 
-        HudItemDetailTooltip.Draw(painter, layout, pointer, HudItemDetailTooltip.Lines(named, _state, note, action, Hunt?.Invoke(item)),
-            HudItemDetailTooltip.Gauge(item, _state));
+        HudItemDetailTooltip.Draw(painter, layout, pointer, _detailTip, _gaugeTip);
     }
 
     private void Refresh(OwnerState state)
