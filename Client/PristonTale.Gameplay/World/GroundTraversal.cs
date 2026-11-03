@@ -6,7 +6,7 @@ public delegate bool GroundFloorQuery(Vector3 position, float referenceHeight, o
 
 public static class GroundTraversal
 {
-    public const float StepUp = 10f;
+    public const float StepUp = Simulation.World.FieldTerrain.StepUp;
     public const float VisualOffset = 2f;
     private const float SampleDistance = 4f;
     private const int MaximumSamples = 1024;

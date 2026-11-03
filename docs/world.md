@@ -150,7 +150,7 @@ height. Constants: `StepUp = 10`, `BodyProbeHeight = 30`, `DropTolerance = 32`.
 | `CrossesWall(a, b)` | Segment from `a` to `b` (at `a`'s height), both raised 30 units, hits any collision triangle. |
 | `TryStep(a, b)` | No wall crossing and a floor within `StepUp` above `a.Y`; falls are allowed. NPC steps use it. |
 | `TryBodyStep(a, b, halfWidth, stepUp)` | Centre path leads by `halfWidth`; both flanks swept. A flank may end nearer a wall only if it started nearer. |
-| `Slide(a, b)` | Replica of the client wall slide: stop 0.5 units before a wall, project the rest along it, three tries; faces as flat as floors do not stop it. |
+| `Slide(a, b)` | The client's wall slide (`Physics/WallSlide`, shared with `GameScene.MoveWithCollision`): stop 0.5 units before a wall (the client stops its body radius short), project the rest along it, three tries; faces as flat as floors do not stop it. |
 
 ### Loading
 

@@ -196,46 +196,20 @@ public sealed partial class GameScene
         return new Vector2(accepted.X, accepted.Z);
     }
 
+    // The shared wall slide at probeY, stopping the body's radius short of a wall.
     private Vector2 MoveWithCollision(Vector2 from, Vector2 delta, float probeY)
     {
-        var pos = from;
-        var remaining = delta;
-        for (var iter = 0; iter < 3; iter++)
-        {
-            var len = remaining.Length();
-            if (len < 0.0001f)
-                break;
-            var dir = remaining / len;
-            var start = new Vector3(pos.X, probeY, pos.Y);
-            var end = new Vector3(pos.X + dir.X * (len + PlayerRadius), probeY, pos.Y + dir.Y * (len + PlayerRadius));
-            if (!TraceWallsAcrossFields(start, end, out var hitPoint, out var normal))
-            {
-                pos += remaining;
-                break;
-            }
-            if (MathF.Abs(normal.Y) >= WallFloorThreshold)
-            {
-                pos += remaining;
-                break;
-            }
-            var hitPlanar = new Vector2(hitPoint.X, hitPoint.Z);
-            var allowed = MathHelper.Clamp(Vector2.Distance(pos, hitPlanar) - PlayerRadius, 0f, len);
-            pos += dir * allowed;
-            var n = new Vector2(normal.X, normal.Z);
-            if (n.LengthSquared() < 1e-6f)
-                break;
-            n = Vector2.Normalize(n);
-            if (Vector2.Dot(n, dir) > 0f)
-                n = -n;
-            var leftover = remaining - dir * allowed;
-            remaining = leftover - n * Vector2.Dot(leftover, n);
-        }
-        return pos;
+        _wallTrace ??= TraceWalls;
+        var slid = WallSlide.Slide(new NumVector3(from.X, probeY, from.Y), new System.Numerics.Vector2(delta.X, delta.Y), PlayerRadius, PlayerRadius, _wallTrace);
+        return new Vector2(slid.X, slid.Z);
     }
 
-    private bool TraceWallsAcrossFields(Vector3 start, Vector3 end, out Vector3 hitPoint, out Vector3 hitNormal)
+    private bool TraceWalls(NumVector3 start, NumVector3 end, out NumVector3 hit, out NumVector3 normal)
     {
-        return _fieldCollision.TryTraceSegment(start, end, out hitPoint, out hitNormal);
+        var found = _fieldCollision.TryTraceSegment(new Vector3(start.X, start.Y, start.Z), new Vector3(end.X, end.Y, end.Z), out var hitPoint, out var hitNormal);
+        hit = new NumVector3(hitPoint.X, hitPoint.Y, hitPoint.Z);
+        normal = new NumVector3(hitNormal.X, hitNormal.Y, hitNormal.Z);
+        return found;
     }
 
     private bool TryGetFloorHeight(Vector3 position, out float height)

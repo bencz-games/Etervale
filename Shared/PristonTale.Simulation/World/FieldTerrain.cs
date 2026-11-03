@@ -1,6 +1,7 @@
 #nullable enable
 using System.Numerics;
 using PristonTale.Geometry;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Simulation.World;
 
@@ -18,11 +19,16 @@ public sealed class FieldTerrain
 
     public static readonly FieldTerrain None = new(null);
 
+    // How far short of a wall a reported move stops when the server slides it.
+    private const float SlideClearance = 0.5f;
+
     private readonly CollisionMesh? _mesh;
+    private readonly WallTrace? _trace;
 
     public FieldTerrain(CollisionMesh? mesh)
     {
         _mesh = mesh;
+        _trace = mesh is null ? null : mesh.TryTraceSegment;
     }
 
     public bool HasGeometry => _mesh is not null;
@@ -128,49 +134,16 @@ public sealed class FieldTerrain
         return _mesh!.TryTraceSegment(start, start + direction * limit, out var hit, out _) ? Vector3.Distance(start, hit) : limit;
     }
 
-    // The client's wall slide (GameScene.MoveWithCollision) between two reported positions: stop just short of the
-    // first wall, keep the motion along it and retry, three times at most. Faces as flat as a floor do not stop it.
+    // The client's wall slide (WallSlide) between two reported positions, walls probed BodyProbeHeight above the feet.
     public Vector3 Slide(Vector3 from, Vector3 to)
     {
-        if (_mesh is null)
+        if (_trace is null)
         {
             return to with { Y = from.Y };
         }
 
-        const float floorNormalY = 0.25f;
-        const float clearance = 0.5f;
-        var position = from;
-        var remaining = new Vector3(to.X - from.X, 0f, to.Z - from.Z);
         var lift = Vector3.UnitY * BodyProbeHeight;
-        for (var attempt = 0; attempt < 3; attempt++)
-        {
-            var length = remaining.Length();
-            if (length < 0.0001f)
-            {
-                break;
-            }
-
-            if (!_mesh.TryTraceSegment(position + lift, position + lift + remaining, out var hit, out var normal) || MathF.Abs(normal.Y) >= floorNormalY)
-            {
-                position += remaining;
-                break;
-            }
-
-            var direction = remaining / length;
-            var allowed = Math.Clamp(Vector3.Distance(position + lift, hit) - clearance, 0f, length);
-            position += direction * allowed;
-            var wall = new Vector3(normal.X, 0f, normal.Z);
-            if (wall.LengthSquared() < 1e-6f)
-            {
-                break;
-            }
-
-            wall = Vector3.Normalize(wall);
-            var leftover = remaining - direction * allowed;
-            remaining = leftover - wall * Vector3.Dot(leftover, wall);
-        }
-
-        return position;
+        return WallSlide.Slide(from + lift, new Vector2(to.X - from.X, to.Z - from.Z), SlideClearance, 0f, _trace) - lift;
     }
 
     // One movement step for a walking entity: blocked by walls and by climbs above StepUp; falls are allowed.

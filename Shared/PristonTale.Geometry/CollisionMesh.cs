@@ -9,7 +9,8 @@ namespace PristonTale.Geometry;
 public sealed class CollisionMesh
 {
     // A triangle is walkable when its normal's Y component exceeds this.
-    private const float MinFloorNormalY = 0.25f;
+    // A face whose normal rises at least this much is a floor; the wall slide (WallSlide.FloorNormalY) agrees.
+    public const float MinFloorNormalY = 0.25f;
 
     private readonly FloorTriangle[] _floorTriangles;
     private readonly CollisionTriangle[] _collisionTriangles;

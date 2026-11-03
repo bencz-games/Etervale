@@ -124,8 +124,8 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     }
 
     private const float PlayerRadius = 24f;
-    private const float BodyProbeHeight = 30f;
-    private const float WallFloorThreshold = 0.25f;
+    private const float BodyProbeHeight = FieldTerrain.BodyProbeHeight;
+    private WallTrace _wallTrace;
     private const double DoubleClickMs = 350.0;
     private double _lastLeftClickMs = double.NegativeInfinity;
     // The walk/run setting (R or the bar's button), running at first as in the original.
