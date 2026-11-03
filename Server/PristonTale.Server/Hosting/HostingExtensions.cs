@@ -19,6 +19,7 @@ using PristonTale.Persistence.Sqlite;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.World.Loot;
 using PristonTale.Protocol.Transport;
+using PristonTale.Assets;
 
 namespace PristonTale.Server.Hosting;
 
@@ -51,7 +52,7 @@ public static class HostingExtensions
         if (string.Equals(provider, "Sqlite", StringComparison.OrdinalIgnoreCase))
         {
             var databasePath = builder.Configuration["Database:SqlitePath"] ?? Path.Combine("data", "pristontale.db");
-            builder.Services.AddPristonSqlite(SqliteDatabasePath.Resolve(databasePath));
+            builder.Services.AddPristonSqlite(DataPath.Resolve(databasePath));
         }
         else if (string.Equals(provider, "Postgres", StringComparison.OrdinalIgnoreCase))
         {

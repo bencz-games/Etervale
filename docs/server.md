@@ -111,7 +111,7 @@ Hosted services are registered in the order of the startup table.
 | SQLite (default) | `Database:Provider` = `Sqlite` (case-insensitive) or unset | `Database:SqlitePath`, default `data/pristontale.db`. |
 | PostgreSQL | `Database:Provider` = `Postgres` | `ConnectionStrings:Postgres`; `appsettings.json` points at the `docker-compose.yml` instance on port 5433. |
 
-- A relative SQLite path is resolved by `SqliteDatabasePath.Resolve` against the first ancestor of the executable
+- A relative SQLite path is resolved by `DataPath.Resolve` against the first ancestor of the executable
   directory that contains `PristonTale.sln`, else against the executable directory. It does not depend on the working
   directory. The directory is created if missing.
 - SQLite runs with WAL journaling and `synchronous=NORMAL`; `-wal` and `-shm` files sit next to the database.

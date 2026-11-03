@@ -1,6 +1,8 @@
-namespace PristonTale.Persistence.Sqlite;
+namespace PristonTale.Assets;
 
-public static class SqliteDatabasePath
+// A data file the server or a tool keeps (the database, the certificate): a relative path is taken from the repository
+// root when run from a checkout, else from the executable's folder.
+public static class DataPath
 {
     public static string Resolve(string path)
     {

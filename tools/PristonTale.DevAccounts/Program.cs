@@ -9,6 +9,7 @@ using PristonTale.Persistence.Sqlite;
 using PristonTale.Simulation.Characters;
 using PristonTale.Contracts.Characters;
 using PristonTale.Simulation.World;
+using PristonTale.Assets;
 
 // Dev CLI to seed accounts + characters into the same database as the online server.
 // Reuses the real persistence layer (PasswordHasher, repositories, CharacterRecordFactory) so seeded data
@@ -42,7 +43,7 @@ if (connection is not null)
 }
 else
 {
-    services.AddPristonSqlite(SqliteDatabasePath.Resolve(sqlitePath));
+    services.AddPristonSqlite(DataPath.Resolve(sqlitePath));
 }
 services.AddSingleton<CharacterClassRegistry>();
 await using var provider = services.BuildServiceProvider();

@@ -174,7 +174,7 @@ dotnet run --project tools/PristonTale.DevAccounts -c Release --no-build -- add-
 - `add-char`: name 3-16 characters and unused; class by `PlayerClass` name (case-insensitive) or number; level ≥ 1
   (default 1).
 - A relative `--sqlite` path resolves against the nearest ancestor of the executable that holds `PristonTale.sln`
-  (`SqliteDatabasePath.Resolve`), so it lands in the repository regardless of the working directory.
+  (`DataPath.Resolve`), so it lands in the repository regardless of the working directory.
 - Options may appear anywhere in the arguments. Errors exit 1.
 
 ## SmokeClient

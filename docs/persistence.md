@@ -31,7 +31,7 @@ FluentMigrator migrations, the schema, and the SQLite and PostgreSQL providers. 
 | `Persistence/PristonTale.Persistence/Repositories/` | `Dapper*Repository` implementations shared by both providers |
 | `Persistence/PristonTale.Persistence/PersistenceServiceCollectionExtensions.cs` | `AddPristonRepositories`: the repositories and the migration runner both providers register, given the provider's migration processor |
 | `Persistence/PristonTale.Persistence/Migrations/` | `M013Baseline`, `M014PortraitData`, `M015NpcServices`, `M016QuestData`, `M019GameMasters`, `M021MonsterSkillData`, `M022MonsterExperience64`, `M023ItemFootprints`, `M024WorldDataFields`, `M026Contacts`, `M027CatalogIdentities`, `M028WorldCatalog`, `M029NpcPlacementFacts`, `M030CharacterSaveSequence`, `M031GameLogs`, `M032StarterGifts`, `M033HelpPet`, `FluentMigratorDatabaseMigrator` |
-| `Persistence/PristonTale.Persistence.Sqlite/` | `AddPristonSqlite`, connection factory (WAL), Dapper type handlers, path resolution |
+| `Persistence/PristonTale.Persistence.Sqlite/` | `AddPristonSqlite`, connection factory (WAL), Dapper type handlers |
 | `Persistence/PristonTale.Persistence.Postgres/` | `AddPristonPostgres`, `NpgsqlDataSource` factory, `jsonb` handler for `JsonText` |
 | `docker-compose.yml` | Local PostgreSQL 17 for development |
 
@@ -278,7 +278,7 @@ These tables keep what the catalog tables cannot express. They are rewritten on 
 | JSON columns | `TEXT` | `jsonb` (converted in `M013Baseline`) |
 | Type handlers | `SqliteTypeMapping`: bool as 0/1, int16/int32 sent as int64, float sent as double, `JsonText` as string, `DateTime` read as UTC | `JsonTextNpgsqlHandler` only |
 | Registration | `SqliteTypeMapping.EnsureRegistered()` runs from both the DI extension and `SqliteConnectionFactory` | In `AddPristonPostgres` |
-| Path | Server and DevAccounts resolve relative paths against the directory holding `PristonTale.sln` (`SqliteDatabasePath.Resolve`); the parent directory is created | Connection string |
+| Path | Server and DevAccounts resolve relative paths against the directory holding `PristonTale.sln` (`DataPath.Resolve`); the parent directory is created | Connection string |
 
 SQLite writes `-wal` and `-shm` files next to the database while in use; copy all three, or stop every process
 first, when copying a database.

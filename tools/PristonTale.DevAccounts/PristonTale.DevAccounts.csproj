@@ -25,6 +25,7 @@
     <ProjectReference Include="..\..\Persistence\PristonTale.Persistence.Sqlite\PristonTale.Persistence.Sqlite.csproj" />
     <ProjectReference Include="..\..\Persistence\PristonTale.Persistence.Abstractions\PristonTale.Persistence.Abstractions.csproj" />
     <ProjectReference Include="..\..\Shared\PristonTale.Simulation\PristonTale.Simulation.csproj" />
+    <ProjectReference Include="..\..\Shared\PristonTale.Assets\PristonTale.Assets.csproj" />
   </ItemGroup>
 
 </Project>

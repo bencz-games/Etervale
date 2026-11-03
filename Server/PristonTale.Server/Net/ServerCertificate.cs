@@ -2,6 +2,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using PristonTale.Persistence.Sqlite;
+using PristonTale.Assets;
 
 namespace PristonTale.Server.Net;
 
@@ -12,7 +13,7 @@ internal static class ServerCertificate
 {
     public static X509Certificate2 Load(IConfiguration configuration, ILogger logger)
     {
-        var path = SqliteDatabasePath.Resolve(configuration["Network:Certificate:Path"] ?? Path.Combine("data", "server-certificate.pfx"));
+        var path = DataPath.Resolve(configuration["Network:Certificate:Path"] ?? Path.Combine("data", "server-certificate.pfx"));
         var password = configuration["Network:Certificate:Password"];
         if (!File.Exists(path))
         {
