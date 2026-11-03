@@ -108,19 +108,26 @@ public sealed partial class VfxRenderer : IDisposable
     // A model drawn once with the next draw's effects (a thrown weapon); world places its +Z front.
     public void AddModel(PristonMeshEffect model, Matrix world, VfxBlend blend) => _looseModels.Add(new LooseModel(model, world, blend));
 
+    // Effect models face the opposite way of effect space (their front is +Z): this turns one to face it.
+    private static readonly Matrix ModelFront = Matrix.CreateRotationY(MathHelper.Pi);
+
+    // A model's blend; models draw colour-weighted blends additively, quads keep their own (QuadBlend).
+    private BlendState ModelBlend(VfxBlend blend) => blend switch
+    {
+        VfxBlend.Alpha => BlendState.NonPremultiplied,
+        VfxBlend.Shadow => _shadow,
+        VfxBlend.InvShadow => _inverseShadow,
+        _ => BlendState.Additive
+    };
+
+    private BlendState QuadBlend(VfxBlend blend) => blend is VfxBlend.Color or VfxBlend.AddColor ? _added : ModelBlend(blend);
+
     public void Draw(VfxSystem system, Matrix view, Matrix projection, Vector3 cameraPosition, Texture2D? sceneDepth)
     {
         DrawModels(system, view, projection);
         foreach (var loose in _looseModels)
         {
-            var looseBlend = loose.Blend switch
-            {
-                VfxBlend.Alpha => BlendState.NonPremultiplied,
-                VfxBlend.Shadow => _shadow,
-                VfxBlend.InvShadow => _inverseShadow,
-                _ => BlendState.Additive
-            };
-            loose.Model.Draw(0, Matrix.CreateRotationY(MathHelper.Pi) * loose.World, view, projection, Vector4.One, looseBlend);
+            loose.Model.Draw(0, ModelFront * loose.World, view, projection, Vector4.One, ModelBlend(loose.Blend));
             LastModelCount++;
         }
 
@@ -189,14 +196,7 @@ public sealed partial class VfxRenderer : IDisposable
         _effect.Depth = sceneDepth;
         foreach (var run in _runs)
         {
-            _device.BlendState = run.Blend switch
-            {
-                VfxBlend.Alpha => BlendState.NonPremultiplied,
-                VfxBlend.Shadow => _shadow,
-                VfxBlend.InvShadow => _inverseShadow,
-                VfxBlend.Color or VfxBlend.AddColor => _added,
-                _ => BlendState.Additive
-            };
+            _device.BlendState = QuadBlend(run.Blend);
             _effect.Mode = run.Blend switch
             {
                 VfxBlend.Shadow => PristonVfxEffect.MultiplyMode,

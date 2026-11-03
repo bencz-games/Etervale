@@ -26,17 +26,9 @@ public sealed partial class VfxRenderer
                 }
 
                 ref readonly var element = ref state.Element;
-                // Effect models face the opposite way of effect space (their front is +Z).
-                var world = Matrix.CreateRotationY(MathHelper.Pi) * instance.Orientation * Matrix.CreateTranslation(element.Position);
+                var world = ModelFront * instance.Orientation * Matrix.CreateTranslation(element.Position);
                 var frame = (int)(element.Frame / GameUnits.FrameTicks) % Math.Max(1, model.FrameCount);
-                var blend = source.Blend switch
-                {
-                    VfxBlend.Alpha => BlendState.NonPremultiplied,
-                    VfxBlend.Shadow => _shadow,
-                    VfxBlend.InvShadow => _inverseShadow,
-                    _ => BlendState.Additive
-                };
-                model.Draw(frame, world, view, projection, Decode(element.Color), blend);
+                model.Draw(frame, world, view, projection, Decode(element.Color), ModelBlend(source.Blend));
                 LastModelCount++;
             }
         }
