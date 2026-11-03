@@ -75,8 +75,7 @@ public sealed class SkillSoundBank : IDisposable
             return;
         }
 
-        var attenuation = Math.Clamp((int)(Vector3.DistanceSquared(source, listener) / 1100f), 0, 400);
-        var level = (400 - attenuation) / 400f * Math.Clamp(volume, 0f, 1f);
+        var level = Audio.SoundFalloff.Volume(source, listener) * Math.Clamp(volume, 0f, 1f);
         if (level > 0.01f)
         {
             sound.Play(level, Math.Clamp(pitch, -1f, 1f), 0f);

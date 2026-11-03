@@ -37,24 +37,6 @@ public static class PremiumEffects
         }
     }
 
-    private static void Set(PlayerCharacter character, uint code, StatModifier[] modifiers)
-    {
-        var hasEffect = character.Effects.TryGet(code, out var current);
-        if (modifiers.Length == 0)
-        {
-            if (hasEffect)
-            {
-                character.Effects.Remove(code, 0, null);
-            }
-
-            return;
-        }
-
-        if (hasEffect && current.Permanent && current.Spec.Modifiers.SequenceEqual(modifiers))
-        {
-            return;
-        }
-
-        character.Effects.Apply(new EffectSpec(code, EffectSourceKind.System, false, modifiers), 0, float.PositiveInfinity);
-    }
+    private static void Set(PlayerCharacter character, uint code, StatModifier[] modifiers) =>
+        character.Effects.SetPermanent(code, EffectSourceKind.System, false, modifiers.Length == 0 ? null : modifiers);
 }

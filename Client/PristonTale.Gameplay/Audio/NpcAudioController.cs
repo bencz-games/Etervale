@@ -55,12 +55,7 @@ public sealed class NpcAudioController(PristonAudioLibrary library) : IDisposabl
         _talk = null;
     }
 
-    internal static float ProximityVolume(Vector3 sourcePosition, Vector3 listenerPosition)
-    {
-        var attenuation = (int)(Vector3.DistanceSquared(sourcePosition, listenerPosition) / 1100f);
-        attenuation = Math.Clamp(attenuation, 0, 400);
-        return (400 - attenuation) / 400f;
-    }
+    internal static float ProximityVolume(Vector3 sourcePosition, Vector3 listenerPosition) => SoundFalloff.Volume(sourcePosition, listenerPosition);
 
     private void PlayMotion(
         int soundCode,

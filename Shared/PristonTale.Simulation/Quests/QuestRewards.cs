@@ -90,24 +90,6 @@ public static class QuestEffects
         Set(character, QuestWeaponCode, modifiers.Count > 0, modifiers.ToArray());
     }
 
-    private static void Set(PlayerCharacter character, uint code, bool active, StatModifier[] modifiers)
-    {
-        var hasEffect = character.Effects.TryGet(code, out var current);
-        if (!active)
-        {
-            if (hasEffect)
-            {
-                character.Effects.Remove(code, 0, null);
-            }
-
-            return;
-        }
-
-        if (hasEffect && current.Permanent && current.Spec.Modifiers.SequenceEqual(modifiers))
-        {
-            return;
-        }
-
-        character.Effects.Apply(new EffectSpec(code, EffectSourceKind.System, CurseCode == code, modifiers), 0, float.PositiveInfinity);
-    }
+    private static void Set(PlayerCharacter character, uint code, bool active, StatModifier[] modifiers) =>
+        character.Effects.SetPermanent(code, EffectSourceKind.System, CurseCode == code, active ? modifiers : null);
 }

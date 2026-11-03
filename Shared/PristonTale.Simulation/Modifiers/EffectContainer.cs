@@ -157,6 +157,29 @@ public sealed class EffectContainer
     }
     public IReadOnlyList<ActiveEffect> Effects => _effects;
 
+    // Keeps one permanent effect in line with its modifiers (the passive skills', the quests' and the premium timers'
+    // effects): removed when modifiers is null, left as it is when already the same, applied anew otherwise.
+    public void SetPermanent(uint code, EffectSourceKind source, bool harmful, StatModifier[] modifiers)
+    {
+        var hasEffect = TryGet(code, out var current);
+        if (modifiers is null)
+        {
+            if (hasEffect)
+            {
+                Remove(code, 0, null);
+            }
+
+            return;
+        }
+
+        if (hasEffect && current.Permanent && current.Spec.Modifiers.SequenceEqual(modifiers))
+        {
+            return;
+        }
+
+        Apply(new EffectSpec(code, source, harmful, modifiers), 0, float.PositiveInfinity);
+    }
+
     public ControlFlags Control
     {
         get

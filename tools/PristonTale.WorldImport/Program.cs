@@ -22,7 +22,7 @@ argv.RemoveAt(0);
 var sqlitePath = TakeOption(argv, "--sqlite");
 var pgConn = TakeOption(argv, "--postgres");
 var sourceRoot = TakeOption(argv, "--source") ?? DefaultSourceRoot();
-var assetsRoot = TakeOption(argv, "--assets") ?? DefaultAssetsRoot();
+var assetsRoot = TakeOption(argv, "--assets") ?? AssetFiles.FindAssetsRoot();
 
 if (command == "export-item-names")
 {
@@ -245,20 +245,7 @@ static string DefaultSourceRoot()
     return workingDirectoryRoot;
 }
 
-// Default assets root: walk up to the first ancestor containing assets/ (the client exe's convention),
-// null when none — the motion pass then skips with a warning instead of failing the import.
-static string? DefaultAssetsRoot()
-{
-    var dir = new DirectoryInfo(AppContext.BaseDirectory);
-    while (dir is not null)
-    {
-        var candidate = Path.Combine(dir.FullName, "assets");
-        if (Directory.Exists(candidate))
-            return candidate;
-        dir = dir.Parent;
-    }
-    return null;
-}
+
 
 static void PrintUsage()
 {

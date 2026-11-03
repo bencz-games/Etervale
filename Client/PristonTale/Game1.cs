@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using PristonTale.Gameplay.Screens;
 using PristonTale.Gameplay.Screens.Framework;
+using PristonTale.Assets;
 
 namespace PristonTale;
 
@@ -62,24 +63,9 @@ public class Game1 : Game
         ConsoleClientLog.Instance.Info($"[Presentation] GPU={GraphicsDevice.Adapter.DeviceName}; variable timestep; VSync={_presentation.VerticalSync}; maxFps={_presentation.Requested.MaxFps} (0=unlimited).");
     }
 
-    private static string ResolveAssetRoot()
-    {
-        for (var dir = new DirectoryInfo(AppContext.BaseDirectory); dir != null; dir = dir.Parent)
-        {
-            var candidate = Path.Combine(dir.FullName, "assets");
-            if (Directory.Exists(candidate))
-            {
-                return candidate;
-            }
-        }
-        return Path.Combine(
-            AppContext.BaseDirectory,
-            "..",
-            "..",
-            "..",
-            "..",
-            "assets");
-    }
+    // The assets beside the game or in an ancestor folder (AssetFiles.FindAssetsRoot); the game's own folder otherwise, so
+    // a missing asset is reported where the files are expected.
+    private static string ResolveAssetRoot() => AssetFiles.FindAssetsRoot() ?? Path.Combine(AppContext.BaseDirectory, "assets");
 
     protected override void Update(GameTime gameTime)
     {

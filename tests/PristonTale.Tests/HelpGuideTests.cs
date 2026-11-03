@@ -138,17 +138,7 @@ internal static class HelpGuideTests
         }
     }
 
-    private static string? FindAssets()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
-        {
-            var candidate = Path.Combine(directory.FullName, "assets");
-            if (Directory.Exists(Path.Combine(candidate, "image")))
-            {
-                return candidate;
-            }
-        }
-
-        return null;
-    }
+    // The repository's assets, when they hold the image folder this case reads.
+    private static string? FindAssets() =>
+        PristonTale.Assets.AssetFiles.FindAssetsRoot() is { } root && Directory.Exists(Path.Combine(root, "image")) ? root : null;
 }

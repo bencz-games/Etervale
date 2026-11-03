@@ -132,8 +132,7 @@ public sealed class CombatSounds : IDisposable
 
     public void Dispose() => _bank.Dispose();
 
-    internal static float Volume(Vector3 source, Vector3 listener) =>
-        (400 - Math.Clamp((int)(Vector3.DistanceSquared(source, listener) / 1100f), 0, 400)) / 400f;
+    internal static float Volume(Vector3 source, Vector3 listener) => SoundFalloff.Volume(source, listener);
 
     // The original's weapon sound code: axes, swords (the first three are small blades), spears, claws, bows, staves (cast
     // by magicians and priestesses, struck by others), hammers and throwing weapons; anything else punches.
