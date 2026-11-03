@@ -1,5 +1,6 @@
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Modifiers;
+using PristonTale.Simulation.World.Npcs;
 using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Simulation.Items.Usable;
@@ -52,9 +53,9 @@ public static class CastleItems
             "Invincible for a while; attack power halved"),
         new("BC102", 2, "Deadly Edge", CastleItemKind.Scroll, (int)ScrollEffectKind.Critical, Keep + "S_Dea.tga", "Critical chance +5%"),
         new("BC103", 3, "Avail of Evade", CastleItemKind.Scroll, (int)ScrollEffectKind.Evasion, Keep + "S_Eva.tga", "Evade chance +5%"),
-        new("BC106", 6, "Defiance Stone", CastleItemKind.Defiance, 0x5020, Keep + "F_C_M.tga", "Offsets 50% of the Fire Crystal Tower's attack"),
-        new("BC107", 7, "Defiance Stone", CastleItemKind.Defiance, 0x5022, Keep + "I_C_M.tga", "Offsets 50% of the Ice Crystal Tower's attack"),
-        new("BC108", 8, "Defiance Stone", CastleItemKind.Defiance, 0x5021, Keep + "L_C_M.tga", "Offsets 50% of the Lightning Crystal Tower's attack"),
+        new("BC106", 6, "Defiance Stone", CastleItemKind.Defiance, CharacterSoundCodes.CastleCrystalFire, Keep + "F_C_M.tga", "Offsets 50% of the Fire Crystal Tower's attack"),
+        new("BC107", 7, "Defiance Stone", CastleItemKind.Defiance, CharacterSoundCodes.CastleCrystalIce, Keep + "I_C_M.tga", "Offsets 50% of the Ice Crystal Tower's attack"),
+        new("BC108", 8, "Defiance Stone", CastleItemKind.Defiance, CharacterSoundCodes.CastleCrystalLightning, Keep + "L_C_M.tga", "Offsets 50% of the Lightning Crystal Tower's attack"),
         new("BC109", 9, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Fighter, Keep + "Ft_R.tga", "+20% damage when striking a Fighter"),
         new("BC110", 10, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Mechanician, Keep + "Mc_R.tga", "+20% damage when striking a Mechanician"),
         new("BC111", 11, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Pikeman, Keep + "Pk_R.tga", "+20% damage when striking a Pikeman"),
