@@ -62,6 +62,8 @@ public sealed partial class GameplayHud : IDisposable
     private readonly HudQuestWindow _questWindow = new();
     private QuestView _questView;
     private double _questViewMs;
+    // The quest weapon's hunt line for its item box, made when the quest view changes.
+    private string _weaponHunt = "";
     private int _questCompletions;
     private int _questDialogs;
     private readonly HudSettingsPanel _settings;
@@ -160,9 +162,7 @@ public sealed partial class GameplayHud : IDisposable
         _services.Succeeded = ServiceSucceeded;
         _storedPlacement = StoredPlacement;
         _inventoryPanel.Note = InventoryNote;
-        _inventoryPanel.Hunt = item => item.Code == QuestClasses.QuestWeapon(_class) && _questView is { Code: RankUpByQuestWeapon.Code } view
-            ? RankUpByQuestWeapon.HuntLine(QuestClasses.WeaponHunt(_class), view.WeaponStage, view.WeaponKillsLeft)
-            : "";
+        _inventoryPanel.Hunt = item => item.Code == QuestClasses.QuestWeapon(_class) ? _weaponHunt : "";
         _inventoryPanel.Withheld = id => _aging.Holds(id) || _mix.Holds(id) || _personalShop.Holds(id) || _trade.Holds(id);
         _inventory.ShopRequested = OpenOwnShop;
         _sprites.Request(HudChatWindow.Art);
@@ -689,14 +689,8 @@ public sealed partial class GameplayHud : IDisposable
         _helpPet.Draw(_painter, pointer);
         DrawHelp(pointer);
 
-        if (_skillSlide.FullyOpen)
-        {
-            _skills.DrawMasterBox(_painter, _state, _skillMaster, _skillMaster != 0 && _quests.ClassChangeNpc == _skillMaster);
-        }
-        else
-        {
-            _skills.DrawMasterBox(_painter, _state, 0, false);
-        }
+        var trainer = _skillSlide.FullyOpen ? _skillMaster : 0;
+        _skills.DrawMasterBox(_painter, _state, trainer, trainer != 0 && _quests.ClassChangeNpc == trainer);
 
         // The quest dialog takes the help box from the NPC dialog; its yes/no box replaces both, as the classic client closed
         // the help box before asking.

@@ -61,7 +61,7 @@ public static class QuestMonsters
 
     private static readonly string[] Names =
     [
-        "", "Bargon", "Skeleton Warrior", "Head Cutter", "Armored Bettle", "Skeleton Ranger", "Titan", "Muffin", "Dire Bee", "Typhoon",
+        "", "Bargon", "Skeleton Warrior", "Head Cutter", "Armored Beetle", "Skeleton Ranger", "Titan", "Muffin", "Dire Bee", "Typhoon",
         "Ratoo", "Grotesque", "Iron Fist", "Omega", "D-Machine", "Mountain", "Skeleton Knight", "Solid Snail", "Thorn Crawler", "Mummy",
         "Doom Guard", "Figon", "Stone Giant", "Stone Golem", "Iron Guard", "Avelin", "Avelisk-L", "BeEvil", "Illusion Knight", "Nightmare",
         "Witch", "Heavy Goblin", "Dawlin", "Stygian", "Incubus", "Chain Golem", "Dark Specter", "Metron", "Avelisk Lord", "Dusk",

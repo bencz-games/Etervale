@@ -257,11 +257,11 @@ Other probe details:
   `npc-*` scenarios, the item box with rolled values, red requirements and a specialization (`inventory-item-hover-*`),
   the carried weight and unusable-item tint (`inventory-*`), the resistance boxes (`status-*`) and the block word
   (`block-800`). Its `quest-*` scenarios show a quest dialog with its document text, the yes/no box, the Fury reward
-  list and reward view, the training box and skill window a home-town master opens, with the lit class-change button
-  and only the reached tier's skills (`quest-class-change-800`; with points left, `skill-master-800`; under a quest dialog, `skill-master-quest-800`; a skill's yes/no
-  answered with Enter, `skill-training-enter-800`), the quest window with a description (800x600 and scale 2), the
-  quest timer icon with and without effect icons and the redistribution offer. It reads the Ricarten stage only for the
-  authored minimap rectangle.
+  list and reward view, the training box and skill window a home-town master opens, with the lit class-change button and
+  only the reached tier's skills (`quest-class-change-800`; with points left, `skill-master-800`; under a quest dialog,
+  `skill-master-quest-800`; a skill's yes/no answered with Enter, `skill-training-enter-800`), the quest window with a
+  description (800x600 and scale 2), the quest timer icon with and without effect icons and the redistribution offer. It
+  reads the Ricarten stage only for the authored minimap rectangle.
 - `--capture-hud-target` spawns monsters of two races, an NPC and a player through the remote entity roster and captures
   the target frame's live portrait, the classic bar, 1280x720, 1920x1080, scale 2 and the minimap under the cursor.
 - `--verify-world-rewards` migrates the given database twice, then checks that every item drop code resolves, Hopy

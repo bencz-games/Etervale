@@ -124,9 +124,9 @@ public static class RankUpRules
     // The original asks once, right after the rank-up: No ends the offer.
     public static bool DeclineSkillReset(QuestContext context)
     {
-        if (!context.Journal.SkillResetOffered)
+        if (!ResetOffered(context))
         {
-            return context.Fail(QuestStatus.Rejected, "no skill redistribution is offered");
+            return false;
         }
 
         context.Journal.SkillResetOffered = false;
@@ -135,9 +135,9 @@ public static class RankUpRules
 
     public static bool ResetSkills(QuestContext context)
     {
-        if (!context.Journal.SkillResetOffered)
+        if (!ResetOffered(context))
         {
-            return context.Fail(QuestStatus.Rejected, "no skill redistribution is offered");
+            return false;
         }
 
         context.Character.ResetLearnedSkills();
@@ -145,4 +145,7 @@ public static class RankUpRules
         context.Notice(QuestNoticeKind.Message, QuestTexts.SkillsRedistributed);
         return true;
     }
+
+    private static bool ResetOffered(QuestContext context) =>
+        context.Journal.SkillResetOffered || context.Fail(QuestStatus.Rejected, "no skill redistribution is offered");
 }

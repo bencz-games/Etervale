@@ -174,12 +174,13 @@ quest variant, which the importer stores as the code's quest definition (`item_d
 - The training box's class-change button (at (240, 380) of the screen) lights when the talk offered a rank-up and
   sends `ChangeClass`; it shows gray while the tier's skills are learned but the level or a running quest holds it back.
 - The quest window (`Q` or the bottom bar's quest button) is the party window's quest page at (539, 155) of the 800x600
-  frame (right and bottom anchored, so it keeps its place over the bottom bar on a larger screen): five titles per page, page arrows, running/finished tabs, close; a title opens its
-  description (`image/party/party_DATA/<file>`) on the panel to the left.
+  frame (right and bottom anchored, so it keeps its place over the bottom bar on a larger screen): five titles per page,
+  page arrows, running/finished tabs, close; a title opens its description (`image/party/party_DATA/<file>`) on the
+  panel to the left.
 - A running hunt shows the quest timer icon (`QuestTimer.tga`) after the effect icons, with a gauge for a timed hunt;
   its tooltip shows the quest, the kills and the time left. Chat notices go to the chat's assistant tab, events and
-  messages to the notice strip, the fanfare plays `drink2.wav`. A rank-up's redistribution offer is a yes/no box; Enter answers
-  Yes, as the original's box takes it.
+  messages to the notice strip, the fanfare plays `drink2.wav`. A rank-up's redistribution offer is a yes/no box; Enter
+  answers Yes, as the original's box takes it.
 
 ## How to
 

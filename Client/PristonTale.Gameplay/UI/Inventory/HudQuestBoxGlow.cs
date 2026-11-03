@@ -15,6 +15,7 @@ public sealed class HudQuestBoxGlow
     private const int OffsetX = 12;
     private const int Growth = 2;
     private const int Fade = 6;
+    private const float Opaque = 255f;
 
     private Point _at;
     private double _startMs = double.NaN;
@@ -28,7 +29,7 @@ public sealed class HudQuestBoxGlow
     // The tick of the glow at a time, or -1 when it shows nothing (not started, not yet past its first tick, or over).
     public int Tick(double nowMs)
     {
-        var tick = double.IsNaN(_startMs) ? -1 : (int)((nowMs - _startMs) * GameUnits.TicksPerSecond / 1000d);
+        var tick = double.IsNaN(_startMs) ? -1 : (int)((nowMs - _startMs) / GameUnits.TickMs);
         return tick is > 0 and <= Ticks ? tick : -1;
     }
 
@@ -43,7 +44,7 @@ public sealed class HudQuestBoxGlow
             return;
         }
 
-        var tint = Color.White * ((255 - tick * Fade) / 255f);
+        var tint = Color.White * ((Opaque - tick * Fade) / Opaque);
         var bounds = Bounds(tick);
         for (var copy = 0; copy < Copies; copy++)
         {
