@@ -11,6 +11,46 @@ internal static class SkyTests
         yield return ("sky manifest preserves ordered layers, RGBA and Windows path normalization", ManifestAsync);
         yield return ("all configured outdoor fields resolve their original sky profiles", ProfilesAsync);
         yield return ("distance fog keeps the original start, caps atmospheric opacity and keeps the classic clip", FogCurveAsync);
+        yield return ("the classic rain dome is open above its rim and is capped seamlessly to the zenith; a day sky's sphere is closed", OpenTopAsync);
+    }
+
+    // The rain dome is a cylinder whose rim stands about 22 degrees up, so the sky above it must be filled; a day
+    // profile's space sphere reaches the zenith.
+    private static Task OpenTopAsync()
+    {
+        var root = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "assets");
+        if (!Directory.Exists(Path.Combine(root, "Effect", "Sky")))
+        {
+            return Task.CompletedTask;
+        }
+
+        List<PristonCornerVertex>[] Groups(string relative)
+        {
+            var model = new Engine3D.Formats.PristonSmdReader().ReadModel(Assets.AssetFiles.Resolve(Path.Combine(root, relative)));
+            return [.. PristonModelGeometry.BuildGroups(model, Matrix.Identity, Color.White).Values];
+        }
+
+        var rainGroups = Groups("Effect/Sky/SkyRain/rainsky01.smd");
+        var rain = rainGroups.Max(PristonSkyLibrary.HighestElevation);
+        var space = Groups("Effect/Sky/Sky04/day/space_sa_day.smd").Max(PristonSkyLibrary.HighestElevation);
+        Assert.True(rain < PristonSkyLibrary.OpenTopElevation && rain > 0.2f, $"the rain dome's rim stands at {MathHelper.ToDegrees(rain)} degrees");
+        Assert.True(space > PristonSkyLibrary.OpenTopElevation, $"the day space sphere reaches only {MathHelper.ToDegrees(space)} degrees");
+
+        // The cap mirrors the cylinder up to the zenith and keeps its rim where it is, with the same texture coordinates.
+        foreach (var group in rainGroups)
+        {
+            var cap = PristonSkyLibrary.CapAbove(group);
+            var groupRim = PristonSkyLibrary.HighestElevation(group);
+            Assert.True(PristonSkyLibrary.HighestElevation(cap) > MathHelper.PiOver2 - 0.01f, "the cap does not reach the zenith");
+            for (var index = 0; index < group.Count; index++)
+            {
+                var onRim = PristonSkyLibrary.HighestElevation([group[index]]) > groupRim - 1e-4f;
+                Assert.True(!onRim || (Vector3.Distance(cap[index].Position, group[index].Position) < 0.01f && cap[index].Uv0 == group[index].Uv0),
+                    $"the cap moved the rim's vertex {index} from {group[index].Position} to {cap[index].Position}");
+            }
+        }
+
+        return Task.CompletedTask;
     }
 
     private static Task ManifestAsync()

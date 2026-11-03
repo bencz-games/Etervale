@@ -56,6 +56,11 @@ internal sealed class WeatherCaptureProbe : Game
         new("sky-rainbow", 19.6f, new PristonWeather(0.25f, 0.2f, 0f, Breeze), Sky: true, Heading: 1.6f),
         new("sky-aurora", 0.5f, PristonWeather.Clear, Sky: true, Aurora: true, Heading: 0.6f),
         new("sky-classic", 12f, PristonWeather.Clear, Sky: true, Classic: true),
+        // The classic rain dome is an open cylinder: above its rim the clouds must go on, not the hour's colour.
+        new("sky-classic-rain-noon", 12f, new PristonWeather(1f, 0.7f, 0f, Breeze), Sky: true, Classic: true),
+        new("sky-classic-rain", 17f, new PristonWeather(1f, 0.7f, 0f, Breeze), Sky: true, Classic: true),
+        new("sky-classic-rain-dusk", 21.5f, new PristonWeather(1f, 0.7f, 0f, Breeze), Sky: true, Classic: true),
+        new("sky-classic-rain-night", 0.5f, new PristonWeather(1f, 0.7f, 0f, Breeze), Sky: true, Classic: true),
         new("mist-harbour", 4.6f, PristonWeather.Clear, Mist: true, Heading: 1.57f, At: Harbour),
         // Broken clouds in a strong wind over consecutive frames: their edges must glide, not waver.
         new("sky-drift", 14f, new PristonWeather(0.45f, 0f, 0f, new Vector2(360f, 0f)), Sky: true, Heading: 1.2f, Frames: 8)

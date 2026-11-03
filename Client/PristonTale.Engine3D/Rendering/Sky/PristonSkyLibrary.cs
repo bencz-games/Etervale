@@ -10,6 +10,10 @@ namespace PristonTale.Engine3D.Rendering;
 
 public sealed class PristonSkyLibrary : IDisposable
 {
+    // A profile whose opaque layers stop below this elevation (radians) leaves the zenith open: the rain dome is a
+    // cylinder whose rim stands about 22 degrees up.
+    public const float OpenTopElevation = 0.8f;
+
     private readonly PristonTextureLoader _textures;
     private readonly List<PristonGpuMesh> _meshes = [];
     private readonly List<RenderBatch[]> _profiles = [];
@@ -50,11 +54,15 @@ public sealed class PristonSkyLibrary : IDisposable
         var reader = new PristonSmdReader();
         var builder = new PristonGpuMeshBuilder(device);
         var materials = new PristonMaterialRuntimeFactory(_textures);
-        var cache = new Dictionary<(string Path, Color Color), RenderBatch[]>();
+        var cache = new Dictionary<(string Path, Color Color), PreparedLayer>();
+        var caps = new Dictionary<PreparedLayer, RenderBatch[]>();
         var textures = new HashSet<Texture2D>();
         foreach (var profile in manifest)
         {
             var batches = new List<RenderBatch>();
+            var top = float.NegativeInfinity;
+            PreparedLayer outer = null;
+            var afterOuter = 0;
             foreach (var layer in profile)
             {
                 // The distributed manifest names the bitmap instead of this compiled model.
@@ -72,6 +80,7 @@ public sealed class PristonSkyLibrary : IDisposable
                     var model = reader.ReadModel(path);
                     var groups = PristonModelGeometry.BuildGroups(model, Matrix.Identity, layer.Color);
                     var modelBatches = new List<RenderBatch>();
+                    var opaque = new List<(PristonMaterialRuntime Material, List<PristonCornerVertex> Vertices)>();
                     foreach (var (materialIndex, vertices) in groups)
                     {
                         if ((uint)materialIndex >= (uint)model.Materials.Count)
@@ -89,11 +98,12 @@ public sealed class PristonSkyLibrary : IDisposable
                         }
 
                         var material = materials.Create(Path.GetDirectoryName(path), authored, softAlpha: true);
-                        var mesh = builder.Upload(builder.PrepareStaticMesh(vertices.ToArray()));
-                        _meshes.Add(mesh);
-                        MeshBytes += mesh.VertexBuffer.VertexDeclaration.VertexStride * (long)mesh.VertexCount;
-                        MeshBytes += mesh.IndexCount * (long)(mesh.IndexBuffer.IndexElementSize == IndexElementSize.SixteenBits ? 2 : 4);
-                        modelBatches.Add(new RenderBatch([], [], mesh, material));
+                        modelBatches.Add(new RenderBatch([], [], Upload(builder, vertices), material));
+                        if (material.BlendType <= PristonBlendType.Alpha)
+                        {
+                            opaque.Add((material, vertices));
+                        }
+
                         foreach (var texture in material.Textures)
                         {
                             textures.Add(texture);
@@ -105,11 +115,30 @@ public sealed class PristonSkyLibrary : IDisposable
                         }
                     }
 
-                    prepared = modelBatches.ToArray();
+                    prepared = new PreparedLayer(modelBatches.ToArray(), opaque);
                     cache.Add(key, prepared);
                 }
 
-                batches.AddRange(prepared);
+                batches.AddRange(prepared.Batches);
+                top = MathF.Max(top, prepared.Top);
+                if (prepared.Opaque.Count > 0 && (outer is null || prepared.Reach > outer.Reach))
+                {
+                    outer = prepared;
+                    afterOuter = batches.Count;
+                }
+            }
+
+            // A profile that leaves the zenith open (the rain dome's cylinder) is closed with its outermost layer
+            // mirrored up over its rim, drawn right after that layer.
+            if (outer is not null && top < OpenTopElevation)
+            {
+                if (!caps.TryGetValue(outer, out var cap))
+                {
+                    cap = outer.Opaque.Select(group => new RenderBatch([], [], Upload(builder, CapAbove(group.Vertices)), group.Material)).ToArray();
+                    caps.Add(outer, cap);
+                }
+
+                batches.InsertRange(afterOuter, cap);
             }
 
             _profiles.Add(batches.ToArray());
@@ -127,6 +156,84 @@ public sealed class PristonSkyLibrary : IDisposable
         ArgumentOutOfRangeException.ThrowIfNegative(profile);
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(profile, _profiles.Count);
         return _profiles[profile];
+    }
+
+    private PristonGpuMesh Upload(PristonGpuMeshBuilder builder, List<PristonCornerVertex> vertices)
+    {
+        var mesh = builder.Upload(builder.PrepareStaticMesh(vertices.ToArray()));
+        _meshes.Add(mesh);
+        MeshBytes += mesh.VertexBuffer.VertexDeclaration.VertexStride * (long)mesh.VertexCount;
+        MeshBytes += mesh.IndexCount * (long)(mesh.IndexBuffer.IndexElementSize == IndexElementSize.SixteenBits ? 2 : 4);
+        return mesh;
+    }
+
+    // An open layer mirrored up over its rim onto the dome to the zenith: each vertex keeps its direction, distance and
+    // texture coordinates, and its elevation below the rim becomes as far above it, stretched so the layer's lowest ring
+    // meets at the zenith. The rim's vertices stay where they are, so the cap continues the layer without a seam.
+    internal static List<PristonCornerVertex> CapAbove(List<PristonCornerVertex> vertices)
+    {
+        var rim = HighestElevation(vertices);
+        var lowest = float.PositiveInfinity;
+        foreach (var vertex in vertices)
+        {
+            lowest = MathF.Min(lowest, Elevation(vertex.Position));
+        }
+
+        var stretch = (MathHelper.PiOver2 - rim) / MathF.Max(rim - lowest, 1e-3f);
+        var cap = new List<PristonCornerVertex>(vertices.Count);
+        foreach (var vertex in vertices)
+        {
+            var position = vertex.Position;
+            var radial = Radial(position);
+            var across = radial > 1e-4f ? new Vector2(position.X, position.Z) / radial : Vector2.UnitX;
+            var lifted = MathF.Min(MathHelper.PiOver2, rim + (rim - Elevation(position)) * stretch);
+            var distance = position.Length();
+            var horizontal = MathF.Cos(lifted) * distance;
+            cap.Add(vertex with { Position = new Vector3(across.X * horizontal, MathF.Sin(lifted) * distance, across.Y * horizontal) });
+        }
+
+        return cap;
+    }
+
+    // The elevation (radians) of a layer's highest vertex seen from the dome's centre.
+    internal static float HighestElevation(List<PristonCornerVertex> vertices)
+    {
+        var highest = float.NegativeInfinity;
+        foreach (var vertex in vertices)
+        {
+            highest = MathF.Max(highest, Elevation(vertex.Position));
+        }
+
+        return highest;
+    }
+
+    private static float Elevation(Vector3 position) => MathF.Atan2(position.Y, Radial(position));
+
+    // The distance from the dome's vertical axis.
+    private static float Radial(Vector3 position) => MathF.Sqrt(position.X * position.X + position.Z * position.Z);
+
+    // One manifest layer once uploaded: its batches, and its opaque groups with how high they reach and how far out they
+    // stand (the outermost open layer of a profile is the one its cap mirrors).
+    private sealed class PreparedLayer
+    {
+        public PreparedLayer(RenderBatch[] batches, List<(PristonMaterialRuntime Material, List<PristonCornerVertex> Vertices)> opaque)
+        {
+            Batches = batches;
+            Opaque = opaque;
+            foreach (var (_, vertices) in opaque)
+            {
+                Top = MathF.Max(Top, HighestElevation(vertices));
+                foreach (var vertex in vertices)
+                {
+                    Reach = MathF.Max(Reach, Radial(vertex.Position));
+                }
+            }
+        }
+
+        public RenderBatch[] Batches { get; }
+        public List<(PristonMaterialRuntime Material, List<PristonCornerVertex> Vertices)> Opaque { get; }
+        public float Top { get; } = float.NegativeInfinity;
+        public float Reach { get; }
     }
 
     // Scrolling, multi-frame or water layers change the composed sky over time even within one profile.
