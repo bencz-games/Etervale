@@ -22,6 +22,11 @@ internal readonly record struct PristonSkyState(
 
 internal sealed class PristonDayNightCycle
 {
+    // Below this lamp factor the lamps count as off: no lamp light, glow or lamp shadow is drawn.
+    private const float LampsLitFactor = 0.01f;
+
+    public static bool LampsLit(float lampFactor) => lampFactor > LampsLitFactor;
+
     // The sun keeps the game's hours (GameHours): it rises as the day starts and sets a quarter hour into the evening
     // glow, so the glow hour meets a low red sun and the night's start (45 minutes later) a sky already dark.
     public const float Sunrise = GameHours.DayStart;

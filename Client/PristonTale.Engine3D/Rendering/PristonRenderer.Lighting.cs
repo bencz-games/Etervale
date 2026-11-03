@@ -131,7 +131,7 @@ public sealed partial class PristonRenderer
 
     private void SelectActiveLights(Vector3 focusPoint, float lampFactor)
     {
-        if (lampFactor <= 0.01f)
+        if (!PristonDayNightCycle.LampsLit(lampFactor))
             return;
 
         _tunedCandidates.Clear();

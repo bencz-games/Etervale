@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using PristonTale.Engine3D.Diagnostics;
+using PristonTale.Engine3D.Rendering.Lighting;
 
 namespace PristonTale.Engine3D.Rendering;
 
@@ -83,7 +84,7 @@ public sealed record ClientSettings
     // Contrast-adaptive sharpening of the final image, 0..1.
     public float Sharpening { get; init; } = 0.35f;
     // Stage lamps and combat lights shaded per pixel: 8, 16 or 32, the nearest to the camera focus.
-    public int LocalLightLimit { get; init; } = 32;
+    public int LocalLightLimit { get; init; } = PristonShaderLibrary.MaxLocalLightCount;
     // Cascades of the sun's shadow map (1-4) in an atlas of ShadowMapSize, and their filter.
     public int ShadowCascades { get; init; } = 4;
     public ShadowFilterMode ShadowFilter { get; init; } = ShadowFilterMode.Pcss;
@@ -120,10 +121,10 @@ public sealed record ClientSettings
             Bloom = Enum.IsDefined(Bloom) ? Bloom : defaults.Bloom,
             ColorGradingLut = ColorGradingLut ?? defaults.ColorGradingLut,
             Sharpening = float.IsFinite(Sharpening) && Sharpening is >= 0f and <= 1f ? Sharpening : defaults.Sharpening,
-            LocalLightLimit = LocalLightLimit is 8 or 16 or 32 ? LocalLightLimit : defaults.LocalLightLimit,
-            ShadowCascades = ShadowCascades is >= 1 and <= 4 ? ShadowCascades : defaults.ShadowCascades,
+            LocalLightLimit = LocalLightLimit is 8 or 16 or PristonShaderLibrary.MaxLocalLightCount ? LocalLightLimit : defaults.LocalLightLimit,
+            ShadowCascades = ShadowCascades is >= 1 and <= PristonShadowCascades.MaxCascades ? ShadowCascades : defaults.ShadowCascades,
             ShadowFilter = Enum.IsDefined(ShadowFilter) ? ShadowFilter : defaults.ShadowFilter,
-            LampShadowCount = LampShadowCount is 0 or 2 or 4 ? LampShadowCount : defaults.LampShadowCount
+            LampShadowCount = LampShadowCount is 0 or 2 or PristonLampShadows.MaxLamps ? LampShadowCount : defaults.LampShadowCount
         };
 
         if (valid != this)

@@ -30,7 +30,7 @@ internal sealed class GlowRenderer : IDisposable
 
     public void Draw(PristonFrameContext frame, IReadOnlyList<PristonPointLight> glowLights, float lampFactor)
     {
-        if (lampFactor <= 0.01f || glowLights.Count == 0)
+        if (!PristonDayNightCycle.LampsLit(lampFactor) || glowLights.Count == 0)
             return;
 
         var view = frame.View;

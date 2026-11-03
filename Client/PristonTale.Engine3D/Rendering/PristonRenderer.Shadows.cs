@@ -32,7 +32,7 @@ public sealed partial class PristonRenderer
     }
 
     // The moonlight is dim and diffuse enough that the plain filter serves it; the soft shadows are the sun's.
-    private ShadowFilterMode ShadowFilterOfHour() => _sunSine > SunLightsSine ? _shadowFilter : ShadowFilterMode.Pcf;
+    private ShadowFilterMode ShadowFilterOfHour() => SunLights ? _shadowFilter : ShadowFilterMode.Pcf;
 
     // Refits the cascades this refresh updates; a new light direction or a teleport refits them all.
     private void FitCascades(PristonCamera camera, Vector3 lightDirection)

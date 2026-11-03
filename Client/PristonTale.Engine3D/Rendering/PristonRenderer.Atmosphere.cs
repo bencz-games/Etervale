@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Engine3D.Rendering.Atmosphere;
+using PristonTale.Engine3D.Rendering.Lighting;
 
 namespace PristonTale.Engine3D.Rendering;
 
@@ -9,8 +10,7 @@ namespace PristonTale.Engine3D.Rendering;
 // (Aurora) at night. The domes stay the classic sky.
 public sealed partial class PristonRenderer
 {
-    // The sun's illuminance outside the atmosphere and a full moon's (lux).
-    private const float SolarIlluminance = 120000f;
+    // A full moon's illuminance (lux).
     private const float MoonIlluminance = 0.3f;
     // The night's sights at full dark, display-referred: the brightest stars, the airglow, the aurora, the moon's disc
     // (and its faint day disc).
@@ -89,7 +89,7 @@ public sealed partial class PristonRenderer
         var flashAngle = Weather.FlashAzimuth;
         var inputs = new PristonSkyInputs(
             _towardSun,
-            SolarIlluminance * pre,
+            PristonPhotometry.SolarIlluminance * pre,
             towardMoon,
             MoonIlluminance * fullness * pre,
             towardMoon * MathF.Cos(phase) + side * MathF.Sin(phase),

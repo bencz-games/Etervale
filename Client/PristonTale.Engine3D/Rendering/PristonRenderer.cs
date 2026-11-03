@@ -96,7 +96,7 @@ public sealed partial class PristonRenderer : IDisposable
     private float _lampRangeScale = 1f;
     private float _glowIntensity = 1f;
     private float _glowScale = 1f;
-    private readonly List<PristonPointLight> _activeLights = new(MaxActiveLights);
+    private readonly List<PristonPointLight> _activeLights = new(PristonShaderLibrary.MaxLocalLightCount);
     public Lighting.PristonTransientLights TransientLights { get; } = new();
     private readonly List<PristonPointLight> _tunedCandidates = [];
     private readonly List<PristonPointLight> _frameGlowLights = [];
@@ -145,6 +145,7 @@ public sealed partial class PristonRenderer : IDisposable
     // The sine of the sun's elevation; above SunLightsSine (just under the horizon) the sun still lights and shadows.
     private float _sunSine;
     private const float SunLightsSine = -0.05f;
+    private bool SunLights => _sunSine > SunLightsSine;
     private float _lampFactor;
     private PristonFrameExposure _exposure = PristonFrameExposure.Neutral;
     private PristonPostSettings _postSettings = PristonPostSettings.From(new ClientSettings());
@@ -222,7 +223,7 @@ public sealed partial class PristonRenderer : IDisposable
         DistanceFog = PristonDistanceFog.For(settings.DistanceFog);
         DebugView = settings.DebugView;
         ExposureCompensation = settings.ExposureCompensation;
-        _maxLocalLights = Math.Clamp(settings.LocalLightLimit, 1, MaxActiveLights);
+        _maxLocalLights = Math.Clamp(settings.LocalLightLimit, 1, PristonShaderLibrary.MaxLocalLightCount);
         _postSettings = PristonPostSettings.From(settings);
         _log.Info(
             $"[Rendering] quality={settings.Quality}; sun shadow={_shadowMap.Width} in {_cascades.Count} cascade(s) of {_cascades.TileSize} " +
@@ -543,7 +544,7 @@ public sealed partial class PristonRenderer : IDisposable
         var sunShadowsEnabled = ShadowsEnabled && lighting.Sun.DiffuseColor != Vector3.Zero && !Underground;
         InvalidateShadowAfterTeleport(camera.Target);
         // The moon's shadows move with the actors only: half the refresh rate is enough for its soft, dim light.
-        var shadowRate = _sunSine > SunLightsSine || _shadowUpdateRate == 0 ? _shadowUpdateRate : Math.Max(_shadowUpdateRate / 2, 30);
+        var shadowRate = SunLights || _shadowUpdateRate == 0 ? _shadowUpdateRate : Math.Max(_shadowUpdateRate / 2, 30);
         var sunShadowUpdated = _sunShadowRefresh.ShouldRefresh(_renderTime, shadowRate, sunShadowsEnabled);
         var sunShadowRedraw = sunShadowUpdated;
         if (sunShadowUpdated)
@@ -562,10 +563,10 @@ public sealed partial class PristonRenderer : IDisposable
         }
 
         var lightViewProjection = Matrix.Identity;
-        _lampShadowRedraw = ShadowsEnabled && _lampFactor > 0.01f
+        _lampShadowRedraw = ShadowsEnabled && PristonDayNightCycle.LampsLit(_lampFactor)
             ? _lampShadows.Assign(lighting.PointLights, lighting.TransientLightCount, _lampHasCasters ??= LampHasCasters)
             : 0;
-        var lampShadows = _lampShadows.Atlas is not null && ShadowsEnabled && _lampFactor > 0.01f
+        var lampShadows = _lampShadows.Atlas is not null && ShadowsEnabled && PristonDayNightCycle.LampsLit(_lampFactor)
             ? new PristonLampShadowFrame(_lampShadows.Atlas, _lampShadows.Rows, _lampShadows.FaceSize, _lampShadows.Lamps)
             : default;
         var displayScale = _exposure.DisplayScale;
@@ -695,7 +696,7 @@ public sealed partial class PristonRenderer : IDisposable
             DrawPrepass(_renderQueueBuilder.Queue);
             Profiler.End(RenderSection.Prepass);
             // Contact shadows of the sun only, as for the shafts.
-            var contact = _contactShadows && sunShadowsEnabled && _sunSine > SunLightsSine;
+            var contact = _contactShadows && sunShadowsEnabled && SunLights;
             if (_ambientOcclusion || contact)
             {
                 Profiler.Begin(RenderSection.AmbientOcclusion);
@@ -777,7 +778,7 @@ public sealed partial class PristonRenderer : IDisposable
         _glowRenderer.Draw(frame, _frameGlowLights, _lampFactor);
         Profiler.End(RenderSection.Glow);
         // Shafts of the sun only: the moon's are too faint to pay for.
-        if (_prepassDrawn && _volumetricLight && sunShadowsEnabled && _sunSine > SunLightsSine)
+        if (_prepassDrawn && _volumetricLight && sunShadowsEnabled && SunLights)
         {
             Profiler.Begin(RenderSection.Volumetric);
             // The march stops where the distance fog starts, which covers the medium beyond.
@@ -875,8 +876,7 @@ public sealed partial class PristonRenderer : IDisposable
     // Samples of the HDR scene target as created (0 without MSAA).
     public int EffectiveMultiSampleCount => _sceneTargets.EffectiveMultiSampleCount;
 
-    private const int MaxActiveLights = 32;
-    private int _maxLocalLights = MaxActiveLights;
+    private int _maxLocalLights = PristonShaderLibrary.MaxLocalLightCount;
     // The gameplay colour add (hover and target highlight) becomes a rim of this strength rather than added light.
     private const float SelectionRimScale = 0.6f;
 

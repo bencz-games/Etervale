@@ -28,8 +28,7 @@ internal sealed class PristonShaderLibrary : IDisposable
     // Sky and bounce light fill the shadows, so the sun is fully occluded in them.
     private const float MaximumShadowStrength = 1f;
     private const float AlphaCutoff = PristonTextureLoader.AlphaCutoffByte / 255f;
-    private const int MaxLocalLights = 32;
-    internal const int MaxLocalLightCount = MaxLocalLights;
+    internal const int MaxLocalLightCount = 32;
 
     // The skinning palette holds 64 affine bones (Shaders/Vertex/SkinningDecl.hlsli MAX_BONES).
     internal const int MaxBones = 64;
@@ -41,8 +40,8 @@ internal sealed class PristonShaderLibrary : IDisposable
 
     private readonly SurfaceEffect _static;
     private readonly SurfaceEffect _skinned;
-    private readonly Vector4[] _lightPositions = new Vector4[MaxLocalLights];
-    private readonly Vector4[] _lightColors = new Vector4[MaxLocalLights];
+    private readonly Vector4[] _lightPositions = new Vector4[MaxLocalLightCount];
+    private readonly Vector4[] _lightColors = new Vector4[MaxLocalLightCount];
     private readonly CascadeConstants _cascades = new();
     private readonly StructuredBuffer _allLights;
     private readonly StructuredBuffer _noEnvironment;
@@ -72,7 +71,7 @@ internal sealed class PristonShaderLibrary : IDisposable
     public void ApplyFrame(PristonFrameContext frame)
     {
         var lights = frame.Lighting.PointLights;
-        var count = Math.Min(lights.Count, MaxLocalLights);
+        var count = Math.Min(lights.Count, MaxLocalLightCount);
         Array.Clear(_lightPositions);
         Array.Clear(_lightColors);
         for (var index = 0; index < count; index++)
