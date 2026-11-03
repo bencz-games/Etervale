@@ -22,12 +22,16 @@ public sealed record ItemEventRates
 }
 
 // Event items replace a monster's main drop roll. The events are tried in a fixed order and the first that hits gives the
-// item; most refuse a player far from the monster's level (more than 15 levels, or 8 below a level-20 monster).
+// item; most refuse a player far from the monster's level (more than 15 levels, or 8 below a level-20 monster). Last, a
+// kill in the action field gives its event item at a fixed rate, with no event running and at any level.
 public static class ItemEventDrops
 {
+    public const string ActionFieldItem = "GF102";
+    public const int ActionFieldRate = 150;
+
     public readonly record struct EventDrop(string CatalogKey, bool Sealed = false);
 
-    public static EventDrop? Roll(CombatRng rng, ItemEventRates rates, int playerLevel, int monsterLevel)
+    public static EventDrop? Roll(CombatRng rng, ItemEventRates rates, int playerLevel, int monsterLevel, bool actionField = false)
     {
         var gap = Math.Abs(playerLevel - monsterLevel);
         var far = gap > 15 || monsterLevel < 20 && gap > 8;
@@ -78,6 +82,11 @@ public static class ItemEventDrops
         if (Hits(rng, rates.GiftBox, far))
         {
             return new EventDrop(GiftBoxes.BoxForMonsterLevel(monsterLevel));
+        }
+
+        if (actionField && rng.RollPerMyriad() < ActionFieldRate)
+        {
+            return new EventDrop(ActionFieldItem);
         }
 
         return null;

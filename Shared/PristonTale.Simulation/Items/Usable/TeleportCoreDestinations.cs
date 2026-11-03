@@ -42,7 +42,10 @@ public static class TeleportCoreDestinations
         new(30, 40, 100, "Endless Tower 1F"),
         new(31, 41, 100, "Endless Tower 2F"),
         new(32, 43, 102, "Endless Tower 3F"),
-        new(33, 44, 105, "Ice Mine 1F")
+        new(33, 44, 105, "Ice Mine 1F"),
+        new(34, 46, 108, "Secret Laboratory"),
+        new(35, 48, 110, "Ancient Weapons"),
+        new(36, 49, 112, "Sea of Abyss")
     ];
 
     public static int PageCount => (All.Count + PageSize - 1) / PageSize;

@@ -52,7 +52,7 @@ Default case files by area (all `tests/PristonTale.Tests/<Name>.cs`):
 | World tick | `WorldTickTests` | The tick's absolute timeline: late ticks caught up, stalls skipped |
 | Starter gifts | `StarterGiftTests` | A new character's gifts: order, pace, perfect copies of its class's specialization worn or kept, the class's own weapon family and off-hand, chat line, stored count |
 | Multiplayer | `MultiplayerMovementTests`, `MultiplayerCombatTests`, `MultiplayerPresenceTests`, `MultiplayerSessionTests`, `MultiplayerSocialTests`, `PresencePipelineTests` | Propagation between real clients over TCP (see Multiplayer propagation); frames, shared encoding, revisions, crowd cap, event ticks, grid, status book |
-| World data | `WorldImportTests`, `NpcPlacementMigrationTests`, `MonsterNameTests`, `NpcServiceTests` | Import and migrations on temp SQLite |
+| World data | `WorldImportTests`, `NpcPlacementMigrationTests`, `MonsterNameTests`, `NpcServiceTests`, `FieldOrderTests` | Import and migrations on temp SQLite; field codes, warps with several exits, travel levels, the deep and action fields |
 | Rewards, spawns | `WorldRewardsTests`, `SpawnGateTests`, `SpawnScheduleTests` | Loot, XP, spawn masks, boss hours |
 | Movement | `MovementAndStreamingTests`, `GroundTraversalTests`, `TerrainTests`, `EntitySweepTests`, `SpatialIndexTests` | Reports, stacked floors, ramps, gaps, steps |
 | Camera | `CameraTests` | Camera collision across fields, clearance, follow, edge orbit, middle drag |
@@ -72,6 +72,7 @@ Default case files by area (all `tests/PristonTale.Tests/<Name>.cs`):
 | Rendering | `RenderTests`, `RenderFidelityTests`, `PhotorealTests`, `MaterialAdapterTests`, `ShadowProjectionTests`, `SkyTests` | CPU-side renderer |
 | Meshes, effects | `SkinPaletteTests`, `ModelNormalTests`, `AnimationFallbackTests`, `TransientLightTests` | Skinning, lights |
 | Formats | `BinaryCursorTests`, `EffectLoadingTests`, `GltfExportTests` | Binary readers, shader load failure, glTF export |
+| Game data import | `DataImportTests` | `ptdata copy`: unmasking, files already present kept, a later SMD format refused |
 
 ## Running
 

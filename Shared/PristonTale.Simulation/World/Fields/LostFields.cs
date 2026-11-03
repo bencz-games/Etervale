@@ -11,7 +11,11 @@ public static class LostField
     {
         FieldCode = 37,
         TravelLevel = 95,
-        WarpGates = [new FieldWarpGate(-12610, -1349, 694, 64, 32, "lost", -12555, -1113, 668, 0, 2)],
+        WarpGates =
+        [
+            new FieldWarpGate(-12610, -1349, 694, 64, 32, "lost", -12555, -1113, 668, 0, 2),
+            new FieldWarpGate(-14197, -1788, 174, 64, 32, "SeaA", -21965, -5655, 159, 112, 0)
+        ],
         Center = new FieldPoint(-12555, -1113),
         Gates = [new FieldGate("Losttemple", -11586, 7704, 0)],
         BackMusicCode = "BGM_CODE_DESERT",

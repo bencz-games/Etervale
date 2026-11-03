@@ -82,7 +82,7 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         _spawner = new FieldSpawner(spawnData, catalog, rng);
         _spawnPoints = spawnData.SpawnPoints;
         _brain = new MonsterAiBrain(rng);
-        _combat = new FieldCombat(this, rng, experienceMultiplier);
+        _combat = new FieldCombat(this, rng, experienceMultiplier) { ActionField = fieldId == FieldCodes.FallGame };
         _skills = new FieldSkills(this, rng);
         _combat.SkillCombat = _skills;
         _monsterSkills = new FieldMonsterSkills(this, rng) { Combat = _combat };

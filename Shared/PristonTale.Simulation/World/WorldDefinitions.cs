@@ -14,7 +14,11 @@ public enum FieldState
     Iron,
     Ice,
     QuestArena,
-    Castle
+    Castle,
+
+    // A side-scrolling field: the camera stands at the field's fixed height and depth and follows the player along x,
+    // and the arrow keys move the player.
+    Action
 }
 
 public sealed record FieldBackdrop(
@@ -70,6 +74,22 @@ public sealed record FieldWarpGate(
 
     // Exit 0 is the destination point; the others follow in MoreExits.
     public FieldVector Exit(int index) => index == 0 ? new FieldVector(DestinationX, DestinationY, DestinationZ) : MoreExits[index - 1];
+}
+
+// Where an action field's camera stands: FixedHeight in fixed point (the camera rises 80 units above it), at depth Z,
+// following the player along x between LeftX and RightX. It looks along +z at the player's height.
+public sealed record FieldActionCamera(
+    int FixedHeight,
+    int Z,
+    int LeftX,
+    int RightX)
+{
+    public const int LookAtZ = 326711;
+    private const float Rise = 80f;
+
+    public float Height => PristonTale.Contracts.Units.GameUnits.FromFixed(FixedHeight) + Rise;
+
+    public float FollowX(float playerX) => Math.Clamp(playerX, LeftX, RightX);
 }
 
 public sealed record FieldAmbient(
@@ -155,6 +175,9 @@ public sealed record FieldDef(
     public string ServerCode { get; init; } = string.Empty;
     public FieldEventKind FieldEvent { get; init; }
 
+    // Set for an action field.
+    public FieldActionCamera ActionCamera { get; init; }
+
     // How much of the distance haze the field clears (0..1), and the cells of sight it adds before the haze starts.
     public float HazeReduction { get; init; }
 
@@ -238,7 +261,16 @@ public sealed class WorldCatalog
             LostField.Definition,
             LosttempleField.Definition,
             QuestArenaField.Definition,
-            Sod2Field.Definition
+            Sod2Field.Definition,
+            FallGameField.Definition,
+            SlabField.Definition,
+            SwampField.Definition,
+            AncientWeaponsField.Definition,
+            SeaOfAbyssField.Definition,
+            StempleField.Definition,
+            HeartOfFireField.Definition,
+            CrystalNestField.Definition,
+            LandOfNurwnField.Definition
         ];
 
         _fieldsById = AllFields.ToDictionary(static field => field.Id);

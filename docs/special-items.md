@@ -106,7 +106,7 @@ running kind is refused, so timers never stack.
 | Eternal Life BI105 | 30 s no damage taken, damage dealt -50% |
 | Fatal Edge BI106, Avert Scroll BI107 | 1 h critical chance +15, evasion +15 |
 | Force orbs FO101-112, magic FO121-132 | Added power on single-target hits (magic: on spell power), with +10/15/20% of the average attack for the strongest orbs |
-| Teleport Core BI108 | One of 34 fields by level; ether cores EC101/102/104 return to Ricarten, Navisko, Pillai |
+| Teleport Core BI108 | One of 37 fields by level; ether cores EC101/102/104 return to Ricarten, Navisko, Pillai |
 | Hair tints BI116-118, BI213-222 | Hair 0..12, refused for the current hair |
 | Skill masters BI139-141 | Learned skills of class tier 1..3 fully trained |
 | Aging masters BI136-138, BI162-164 | The worn aged item (weapon, shield or orb, armor, armlet, gloves, boots) gains one level |

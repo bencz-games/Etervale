@@ -16,6 +16,7 @@ internal static class RenderTests
         yield return ("stage normals are smoothed across materials and faces sharing a position, not across a wall", StageNormalsAsync);
         yield return ("a stage face that is never drawn does not bend the drawn ground's normals", HiddenStageNormalsAsync);
         yield return ("CPU image decoding handles invalid data without GPU resources", DecodeAsync);
+        yield return ("run-length TGAs decode repeated and stored packets, plain or with the masked header", RunLengthTgaAsync);
         yield return ("UI bitmaps of 32 bits keep their coverage and skip the black key; zeroed coverage stays opaque", BmpCoverageAsync);
         yield return ("PNG export cache separates opacity variants and basename collisions", ExportAsync);
     }
@@ -201,6 +202,37 @@ internal static class RenderTests
         huge[14] = 255;
         huge[15] = 255;
         Assert.True(!PristonImageDecoder.Decode(huge, ".tga").IsValid, "oversized/truncated TGA accepted");
+        return Task.CompletedTask;
+    }
+
+    private static Task RunLengthTgaAsync()
+    {
+        // A 3x2 bottom-up image: a run of four greys, then two stored pixels.
+        byte[] packets = [0x83, 9, 9, 9, 0x01, 1, 2, 3, 4, 5, 6];
+        var plain = new byte[18 + packets.Length];
+        plain[2] = 10;
+        plain[12] = 3;
+        plain[14] = 2;
+        plain[16] = 24;
+        packets.CopyTo(plain, 18);
+        var masked = (byte[])plain.Clone();
+        for (var i = 0; i < 18; i++)
+        {
+            masked[i] = unchecked((byte)(masked[i] + i * i));
+        }
+
+        masked[0] = (byte)'G';
+        masked[1] = (byte)'8';
+        foreach (var bytes in new[] { plain, masked })
+        {
+            var image = PristonImageDecoder.Decode(bytes, ".tga");
+            Assert.True(image.IsValid && image.Width == 3 && image.Height == 2, "run-length TGA rejected");
+            Assert.True(image.Pixels[3] == new Color(9, 9, 9, 255) && image.Pixels[0] == new Color(9, 9, 9, 255)
+                && image.Pixels[1] == new Color(3, 2, 1, 255) && image.Pixels[2] == new Color(6, 5, 4, 255),
+                "run-length packets landed in the wrong pixels");
+        }
+
+        Assert.True(!PristonImageDecoder.Decode(plain[..^3], ".tga").IsValid, "truncated run-length TGA accepted");
         return Task.CompletedTask;
     }
 

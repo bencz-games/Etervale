@@ -298,7 +298,7 @@ internal sealed class FieldCombat
         var eventItem = monster.Def.EventItem != 0 && creditedTier >= 0 && QuestDrops.EventItemDrops(_rng, monster.Def.EventItem, creditedTier);
         var dropBonus = credited != 0 && _host.TryGetPlayer(credited, out var looter) ? PremiumRules.ExtraDropChance(looter.Character.Premium) : 0;
         var level = credited != 0 && _host.TryGetPlayer(credited, out var eventPlayer) ? eventPlayer.Level : -1;
-        Func<RolledDrop?>? events = EventRates.Any && level >= 0 ? () => EventDrop(level, monster.Def.Combat.Level) : null;
+        Func<RolledDrop?>? events = (EventRates.Any || ActionField) && level >= 0 ? () => EventDrop(level, monster.Def.Combat.Level) : null;
         IReadOnlyList<RolledDrop> drops = monster.DropsDisabled ? [] : FinishDrops(monster,
             DropRoller.Roll(_rng, monster.Def.Drops, eventItem, monster.Def.EventItem, dropBonus, events));
 
@@ -377,8 +377,11 @@ internal sealed class FieldCombat
     // The server's item events (rice cakes, chocolates, puzzles, gift boxes); none run by default.
     public ItemEventRates EventRates { get; set; } = ItemEventRates.None;
 
+    // Kills here roll the action field's event item.
+    public bool ActionField { get; init; }
+
     private RolledDrop? EventDrop(int playerLevel, int monsterLevel) =>
-        ItemEventDrops.Roll(_rng, EventRates, playerLevel, monsterLevel) is { } drop && ItemCodes.TryParse(drop.CatalogKey, out var code)
+        ItemEventDrops.Roll(_rng, EventRates, playerLevel, monsterLevel, ActionField) is { } drop && ItemCodes.TryParse(drop.CatalogKey, out var code)
             ? RolledDrop.Item(code) with { FromMainTable = true, Sealed = drop.Sealed }
             : null;
 

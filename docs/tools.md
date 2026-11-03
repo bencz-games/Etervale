@@ -25,10 +25,11 @@ JSON, UI font) and the Blender helper scripts in `3d_glb/blender/`. None of them
 | `tools/PristonTale.LoadTest/` | Headless bots that log in, enter the world and walk while reporting movement |
 | `tools/PristonTale.WorldJson/` | `ptworldjson`: dumps `WorldCatalog` fields, gates and warps to `world.json` |
 | `tools/PristonTale.VfxImport/` | `ptvfx`: converts the original effect scripts and installs the authored effect definitions into `<assetRoot>/Effect/Vfx` |
+| `tools/PristonTale.DataImport/` | `ptdata`: copies folders of another client's game data into `assets/`, unmasking XOR-masked files and refusing what the game cannot read |
 | `tools/ui/build_font.py` | Builds the UI font subset and its MonoGame `.spritefont` description |
 | `3d_glb/blender/` | Blender scripts for viewing exported GLBs (`frame_map.py`, `play_animation.py`) |
 
-Solution membership: SmokeClient, GltfExport, LoadTest and VfxImport are in `PristonTale.sln` and are built by the
+Solution membership: SmokeClient, GltfExport, LoadTest, VfxImport and DataImport are in `PristonTale.sln` and are built by the
 solution build.
 AssetDump, WorldImport, DevAccounts and WorldJson are not; build them explicitly. The rest of `3d_glb/` is git-ignored
 local export output (`chars/<class>/_animations.glb`, `bodies/`, `heads/`, `fields/`, `monsters/`, `npcs/` and others).
@@ -291,6 +292,27 @@ dotnet run --project tools/PristonTale.VfxImport -c Release --no-build -- import
   the same relative paths under `Effect/Vfx/` (`Common/`, `Classes/<Class>/`, `Costumes/`).
 - Prints one line per construct kept with a caveat (missing models or textures, unreadable values, scripts the original
   rejects) and a summary; exits 1 when a file could not be converted or installed. Mapping rules: docs/effects.md.
+
+## DataImport (`ptdata`)
+
+Brings game data the archive lacks from another client's install. `assets/` is not in Git, so the copied files reach
+other machines only through the published game data archive.
+
+```bash
+dotnet build tools/PristonTale.DataImport/PristonTale.DataImport.csproj -c Release -m:1 -warnaserror
+dotnet run --project tools/PristonTale.DataImport -c Release --no-build -- copy <sourceRoot> assets [--mask 0x82] Field/HeartOfFire ...
+```
+
+- Each `<folder>` is relative to both roots; its files keep their relative path under `assets/`.
+- `--mask` XORs every byte of every file with the given byte first (clients that mask their whole data).
+- Copies only `.smd`, `.smb`, `.bmp`, `.tga`, `.png`, `.jpg` and `.wav`; other files are reported as skipped. A file
+  already in `assets/` is kept untouched.
+- Refuses (and reports) an SMD whose signature is not a stage or model of version 0.x (the later 2.0 format), a bitmap
+  without a `BM`/`A8`/`C8` header, a TGA that is not true colour (stored or run-length) and other damaged headers; exits
+  1 when anything was refused.
+- The deep fields' stages that the archive lacked (Stemple, the Heart of Fire, the Crystal Nest and the Land of Nurwn)
+  came from a client that masks its data with 0x82: `copy <client> assets --mask 0x82 Field/HeartOfFire Field/CrystalNest
+  Field/LandofNurwn Field/SeaA Field/AncientW`.
 
 ## UI font (`tools/ui/build_font.py`)
 

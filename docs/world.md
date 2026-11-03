@@ -75,19 +75,30 @@ spawning and despawning; the monster skill area test uses the same value.
 `FieldDef` is a code-defined record, one static `Definition` per field in `World/Fields/`. `WorldCatalog()` lists every
 field; `WorldCatalog(IEnumerable<FieldDef>)` builds test catalogs. Lookups by `Id` (string, the stage base name such as
 `village-2`) and by `FieldCode` (int). The server keys live fields by `FieldCode`; both must be unique. Codes follow the
-original's order: 0-38, then the side-scrolling action field (39, not defined yet), the Endless Tower's first and second
+original's order: 0-38, then the side-scrolling action field (`fall_game` 39), the Endless Tower's first and second
 floors (`dun-7` 40, `dun-8` 41), the Cursed Temple's third floor (`dun-6` 42), the Endless Tower's third floor (`dun-9`
-43), the Ice Mine (`mine-1` 44) and Bellatra's second stage (`sod-2` 45). The game room (`office`, 16) has no map.
+43), the Ice Mine (`mine-1` 44), Bellatra's second stage (`sod-2` 45), the Secret Laboratory (`Slab` 46), the second
+action field (`swamp` 47), the Ancient Weapons (`ancientW` 48), the Sea of Abyss (`SeaA` 49), its temple (`Stemple` 50),
+the Heart of Fire (`HeartOfFire` 51), the Crystal Nest (`CrystalNest` 52) and the Land of Nurwn (`LandofNurwn` 53). The
+game room (`office`, 16) has no map.
+
+The deep fields hang off older ones by warp gates: Desert 3 to the Secret Laboratory (no level), on to the Ancient
+Weapons (110) and its four gates to the Land of Nurwn (132); Lost Island to the Sea of Abyss (112) and its two gates to
+Stemple (116); Kelvezu's Lair to the Heart of Fire (125, three exits); the Ice Mine to the Crystal Nest (130). The Crystal
+Nest and the Land of Nurwn have no way out. No monsters are authored for Stemple, the Heart of Fire, the Crystal Nest or
+the Land of Nurwn. The action fields are reached by no gate; a kill in `fall_game` drops its event item GF102 at 150 in
+10000 (`ItemEventDrops`), with no event running.
 
 | Member | Use |
 |---|---|
 | `StageSmd` | Asset-relative stage path with Windows separators; source of collision and of the importer's join key |
 | `StageObjectSmds` | Animated stage props; client only |
-| `State` (`FieldState`) | `Village` sets the player's in-village flag on entry; `Dungeon` sets `Underground` (no sky) |
+| `State` (`FieldState`) | `Village` sets the player's in-village flag on entry; `Dungeon` sets `Underground` (no sky); `Action` is a side-scrolling field (no minimap) |
+| `ActionCamera` | An action field's camera: fixed-point height (the camera rises 80 units above it), depth `Z` and the `LeftX`-`RightX` range it follows the player along x; it looks along +z |
 | `Center`, `StartPoints` | `StartPoints[0]` is the NPC teleport arrival; a field restart stands up at the start point nearest to the fall, a town restart at a random one; `Center` is the fallback |
 | `Gates` | Seamless boundaries to an adjacent field (`DestinationFieldId`, X/Z, angle) |
-| `WarpGates` | Portals: trigger X/Z/Y and Width/Height, destination field and X/Z/Y, `MoreExits` (further destination points: the traveller comes out at one of them, picked at random; Cursed Temple 1F to 2F, 2F to 3F and back, Ancient Prison 3F to 2F, Endless Tower 2F to 3F), `LimitLevel`, `SpecialEffect` (1: a delayed warp with the return sparkle; 2: a wing warp stone, its destination point the stone's exit in its own field; see [Wing warp gates](#wing-warp-gates)) |
-| `LimitLevel` | Minimum character level to walk in through a gate: Desert 3 (11) 55, Greedy Lake (34) 70, Iron 1 (27) 80, Iron 2 (28) 85, Eura (29), Ice 1 (31) and Ice 2 (35) 90, the Lost Temple (38) and the Endless Tower's first two floors (40, 41) 100 |
+| `WarpGates` | Portals: trigger X/Z/Y and Width/Height, destination field and X/Z/Y, `MoreExits` (further destination points: the traveller comes out at one of them, picked at random; Cursed Temple 1F to 2F, 2F to 3F and back, Ancient Prison 3F to 2F, Endless Tower 2F to 3F, Kelvezu's Lair to the Heart of Fire, Stemple to the Sea of Abyss), `LimitLevel`, `SpecialEffect` (1: a delayed warp with the return sparkle; 2: a wing warp stone, its destination point the stone's exit in its own field; see [Wing warp gates](#wing-warp-gates)) |
+| `LimitLevel` | Minimum character level to walk in through a gate: Desert 3 (11) 55, Greedy Lake (34) 70, Iron 1 (27) 80, Iron 2 (28) 85, Eura (29), Ice 1 (31) and Ice 2 (35) 90, the Lost Temple (38) and the Endless Tower's first two floors (40, 41) 100, the deep fields 46-53 108 to 132 |
 | `TravelLevel` | Minimum level to be sent there by a wing stone or a teleporter: `LimitLevel` unless the field sets its own: Forbidden Land (12) 55, Ancient Prison 1F-3F (13-15) 40, 50, 60, the office (16) 1000, Cursed Temple 1F-3F (22, 23, 42) 70, 75, 80, the caves (24-26) 55, 55, 65, Kelvezu's Lair (36) 90, Lost Island (37) 95, Endless Tower 3F (43) 102, Ice Mine (44) 105 |
 | `Ambients`, `Lighting`, `Camera`, `DayNight`, `Backdrop`, `BackMusicCode` | Client presentation |
 | `FieldEvent` | `Nightmare` (Navisko): see Night and day |

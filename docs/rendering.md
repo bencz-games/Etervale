@@ -88,7 +88,7 @@ Described in Etervale's terms; readers keep every field, including padding, for 
 | Model `.smd`, skeleton `.smb` | `PristonSmdReader.ReadModel` | Header `SMD Model data Ver 0.62` or a binary model layout; objects with parent names, base transform, rotation/position/scale keys and frame ranges; physique bone per vertex. Positions convert as (x, z, -y). |
 | Model info `.inx` | `PristonInxReader` | Mesh, motion and sub-model file names, high/default/low LOD object groups, 512 motion entries of 172 bytes, talk and NPC motions; two layouts differ only in the item-code list width. |
 | Camera path `.cam` | `PristonCameraPath.ReadCam` | Position and rotation keys of the opening cinematic, 160 ticks per frame. |
-| Textures `.bmp`, `.tga`, `.jpg` | `PristonImageDecoder` | BMP (always opaque; a variant stores its first 14 header bytes with i*i added to byte i), TGA (alpha), others through StbImageSharp; a missing extension is retried as `.bmp`, `.tga`, `.jpg`, `.jpeg`. |
+| Textures `.bmp`, `.tga`, `.jpg` | `PristonImageDecoder` | BMP (always opaque; a variant stores its first 14 header bytes with i*i added to byte i), TGA (alpha; true colour stored or run-length, plain or with the same masked header over 18 bytes), others through StbImageSharp; a missing extension is retried as `.bmp`, `.tga`, `.jpg`, `.jpeg`. |
 | Sky manifest | `PristonSkyManifest` | Latin-1 text: profiles in braces, layer lines `FileName: ... FadeDelay: ... RGBA: r g b a`. Profile numbers come from field backdrop codes (`PristonSkyProfiles.Resolve`). |
 
 - Fixed-point coordinates divide by `GameUnits.FixedScale` = 256. Distances are in Priston units (a map

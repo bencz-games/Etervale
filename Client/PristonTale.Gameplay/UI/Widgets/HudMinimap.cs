@@ -47,9 +47,10 @@ public sealed class HudMinimap
 
     public float CurrentViewSize => _viewSize;
 
-    // The original shows no minimap in the Bellatra arena, the quest arena and the boss field.
+    // The original shows no minimap in the Bellatra arena, the quest arena, the boss field and the action fields.
     public static bool HiddenOn(int fieldCode, FieldState state) =>
-        fieldCode is FieldCodes.Bellatra or FieldCodes.QuestArena or FieldCodes.Boss || state is FieldState.QuestArena or FieldState.Room;
+        fieldCode is FieldCodes.Bellatra or FieldCodes.QuestArena or FieldCodes.Boss
+        || state is FieldState.QuestArena or FieldState.Room or FieldState.Action;
 
     // Original stage coordinates are fixed point with Z mirrored relative to the engine (stage vertex Z = -z).
     public static Vector2 MapPoint(PristonIntRectangle rectangle, Vector3 position) =>

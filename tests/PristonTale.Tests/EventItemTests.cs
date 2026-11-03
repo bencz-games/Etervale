@@ -19,7 +19,7 @@ internal static class EventItemTests
         yield return ("the soccer-ball potion changes the head for three hours, refuses over the big head and ends with a burst", SoccerHeadAsync);
         yield return ("boosters raise the maximum by 15%, stack by kind, show in the effects bar and pause while offline", BoostersAsync);
         yield return ("the skill-delay item recharges every skill in half a second", SkillDelayAsync);
-        yield return ("item events replace drop rolls with their items in order and seal puzzle pieces", EventDropsAsync);
+        yield return ("item events replace drop rolls with their items in order and seal puzzle pieces; the action field gives its own", EventDropsAsync);
     }
 
     private static async Task FoodAsync()
@@ -175,6 +175,9 @@ internal static class EventItemTests
         Assert.True(ItemEventDrops.Roll(rng, boxes, 85, 90) is { CatalogKey: "SP106" }, "gift box grade");
         var valentine = new ItemEventRates { ValentineDay = 10000, GiftBox = 10000 };
         Assert.True(ItemEventDrops.Roll(rng, valentine, 40, 40) is { CatalogKey: "CH101" or "CH102" }, "events run in order");
+        var horns = Enumerable.Range(0, 20000).Count(_ => ItemEventDrops.Roll(rng, ItemEventRates.None, 10, 130, actionField: true) is
+            { CatalogKey: ItemEventDrops.ActionFieldItem });
+        Assert.True(horns is > 200 and < 400, $"the action field's item dropped {horns} times in 20000 kills");
         var table = new DropTable([DropEntry.GoldSlot(100, 1, 1)], 1, false);
         var drops = DropRoller.Roll(rng, table, eventRoll: () => RolledDrop.Item(ItemCodes.Parse("SP110")) with { FromMainTable = true });
         Assert.True(drops.Count == 1 && drops[0].ItemCode == ItemCodes.Parse("SP110"), "the event did not replace the drop roll");

@@ -25,6 +25,8 @@ internal static class FieldOrderTests
         yield return ("a warp with several exits lands where the client came out and asks only its own level", ExitsAsync);
         yield return ("wings and teleporters ask a field's travel level, walking in its own", TravelLevelAsync);
         yield return ("stored characters, logged transfers and imported fields follow the fields that moved up", MigrationAsync);
+        yield return ("the action fields and the deep fields hold their codes, and every warp into them leads back", NewFieldsAsync);
+        yield return ("an action field's camera stands at its height and depth and follows the player within its bounds", ActionCameraAsync);
     }
 
     private static Task CodesAsync()
@@ -129,6 +131,50 @@ internal static class FieldOrderTests
                 Directory.Delete(directory, recursive: true);
             }
         }
+    }
+
+    private static Task NewFieldsAsync()
+    {
+        var world = new WorldCatalog();
+        var codes = new (string Id, int Code, int Level)[]
+        {
+            ("fall_game", ActionField, 0), ("Slab", 46, 108), ("swamp", 47, 0), ("ancientW", 48, 110), ("SeaA", 49, 112),
+            ("Stemple", 50, 116), ("HeartOfFire", 51, 125), ("CrystalNest", 52, 130), ("LandofNurwn", 53, 132)
+        };
+        foreach (var (id, code, level) in codes)
+        {
+            var field = world.GetField(id);
+            Assert.True(field.FieldCode == code && field.LimitLevel == level, $"{id} has code {field.FieldCode} and level {field.LimitLevel}");
+        }
+
+        Assert.True(world.GetField("fall_game").State == FieldState.Action && world.GetField("swamp").ActionCamera is not null,
+            "the action fields are not side-scrolling");
+        foreach (var (from, to, level) in new[] { ("De-3", "Slab", 0), ("Boss", "HeartOfFire", 125), ("lost", "SeaA", 112), ("mine-1", "CrystalNest", 130) })
+        {
+            var warp = world.GetField(from).WarpGates.Single(gate => gate.DestinationFieldId == to);
+            Assert.True(warp.LimitLevel == level, $"the warp from {from} to {to} asks {warp.LimitLevel}");
+        }
+
+        Assert.True(world.GetField("Boss").WarpGates.Single(gate => gate.DestinationFieldId == "HeartOfFire").ExitCount == 3,
+            "the Heart of Fire warp does not have three exits");
+        foreach (var field in world.AllFields)
+        {
+            foreach (var warp in field.WarpGates)
+            {
+                Assert.True(world.TryGetField(warp.DestinationFieldId, out _), $"{field.Id} warps to the unknown {warp.DestinationFieldId}");
+            }
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static Task ActionCameraAsync()
+    {
+        var camera = new WorldCatalog().GetField("fall_game").ActionCamera;
+        Assert.True(Math.Abs(camera.Height - (213140 / 256f + 80f)) < 0.01f && camera.Z == 36421, "the camera's height or depth moved");
+        Assert.True(camera.FollowX(5000) == 5583 && camera.FollowX(8000) == 8000 && camera.FollowX(20000) == 11483,
+            "the camera left its bounds");
+        return Task.CompletedTask;
     }
 
     private static FieldDef Field(string id, int code, int level) =>

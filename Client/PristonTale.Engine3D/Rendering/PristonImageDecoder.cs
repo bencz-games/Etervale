@@ -224,7 +224,7 @@ public static class PristonImageDecoder
         var idLength = bytes[0];
         var colorMapType = bytes[1];
         var imageType = bytes[2];
-        if (!encrypted && (colorMapType != 0 || imageType != 2))
+        if (!encrypted && (colorMapType != 0 || imageType is not (TgaTrueColor or TgaRunLength)))
         {
             return DecodedPristonImage.Empty;
         }
@@ -241,46 +241,89 @@ public static class PristonImageDecoder
         hasSourceAlpha = bits == 32;
         var src = encrypted ? 18 : 18 + idLength;
         var pixelSize = bits / 8;
-        if ((long)width * height > MaximumPixels || src + (long)width * height * pixelSize > bytes.Length)
+        if ((long)width * height > MaximumPixels)
         {
             return DecodedPristonImage.Empty;
         }
 
-        var colors = new Color[width * height];
+        var count = width * height;
+
+        // The pixels in file order: stored as they are, or (run-length) as packets whose header's high bit repeats one
+        // pixel (low 7 bits + 1) times and otherwise introduces that many stored pixels.
+        var stream = new Color[count];
+        if (imageType == TgaRunLength)
+        {
+            var filled = 0;
+            while (filled < count)
+            {
+                if (src >= bytes.Length)
+                {
+                    return DecodedPristonImage.Empty;
+                }
+
+                var header = bytes[src++];
+                var run = Math.Min((header & 0x7F) + 1, count - filled);
+                var repeated = (header & 0x80) != 0;
+                if (src + (long)(repeated ? 1 : run) * pixelSize > bytes.Length)
+                {
+                    return DecodedPristonImage.Empty;
+                }
+
+                if (repeated)
+                {
+                    var pixel = ReadTgaPixel(bytes, ref src, bits);
+                    Array.Fill(stream, pixel, filled, run);
+                    filled += run;
+                    continue;
+                }
+
+                for (var index = 0; index < run; index++)
+                {
+                    stream[filled++] = ReadTgaPixel(bytes, ref src, bits);
+                }
+            }
+        }
+        else
+        {
+            if (src + (long)count * pixelSize > bytes.Length)
+            {
+                return DecodedPristonImage.Empty;
+            }
+
+            for (var index = 0; index < count; index++)
+            {
+                stream[index] = ReadTgaPixel(bytes, ref src, bits);
+            }
+        }
+
+        var colors = new Color[count];
         var topOrigin = (descriptor & 0x20) != 0;
         for (var y = 0; y < height; y++)
         {
             var destY = topOrigin ? y : height - 1 - y;
-            for (var x = 0; x < width; x++)
-            {
-                byte r;
-                byte g;
-                byte b;
-                byte a = 255;
-                if (bits == 16)
-                {
-                    var value = BitConverter.ToUInt16(bytes, src);
-                    src += 2;
-                    r = Expand5((value >> 10) & 0x1F);
-                    g = Expand5((value >> 5) & 0x1F);
-                    b = Expand5(value & 0x1F);
-                }
-                else
-                {
-                    b = bytes[src++];
-                    g = bytes[src++];
-                    r = bytes[src++];
-                    if (pixelSize == 4)
-                    {
-                        a = bytes[src++];
-                    }
-                }
-
-                colors[destY * width + x] = new Color(r, g, b, a);
-            }
+            Array.Copy(stream, y * width, colors, destY * width, width);
         }
 
         return new DecodedPristonImage(width, height, colors, hasSourceAlpha);
+    }
+
+    private const byte TgaTrueColor = 2;
+    private const byte TgaRunLength = 10;
+
+    private static Color ReadTgaPixel(byte[] bytes, ref int src, int bits)
+    {
+        if (bits == 16)
+        {
+            var value = BitConverter.ToUInt16(bytes, src);
+            src += 2;
+            return new Color(Expand5((value >> 10) & 0x1F), Expand5((value >> 5) & 0x1F), Expand5(value & 0x1F), (byte)255);
+        }
+
+        var b = bytes[src++];
+        var g = bytes[src++];
+        var r = bytes[src++];
+        var a = bits == 32 ? bytes[src++] : (byte)255;
+        return new Color(r, g, b, a);
     }
 
     private static byte Expand5(int value) => (byte)((value << 3) | (value >> 2));

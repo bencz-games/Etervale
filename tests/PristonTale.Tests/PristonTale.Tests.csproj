@@ -13,6 +13,7 @@
     <ProjectReference Include="../../tools/PristonTale.GltfExport/PristonTale.GltfExport.csproj" />
     <ProjectReference Include="../../tools/PristonTale.WorldImport/PristonTale.WorldImport.csproj" />
     <ProjectReference Include="../../tools/PristonTale.VfxImport/PristonTale.VfxImport.csproj" />
+    <ProjectReference Include="../../tools/PristonTale.DataImport/PristonTale.DataImport.csproj" />
     <ProjectReference Include="../../Shared/PristonTale.Protocol/PristonTale.Protocol.csproj" />
     <ProjectReference Include="../../Server/PristonTale.Server/PristonTale.Server.csproj" />
   </ItemGroup>

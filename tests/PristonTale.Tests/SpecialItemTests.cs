@@ -58,8 +58,9 @@ internal static class SpecialItemTests
             "materials, the passive scroll and unrouted orbs are not usable");
         Assert.True(ForceOrbs.TryGet("FO112", out var enigma) && enigma.Damage == 140 && enigma.Percent == 20 && enigma.DurationSeconds == 3600
             && ForceOrbs.TryGet("FO127", out var murky) && murky.Magic && murky.MinimumLevel == 60 && murky.Icon.EndsWith("FOS_027.tga"), "force orb tables");
-        Assert.True(TeleportCoreDestinations.All.Count == 34 && TeleportCoreDestinations.PageCount == 4
-            && TeleportCoreDestinations.All[33].RequiredLevel == 105 && new WorldCatalog().TryGetFieldByCode(TeleportCoreDestinations.All[33].FieldCode, out _),
+        Assert.True(TeleportCoreDestinations.All.Count == 37 && TeleportCoreDestinations.PageCount == 4
+            && TeleportCoreDestinations.All[33].RequiredLevel == 105 && TeleportCoreDestinations.All[36].RequiredLevel == 112
+            && new WorldCatalog().TryGetFieldByCode(TeleportCoreDestinations.All[36].FieldCode, out _),
             "teleport core table");
         foreach (var destination in TeleportCoreDestinations.All)
         {
