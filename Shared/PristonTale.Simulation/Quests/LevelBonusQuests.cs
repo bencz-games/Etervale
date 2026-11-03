@@ -6,8 +6,8 @@ namespace PristonTale.Simulation.Quests;
 // dying resets the hunt; the reward is three extra stat points per level from 90 on.
 public static class LevelBonusQuests
 {
-    private const int MinimumLevel80 = 80;
-    private const int MinimumLevel90 = 90;
+    private const int MinimumLevel80 = QuestRewards.FirstChainLevel;
+    private const int MinimumLevel90 = QuestRewards.SecondChainLevel;
     private const int CursedHuntCount = 50;
     private static readonly int[] CursedPrey = [QuestMonsters.Omega, QuestMonsters.DMachine, QuestMonsters.Mountain];
 

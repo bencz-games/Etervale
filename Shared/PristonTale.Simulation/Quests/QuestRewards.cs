@@ -10,8 +10,14 @@ public static class QuestRewards
     public const int LifeAfterLevel90 = 40;
     public const int CursedDamagePercent = -30;
 
-    // Stat points each level-up adds on top of the regular five once the bonus chains are finished: two more from level
-    // 80 after the level 80 chain, three more from level 90 when the level 90 chain is finished as well.
+    // The bonus chains: from its start level on, each level-up of a character who finished the chain adds its points.
+    public const int FirstChainLevel = 80;
+    public const int FirstChainPoints = 2;
+    public const int SecondChainLevel = 90;
+    public const int SecondChainPoints = 3;
+
+    // Stat points each level-up adds on top of the regular ones once the bonus chains are finished; the second chain
+    // counts only after the first.
     public static int LevelUpBonusStatPoints(int newLevel, LevelQuestLog log)
     {
         if ((log & LevelQuestLog.Level80Bonus) == 0)
@@ -19,10 +25,10 @@ public static class QuestRewards
             return 0;
         }
 
-        var bonus = newLevel >= 80 ? 2 : 0;
-        if ((log & LevelQuestLog.Level90Bonus) != 0 && newLevel >= 90)
+        var bonus = newLevel >= FirstChainLevel ? FirstChainPoints : 0;
+        if ((log & LevelQuestLog.Level90Bonus) != 0 && newLevel >= SecondChainLevel)
         {
-            bonus += 3;
+            bonus += SecondChainPoints;
         }
 
         return bonus;
@@ -31,8 +37,8 @@ public static class QuestRewards
     // The points a finished bonus chain pays at once for the levels already reached.
     public static int BonusChainBackPay(int level, QuestCode chain) => chain switch
     {
-        QuestCode.Level80Bonus when level >= 80 => (level - 79) * 2,
-        QuestCode.Level90Bonus when level >= 90 => (level - 89) * 3,
+        QuestCode.Level80Bonus when level >= FirstChainLevel => (level - FirstChainLevel + 1) * FirstChainPoints,
+        QuestCode.Level90Bonus when level >= SecondChainLevel => (level - SecondChainLevel + 1) * SecondChainPoints,
         _ => 0
     };
 
