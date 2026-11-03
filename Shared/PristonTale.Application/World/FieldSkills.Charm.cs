@@ -19,7 +19,7 @@ internal sealed partial class FieldSkills
             return false;
         }
 
-        var duration = SkillFormulas.BuffDurationMs(rule, cast.Rank, Simulation.Combat.ResistanceBlock.Zero);
+        var duration = SkillFormulas.BuffDurationMs(rule, cast.Rank, 0);
         if (!ApplyEffect(monster.Effects, monster.EntityId, caster.EntityId, rule.Code, rule.Buff, cast.Rank, 0, caster.Character))
         {
             return false;

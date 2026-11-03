@@ -62,15 +62,6 @@ public static partial class SkillFormulas
         return percent <= 0 || damage <= 0 || target?.Brood != MonsterBrood.Undead ? damage : damage + damage * percent / 100;
     }
 
-    // The buff's duration on a target: bionic or the rule's element resistance shortens resisted effects.
-    public static float BuffDurationMs(SkillRule rule, int rank, in ResistanceBlock resistances)
-    {
-        var buff = rule.Buff;
-        var ms = rule.At(buff.DurationTenths, rank) * TenthMs;
-        var resistance = buff.ResistedBy is { } element ? resistances[element] : buff.ResistedByBionic ? resistances.Bionic : 0;
-        return ms * (100 - Math.Clamp((int)resistance, 0, 100)) / 100f;
-    }
-
     // The table value of a rank-indexed array, 0 outside 1..10.
     public static int RankValue(int[] table, int rank) => table is { Length: 10 } && rank is >= 1 and <= 10 ? table[rank - 1] : 0;
 
@@ -94,7 +85,7 @@ public static partial class SkillFormulas
 
     // The charm's success chance on a monster: the table lowered by its bionic resistance.
     public static int CharmChance(SkillRule rule, int rank, int bionicResistance) =>
-        RankValue(rule.Charm.Chance, rank) * (100 - Math.Clamp(bionicResistance, 0, 100)) / 100;
+        CombatResolver.Shortened(RankValue(rule.Charm.Chance, rank), bionicResistance);
 
     // A companion strike's damage range at this rank for the drawn choice, with the weapon and spirit terms.
     public static (int Min, int Max) CompanionDamage(SkillCompanionRule companion, SkillEnchantChoice choice, int rank, PlayerCharacter caster)
@@ -116,5 +107,5 @@ public static partial class SkillFormulas
 
     // Duration of an enchant's or a companion's slow on a monster: ice resistance shortens it.
     public static float SlowDurationMs(SkillEnchantChoice choice, int rank, int iceResistance) =>
-        RankValue(choice.SlowTenths, rank) * TenthMs * (100 - Math.Clamp(iceResistance, 0, 100)) / 100f;
+        CombatResolver.Shortened(RankValue(choice.SlowTenths, rank) * TenthMs, iceResistance);
 }

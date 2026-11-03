@@ -272,7 +272,6 @@ internal sealed partial class FieldSkills
             return 0;
         }
 
-        var resistances = ModifierRules.Resistances(monster.Effects.Totals, monster.Def.Combat.Resistances);
-        return buff.ResistedBy is { } element ? resistances[element] : buff.ResistedByBionic ? resistances.Bionic : 0;
+        return buff.ResistanceFrom(ModifierRules.Resistances(monster.Effects.Totals, monster.Def.Combat.Resistances));
     }
 }

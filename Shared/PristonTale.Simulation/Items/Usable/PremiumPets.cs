@@ -80,5 +80,5 @@ public static class PremiumPets
     public static EffectSpec Slow() =>
         new(SlowStatusCode, EffectSourceKind.Item, true, [StatModifier.Percent(StatKind.MoveSpeed, SlowSpeedPercent)], control: ControlFlags.Slow);
 
-    public static float SlowDurationMs(int iceResist) => SlowMs * Math.Clamp(100 - iceResist, 0, 100) / 100f;
+    public static float SlowDurationMs(int iceResist) => CombatResolver.Shortened(SlowMs, iceResist);
 }

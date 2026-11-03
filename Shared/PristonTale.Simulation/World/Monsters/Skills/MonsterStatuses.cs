@@ -42,8 +42,7 @@ public static class MonsterStatuses
     // power x (100 - resistance) / 100 with the resistance clamped to 0..100; a result of 0 or less becomes 4.
     public static int Resisted(int power, int resistance)
     {
-        var kept = 100 - Math.Clamp(resistance, 0, 100);
-        var result = power * kept / 100;
+        var result = CombatResolver.Shortened(power, resistance);
         return result <= 0 ? 4 : result;
     }
 

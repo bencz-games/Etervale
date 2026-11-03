@@ -122,6 +122,11 @@ public static class CombatResolver
         return dmg - PercentOf(dmg, rs);
     }
 
+    // A resistance from 0 to 100 shortens a duration or lowers a chance by its percent; below 0 it changes nothing.
+    public static float Shortened(float value, int resistance) => value * (100 - Math.Clamp(resistance, 0, 100)) / 100f;
+
+    public static int Shortened(int value, int resistance) => value * (100 - Math.Clamp(resistance, 0, 100)) / 100;
+
     public static bool RollBlock(CombatRng rng, in DefenderProfile d, int attackerLevel, bool hasShield)
     {
         int block = (int)(d.BlockChance + ((d.Level - attackerLevel) / 100.0f) * 25f);

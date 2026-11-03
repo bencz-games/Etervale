@@ -142,6 +142,11 @@ public sealed partial record SkillBuffRule
     public SkillReflectRule Reflect { get; init; }
     public SkillGuardRule Guard { get; init; }
     public SkillPulseRule Pulse { get; init; }
+
+    // The resistance that shortens the effect on its target: the rule's element, else bionic for a bionic-resisted one,
+    // else none.
+    public int ResistanceFrom(in ResistanceBlock resistances) =>
+        ResistedBy is { } element ? (int)resistances[element] : ResistedByBionic ? (int)resistances.Bionic : 0;
 }
 
 public sealed partial record SkillDamageRule
