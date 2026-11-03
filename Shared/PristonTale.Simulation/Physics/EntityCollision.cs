@@ -50,12 +50,12 @@ public static class EntityCollision
     {
         // Preserve escape from an existing overlap. Test the whole segment for new overlaps so a long
         // presentation frame cannot jump completely through an NPC/monster and land outside its circle.
-        if (Overlaps(oldPos, center, radius))
+        if (Planar.Overlaps(oldPos, center, radius))
         {
             return false;
         }
 
-        if (Overlaps(desiredPos, center, radius))
+        if (Planar.Overlaps(desiredPos, center, radius))
         {
             return true;
         }
@@ -95,5 +95,4 @@ public static class EntityCollision
         return dx * dx + dz * dz < radius * radius;
     }
 
-    private static bool Overlaps(Vector3 a, Vector3 b, float radius) => MathF.Abs(a.Y - b.Y) < radius && Planar.Within(a, b, radius);
 }

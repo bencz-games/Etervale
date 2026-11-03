@@ -468,12 +468,11 @@ internal sealed class BotWorld(ulong self)
             var bestDistance = within * within;
             foreach (var (id, monster) in _monsters)
             {
-                var dx = monster.Position.X - from.X;
-                var dz = monster.Position.Z - from.Z;
-                if (monster.Alive && dx * dx + dz * dz < bestDistance)
+                var distance = PristonTale.Simulation.Physics.Planar.DistanceSquared(monster.Position, from);
+                if (monster.Alive && distance < bestDistance)
                 {
                     best = id;
-                    bestDistance = dx * dx + dz * dz;
+                    bestDistance = distance;
                 }
             }
 

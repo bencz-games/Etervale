@@ -21,10 +21,5 @@ public readonly struct EntityNeighbour
     }
 
     // Whether a body at position stands inside this one: within its radius on the ground plane and in height.
-    public bool Overlaps(Vector3 position)
-    {
-        var dx = Position.X - position.X;
-        var dz = Position.Z - position.Z;
-        return MathF.Abs(Position.Y - position.Y) < Radius && (dx * dx) + (dz * dz) < Radius * Radius;
-    }
+    public bool Overlaps(Vector3 position) => Planar.Overlaps(Position, position, Radius);
 }

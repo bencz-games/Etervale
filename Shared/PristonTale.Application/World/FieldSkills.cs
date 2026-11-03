@@ -8,6 +8,7 @@ using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Ai;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Contracts.Skills;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Application.World;
 
@@ -272,7 +273,7 @@ internal sealed partial class FieldSkills
         }
 
         var end = CurrentAim(cast);
-        var distance = Vector2.Distance(new Vector2(caster.Position.X, caster.Position.Z), new Vector2(end.X, end.Z));
+        var distance = Planar.Distance(caster.Position, end);
         var flightMs = (long)SkillProjectile.FlightMs(distance);
         if (flightMs <= 0)
         {

@@ -16,4 +16,7 @@ public static class Planar
 
     // Strictly inside the circle of this radius around b.
     public static bool Within(Vector3 a, Vector3 b, float radius) => DistanceSquared(a, b) < radius * radius;
+
+    // Two bodies of this radius overlapping: within it on the ground plane and in height.
+    public static bool Overlaps(Vector3 a, Vector3 b, float radius) => MathF.Abs(a.Y - b.Y) < radius && Within(a, b, radius);
 }

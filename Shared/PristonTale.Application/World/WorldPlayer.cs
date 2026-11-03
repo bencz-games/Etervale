@@ -569,12 +569,7 @@ public sealed class WorldPlayer
         _inVillage = inVillage;
     }
 
-    public float DistanceSqTo(Vector3 worldPos)
-    {
-        float dx = worldPos.X - Position.X;
-        float dz = worldPos.Z - Position.Z;
-        return (dx * dx) + (dz * dz);
-    }
+    public float DistanceSqTo(Vector3 worldPos) => Simulation.Physics.Planar.DistanceSquared(worldPos, Position);
 
     public bool InAttackRange(Vector3 worldPos)
     {
