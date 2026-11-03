@@ -103,8 +103,6 @@ public static class HostingExtensions
         builder.Services.AddHostedService<PristonTale.Server.World.QuestUpkeepService>();
         builder.Services.AddHostedService<PristonTale.Server.World.StarterGiftService>();
 
-        builder.Services.AddSingleton<IServerStatusReadModel, WorldStatusReadModel>();
-
         return builder;
     }
 

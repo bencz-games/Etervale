@@ -46,10 +46,6 @@ public sealed class Skill
     public required SkillCategory Category { get; init; }
 
     public int RequiredLevel { get; init; }
-    public int ManaCost { get; init; }
-
-    public bool IsActive => Category is SkillCategory.ActiveAttack or SkillCategory.AreaAttack
-        or SkillCategory.MultiHit or SkillCategory.Debuff;
 
     public int ManaForRank(int rank)
     {

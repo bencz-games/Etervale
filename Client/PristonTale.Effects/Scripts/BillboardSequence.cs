@@ -52,21 +52,6 @@ public sealed class BillboardSequence
     public int BlendType { get; }
     public BillboardChannels Channels { get; }
 
-    // Ticks a one-shot playback lasts: every frame's hold time.
-    public int DurationTicks
-    {
-        get
-        {
-            var total = 0;
-            foreach (var frame in Frames)
-            {
-                total += Math.Max(1, frame.DelayTicks);
-            }
-
-            return total;
-        }
-    }
-
     // Reads an animation by file name from Effect/AnimationData and its image set from Effect/ImageData; open returns a
     // stream for an asset-relative path.
     public static BillboardSequence Read(string animationName, Func<string, Stream> open)

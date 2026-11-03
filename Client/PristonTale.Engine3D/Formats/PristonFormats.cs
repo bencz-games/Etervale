@@ -9,7 +9,6 @@ public static class PristonFormatConstants
     public const string StageHeader = "SMD Stage data Ver 0.72";
     public const string ModelHeader = "SMD Model data Ver 0.62";
     public const int MotionInfoCount = 512;
-    public const int MotionInfoSize = 172;
     public const int TalkMotionInfoCount = 30;
     public const int NpcMotionInfoCount = 30;
     public const int MotionRateSelectionCount = 100;

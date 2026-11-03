@@ -46,8 +46,6 @@ internal sealed class PristonStageLightField
         _rows = rows;
     }
 
-    public int FloorCount => _floors.Length;
-
     public static PristonStageLightField Build(PristonStage stage)
     {
         var positions = new Vector3[stage.Vertices.Count];

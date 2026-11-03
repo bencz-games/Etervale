@@ -38,8 +38,6 @@ public enum PlayerActionState
 
 public sealed class WorldPlayer
 {
-    public const float MeleeRange = MeleeReach.PlayerBaseRange;
-
     public float AttackRange => PlayerAttackReach.For(_character);
 
     // A game master may dash (Shift held while running); its movement budget allows that speed.
@@ -735,13 +733,6 @@ public sealed class WorldPlayer
         MoveState = MotionState.Stand;
         Action = PlayerActionState.Idle;
         GuardMsLeft = MathF.Max(0f, guardMs);
-    }
-
-    internal static (float DurationMs, float HitAtMs) SwingTimingFallback(int attackSpeed)
-    {
-        float rate = AnimationRate.AttackRate(attackSpeed);
-        return (MotionTiming.DurationMs(PlayerMotionFallback.SwingFrames, rate),
-                MotionTiming.DurationMs(PlayerMotionFallback.HitFrames, rate));
     }
 
     public EntityView ToView() => new(

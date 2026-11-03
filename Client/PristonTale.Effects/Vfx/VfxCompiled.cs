@@ -21,8 +21,6 @@ public sealed class VfxCurve
         }
     }
 
-    public static VfxCurve Constant(Vector4 value) => new([new VfxKey(0f, [value.X, value.Y, value.Z, value.W])]);
-
     public Vector4 Sample(float t)
     {
         if (t <= _times[0] || _times.Length == 1)

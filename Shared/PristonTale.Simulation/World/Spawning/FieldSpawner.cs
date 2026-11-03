@@ -50,8 +50,6 @@ public sealed class FieldSpawner
     // A game master's event: until UntilMs, each regular spawn becomes one of this monster with Permille/1000 chance.
     public SpawnEvent EventMonster { get; set; }
 
-    public int SpawnPointCount => _data.SpawnPoints.Count;
-
     public int ActiveSpawnPointCount => _data.SpawnPoints.Count(static point => point.Active);
 
     public int MaxConcurrentMonsters => _data.MaxConcurrentMonsters;

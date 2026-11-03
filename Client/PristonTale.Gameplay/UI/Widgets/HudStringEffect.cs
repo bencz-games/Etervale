@@ -16,8 +16,6 @@ public sealed class HudStringEffect
     private readonly Effect[] _effects = new Effect[MaxEffects];
     private ulong _self;
 
-    public int Active => _effects.Count(static effect => effect.Image is not null);
-
     public void Observe(PresenceUpdate update)
     {
         foreach (var spawn in update.Spawns)

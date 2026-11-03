@@ -66,9 +66,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
     private readonly byte[] _scratch = new byte[FrameCodec.MaxFrameSize];
     private readonly object _sendGate = new();
     private string? _token;
-    private string? _account;
     private PlayerSession? _session;
-    private IReadOnlyList<CharacterSummary> _characters = [];
     private WorldPlayer? _player;
     private WorldOutbox? _outbox;
     private PresenceEncoder? _encoder;
@@ -406,7 +404,6 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         }
 
         Volatile.Write(ref _token, outcome.SessionToken);
-        _account = request.Account;
         _session = session;
         SendLoginResult(LoginFailure.None);
     }
@@ -416,8 +413,8 @@ internal sealed partial class ClientSession : IMovementVerdictSink
 
     private async Task SendCharacterListAsync(string token)
     {
-        _characters = await _services.Characters.ListCharactersAsync(token);
-        var list = new CharacterListPacket(_characters.Take(CharacterListPacket.MaxCharacters).Select(WireMapping.Entry).ToArray());
+        var characters = await _services.Characters.ListCharactersAsync(token);
+        var list = new CharacterListPacket(characters.Take(CharacterListPacket.MaxCharacters).Select(WireMapping.Entry).ToArray());
         SendLarge(list.Write, CharacterListPacket.MaxSize);
     }
 

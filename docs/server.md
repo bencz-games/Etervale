@@ -100,7 +100,6 @@ All registrations are singletons in `HostingExtensions.AddPristonServer`.
 | `GmAuditQueue` | factory: `IGameMasterRepository` | The game masters' audit writer, run by `GameLogService`; a failed row is logged as an error and retried. |
 | `CharacterSaveQueue`, `ICharacterSaves` | factory: the character repository, `SaveJournal` (`Database:SaveJournalPath`), `Database:SaveBatchSize` | The background character store ([application.md](application.md#character-saves)); a failed batch is logged as an error. |
 | `ServerSettingsAppService` | factory | Reads the settings table and applies it to the world, `GameMasterCommands.Options` and `GameServerControl` (name, player limit). |
-| `IServerStatusReadModel` | `WorldStatusReadModel` | Registered for status queries; nothing in the server consumes it. |
 
 Hosted services are registered in the order of the startup table.
 

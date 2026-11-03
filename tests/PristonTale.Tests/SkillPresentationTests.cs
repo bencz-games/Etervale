@@ -73,7 +73,7 @@ internal static class SkillPresentationTests
     {
         const string effect = """[{ "name": "vfx.test", "duration": 1, "emitters": [{ "texture": "builtin:glow", "burst": 1, "lifetime": [0.1, 0.2] }] }]""";
         var root = Path.Combine(Path.GetTempPath(), $"priston-vfx-{Guid.NewGuid():N}");
-        var folder = Path.Combine(root, "Effect", "Vfx");
+        var folder = VfxCatalog.FolderOf(root);
         Directory.CreateDirectory(Path.Combine(folder, "Classes", "Knight"));
         try
         {

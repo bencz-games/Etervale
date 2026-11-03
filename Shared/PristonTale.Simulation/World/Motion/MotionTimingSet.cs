@@ -16,8 +16,6 @@ public sealed class MotionTimingSet
         _allByState = allByState;
     }
 
-    public int StateCount => _firstByState.Count;
-
     public static MotionTimingSet Build(IEnumerable<KeyValuePair<int, MotionClip>> orderedStateClips)
     {
         var first = new Dictionary<int, MotionClip>();

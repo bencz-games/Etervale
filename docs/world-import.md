@@ -137,7 +137,7 @@ files have no kind key) and its footprint. What a copy of the item is made from 
 | `variant` | Source | Runtime |
 | --- | --- | --- |
 | 0 regular | The catalog entry of the code | `ItemCatalog` |
-| 2 quest | The first file in path order whose `*유니크` is 2 (quest weapons, rank-up rings, Fury of Phantom rewards) | `ItemCatalog.QuestVariants`, handed out by quests ([quests.md](quests.md)) |
+| 2 quest | The first file in path order whose `*유니크` is 2 (quest weapons, rank-up rings, Fury of Phantom rewards) | `ItemCatalog.TryGetQuestVariant`, handed out by quests ([quests.md](quests.md)) |
 | 1 named unique | Each distinct name, the first file in path order, among the files whose `*유니크` has no value (1) and that lost the selection of their code (Vega, Ancient Rage, Bone Crasher...); `variant_ordinal` is its number in `Identities/named-uniques.json` | `ItemCatalog.NamedUniques`; saved items name one by `ItemDefinition.NamedUniqueBase` + the number. They never drop |
 
 Each definition has its own English name, bonuses and random classes.

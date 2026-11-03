@@ -53,8 +53,6 @@ public sealed class GameTcpServer(
     private int _open;
     private int _handshakes;
 
-    public int ConnectionCount => _clients.Count;
-
     // The port the listener bound; Network:Port 0 asks the operating system for a free one (in-process tests).
     public Task<int> BoundPort => _boundPort.Task;
 

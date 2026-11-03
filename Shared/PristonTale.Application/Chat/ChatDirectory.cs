@@ -69,8 +69,6 @@ public sealed class ChatDirectory
     private int _noticeCounter;
     private readonly object _noticeGate = new();
 
-    public int Count => _byEntity.Count;
-
     public IEnumerable<ChatMember> Members => _byEntity.Values;
 
     public void Join(ChatMember member)

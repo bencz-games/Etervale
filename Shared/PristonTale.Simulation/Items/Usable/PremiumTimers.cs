@@ -102,8 +102,6 @@ public sealed class PremiumTimers
     // The value of a running timer (a percent, or carrying capacity for Might of Awell), or 0.
     public int ValueOf(PremiumEffectKind kind) => Find(kind)?.Value ?? 0;
 
-    public bool HelperPetActive => _timers.Any(static timer => IsHelperPet(timer.Kind));
-
     public PremiumStartResult CanStart(PremiumEffectKind kind, PremiumConflict conflict, long nowSeconds)
     {
         if (IsVampiric(kind) && (IsRunning(PremiumEffectKind.VampiricCuspid, nowSeconds) || IsRunning(PremiumEffectKind.VampiricCuspidEx, nowSeconds)))

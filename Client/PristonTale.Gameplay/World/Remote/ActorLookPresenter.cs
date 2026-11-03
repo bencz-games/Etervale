@@ -41,8 +41,6 @@ public sealed class ActorLookPresenter
         _ = scene.PrepareActorOverlayAsync(_overlay);
     }
 
-    public int ExtraActors => _extras.Values.Sum(static extras => extras.Count);
-
     // handles: the entity's actors now (none when it is gone); holdsShield: its off hand holds a shield.
     public void Apply(ulong entityId, PlayerActorHandles handles, bool holdsShield, in EntityLook look)
     {

@@ -86,7 +86,7 @@ the original are there, the game room (`office`, 16, without a map) and Bellatra
 | `Gates` | Seamless boundaries to an adjacent field (`DestinationFieldId`, X/Z, angle) |
 | `WarpGates` | Portals: trigger X/Z/Y and Width/Height, destination field and X/Z/Y, `LimitLevel`, `SpecialEffect` (1: a delayed warp with the return sparkle; 2: a wing warp stone, its destination point the stone's exit in its own field; see [Wing warp gates](#wing-warp-gates)) |
 | `LimitLevel` | Minimum character level to enter (gates, warps and teleports): Desert 3 (11) 55, Greedy Lake (34) 70, Iron 1 (27) 80, Iron 2 (28) 85, Eura (29), Ice 1 (31) and Ice 2 (35) 90, the Lost Temple (38) and both floors of the Endless Tower (39, 40) 100 |
-| `Ambients`, `Lighting`, `Camera`, `DayNight`, `Backdrop`, `BackMusicCode`, `OnLoaded`, `OnUpdate` | Client presentation |
+| `Ambients`, `Lighting`, `Camera`, `DayNight`, `Backdrop`, `BackMusicCode` | Client presentation |
 | `FieldEvent` | `Nightmare` (Navisko): see Night and day |
 | `HazeReduction`, `SightCells` | The share of the distance haze the field clears (Ricarten 0.2) and the 64-unit cells of sight added before it starts (Ice Ura 1); client presentation |
 | `ServerCode` | Authored label; no runtime rule reads it |

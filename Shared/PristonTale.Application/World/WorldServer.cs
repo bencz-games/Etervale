@@ -43,7 +43,6 @@ public sealed partial class WorldServer
     private Action<FieldInstance>? _stepField;
     private int _playerCount;
     private bool _membershipChanged;
-    private IReadOnlyList<(int FieldId, int PlayerCount)> _activeCounts = Array.Empty<(int, int)>();
     private readonly Dictionary<int, FieldInstance> _fields = new();
     private readonly Dictionary<ulong, Connection> _connections = new();
     private readonly EntityIdAllocator _ids = new();
@@ -604,11 +603,6 @@ public sealed partial class WorldServer
     // may carry before the share, and its commit must not land past that limit.
     private static bool TakesGoldShare(Connection member) => member.Session?.SaveGate.CurrentCount != 0;
 
-    public IReadOnlyList<(int FieldId, int PlayerCount)> ActiveFieldCounts()
-    {
-        return Volatile.Read(ref _activeCounts);
-    }
-
     private const ulong NoOwner = 0;
 
     // The rows of a transfer committed now; null when no game log is attached.
@@ -738,16 +732,6 @@ public sealed partial class WorldServer
 
         _membershipChanged = false;
         Volatile.Write(ref _playerCount, _connections.Count);
-        var counts = new List<(int, int)>();
-        foreach (var field in _fields.Values)
-        {
-            if (field.PlayerCount > 0)
-            {
-                counts.Add((field.FieldId, field.PlayerCount));
-            }
-        }
-
-        Volatile.Write(ref _activeCounts, counts.AsReadOnly());
     }
 
     private void StepField(FieldInstance field, float dt, uint serverTick, int? bossHour, long nowSeconds, bool night, WeatherState weather)

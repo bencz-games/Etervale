@@ -200,7 +200,7 @@ public sealed partial class PristonRenderer
     private static PristonPointLight TuneLight(PristonPointLight light, RenderStageHandle stage, float lampFactor) =>
         light with
         {
-            Radius = light.Radius * stage.LampRangeScale * LampRangeStretch,
+            Radius = light.Radius * stage.LampRangeScale,
             Intensity = light.Intensity * stage.LampIntensity * lampFactor
         };
 }

@@ -20,16 +20,13 @@ internal sealed partial class FieldSkills
     private readonly Dictionary<ulong, CrystalPet> _crystalPets = new();
     private readonly List<ulong> _endingPets = new();
 
-    private sealed record CrystalPet(ulong OwnerId, int ClanId, uint StatusCode);
-
-    public IEnumerable<(ulong PetId, ulong OwnerId, int ClanId)> CrystalPets =>
-        _crystalPets.Select(static pair => (pair.Key, pair.Value.OwnerId, pair.Value.ClanId));
+    private sealed record CrystalPet(ulong OwnerId, uint StatusCode);
 
     public bool HasCrystalPetSlot(WorldPlayer owner) => FreePetSlot(owner) >= 0;
 
     // Calls the pet beside its owner with the owner-level lifetime and life bonus, and starts the owner's status for it
     // with the next step; returns where it stands, or null when every pet slot of the owner is taken.
-    public Vector3? CallCrystalPet(WorldPlayer owner, MonsterCrystalDefinition crystal, MonsterDefinition definition, int clanId = 0)
+    public Vector3? CallCrystalPet(WorldPlayer owner, MonsterCrystalDefinition crystal, MonsterDefinition definition)
     {
         var slot = FreePetSlot(owner);
         if (slot < 0)
@@ -53,7 +50,7 @@ internal sealed partial class FieldSkills
         monster.AiState = MonsterAiState.Idle;
         monster.Motion = MotionState.Stand;
         var status = MonsterCrystals.PetStatus(MonsterCrystals.ShownCrystal(crystal, definition.Key), slot);
-        _crystalPets[monster.EntityId] = new CrystalPet(owner.EntityId, clanId, status.Code);
+        _crystalPets[monster.EntityId] = new CrystalPet(owner.EntityId, status.Code);
         QueueItemEffect(owner.EntityId, status, lifetimeMs);
         return monster.Position;
     }

@@ -68,8 +68,6 @@ public sealed partial class RemoteEntityManager
     // Another player entered a motion: its class code, the motion and where it stands.
     public event Action<PlayerClass, MotionCode, XnaVector3> PlayerMotionStarted;
 
-    public int PendingMonsterCount => _pendingModels.Count;
-
     public void SetSelfSink(
         Action<EntitySpawnInfo> onSelfSpawn,
         Action<EntityStateInfo> onSelfState,
@@ -435,8 +433,6 @@ public sealed partial class RemoteEntityManager
             }
         }
     }
-
-    public bool TryGetSummonOwner(ulong entityId, out ulong ownerId) => _summonOwners.TryGetValue(entityId, out ownerId);
 
     public void SeekSkillMotion(ulong entityId, int framesFromStart, float rate)
     {

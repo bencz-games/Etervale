@@ -4,15 +4,6 @@ using PristonTale.Simulation.World.Monsters;
 
 namespace PristonTale.Simulation.Combat;
 
-public enum WeaponDamageStyle
-{
-    Melee = 0,
-
-    Ranged = 1,
-
-    Magic = 2
-}
-
 public readonly record struct AttackProfile(
     int AttackRating,
     int DamageMin,

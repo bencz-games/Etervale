@@ -25,9 +25,6 @@ public sealed partial class GameplayHud
     // A button under the portrait was pressed: the row closes until the player is reached again.
     public event Action PlayerButtonsUsed;
 
-    public HudPartyWindow PartyWindow => _partyWindow;
-    public HudRequestBox PartyRequest => _partyRequest;
-
     // The party part of each presence update. As in the original, a request is not shown while the warehouse is open.
     public void ObserveParty(PresenceUpdate update)
     {

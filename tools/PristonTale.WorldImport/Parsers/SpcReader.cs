@@ -27,9 +27,6 @@ public sealed class SpcReader
     private const int OffZ = 484;
     private const int OffHeading = 492;
 
-    // The definition file names of the live records, in file order.
-    public static IReadOnlyList<string> Sources(string path) => Records(File.ReadAllBytes(path)).Select(static index => index.Source).ToList();
-
     public void Read(string path, ParsedField field)
     {
         var bytes = File.ReadAllBytes(path);

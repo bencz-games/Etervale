@@ -25,8 +25,6 @@ public readonly struct VfxHandle
 
     public bool Alive => Live?.Alive == true;
 
-    public bool Travelling => Live?.Travelling == true;
-
     // Ends emission; live particles finish their lives.
     public void Stop() => Live?.Stop();
 

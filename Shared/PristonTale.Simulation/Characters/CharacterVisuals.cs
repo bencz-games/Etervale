@@ -57,8 +57,3 @@ public sealed record CharacterVisualSet(
     public const int FaceModelCount = 7;
     public const int HairPotionCount = 13;
 }
-
-public sealed record EquipmentRef(
-    EquipmentSlot Slot,
-    string Code,
-    string AssetPath);

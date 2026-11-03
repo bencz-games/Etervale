@@ -25,15 +25,9 @@ public sealed class ItemCatalog
 
     public IReadOnlyCollection<ItemDefinition> NamedUniques => _namedUniques.Values;
 
-    public IReadOnlyCollection<ItemSetDefinition> Sets => _sets.Values;
-
-    public bool TryGetSet(int setCode, out ItemSetDefinition set) => _sets.TryGetValue(setCode, out set);
-
     public bool TryGetNamedUnique(uint code, int variant, out ItemDefinition definition) => _namedUniques.TryGetValue((code, variant), out definition);
 
     public IReadOnlyList<ItemDefinition> All { get; }
-
-    public IReadOnlyCollection<ItemDefinition> QuestVariants => _questVariants.Values;
 
     public ItemDefinition Get(uint code) => _byCode[code];
 

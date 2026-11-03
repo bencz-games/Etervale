@@ -194,9 +194,6 @@ public sealed class FieldGroundLoot(ItemCatalog catalog, FieldTerrain? terrain =
         return _snapshot;
     }
 
-    // The gold a drop holds; 0 for an item or a drop that is gone.
-    public long GoldOf(Guid id) => _entries.TryGetValue(id, out var entry) && entry.View.Gold ? entry.View.Amount : 0;
-
     public bool TryReserve(Guid id, Guid operation, WorldPlayer player, out GroundDropView? view, out ItemInstance? item)
     {
         view = null;

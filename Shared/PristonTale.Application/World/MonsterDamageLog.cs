@@ -1,11 +1,7 @@
-using System.Collections.Generic;
-
 namespace PristonTale.Application.World;
 
 internal sealed class MonsterDamageLog
 {
-    private readonly Dictionary<ulong, int> _byAttacker = new();
-
     public ulong KillerId { get; private set; }
 
     public ulong FirstAttackerId { get; private set; }
@@ -19,8 +15,6 @@ internal sealed class MonsterDamageLog
         if (attackerId == 0 || damage <= 0)
             return;
 
-        _byAttacker.TryGetValue(attackerId, out int prev);
-        _byAttacker[attackerId] = prev + damage;
         KillerId = attackerId;
 
         if (FirstAttackerId == 0 && monsterAtFullLifeBeforeHit)
@@ -32,6 +26,4 @@ internal sealed class MonsterDamageLog
             FirstAttackerLastHitMs = nowMs;
         }
     }
-
-    public int DamageBy(ulong attackerId) => _byAttacker.TryGetValue(attackerId, out int d) ? d : 0;
 }

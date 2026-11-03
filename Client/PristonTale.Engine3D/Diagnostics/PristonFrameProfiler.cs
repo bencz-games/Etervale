@@ -46,7 +46,6 @@ public sealed class PristonFrameProfiler : IDisposable
     private readonly double[] _cpuFrame = new double[SectionCount];
     private readonly double[] _cpuSum = new double[SectionCount];
     private readonly int[] _cpuFrames = new int[SectionCount];
-    private readonly double[] _gpuLast = new double[SectionCount];
     private readonly double[] _gpuSum = new double[SectionCount];
     private readonly int[] _gpuCount = new int[SectionCount];
     private readonly bool[] _issued = new bool[Latency * SectionCount];
@@ -141,8 +140,6 @@ public sealed class PristonFrameProfiler : IDisposable
         return _cpuFrames[index] > 0 ? _cpuSum[index] / _cpuFrames[index] : 0d;
     }
 
-    public double GpuLast(RenderSection section) => _gpuLast[(int)section];
-
     public double GpuMean(RenderSection section)
     {
         var index = (int)section;
@@ -206,7 +203,6 @@ public sealed class PristonFrameProfiler : IDisposable
             }
 
             var milliseconds = end >= begin ? (end - begin) * 1e-6 : 0d;
-            _gpuLast[section] = milliseconds;
             _gpuSum[section] += milliseconds;
             _gpuCount[section]++;
         }

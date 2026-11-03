@@ -25,8 +25,6 @@ internal sealed partial class FieldSkills
     private readonly Dictionary<ulong, ulong> _summons = new();
     private readonly Dictionary<ulong, uint> _summonSkills = new();
 
-    public bool TryGetSummon(ulong ownerId, out ulong summonId) => _summons.TryGetValue(ownerId, out summonId);
-
     private bool CallSummon(WorldPlayer owner, SkillRule rule, int rank)
     {
         var summon = rule.Summon;

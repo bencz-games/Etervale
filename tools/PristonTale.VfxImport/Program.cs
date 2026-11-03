@@ -36,7 +36,7 @@ namespace PristonTale.VfxImport
         public static ImportResult Import(string assetRoot)
         {
             var assets = new AssetPaths(assetRoot, "Effect/NewEffect", "Effect/Particle");
-            var output = Path.Combine(assetRoot, "Effect", "Vfx");
+            var output = VfxCatalog.FolderOf(assetRoot);
             var report = new List<string>();
             var failed = 0;
             var scripts = 0;

@@ -13,7 +13,6 @@ namespace PristonTale.Engine3D.Rendering.Lighting;
 internal static class PristonPhotometry
 {
     public const float IncidentCalibration = 250f;
-    public const float ReflectedCalibration = 12.5f;
     public const float MinEv100 = -4f;
     public const float MaxEv100 = 17f;
 
@@ -48,9 +47,6 @@ internal static class PristonPhotometry
 
     public static float Ev100FromIlluminance(float lux) =>
         MathHelper.Clamp(MathF.Log2(MathF.Max(lux, 1e-6f) * 100f / IncidentCalibration), MinEv100, MaxEv100);
-
-    public static float Ev100FromLuminance(float luminance) =>
-        MathHelper.Clamp(MathF.Log2(MathF.Max(luminance, 1e-6f) * 100f / ReflectedCalibration), MinEv100, MaxEv100);
 
     // Display scale of a scene luminance at the given EV100, before compensation: pi * 0.4 / 2^EV100.
     public static float ExposureAt(float ev100) => MathF.PI * 0.4f / MathF.Pow(2f, ev100);

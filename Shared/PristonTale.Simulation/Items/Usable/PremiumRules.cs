@@ -61,23 +61,7 @@ public static class PremiumRules
     public static int ManaFor(PremiumTimers timers, int spirit, int power, int hits) =>
         hits > 0 && timers.IsActive(PremiumEffectKind.ManaRecharging) ? ManaRecharge(spirit, power, hits) : 0;
 
-    // A skill's mana cost after the Mana Reduce potion and Terry's own share, each a percent of the full cost.
-    public static int ManaCost(int cost, PremiumTimers timers)
-    {
-        var reduced = cost * timers.ValueOf(PremiumEffectKind.ManaReduce) / 100;
-        if (timers.IsActive(PremiumEffectKind.HelpPetTerry))
-        {
-            reduced += cost * TerryManaReducePercent / 100;
-        }
-
-        return Math.Max(0, cost - reduced);
-    }
-
     public static int StaminaCost(int cost, PremiumTimers timers) => Math.Max(0, cost - cost * timers.ValueOf(PremiumEffectKind.StaminaReduce) / 100);
-
-    // Mute adds a tenth to the power of its owner's single-target attacks.
-    public static int SingleTargetPower(int power, PremiumTimers timers) =>
-        timers.IsActive(PremiumEffectKind.HelpPetMute) ? power + power * MuteDamagePercent / 100 : power;
 
     // Carrying capacity added by Might of Awell and the Gravity Scrolls.
     public static int WeightBonus(PremiumTimers timers) =>

@@ -151,7 +151,6 @@ public static class ClassSkillCatalog
             RequiredLevel = entry.RequiredLevel,
             MouseUse = entry.Mouse,
             ManaByRank = Array.AsReadOnly(entry.Mana),
-            ManaCost = entry.Mana.Length > 0 ? entry.Mana[0] : 0,
             StaminaBase = entry.Stamina.Length > 0 ? entry.Stamina[0] : 0,
             StaminaPerRank = entry.Stamina.Length > 1 ? entry.Stamina[1] : 0,
             AllowedWeaponsMask = weapons

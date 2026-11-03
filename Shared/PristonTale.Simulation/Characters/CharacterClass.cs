@@ -40,9 +40,7 @@ public abstract class CharacterClass
                 armorTableIndex),
             baseAttributes,
             CharacterAttributes.Empty,
-            StatusPointsPerLevel: 5,
-            functionProfile,
-            []);
+            functionProfile);
 
     public virtual void OnSpawn(PlayerCharacter player) { }
 

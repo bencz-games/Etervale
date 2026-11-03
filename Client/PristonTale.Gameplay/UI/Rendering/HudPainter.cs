@@ -44,8 +44,6 @@ public sealed class HudPainter : IDisposable
         _textShift = MathF.Round(CapTop - _capCropping * TextScale);
     }
 
-    public HudSprites Sprites => _sprites;
-
     public void Begin(HudLayout layout)
     {
         _text.Clear();
@@ -215,8 +213,6 @@ public sealed class HudPainter : IDisposable
     public int Measure(string value) => MeasureAt(value, TextScale);
 
     public int MeasureAt(string value, float scale) => string.IsNullOrEmpty(value) ? 0 : (int)MathF.Ceiling(_font.MeasureString(value).X * scale);
-
-    public int TextHeightAt(float scale) => (int)MathF.Ceiling(_font.LineSpacing * scale);
 
     // The capitals' height and the descenders' depth below the baseline at a scale, in pixels: text drawn at y has the top
     // of its capitals at y + CapTop. The line spacing also holds the gap to the next line, so a box sized by it leaves

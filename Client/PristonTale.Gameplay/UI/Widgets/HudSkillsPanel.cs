@@ -44,9 +44,8 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     private string _boxPointsText = "";
     private string _boxElitePointsText = "";
 
-    // The training box and its class change button (gray or lit) are on screen; they take clicks over the scene.
+    // The training box is on screen; it takes clicks over the scene.
     public bool MasterBoxShown { get; private set; }
-    public bool ClassChangeShown { get; private set; }
 
     public bool TrainingPending => _trainingIndex >= 0;
     public void CancelTraining() => _trainingIndex = -1;
@@ -305,7 +304,6 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     public void DrawMasterBox(HudPainter painter, OwnerState state, ulong skillMaster, bool classChangeOffered)
     {
         MasterBoxShown = false;
-        ClassChangeShown = false;
         if (skillMaster == 0 || state is null || _trainingIndex >= 0 || _secondPage)
         {
             return;
@@ -339,7 +337,6 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
 
         if (classChangeOffered || _shownTier < PlayerCharacter.LastTier && TierLearned())
         {
-            ClassChangeShown = true;
             var button = HudSkillTreeLayout.ClassChange;
             painter.Sprite(classChangeOffered ? HudArt.SelectJob : HudArt.SelectJobGray, button.X, button.Y);
         }

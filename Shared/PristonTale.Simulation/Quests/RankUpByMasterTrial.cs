@@ -275,7 +275,4 @@ public static class RankUpByMasterTrial
         context.Journal.Active = active with { State = SecondHuntDone };
         return true;
     }
-
-    public static bool InHunt(PlayerCharacter character) =>
-        character.Quests.Active is { Code: Code, Timer: QuestTimerKind.Expiring };
 }

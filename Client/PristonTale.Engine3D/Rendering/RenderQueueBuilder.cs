@@ -9,11 +9,6 @@ internal sealed class RenderQueueBuilder
 
     public PristonRenderQueue<RenderBatch> Queue => _queue;
 
-    public int Build(IReadOnlyList<RenderBatch> batches, PristonFrameContext frame)
-    {
-        return Build(batches, [], frame, includeShadowCasters: true);
-    }
-
     // A visible batch that draws into shadow maps on its own (not through a static aggregate).
     public static bool CastsShadow(RenderBatch batch) =>
         !batch.ShadowCoveredByAggregate

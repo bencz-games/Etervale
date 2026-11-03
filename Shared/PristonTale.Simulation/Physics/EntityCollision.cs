@@ -44,8 +44,6 @@ public static class EntityCollision
         return ((oldPos + desiredPos) * 0.5f, MathF.Sqrt(deltaX * deltaX + deltaZ * deltaZ) * 0.5f + radius);
     }
 
-    public static bool IsBlocked(Vector3 oldPos, Vector3 desiredPos, Vector3 accepted) => accepted == oldPos && desiredPos != oldPos;
-
     private static bool Blocks(Vector3 oldPos, Vector3 desiredPos, float radius, Vector3 center)
     {
         // Preserve escape from an existing overlap. Test the whole segment for new overlaps so a long

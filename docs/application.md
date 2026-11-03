@@ -64,7 +64,6 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | `World/WorldServer.Movement.cs` | Movement reports queued as values (`TryReportMovement`) with an `IMovementVerdictSink` |
 | `World/PlayerSkillCooldowns.cs` | Cooldowns on the field clock, rebased on field change, revisioned for snapshots |
 | `World/WorldData*.cs`, `FieldTerrainCatalog.cs` | Catalogs loaded at startup (`WorldDataAppService.BuildAsync`), held in volatile holders |
-| `World/WorldStatusReadModel.cs`, `ServerStatus.cs` | Lock-free player and per-field counts for status reporting |
 | `World/EntityIdAllocator.cs` | Thread-safe, monotonic 64-bit monster/NPC/summon ids from `2^32` |
 
 The project references only `PristonTale.Simulation` and `PristonTale.Persistence.Abstractions`, and exposes internals
@@ -77,7 +76,7 @@ to `PristonTale.Tests`. No sockets, packets, SQL or MonoGame.
 | `AuthAppService.LoginAsync` | Empty input, unknown account, wrong password: `BadCredentials` (-2); blocked: `LoginDenied` (-24). Values are wire codes. Success returns a token. |
 | `CharacterAppService.ListCharactersAsync` | Summaries with armour/weapon/off-hand catalog keys and `InVillage`; throws `InvalidDataException` on corrupt saved equipment |
 | `CharacterAppService.CreateCharacterAsync` | Trimmed name 3-16, defined class, valid face, unique name, `CharacterSlots.Maximum` per account, first free slot, starter record in its class's town (`DeathPenalty.TownField`: Ricarten for the Tempskron classes and the assassin, Pillai for the Morion classes) |
-| `CharacterAppService.DeleteCharacterAsync` / `NameExistsAsync` | Account-scoped delete by name; global name check. |
+| `CharacterAppService.DeleteCharacterAsync` | Account-scoped delete by name. |
 | `SessionAppService.EnterWorldAsync` | Load record, validate field and class, claim the character, `CharacterStateCodec.Restore`, clamp resources, resolve spawn, mark ready |
 | `SessionAppService.SaveCharacterAsync` | Waits for `SaveGate`; captures on the tick while playing, else from the session; `ICharacterSaves.SaveAsync`, which completes once storage (or, at shutdown, the journal) has it. |
 | `SessionAppService.ApplyInventoryAsync` / `ApplyProgressionAsync` | Durable operations, see [Durable operations](#durable-operations). |
@@ -199,7 +198,7 @@ Persistence never runs on the tick. Durable work is split: the tick prepares a c
 | `CastSkillAsync(field, entity, SkillCastRequest)` | player | `SkillCastOutcome` (cast, release, summon mode) |
 | `InteractNpcAsync(session, npcId)` | player | `NpcInteraction` (offers + one random dialog line) |
 | `PositionOfAsync(entity)` | player | current position or null |
-| `PlayerCount`, `ActiveFieldCounts()` | none (volatile) | read model values |
+| `PlayerCount` | none (volatile) | the players connected, for the login gate and the reports |
 
 Durable entry points (`Prepare*Async`, `Commit*Async`, `CheckNpcServiceAsync`, `CaptureForSaveAsync`) are called by
 `SessionAppService` and `NpcAppService`, not by the edge directly.
@@ -630,7 +629,6 @@ refused ([chat-and-gm.md](chat-and-gm.md)). The recent players are the client's
 - Statuses: the field keeps the last published `Add`/`Refresh` of every running status (`FieldStatusBook`), removes
   them on `Remove`, when the entity leaves (`TransferPlayer` carries a player's statuses to the new field on its clock)
   and when they run out (pruned every 5 s), so an encoder can send them to a viewer that starts seeing the entity.
-- `IServerStatusReadModel` (`WorldStatusReadModel`) reads volatile counts without touching the tick.
 
 ## How to
 

@@ -163,8 +163,6 @@ internal sealed class SequenceState
         LiveCount = 0;
     }
 
-    public int Capacity => Sequence.Source.Count;
-
     public bool Update(float dt, bool emitting, Vector3 source, ref uint random)
     {
         if (Finished)

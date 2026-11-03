@@ -266,8 +266,6 @@ public sealed partial class GameplayHud : IDisposable
     private uint _lastBuffClicked;
     private double _lastBuffClickSeconds;
 
-    public void ShowNotice(string message) => _notice.Show(message);
-
     // The quest fanfare (the drink sound): a quest started, moved on or ended, or a carried item set into the closed
     // special item box.
     public event Action QuestFanfare;
@@ -276,9 +274,6 @@ public sealed partial class GameplayHud : IDisposable
 
     // An item lifted, set, bought, sold, stored or taken back, by catalog key, for its sound.
     public event Action<string> ItemSound;
-
-    public HudQuestController Quests => _quests;
-    public HudQuestWindow QuestWindow => _questWindow;
 
     // The quest part of each presence update (the journal, quest notices and dialogs the world opened).
     public void ObserveQuests(PristonTale.Client.Net.Presence.PresenceUpdate update) => _quests.Observe(update);

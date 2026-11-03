@@ -43,8 +43,6 @@ public sealed class HudPremiumTimers
         _sprites.Request(paths);
     }
 
-    public int Count => _entries.Count;
-
     // Adopts the server's timer list; nowMs is the HUD clock the remaining seconds are counted from.
     public void Apply(PremiumTimerSnapshot snapshot, double nowMs)
     {

@@ -57,7 +57,6 @@ public sealed partial class GameScene
             return;
         }
 
-        _ = entered;
         _remote = new RemoteEntityManager(
             _actorScene,
             _playerComposer,
@@ -153,7 +152,6 @@ public sealed partial class GameScene
 
     private void ApplyPresence(PresenceUpdate update)
     {
-        _snapshotField = update.FieldId;
         if (update.Owner is not null)
         {
             Owner = update.Owner;

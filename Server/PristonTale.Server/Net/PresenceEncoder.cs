@@ -124,17 +124,6 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
         }
     }
 
-    public int? Field
-    {
-        get
-        {
-            lock (_gate)
-            {
-                return _field;
-            }
-        }
-    }
-
     // Answers DescribeEntity with the entity's description from the last encoded snapshot (its frame stays pinned until
     // the next one); false when the entityId is not in this subscriber's view. It is sent under the encoder's lock, so it
     // reaches the client in the order of the encodes that note which template descriptions the client holds. Every
@@ -304,7 +293,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
         WriteVisible(ref group, connection, _visible, snapshot, self.Position, tick, field);
 
         var budget = MovementBudgetBytes;
-        foreach (var (index, _, near) in _pending.Ordered())
+        foreach (var (index, _) in _pending.Ordered())
         {
             var size = MotionSize(index);
             if (budget < size)
@@ -502,9 +491,9 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
             if (WriteEntity(ref group, connection, index, tick, field, near) is { } age)
             {
                 // Overdue ratio: the wanted interval grows with distance, and every waiting entity keeps gaining
-                // priority, so a crowd is served round-robin like the classic server's rotating send cursor.
+                // priority, so a crowd is served round-robin.
                 var wanted = NearIntervalTicks + MathF.Sqrt(distanceSq) / 50f;
-                _pending.Add(index, age / wanted, near);
+                _pending.Add(index, age / wanted);
             }
         }
     }

@@ -165,16 +165,6 @@ public sealed record FieldDef(
     public bool Underground => State == FieldState.Dungeon;
 
     public FieldSpawnData Spawns { get; init; } = FieldSpawnData.Empty;
-
-    public Action<IFieldContext> OnLoaded { get; init; }
-    public Action<IFieldContext, float> OnUpdate { get; init; }
-}
-
-public interface IFieldContext
-{
-    float TimeOfDay { get; }
-    void SetTimeOfDay(float hours);
-    void SetDayLength(float seconds);
 }
 
 public sealed class WorldCatalog

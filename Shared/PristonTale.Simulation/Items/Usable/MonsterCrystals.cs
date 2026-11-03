@@ -60,14 +60,6 @@ public static class MonsterCrystals
     public const float PetBaseLifetimeMs = 240_000f;
     public const int SoulLifetimeSeconds = 240;
 
-    // Clan pets: at most three of the clan within this distance of the user, one per player.
-    public const int ClanPetLimit = 3;
-    public const float ClanPetRadius = 1810f;
-
-    // Castle mercenaries: twenty per clan, five per kind, one per player.
-    public const int MercenaryClanLimit = 20;
-    public const int MercenaryKindLimit = 5;
-
     // Fields where soul stones do not work besides towns: the castle, the ice field and the office room.
     public static readonly int[] SoulStoneBlockedFields = [FieldCodes.Castle, FieldCodes.InnerIce, FieldCodes.OfficeRoom];
 

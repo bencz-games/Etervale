@@ -19,16 +19,6 @@ public sealed class NpcAppService(
 {
     private readonly DurableOperations _durable = new(saves);
 
-    public Task<NpcInteraction> InteractAsync(string sessionToken, ulong npcId)
-    {
-        if (!sessions.TryGet(sessionToken, out var session))
-        {
-            return Task.FromResult(NpcInteraction.Rejected("invalid session"));
-        }
-
-        return world.InteractNpcAsync(session, npcId);
-    }
-
     public async Task<NpcServiceReply> RequestAsync(string sessionToken, NpcServiceCommand command, CancellationToken ct = default)
     {
         using var lease = await _durable.AdmitAsync(sessions, sessionToken, ct);

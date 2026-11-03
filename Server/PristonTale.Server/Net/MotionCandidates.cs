@@ -4,18 +4,16 @@ namespace PristonTale.Server.Net;
 // that many are kept (a bounded min-heap) instead of sorting every due entity of a crowd.
 internal sealed class MotionCandidates(int capacity)
 {
-    private readonly (int Index, float Priority, bool Near)[] _heap = new (int, float, bool)[capacity];
+    private readonly (int Index, float Priority)[] _heap = new (int, float)[capacity];
     private int _count;
-
-    public int Count => _count;
 
     public void Clear() => _count = 0;
 
-    public void Add(int index, float priority, bool near)
+    public void Add(int index, float priority)
     {
         if (_count < _heap.Length)
         {
-            _heap[_count] = (index, priority, near);
+            _heap[_count] = (index, priority);
             SiftUp(_count++);
             return;
         }
@@ -25,12 +23,12 @@ internal sealed class MotionCandidates(int capacity)
             return;
         }
 
-        _heap[0] = (index, priority, near);
+        _heap[0] = (index, priority);
         SiftDown(0);
     }
 
     // Most overdue first.
-    public ReadOnlySpan<(int Index, float Priority, bool Near)> Ordered()
+    public ReadOnlySpan<(int Index, float Priority)> Ordered()
     {
         var span = _heap.AsSpan(0, _count);
         span.Sort(static (left, right) => right.Priority.CompareTo(left.Priority));

@@ -85,7 +85,6 @@ public sealed partial class PristonRenderer : IDisposable
     // authored level over the night reference (PristonPhotometry), falling off with the inverse square; the authored range
     // is where the light is windowed to zero.
     private const float LampLevelScale = 2f;
-    private const float LampRangeStretch = 1f;
     // Self-illumination at night: the luminance (cd/m^2) of an emissive albedo of 1; by day it shows at its authored
     // display level instead (EmissionScale is the larger of the two).
     private const float EmissiveLuminance = 40f;

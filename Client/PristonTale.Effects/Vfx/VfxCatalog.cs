@@ -7,8 +7,9 @@ namespace PristonTale.Effects.Vfx;
 // one. A file that cannot be read, parsed or validated is reported and skipped as a whole.
 public sealed class VfxCatalog
 {
-    public const string Folder = "Effect/Vfx";
     public const string Pattern = "*.vfx.json";
+
+    public static string FolderOf(string assetRoot) => Path.Combine(assetRoot, "Effect", "Vfx");
 
     private VfxCatalog(IReadOnlyList<VfxDefinition> definitions, int files, IReadOnlyList<string> errors)
     {
@@ -21,11 +22,9 @@ public sealed class VfxCatalog
     public int Files { get; }
     public IReadOnlyList<string> Errors { get; }
 
-    public static Task<VfxCatalog> LoadAsync(string assetRoot) => Task.Run(() => Load(assetRoot));
-
     public static VfxCatalog Load(string assetRoot)
     {
-        var directory = Path.Combine(assetRoot, "Effect", "Vfx");
+        var directory = FolderOf(assetRoot);
         var errors = new List<string>();
         var definitions = new List<VfxDefinition>();
         if (!Directory.Exists(directory))

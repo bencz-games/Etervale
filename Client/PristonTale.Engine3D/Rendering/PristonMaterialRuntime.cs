@@ -119,7 +119,6 @@ internal sealed class PristonMaterialRuntime
     // and coloured blends with zero transparency still occlude what is drawn after them, as in the original.
     public bool WritesDepth => Transparency <= SolidTransparencyThreshold;
 
-    public bool ReceivesShadow => true;
     public bool SelfIllum { get; }
     public uint TextureFormState { get; }
     public uint FrameMask { get; }

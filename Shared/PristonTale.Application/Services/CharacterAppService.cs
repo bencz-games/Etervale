@@ -49,13 +49,6 @@ public sealed class CharacterAppService
         return summaries;
     }
 
-    // Whether any account already uses the name.
-    public async Task<bool> NameExistsAsync(string sessionToken, string name, CancellationToken ct = default)
-    {
-        Authenticate(sessionToken);
-        return await _characters.NameExistsAsync(name?.Trim() ?? string.Empty, ct);
-    }
-
     public async Task<CreateCharacterOutcome> CreateCharacterAsync(
         string sessionToken, string name, PlayerClass playerClass, int faceIndex, CancellationToken ct = default)
     {

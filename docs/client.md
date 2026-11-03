@@ -129,7 +129,7 @@ keys, `GameScene.Update`, copy the scene's selected target back to the HUD.
 
 `GameScene.Update` order: NPC audio, equipment presentation, transient effects, field audio, one streaming upload step,
 `DrainPresence`, skills, `UpdatePlayerInput` (picking, prediction, NPC approach, loot, attack approach), hover target
-selection, warps, streaming scan, camera, renderer, movement report, field `OnUpdate` hook.
+selection, warps, streaming scan, camera, renderer, movement report.
 
 `GameplayScreen.Draw` order: `GameplayHud.RenderPortrait` (must be first: it binds its own render target, which discards
 the back buffer), clear, `GameScene.Draw` (renderer, effects, `ComposeScene`), ground loot labels, floating combat text,

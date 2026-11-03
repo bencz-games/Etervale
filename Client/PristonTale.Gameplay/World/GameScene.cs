@@ -28,7 +28,7 @@ using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Gameplay.World;
 
-public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortraitScene
+public sealed partial class GameScene : IDisposable, IHudPortraitScene
 {
     private ActorHandle _playerBodyActor = ActorHandle.None;
     private ActorHandle _playerHeadActor = ActorHandle.None;
@@ -70,7 +70,6 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
     private ActorMotionController _playerController = new();
     private bool _runMode;
     private int _selfLife;
-    private int _selfMaxLife;
     private Vector3 _playerForward = Vector3.Forward;
     private MouseState _lastMouseState;
     private Vector2 _moveTarget;
@@ -80,7 +79,6 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
     private float _serverAttackRate = 1f;
     private Vector2 _positionCorrection;
     private readonly GroundFloorQuery _groundFloorQuery;
-    private int? _snapshotField;
 
     private float MovementSpeed(bool running)
     {
@@ -253,7 +251,6 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
     public Vector3 PlayerPosition => _playerBody?.Position ?? Vector3.Zero;
     public Vector3 PlayerForward => _playerForward;
     private float PlayerYaw => WorldSpace.RenderYaw(_playerForward);
-    public bool RunMode => _runMode;
     public event Action<PresenceUpdate> PresenceObserved;
 
     // What a request answers when the scene has no world connection.
@@ -347,12 +344,6 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
     public Color SkyColor => _renderer?.SkyColor ?? new Color(72, 92, 116);
     public int StageLightCount => _renderer?.StageLightCount ?? 0;
 
-    public float DayLengthSeconds
-    {
-        get => _renderer?.DayLengthSeconds ?? 0f;
-        set { if (_renderer != null) _renderer.DayLengthSeconds = value; }
-    }
-
     // The server keeps the time of day; the sky follows its clock.
     private void FollowServerClock()
     {
@@ -365,7 +356,6 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
         _renderer.SetTimeOfDay(WorldClock.HoursAt(clock));
         _renderer.MoonPhase = WorldClock.MoonPhaseAt(clock);
     }
-    public void SetTimeOfDay(float hours) => _renderer?.SetTimeOfDay(hours);
 
     public bool ShadowsEnabled => _renderer?.ShadowsEnabled ?? false;
 
@@ -418,11 +408,6 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
     private const float WarpFloorTolerance = 64f;
     private float _pendingWarpDelay;
 
-    public int PlayerServerLife => _selfLife;
-    public int PlayerServerMaxLife => _selfMaxLife;
-
-    void IFieldContext.SetDayLength(float seconds) => DayLengthSeconds = seconds;
-
     public void Update(GameTime gameTime)
     {
         _npcAudio?.Update();
@@ -470,7 +455,6 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
 
         var dt = (float)gameTime.ElapsedGameTime.TotalSeconds;
         UpdateMovementReport(dt);
-        _currentField?.OnUpdate?.Invoke(this, dt);
     }
 
     private void OnNpcMotionStarted(int soundCode, MotionCode motion, Vector3 sourcePosition)

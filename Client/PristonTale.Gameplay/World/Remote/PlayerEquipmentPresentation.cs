@@ -40,8 +40,6 @@ public sealed class PlayerEquipmentPresentation
         _playerHandles = handles;
     }
 
-    public CharacterVisualSet BaseVisuals => _basePlayerVisuals;
-
     // A new head (hair tint, big head) re-composes the player on the next update.
     public void SetBaseVisuals(CharacterVisualSet visuals)
     {

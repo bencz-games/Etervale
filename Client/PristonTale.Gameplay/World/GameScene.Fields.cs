@@ -63,7 +63,6 @@ public sealed partial class GameScene
         _playerController = new ActorMotionController();
         _runMode = false;
         _selfLife = _player.Life;
-        _selfMaxLife = d.MaxLife;
         var spawn = entered != null && (entered.SpawnX != 0f || entered.SpawnZ != 0f)
             ? WorldSpace.Planar(entered.SpawnX, entered.SpawnZ)
             : SpawnPlanarPosition(field);
@@ -265,7 +264,6 @@ public sealed partial class GameScene
         _renderer.UndergroundAmbient = new Vector3(ambient.R, ambient.G, ambient.B);
         _renderer.ConfigureDayNight(ToDayNightSettings(field.Definition.DayNight));
         _fieldAudio?.SelectField(field.Definition);
-        field.Definition.OnLoaded?.Invoke(this);
     }
 
     private bool IsLoaded(string fieldId) => FindLoaded(fieldId) is not null;
