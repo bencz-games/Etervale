@@ -15,7 +15,7 @@ internal static class MaterialAdapterTests
         yield return ("material adapter turns self-illumination and additive blends into emission", EmissiveAsync);
         yield return ("material adapter makes darkening blends colour factors", ColorFactorAsync);
         yield return ("material adapter maps the second texture layer by operation and form state", LayerAsync);
-        yield return ("material adapter gives water, ice and shine their own roughness", SurfaceKindsAsync);
+        yield return ("material adapter gives water and shine their own roughness, slippery floor the ground's", SurfaceKindsAsync);
         yield return ("two-sided alpha-tested lit materials transmit light as foliage", FoliageAsync);
         yield return ("late-flagged opaque cut-outs stay in the alpha-tested queue", LateCutoutAsync);
         yield return ("scenery models take the stage's authored light for their texture", StageBakedLightAsync);
@@ -149,8 +149,11 @@ internal static class MaterialAdapterTests
         var water = PristonMaterialAdapter.Describe(StageMaterial(flags: PristonMaterialSurfaceFlags.Water), null);
         Assert.True(water.Roughness == PristonMaterialAdapter.WaterRoughness && water.Reflectance == PristonMaterialAdapter.WaterReflectance,
             "water is not smooth with the reflectance of water");
+        // The ice flag marks slippery floor for gameplay: the ice fields set it on snow, footprints and the grass-to-snow
+        // tiles but not on the grass and soil beside them, so a smoother look shows those tiles as squares.
         var ice = PristonMaterialAdapter.Describe(StageMaterial(flags: PristonMaterialSurfaceFlags.Ice), null);
-        Assert.True(ice.Roughness == PristonMaterialAdapter.IceRoughness, "ice lost its roughness");
+        Assert.True(ice.Roughness == PristonMaterialAdapter.DefaultRoughness && ice.Reflectance == PristonMaterialAdapter.DielectricReflectance,
+            $"slippery floor looks different from the ground beside it (roughness {ice.Roughness})");
         var shine = PristonMaterialAdapter.DescribeLayer(PristonStageOperation.Add, PristonMaterialRuntime.ReflexFormState);
         Assert.True(shine.Mode == PristonLayerMode.Reflection, "the sphere-mapped shine is not a reflection");
         return Task.CompletedTask;

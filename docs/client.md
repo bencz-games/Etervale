@@ -42,7 +42,7 @@ rendering internals, skill presentation and VFX data have their own documents (s
 | `Client/PristonTale.Gameplay/UI/Npc/` | NPC service controller, shop and warehouse windows, store layout, NPC art |
 | `Client/PristonTale.Gameplay/UI/Quests/` | Quest controller, quest dialog and yes/no boxes, quest window, quest texts and art (see [quests.md](quests.md#client)) |
 | `Client/PristonTale.Gameplay/UI/Rendering/` | `HudSprites` (original UI images), `HudIconCache` (item icons), `HudAtlas` (login atlas), `HudCursor` (mouse pointer), `HudPainter`/`HudCanvas`, `HudTextColors` (text colours several windows share) |
-| `Client/PristonTale.Gameplay/Weather/` | `WeatherPresentation`: the server's weather eased in, lightning and thunder timing |
+| `Client/PristonTale.Gameplay/Weather/` | `WeatherPresentation`: the server's weather eased in, lightning and thunder timing; `FieldSnow`: the snow skies' falling snow |
 | `Client/PristonTale.Gameplay/Audio/` | `PristonAudioLibrary` (bootstrap sound load), `FieldAudioController` (music, field and positional ambience, the rain loop and thunder), `NpcAudioController`, `TalkSound`, `CombatSounds` and `CharacterSoundBanks` (character, weapon and footstep sounds), `MonsterSoundCues`, `ItemSoundRules` (item sounds) |
 | `Client/PristonTale.Gameplay/Effects/` | Effect glue: `EffectLibrary`, `VfxContent` (effect data from `<assetRoot>/Effect/Vfx`, loaded off the game thread), `SkillPresentation`, `ScriptEffects`, `SkillSoundBank`, `SkillState`, combat text, meteor, monster mesh and return effects ([effects.md](effects.md)) |
 | [`Client/PristonTale.Client.Net/GameServerConnection.cs`](../Client/PristonTale.Client.Net/GameServerConnection.cs) | TCP session: connect, login, characters, world entry, request correlation, heartbeat, receive dispatch |
@@ -775,6 +775,13 @@ and updates the weather sound. The loaded fields changing reads the occlusion ma
 renderer's moon follows the server clock (`WorldClock.MoonPhaseAt`, in `FollowServerClock`); the field shown sets the
 aurora (`FieldDef.ShowsAurora`, the ice fields) and the morning mist (`FieldDef.MorningMistStrength`) in
 `SetActiveField`.
+
+Snow belongs to the sky, not to the server's weather: on a field with the snow backdrop (`FieldDef.Snows`: Ice 1, Ice 2
+and Ice Ura; Greedy has its own sky) `FieldSnow` runs the converted `particle.snow` script (`IScriptEffects`) at every
+hour and whatever the `weatherEnabled` setting. Each frame its source moves 40 units ahead of the player's facing and
+117 units above it (`FieldSnow.SourceFor`); born flakes stay where they fall, and leaving the field stops it so the
+last flakes play out. An effect lasts at most `VfxDefinition.MaxDuration`, so a new one starts 10 s before it ends,
+or at once if the effect system dropped it.
 
 ## How to
 
