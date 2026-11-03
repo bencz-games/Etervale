@@ -64,7 +64,7 @@ public sealed class FieldGroundLoot(ItemCatalog catalog, FieldTerrain? terrain =
                 item.Sealed = drop.Sealed;
             }
 
-            _entries.Add(id, new Entry(view, item, payout.CreditedPlayerId, publicDrop ? nowMs : nowMs + 5000, nowMs + LifetimeMs(definition), NoThrower));
+            _entries.Add(id, new Entry(view, item, payout.CreditedPlayerId, publicDrop ? nowMs : nowMs + OwnedDropMs, nowMs + LifetimeMs(definition), NoThrower));
             _dirty = true;
         }
     }
@@ -240,6 +240,8 @@ public sealed class FieldGroundLoot(ItemCatalog catalog, FieldTerrain? terrain =
     // Gold (no definition), life and stamina potions lie for ShortLifetimeMs; mana potions and other items for
     // LongLifetimeMs.
     private const long ShortLifetimeMs = 90_000;
+    // A drop that is not public belongs to the credited player this long.
+    private const long OwnedDropMs = 5000;
     private const long LongLifetimeMs = 180_000;
 
     private static long LifetimeMs(ItemDefinition? definition) =>

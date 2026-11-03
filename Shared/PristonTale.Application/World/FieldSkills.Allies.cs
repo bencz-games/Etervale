@@ -171,9 +171,7 @@ internal sealed partial class FieldSkills
     // Heals are lowered by the holder's healing-taken modifiers (a virtual life shrinks the heals it receives).
     private void HealPlayer(WorldPlayer caster, WorldPlayer target, int amount)
     {
-        var totals = target.Character.Effects.Totals;
-        var percent = totals.Percent(StatKind.HealingTaken) + totals.Flat(StatKind.HealingTaken);
-        amount = Math.Max(0, amount + amount * percent / 100);
+        amount = ModifierRules.ChangedBy(amount, target.Character.Effects.Totals, StatKind.HealingTaken, 0);
         var before = target.Life;
         target.Heal(amount);
         _host.EmitCombatEvent(new CombatEventView(caster.EntityId, target.EntityId, CombatEventKind.Heal, damage: target.Life - before));

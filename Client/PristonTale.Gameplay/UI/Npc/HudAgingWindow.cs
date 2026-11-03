@@ -69,7 +69,7 @@ public sealed class HudAgingWindow : HudWorkbench
             return PlaceSheltom(item.InstanceId, ordinal, HudCraftLayout.SheltomAt(origin, pointer), state) ? "" : "Item can't be aged";
         }
 
-        if (key.StartsWith("OS", StringComparison.OrdinalIgnoreCase) || !Ageable(item))
+        if (!Ageable(item))
         {
             return "Item can't be aged";
         }

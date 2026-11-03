@@ -96,9 +96,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
 
         if (skillAttack)
         {
-            var totals = target.Character.Effects.Totals;
-            var percent = totals.Percent(StatKind.SkillDamageTaken) + totals.Flat(StatKind.SkillDamageTaken);
-            damage = Math.Max(1, damage + damage * percent / 100);
+            damage = ModifierRules.ChangedBy(damage, target.Character.Effects.Totals, StatKind.SkillDamageTaken, 1);
         }
 
         var character = target.Character;

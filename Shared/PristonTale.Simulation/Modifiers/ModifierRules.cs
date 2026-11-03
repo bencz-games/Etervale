@@ -55,6 +55,10 @@ public static class ModifierRules
             Resist(resistances.Wind, all + totals.Flat(StatKind.ResistWind)));
     }
 
+    // A value changed by the percent and flat sums of one modifier (as percents), never below floor.
+    public static int ChangedBy(int value, ModifierTotals totals, StatKind stat, int floor) =>
+        Math.Max(floor, value + value * (totals.Percent(stat) + totals.Flat(stat)) / 100);
+
     // Percent change of damage dealt by the attacker and taken by the defender, applied once after resolution.
     public static int ScaleDamage(int damage, ModifierTotals attacker, ModifierTotals defender)
     {
