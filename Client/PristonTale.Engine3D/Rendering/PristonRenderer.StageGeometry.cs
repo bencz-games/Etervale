@@ -28,9 +28,7 @@ public sealed partial class PristonRenderer
     private static Dictionary<int, List<PristonCornerVertex>> BuildStageGroups(PristonStage stage)
     {
         var groups = new Dictionary<int, List<PristonCornerVertex>>();
-        var normals = PristonStageNormals.Compute(stage.Faces, stage.Vertices.Select(static vertex => vertex.Position).ToArray(),
-            face => face.MaterialIndex < 0 || face.MaterialIndex >= stage.Materials.Count
-                || stage.Materials[face.MaterialIndex] is { IsInvisible: false, HasNoRenderableTexture: false });
+        var normals = PristonStageNormals.Compute(stage);
         for (var index = 0; index < stage.Faces.Count; index++)
         {
             var face = stage.Faces[index];

@@ -13,6 +13,12 @@ internal static class PristonStageNormals
 {
     public const float CreaseDegrees = 60f;
 
+    // The stage's corner normals over its drawn faces (a face without a material counts as drawn).
+    public static Vector3[] Compute(PristonStage stage) =>
+        Compute(stage.Faces, stage.Vertices.Select(static vertex => vertex.Position).ToArray(),
+            face => face.MaterialIndex < 0 || face.MaterialIndex >= stage.Materials.Count
+                || stage.Materials[face.MaterialIndex] is { IsInvisible: false, HasNoRenderableTexture: false });
+
     // One normal per face corner: index face * 3 + corner (A, B, C), zero for a face that is skipped, degenerate or not
     // drawn.
     public static Vector3[] Compute(IReadOnlyList<PristonStageFace> faces, IReadOnlyList<Vector3> positions, Func<PristonStageFace, bool> drawn = null)
