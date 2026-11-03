@@ -382,7 +382,7 @@ public sealed partial class VfxRenderer : IDisposable
                 return;
             }
 
-            var parameters = new Vector2(8f, 0f);
+            var parameters = new Vector2(VfxSystem.StripSoftness, 0f);
             _scratch[at] = new VfxVertex { Position = a + side, Color = c0, TexCoord = new Vector2(t0, 0f), Params = parameters };
             _scratch[at + 1] = new VfxVertex { Position = b + side, Color = c1, TexCoord = new Vector2(t1, 0f), Params = parameters };
             _scratch[at + 2] = new VfxVertex { Position = b - side, Color = c1, TexCoord = new Vector2(t1, 1f), Params = parameters };

@@ -73,7 +73,8 @@ public struct VfxElement
 internal sealed class ComponentState
 {
     public const int MaxParticles = 100;
-    private const float ModelTicksPerSecond = 4800f;
+    // Component models play 30 clip frames a second.
+    private const float ModelTicksPerSecond = 30 * GameUnits.FrameTicks;
 
     public CompiledComponent Component = null!;
     public VfxElement Element;

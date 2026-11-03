@@ -177,7 +177,7 @@ VSOut VS_Surface(VSIn i)
     PlaceVertex(i.Position, i.Normal, bone, worldPosition, worldNormal, previousPosition);
 #ifdef SKINNED
     // A distortion wobbles every vertex up to ActorParams.x along a sine of its own coordinate (32-unit waves).
-    float3 phase = worldPosition * (6.2831853 / 32.0) + ActorParams.y;
+    float3 phase = worldPosition * (2.0 * PI / 32.0) + ActorParams.y;
     float3 wobble = float3(sin(phase.x), sin(phase.y), cos(phase.z)) * ActorParams.x;
     worldPosition += wobble;
     previousPosition += wobble;

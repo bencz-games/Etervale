@@ -207,7 +207,7 @@ public sealed partial class VfxRenderer
             return;
         }
 
-        var parameters = new Vector2(8f, 0f);
+        var parameters = new Vector2(VfxSystem.StripSoftness, 0f);
         _scratch[at] = new VfxVertex { Position = a, Color = color, TexCoord = new Vector2(uv.X, uv.Y), Params = parameters };
         _scratch[at + 1] = new VfxVertex { Position = b, Color = color, TexCoord = new Vector2(uv.Z, uv.Y), Params = parameters };
         _scratch[at + 2] = new VfxVertex { Position = c, Color = color, TexCoord = new Vector2(uv.Z, uv.W), Params = parameters };

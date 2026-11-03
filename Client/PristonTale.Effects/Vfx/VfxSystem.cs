@@ -62,6 +62,10 @@ public readonly record struct VfxSpawn(ulong CasterId, ulong TargetId, Vector3 P
 public sealed class VfxSystem
 {
     public const int MaxInstances = 1024;
+    // The longest step an update advances; a longer frame advances by this.
+    public const float MaxStepSeconds = 0.1f;
+    // The fade distance of soft strips, ribbons, parts and component quads into the scene (emitters take their own).
+    public const float StripSoftness = 8f;
     internal const int TrailPoints = 32;
 
     private readonly List<VfxInstance> _live = new(64);
@@ -130,7 +134,7 @@ public sealed class VfxSystem
             return;
         }
 
-        seconds = MathF.Min(seconds, 0.1f);
+        seconds = MathF.Min(seconds, MaxStepSeconds);
         for (var index = _live.Count - 1; index >= 0; index--)
         {
             var instance = _live[index];

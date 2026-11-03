@@ -51,6 +51,12 @@ public sealed class BillboardSequence
     public IReadOnlyList<BillboardFrame> Frames { get; }
     public int StartAlpha { get; }
     public int BlendType { get; }
+
+    // The authored blend codes.
+    public const int ColourBlend = 0;
+    public const int AlphaBlend = 1;
+    public const int LampBlend = 2;
+    public const int ShadowBlend = 3;
     public BillboardChannels Channels { get; }
 
     // Reads an animation by file name from Effect/AnimationData and its image set from Effect/ImageData; open returns a

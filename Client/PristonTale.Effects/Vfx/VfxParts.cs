@@ -26,9 +26,9 @@ internal sealed class CompiledPart
         Color = new Vector4(source.Color[0], source.Color[1], source.Color[2], source.Color[3]);
         Blend = animation is null ? source.Blend : animation.BlendType switch
         {
-            0 => VfxBlend.Color,
-            1 => VfxBlend.Alpha,
-            3 => VfxBlend.Shadow,
+            BillboardSequence.ColourBlend => VfxBlend.Color,
+            BillboardSequence.AlphaBlend => VfxBlend.Alpha,
+            BillboardSequence.ShadowBlend => VfxBlend.Shadow,
             _ => VfxBlend.Additive
         };
         Visible = source.Shape == VfxPartShape.Model ? model is not null : textures.Length > 0;
@@ -238,7 +238,8 @@ internal sealed class PartState
             return;
         }
 
-        if (part.Age <= 0.1f && system.Resolve(Part.Source.CarryEffect, ref Part.CarryEffect, ref Part.CarryResolved) is { } effect)
+        // A carried effect starts within the part's first update.
+        if (part.Age <= VfxSystem.MaxStepSeconds && system.Resolve(Part.Source.CarryEffect, ref Part.CarryEffect, ref Part.CarryResolved) is { } effect)
         {
             _carried[index] = system.SpawnFrom(instance, effect, part.Position);
         }
