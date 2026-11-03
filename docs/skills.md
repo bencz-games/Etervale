@@ -60,9 +60,11 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   Mechanician lists `0x01010004` before `0x01010003`.
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
-- The eight original classes have a rule for their first four tiers' 16 skills; their fifth tier (levels 80, 83, 86,
-  90) holds definitions only (name, icon, level, costs, weapons) until its rules are ported. Assassin and Shaman files
-  hold window definitions only, except Assassin's passive `0x10010003`.
+- The eight original classes and the Assassin have a rule for their first four tiers' 16 skills; their fifth tier
+  (levels 80, 83, 86, 90) holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The
+  Shaman file holds window definitions only. The Assassin's skill clips are those of its motion table tagged from 163
+  (the class motion table numbers tags per class: first tag + 4 x tier + slot - 1); its Assassin Mastery grants its
+  critical chance with daggers, which the original's empty weapon list never allowed.
 
 ## Learning (skill master)
 

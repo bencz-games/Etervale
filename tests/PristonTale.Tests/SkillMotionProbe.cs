@@ -20,7 +20,7 @@ internal static class SkillMotionProbe
         foreach (var playerClass in new[]
         {
             PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Knight, PlayerClass.Atalanta,
-            PlayerClass.Priestess, PlayerClass.Magician
+            PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin, PlayerClass.Shaman
         })
         {
             var path = classes.Get(playerClass).Definition.DefaultVisuals.Body.InxPath;
@@ -46,7 +46,11 @@ internal static class SkillMotionProbe
                 // A variant may play another skill clip of the class (a hit count that grows into a sibling skill's motion). The
                 // Knight's final-tier clips carry tags of the class that do not follow the slot order, so a skill's own clip
                 // must carry a tag of its class; its length and events still have to match.
-                var first = FirstTags[(int)(skill.Code >> 24) - 1];
+                if (!FirstTags.TryGetValue(skill.Code >> 24, out var first))
+                {
+                    continue;
+                }
+
                 var classTags = Enumerable.Range(first, 20).Select(static tag => (byte)tag).ToArray();
                 if (rule.Motion == SkillMotion.Skill)
                 {
@@ -70,12 +74,15 @@ internal static class SkillMotionProbe
 
     // The class motion tables tag skill clips with the class's first tag + 4 x tier + slot - 1 (tier 0 to 3); the first
     // tags of the eight class groups, as the shipped tables number them.
-    private static readonly int[] FirstTags = [1, 21, 41, 61, 81, 103, 123, 143];
+    private static readonly Dictionary<uint, int> FirstTags = new()
+    {
+        [1] = 1, [2] = 21, [3] = 41, [4] = 61, [5] = 81, [6] = 103, [7] = 123, [8] = 143, [0x10] = 163, [0x50] = 183
+    };
 
     public static byte Tag(uint code)
     {
         var tier = BitOperations.Log2((code >> 16) & 0xF);
-        return (byte)(FirstTags[(int)(code >> 24) - 1] + 4 * tier + (int)(code & 0xF) - 1);
+        return (byte)(FirstTags[code >> 24] + 4 * tier + (int)(code & 0xF) - 1);
     }
 
     private static void Check(PlayerClass playerClass, SkillRule rule, int index, int frames, int[] events, byte[] tags, IReadOnlyList<PristonMotionInfo> motions,

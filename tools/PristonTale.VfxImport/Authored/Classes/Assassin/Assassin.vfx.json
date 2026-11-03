@@ -1,0 +1,277 @@
+[
+  {
+    "name": "vfx.assassin.stinger.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Stingger",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.runninghit.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.RunningHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.wisp.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Wisp1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.wisp.mark",
+    "duration": 600,
+    "parts": [
+      {
+        "anchor": "Caster",
+        "follow": true,
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": false,
+        "carryEffect": "particle.Wisp2"
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.venomthorn.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.VenomThrone",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.alas.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.Alas",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.soulshock.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.SoulShock",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.soreblade.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.SoreSword",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.gustslash.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.BeatUp",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.inpes.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.Inpes",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.blind.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Blind",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.cripple.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.FrostWindBegin",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.cripple.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.FrostWindAttack",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.polluted.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.PollutedBegin",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.polluted.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.PollutedAttack",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.ninjashadow.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.PastingShadowBegin",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.ninjashadow.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.PastingShadowAttack",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  }
+]

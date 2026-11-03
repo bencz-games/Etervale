@@ -11,13 +11,12 @@ internal static class ClassSkillDataTests
     private sealed record SourceSkill(uint Code, string Name, string Description, string Icon, int Level, int Stamina, int Step, string Use, int[] Mana,
         string[] Weapons);
 
-    // The eight original classes have their first four tiers' sixteen skills ported; the fifth tier holds definitions. The
-    // Assassin and the Shaman keep definitions only: their first tier has costs but no castable rules (the Assassin's
-    // dagger mastery is a passive), their later tiers neither.
+    // The ported classes have their first four tiers' sixteen skills ported; the fifth tier holds definitions. The Shaman
+    // keeps definitions only: its first tier has costs but no castable rules, its later tiers neither.
     private static readonly PlayerClass[] Ported =
     [
         PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Knight, PlayerClass.Atalanta,
-        PlayerClass.Priestess, PlayerClass.Magician
+        PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin
     ];
 
     private const int PortedSkills = 16;
@@ -43,8 +42,27 @@ internal static class ClassSkillDataTests
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
         yield return ("class skill data keeps the original codes, window order, levels, mouse sides, weapons and ten-rank costs", MetadataAsync);
-        yield return ("every skill of the eight original classes has ten-rank costs and a complete rule on every rank", PortedRulesAsync);
+        yield return ("every skill of the ported classes has ten-rank costs and a complete rule on every rank", PortedRulesAsync);
         yield return ("class skill files reject unknown properties and brood names at any depth", StrictDataAsync);
+        yield return ("the Assassin's skills keep the original hit frames, areas, party reach and dagger rules", AssassinAsync);
+    }
+
+    private static Task AssassinAsync()
+    {
+        static SkillRule Rule(uint code) => SkillRuleCatalog.TryGet(code, out var rule) ? rule : throw new InvalidOperationException($"{code:X8} has no rule");
+
+        var stinger = Rule(0x10010001);
+        Assert.True(stinger.ForRank(1).HitFramesByRank[0].SequenceEqual([26]) && stinger.Damage.BonusPercent == 30, "Stinger strikes once, at its second event");
+        var gust = Rule(0x10040002);
+        Assert.True(gust is { Kind: SkillKind.Area, AreaCenter: SkillAreaCenter.Target, AreaAccuracy: true } && gust.Damage is { AreaPercent: 50, MainPercent: 50 },
+            "Gust Slash does not split its power between the target and the enemies near it");
+        Assert.True(Rule(0x10020002).Allies is { Party: true } alas && alas.Radius[0] == 350, "Alas does not reach the party within 350");
+        Assert.True(Rule(0x10020003).Buff is { Control: Simulation.Modifiers.ControlFlags.Stun, ResistedByBionic: true }, "Soul Shock does not stun");
+        Assert.True(Rule(0x10080003).MaxTargetsByRank[9] == 5 && Rule(0x10080003).Damage.Element == Simulation.Combat.Element.Poison, "Polluted lost its target cap or poison");
+        Assert.True(Rule(0x10080002).Passive is { Effect: PassiveEffect.CriticalChance } && ClassSkillCatalog.TryGet(0x10080002, out var mastery)
+            && mastery.AllowsWeapon(ItemKind.Dagger) && !mastery.AllowsWeapon(ItemKind.Sword), "the Assassin's mastery does not need daggers");
+        Assert.True(Rule(0x10080004).ForRank(1).HitFramesByRank[0].SequenceEqual([1, 19]), "Ninja Shadow does not strike at the cast and at its event");
+        return Task.CompletedTask;
     }
 
     private static Task StrictDataAsync()
@@ -213,9 +231,9 @@ internal static class ClassSkillDataTests
                 $"{playerClass} final-tier rules are not recognised");
         }
 
-        Assert.True(count == 128, $"expected 128 ported skills with rules, got {count}");
-        Assert.True(SkillRuleCatalog.Count == count + 1, $"rules exist for skills that are not ported: {SkillRuleCatalog.Count}");
-        foreach (var playerClass in new[] { PlayerClass.Assassin, PlayerClass.Shaman })
+        Assert.True(count == 144, $"expected 144 ported skills with rules, got {count}");
+        Assert.True(SkillRuleCatalog.Count == count, $"rules exist for skills that are not ported: {SkillRuleCatalog.Count}");
+        foreach (var playerClass in new[] { PlayerClass.Shaman })
         {
             Assert.True(ClassSkillCatalog.For(playerClass).All(skill => !SkillRuleCatalog.TryGet(skill.Code, out var rule) || rule.Kind == SkillKind.Passive),
                 $"{playerClass} gained castable rules");
