@@ -21,9 +21,24 @@ internal static class EquipmentTests
     {
         yield return ("original catalog metadata enables armor and weapons without allowing two-handed shield combinations", CatalogMetadataAsync);
         yield return ("equipment resources preserve original indices, armor aliases and village bones", ResourcesAsync);
+        yield return ("an item key's family names its kind without allocating", KindOfAsync);
         yield return ("motion selection respects item lists, class and map masks", MotionAsync);
         yield return ("equipment changes refresh public appearance over TCP", PresenceAsync);
         yield return ("remote equipment preparation preserves old actors and discards superseded swaps", ReplacementAsync);
+    }
+
+    private static Task KindOfAsync()
+    {
+        Assert.True(ItemEquipmentMetadata.KindOf("WS101") == ItemKind.Bow && ItemEquipmentMetadata.KindOf("ws201") == ItemKind.Sword
+            && ItemEquipmentMetadata.KindOf("WT105") == ItemKind.ThrowingWeapon && ItemEquipmentMetadata.KindOf("OR201") == ItemKind.Ring,
+            "a family named the wrong kind");
+        Assert.True(ItemEquipmentMetadata.IsShield("DS105") && !ItemEquipmentMetadata.IsShield("OM101") && !ItemEquipmentMetadata.IsShield(null)
+            && ItemEquipmentMetadata.KindOf("XX1") is null && ItemEquipmentMetadata.KindOf("WS") is null, "a shield or an unknown key misread");
+        ItemEquipmentMetadata.KindOf("WM101");
+        var before = GC.GetAllocatedBytesForCurrentThread();
+        var staff = ItemEquipmentMetadata.KindOf("WM101");
+        Assert.True(staff == ItemKind.Staff && GC.GetAllocatedBytesForCurrentThread() == before, "the kind lookup allocated");
+        return Task.CompletedTask;
     }
 
     private static Task CatalogMetadataAsync()

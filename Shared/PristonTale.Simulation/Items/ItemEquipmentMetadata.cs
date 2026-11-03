@@ -54,14 +54,21 @@ public static class ItemEquipmentMetadata
 
     public static bool IsTwoHanded(string catalogKey) => TwoHandedKeys.Contains(catalogKey);
 
-    public static bool IsShield(string catalogKey) => TryGet(catalogKey, out var kind, out _) && kind == ItemKind.Shield;
+    private static readonly Dictionary<string, (ItemKind Kind, EquipmentSlot Slot)>.AlternateLookup<ReadOnlySpan<char>> FamilySpans =
+        Families.GetAlternateLookup<ReadOnlySpan<char>>();
+
+    public static bool IsShield(string catalogKey) => KindOf(catalogKey) == ItemKind.Shield;
+
+    // The kind of a catalog key's family (its three-letter family, else its two-letter one); null for none. It allocates
+    // nothing, so frame code may call it.
+    public static ItemKind? KindOf(string catalogKey) => TryGet(catalogKey, out var kind, out _) ? kind : null;
 
     public static bool TryGet(string catalogKey, out ItemKind kind, out EquipmentSlot slot)
     {
         kind = default;
         slot = default;
         if (catalogKey is null || catalogKey.Length < 3
-            || !Families.TryGetValue(catalogKey[..3], out var family) && !Families.TryGetValue(catalogKey[..2], out family))
+            || !FamilySpans.TryGetValue(catalogKey.AsSpan(0, 3), out var family) && !FamilySpans.TryGetValue(catalogKey.AsSpan(0, 2), out family))
         {
             return false;
         }

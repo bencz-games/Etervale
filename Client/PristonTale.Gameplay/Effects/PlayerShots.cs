@@ -78,9 +78,9 @@ public sealed class PlayerShots
             return;
         }
 
-        var family = ItemCodes.FamilyOf(weaponKey);
+        var kind = ItemEquipmentMetadata.KindOf(weaponKey);
         var chest = target + Vector3.Up * 24f;
-        if (family == "WM1")
+        if (kind == ItemKind.Staff)
         {
             if (staffCaster)
             {
@@ -90,7 +90,7 @@ public sealed class PlayerShots
             return;
         }
 
-        if (family is not ("WS1" or "WT1"))
+        if (kind is not (ItemKind.Bow or ItemKind.ThrowingWeapon))
         {
             return;
         }
@@ -102,7 +102,7 @@ public sealed class PlayerShots
             return;
         }
 
-        var javelin = family == "WT1";
+        var javelin = kind == ItemKind.ThrowingWeapon;
         if (javelin && !World.Remote.EquipmentVisuals.HasModel(weaponKey))
         {
             return;

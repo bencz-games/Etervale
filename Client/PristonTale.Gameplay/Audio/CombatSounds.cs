@@ -144,17 +144,17 @@ public sealed class CombatSounds : IDisposable
             return 14;
         }
 
-        return ItemCodes.FamilyOf(weaponKey) switch
+        return ItemEquipmentMetadata.KindOf(weaponKey) switch
         {
-            "WA1" => twoHanded ? 2 : 1,
-            "WS2" when ItemCodes.Ordinal(code) <= 3 => 15,
-            "WS2" => twoHanded ? 4 : 3,
-            "WP1" => twoHanded ? 6 : 5,
-            "WC1" => 7,
-            "WS1" => 8,
-            "WM1" when ClassProfiles.CastsWithStaff(playerClass) => twoHanded ? 18 : 17,
-            "WM1" or "WH1" => twoHanded ? 10 : 9,
-            "WT1" => 11,
+            ItemKind.Axe => twoHanded ? 2 : 1,
+            ItemKind.Sword when ItemCodes.Ordinal(code) <= 3 => 15,
+            ItemKind.Sword => twoHanded ? 4 : 3,
+            ItemKind.Pole => twoHanded ? 6 : 5,
+            ItemKind.Claw => 7,
+            ItemKind.Bow => 8,
+            ItemKind.Staff when ClassProfiles.CastsWithStaff(playerClass) => twoHanded ? 18 : 17,
+            ItemKind.Staff or ItemKind.Hammer => twoHanded ? 10 : 9,
+            ItemKind.ThrowingWeapon => 11,
             _ => 14
         };
     }

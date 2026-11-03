@@ -66,30 +66,30 @@ public sealed class ClassUpLights
     // The lights' centre in the weapon's model space, its length along Y.
     public static Vector3 Center(string weaponKey, float reach, bool leftHand, bool twoHanded)
     {
-        // Read every frame for every class-up holder, so the family is tested in place, not cut out of the key.
+        var kind = ItemEquipmentMetadata.KindOf(weaponKey);
         Vector3 point;
-        if (leftHand && ItemCodes.InFamily(weaponKey, [Bow]))
+        if (leftHand && kind == ItemKind.Bow)
         {
             // A bow in the left hand: just short of its end, turned a quarter across.
             point = new Vector3(reach - 10f, 0f, 0f);
         }
-        else if (ItemCodes.InFamily(weaponKey, [Javelin]))
+        else if (kind == ItemKind.ThrowingWeapon)
         {
             point = new Vector3(0f, -0.4f * reach, 0f);
         }
-        else if (ItemCodes.InFamily(weaponKey, [Sword]))
+        else if (kind == ItemKind.Sword)
         {
             point = new Vector3(0f, reach * (reach * GameUnits.FixedScale > 5000f ? 0.75f : 0.8f), 0f);
         }
-        else if (ItemCodes.InFamily(weaponKey, [Claw]))
+        else if (kind == ItemKind.Claw)
         {
             point = new Vector3(2f * reach, 0f, 0f);
         }
-        else if (ItemCodes.InFamily(weaponKey, [Staff]))
+        else if (kind == ItemKind.Staff)
         {
             point = new Vector3(0f, 0.7f * reach, 0f);
         }
-        else if (ItemCodes.InFamily(weaponKey, [Bow]))
+        else if (kind == ItemKind.Bow)
         {
             point = new Vector3(0.7f * reach * MathF.Sin(MathHelper.PiOver4), 0.7f * reach * MathF.Cos(MathHelper.PiOver4), 0f);
         }
@@ -110,14 +110,8 @@ public sealed class ClassUpLights
 
     private static bool Across(string weaponKey, bool leftHand)
     {
-        return leftHand || ItemCodes.InFamily(weaponKey, [Claw, Bow]);
+        return leftHand || ItemEquipmentMetadata.KindOf(weaponKey) is ItemKind.Claw or ItemKind.Bow;
     }
-
-    private const string Bow = "WS1";
-    private const string Javelin = "WT1";
-    private const string Sword = "WS2";
-    private const string Claw = "WC1";
-    private const string Staff = "WM1";
 
     private sealed class Holder
     {
