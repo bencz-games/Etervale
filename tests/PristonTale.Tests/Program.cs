@@ -193,6 +193,13 @@ if (args.Length == 5 && args[0] == "--check-look" && args[1] is "charselect" or 
     return 0;
 }
 
+if (args.Length >= 5 && args[0] == "--render-minimaps")
+{
+    using var probe = new MinimapRenderProbe(args[1], args[2], args[3], args[4..]);
+    probe.Run();
+    return 0;
+}
+
 if (args.Length == 4 && args[0] == "--capture-npcs")
 {
     using var probe = new ActorPresentationProbe(args[1], args[2], args[3]);
