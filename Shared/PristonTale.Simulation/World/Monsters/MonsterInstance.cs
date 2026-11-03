@@ -33,6 +33,9 @@ public sealed class MonsterInstance
 
     public int Life { get; set; }
 
+    // Life as a whole percent of the definition's maximum; null for a definition without one.
+    public int? LifePercent => Def.Combat.MaxLife is > 0 and var max ? (int)(Life * 100L / max) : null;
+
     public MotionState Motion { get; set; }
 
     public MonsterAiState AiState { get; set; }

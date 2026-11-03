@@ -1,6 +1,7 @@
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Modifiers;
+using PristonTale.Simulation.Combat;
 
 namespace PristonTale.Simulation.Skills;
 
@@ -53,8 +54,7 @@ public static class PassiveSkillEffects
             return default;
         }
 
-        var stats = weapon.TotalStats;
-        return ((int)(percent / 100f * stats.DamageMin), (int)(percent / 100f * stats.DamageMax));
+        return WeaponDamage.PercentOfWeapon(weapon, percent);
     }
 
     private static bool WeaponMatches(PlayerCharacter character, SkillPassiveRule passive)

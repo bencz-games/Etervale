@@ -41,8 +41,7 @@ public static class MonsterLifeRules
 
     public static bool WantsPotion(MonsterInstance monster)
     {
-        var max = monster.Def.Combat.MaxLife;
-        return monster.Potions > 0 && monster.DuelPlayerId == 0 && max > 0 && monster.Life * 100L / max < PotionThresholdPercent;
+        return monster.Potions > 0 && monster.DuelPlayerId == 0 && monster.LifePercent < PotionThresholdPercent;
     }
 
     public static int PotionHeal(MonsterDefinition definition) => definition.Combat.MaxLife / PotionHealDivisor;
@@ -50,23 +49,20 @@ public static class MonsterLifeRules
     // Spends a virtual life when the remaining life falls to 10 % or less; returns true when one was spent.
     public static bool TrySpendVirtualLife(MonsterInstance monster)
     {
-        var max = monster.Def.Combat.MaxLife;
-        if (monster.VirtualLives <= 0 || max <= 0 || monster.Life * 100L / max > VirtualLifeThresholdPercent)
+        if (monster.VirtualLives <= 0 || monster.LifePercent is not { } percent || percent > VirtualLifeThresholdPercent)
         {
             return false;
         }
 
         monster.VirtualLives--;
-        monster.Life = max;
+        monster.Life = monster.Def.Combat.MaxLife;
         return true;
     }
 
     // The life bar of a boss with lives: each life is 100 points of the bar, the current life its percent.
     public static (int Life, int Max) DisplayLife(MonsterInstance monster)
     {
-        var max = monster.Def.Combat.MaxLife;
-        var percent = max > 0 ? (int)(monster.Life * 100L / max) : 0;
-        var life = monster.VirtualLives * 100 + percent;
+        var life = monster.VirtualLives * 100 + (monster.LifePercent ?? 0);
         if (life <= 0 && monster.Life > 0)
         {
             life = 1;

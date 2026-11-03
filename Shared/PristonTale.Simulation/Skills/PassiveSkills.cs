@@ -58,10 +58,7 @@ public static class PassiveSkills
             return default;
         }
 
-        var percent = Sum(character, PassiveEffect.WeaponDamagePercent, weapon);
-        var stats = weapon.TotalStats;
-        // Float division before the multiplication, each end truncated; the percentage scales the weapon's own damage.
-        return ((int)(percent / 100f * stats.DamageMin), (int)(percent / 100f * stats.DamageMax));
+        return WeaponDamage.PercentOfWeapon(weapon, Sum(character, PassiveEffect.WeaponDamagePercent, weapon));
     }
 
     public static int CriticalChance(PlayerCharacter character) => Sum(character, PassiveEffect.CriticalChance, Weapon(character));

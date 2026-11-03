@@ -19,8 +19,7 @@ public static class MonsterTransformRules
             return false;
         }
 
-        var max = definition.Combat.MaxLife;
-        var percent = max > 0 ? monster.Life * 100L / max : 100;
+        var percent = monster.LifePercent ?? 100;
         var threshold = definition.SoundCode == CharacterSoundCodes.DeadHopt ? 20 : 30;
         return percent < threshold || monster.AttackAnger > AngerLimit;
     }

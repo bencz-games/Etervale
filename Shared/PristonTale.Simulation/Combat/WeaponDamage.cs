@@ -64,4 +64,11 @@ public static class WeaponDamage
         var maximum = 4 + stats.DamageMax * (primary + divisor) / divisor + secondary + jobDamage + items.LevelDamage;
         return ModifierRules.ApplyDamage(character.Effects.Totals, minimum + mastery.Min, maximum + mastery.Max);
     }
+
+    // A percent of the weapon's own damage range, each end truncated (the percent applied before the multiplication).
+    public static (int Min, int Max) PercentOfWeapon(ItemInstance weapon, int percent)
+    {
+        var stats = weapon.TotalStats;
+        return ((int)(percent / 100f * stats.DamageMin), (int)(percent / 100f * stats.DamageMax));
+    }
 }
