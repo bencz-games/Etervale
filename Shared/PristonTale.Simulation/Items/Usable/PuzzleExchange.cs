@@ -7,31 +7,10 @@ namespace PristonTale.Simulation.Items.Usable;
 // The puzzle collector's exchange: the finished board leaves the inventory and one reward joins it.
 public static class PuzzleExchange
 {
-    // The anchors of a finished puzzle: the eight revealed pieces of one set each in its board cell; empty when none.
-    public static IReadOnlyList<int> Board(Inventory inventory)
-    {
-        for (var set = 1; set <= 2; set++)
-        {
-            var anchors = new List<int>(8);
-            for (var number = 1; number <= 8; number++)
-            {
-                var (column, row) = Puzzles.Cell(number);
-                var anchor = row * inventory.Width + column;
-                if (column < inventory.Width && anchor < inventory.Capacity && inventory[anchor] is { Sealed: false } item
-                    && string.Equals(item.Definition.CatalogKey, $"PZ{set}0{number}", StringComparison.OrdinalIgnoreCase))
-                {
-                    anchors.Add(anchor);
-                }
-            }
-
-            if (anchors.Count == 8)
-            {
-                return anchors;
-            }
-        }
-
-        return [];
-    }
+    // The finished board of the revealed (unsealed) pieces in the bag.
+    public static IReadOnlyList<int> Board(Inventory inventory) =>
+        Puzzles.Board(inventory.Occupied().Where(static slot => !slot.Item.Sealed).Select(static slot => (slot.Item.Definition.CatalogKey, slot.Anchor)),
+            inventory.Width);
 
     // Takes the board and adds the drawn reward (thirty Mystic Mana Potions when the reward's item is unknown). The
     // exchange needs 120 free weight and room for the reward.
