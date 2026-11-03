@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using PristonTale.Assets;
 using PristonTale.Engine3D.Formats;
+using PristonTale.Engine3D.Rendering;
 using PristonTale.AssetDump;
 using PristonTale.Contracts.Motion;
 
