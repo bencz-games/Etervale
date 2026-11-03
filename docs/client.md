@@ -391,7 +391,8 @@ Renderer side of stage publication: [rendering.md](rendering.md).
 
 An action field (`FieldState.Action`, [world.md](world.md#fields)) is seen side-on (`GameScene.UpdateCamera`): the
 camera stands at the field's `ActionCamera` height and depth, follows the player along x within its bounds and looks
-along +z at the player's height, with no orbit or zoom; every actor, the player's own included, is drawn facing left or
+along +z at the player's height through a vertical angle of pi / 4.4 (`FieldActionCamera.FieldOfViewRadians`, narrower
+than the follow camera's, so the ground strip fills the bottom of the screen), with no orbit or zoom; every actor, the player's own included, is drawn facing left or
 right (`ActionFieldView.Facing`, `RemoteEntityManager.SideView`). Leaving the field snaps the follow camera back. The mouse
 keeps its usual clicks there.
 

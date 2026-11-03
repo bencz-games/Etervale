@@ -18,6 +18,7 @@ public sealed class PristonCamera
     private float _distance;
     private int _projectionWidth = -1;
     private int _projectionHeight = -1;
+    private float _projectionFieldOfView = float.NaN;
     private bool _hasPosition;
 
     public PristonCamera(Vector3 target, Vector3 forward, PristonCameraSettings settings = null)
@@ -58,9 +59,13 @@ public sealed class PristonCamera
     public void SetScriptedView(GraphicsDevice graphicsDevice, Vector3 position, Vector3 lookAt)
         => SetScriptedView(graphicsDevice, position, lookAt, Vector3.Up);
 
-    public void SetScriptedView(GraphicsDevice graphicsDevice, Vector3 position, Vector3 lookAt, Vector3 up)
+    public void SetScriptedView(GraphicsDevice graphicsDevice, Vector3 position, Vector3 lookAt, Vector3 up) =>
+        SetScriptedView(graphicsDevice, position, lookAt, up, _fieldOfViewRadians);
+
+    // A scripted view through another vertical field of view; the next view without one returns to the settings' angle.
+    public void SetScriptedView(GraphicsDevice graphicsDevice, Vector3 position, Vector3 lookAt, Vector3 up, float verticalFieldOfViewRadians)
     {
-        EnsureProjection(graphicsDevice);
+        EnsureProjection(graphicsDevice, verticalFieldOfViewRadians);
         _position = position;
         _hasPosition = true;
         Target = lookAt;
@@ -74,7 +79,7 @@ public sealed class PristonCamera
         IPristonCollisionQuery collisionWorld, bool pointerCaptured = false, bool inputEnabled = true)
     {
         UpdateOrbit(Mouse.GetState(), pointerCaptured, graphicsDevice.Viewport.Bounds, (float)gameTime.ElapsedGameTime.TotalSeconds, inputEnabled);
-        EnsureProjection(graphicsDevice);
+        EnsureProjection(graphicsDevice, _fieldOfViewRadians);
         UpdateFollow(target, (float)gameTime.ElapsedGameTime.TotalSeconds, collisionWorld);
     }
 
@@ -123,19 +128,20 @@ public sealed class PristonCamera
         _lastMouse = mouse;
     }
 
-    private void EnsureProjection(GraphicsDevice graphicsDevice)
+    private void EnsureProjection(GraphicsDevice graphicsDevice, float fieldOfViewRadians)
     {
         var width = Math.Max(1, graphicsDevice.Viewport.Width);
         var height = Math.Max(1, graphicsDevice.Viewport.Height);
-        if (width == _projectionWidth && height == _projectionHeight)
+        if (width == _projectionWidth && height == _projectionHeight && fieldOfViewRadians == _projectionFieldOfView)
         {
             return;
         }
 
         _projectionWidth = width;
         _projectionHeight = height;
+        _projectionFieldOfView = fieldOfViewRadians;
         var aspect = width / (float)height;
-        var verticalFieldOfView = VerticalFieldOfView(_fieldOfViewRadians, _settings.MaxHorizontalFieldOfViewDegrees, aspect);
+        var verticalFieldOfView = VerticalFieldOfView(fieldOfViewRadians, _settings.MaxHorizontalFieldOfViewDegrees, aspect);
         Projection = PristonDepth.Perspective(verticalFieldOfView, aspect, _settings.NearPlane, _settings.FarPlane);
     }
 

@@ -85,6 +85,9 @@ public sealed record FieldActionCamera(
     int RightX)
 {
     public const int LookAtZ = 326711;
+    // The side view's vertical angle (pi / 4.4): standing a few hundred units in front of the player and close to the
+    // ground, a wider lens shows the void below the ground strip.
+    public const float FieldOfViewRadians = MathF.PI / 4.4f;
     private const float Rise = 80f;
 
     public float Height => PristonTale.Contracts.Units.GameUnits.FromFixed(FixedHeight) + Rise;

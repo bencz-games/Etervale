@@ -4,6 +4,7 @@ using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.Physics;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Gameplay.World;
+using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Fields;
 
 namespace PristonTale.Tests;
@@ -126,6 +127,12 @@ internal static class CameraTests
         }
 
         Assert.Near(vertical, PristonCamera.VerticalFieldOfView(vertical, 90f, 4f / 3f));
+        // The side view of an action field keeps its narrower angle on every common window shape.
+        foreach (var aspect in new[] { 4f / 3f, 16f / 9f, 21f / 9f })
+        {
+            Assert.Near(FieldActionCamera.FieldOfViewRadians, PristonCamera.VerticalFieldOfView(FieldActionCamera.FieldOfViewRadians, 90f, aspect));
+        }
+
         return Task.CompletedTask;
     }
 

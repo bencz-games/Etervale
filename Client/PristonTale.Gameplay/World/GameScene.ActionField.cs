@@ -68,7 +68,8 @@ public sealed partial class GameScene
         _sideView = true;
         var feet = GroundTraversal.ToVisualPosition(_playerBody.Position);
         var x = view.FollowX(feet.X);
-        _camera.SetScriptedView(_graphicsDevice, new Vector3(x, view.Height, -view.Z), new Vector3(x, feet.Y, -FieldActionCamera.LookAtZ));
+        _camera.SetScriptedView(_graphicsDevice, new Vector3(x, view.Height, -view.Z), new Vector3(x, feet.Y, -FieldActionCamera.LookAtZ), Vector3.Up,
+            FieldActionCamera.FieldOfViewRadians);
     }
 
     private void UpdateActionKeys(GameTime gameTime)
