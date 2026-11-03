@@ -20,12 +20,15 @@ public static class HudCraftArt
     public const string AgingFill = Aging + "Bar_.bmp";
     public const string AgingPlate = Aging + "Aging.bmp";
 
-    public static string SheltomHint(int ordinal) => $"{Aging}itos{100 + ordinal}_.bmp";
+    // The hint of each sheltom an aging step asks for, by sheltom ordinal (1 to 14).
+    private static readonly string[] SheltomHints = Enumerable.Range(0, 15).Select(static ordinal => $"{Aging}itos{100 + ordinal}_.bmp").ToArray();
+
+    public static string SheltomHint(int ordinal) => SheltomHints[ordinal];
 
     public static readonly string[] All =
     [
         Panel, StartButton, MixStartInfo, MixTitle, AgingTitle, AgingStartInfo, AlchemyTitle, AlchemyPanel, AlchemyStartInfo, AgingBar, AgingFill,
         AgingPlate,
-        .. Enumerable.Range(1, 14).Select(SheltomHint)
+        .. SheltomHints[1..]
     ];
 }

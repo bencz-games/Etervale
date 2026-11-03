@@ -171,8 +171,15 @@ public abstract class HudWorkbench : IHudServiceWindow
             DrawPlacement(painter, origin, incoming, pointer, state);
         }
 
-        foreach (var (item, bounds) in Placed(state, origin))
+        var items = state?.Items ?? [];
+        for (var index = 0; index < items.Count; index++)
         {
+            var item = items[index];
+            if (PlacedBounds(item, origin) is not { } bounds)
+            {
+                continue;
+            }
+
             if (interactive && bounds.Contains(pointer))
             {
                 _hovered = item;
@@ -196,7 +203,7 @@ public abstract class HudWorkbench : IHudServiceWindow
         if (ShowsPrice(state))
         {
             var price = HudCraftLayout.PriceText(origin);
-            painter.TextCentered(Price(state).ToString("N0"), price.Left, price.Right, price.Y);
+            painter.TextCentered(_price.Of(Price(state)), price.Left, price.Right, price.Y);
         }
     }
 
@@ -286,27 +293,21 @@ public abstract class HudWorkbench : IHudServiceWindow
         return ItemId != Guid.Empty && HudCraftLayout.ItemBox(origin).Contains(pointer) ? ItemId : null;
     }
 
-    private IEnumerable<(OwnedItemView Item, Rectangle Bounds)> Placed(OwnerState state, Point origin)
+    private readonly HudNumberText _price = new();
+
+    // Where an owned item placed on the bench is drawn; null for one not on it.
+    private Rectangle? PlacedBounds(OwnedItemView item, Point origin)
     {
-        if (state is null)
+        if (item.InstanceId == ItemId)
         {
-            yield break;
+            return HudGridPlacement.Frame(item, HudCraftLayout.ItemBox(origin).Center);
         }
 
-        foreach (var item in state.Items)
+        if (item.InstanceId == StoneId)
         {
-            if (item.InstanceId == ItemId)
-            {
-                yield return (item, HudGridPlacement.Frame(item, HudCraftLayout.ItemBox(origin).Center));
-            }
-            else if (item.InstanceId == StoneId)
-            {
-                yield return (item, HudCraftLayout.Stone(origin));
-            }
-            else if (Array.IndexOf(Slots, item.InstanceId) is >= 0 and var slot)
-            {
-                yield return (item, HudCraftLayout.Sheltom(origin, slot));
-            }
+            return HudCraftLayout.Stone(origin);
         }
+
+        return Array.IndexOf(Slots, item.InstanceId) is >= 0 and var slot ? HudCraftLayout.Sheltom(origin, slot) : null;
     }
 }

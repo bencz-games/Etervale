@@ -32,8 +32,24 @@ public sealed class HudAgingWindow : HudWorkbench
         item?.Details is { } details && AgingRules.Ageable(item.CatalogKey, item.Kind, details.UniqueItem, details.MixSheltom, details.AgingGoal > 0,
             details.UpgradeLevel);
 
-    public override bool Ready(OwnerState state) => MainItem(state) is { Details: { } details } && Required(details.UpgradeLevel)
-        .Select((ordinal, slot) => ordinal == 0 || Slots[slot] != Guid.Empty).All(static filled => filled);
+    public override bool Ready(OwnerState state)
+    {
+        if (MainItem(state) is not { Details: { } details })
+        {
+            return false;
+        }
+
+        var required = Required(details.UpgradeLevel);
+        for (var slot = 0; slot < required.Count; slot++)
+        {
+            if (required[slot] != 0 && Slots[slot] == Guid.Empty)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     public override long Price(OwnerState state) =>
         MainItem(state) is { Details: { } details } ? AgingRules.Price(details.UpgradeLevel, details.Roll.Price, PricePercent) : 0;

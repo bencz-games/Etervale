@@ -45,8 +45,20 @@ public sealed class HudMixWindow : HudWorkbench
         item?.Details is { } details && MixingWork.Mixable(item.CatalogKey, item.Kind, IsWearable(item.Kind), details.UpgradeLevel,
             details.AgingGoal > 0, details.MixSheltom);
 
-    public override bool Ready(OwnerState state) =>
-        Slots.Any(static id => id != Guid.Empty) && (Alchemy || MainItem(state) is not null);
+    public override bool Ready(OwnerState state) => AnySlotFilled() && (Alchemy || MainItem(state) is not null);
+
+    private bool AnySlotFilled()
+    {
+        foreach (var id in Slots)
+        {
+            if (id != Guid.Empty)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     public override long Price(OwnerState state)
     {
@@ -56,8 +68,18 @@ public sealed class HudMixWindow : HudWorkbench
         }
 
         var settings = new MixingSettings(AlchemyPricePercent: PricePercent);
-        return state?.Items.Where(item => Array.IndexOf(Slots, item.InstanceId) >= 0)
-            .Sum(item => Math.Max(0, MixingWork.AlchemyPrice(AgingRules.SheltomOrdinal(item.CatalogKey), settings))) ?? 0;
+        long total = 0;
+        var items = state?.Items ?? [];
+        for (var index = 0; index < items.Count; index++)
+        {
+            var item = items[index];
+            if (Array.IndexOf(Slots, item.InstanceId) >= 0)
+            {
+                total += Math.Max(0, MixingWork.AlchemyPrice(AgingRules.SheltomOrdinal(item.CatalogKey), settings));
+            }
+        }
+
+        return total;
     }
 
     public MixFormula Formula(OwnerState state)
