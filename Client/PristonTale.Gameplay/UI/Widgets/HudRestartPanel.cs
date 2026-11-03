@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Units;
+using PristonTale.Engine3D.Diagnostics;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -9,7 +10,7 @@ namespace PristonTale.Gameplay.UI.Widgets;
 // the field, town and exit buttons (44 x 44) that light up under the pointer, and two lines of help below them. It opens
 // a hundred death-motion frames after the fall and chooses the town by itself after twenty seconds. Where the field
 // restart is closed the field button stays dark and its help reads red; in the castle field it shows nothing.
-public sealed class HudRestartPanel
+public sealed class HudRestartPanel(IClientLog log)
 {
     private static readonly RestartChoice[] Choices = Enum.GetValues<RestartChoice>();
     // A hundred frames of the dead motion at the original's 70 frames a second.
@@ -29,8 +30,7 @@ public sealed class HudRestartPanel
     private double _deadSinceMs = -1;
     // When the window last opened; the town is chosen twenty seconds after, as the original counted while it showed.
     private double _openSinceMs;
-    private Task<RestartOutcome> _pending;
-    private RestartChoice _pendingChoice;
+    private readonly HudRequest<RestartOutcome> _request = new(log, "Restart failed");
     // The server stood the player up; the window stays shut until the presence shows it alive.
     private bool _restarted;
 
@@ -69,7 +69,7 @@ public sealed class HudRestartPanel
             _deadSinceMs = nowMs;
         }
 
-        var open = _pending is null && !_restarted && nowMs - _deadSinceMs >= OpenDelayMs;
+        var open = !_request.Pending && !_restarted && nowMs - _deadSinceMs >= OpenDelayMs;
         if (open && !Open)
         {
             _openSinceMs = nowMs;
@@ -136,28 +136,25 @@ public sealed class HudRestartPanel
 
     private void Choose(RestartChoice choice)
     {
-        if (_pending is not null || Restart is null)
+        if (_request.Pending || Restart is null)
         {
             return;
         }
 
-        _pendingChoice = choice;
-        _pending = Restart(choice);
+        _request.Start(() => Restart(choice), _ => new RestartOutcome(RestartStatus.Rejected, choice));
         Open = false;
     }
 
     // The answer of the choice in flight, read on the game thread.
     private void Collect()
     {
-        if (_pending is not { IsCompleted: true } pending)
+        if (!_request.TryTake(out var outcome))
         {
             return;
         }
 
-        _pending = null;
-        var ok = pending.IsCompletedSuccessfully && pending.Result.Ok;
-        _restarted = ok;
-        if (ok && _pendingChoice == RestartChoice.Exit)
+        _restarted = outcome.Ok;
+        if (outcome.Ok && outcome.Choice == RestartChoice.Exit)
         {
             ExitRequested?.Invoke();
         }

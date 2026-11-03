@@ -133,7 +133,7 @@ internal static class DeathPenaltyTests
     private static async Task WindowAsync()
     {
         var layout = Gameplay.UI.HudLayout.Create(1024, 768);
-        var panel = new Gameplay.UI.Widgets.HudRestartPanel();
+        var panel = new Gameplay.UI.Widgets.HudRestartPanel(Engine3D.Diagnostics.NullClientLog.Instance);
         var asked = new List<RestartChoice>();
         var answer = new TaskCompletionSource<RestartOutcome>();
         panel.Restart = choice =>

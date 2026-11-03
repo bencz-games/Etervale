@@ -80,7 +80,7 @@ public sealed partial class GameplayHud : IDisposable
     private readonly HudPremiumKeeps _premiumKeeps = new();
     private readonly HudPuzzleExchange _puzzle = new();
     private readonly HudCrystalDismiss _crystalDismiss = new();
-    private readonly HudRestartPanel _restart = new();
+    private readonly HudRestartPanel _restart;
     private readonly HudWingGate _wingGate;
     private int _itemUseCompletions;
     private int _wingGateCompletions;
@@ -141,6 +141,7 @@ public sealed partial class GameplayHud : IDisposable
         _portrait = new HudTargetPortrait(context.GraphicsDevice);
         _services = new HudNpcServiceController(requestNpcService, context.Log);
         _itemUse = new HudItemUseController(UseItemAsync, context.Log);
+        _restart = new HudRestartPanel(context.Log);
         _premium = new HudPremiumTimers(_sprites);
         _sprites.Request(HudTeleportCore.Art);
         _wingGate = new HudWingGate(context.Log);
