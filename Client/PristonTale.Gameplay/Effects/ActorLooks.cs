@@ -58,7 +58,7 @@ public sealed class ActorLookBook
     private readonly List<ulong> _finished = new();
 
     // Looks to apply this frame, including a last Normal for entities whose look just ended.
-    public IReadOnlyDictionary<ulong, EntityLook> Looks => _looks;
+    public Dictionary<ulong, EntityLook> Looks => _looks;
 
     private readonly Dictionary<ulong, EntityLook> _looks = new();
 
@@ -136,7 +136,7 @@ public sealed class ActorLookBook
         }
     }
 
-    private EntityLook Evaluate(ulong entity, State state, float ticks, double nowMs, IReadOnlyList<StatusEntry> entries, bool self)
+    private EntityLook Evaluate(ulong entity, State state, float ticks, double nowMs, List<StatusEntry> entries, bool self)
     {
         var frost = false;
         var poison = false;

@@ -81,7 +81,8 @@ public sealed class StatusBook
     public event Action<ulong, StatusEntry> Added;
     public event Action<ulong, StatusEntry> Removed;
 
-    public IReadOnlyList<StatusEntry> For(ulong entityId) => _byEntity.TryGetValue(entityId, out var list) ? list : _empty;
+    // The concrete list, so frame code walks it without boxing an enumerator; callers only read it.
+    public List<StatusEntry> For(ulong entityId) => _byEntity.TryGetValue(entityId, out var list) ? list : _empty;
 
     public void Apply(StatusEffectInfo status, double nowMs)
     {
@@ -156,13 +157,35 @@ public sealed class StatusBook
         }
     }
 
-    public IEnumerable<(ulong EntityId, StatusEntry Entry)> All()
+    // Every status of every entity, walked without allocating.
+    public AllStatuses All() => new(_byEntity);
+
+    public readonly struct AllStatuses(Dictionary<ulong, List<StatusEntry>> byEntity)
     {
-        foreach (var (entity, list) in _byEntity)
+        public Enumerator GetEnumerator() => new(byEntity.GetEnumerator());
+
+        public struct Enumerator(Dictionary<ulong, List<StatusEntry>>.Enumerator entities)
         {
-            foreach (var entry in list)
+            private Dictionary<ulong, List<StatusEntry>>.Enumerator _entities = entities;
+            private List<StatusEntry> _list;
+            private int _index;
+
+            public (ulong EntityId, StatusEntry Entry) Current => (_entities.Current.Key, _list[_index]);
+
+            public bool MoveNext()
             {
-                yield return (entity, entry);
+                while (_list is null || ++_index >= _list.Count)
+                {
+                    if (!_entities.MoveNext())
+                    {
+                        return false;
+                    }
+
+                    _list = _entities.Current.Value;
+                    _index = -1;
+                }
+
+                return true;
             }
         }
     }

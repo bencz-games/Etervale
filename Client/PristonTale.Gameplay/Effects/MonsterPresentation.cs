@@ -432,9 +432,9 @@ public sealed class MonsterPresentation
     // Holders of a monster stun cannot move, attack or cast.
     public static bool Stunned(IReadOnlyList<StatusEntry> statuses)
     {
-        foreach (var entry in statuses)
+        for (var index = 0; index < statuses.Count; index++)
         {
-            if ((entry.Control & ControlFlags.Stun) != 0)
+            if ((statuses[index].Control & ControlFlags.Stun) != 0)
             {
                 return true;
             }
