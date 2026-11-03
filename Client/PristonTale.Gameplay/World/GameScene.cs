@@ -507,9 +507,20 @@ public sealed partial class GameScene : IDisposable, IFieldContext, IHudPortrait
 
     private void SendUpstream(Task send, string what)
     {
-        // Network sends must never block the game loop.
+        // Network sends must never block the game loop. A send that already completed (the usual case) needs no watch; the
+        // others are watched by a static continuation with the scene as its state, so a send allocates no closure.
+        if (send.IsCompletedSuccessfully)
+        {
+            return;
+        }
+
         _ = send.ContinueWith(
-            t => _log.Warn($"[Remote] {what} send failed: {t.Exception?.GetBaseException().Message}"),
+            static (t, state) =>
+            {
+                var (scene, what) = ((GameScene, string))state;
+                scene._log.Warn($"[Remote] {what} send failed: {t.Exception?.GetBaseException().Message}");
+            },
+            (this, what),
             CancellationToken.None,
             TaskContinuationOptions.OnlyOnFaulted | TaskContinuationOptions.ExecuteSynchronously,
             TaskScheduler.Default);

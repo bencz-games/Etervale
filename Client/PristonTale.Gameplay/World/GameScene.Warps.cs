@@ -155,7 +155,7 @@ public sealed partial class GameScene
     private bool Warp(FieldWarpGate warp)
     {
         var destDef = _worldCatalog.GetField(warp.DestinationFieldId);
-        var dest = _fields.FirstOrDefault(field => field.Definition.Id == destDef.Id);
+        var dest = FindLoaded(destDef.Id);
         if (dest is null)
         {
             RequestField(destDef);
@@ -201,7 +201,7 @@ public sealed partial class GameScene
         var changedField = false;
         if (_activeField?.Definition.FieldCode != warp.FieldId && _worldCatalog.TryGetFieldByCode(warp.FieldId, out var field))
         {
-            var loaded = _fields.FirstOrDefault(candidate => candidate.Definition.Id == field.Id);
+            var loaded = FindLoaded(field.Id);
             if (loaded is null)
             {
                 // Held until the field is loaded; the player stays put meanwhile.

@@ -292,8 +292,25 @@ public sealed class MonsterPresentation
         return name is null ? null : _effects.Spawn(name, monster.EntityId, target, monster.Position, -monster.Facing);
     }
 
-    // Lookup order: <trigger>.k<key>.e<n>, <trigger>.k<key>, <trigger>.e<n>, <trigger>.
+    // Lookup order: <trigger>.k<key>.e<n>, <trigger>.k<key>, <trigger>.e<n>, <trigger>. Asked on every clip start and
+    // event frame of every drawn monster, so each combination's answer is kept and its names are built only once; a
+    // combination without an effect is asked again once more definitions have registered.
     public string Resolve(string family, string trigger, char key, int eventNumber)
+    {
+        var combination = (family, trigger, key, eventNumber);
+        if (_resolved.TryGetValue(combination, out var known) && (known.Name is not null || known.Definitions == _effects.DefinitionCount))
+        {
+            return known.Name;
+        }
+
+        var name = ResolveNames(family, trigger, key, eventNumber);
+        _resolved[combination] = (name, _effects.DefinitionCount);
+        return name;
+    }
+
+    private readonly Dictionary<(string Family, string Trigger, char Key, int EventNumber), (string Name, int Definitions)> _resolved = new();
+
+    private string ResolveNames(string family, string trigger, char key, int eventNumber)
     {
         var stem = $"vfx.monster.{family}.{trigger}";
         if (key > ' ')

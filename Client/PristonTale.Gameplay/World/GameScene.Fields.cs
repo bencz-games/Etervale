@@ -108,7 +108,7 @@ public sealed partial class GameScene
 
     private LoadedField AddFieldToWorld(string assetRoot, FieldDef field)
     {
-        var existing = _fields.FirstOrDefault(f => f.Definition.Id == field.Id);
+        var existing = FindLoaded(field.Id);
         if (existing != null)
             return existing;
 
@@ -268,7 +268,21 @@ public sealed partial class GameScene
         field.Definition.OnLoaded?.Invoke(this);
     }
 
-    private bool IsLoaded(string fieldId) => _fields.Any(f => f.Definition.Id == fieldId);
+    private bool IsLoaded(string fieldId) => FindLoaded(fieldId) is not null;
+
+    // The loaded field with this id, or null; asked every frame while a warp waits for its field, so it allocates nothing.
+    private LoadedField FindLoaded(string fieldId)
+    {
+        foreach (var field in _fields)
+        {
+            if (field.Definition.Id == fieldId)
+            {
+                return field;
+            }
+        }
+
+        return null;
+    }
 
     private void UnloadField(LoadedField field)
     {
