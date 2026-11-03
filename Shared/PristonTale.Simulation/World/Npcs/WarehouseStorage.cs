@@ -127,14 +127,14 @@ public sealed class WarehouseStorage
         return NpcServiceStatus.Ok;
     }
 
-    public NpcServiceStatus TryWithdrawGold(PlayerCharacter character, long amount, long carryLimit)
+    public NpcServiceStatus TryWithdrawGold(PlayerCharacter character, long amount)
     {
         if (amount <= 0 || amount > Money)
         {
             return amount <= 0 ? NpcServiceStatus.Rejected : NpcServiceStatus.NotEnoughGold;
         }
 
-        if (character.Money > carryLimit - amount || !character.TryChangeMoney(amount))
+        if (!MoneyLimits.CanCarry(character, amount) || !character.TryChangeMoney(amount))
         {
             return NpcServiceStatus.GoldLimit;
         }

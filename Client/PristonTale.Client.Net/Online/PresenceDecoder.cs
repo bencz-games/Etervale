@@ -25,7 +25,8 @@ namespace PristonTale.Client.Net.Online;
 // the same handles.
 internal sealed class PresenceDecoder : IEventHandleReader
 {
-    private const long DescriptionRetryMs = 1000;
+    // A description not answered is asked for again after this.
+    public const long DescriptionRetryMs = 1000;
     // A description whose entity never spawned (one asked for that left meanwhile) is dropped after this long.
     private const long UnspawnedDescriptionMs = 10_000;
     // The receive loop decodes; the connection's timer retries descriptions.

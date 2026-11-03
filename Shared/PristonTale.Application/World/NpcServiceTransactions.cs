@@ -108,7 +108,7 @@ internal static class NpcServiceTransactions
     // A shop's sale, repair or repair of everything worn and carried.
     internal static NpcServiceStatus SellOrRepair(PlayerCharacter candidate, NpcServiceCommand command) => command.Action switch
     {
-        NpcServiceAction.Sell => NpcShopRules.TrySell(candidate, command.ItemId, command.Count, MoneyLimits.CarryLimit(candidate.Level, candidate.Tier), out _),
+        NpcServiceAction.Sell => NpcShopRules.TrySell(candidate, command.ItemId, command.Count, out _),
         NpcServiceAction.Repair => NpcShopRules.TryRepair(candidate, command.ItemId, out _),
         NpcServiceAction.RepairAll => NpcShopRules.TryRepairAll(candidate, out _),
         _ => NpcServiceStatus.Rejected
@@ -124,7 +124,6 @@ internal static class NpcServiceTransactions
         var position = player.Position;
         TeleportArrival? arrival = null;
         ItemWorkResult? work = null;
-        var carryLimit = MoneyLimits.CarryLimit(candidate.Level, candidate.Tier);
         NpcServiceStatus status;
         switch (command.Action)
         {
@@ -149,7 +148,7 @@ internal static class NpcServiceTransactions
                 status = storage!.TryDepositGold(candidate, command.Amount);
                 break;
             case NpcServiceAction.WithdrawGold:
-                status = storage!.TryWithdrawGold(candidate, command.Amount, carryLimit);
+                status = storage!.TryWithdrawGold(candidate, command.Amount);
                 break;
             case NpcServiceAction.Teleport:
                 status = TryTeleport(candidate, service, command.Anchor, world, out arrival);

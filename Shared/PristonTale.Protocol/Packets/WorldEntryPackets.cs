@@ -8,7 +8,7 @@ namespace PristonTale.Protocol.Packets;
 public static class WorldEntryWire
 {
     public const ushort CurrentVersion = 1;
-    public const int MaxNameBytes = 64;
+    public const int MaxNameBytes = AccountWire.MaxNameBytes;
 }
 
 // C->S {header, uint16 Version = 1, uint16 0, text Name (64 B)}.

@@ -74,6 +74,10 @@ public static class ServerSettingCatalog
             static (s, v) => World(s, s.World with { Mixing = s.World.Mixing with { AlchemyPricePercent = v } }))
     ];
 
+    // The definition of a setting by name, in any case; null for none.
+    public static ServerSettingDefinition? Find(string name) =>
+        All.FirstOrDefault(setting => string.Equals(setting.Name, name, StringComparison.OrdinalIgnoreCase));
+
     public static IReadOnlyList<ServerSettingSeed> Seeds { get; } =
         All.Select(static setting => new ServerSettingSeed(setting.Name, setting.Default, setting.Description)).ToArray();
 

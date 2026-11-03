@@ -98,7 +98,7 @@ internal static class GmServerCommands
         var name = context.Word();
         var value = context.Rest.Trim();
         if (context.Commands.Settings is not { } settings
-            || Settings.ServerSettingCatalog.All.FirstOrDefault(setting => setting.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) is not { } definition)
+            || Settings.ServerSettingCatalog.Find(name) is not { } definition)
         {
             context.Reply(Format("Unknown setting {0}", name));
             return;

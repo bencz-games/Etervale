@@ -31,7 +31,7 @@ namespace PristonTale.Client.Net;
 public sealed class GameServerConnection : IGameBackend
 {
     private static readonly TimeSpan HeartbeatInterval = TimeSpan.FromSeconds(4);
-    private static readonly TimeSpan DescriptionRetryInterval = TimeSpan.FromSeconds(1);
+    private static readonly TimeSpan DescriptionRetryInterval = TimeSpan.FromMilliseconds(Online.PresenceDecoder.DescriptionRetryMs);
 
     private readonly string _host;
     private readonly int _port;

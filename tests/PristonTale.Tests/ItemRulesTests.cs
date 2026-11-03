@@ -59,8 +59,8 @@ internal static class ItemRulesTests
         Assert.True(stacks is [{ Count: 39 }] && character.Money == 25, $"the potions share one stack: {string.Join(",", stacks.Select(item => item.Count))}");
 
         var stack = stacks[0];
-        Assert.True(NpcShopRules.TrySell(character, stack.InstanceId, 40, 1_000_000, out _) == NpcServiceStatus.Rejected, "more units than the stack holds sell");
-        Assert.True(NpcShopRules.TrySell(character, stack.InstanceId, 10, 1_000_000, out var proceeds) == NpcServiceStatus.Ok && proceeds == 50
+        Assert.True(NpcShopRules.TrySell(character, stack.InstanceId, 40, out _) == NpcServiceStatus.Rejected, "more units than the stack holds sell");
+        Assert.True(NpcShopRules.TrySell(character, stack.InstanceId, 10, out var proceeds) == NpcServiceStatus.Ok && proceeds == 50
             && character.Inventory.Items().Single(item => item.Definition == potion).Count == 29 && character.Money == 75, "ten of the potions were sold");
         return Task.CompletedTask;
     }

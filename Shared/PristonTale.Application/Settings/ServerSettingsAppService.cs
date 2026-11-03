@@ -62,7 +62,7 @@ public sealed class ServerSettingsAppService(
 
     public async Task<bool> SetAsync(string name, string value, CancellationToken ct = default)
     {
-        var definition = ServerSettingCatalog.All.FirstOrDefault(setting => string.Equals(setting.Name, name, StringComparison.OrdinalIgnoreCase));
+        var definition = ServerSettingCatalog.Find(name);
         if (definition is null || definition.Apply(Current, value.Trim()) is null || !await repository.SetAsync(definition.Name, value.Trim(), ct))
         {
             return false;
