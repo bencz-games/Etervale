@@ -11,6 +11,9 @@ namespace PristonTale.Gameplay.World.Remote;
 public sealed class GroundLootInteraction(Func<InventoryCommand, Task<InventoryOutcome>> submit, IClientLog log, Action<GroundDropView> pickedUp = null,
     Func<GroundDropView, bool> toCursor = null, Action<bool, long> toCursorAnswered = null)
 {
+    // The client picks up within this of a drop, inside the server's reach (FieldGroundLoot.PickupReach, 32) so a
+    // request it sends is not refused for distance.
+    private const float PickupReach = 28f;
     private Guid _selected;
     private Task<InventoryOutcome> _pending;
     private GroundDropView _pendingDrop;
@@ -71,8 +74,8 @@ public sealed class GroundLootInteraction(Func<InventoryCommand, Task<InventoryO
         }
 
         var planar = new Vector2(target.X, target.Z);
-        if (Vector2.DistanceSquared(new Vector2(position.X, position.Z), planar) > 28 * 28
-            || Vector2.DistanceSquared(serverPosition, planar) > 28 * 28)
+        if (Vector2.DistanceSquared(new Vector2(position.X, position.Z), planar) > PickupReach * PickupReach
+            || Vector2.DistanceSquared(serverPosition, planar) > PickupReach * PickupReach)
         {
             return;
         }

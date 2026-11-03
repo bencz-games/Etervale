@@ -72,7 +72,7 @@ public sealed partial class GameScene
 
             if (effect.Effect == ItemEffectKind.Mastery)
             {
-                _skillFx?.Spawn("vfx.agony", effect.Entity, effect.Entity, position);
+                _skillFx?.Spawn(ItemVfx.Mastery, effect.Entity, effect.Entity, position);
             }
             else if (effect.Effect is ItemEffectKind.Learn or ItemEffectKind.ForceOrb or ItemEffectKind.HeadChange)
             {

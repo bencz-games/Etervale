@@ -50,8 +50,8 @@ public enum PremiumStartResult
 public sealed class PremiumTimers
 {
     public const int MaxTimers = 17;
-    public const int SoccerHeadMode = 3;
-    private const int MaxHeadMode = 3;
+    public const int SoccerHeadMode = Characters.CharacterHead.SoccerLook;
+    private const int MaxHeadMode = Characters.CharacterHead.SoccerLook;
 
     private readonly List<PremiumTimer> _timers = new();
 

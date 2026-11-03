@@ -89,7 +89,7 @@ public static class CharacterHead
     private static void ValidateTier(int tier)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(tier);
-        ArgumentOutOfRangeException.ThrowIfGreaterThan(tier, 3);
+        ArgumentOutOfRangeException.ThrowIfGreaterThan(tier, PlayerCharacter.LastTier);
     }
 
     private static void ValidateHairVariant(int hairVariant)

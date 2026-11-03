@@ -108,7 +108,7 @@ internal static class GmItemCommands
             return;
         }
 
-        var spec = Enum.IsDefined((PlayerClass)job) && job is >= 1 and <= 8 ? (uint)JobBits.Of((PlayerClass)job) : 0u;
+        var spec = Enum.IsDefined((PlayerClass)job) && ClassProfiles.Specializes((PlayerClass)job) ? (uint)JobBits.Of((PlayerClass)job) : 0u;
         var overrides = spec != 0 && ItemRoller.CanTakeSpec(definition, spec) ? new ItemRollOverrides(spec) : ItemRollOverrides.None;
         var dropped = await context.Commands.World.DropAsync(context.Issuer.EntityId, rng =>
         {
@@ -204,9 +204,9 @@ internal static class GmItemCommands
             return 0;
         }
 
-        if (name.Length == 1 && name[0] is >= '1' and <= '8')
+        if (name.Length == 1 && name[0] - '0' is var digit && Enum.IsDefined((PlayerClass)digit) && ClassProfiles.Specializes((PlayerClass)digit))
         {
-            return name[0] - '0';
+            return digit;
         }
 
         var shortNames = new[] { ("FS", 1), ("MS", 2), ("AS", 3), ("PS", 4), ("ATA", 5), ("KS", 6), ("MG", 7), ("PRS", 8) };
@@ -220,7 +220,7 @@ internal static class GmItemCommands
 
         foreach (var playerClass in Enum.GetValues<PlayerClass>())
         {
-            if ((int)playerClass <= 8 && playerClass.ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
+            if (ClassProfiles.Specializes(playerClass) && playerClass.ToString().Equals(name, StringComparison.OrdinalIgnoreCase))
             {
                 return (int)playerClass;
             }

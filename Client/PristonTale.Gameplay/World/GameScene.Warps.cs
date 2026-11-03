@@ -104,7 +104,7 @@ public sealed partial class GameScene
 
             if (OnGate(warp))
             {
-                if (warp.SpecialEffect == 1)
+                if (warp.SpecialEffect == WingGates.DelayedEffect)
                 {
                     BeginSpecialWarp(warp);
                     return;
@@ -220,7 +220,7 @@ public sealed partial class GameScene
 
         var authoritative = new Vector2(warp.Position.X, warp.Position.Z);
         var difference = authoritative - _playerBody.PlanarPosition;
-        if (!warp.Forced && changedField && difference.LengthSquared() <= 200f * 200f)
+        if (!warp.Forced && changedField && difference.LengthSquared() <= WarpCorrection * WarpCorrection)
         {
             // The unforced warp confirming a field the player is already at (a restart moved it across, a seamless border):
             // only the height, which may still be the old field's; snapping the place would pull back a player who has
@@ -231,7 +231,7 @@ public sealed partial class GameScene
             return;
         }
 
-        if (warp.Forced || difference.LengthSquared() > 200f * 200f)
+        if (warp.Forced || difference.LengthSquared() > WarpCorrection * WarpCorrection)
         {
             _log.Info($"[Movement] correction {difference.Length():F1} units; field={warp.FieldId}, forced={warp.Forced}.");
             StopPredictedMovement();

@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.Rendering;
+using PristonTale.Gameplay.UI;
 
 namespace PristonTale.Display;
 
@@ -119,7 +120,7 @@ internal sealed class DisplayController
         foreach (var mode in GraphicsAdapter.DefaultAdapter.SupportedDisplayModes)
         {
             var option = new DisplayModeOption(PrimaryMonitor, mode.Width, mode.Height, 0);
-            if (mode.Width >= 800 && mode.Height >= 600 && !options.Contains(option))
+            if (mode.Width >= HudLayout.DesignWidth && mode.Height >= HudLayout.DesignHeight && !options.Contains(option))
             {
                 options.Add(option);
             }

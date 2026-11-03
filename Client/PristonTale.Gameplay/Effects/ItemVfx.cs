@@ -11,6 +11,8 @@ namespace PristonTale.Gameplay.Effects;
 public static class ItemVfx
 {
     public const string Learn = "vfx.item.learn";
+    // A mastery item's effect on its user.
+    public const string Mastery = "vfx.agony";
     public const string FirecrackerRocket = "vfx.item.firecracker.rocket";
     public const string FirecrackerFlash = "vfx.item.firecracker.flash";
     public const string Return = "vfx.item.return";

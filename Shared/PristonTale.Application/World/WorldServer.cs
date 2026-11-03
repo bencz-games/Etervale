@@ -274,7 +274,7 @@ public sealed partial class WorldServer
             if (arrival.IsWarp)
             {
                 // Warp exits carry an authored height; settle on the floor at or just below it rather than on a roof.
-                player.EnterField(terrain.SettleNear(arrival.Position, FieldTerrain.DropTolerance * 2f), inVillage);
+                player.EnterField(terrain.SettleNear(arrival.Position, FieldTerrain.ArrivalTolerance), inVillage);
             }
             else
             {

@@ -7,11 +7,15 @@ using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.IO;
 using PristonTale.Engine3D.Rendering;
+using PristonTale.Gameplay.UI;
 
 namespace PristonTale.Display;
 
 internal sealed class PresentationController
 {
+    // A changed display is kept only when confirmed within this many seconds.
+    private const int ConfirmSeconds = 15;
+
     private readonly PresentationSettings _shared;
     private readonly ClientSettingsStore _store;
     private readonly DisplayController _display;
@@ -51,7 +55,7 @@ internal sealed class PresentationController
             if (preview && _applied == requested)
             {
                 _shared.AwaitingConfirmation = true;
-                _confirmationDeadline = Stopwatch.GetTimestamp() + Stopwatch.Frequency * 15;
+                _confirmationDeadline = Stopwatch.GetTimestamp() + Stopwatch.Frequency * ConfirmSeconds;
             }
             else
             {
@@ -63,7 +67,7 @@ internal sealed class PresentationController
         {
             if (_confirmationDeadline == 0)
             {
-                _confirmationDeadline = Stopwatch.GetTimestamp() + Stopwatch.Frequency * 15;
+                _confirmationDeadline = Stopwatch.GetTimestamp() + Stopwatch.Frequency * ConfirmSeconds;
             }
 
             _shared.ConfirmationSeconds = Math.Max(0,
@@ -97,7 +101,7 @@ internal sealed class PresentationController
         }
 
         _normalPosition = _window.Position;
-        if (_shared.AwaitingConfirmation || width < 800 || height < 600 || _shared.Requested != _applied)
+        if (_shared.AwaitingConfirmation || width < HudLayout.DesignWidth || height < HudLayout.DesignHeight || _shared.Requested != _applied)
         {
             return;
         }

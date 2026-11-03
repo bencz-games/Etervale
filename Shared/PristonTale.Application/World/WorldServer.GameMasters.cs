@@ -128,7 +128,7 @@ public sealed partial class WorldServer
             }
 
             var terrain = GetField(destination.FieldId).Terrain;
-            var position = onFloor ? terrain.PlaceOnFloor(requested) : terrain.SettleNear(requested, FieldTerrain.DropTolerance * 2f);
+            var position = onFloor ? terrain.PlaceOnFloor(requested) : terrain.SettleNear(requested, FieldTerrain.ArrivalTolerance);
             var inVillage = definition.State == FieldState.Village;
             Relocate(connection, destination.FieldId, position, inVillage);
             connection.Player.EnterField(position, inVillage);

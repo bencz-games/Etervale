@@ -16,6 +16,8 @@ public sealed class FieldTerrain
     public const float BodyProbeHeight = 30f;
     // Drops settle on a floor within 32 units of the corpse, like the original stage item placement.
     public const float DropTolerance = 32f;
+    // A forced arrival (a teleport, a warp, a game master's move) settles on a floor within twice that.
+    public const float ArrivalTolerance = DropTolerance * 2f;
 
     public static readonly FieldTerrain None = new(null);
 

@@ -38,6 +38,9 @@ public static class ClassProfiles
     // The classes that cast at range with a staff (their basic attack and its sounds are a caster's).
     public static bool CastsWithStaff(PlayerClass playerClass) => Of(playerClass).CastingWeapon == ItemKind.Staff;
 
+    // The classes items can be specialised for (those with a requirement shift).
+    public static bool Specializes(PlayerClass playerClass) => Of(playerClass).Shift is not null;
+
     public static ClassProfile Of(PlayerClass playerClass) => playerClass switch
     {
         PlayerClass.Fighter => FighterClass.Profile,

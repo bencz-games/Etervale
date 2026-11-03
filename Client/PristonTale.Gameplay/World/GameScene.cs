@@ -406,6 +406,8 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     private WarpInfo _pendingFieldWarp;
     // The server settles teleports within twice the drop tolerance of their height.
     private const float WarpFloorTolerance = 64f;
+    // A warp landing farther than this from the server's place is corrected to it.
+    private const float WarpCorrection = 200f;
     private float _pendingWarpDelay;
 
     public void Update(GameTime gameTime)

@@ -15,6 +15,8 @@ public sealed record WingGateDestination(int Index, int FieldCode, string Name, 
 // fee. The traveller lands on the exit of the destination's stone.
 public static class WingGates
 {
+    // A warp gate's special effect: a delayed warp with the return sparkle, or a wing warp stone.
+    public const int DelayedEffect = 1;
     public const int StoneEffect = 2;
     public const int FreeReach = 2;
     public const int FreeDestinations = 2;
