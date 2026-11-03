@@ -33,6 +33,7 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
 
     // Reused scratch (tick thread only) so Step allocates no per-tick garbage on the hot path.
     private readonly List<MonsterInstance> _liveScratch = new();
+    private readonly List<MonsterInstance> _expiredScratch = new();
     private readonly List<MonsterInstance> _summonScratch = new();
     private readonly List<EntityNeighbour> _neighbourScratch = new();
     private readonly FieldPreyView _prey = new();
@@ -207,10 +208,10 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         {
             _spawner.MaintainPopulation(dtMs, _liveScratch, this, nowMs, this);
         }
-        IReadOnlyList<MonsterInstance> expired = _spawner.MaintainDespawns(dtMs, _liveScratch, this);
-        for (int i = 0; i < expired.Count; i++)
+        _spawner.MaintainDespawns(dtMs, _liveScratch, this, _expiredScratch);
+        for (int i = 0; i < _expiredScratch.Count; i++)
         {
-            RemoveMonster(expired[i].EntityId);
+            RemoveMonster(_expiredScratch[i].EntityId);
         }
 
         // The shared world clock emits one pass for all fields, independent of player entry.

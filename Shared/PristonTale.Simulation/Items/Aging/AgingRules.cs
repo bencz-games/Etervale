@@ -119,6 +119,9 @@ public static class AgingRules
 
     // Bows and javelins count critical hits toward the attack table's goal, as in the original.
     private static readonly Dictionary<string, AgingFamily> Families = Build();
+    private static readonly Dictionary<string, AgingFamily>.AlternateLookup<ReadOnlySpan<char>> FamiliesByPrefix =
+        Families.GetAlternateLookup<ReadOnlySpan<char>>();
+    private const int FamilyLength = 3;
 
     // The ring that ages counts twenty minutes.
     private const string AgeableRing = "OR201";
@@ -150,7 +153,12 @@ public static class AgingRules
         };
     }
 
-    private static AgingFamily FamilyOf(ItemInstance item) => Families.GetValueOrDefault(ItemCodes.FamilyOf(item.Definition.CatalogKey));
+    // Read on every counted attack, block and second of a worn maturing item, so it allocates no substring.
+    private static AgingFamily FamilyOf(ItemInstance item)
+    {
+        var key = item.Definition.CatalogKey;
+        return key is { Length: >= FamilyLength } && FamiliesByPrefix.TryGetValue(key.AsSpan(0, FamilyLength), out var family) ? family : null;
+    }
 
     // What a level of the family changes, as the item tooltip marks it. Bows and javelins mark their added mana too,
     // though their aging adds none, as the original tooltip does.

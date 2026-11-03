@@ -77,10 +77,12 @@ public static class CastleItems
         return item is not null;
     }
 
+    private static readonly Dictionary<uint, CastleItemDefinition> ByStatus = ForceOrbs.ByStatusCode(All, static item => item.StatusCode);
+
     public static bool TryGetByStatus(uint code, out CastleItemDefinition item)
     {
-        item = code > StatusBase && code <= StatusBase + 16 ? All.FirstOrDefault(candidate => candidate.StatusCode == code) : null;
-        return item is not null;
+        item = null;
+        return code > StatusBase && code <= StatusBase + 16 && ByStatus.TryGetValue(code, out item);
     }
 
     // The running castle item of a kind, or null.

@@ -155,9 +155,15 @@ public static class QuestDrops
             return true;
         }
 
-        if (character.Tier >= 1 && FirstRankUpItems.Any(code => QuestInventory.Has(character, code)))
+        if (character.Tier >= 1)
         {
-            return true;
+            foreach (var code in FirstRankUpItems)
+            {
+                if (QuestInventory.Has(character, code))
+                {
+                    return true;
+                }
+            }
         }
 
         return character.Tier >= 2 && active.Code != QuestCode.RankUpQuestWeapon && QuestInventory.Has(character, QuestItems.Vamp);

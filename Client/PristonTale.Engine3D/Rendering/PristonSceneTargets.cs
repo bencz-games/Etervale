@@ -39,6 +39,9 @@ internal sealed class PristonSceneTargets : IDisposable
     private readonly RenderTargetBinding[] _prepassBinding = new RenderTargetBinding[3];
     private readonly RenderTargetBinding[] _prepassTemporalBinding = new RenderTargetBinding[4];
     private readonly Action _bindCaller;
+
+    // Bind as a delegate made once, for the passes that rebind the scene after their own targets.
+    public Action BindAction { get; }
     private Viewport _callerViewport;
     private RenderTarget2D _color;
     private RenderTarget2D _motion;
@@ -62,6 +65,7 @@ internal sealed class PristonSceneTargets : IDisposable
         _temporal = new PristonTemporalAntiAliasing(device, _triangle,
             PristonShaderLibrary.LoadRequired(content, PristonTemporalAntiAliasing.Asset, log));
         _bindCaller = BindCaller;
+        BindAction = Bind;
     }
 
     public bool Active { get; private set; }

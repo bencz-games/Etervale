@@ -25,11 +25,9 @@ public static class ItemScrolls
 
     public static ItemScrollDefinition For(ScrollEffectKind kind) => All.First(scroll => scroll.Kind == kind);
 
-    public static bool TryGetByStatus(uint code, out ItemScrollDefinition scroll)
-    {
-        scroll = All.FirstOrDefault(candidate => candidate.StatusCode == code);
-        return scroll is not null;
-    }
+    private static readonly Dictionary<uint, ItemScrollDefinition> ByStatus = ForceOrbs.ByStatusCode(All, static scroll => scroll.StatusCode);
+
+    public static bool TryGetByStatus(uint code, out ItemScrollDefinition scroll) => ByStatus.TryGetValue(code, out scroll);
 
     // Fatal Edge and Avert Scroll exclude each other; every scroll refuses while its own effect runs.
     public static ScrollEffectKind? Excluded(ScrollEffectKind kind) => kind switch

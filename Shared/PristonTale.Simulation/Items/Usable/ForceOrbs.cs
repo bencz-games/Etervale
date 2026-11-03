@@ -48,10 +48,20 @@ public static class ForceOrbs
 
     public static IEnumerable<KeyValuePair<string, ForceOrbDefinition>> All => ByKey;
 
-    public static bool TryGetByStatus(uint code, out ForceOrbDefinition orb)
+    private static readonly Dictionary<uint, ForceOrbDefinition> ByStatus = ByStatusCode(ByKey.Values, static orb => orb.StatusCode);
+
+    public static bool TryGetByStatus(uint code, out ForceOrbDefinition orb) => ByStatus.TryGetValue(code, out orb);
+
+    // The first definition of each status code, for the lookups presence and the HUD make per update and frame.
+    internal static Dictionary<uint, T> ByStatusCode<T>(IEnumerable<T> definitions, Func<T, uint> statusOf)
     {
-        orb = ByKey.Values.FirstOrDefault(candidate => candidate.StatusCode == code);
-        return orb is not null;
+        var byStatus = new Dictionary<uint, T>();
+        foreach (var definition in definitions)
+        {
+            byStatus.TryAdd(statusOf(definition), definition);
+        }
+
+        return byStatus;
     }
 
     private static Dictionary<string, ForceOrbDefinition> Build()

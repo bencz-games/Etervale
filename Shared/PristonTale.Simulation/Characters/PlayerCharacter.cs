@@ -467,10 +467,12 @@ public sealed partial class PlayerCharacter
     private static long Sum(CharacterAttributes a) => (long)a.Strength + a.Spirit + a.Talent + a.Agility + a.Health;
 
     // Item kinds in the main and the off hand (bit per kind), for effects bound to a weapon or a shield.
+    private static readonly EquipmentSlot[] HandSlots = [EquipmentSlot.Weapon, EquipmentSlot.OffHand];
+
     private uint HeldKinds()
     {
         var held = 0u;
-        foreach (var slot in new[] { EquipmentSlot.Weapon, EquipmentSlot.OffHand })
+        foreach (var slot in HandSlots)
         {
             if (GetEquipped(slot) is { } item && Enum.IsDefined(item.Definition.Kind))
             {

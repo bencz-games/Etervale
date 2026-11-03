@@ -107,9 +107,11 @@ public static class DeathPenalty
     // The inventory anchor of a carried Resurrection Scroll, or -1.
     public static int ScrollAnchor(PlayerCharacter character)
     {
-        foreach (var (anchor, item) in character.Inventory.Occupied())
+        // Asked every tick for a dead player: the bag is walked by index, without an iterator.
+        var inventory = character.Inventory;
+        for (var anchor = 0; anchor < inventory.Capacity; anchor++)
         {
-            if (item.Definition.CatalogKey == ResurrectionScroll)
+            if (inventory[anchor]?.Definition.CatalogKey == ResurrectionScroll)
             {
                 return anchor;
             }

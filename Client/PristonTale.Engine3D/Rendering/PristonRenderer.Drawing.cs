@@ -89,7 +89,7 @@ public sealed partial class PristonRenderer
                 _textureLoader.White,
                 _environment.Sh,
                 frame.Shadows.NoiseOffset,
-                _sceneTargets.Bind);
+                _sceneTargets.BindAction);
             Profiler.End(RenderSection.Reflections);
             _stateCache.InvalidateDeviceState();
         }
@@ -258,8 +258,9 @@ public sealed partial class PristonRenderer
         _smoothSurfaceVisible = false;
         var unused = 0;
         var diagnostics = new PristonMeshDiagnostics();
-        foreach (var items in new[] { queue.Opaque, queue.AlphaTest })
+        for (var pass = 0; pass < 2; pass++)
         {
+            var items = pass == 0 ? queue.Opaque : queue.AlphaTest;
             for (var i = 0; i < items.Count; i++)
             {
                 var batch = items[i].Batch;

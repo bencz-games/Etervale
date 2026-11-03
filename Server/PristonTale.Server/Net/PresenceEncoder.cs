@@ -271,9 +271,10 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
             _related.Add(targetIndex);
         }
 
-        foreach (var member in snapshot.Party?.Members ?? [])
+        var members = snapshot.Party?.Members ?? [];
+        for (var index = 0; index < members.Count; index++)
         {
-            if (grid.TryGetIndex(member.EntityId, out var memberIndex))
+            if (grid.TryGetIndex(members[index].EntityId, out var memberIndex))
             {
                 _related.Add(memberIndex);
             }
@@ -881,13 +882,16 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
             }
         }
 
-        foreach (var entity in withSpawned ? _spawned : [])
+        if (withSpawned)
         {
-            foreach (var running in snapshot.ActiveStatuses.For(entity))
+            foreach (var entity in _spawned)
             {
-                if (running.RemainingAt(snapshot.FieldNowMs) > 0 && !PublishedWith(snapshot.StatusEvents, running.Status))
+                foreach (var running in snapshot.ActiveStatuses.For(entity))
                 {
-                    _statusEvents.Add(WireMapping.Status(running.At(snapshot.FieldNowMs)));
+                    if (running.RemainingAt(snapshot.FieldNowMs) > 0 && !PublishedWith(snapshot.StatusEvents, running.Status))
+                    {
+                        _statusEvents.Add(WireMapping.Status(running.At(snapshot.FieldNowMs)));
+                    }
                 }
             }
         }
