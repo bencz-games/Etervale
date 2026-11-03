@@ -109,21 +109,22 @@ internal sealed class PristonMaterialRuntimeFactory
         return (alphaTest, transparent);
     }
 
-    // A material with an opacity map or a TGA texture (the texture carries its alpha) is cut out by that alpha.
+    // A texture with an opacity map, or a TGA (which carries its own alpha), is cut out by that alpha.
+    internal static bool IsCutOut(string textureName, string opacityName) =>
+        !string.IsNullOrWhiteSpace(opacityName) || textureName.EndsWith(".tga", StringComparison.OrdinalIgnoreCase);
+
+    // A material whose texture, or any frame of its animated texture, is cut out.
     internal static bool UsesAlphaTest(PristonMaterial material)
     {
-        if (material.OpacityName.Length > 0 || IsTga(material.TextureName))
+        if (IsCutOut(material.TextureName, material.OpacityName))
             return true;
 
         for (var i = 0; i < material.AnimationTextureNames.Count; i++)
-            if (IsTga(material.AnimationTextureNames[i]))
+            if (IsCutOut(material.AnimationTextureNames[i], ""))
                 return true;
 
         return false;
     }
-
-    private static bool IsTga(string textureName) =>
-        textureName.EndsWith(".tga", StringComparison.OrdinalIgnoreCase);
 
     private static uint FirstTextureFormState(PristonMaterial material)
     {

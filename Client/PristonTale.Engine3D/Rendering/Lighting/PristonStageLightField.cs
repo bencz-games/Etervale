@@ -205,8 +205,8 @@ internal sealed class PristonStageLightField
 
         // Not foliage or other cut-outs (a bush at an actor's feet is not the ground it stands on), water or glows.
         var material = stage.Materials[face.MaterialIndex];
-        var cutout = material.OpacityName.Length > 0 || material.TextureName.EndsWith(".tga", StringComparison.OrdinalIgnoreCase);
-        return !cutout && !material.IsInvisible && !material.IsWater && material.BlendType is not (2 or 3 or 4 or 5 or 6);
+        return !PristonMaterialRuntimeFactory.UsesAlphaTest(material) && !material.IsInvisible && !material.IsWater
+            && !PristonBlendType.IsLate(material.BlendType);
     }
 
     private static int Column(float value, float origin, int count) => Math.Clamp((int)MathF.Floor((value - origin) / CellSize), 0, count - 1);

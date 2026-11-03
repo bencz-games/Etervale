@@ -54,7 +54,7 @@ public sealed partial class PristonRenderer
 
             foreach (var batch in Sky.GetBatches(profile))
             {
-                var blend = batch.Material.BlendType <= 1 ? BlendState.NonPremultiplied : batch.Material.BlendState;
+                var blend = batch.Material.BlendType <= PristonBlendType.Alpha ? BlendState.NonPremultiplied : batch.Material.BlendState;
                 _stateCache.SetBlendState(blend);
                 DrawBatch(batch, ref staticBatches, ref dynamicBatches, ref drawCalls, ref triangles,
                     ref staticVertices, ref staticIndices, ref normalBatches, ref twoSidedBatches,

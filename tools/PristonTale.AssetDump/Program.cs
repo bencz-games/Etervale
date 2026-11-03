@@ -334,7 +334,7 @@ static void DumpMaterialAggregates(IReadOnlyList<PristonMaterial> mats)
         if (fs != 0) formStateHist[fs] = formStateHist.GetValueOrDefault(fs) + 1;
         // Move (0x1) = wind Z1; MoveX/Z bits = explicit wind axes (see PristonMaterialRuntimeFactory).
         if ((m.SurfaceFlags & (PristonMaterialSurfaceFlags.Move | PristonMaterialSurfaceFlags.MoveX1 | PristonMaterialSurfaceFlags.MoveX2 | PristonMaterialSurfaceFlags.MoveZ1 | PristonMaterialSurfaceFlags.MoveZ2)) != 0) wind++;
-        if (m.BlendType is >= 2 and <= 6) lateBlend++;       // IsLateBlend rule
+        if (PristonBlendType.IsLate(m.BlendType)) lateBlend++;
         if (m.IsInvisible) invisible++;
         if (m.IsWater) water++;
         if (m.IsBlinking) blinking++;
@@ -383,12 +383,12 @@ static void DumpMaterialTable(IReadOnlyList<PristonMaterial> mats)
 static string BlendName(uint b) => b switch
 {
     0 => "NONE",
-    1 => "ALPHA",
-    2 => "COLOR",
-    3 => "SHADOW",
-    4 => "LAMP",
-    5 => "ADDCOLOR",
-    6 => "INVSHADOW",
+    PristonBlendType.Alpha => "ALPHA",
+    PristonBlendType.Color => "COLOR",
+    PristonBlendType.Shadow => "SHADOW",
+    PristonBlendType.Lamp => "LAMP",
+    PristonBlendType.AddColor => "ADDCOLOR",
+    PristonBlendType.InverseShadow => "INVSHADOW",
     _ => "?"
 };
 

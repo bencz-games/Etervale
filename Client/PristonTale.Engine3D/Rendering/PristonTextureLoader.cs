@@ -313,8 +313,7 @@ public sealed class PristonTextureLoader : IDisposable
             }
         }
 
-        // Cutout materials are exactly the TGA or opacity-mapped ones (PristonMaterialRuntimeFactory.UsesAlphaTest).
-        var cutout = Path.GetExtension(path).Equals(".tga", StringComparison.OrdinalIgnoreCase) || !string.IsNullOrWhiteSpace(opacity);
+        var cutout = PristonMaterialRuntimeFactory.IsCutOut(path, opacity);
         var levels = PristonMipChain.Build(image.Pixels, image.Width, image.Height, cutout ? AlphaCutoffByte : (byte)0);
         return new PreparedTexture(image.Width, image.Height, levels);
     }

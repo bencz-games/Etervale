@@ -192,8 +192,7 @@ public sealed record PristonMaterial(
                 var name = StageTextureName(stage);
                 if (StageState(stage) == 1
                     || string.IsNullOrWhiteSpace(name)
-                    || !string.IsNullOrWhiteSpace(StageOpacityName(stage))
-                    || name.EndsWith(".tga", StringComparison.OrdinalIgnoreCase))
+                    || PristonMaterialRuntimeFactory.IsCutOut(name, StageOpacityName(stage)))
                 {
                     break;
                 }
