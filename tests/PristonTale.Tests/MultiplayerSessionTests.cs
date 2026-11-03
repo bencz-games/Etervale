@@ -113,7 +113,7 @@ internal static class MultiplayerSessionTests
         using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(10));
         await using var connection = await Protocol.Transport.TlsTransport.ConnectAsync("127.0.0.1", new Uri(server.Address).Port,
             new Protocol.Transport.ServerCertificatePolicy("127.0.0.1"), timeout.Token);
-        var answer = new TaskCompletionSource<byte>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var answer = new TaskCompletionSource<LoginFailure>(TaskCreationOptions.RunContinuationsAsynchronously);
         var run = connection.RunAsync(packet =>
         {
             if (System.Buffers.Binary.BinaryPrimitives.ReadUInt32LittleEndian(packet.Span[4..]) == Protocol.Binary.EtervaleOpcodes.LoginResult)
@@ -125,7 +125,7 @@ internal static class MultiplayerSessionTests
         }, timeout.Token);
         var buffer = new byte[Protocol.Packets.LoginPacket.MaxSize];
         connection.Send(buffer.AsSpan(0, new Protocol.Packets.LoginPacket(Protocol.Packets.ProtocolVersion.Minimum - 1, account, MultiplayerServer.Password).Write(buffer)));
-        Assert.True(await answer.Task.WaitAsync(timeout.Token) == (byte)LoginFailure.OutdatedClient, "a client of an older protocol was let in");
+        Assert.True(await answer.Task.WaitAsync(timeout.Token) == LoginFailure.OutdatedClient, "a client of an older protocol was let in");
         connection.Close("test done");
         await run;
     }

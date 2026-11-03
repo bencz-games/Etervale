@@ -689,9 +689,9 @@ public sealed class GameServerConnection : IGameBackend
             return;
         }
 
-        if (result.Status != LoginStatus.Ok)
+        if (result.Status != LoginFailure.None)
         {
-            login.Completion.TrySetResult(LoginOutcome.Denied((LoginFailure)result.Status));
+            login.Completion.TrySetResult(LoginOutcome.Denied(result.Status));
             return;
         }
 

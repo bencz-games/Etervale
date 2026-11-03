@@ -409,7 +409,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
     }
 
     private void SendLoginResult(LoginFailure failure) =>
-        SendLarge(new LoginResultPacket((byte)failure).Write, LoginResultPacket.Size);
+        SendLarge(new LoginResultPacket(failure).Write, LoginResultPacket.Size);
 
     private async Task SendCharacterListAsync(string token)
     {

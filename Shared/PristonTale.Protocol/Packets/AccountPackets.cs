@@ -87,20 +87,9 @@ public readonly record struct LoginPacket(uint Protocol, string Account, string 
     }
 }
 
-// The answer to a login (LoginResult.Status).
-public static class LoginStatus
-{
-    public const byte Ok = 0;
-    public const byte BadCredentials = 1;
-    public const byte Blocked = 2;
-    public const byte AlreadyLoggedIn = 3;
-    public const byte Busy = 4;
-    public const byte OutdatedClient = 5;
-}
-
-// S->C {header, uint16 Version = 1, uint8 Status (LoginStatus), uint8 0}; a successful login sends the character list
-// first.
-public readonly record struct LoginResultPacket(byte Status)
+// S->C {header, uint16 Version = 1, uint8 Status (LoginFailure, None for a login), uint8 0}; a successful login sends the
+// character list first.
+public readonly record struct LoginResultPacket(LoginFailure Status)
 {
     public const int Size = 8 + 4;
 
@@ -108,7 +97,7 @@ public readonly record struct LoginResultPacket(byte Status)
     {
         var writer = new PacketWriter(destination, EtervaleOpcodes.LoginResult);
         writer.UInt16(AccountWire.CurrentVersion);
-        writer.Byte(Status);
+        writer.Byte((byte)Status);
         writer.Byte(0);
         return writer.Finish();
     }
@@ -117,7 +106,7 @@ public readonly record struct LoginResultPacket(byte Status)
     {
         var reader = new PacketReader(packet, Size);
         AccountWire.ReadVersion(ref reader, "Login result");
-        return new LoginResultPacket(reader.Byte());
+        return new LoginResultPacket((LoginFailure)reader.Byte());
     }
 }
 
