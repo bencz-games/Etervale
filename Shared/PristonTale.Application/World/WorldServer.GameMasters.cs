@@ -306,12 +306,8 @@ public sealed partial class WorldServer
             }
 
             var character = connection.Player.Character;
-            var target = ExperienceTable.ForLevel(level);
-            // Below the final tier experience stops at level 100, as a monster's award would.
-            if (character.Tier < 3)
-            {
-                target = Math.Min(target, ExperienceTable.ForLevel(100));
-            }
+            // Below the final tier experience stops where a monster's award would (ExperienceLimit).
+            var target = Math.Min(ExperienceTable.ForLevel(level), character.ExperienceLimit);
 
             if (character.Experience < target)
             {

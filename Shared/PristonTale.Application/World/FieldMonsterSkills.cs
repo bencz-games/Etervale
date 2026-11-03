@@ -10,6 +10,7 @@ using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.Combat;
 using PristonTale.Contracts.Units;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Application.World;
 
@@ -693,12 +694,7 @@ internal sealed class FieldMonsterSkills
         _ => MonsterStatuses.StunSpec(rider.Status)
     };
 
-    private static bool Near(Vector3 a, Vector3 b, float radius, float height)
-    {
-        var dx = a.X - b.X;
-        var dz = a.Z - b.Z;
-        return MathF.Abs(a.Y - b.Y) < height && dx * dx + dz * dz < radius * radius;
-    }
+    private static bool Near(Vector3 a, Vector3 b, float radius, float height) => MathF.Abs(a.Y - b.Y) < height && Planar.Within(a, b, radius);
 
     // Views show a boss with lives as one bar over all its lives.
     public static (int Life, int Max) ViewLife(MonsterInstance monster) =>

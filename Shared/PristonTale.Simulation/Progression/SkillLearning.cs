@@ -10,13 +10,15 @@ public static class SkillLearning
 {
     public const int SkillsPerTier = 4;
     public const int FinalTierStart = 12;
+    // The ranks a skill takes.
+    public const int MaxRank = 10;
 
     private static readonly int[] BasePrices = [500, 1000, 1500, 2000, 3000, 5000, 7000, 9000, 10000, 12000, 15000, 20000, 25000, 30000, 35000, 40000];
     private static readonly int[] RankPrices = [500, 600, 700, 800, 1000, 1200, 1400, 1600, 2000, 2500, 3000, 4000, 5000, 6000, 7000, 8000];
 
     public static int Price(int index, int currentRank)
     {
-        if (index < 0 || index >= BasePrices.Length || currentRank is < 0 or > 9)
+        if (index < 0 || index >= BasePrices.Length || currentRank is < 0 or >= MaxRank)
         {
             throw new ArgumentOutOfRangeException(nameof(index));
         }
@@ -25,7 +27,7 @@ public static class SkillLearning
     }
 
     // Skills a class tier has opened in the window (tier 0 = the first four).
-    public static int OpenedBy(int tier) => SkillsPerTier * (Math.Clamp(tier, 0, 3) + 1);
+    public static int OpenedBy(int tier) => SkillsPerTier * (Math.Clamp(tier, 0, PlayerCharacter.LastTier) + 1);
 
     public static bool UsesFinalTierPoints(int index) => index >= FinalTierStart;
 
@@ -42,7 +44,7 @@ public static class SkillLearning
         var skill = skills[index];
         var rank = rankOf(skill.Code);
         var points = UsesFinalTierPoints(index) ? finalTierPoints : skillPoints;
-        return skill.Code != 0 && skill.ManaByRank.Count == 10 && rank < 10 && points > 0 && level >= skill.RequiredLevel + rank * 2
+        return skill.Code != 0 && skill.ManaByRank.Count == MaxRank && rank < MaxRank && points > 0 && level >= skill.RequiredLevel + rank * 2
             && (index == 0 || rankOf(skills[index - 1].Code) > 0);
     }
 

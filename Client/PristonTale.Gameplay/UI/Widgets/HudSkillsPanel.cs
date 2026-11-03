@@ -221,7 +221,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             painter.Sprite(HudArt.SkillPageForward, forward.X + 1, forward.Y + 1);
         }
 
-        for (var tier = 0; tier <= Math.Min(_shownTier, LastTier); tier++)
+        for (var tier = 0; tier <= Math.Min(_shownTier, PlayerCharacter.LastTier); tier++)
         {
             var title = HudSkillTreeLayout.Title(origin, tier);
             painter.Sprite(HudArt.JobTitle(_class, tier), title.X, title.Y);
@@ -235,7 +235,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             {
                 // A pupil sees in colour what the master can teach now (a skill at rank 10 has nothing left to learn);
                 // elsewhere the learned skills are in colour.
-                var usable = skillMaster != 0 ? entry.Rank < SkillMaxRank && (entry.Rank > 0 || CanTrain(index, state)) : entry.Rank > 0;
+                var usable = skillMaster != 0 ? entry.Rank < SkillLearning.MaxRank && (entry.Rank > 0 || CanTrain(index, state)) : entry.Rank > 0;
                 painter.Sprite(HudArt.SkillButton(_class, entry.Skill.IconKey, !usable), node.X, node.Y);
                 var mastery = HudSkillTreeLayout.MasteryGauge(origin, index);
                 painter.Sprite(entry.Skill.MouseUse == SkillMouseUse.None ? HudArt.SkillGaugePassive : HudArt.SkillGaugeBack, mastery.X, mastery.Y);
@@ -279,9 +279,6 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             painter.TextCentered(_finalPointsText, origin.X + 250, origin.X + 253, origin.Y + 578);
         }
     }
-
-    private const int SkillMaxRank = 10;
-    private const int LastTier = 3;
 
     // The training box's lines (their tops), centred in the box, and their colours.
     private const int BoxTitleY = 145;
@@ -333,7 +330,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             painter.TextCentered("to learn or practice", box.Left, box.Right, BoxSecondLineY, BoxShort);
         }
 
-        if (classChangeOffered || _shownTier < LastTier && TierLearned())
+        if (classChangeOffered || _shownTier < PlayerCharacter.LastTier && TierLearned())
         {
             ClassChangeShown = true;
             var button = HudSkillTreeLayout.ClassChange;

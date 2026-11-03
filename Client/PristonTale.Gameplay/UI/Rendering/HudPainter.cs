@@ -176,13 +176,7 @@ public sealed class HudPainter : IDisposable
     }
 
     // Text at its own scale of the UI font (smaller labels over the scene), its y the top of the capitals as for Text.
-    public void Text(string value, int x, int y, Color color, float scale)
-    {
-        if (!string.IsNullOrEmpty(value))
-        {
-            _text.Add(new TextRun(value, new Vector2(x, y + MathF.Round(CapTop - _capCropping * scale)), color, false, Vector2.One, scale));
-        }
-    }
+    public void Text(string value, int x, int y, Color color, float scale) => ScaledText(value, x, y, color, false, scale);
 
     public void TextCentered(string value, int left, int right, int y, Color? color = null, bool shadow = true) =>
         TextCentered(value, left, right, y, color ?? Color.White, shadow, Point.Zero);
@@ -200,8 +194,16 @@ public sealed class HudPainter : IDisposable
     {
         if (!string.IsNullOrEmpty(value))
         {
-            var x = left + (right - left - MeasureAt(value, scale)) / 2;
-            _text.Add(new TextRun(value, new Vector2(x, y + MathF.Round(CapTop - _capCropping * scale)), Color.White, true, Vector2.One, scale));
+            ScaledText(value, left + (right - left - MeasureAt(value, scale)) / 2, y, Color.White, true, scale);
+        }
+    }
+
+    // Text at its own scale, y the top of its capitals.
+    private void ScaledText(string value, int x, int y, Color color, bool shadow, float scale)
+    {
+        if (!string.IsNullOrEmpty(value))
+        {
+            _text.Add(new TextRun(value, new Vector2(x, y + MathF.Round(CapTop - _capCropping * scale)), color, shadow, Vector2.One, scale));
         }
     }
 

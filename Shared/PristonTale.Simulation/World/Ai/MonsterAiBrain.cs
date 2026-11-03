@@ -5,6 +5,7 @@ using PristonTale.Simulation.World.Monsters;
 using PristonTale.Simulation.World.Monsters.Skills;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.Units;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Simulation.World.Ai;
 
@@ -380,7 +381,7 @@ public sealed class MonsterAiBrain
         m.ProbeClips++;
         if (m.ProbeClips >= MonsterAiTuning.ProgressProbeClips)
         {
-            bool stuck = PlanarDistanceSq(m.Position, m.ProgressProbePosition) < t.StuckDistanceSq;
+            bool stuck = Planar.DistanceSquared(m.Position, m.ProgressProbePosition) < t.StuckDistanceSq;
             m.ProgressProbePosition = m.Position;
             m.ProbeClips = 0;
             bool queued = m.CrowdedSinceProbe;
@@ -402,7 +403,7 @@ public sealed class MonsterAiBrain
         }
 
         // Soft leash: head home for six clips, keeping the target; the chase may resume afterwards.
-        if (m.Motion.IsMoving() && PlanarDistanceSq(m.Position, m.HomeAnchor) > t.LeashSq)
+        if (m.Motion.IsMoving() && Planar.DistanceSquared(m.Position, m.HomeAnchor) > t.LeashSq)
         {
             BeginManoeuvre(m, HeadingTo(m, m.HomeAnchor), MonsterAiTuning.LeashManoeuvreClips, m.Motion);
         }
@@ -733,11 +734,4 @@ public sealed class MonsterAiBrain
 
     private static void FaceToward(MonsterInstance m, Vector3 target)
         => m.Facing = MathF.Atan2(target.X - m.Position.X, target.Z - m.Position.Z);
-
-    private static float PlanarDistanceSq(Vector3 a, Vector3 b)
-    {
-        float dx = a.X - b.X;
-        float dz = a.Z - b.Z;
-        return (dx * dx) + (dz * dz);
-    }
 }

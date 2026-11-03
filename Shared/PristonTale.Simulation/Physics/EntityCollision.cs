@@ -95,10 +95,5 @@ public static class EntityCollision
         return dx * dx + dz * dz < radius * radius;
     }
 
-    private static bool Overlaps(Vector3 a, Vector3 b, float radius)
-    {
-        var dx = a.X - b.X;
-        var dz = a.Z - b.Z;
-        return MathF.Abs(a.Y - b.Y) < radius && dx * dx + dz * dz < radius * radius;
-    }
+    private static bool Overlaps(Vector3 a, Vector3 b, float radius) => MathF.Abs(a.Y - b.Y) < radius && Planar.Within(a, b, radius);
 }

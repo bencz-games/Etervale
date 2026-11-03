@@ -43,6 +43,7 @@ How the tick calls these rules belongs to [application.md](application.md).
 | `Physics/EntityCollision.cs` | Circle-vs-circle blocking between bodies (players, monsters, NPCs) along a swept segment |
 | `Physics/EntityCollisionRadii.cs`, `EntityNeighbour.cs` | Body radii (by `EntityKind`) and neighbour records |
 | `Physics/SpatialIndex.cs` | XZ hash grid of entity positions with deterministic query order |
+| `Physics/Planar.cs` | Distances on the ground plane (x, z), the one measure of reach, range and proximity |
 | [`Assets/StageCollisionReader.cs`](../Shared/PristonTale.Assets/StageCollisionReader.cs) | Reads collision triangles from a stage `.smd` |
 | `Geometry/CollisionMesh.cs` | Immutable triangle grid: floor height, floor raycast, segment trace |
 | `Assets/AssetFiles.cs` | Case-insensitive asset path resolution and assets root discovery |

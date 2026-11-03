@@ -3,6 +3,7 @@ using PristonTale.Simulation.Combat;
 using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Contracts.Motion;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Simulation.World.Ai;
 
@@ -29,7 +30,7 @@ public sealed class SummonBrain
     public static float AttackReach(MonsterDefinition definition) => MathF.Max(MinimumAttackReach, definition.Combat.MeleeRange + AttackReachPad);
 
     // Beyond this distance the summon is placed beside its owner instead of walking.
-    public static bool NeedsRecall(MonsterInstance summon, Vector3 ownerPosition) => PlanarDistance(summon.Position, ownerPosition) >= RecallDistance;
+    public static bool NeedsRecall(MonsterInstance summon, Vector3 ownerPosition) => Planar.Distance(summon.Position, ownerPosition) >= RecallDistance;
 
     public MonsterAttackEvent? Tick(MonsterInstance summon, MonsterAiTuning tuning, in SummonOrders orders, float dtMs)
     {
@@ -52,7 +53,7 @@ public sealed class SummonBrain
             return AdvanceAttack(summon, tuning, orders, dtMs);
         }
 
-        var ownerDistance = PlanarDistance(summon.Position, orders.OwnerPosition);
+        var ownerDistance = Planar.Distance(summon.Position, orders.OwnerPosition);
         var hasTarget = orders.HasTarget && orders.Target.IsAlive;
         if (ownerDistance >= FollowWithTargetDistance || !hasTarget && ownerDistance >= FollowIdleDistance
             || summon.AiState == MonsterAiState.Leash && ownerDistance > FollowStopDistance)
@@ -77,7 +78,7 @@ public sealed class SummonBrain
         summon.TargetId = target.EntityId;
         summon.AiState = MonsterAiState.Chase;
         var reach = AttackReach(summon.Def);
-        var distance = PlanarDistance(summon.Position, target.Position);
+        var distance = Planar.Distance(summon.Position, target.Position);
         if (distance < reach && MathF.Abs(summon.Position.Y - target.Position.Y) <= VerticalLimit)
         {
             Face(summon, target.Position);
@@ -153,11 +154,4 @@ public sealed class SummonBrain
     }
 
     private static void Face(MonsterInstance summon, Vector3 point) => summon.Facing = MathF.Atan2(point.X - summon.Position.X, point.Z - summon.Position.Z);
-
-    private static float PlanarDistance(Vector3 a, Vector3 b)
-    {
-        var dx = a.X - b.X;
-        var dz = a.Z - b.Z;
-        return MathF.Sqrt(dx * dx + dz * dz);
-    }
 }

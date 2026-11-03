@@ -169,8 +169,10 @@ float4 PS_Drop(RainOut i) : SV_Target0
     return Output(i.Color.rgb, RainColor.a * i.Color.a * across * along);
 }
 
-// The ring's share of a splash's opacity, and the spray's droplets and how small each is in the quad.
+// The ring's share of a splash's opacity and how thin it is, and the spray's droplets and how small each is in the
+// quad.
 static const float SplashRing = 0.6;
+static const float SplashRingSharpness = 300.0;
 static const int SplashDroplets = 4;
 static const float SplashDropletSharpness = 220.0;
 
@@ -183,7 +185,7 @@ float4 PS_Splash(RainOut i) : SV_Target0
     {
         // A thin, faint ring spreading to the quad's edge.
         float ring = r - lerp(0.15, 0.95, age);
-        alpha = exp(-ring * ring * 300.0) * (1.0 - age) * SplashRing;
+        alpha = exp(-ring * ring * SplashRingSharpness) * (1.0 - age) * SplashRing;
     }
     else
     {

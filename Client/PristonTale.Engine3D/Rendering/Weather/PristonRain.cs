@@ -58,7 +58,7 @@ public sealed class PristonRain : IDisposable
     public const int MaxSplashes = 520;
     public const float SplashRadius = 460f;
     public const float SplashSeconds = 0.3f;
-    public const float SplashCountPower = 1.5f;
+    private const float SplashCountPower = 1.5f;
     private const float RingSize = 3.5f;
     private const float SpraySize = 1.8f;
     private const float LightSplashSize = 0.5f;

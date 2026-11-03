@@ -165,10 +165,10 @@ internal sealed partial class ShaderValidationProbe
     {
         var sun = Vector3.Normalize(new Vector3(0.2f, 0.25f, 1f));
         const float march = 2000f;
-        var (clear, _) = RunVolumetric(striped: false, sun, firstFrame: 1, frames: 1, depthValue: SkyDepthValue, marchDistance: march);
+        var (clear, _) = RunVolumetric(striped: false, sun, firstFrame: 1, frames: 1, depthValue: PristonSceneTargets.SkyDepth, marchDistance: march);
         Assert.True(Vector3.Distance(clear, VolumetricScene) < 0.01f * VolumetricScene.Length(), $"volumetric over a clear sky: expected {VolumetricScene}, got {clear}");
         const float mist = 4f;
-        var (misty, _) = RunVolumetric(striped: false, sun, firstFrame: 1, frames: 1, depthValue: SkyDepthValue, densityScale: mist, marchDistance: march);
+        var (misty, _) = RunVolumetric(striped: false, sun, firstFrame: 1, frames: 1, depthValue: PristonSceneTargets.SkyDepth, densityScale: mist, marchDistance: march);
         var transmittance = MathF.Exp(-PristonVolumetricLight.Density * mist * march);
         var g = PristonVolumetricLight.Anisotropy;
         var cosine = Vector3.Dot(Vector3.UnitZ, sun);
@@ -213,9 +213,6 @@ internal sealed partial class ShaderValidationProbe
 
     // Runs the volumetric light over a 128x128 scene of the given radiance at view depth 2000 for some successive frames;
     // returns the centre pixel and the luminance of the accumulated quarter-resolution in-scatter.
-    // The cleared depth of a pixel without a surface (PristonSceneTargets).
-    private const float SkyDepthValue = 65000f;
-
     private (Vector3 Centre, float[] Accumulated) RunVolumetric(bool striped, Vector3 towardSun, uint firstFrame, int frames, float depthValue = 2000f,
         float densityScale = 1f, float marchDistance = PristonVolumetricLight.MaxDistance)
     {

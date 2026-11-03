@@ -146,7 +146,7 @@ internal sealed class PristonSceneTargets : IDisposable
         _device.Viewport = _callerViewport;
     }
 
-    private const float SkyDepth = 65000f;
+    internal const float SkyDepth = 65000f;
 
     // Binds the sky target, cleared to the sRGB colour behind the dome, for the dome's layers.
     public void BeginSky(Color background)

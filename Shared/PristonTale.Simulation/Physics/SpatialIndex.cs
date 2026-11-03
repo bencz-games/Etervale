@@ -140,7 +140,7 @@ public sealed class SpatialIndex
 
                 foreach (var entry in bucket)
                 {
-                    if (PlanarDistanceSq(entry.Position, center) < radiusSq)
+                    if (Planar.DistanceSquared(entry.Position, center) < radiusSq)
                     {
                         return true;
                     }
@@ -155,18 +155,11 @@ public sealed class SpatialIndex
     {
         foreach (var entry in bucket)
         {
-            if (PlanarDistanceSq(entry.Position, center) <= radiusSq)
+            if (Planar.DistanceSquared(entry.Position, center) <= radiusSq)
             {
                 results.Add(entry);
             }
         }
-    }
-
-    private static float PlanarDistanceSq(Vector3 a, Vector3 b)
-    {
-        var dx = a.X - b.X;
-        var dz = a.Z - b.Z;
-        return dx * dx + dz * dz;
     }
 
     private (int X, int Z) Cell(Vector3 position)

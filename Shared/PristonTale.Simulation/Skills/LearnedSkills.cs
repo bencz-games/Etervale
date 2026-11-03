@@ -39,7 +39,7 @@ public sealed class LearnedSkills
     internal void Increase(uint code)
     {
         var rank = RankOf(code);
-        if (!IsAvailable(code) || rank >= 10)
+        if (!IsAvailable(code) || rank >= Progression.SkillLearning.MaxRank)
         {
             throw new ArgumentOutOfRangeException(nameof(code));
         }

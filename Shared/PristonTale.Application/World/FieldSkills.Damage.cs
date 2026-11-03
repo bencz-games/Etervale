@@ -6,6 +6,7 @@ using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Ai;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Contracts.Motion;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Application.World;
 
@@ -163,9 +164,7 @@ internal sealed partial class FieldSkills
     {
         if (rule.RadiusTargetPad > 0)
         {
-            var dx = aim.X - caster.Position.X;
-            var dz = aim.Z - caster.Position.Z;
-            return MathF.Sqrt(dx * dx + dz * dz) + rule.RadiusTargetPad;
+            return Planar.Distance(aim, caster.Position) + rule.RadiusTargetPad;
         }
 
         if (rule.AreaShape == SkillAreaShape.Box && rule.Radius.Length == 0)
@@ -185,9 +184,7 @@ internal sealed partial class FieldSkills
                 continue;
             }
 
-            var dx = monster.Position.X - center.X;
-            var dz = monster.Position.Z - center.Z;
-            if (dx * dx + dz * dz <= radius * radius)
+            if (Planar.DistanceSquared(monster.Position, center) <= radius * radius)
             {
                 _targets.Add(monster);
                 if (_targets.Count >= limit)

@@ -30,7 +30,7 @@ internal static class WeatherTests
 
     private static Task SplashesAsync()
     {
-        var light = WeatherSchedule.LightRain / 255f;
+        var light = WeatherSchedule.LightRain / (float)WeatherSchedule.StormRain;
         Assert.True(PristonRain.SplashesPerSecond(light) < light * PristonRain.SplashesPerSecond(1f),
             "a light rain landed its share of a downpour's splashes or more");
         Assert.True(PristonRain.SplashSize(light) < PristonRain.SplashSize(1f) && PristonRain.SplashOpacity(light) < PristonRain.SplashOpacity(1f),

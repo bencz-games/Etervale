@@ -41,6 +41,12 @@ internal static class MonsterCrystalTests
         Assert.True(MonsterCrystals.TryGet("GP101", out var hopy) && hopy.Pick(5, false) == "HOPY 2" && !hopy.SharedDelay, "fixed crystal");
         Assert.True(MonsterCrystals.TryGet("GP205", out var cyan) && cyan.Kind == CrystalKind.SoulStone && cyan.Pick(6, false) == "Soul of Icegoblin",
             "soul stone table");
+        var identities = PristonTale.WorldImport.IdentityRegistry.Monsters();
+        var unknown = MonsterCrystals.All.Where(static crystal => crystal.Kind != CrystalKind.SoulStone)
+            .SelectMany(static crystal => crystal.Monsters.Concat(crystal.EventMonsters)).Select(static monster => monster.Key)
+            .Where(key => !identities.HasKey(key)).Distinct().ToArray();
+        Assert.True(unknown.Length == 0 && MonsterCrystals.TryGet("GP104", out var bargon) && bargon.Pick(0, false) == "Bargon 2",
+            $"crystals call monsters the identity registry does not know: {string.Join(", ", unknown)}");
         Assert.True(MonsterCrystals.PetLifetimeMs(50) == 340_000f && MonsterCrystals.PetLifetimeMs(100) == 240_000f && MonsterCrystals.PetBonusLife(99) == 297,
             "pet lifetime and life bonus");
         Assert.True(MonsterCrystals.EventActive(1, 12) && !MonsterCrystals.EventActive(1, 11) && MonsterCrystals.EventActive(2, 3)

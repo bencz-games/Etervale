@@ -1,3 +1,5 @@
+using PristonTale.Simulation.Physics;
+
 namespace PristonTale.Application.World;
 
 public sealed partial class WorldServer
@@ -22,9 +24,7 @@ public sealed partial class WorldServer
                     continue;
                 }
 
-                var dx = connection.Player.Position.X - origin.X;
-                var dz = connection.Player.Position.Z - origin.Z;
-                if (dx * dx + dz * dz < rangeSquared)
+                if (Planar.DistanceSquared(connection.Player.Position, origin) < rangeSquared)
                 {
                     near.Add(connection.Player.EntityId);
                 }

@@ -41,9 +41,7 @@ public sealed class FieldPreyView : IPreyView
 
         foreach (var hidden in _hidden)
         {
-            var dx = hidden.X - position.X;
-            var dz = hidden.Z - position.Z;
-            if (dx * dx + dz * dz < radius * radius)
+            if (Planar.Within(hidden, position, radius))
             {
                 return true;
             }

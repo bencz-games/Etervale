@@ -42,6 +42,13 @@ public sealed partial class PlayerCharacter
     public int EliteSkillPoints { get; private set; }
     public short Tier { get; private set; }
 
+    // The class's tiers run from 0 to LastTier (each rank-up moves one up). Below the last, experience stops at the start
+    // of CappedLevel: an award that would pass it is discarded whole.
+    public const int LastTier = 3;
+    private const int CappedLevel = 100;
+
+    public ulong ExperienceLimit => Tier < LastTier ? ExperienceTable.ForLevel(CappedLevel) : ExperienceTable.Ceiling;
+
     public int StarterGiftsReceived { get; private set; } = StarterGifts.Count;
 
     public void RestoreStarterGifts(int received) =>
@@ -85,7 +92,7 @@ public sealed partial class PlayerCharacter
 
     public void RestoreProgress(ulong experience, long money, int statPoints = 0, short tier = 0, int skillPoints = 0, int eliteSkillPoints = 0)
     {
-        if (money < 0 || statPoints < 0 || skillPoints < 0 || eliteSkillPoints < 0 || tier < 0 || tier > 3)
+        if (money < 0 || statPoints < 0 || skillPoints < 0 || eliteSkillPoints < 0 || tier < 0 || tier > LastTier)
         {
             throw new ArgumentOutOfRangeException(nameof(experience));
         }
@@ -105,8 +112,7 @@ public sealed partial class PlayerCharacter
             return 0;
         }
 
-        // Experience saturates below the unsigned maximum (no wrap); below the third rank-up an award that would pass the
-        // level 100 threshold is discarded whole.
+        // Experience saturates below the unsigned maximum (no wrap); an award past ExperienceLimit is discarded whole.
         const ulong ceiling = ExperienceTable.Ceiling;
         if (Experience >= ceiling)
         {
@@ -114,7 +120,7 @@ public sealed partial class PlayerCharacter
         }
 
         var next = amount > ceiling - Experience ? ceiling : Experience + amount;
-        if (Tier < 3 && next > ExperienceTable.ForLevel(100))
+        if (next > ExperienceLimit)
         {
             return 0;
         }
@@ -738,7 +744,7 @@ public sealed partial class PlayerCharacter
     // tick changed meanwhile.
     public void ApplyQuestProgress(short tier, int statPoints, int skillPoints, int eliteSkillPoints)
     {
-        if (tier < Tier || tier > 3 || StatPoints + (long)statPoints < 0 || SkillPoints + (long)skillPoints < 0 || EliteSkillPoints + (long)eliteSkillPoints < 0)
+        if (tier < Tier || tier > LastTier || StatPoints + (long)statPoints < 0 || SkillPoints + (long)skillPoints < 0 || EliteSkillPoints + (long)eliteSkillPoints < 0)
         {
             throw new ArgumentOutOfRangeException(nameof(tier));
         }

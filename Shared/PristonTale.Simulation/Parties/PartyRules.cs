@@ -1,5 +1,6 @@
 using System.Numerics;
 using PristonTale.Contracts.Social;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Simulation.Parties;
 
@@ -41,12 +42,7 @@ public static class PartyRules
 
     public static bool LevelsMatch(int inviterLevel, int targetLevel) => Math.Abs(inviterLevel - targetLevel) < LevelGap;
 
-    public static bool InShareRange(Vector3 from, Vector3 member)
-    {
-        var dx = member.X - from.X;
-        var dz = member.Z - from.Z;
-        return dx * dx + dz * dz < PartyLimits.ShareRange * PartyLimits.ShareRange;
-    }
+    public static bool InShareRange(Vector3 from, Vector3 member) => Planar.Within(member, from, PartyLimits.ShareRange);
 
     public static bool SharesGold(long amount) => amount > 0 && amount < SharedGoldBelow;
 

@@ -9,6 +9,7 @@ using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World.Loot;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
+using PristonTale.Simulation.Physics;
 
 namespace PristonTale.Server.Net;
 
@@ -494,7 +495,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
         foreach (var (index, _) in visible.Entries)
         {
             ref readonly var view = ref snapshot.Entities[index];
-            var distanceSq = PlanarDistanceSq(view.Position, center);
+            var distanceSq = Planar.DistanceSquared(view.Position, center);
             var near = distanceSq <= NearRadius * NearRadius;
             if (WriteEntity(ref group, connection, index, tick, field, near) is { } age)
             {
@@ -514,7 +515,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
             return;
         }
 
-        var distanceSq = PlanarDistanceSq(view.Position, center);
+        var distanceSq = Planar.DistanceSquared(view.Position, center);
         if (distanceSq > ForgetRadius * ForgetRadius || distanceSq > ViewRadius * ViewRadius && !_known.ContainsKey(view.EntityId))
         {
             return;
@@ -943,7 +944,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
         _newDrops.Clear();
         foreach (var drop in snapshot.GroundDrops)
         {
-            if (!drop.Public && drop.OwnerId != _self || PlanarDistanceSq(drop.View.Position, selfPosition) > ItemRadius * ItemRadius)
+            if (!drop.Public && drop.OwnerId != _self || Planar.DistanceSquared(drop.View.Position, selfPosition) > ItemRadius * ItemRadius)
             {
                 continue;
             }
@@ -1053,13 +1054,6 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
                 HashCode.Combine(appearance.HelperPet, appearance.Phoenix, appearance.BigHead, appearance.WeaponGlow, appearance.OffHandGlow, appearance.ShopSign)),
             view.OwnerId,
             view.ModelScale);
-    }
-
-    private static float PlanarDistanceSq(Vector3 a, Vector3 b)
-    {
-        var dx = a.X - b.X;
-        var dz = a.Z - b.Z;
-        return dx * dx + dz * dz;
     }
 
     // What this receiver last got about an entity, only the fields its diff compares (a crowd keeps one per pair); Pass

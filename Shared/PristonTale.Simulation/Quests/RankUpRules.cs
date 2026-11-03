@@ -37,7 +37,7 @@ public static class RankUpRules
     {
         var character = context.Character;
         var group = context.Npc.ClassChangeGroup;
-        if (group <= 0 || !context.Npc.HomeMaster || character.Tier >= 3 || character.Level < RequiredLevel(character.Tier)
+        if (group <= 0 || !context.Npc.HomeMaster || character.Tier >= PlayerCharacter.LastTier || character.Level < RequiredLevel(character.Tier)
             || !TierSkillsLearned(character) || group == 1 && character.Tier > 0)
         {
             return QuestCode.None;
