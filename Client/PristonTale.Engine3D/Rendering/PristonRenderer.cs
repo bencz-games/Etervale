@@ -21,6 +21,9 @@ public sealed partial class PristonRenderer : IDisposable
     // The original game advances stage-object animation by two ticks per millisecond.
     // Animated stage objects advance two clip ticks per millisecond.
     internal const float StageObjectTicksPerSecond = 2000f;
+    // The sky dome follows the camera up to 150000 fixed-point units, at an eighth of its height.
+    private const float SkyCameraCeiling = 150000f / GameUnits.FixedScale;
+    private const float SkyCameraHeightDivisor = 8f;
 
     private static readonly bool ShadowDiagnostics =
         Environment.GetEnvironmentVariable("PRISTON_SHADOW_DIAG") == "1";
@@ -638,7 +641,7 @@ public sealed partial class PristonRenderer : IDisposable
         _stateCache.BeginFrame();
         _stateCache.InvalidateDeviceState();
         var skyVisible = Sky != null && !Underground && DebugView != PristonDebugView.Overdraw;
-        var skyPosition = new Vector3(0f, MathF.Min(camera.Position.Y, 150000f / 256f) / 8f, 0f);
+        var skyPosition = new Vector3(0f, MathF.Min(camera.Position.Y, SkyCameraCeiling) / SkyCameraHeightDivisor, 0f);
         if (skyVisible)
         {
             UpdatePhysicalSky(camera.Position, displayScale);
@@ -1191,7 +1194,7 @@ public sealed partial class PristonRenderer : IDisposable
         private static int StartTicks(PristonMotionInfo motion) => (int)motion.StartFrame * GameUnits.FrameTicks;
 
         private static int EndTicks(PristonMotionInfo motion, int fallback) =>
-            motion.EndFrame > motion.StartFrame ? (int)motion.EndFrame * 160 : fallback;
+            motion.EndFrame > motion.StartFrame ? (int)motion.EndFrame * GameUnits.FrameTicks : fallback;
 
         // Only one-shots driven by gameplay return to Stand; unlisted motions hold their final pose.
         private static bool ReturnsToStand(PristonMotionInfo motion)

@@ -62,8 +62,8 @@ public sealed class WorldNpc
         MotionTimingSet? motionTimings = null)
     {
         ArgumentNullException.ThrowIfNull(definition);
-        var position = new Vector3(placement.X / 256f, placement.Y / 256f, placement.Z / 256f);
-        var facing = (placement.Angle & 4095) * (MathF.Tau / 4096);
+        var position = new Vector3(GameUnits.FromFixed(placement.X), GameUnits.FromFixed(placement.Y), GameUnits.FromFixed(placement.Z));
+        var facing = GameUnits.FromAngle(placement.Angle);
         return new WorldNpc(entityId, definition, position, facing, motionTimings);
     }
 

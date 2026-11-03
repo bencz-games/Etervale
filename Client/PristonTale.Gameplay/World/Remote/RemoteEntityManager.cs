@@ -13,6 +13,7 @@ using PristonTale.Contracts.World;
 using PristonTale.Contracts.Combat;
 using PristonTale.Contracts.Characters;
 using PristonTale.Simulation.Items;
+using PristonTale.Simulation.World.Monsters;
 
 namespace PristonTale.Gameplay.World.Remote;
 
@@ -419,7 +420,6 @@ public sealed partial class RemoteEntityManager
         _log.Info($"[Remote] state for unknown entity {state.EntityId} dropped (spawn not yet seen).");
     }
 
-    private const int HammerClass = 200;
 
     // The monsters drawn this frame, for the presentation that follows their clips.
     public void CollectMonsters(List<PristonTale.Gameplay.Effects.MonsterActorView> into)
@@ -430,7 +430,7 @@ public sealed partial class RemoteEntityManager
             if (entity is RemoteModelEntity { Kind: EntityKind.Monster } monster && monster.Actor.IsValid)
             {
                 into.Add(new PristonTale.Gameplay.Effects.MonsterActorView(id, monster.Actor, monster.SoundCode, monster.Level, monster.Scale,
-                    monster.DrawnPosition, monster.RenderFacing, monster.IsDead, monster.MonsterClass == HammerClass));
+                    monster.DrawnPosition, monster.RenderFacing, monster.IsDead, monster.MonsterClass == (int)MonsterClass.Hammer));
             }
         }
     }

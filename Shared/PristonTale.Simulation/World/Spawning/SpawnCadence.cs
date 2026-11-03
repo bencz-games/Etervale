@@ -1,3 +1,5 @@
+using PristonTale.Contracts.Units;
+
 namespace PristonTale.Simulation.World.Spawning;
 
 public sealed class SpawnCadence
@@ -20,7 +22,7 @@ public sealed class SpawnCadence
             return false;
         }
 
-        _frames += elapsedMs * (70.0 / 1000.0);
+        _frames += elapsedMs * (GameUnits.TicksPerSecond / 1000.0);
         ulong currentFrame = (ulong)Math.Floor(_frames + 1e-9);
         if (currentFrame < _nextFrame)
         {

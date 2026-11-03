@@ -476,7 +476,7 @@ public sealed partial class PristonRenderer
         for (var i = PristonFormatConstants.CharacterMotionBase; i < info.Motions.Count; i++)
         {
             var motion = info.Motions[i];
-            if (motion.State == 64 && motion.Repeat != 0 && motion.EndFrame > motion.StartFrame)
+            if (motion.State == (uint)MotionCode.Stand && motion.Repeat != 0 && motion.EndFrame > motion.StartFrame)
                 return ApplyMotionFrameOffset(actor, motion);
         }
 

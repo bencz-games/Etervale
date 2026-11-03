@@ -40,13 +40,10 @@ public static class MonsterSkillRules
     // The mystic's skill only curses; every other skill deals its damage roll.
     public static bool DealsSkillDamage(MonsterDefinition definition) => definition.SoundCode != CharacterSoundCodes.Mystic;
 
-    public static MonsterCurse Curse(MonsterDefinition definition) => definition.Skill.CurseSkillCode switch
-    {
-        101 => MonsterCurse.Defence,
-        102 => MonsterCurse.AllyPower,
-        103 => MonsterCurse.Attack,
-        _ => MonsterCurse.None
-    };
+    public static MonsterCurse Curse(MonsterDefinition definition) =>
+        (MonsterCurse)definition.Skill.CurseSkillCode is var curse && curse is MonsterCurse.Defence or MonsterCurse.AllyPower or MonsterCurse.Attack
+            ? curse
+            : MonsterCurse.None;
 
     public static (int Min, int Max) CurseDefenceRange(MonsterDefinition definition) =>
         definition.SoundCode == CharacterSoundCodes.Mystic ? (10, 16) : (2, 6);

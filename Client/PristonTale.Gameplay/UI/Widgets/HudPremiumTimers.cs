@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using PristonTale.Client.Net.Presence;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Items.Usable;
+using PristonTale.Contracts.Units;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -17,7 +18,7 @@ public sealed class HudPremiumTimers
     public const int Top = 80;
     public const int Step = 36;
     public const int Icon = 32;
-    private const double FrameMs = 1000d / 70d;
+    private const double FrameMs = GameUnits.TickMs;
     private const string Folder = "image/Sinimage/Premium/";
     private static readonly long[] Tiers = [3600, 10800, 86400, 604800, 2592000];
     private static readonly Color Effect = new(50, 250, 50);

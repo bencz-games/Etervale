@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using PristonTale.Contracts.Units;
 
 namespace PristonTale.Engine3D.Rendering.Lighting;
 
@@ -39,7 +40,7 @@ public sealed class PristonTransientLights
         {
             var entry = _entries[index];
             entry = entry with { Age = entry.Age + seconds };
-            if (entry.Age * 70 >= Math.Ceiling(entry.Power / (double)entry.Decay))
+            if (entry.Age * GameUnits.TicksPerSecond >= Math.Ceiling(entry.Power / (double)entry.Decay))
             {
                 _entries[index] = _entries[--Count];
                 continue;

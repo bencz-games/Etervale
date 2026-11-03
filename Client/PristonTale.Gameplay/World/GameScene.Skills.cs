@@ -12,6 +12,7 @@ using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Skills;
 using PristonTale.Engine3D;
+using PristonTale.Gameplay.UI.Widgets;
 
 namespace PristonTale.Gameplay.World;
 
@@ -181,7 +182,7 @@ public sealed partial class GameScene : ISkillSceneHost
     private bool TryCastSkillClick(MouseState mouse, bool rightButton)
     {
         var code = rightButton ? RightSkill : LeftSkill;
-        if (code is 0 or 0x11111111 || _player is null || _remote is null || !SkillRuleCatalog.TryGet(code, out var rule))
+        if (code is 0 or HudSkillBindings.BasicAttackId || _player is null || _remote is null || !SkillRuleCatalog.TryGet(code, out var rule))
         {
             return false;
         }

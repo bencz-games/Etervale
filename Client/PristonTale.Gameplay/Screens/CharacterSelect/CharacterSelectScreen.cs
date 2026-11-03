@@ -23,7 +23,7 @@ public sealed class CharacterSelectScreen : GameScreen
 
     private static readonly Color LoginClearColor = new(8, 7, 10);
 
-    private const int MaxNameLength = 16;
+    private const int MaxNameLength = CharacterNames.MaxLength;
 
     private readonly PristonAssetCache _assetCache = new();
     private readonly PristonSmdReader _reader;

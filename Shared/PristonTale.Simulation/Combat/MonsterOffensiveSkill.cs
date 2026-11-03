@@ -1,6 +1,7 @@
 using System.Numerics;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Simulation.Physics;
+using PristonTale.Simulation.World.Ai;
 
 namespace PristonTale.Simulation.Combat;
 
@@ -37,7 +38,7 @@ public static class MonsterOffensiveSkill
         double dy = (double)target.Y - origin.Y;
         double dz = (double)target.Z - origin.Z;
         double distanceSquared = dx * dx + dy * dy + dz * dz;
-        if (Math.Abs(dy) >= 140 || distanceSquared >= ConnectedDistanceSquared)
+        if (Math.Abs(dy) >= MonsterAiTuning.VerticalAggroGate || distanceSquared >= ConnectedDistanceSquared)
         {
             return false;
         }

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Gameplay.UI.Rendering;
+using PristonTale.Contracts.Units;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -17,7 +18,7 @@ public sealed record HudRequestBoxArt(string Box, string OkIdle, string OkHovere
 // with its answer or after its time.
 public sealed class HudRequestBox(HudRequestBoxArt art, long lifeMs)
 {
-    private const int FramesPerSecond = 70;
+    private const int FramesPerSecond = GameUnits.TicksPerSecond;
     private static readonly Point Origin = new(513, 3);
     private static readonly Color Blink = Color.FromNonPremultiplied(0, 200, 255, 80);
     private double _openedMs;

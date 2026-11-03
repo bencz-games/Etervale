@@ -430,7 +430,7 @@ public static partial class SkillFormulas
 
     public static float BuffDurationMs(SkillBuffRule buff, int rank, int resistance)
     {
-        var ms = At(buff.DurationTenths, rank) * 100f;
+        var ms = At(buff.DurationTenths, rank) * TenthMs;
         return buff.ResistedByBionic || buff.ResistedBy is not null ? CombatResolver.Shortened(ms, resistance) : ms;
     }
 

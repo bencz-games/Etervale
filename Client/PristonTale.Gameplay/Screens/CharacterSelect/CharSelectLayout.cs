@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Simulation.Characters;
+using PristonTale.Gameplay.UI;
 
 namespace PristonTale.Gameplay.Screens.CharacterSelect;
 
@@ -89,11 +90,11 @@ internal static class CharSelectLayout
 
     private static (float Scale, float OffsetX, float OffsetY) FaceCanvas(Viewport vp)
     {
-        var scale = MathF.Min(vp.Width / 800f, vp.Height / 600f);
+        var scale = MathF.Min(vp.Width / (float)HudLayout.DesignWidth, vp.Height / (float)HudLayout.DesignHeight);
         return (
             scale,
-            (vp.Width - 800f * scale) * 0.5f,
-            (vp.Height - 600f * scale) * 0.5f);
+            (vp.Width - HudLayout.DesignWidth * scale) * 0.5f,
+            (vp.Height - HudLayout.DesignHeight * scale) * 0.5f);
     }
 
     private static Rectangle ScaledRectangle(

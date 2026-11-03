@@ -3,6 +3,7 @@ using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Items.Usable;
+using PristonTale.Contracts.Units;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
@@ -184,7 +185,7 @@ public sealed class HudInventoryPanel
 
         painter.Fill(board, Color.FromNonPremultiplied(255, 255, 0, 30));
         var travel = board.Height - 6;
-        var step = (int)(ClockMs / (3000d / 70d)) % (travel * 2);
+        var step = (int)(ClockMs / (3000d / GameUnits.TicksPerSecond)) % (travel * 2);
         var offset = step < travel ? step : travel * 2 - step;
         var line = Color.FromNonPremultiplied(255, 123, 0, 180);
         painter.Fill(new Rectangle(board.X, board.Y + offset, board.Width, 2), line);

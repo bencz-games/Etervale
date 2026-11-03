@@ -9,6 +9,7 @@ using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.Skills;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Units;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -24,7 +25,7 @@ public sealed class HudSkillHud : IDisposable
     private const int MaxBuffs = BuffsPerRow * 2;
     private const int GaugeSteps = 72;
     private const float GaugeRadius = 14.14f;
-    private const double FrameMs = 1000d / 70d;
+    private const double FrameMs = GameUnits.TickMs;
     private const double SlidePixelsPerFrame = 2d;
     private const double FadeOutFrames = 180d;
     private const double BlinkFrames = 4d * 70d;
