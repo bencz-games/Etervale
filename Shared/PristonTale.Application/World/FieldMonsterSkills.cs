@@ -635,7 +635,7 @@ internal sealed class FieldMonsterSkills
     public static int? BlowOnMonster(CombatRng rng, MonsterInstance attacker, MonsterInstance target, bool skill)
     {
         var combat = attacker.Def.Combat;
-        var attack = new AttackProfile(combat.AttackRatingAccuracy, combat.AttackDamage.Min, combat.AttackDamage.Max, combat.Level, Element.Bionic, 0, 0, 0);
+        var attack = CombatProfileFactory.ForMonsterBasicAttack(combat);
         if (!CombatResolver.RollHit(rng, CombatResolver.HitChance(attack, DefenderProfile.FromMonster(target))))
         {
             return null;

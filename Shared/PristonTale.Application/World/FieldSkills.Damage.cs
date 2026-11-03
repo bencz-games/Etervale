@@ -260,15 +260,8 @@ internal sealed partial class FieldSkills
     // The monster drops its prey and targets the caster for the duration; the target lock keeps it from retargeting.
     private static void Taunt(WorldPlayer caster, MonsterInstance monster, float durationMs)
     {
-        monster.TargetId = caster.EntityId;
-        monster.TargetLockMsLeft = durationMs;
         monster.Facing = MathF.Atan2(caster.Position.X - monster.Position.X, caster.Position.Z - monster.Position.Z);
-        if (monster.AiState is MonsterAiState.Idle or MonsterAiState.Wander or MonsterAiState.Leash)
-        {
-            monster.AiState = MonsterAiState.Chase;
-            monster.ManoeuvreClipsLeft = 0;
-            monster.SinceDecisionMs = MonsterAiTuning.DecisionIntervalMs;
-        }
+        MonsterAiBrain.ForceTarget(monster, caster.EntityId, durationMs);
     }
 
     // The resistance that shortens a debuff on a monster.

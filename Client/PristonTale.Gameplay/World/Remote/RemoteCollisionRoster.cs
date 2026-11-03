@@ -39,8 +39,7 @@ internal sealed class RemoteCollisionRoster
                 continue;
             }
 
-            var radius = entry.Kind == EntityKind.Player ? EntityCollisionRadii.Player : EntityCollisionRadii.Monster;
-            into.Add(new EntityNeighbour(entry.Position, radius));
+            into.Add(new EntityNeighbour(entry.Position, entry.Kind));
         }
     }
 }

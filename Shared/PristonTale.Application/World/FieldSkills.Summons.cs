@@ -284,13 +284,6 @@ internal sealed partial class FieldSkills
             return;
         }
 
-        target.TargetId = summon.EntityId;
-        target.TargetLockMsLeft = SummonRetaliationLockMs;
-        if (target.AiState is MonsterAiState.Idle or MonsterAiState.Wander or MonsterAiState.Leash)
-        {
-            target.AiState = MonsterAiState.Chase;
-            target.ManoeuvreClipsLeft = 0;
-            target.SinceDecisionMs = MonsterAiTuning.DecisionIntervalMs;
-        }
+        MonsterAiBrain.ForceTarget(target, summon.EntityId, SummonRetaliationLockMs);
     }
 }

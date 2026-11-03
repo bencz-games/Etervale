@@ -673,19 +673,27 @@ public sealed class MonsterAiBrain
             return;
         }
 
-        boss.TargetId = attackerEntityId;
-        boss.TargetLockMsLeft = MonsterAiTuning.BossTargetLockMs;
-        if (boss.AiState is MonsterAiState.Idle or MonsterAiState.Wander or MonsterAiState.Leash)
+        if (ForceTarget(boss, attackerEntityId, MonsterAiTuning.BossTargetLockMs) && boss.Motion != MotionState.Damage)
         {
-            boss.AiState = MonsterAiState.Chase;
-            boss.ManoeuvreClipsLeft = 0;
-            if (boss.Motion != MotionState.Damage)
-            {
-                boss.Motion = MotionState.Stand;
-            }
-
-            boss.SinceDecisionMs = MonsterAiTuning.DecisionIntervalMs;
+            boss.Motion = MotionState.Stand;
         }
+    }
+
+    // Locks the monster on a target for lockMs (it does not retarget meanwhile); an idle, wandering or leashing monster
+    // turns to chase it at once. True when it started chasing.
+    public static bool ForceTarget(MonsterInstance monster, ulong targetId, float lockMs)
+    {
+        monster.TargetId = targetId;
+        monster.TargetLockMsLeft = lockMs;
+        if (monster.AiState is not (MonsterAiState.Idle or MonsterAiState.Wander or MonsterAiState.Leash))
+        {
+            return false;
+        }
+
+        monster.AiState = MonsterAiState.Chase;
+        monster.ManoeuvreClipsLeft = 0;
+        monster.SinceDecisionMs = MonsterAiTuning.DecisionIntervalMs;
+        return true;
     }
 
     private static void IntegrateToward(MonsterInstance m, Vector3 target, bool run, float dtMs)
