@@ -32,8 +32,8 @@ public sealed class PristonCollisionWorld : IPristonCollisionQuery
             }
 
             var material = stage.Materials[face.MaterialIndex];
-            var triangle = new Triangle(ToNumerics(stage.Vertices[face.A].Position), ToNumerics(stage.Vertices[face.B].Position),
-                ToNumerics(stage.Vertices[face.C].Position));
+            var triangle = new Triangle(stage.Vertices[face.A].Position.ToNumerics(), stage.Vertices[face.B].Position.ToNumerics(),
+                stage.Vertices[face.C].Position.ToNumerics());
             if ((material.MeshState & StageCollisionReader.CheckFace) == 0)
             {
                 if (material.IsWater || material.Transparency > WaterTransparency)
@@ -59,10 +59,10 @@ public sealed class PristonCollisionWorld : IPristonCollisionQuery
     // The highest ice floor under a point no more than reach above it, with the floor's normal.
     public bool TryGetIceFloor(Vector3 position, float reach, out Vector3 point, out Vector3 normal)
     {
-        var found = _ice.TryTraceSegment(ToNumerics(position + Vector3.Up * reach), ToNumerics(position - Vector3.Up * 4096f), out var hit,
+        var found = _ice.TryTraceSegment((position + Vector3.Up * reach).ToNumerics(), (position - Vector3.Up * 4096f).ToNumerics(), out var hit,
             out var faceNormal);
-        point = ToXna(hit);
-        normal = ToXna(faceNormal);
+        point = (Vector3)hit;
+        normal = (Vector3)faceNormal;
         if (normal.Y < 0f)
         {
             normal = -normal;
@@ -88,8 +88,8 @@ public sealed class PristonCollisionWorld : IPristonCollisionQuery
 
     public bool TryRaycastFloor(Ray ray, out Vector3 point)
     {
-        var found = _mesh.TryRaycastFloor(ToNumerics(ray.Position), ToNumerics(ray.Direction), out var hit);
-        point = ToXna(hit);
+        var found = _mesh.TryRaycastFloor(ray.Position.ToNumerics(), ray.Direction.ToNumerics(), out var hit);
+        point = (Vector3)hit;
         return found;
     }
 
@@ -98,13 +98,9 @@ public sealed class PristonCollisionWorld : IPristonCollisionQuery
 
     public bool TryTraceSegment(Vector3 start, Vector3 end, out Vector3 hitPoint, out Vector3 hitNormal)
     {
-        var found = _mesh.TryTraceSegment(ToNumerics(start), ToNumerics(end), out var point, out var normal);
-        hitPoint = ToXna(point);
-        hitNormal = ToXna(normal);
+        var found = _mesh.TryTraceSegment(start.ToNumerics(), end.ToNumerics(), out var point, out var normal);
+        hitPoint = (Vector3)point;
+        hitNormal = (Vector3)normal;
         return found;
     }
-
-    private static NumVector3 ToNumerics(Vector3 value) => new(value.X, value.Y, value.Z);
-
-    private static Vector3 ToXna(NumVector3 value) => new(value.X, value.Y, value.Z);
 }

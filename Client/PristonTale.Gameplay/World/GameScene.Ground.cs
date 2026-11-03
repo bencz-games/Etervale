@@ -205,9 +205,9 @@ public sealed partial class GameScene
 
     private bool TraceWalls(NumVector3 start, NumVector3 end, out NumVector3 hit, out NumVector3 normal)
     {
-        var found = _fieldCollision.TryTraceSegment(new Vector3(start.X, start.Y, start.Z), new Vector3(end.X, end.Y, end.Z), out var hitPoint, out var hitNormal);
-        hit = new NumVector3(hitPoint.X, hitPoint.Y, hitPoint.Z);
-        normal = new NumVector3(hitNormal.X, hitNormal.Y, hitNormal.Z);
+        var found = _fieldCollision.TryTraceSegment(start, end, out var hitPoint, out var hitNormal);
+        hit = hitPoint.ToNumerics();
+        normal = hitNormal.ToNumerics();
         return found;
     }
 

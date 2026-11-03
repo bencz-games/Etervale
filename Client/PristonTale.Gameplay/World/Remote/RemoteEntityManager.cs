@@ -256,7 +256,7 @@ public sealed partial class RemoteEntityManager
             return;
         }
 
-        var position = ToXna(spawn.Position);
+        var position = (XnaVector3)spawn.Position;
         var sampleTime = _clock.Stamp(spawn.ServerTimeMs);
         var seedTime = sampleTime;
         var seedFacing = spawn.Facing;
@@ -309,7 +309,7 @@ public sealed partial class RemoteEntityManager
         };
         replacement.MotionStarted += OnMotionStarted;
         replacement.SetRates(spawn.MoveSpeed, spawn.AttackRate);
-        replacement.SetTarget(sampleTime, ToXna(spawn.Position), spawn.Facing, spawn.MoveState, spawn.Life);
+        replacement.SetTarget(sampleTime, (XnaVector3)spawn.Position, spawn.Facing, spawn.MoveState, spawn.Life);
         _entities[spawn.EntityId] = replacement;
     }
 
@@ -333,7 +333,7 @@ public sealed partial class RemoteEntityManager
             return;
         }
 
-        var position = ToXna(spawn.Position);
+        var position = (XnaVector3)spawn.Position;
         if (spawn.OwnerId != 0)
         {
             _summonOwners[spawn.EntityId] = spawn.OwnerId;
@@ -379,7 +379,7 @@ public sealed partial class RemoteEntityManager
         if (_entities.TryGetValue(state.EntityId, out var entity))
         {
             entity.SetRates(state.MoveSpeed, state.AttackRate);
-            entity.SetTarget(_clock.Stamp(state.ServerTimeMs), ToXna(state.Position), state.Facing, state.MoveState, state.Life);
+            entity.SetTarget(_clock.Stamp(state.ServerTimeMs), (XnaVector3)state.Position, state.Facing, state.MoveState, state.Life);
             if (!_preparingActors.ContainsKey(state.EntityId))
             {
                 return;
@@ -796,5 +796,4 @@ public sealed partial class RemoteEntityManager
         return false;
     }
 
-    private static XnaVector3 ToXna(NumVector3 v) => new(v.X, v.Y, v.Z);
 }
