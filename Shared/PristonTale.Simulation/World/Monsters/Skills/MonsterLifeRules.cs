@@ -36,7 +36,7 @@ public static class MonsterLifeRules
             return;
         }
 
-        monster.Potions = rng.NextExclusive(0, 100) < monster.Def.PotionPercent ? rng.NextExclusive(0, count) + 1 : 0;
+        monster.Potions = rng.RollPercent() < monster.Def.PotionPercent ? rng.NextExclusive(0, count) + 1 : 0;
     }
 
     public static bool WantsPotion(MonsterInstance monster)

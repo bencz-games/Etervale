@@ -7,6 +7,9 @@ public interface ISimRng
     int NextInclusive(int minInclusive, int maxInclusive);
 
     float NextUnit();
+
+    // A roll from 0 to 99, for percent chances.
+    int RollPercent() => NextExclusive(0, 100);
 }
 
 public sealed class SeededSimRng : ISimRng

@@ -114,7 +114,7 @@ internal sealed class FieldMonsterSkills
             return;
         }
 
-        if (monster.AttackIsSkill && monster.Def.SoundCode == CharacterSoundCodes.MagicMaster && _rng.NextExclusive(0, 100) < MagicMasterDrinkPercent)
+        if (monster.AttackIsSkill && monster.Def.SoundCode == CharacterSoundCodes.MagicMaster && _rng.RollPercent() < MagicMasterDrinkPercent)
         {
             // The magic master sometimes drinks a mana potion instead of casting; it restores no life.
             monster.AttackIsSkill = false;
@@ -578,7 +578,7 @@ internal sealed class FieldMonsterSkills
     // Babel's roll for a normal blow: whether it splashes and the percent of the roll its target takes.
     public (int Percent, bool Splash) BeginBlow(MonsterInstance attacker, WorldPlayer target)
     {
-        if (attacker.Def.SoundCode != CharacterSoundCodes.Babel || _rng.NextExclusive(0, 100) >= MonsterSkillRules.BabelSplashChance)
+        if (attacker.Def.SoundCode != CharacterSoundCodes.Babel || _rng.RollPercent() >= MonsterSkillRules.BabelSplashChance)
         {
             return (100, false);
         }

@@ -253,7 +253,7 @@ public static class AgingRules
         if (result == AgingResult.Destroyed && stone is AgingStone.CopperOre or AgingStone.ElderCopperOre or AgingStone.SuperAgingStone
                 or AgingStone.SuperiorCopperOre)
         {
-            result = rng.NextExclusive(0, 100) < 81 ? AgingResult.DownOne : AgingResult.DownTwo;
+            result = rng.RollPercent() < 81 ? AgingResult.DownOne : AgingResult.DownTwo;
         }
 
         return result;

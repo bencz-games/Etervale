@@ -96,7 +96,7 @@ public sealed class SummonBrain
         summon.AttackTimerMs = 0f;
         summon.AttackHitFired = false;
         summon.SwingJustBegan = true;
-        summon.AttackIsSkill = tuning.CanCastOffensiveSkill && _rng.NextExclusive(0, 100) < summon.Def.Skill.SkillRatingPercent;
+        summon.AttackIsSkill = tuning.CanCastOffensiveSkill && _rng.RollPercent() < summon.Def.Skill.SkillRatingPercent;
         summon.Motion = summon.AttackIsSkill ? MotionState.Skill : MotionState.Attack;
         summon.SkillTargetId = summon.TargetId;
         summon.SkillImpactPending = false;

@@ -64,7 +64,7 @@ internal static class PristonColorGrading
     internal static Vector3 BuiltInLook(Vector3 encoded)
     {
         var linear = PristonColorSpace.SrgbToLinear(encoded);
-        var luminance = 0.2126f * linear.X + 0.7152f * linear.Y + 0.0722f * linear.Z;
+        var luminance = Lighting.PristonPhotometry.Luminance(linear);
         linear = Vector3.Max(Vector3.Zero, new Vector3(luminance) + (linear - new Vector3(luminance)) * Saturation);
         var shadows = 1f - MathHelper.Clamp(luminance * 4f, 0f, 1f);
         var highlights = MathHelper.Clamp((luminance - 0.35f) * 2f, 0f, 1f);

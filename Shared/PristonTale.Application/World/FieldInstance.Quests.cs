@@ -363,14 +363,14 @@ public sealed partial class FieldInstance
         }
 
         var skilling = opponent.Motion == MotionState.Skill;
-        if (skilling && !duel.WasSkilling && duel.Master && !HelperAlive(duel) && _rng.NextExclusive(0, 100) < QuestArena.HelperPercent)
+        if (skilling && !duel.WasSkilling && duel.Master && !HelperAlive(duel) && _rng.RollPercent() < QuestArena.HelperPercent)
         {
             CallHelper(opponent, duel, player);
             duel.HelperExpiresAtMs = nowMs + QuestArena.HelperLifetimeMs;
         }
 
         duel.WasSkilling = skilling;
-        if (duel.MagicMaster && !skilling && _rng.NextExclusive(0, 100) < QuestArena.MagicMasterBlinkPercent
+        if (duel.MagicMaster && !skilling && _rng.RollPercent() < QuestArena.MagicMasterBlinkPercent
             && Vector3.DistanceSquared(Flat(opponent.Position), Flat(player.Position)) < QuestArena.MagicMasterBlinkReach * QuestArena.MagicMasterBlinkReach)
         {
             var reach = (int)QuestArena.MagicMasterBlinkReach;

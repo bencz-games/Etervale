@@ -27,7 +27,7 @@ public static class QuestDrops
 
     // The royal amulet drops 21 times in 100, and only before the final tier; every other event item drops on every kill.
     public static bool EventItemDrops(ISimRng rng, uint code, int creditedTier) =>
-        code != QuestItems.RoyalAmulet || creditedTier < PlayerCharacter.LastTier && rng.NextExclusive(0, 100) <= 20;
+        code != QuestItems.RoyalAmulet || creditedTier < PlayerCharacter.LastTier && rng.RollPercent() <= 20;
 
     // Quest items reach the pack only while a running quest wants them, one copy (or the counted number) at a time.
     public static bool Accepts(QuestContext context, uint code, int monsterCode)

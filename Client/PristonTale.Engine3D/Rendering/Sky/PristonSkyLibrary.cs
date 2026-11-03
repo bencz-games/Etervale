@@ -118,10 +118,7 @@ public sealed class PristonSkyLibrary : IDisposable
 
         foreach (var texture in textures)
         {
-            for (var level = 0; level < texture.LevelCount; level++)
-            {
-                TextureBytes += Math.Max(1, texture.Width >> level) * (long)Math.Max(1, texture.Height >> level) * 4;
-            }
+            TextureBytes += PristonTextureLoader.EstimateBytes(texture);
         }
     }
 

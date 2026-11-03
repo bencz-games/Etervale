@@ -450,7 +450,7 @@ public sealed class MonsterAiBrain
         SetAction(m, attack);
         m.SecondHitAtMs = MonsterSkillRules.StrikesTwice(m.Def) ? attack.HitAtMs + MonsterSkillRules.BabelSecondHitMs : 0f;
         int rating = m.Def.Skill.SkillRatingPercent;
-        m.AttackIsSkill = tuning.CanCastOffensiveSkill && _rng.NextExclusive(0, 100) < rating;
+        m.AttackIsSkill = tuning.CanCastOffensiveSkill && _rng.RollPercent() < rating;
         m.SkillImpactPending = false;
         if (m.AttackIsSkill)
         {
@@ -641,7 +641,7 @@ public sealed class MonsterAiBrain
             return;
         }
 
-        if (rng.NextExclusive(0, 100) >= monster.Def.Combat.DamageStunPercent)
+        if (rng.RollPercent() >= monster.Def.Combat.DamageStunPercent)
         {
             return;
         }
