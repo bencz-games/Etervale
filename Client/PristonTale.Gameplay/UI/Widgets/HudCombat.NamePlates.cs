@@ -16,7 +16,6 @@ namespace PristonTale.Gameplay.UI.Widgets;
 // cursor alone.
 public sealed partial class HudCombat
 {
-    private const float NpcPlateDepth = 12 * 64;
     // Classic: the frame's top this far above the head point. Compact: the fill's bottom this far above it.
     private const int ClassicPlateLift = 36;
     private const int PlateLift = 12;
@@ -25,11 +24,6 @@ public sealed partial class HudCombat
     // The original's 100x16 life bar drawn at 0.6 x 0.7.
     private const int PlateBarWidth = 60;
     private const int PlateBarHeight = 11;
-    private static readonly Color PlateMonster = new(255, 210, 210);
-    private static readonly Color PlateTracedMonster = new(255, 230, 200);
-    private static readonly Color PlateNpc = new(180, 180, 255);
-    private static readonly Color PlateParty = new(220, 255, 160);
-    private static readonly Color PlateOwner = new(255, 255, 200);
     private readonly List<(ulong Id, HudOverheadPoint Point, bool Focus)> _plates = new();
 
     // Whether a player is in the local player's party.
@@ -48,7 +42,7 @@ public sealed partial class HudCombat
             var member = kind == EntityKind.Player && InParty(id);
             var summon = kind == EntityKind.Monster && entity.Spawn.OwnerId != 0;
             var shown = kind == EntityKind.Npc || member || (kind == EntityKind.Monster && entity.Life > 0 && (summon || focus));
-            if (shown && project(id) is { } point && (focus || member || point.Depth < NpcPlateDepth))
+            if (shown && project(id) is { } point && (focus || member || point.Depth < HudNameColors.OverheadDepth))
             {
                 _plates.Add((id, point, focus));
             }
@@ -62,7 +56,7 @@ public sealed partial class HudCombat
             var monster = entity.Spawn.Kind == EntityKind.Monster;
             var member = entity.Spawn.Kind == EntityKind.Player;
             var summon = monster && entity.Spawn.OwnerId != 0;
-            var color = member || summon ? PlateParty : !monster ? PlateNpc : id == traced ? PlateTracedMonster : PlateMonster;
+            var color = member || summon ? HudNameColors.Party : !monster ? HudNameColors.Npc : id == traced ? HudNameColors.HoveredMonster : HudNameColors.Monster;
             var owner = summon ? OwnerLabel(entity) : null;
             var x = (int)(point.Screen.X / scale);
             var y = (int)(point.Screen.Y / scale);
@@ -114,7 +108,7 @@ public sealed partial class HudCombat
         painter.Text(name, anchorX - nameWidth / 2, y + 5 + 2, color, false);
         if (owner is not null)
         {
-            painter.Text(owner, anchorX - ownerWidth / 2, y + 5 + 2 + lineHeight, PlateOwner, false);
+            painter.Text(owner, anchorX - ownerWidth / 2, y + 5 + 2 + lineHeight, HudNameColors.Player, false);
         }
 
         if (bar is not null)
@@ -147,7 +141,7 @@ public sealed partial class HudCombat
         painter.Text(name, anchorX - nameWidth / 2, top, color, PlateTextScale);
         if (owner is not null)
         {
-            painter.Text(owner, anchorX - ownerWidth / 2, top + line, PlateOwner, PlateTextScale);
+            painter.Text(owner, anchorX - ownerWidth / 2, top + line, HudNameColors.Player, PlateTextScale);
         }
 
         if (bar is not null)

@@ -4,6 +4,7 @@ using PristonTale.Client.Net.Presence;
 using PristonTale.Simulation.Social;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Social;
+using PristonTale.Gameplay.UI.Rendering;
 
 namespace PristonTale.Gameplay.UI.Chat;
 
@@ -12,12 +13,7 @@ namespace PristonTale.Gameplay.UI.Chat;
 // their own colour, and the first whisper or notice while the window is closed opens it with the whisper sound.
 public sealed class HudChat
 {
-    private static readonly Color PlayerNameColor = new(255, 255, 200);
-    private static readonly Color PartyName = new(220, 255, 160);
-    private static readonly Color MonsterName = new(255, 210, 210);
-    private static readonly Color NpcName = new(180, 180, 255);
     private static readonly Color HoveredName = Color.White;
-    private static readonly Color HoveredMonster = new(255, 230, 200);
 
     public HudChatWindow Window { get; } = new();
     public HudChatBubbles Bubbles { get; } = new();
@@ -192,14 +188,14 @@ public sealed class HudChat
         var (kind, owner) = id == SelfId ? (EntityKind.Player, 0u) : Lookup(id);
         if (id == hovered)
         {
-            return kind == EntityKind.Monster && owner == 0 ? HoveredMonster : HoveredName;
+            return kind == EntityKind.Monster && owner == 0 ? HudNameColors.HoveredMonster : HoveredName;
         }
 
         return kind switch
         {
-            EntityKind.Monster => owner != 0 ? PartyName : MonsterName,
-            EntityKind.Npc => NpcName,
-            _ => InParty(id) ? PartyName : PlayerNameColor
+            EntityKind.Monster => owner != 0 ? HudNameColors.Party : HudNameColors.Monster,
+            EntityKind.Npc => HudNameColors.Npc,
+            _ => InParty(id) ? HudNameColors.Party : HudNameColors.Player
         };
     }
 }

@@ -258,7 +258,7 @@ public sealed class GroundLootPresentation(IActorScene scene, PristonActorLoader
         }
 
         float depth = -Vector3.Transform(entry.Position, camera.View).Z;
-        if (!hovered && (depth < 32 || depth >= 768))
+        if (!hovered && (depth < 32 || depth >= UI.Rendering.HudNameColors.OverheadDepth))
         {
             return false;
         }

@@ -13,7 +13,7 @@ public readonly record struct HudOverheadPoint(Vector2 Screen, float Depth);
 // shop shows its sign ("Name: sign") in the shop's frame while it says nothing.
 public sealed class HudChatBubbles
 {
-    public const float MaxDepth = 12 * 64;
+    public const float MaxDepth = HudNameColors.OverheadDepth;
     public const int WrapPixels = 264;
     public const int MaxLines = 12;
     public const int MaxLineChars = 63;
