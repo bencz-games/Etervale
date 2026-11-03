@@ -15,18 +15,14 @@ public static class HudItemTooltip
         var count = (string.IsNullOrEmpty(first) ? 0 : 1) + (string.IsNullOrEmpty(second) ? 0 : 1);
         var textWidth = Math.Max(painter.Measure(name), Math.Max(painter.Measure(first), painter.Measure(second)));
         var width = Math.Min(layout.Width - 8, textWidth + 24);
-        var size = HudPainter.InfoBoxBounds(0, 0, width, 31 + count * 17);
-        var bounds = layout.PlaceOverlay(new Point(pointer.X - size.Width / 2, pointer.Y - size.Height - 8), size.Width, size.Height);
-        bounds = HudPainter.InfoBoxBounds(bounds.X, bounds.Y, bounds.Width, bounds.Height);
-        painter.Flush();
-        painter.InfoBox(bounds);
-        painter.TextCentered(painter.Fit(name, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + 9, NameColor);
+        var bounds = painter.TooltipBox(layout, pointer, width, 31 + count * 17);
+        painter.TextCentered(painter.Fit(name, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + HudPainter.TooltipNameY, NameColor);
         var row = 0;
         foreach (var line in (ReadOnlySpan<string>)[first, second])
         {
             if (!string.IsNullOrEmpty(line))
             {
-                painter.TextCentered(painter.Fit(line, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + 26 + 17 * row++, LineColor);
+                painter.TextCentered(painter.Fit(line, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + HudPainter.TooltipLinesY + 17 * row++, LineColor);
             }
         }
     }

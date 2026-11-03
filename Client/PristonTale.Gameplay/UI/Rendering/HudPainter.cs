@@ -383,6 +383,21 @@ public sealed class HudPainter : IDisposable
 
     public static Rectangle HelpBoxBounds(int x, int y, int sizeW, int sizeH) => new(x, y, Math.Max(2, sizeW) * 32 + 64, Math.Max(2, sizeH) * 32 + 32);
 
+    // A tooltip: an info box of this content size centred over the anchor, 8 pixels clear of it and kept on screen, drawn
+    // now; returns its bounds. Its name line sits TooltipNameY below the top and its lines start TooltipLinesY below it.
+    public const int TooltipNameY = 9;
+    public const int TooltipLinesY = 26;
+
+    public Rectangle TooltipBox(HudLayout layout, Point anchor, int width, int height)
+    {
+        var size = InfoBoxBounds(0, 0, width, height);
+        var placed = layout.PlaceOverlay(new Point(anchor.X - size.Width / 2, anchor.Y - size.Height - 8), size.Width, size.Height);
+        var bounds = InfoBoxBounds(placed.X, placed.Y, placed.Width, placed.Height);
+        Flush();
+        InfoBox(bounds);
+        return bounds;
+    }
+
     // A help box's title plate, centred at its top, and its OK button, centred at its bottom.
     public static Rectangle HelpBoxTitle(int x, int y, int sizeW) => new(x + (sizeW * 32 + 64) / 2 - 76, y + 14, 152, 28);
 

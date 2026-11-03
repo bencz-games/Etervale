@@ -402,15 +402,11 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     {
         var width = Math.Max(painter.Measure(title), lines.Max(painter.Measure)) + 24;
         var height = 24 + lines.Length * HudPainter.LineHeight + 8;
-        var size = HudPainter.InfoBoxBounds(0, 0, width, height);
-        var place = layout.PlaceOverlay(new Point(anchor.X - size.Width / 2, anchor.Y - size.Height - 8), size.Width, size.Height);
-        var bounds = HudPainter.InfoBoxBounds(place.X, place.Y, place.Width, place.Height);
-        painter.Flush();
-        painter.InfoBox(bounds);
+        var bounds = painter.TooltipBox(layout, anchor, width, height);
         painter.Text(title, bounds.X + 10, bounds.Y + 8, HudTextColors.BoxTitle);
         for (var index = 0; index < lines.Length; index++)
         {
-            painter.Text(lines[index], bounds.X + 10, bounds.Y + 26 + index * HudPainter.LineHeight, new Color(220, 220, 220));
+            painter.Text(lines[index], bounds.X + 10, bounds.Y + HudPainter.TooltipLinesY + index * HudPainter.LineHeight, new Color(220, 220, 220));
         }
     }
 

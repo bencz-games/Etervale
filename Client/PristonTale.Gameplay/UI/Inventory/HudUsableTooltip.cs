@@ -170,18 +170,14 @@ public static class HudUsableTooltip
         }
 
         var width = Math.Min(layout.Width - 8, textWidth + 24);
-        var size = HudPainter.InfoBoxBounds(0, 0, width, 31 + count * 17);
-        var bounds = layout.PlaceOverlay(new Point(pointer.X - size.Width / 2, pointer.Y - size.Height - 8), size.Width, size.Height);
-        bounds = HudPainter.InfoBoxBounds(bounds.X, bounds.Y, bounds.Width, bounds.Height);
-        painter.Flush();
-        painter.InfoBox(bounds);
-        painter.TextCentered(painter.Fit(name, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + 9, HudTextColors.BoxTitle);
+        var bounds = painter.TooltipBox(layout, pointer, width, 31 + count * 17);
+        painter.TextCentered(painter.Fit(name, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + HudPainter.TooltipNameY, HudTextColors.BoxTitle);
         for (var index = 0; index < count; index++)
         {
             var isAction = index == lines.Count;
             var text = isAction ? action : lines[index];
             var color = isAction ? HudTextColors.Hint : new Color(150, 220, 255);
-            painter.TextCentered(painter.Fit(text, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + 26 + 17 * index, color);
+            painter.TextCentered(painter.Fit(text, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + HudPainter.TooltipLinesY + 17 * index, color);
         }
     }
 }
