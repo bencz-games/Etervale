@@ -120,7 +120,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
             EtervaleOpcodes.RemoveObjects => OnRemoved(RemoveObjectList.Read(packet)),
             EtervaleOpcodes.CombatEvents => OnCombatEvents(CombatEventList.Read(packet, this)),
             EtervaleOpcodes.GroundItems => OnGroundItems(GroundItemList.Read(packet)),
-            EtervaleOpcodes.GroundItemsRemoved => Update([], []) with { GroundRemoved = GroundItemRemovals.Read(packet) },
+            EtervaleOpcodes.GroundItemsRemoved => new PresenceUpdate(_tick, [], [], [], [], FieldId) { GroundRemoved = GroundItemRemovals.Read(packet) },
             EtervaleOpcodes.FieldWarp => OnFieldWarp(FieldWarpPacket.Read(packet)),
             EtervaleOpcodes.OwnerStatus => OnOwnerStatus(OwnerStatusPacket.Read(packet)),
             EtervaleOpcodes.Inventory => OnInventory(InventoryPartPacket.Read(packet)),
@@ -136,7 +136,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
             EtervaleOpcodes.PremiumTimers => OnPremiumTimers(PremiumTimersPacket.Read(packet)),
             EtervaleOpcodes.ItemEffects => OnItemEffects(ItemEffectsPacket.Read(packet)),
             EtervaleOpcodes.RestartOffer => OnRestartOffer(RestartOfferPacket.Read(packet)),
-            EtervaleOpcodes.QuestJournal => Update([], []) with { Quest = QuestWireReader.ToView(QuestJournalPacket.Read(packet)) },
+            EtervaleOpcodes.QuestJournal => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Quest = QuestWireReader.ToView(QuestJournalPacket.Read(packet)) },
             EtervaleOpcodes.QuestNotices => OnQuestNotices(QuestNoticesPacket.Read(packet)),
             EtervaleOpcodes.ChatLine => OnChat(ChatLinePacket.Read(packet)),
             EtervaleOpcodes.CloseRequest => OnCloseRequest(packet),
@@ -146,7 +146,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
             EtervaleOpcodes.TradeState => OnTradeState(TradeStatePacket.Read(packet)),
             EtervaleOpcodes.TradeAsked => OnTradeAsked(TradeAskedPacket.Read(packet)),
             EtervaleOpcodes.ContactList => OnContactList(ContactListPacket.Read(packet)),
-            EtervaleOpcodes.Weather => Update([], []) with { Weather = WeatherPacket.Read(packet).Weather },
+            EtervaleOpcodes.Weather => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Weather = WeatherPacket.Read(packet).Weather },
             _ => NotPresence(out presence)
         };
         return presence;
@@ -160,7 +160,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
     }
 
     private PresenceUpdate OnContactList(ContactListPacket packet) =>
-        Update([], []) with { Contacts = new ContactListInfo(packet.List, packet.Entries.Select(static entry => (entry.Name, entry.Online)).ToArray()) };
+        new PresenceUpdate(_tick, [], [], [], [], FieldId) { Contacts = new ContactListInfo(packet.List, packet.Entries.Select(static entry => (entry.Name, entry.Online)).ToArray()) };
 
     // The partner items' values arrive just before the window they belong to.
     private PresenceUpdate? OnTradeDetails(TradeDetailsPacket packet)
@@ -173,7 +173,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
     {
         if (packet.PartnerId == 0)
         {
-            return Update([], []) with { Trade = TradeInfo.None };
+            return new PresenceUpdate(_tick, [], [], [], [], FieldId) { Trade = TradeInfo.None };
         }
 
         var items = new OwnedItemView[packet.PartnerItems.Count];
@@ -198,7 +198,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
             own[index] = new Simulation.Trades.TradeEntry(packet.Own[index].ItemId, packet.Own[index].Cell);
         }
 
-        return Update([], []) with
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId)
         {
             Trade = new TradeInfo(packet.PartnerId, packet.PartnerName, new Simulation.Trades.TradeOffer(own, packet.OwnMoney),
                 (packet.Flags & TradeStatePacket.OwnLocked) != 0, items, packet.PartnerMoney, (packet.Flags & TradeStatePacket.PartnerLocked) != 0)
@@ -206,7 +206,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
     }
 
     private PresenceUpdate OnTradeAsked(TradeAskedPacket packet) =>
-        Update([], []) with { TradeRequest = new TradeRequestInfo(packet.FromId, packet.FromName) };
+        new PresenceUpdate(_tick, [], [], [], [], FieldId) { TradeRequest = new TradeRequestInfo(packet.FromId, packet.FromName) };
 
     private PresenceUpdate OnPartyMembers(PartyMembersPacket packet)
     {
@@ -217,17 +217,17 @@ internal sealed class PresenceDecoder : IEventHandleReader
             members[index] = new PartyMemberInfo(member.EntityId, member.Name, member.Level, member.Life, member.MaxLife, new Vector2(member.X, member.Z));
         }
 
-        return Update([], []) with { Party = new PartyInfo(members) };
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId) { Party = new PartyInfo(members) };
     }
 
     private PresenceUpdate OnPartyRequest(PartyRequestPacket packet) =>
-        Update([], []) with { PartyRequest = new PartyRequestInfo(packet.FromId, packet.FromName, packet.Recommended) };
+        new PresenceUpdate(_tick, [], [], [], [], FieldId) { PartyRequest = new PartyRequestInfo(packet.FromId, packet.FromName, packet.Recommended) };
 
     private PresenceUpdate OnChat(ChatLinePacket packet) =>
-        Update([], []) with { Chat = [new ChatLineInfo(packet.Kind, packet.Speaker, packet.Text)] };
+        new PresenceUpdate(_tick, [], [], [], [], FieldId) { Chat = [new ChatLineInfo(packet.Kind, packet.Speaker, packet.Text)] };
 
     private PresenceUpdate OnQuestNotices(QuestNoticesPacket packet) =>
-        Update([], []) with { QuestNotices = QuestWireReader.ToNotices(packet.Notices), QuestPrompt = QuestWireReader.ToPrompt(packet.Prompt) };
+        new PresenceUpdate(_tick, [], [], [], [], FieldId) { QuestNotices = QuestWireReader.ToNotices(packet.Notices), QuestPrompt = QuestWireReader.ToPrompt(packet.Prompt) };
 
     public PresenceUpdate OnSkillEvents(SkillEventEntry[] entries)
     {
@@ -239,7 +239,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
                 entry.HitAtMs, Position(entry.X, entry.Y, entry.Z), GameUnits.FromAngle(entry.Angle), entry.TargetCount, entry.Radius);
         }
 
-        return Update([], []) with { SkillEvents = events, ServerTimeMs = _clockMs };
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId) { SkillEvents = events, ServerTimeMs = _clockMs };
     }
 
     public PresenceUpdate OnStatusEffects(StatusEffectEntry[] entries)
@@ -252,7 +252,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
                 entry.Control, entry.Flags, entry.DurationMs, entry.RemainingMs, entry.Value);
         }
 
-        return Update([], []) with { StatusEffects = statuses, ServerTimeMs = _clockMs };
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId) { StatusEffects = statuses, ServerTimeMs = _clockMs };
     }
 
     public PresenceUpdate OnSkillCooldowns(SkillCooldownsPacket packet)
@@ -264,10 +264,10 @@ internal sealed class PresenceDecoder : IEventHandleReader
             cooldowns[index] = new SkillCooldownInfo(entry.SkillCode, (int)entry.RemainingMs, (int)entry.DurationMs);
         }
 
-        return Update([], []) with { Cooldowns = new SkillCooldownSnapshot(_clockMs, cooldowns) };
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId) { Cooldowns = new SkillCooldownSnapshot(_clockMs, cooldowns) };
     }
 
-    public PresenceUpdate OnSkillCastResult(SkillCastResultPacket result) => Update([], []) with
+    public PresenceUpdate OnSkillCastResult(SkillCastResultPacket result) => new PresenceUpdate(_tick, [], [], [], [], FieldId)
     {
         CastResult = new SkillCastResultInfo(result.Sequence, result.SkillCode, result.Status, result.Rank, (int)result.CooldownMs, (int)result.RemainingMs,
             result.Mana, result.Stamina)
@@ -284,7 +284,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
             }
         }
 
-        return Update([], []) with { PremiumTimers = new PremiumTimerSnapshot(packet.Revision, timers) };
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId) { PremiumTimers = new PremiumTimerSnapshot(packet.Revision, timers) };
     }
 
     public PresenceUpdate OnItemEffects(ItemEffectsPacket packet)
@@ -297,11 +297,11 @@ internal sealed class PresenceDecoder : IEventHandleReader
                 entry.Target);
         }
 
-        return Update([], []) with { ItemEffects = effects, ServerTimeMs = _clockMs };
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId) { ItemEffects = effects, ServerTimeMs = _clockMs };
     }
 
     public PresenceUpdate OnRestartOffer(RestartOfferPacket packet) =>
-        Update([], []) with { RestartOffer = new RestartOffer(packet.FieldOpen, packet.Scroll, packet.ExperienceShare, packet.GoldShare) };
+        new PresenceUpdate(_tick, [], [], [], [], FieldId) { RestartOffer = new RestartOffer(packet.FieldOpen, packet.Scroll, packet.ExperienceShare, packet.GoldShare) };
 
     public double? ServerTimeMs => _clockMs;
 
@@ -565,7 +565,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
             });
         }
 
-        return Update([], [], events: events) with { ServerTimeMs = _clockMs };
+        return new PresenceUpdate(_tick, [], [], [], events, FieldId) { ServerTimeMs = _clockMs };
     }
 
     public PresenceUpdate OnGroundItems(GroundItemEntry[] items)
@@ -577,7 +577,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
             added.Add(new GroundDropView(item.Id, item.ItemCode, key, item.Name, item.Amount, item.Gold, Position(item.X, item.Y, item.Z)));
         }
 
-        return Update([], []) with { GroundAdded = added };
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId) { GroundAdded = added };
     }
 
     public PresenceUpdate OnFieldWarp(FieldWarpPacket warp)
@@ -590,13 +590,13 @@ internal sealed class PresenceDecoder : IEventHandleReader
             self.Position = position;
         }
 
-        return Update([], []) with { Warp = new WarpInfo(warp.Field, position, warp.Forced) };
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId) { Warp = new WarpInfo(warp.Field, position, warp.Forced) };
     }
 
     private PresenceUpdate OnCloseRequest(ReadOnlySpan<byte> packet)
     {
         CloseRequestPacket.Read(packet);
-        return Update([], []) with { CloseRequested = true };
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId) { CloseRequested = true };
     }
 
     public PresenceUpdate? OnOwnerStatus(OwnerStatusPacket status)
@@ -673,7 +673,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
             WeaponSet = status.WeaponSet,
             Skills = _skills
         };
-        return Update([], []) with { Owner = _ownerItems.Apply(owner) };
+        return new PresenceUpdate(_tick, [], [], [], [], FieldId) { Owner = _ownerItems.Apply(owner) };
     }
 
     private static OwnedItemView Item(InventoryItemEntry entry) => new(entry.InstanceId, entry.Code, entry.Name, (ItemKind)entry.Kind, entry.Count,
