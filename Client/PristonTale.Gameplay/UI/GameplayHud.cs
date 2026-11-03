@@ -87,6 +87,13 @@ public sealed partial class GameplayHud : IDisposable
     private int _shopsOpened;
     private readonly Stopwatch _clock = Stopwatch.StartNew();
     private readonly HudQuestBoxGlow _questBoxGlow = new();
+    // Delegates the frame passes, made once: the speakers' name colour, a typing box's key test (on this frame's keys)
+    // and the painter's glyph and width tests.
+    private Func<ulong, Color> _nameColor;
+    private Func<Keys, bool> _typedKey;
+    private KeyboardState _typingKeyboard;
+    private Func<char, bool> _canDraw;
+    private Func<string, int> _measure;
     private KeyboardState _previousKeyboard;
     private MouseState _previousMouse;
     private OwnerState _state;
@@ -476,11 +483,13 @@ public sealed partial class GameplayHud : IDisposable
         var boxTyping = _countBox.IsOpen || _personalShop.SignOpen;
         if (_countBox.IsOpen)
         {
-            _countBox.Type(typedText, key => Pressed(keyboard, key));
+            _typingKeyboard = keyboard;
+            _countBox.Type(typedText, _typedKey ??= key => Pressed(_typingKeyboard, key));
         }
         else if (_personalShop.SignOpen)
         {
-            _personalShop.Type(typedText, key => Pressed(keyboard, key), _painter.CanDraw, _painter.Measure);
+            _typingKeyboard = keyboard;
+            _personalShop.Type(typedText, _typedKey ??= key => Pressed(_typingKeyboard, key), _canDraw ??= _painter.CanDraw, _measure ??= _painter.Measure);
         }
         else if (_crystalDismiss.Confirming && !_chat.Window.Focused && Pressed(keyboard, Keys.Enter))
         {
@@ -600,7 +609,7 @@ public sealed partial class GameplayHud : IDisposable
         _dropNames.Draw(_painter, layout, GroundLabels, GroundLabelPlaced);
         Combat.DrawNamePlates(_painter, layout, Overhead, HoveredId, TracedId, _context.Presentation.Requested.ClassicNamePlates);
         _chat.Bubbles.Signs = ShopSigns;
-        _chat.Bubbles.Draw(_painter, layout, _clock.Elapsed.TotalMilliseconds, Overhead, id => _chat.NameColor(id, TargetId), TargetId);
+        _chat.Bubbles.Draw(_painter, layout, _clock.Elapsed.TotalMilliseconds, Overhead, _nameColor ??= id => _chat.NameColor(id, TargetId), TargetId);
         if (_helpPet.Bubble is { } petLine && HelperPet.Point is { } petPoint)
         {
             _chat.Bubbles.DrawAt(_painter, layout, petLine, petPoint);

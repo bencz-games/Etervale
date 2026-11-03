@@ -32,6 +32,11 @@ public sealed class HudChatBubbles
     private static readonly string[][] ShopSelected = [ShopFrame, ShopSelectedFrame];
     private readonly Dictionary<ulong, (string Text, double UntilMs)> _lines = new();
     private readonly List<(ulong Id, HudOverheadPoint Point, bool Sign)> _visible = new();
+    // Made once: the expired speakers' list, the sort (the selected speaker last, the rest back to front) and the measure.
+    private readonly List<ulong> _expired = new();
+    private Comparison<(ulong Id, HudOverheadPoint Point, bool Sign)> _backToFront;
+    private ulong _selected;
+    private Func<string, int> _measure;
     private readonly HudWrapCache _wrap = new(WrapPixels, MaxLineChars);
 
     // The frame is drawn unless the player switched frames off; a named line always keeps its frame and tail.
@@ -55,11 +60,13 @@ public sealed class HudChatBubbles
     public void Draw(HudPainter painter, HudLayout layout, double nowMs, Func<ulong, HudOverheadPoint?> project, Func<ulong, Color> nameColor, ulong selected)
     {
         _visible.Clear();
-        foreach (var (id, line) in _lines.ToArray())
+        _measure ??= painter.Measure;
+        _expired.Clear();
+        foreach (var (id, line) in _lines)
         {
             if (line.UntilMs <= nowMs)
             {
-                _lines.Remove(id);
+                _expired.Add(id);
                 continue;
             }
 
@@ -67,6 +74,11 @@ public sealed class HudChatBubbles
             {
                 _visible.Add((id, point, false));
             }
+        }
+
+        foreach (var id in _expired)
+        {
+            _lines.Remove(id);
         }
 
         foreach (var (id, _) in Signs)
@@ -77,8 +89,9 @@ public sealed class HudChatBubbles
             }
         }
 
-        _visible.Sort((left, right) => (left.Id == selected) != (right.Id == selected)
-            ? (left.Id == selected ? 1 : -1)
+        _selected = selected;
+        _visible.Sort(_backToFront ??= (left, right) => (left.Id == _selected) != (right.Id == _selected)
+            ? (left.Id == _selected ? 1 : -1)
             : right.Point.Depth.CompareTo(left.Point.Depth));
         var scale = Math.Max(1, layout.Scale);
         foreach (var (id, point, sign) in _visible)
@@ -99,7 +112,7 @@ public sealed class HudChatBubbles
 
     private void DrawBubble(HudPainter painter, HudLayout layout, string text, int anchorX, int anchorY, Color name, bool selected, bool sign)
     {
-        var lines = _wrap.Wrap(text, MaxLines, painter.Measure);
+        var lines = _wrap.Wrap(text, MaxLines, _measure ??= painter.Measure);
         if (lines.Count == 0)
         {
             return;
@@ -107,7 +120,12 @@ public sealed class HudChatBubbles
 
         var colon = text.IndexOf(':', 0, Math.Min(20, text.Length));
         var named = colon >= 0;
-        var textWidth = lines.Max(painter.Measure);
+        var textWidth = 0;
+        for (var index = 0; index < lines.Count; index++)
+        {
+            textWidth = Math.Max(textWidth, painter.Measure(lines[index]));
+        }
+
         var lineHeight = Math.Max(16, painter.TextHeight);
         var frameWidth = textWidth + 18;
         var frameHeight = 4 + lineHeight * lines.Count + 6 + 2;

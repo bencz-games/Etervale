@@ -10,6 +10,14 @@ namespace PristonTale.Gameplay.UI.Chat;
 // assistant lines over eight chat lines, or the assistant's page alone.
 public sealed class HudChatWindow
 {
+    // The most messages a frame walks back through the log, and the painter's delegates and the input's visible tail,
+    // made once instead of every frame.
+    private const int MostMessages = 32;
+    private Func<char, bool> _canDraw;
+    private Func<string, int> _measure;
+    private string _inputText;
+    private string _inputShown = "";
+
     private const string Chat = "image/Sinimage/Inter/Chat/";
     public const string Default = Chat + "ChatDefault-1.tga";
     public const string Small = Chat + "ChatSmall-1.tga";
@@ -157,7 +165,8 @@ public sealed class HudChatWindow
 
     public void Draw(HudPainter painter, HudLayout layout, bool side)
     {
-        Input.CanDraw = painter.CanDraw;
+        Input.CanDraw = _canDraw ??= painter.CanDraw;
+        _measure ??= painter.Measure;
         _drawnLines.Clear();
         ShownMessages = 0;
         if (!Open)
@@ -197,12 +206,21 @@ public sealed class HudChatWindow
         if (Focused)
         {
             painter.Sprite(DownButton, 7, 580 - lift + bottom);
+            // The input's visible tail is cut again only when the text changes.
             var text = Input.Text;
-            var visible = text;
-            while (visible.Length > 0 && painter.Measure(visible) > InputPixels)
+            if (!ReferenceEquals(text, _inputText))
             {
-                visible = visible[1..];
+                _inputText = text;
+                var start = 0;
+                while (start < text.Length && painter.Measure(text[start..]) > InputPixels)
+                {
+                    start++;
+                }
+
+                _inputShown = start == 0 ? text : text[start..];
             }
+
+            var visible = _inputShown;
 
             painter.Text(visible, InputX, 584 - lift + bottom - (Math.Max(12, HudPainter.LineHeight) - 12) / 2, InputColor);
         }
@@ -245,14 +263,16 @@ public sealed class HudChatWindow
         maxLines = Math.Max(1, maxLines * 12 / lineHeight);
         var drawn = 0;
         var messages = 0;
-        foreach (var entry in Log.Newest(tab, scroll).Take(32))
+        var available = Math.Min(Log.NewestCount(tab, scroll), MostMessages);
+        for (var n = 0; n < available; n++)
         {
+            var entry = Log.NewestAt(tab, scroll, n);
             if (drawn >= maxLines)
             {
                 break;
             }
 
-            var lines = _wrap.Wrap(entry.Text, maxLines, painter.Measure);
+            var lines = _wrap.Wrap(entry.Text, maxLines, _measure);
             messages++;
             var color = HudChatLog.ColorOf(entry.Kind);
             for (var index = lines.Count - 1; index >= 0 && drawn < maxLines; index--)

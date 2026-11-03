@@ -107,6 +107,12 @@ public sealed class HudChatLog
     public int Count(HudChatTab tab) => Math.Min(Capacity, _counts[(int)tab]);
 
     // The lines of a tab from the newest backwards, starting the given number of lines back.
+    // How many entries the tab holds past the newest skip, and the nth of them from the newest: read every frame without
+    // an iterator.
+    public int NewestCount(HudChatTab tab, int skip) => Math.Max(0, Math.Min(_counts[(int)tab], Capacity) - skip);
+
+    public HudChatEntry NewestAt(HudChatTab tab, int skip, int n) => _tabs[(int)tab][(_counts[(int)tab] - 1 - skip - n) % Capacity];
+
     public IEnumerable<HudChatEntry> Newest(HudChatTab tab, int skip)
     {
         var count = _counts[(int)tab];

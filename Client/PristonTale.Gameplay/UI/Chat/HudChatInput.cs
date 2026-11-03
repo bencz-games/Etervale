@@ -30,11 +30,14 @@ public sealed class HudChatInput
     private string _whisperName = "";
     private int _whisperPrefix;
 
-    public string Text => _text.ToString();
+    // The text as a string, made once per change (the window reads it every frame).
+    public string Text => _shown ??= _text.ToString();
+    private string _shown;
 
     public void Clear()
     {
         _text.Clear();
+        _shown = null;
         _whisperName = "";
         _whisperPrefix = 0;
     }
@@ -42,6 +45,7 @@ public sealed class HudChatInput
     public void Set(string text)
     {
         _text.Clear().Append(text.Length > ChatRules.InputLimit ? text[..ChatRules.InputLimit] : text);
+        _shown = null;
     }
 
     // Starts a whisper conversation: the line holds "/:name " and comes back to it after each line sent.
@@ -60,6 +64,7 @@ public sealed class HudChatInput
         }
 
         _text.Append(value);
+        _shown = null;
         return true;
     }
 
@@ -68,6 +73,7 @@ public sealed class HudChatInput
         if (_text.Length > 0)
         {
             _text.Remove(_text.Length - 1, 1);
+            _shown = null;
         }
     }
 
@@ -94,6 +100,7 @@ public sealed class HudChatInput
             {
                 _recall = _historyCount - 1;
                 _text.Clear();
+                _shown = null;
                 return;
             }
         }
@@ -136,9 +143,11 @@ public sealed class HudChatInput
         }
 
         _text.Clear();
+        _shown = null;
         if (continued)
         {
             _text.Append("/:").Append(_whisperName).Append(' ');
+            _shown = null;
         }
 
         if (command)
