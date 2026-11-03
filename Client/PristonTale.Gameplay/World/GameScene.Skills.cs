@@ -21,6 +21,11 @@ namespace PristonTale.Gameplay.World;
 // skill timeline drives motions and effects through SkillPresentation.
 public sealed partial class GameScene : ISkillSceneHost
 {
+    // The refusals a cast meets, from the server or the client's own checks.
+    private const string NotReadyText = "The skill is not ready yet.";
+    private const string NoManaText = "Not enough mana.";
+    private const string NoStaminaText = "Not enough stamina.";
+
     // A cast the server has not answered yet keeps the avatar still for at most this long.
     private const double CastAnswerTimeoutMs = 1500d;
     private const float RangeMargin = 8f;
@@ -165,9 +170,9 @@ public sealed partial class GameScene : ISkillSceneHost
             _castLockUntilMs = 0d;
             SkillNotice?.Invoke(result.Status switch
             {
-                SkillCastVerdict.Cooldown => "The skill is not ready yet.",
-                SkillCastVerdict.NotEnoughMana => "Not enough mana.",
-                SkillCastVerdict.NotEnoughStamina => "Not enough stamina.",
+                SkillCastVerdict.Cooldown => NotReadyText,
+                SkillCastVerdict.NotEnoughMana => NoManaText,
+                SkillCastVerdict.NotEnoughStamina => NoStaminaText,
                 SkillCastVerdict.OutOfRange => "The target is out of range.",
                 SkillCastVerdict.WeaponNotAllowed => "This skill needs another weapon.",
                 SkillCastVerdict.InVillage => "Skills cannot be used in town.",
@@ -227,7 +232,7 @@ public sealed partial class GameScene : ISkillSceneHost
 
         if (!_skillFx.Cooldowns.Ready(code, _skillClockMs))
         {
-            SkillNotice?.Invoke("The skill is not ready yet.");
+            SkillNotice?.Invoke(NotReadyText);
             return true;
         }
 

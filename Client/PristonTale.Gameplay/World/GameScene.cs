@@ -96,7 +96,9 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     // A game master running with Shift held dashes, as the original's debug mode did; the server allows game masters
     // that speed.
     private bool GameMasterDash => (_playChannel?.GameMasterLevel ?? 0) > 0 && !KeyboardCaptured
-        && (Keyboard.GetState().IsKeyDown(Keys.LeftShift) || Keyboard.GetState().IsKeyDown(Keys.RightShift));
+        && ShiftHeld(Keyboard.GetState());
+
+    private static bool ShiftHeld(KeyboardState keyboard) => keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift);
 
     public bool RunFlag => _runFlag;
 

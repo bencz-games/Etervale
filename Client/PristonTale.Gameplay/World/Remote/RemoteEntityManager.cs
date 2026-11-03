@@ -388,32 +388,13 @@ public sealed partial class RemoteEntityManager
 
         if (_preparingActors.TryGetValue(state.EntityId, out var preparing))
         {
-            var latest = preparing.Spawn with
-            {
-                Position = state.Position,
-                Facing = state.Facing,
-                MoveState = state.MoveState,
-                Life = state.Life,
-                MoveSpeed = state.MoveSpeed,
-                AttackRate = state.AttackRate,
-                ServerTimeMs = state.ServerTimeMs
-            };
-            _preparingActors[state.EntityId] = (latest, preparing.Preparation);
+            _preparingActors[state.EntityId] = (WithState(preparing.Spawn, state), preparing.Preparation);
             return;
         }
 
         if (_pendingModels.TryGetValue(state.EntityId, out var pending))
         {
-            _pendingModels[state.EntityId] = pending with
-            {
-                Position = state.Position,
-                Facing = state.Facing,
-                MoveState = state.MoveState,
-                Life = state.Life,
-                MoveSpeed = state.MoveSpeed,
-                AttackRate = state.AttackRate,
-                ServerTimeMs = state.ServerTimeMs
-            };
+            _pendingModels[state.EntityId] = WithState(pending, state);
             return;
         }
 
@@ -796,4 +777,15 @@ public sealed partial class RemoteEntityManager
         return false;
     }
 
+    // A spawn still waiting for its model, moved to the latest state the server sent.
+    private static EntitySpawnInfo WithState(EntitySpawnInfo spawn, EntityStateInfo state) => spawn with
+    {
+        Position = state.Position,
+        Facing = state.Facing,
+        MoveState = state.MoveState,
+        Life = state.Life,
+        MoveSpeed = state.MoveSpeed,
+        AttackRate = state.AttackRate,
+        ServerTimeMs = state.ServerTimeMs
+    };
 }
