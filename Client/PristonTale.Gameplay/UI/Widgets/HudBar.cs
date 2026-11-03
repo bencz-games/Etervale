@@ -2,6 +2,7 @@ using System.Globalization;
 using Microsoft.Xna.Framework;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Characters;
+using PristonTale.Contracts.World;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -88,13 +89,18 @@ public sealed class HudBar
         return new Rectangle(0, full - length, width, length);
     }
 
-    // Clock gauge: day 4h..23h fills left to right, night 23h..4h fills from the right.
+    // Clock gauge: the day (GameHours.DayStart to NightStart) fills it left to right by the whole hour, the night from
+    // the right.
     public static (bool Day, int Length) TimeGauge(float hour)
     {
+        const float dayHours = GameHours.NightStart - GameHours.DayStart;
+        const float nightHours = 24 - dayHours;
         hour = float.IsFinite(hour) ? (hour % 24 + 24) % 24 : 0;
         var whole = MathF.Floor(hour);
-        var day = whole is >= 4 and < 23;
-        var length = day ? (int)(50f * ((whole - 4f) / 19f)) : (int)(50f * (((whole >= 23 ? whole - 24 : whole) + 1f) / 5f));
+        var day = !GameHours.IsNight(whole);
+        var length = day
+            ? (int)(TimeLength * ((whole - GameHours.DayStart) / dayHours))
+            : (int)(TimeLength * (((whole >= GameHours.NightStart ? whole - 24 : whole) + 1f) / nightHours));
         return (day, Math.Clamp(length, 0, TimeLength));
     }
 

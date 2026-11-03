@@ -88,8 +88,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
                 SkillMouseUse.Both => "Left or right mouse",
                 _ => "Passive skill"
             };
-            var cost = skill.MouseUse == SkillMouseUse.None || skill.ManaByRank.Count < 10 ? "No activation cost"
-                : $"Rank 1: MP {skill.ManaForRank(1)} | SP {skill.StaminaForRank(1)}";
+            var cost = CostLine(skill, 1);
             _entries[index] = new Entry(skill, $"Lv {skill.RequiredLevel}",
                 HudTextLayout.Wrap(font, skill.Description, TooltipWidth - 20, HudPainter.TextScale),
                 HudTextLayout.Wrap(font, "Equipment: " + weapons, TooltipWidth - 20, HudPainter.TextScale), cost, mouse)
@@ -249,7 +248,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
                 painter.Sprite(entry.Skill.MouseUse == SkillMouseUse.None ? HudArt.SkillGaugePassive : HudArt.SkillGaugeBack, mastery.X, mastery.Y);
 
                 var rank = HudSkillTreeLayout.RankGauge(origin, index);
-                var length = Math.Clamp(entry.Rank, 0, 10) * rank.Height / 10;
+                var length = Math.Clamp(entry.Rank, 0, SkillLearning.MaxRank) * rank.Height / SkillLearning.MaxRank;
                 painter.Sprite(HudArt.SkillGauge, rank.X, rank.Bottom - length, new Rectangle(0, rank.Height - length, rank.Width, length));
                 DrawShortcut(painter, node, entry.Skill.Code, bindings);
             }
@@ -453,9 +452,8 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
 
             var rank = Rank(state, entry.Skill.Code);
             var shownRank = Math.Max(1, rank);
-            var cost = entry.Skill.Category == SkillCategory.Passive || entry.Skill.ManaByRank.Count < 10 ? "No activation cost"
-                : $"Rank {shownRank}: MP {entry.Skill.ManaForRank(shownRank)} | SP {entry.Skill.StaminaForRank(shownRank)}";
-            var status = rank == 0 ? "Unlearned | Rank 1 preview" : $"Learned rank {rank} / 10";
+            var cost = CostLine(entry.Skill, shownRank);
+            var status = rank == 0 ? "Unlearned | Rank 1 preview" : $"Learned rank {rank} / {SkillLearning.MaxRank}";
             if (rank > 0 && entry.Skill.Category == SkillCategory.Passive)
             {
                 status += " | Passive";
@@ -476,10 +474,17 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         }
     }
 
+    // The mana and stamina a skill costs at a rank; a passive skill, one never used by mouse, and one without its ranks'
+    // costs has none.
+    private static string CostLine(Skill skill, int rank) =>
+        skill.Category == SkillCategory.Passive || skill.MouseUse == SkillMouseUse.None || skill.ManaByRank.Count != SkillLearning.MaxRank
+            ? "No activation cost"
+            : $"Rank {rank}: MP {skill.ManaForRank(rank)} | SP {skill.StaminaForRank(rank)}";
+
     // Short keys: ShortKey\f<n>.bmp at the skill box left + 9, top - 6.
     private static void DrawShortcut(HudPainter painter, Rectangle node, uint skillCode, HudSkillBindings bindings)
     {
-        for (var index = 0; index < 8; index++)
+        for (var index = 0; index < HudSkillBindings.ShortcutCount; index++)
         {
             if (bindings.Shortcut(index).SkillId == skillCode)
             {
