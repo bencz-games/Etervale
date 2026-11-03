@@ -275,7 +275,18 @@ public sealed record PristonStageFace(int A, int B, int C, int MaterialIndex, in
 // three signed colour shorts. It is preserved so no byte of the serialized structure is discarded.
 public sealed record PristonStageLight(int Type, Vector3 Position, float Range, Vector3 Color)
 {
+    private const int NightFlag = 0x00001;
+    private const int LensFlag = 0x00002;
+    private const int DynamicFlag = 0x80000;
+
     public short AlignmentPadding16 { get; init; }
+
+    public bool Night => (Type & NightFlag) != 0;
+
+    // A lens light is drawn as a glow; it lights the ground only when it is also dynamic.
+    public bool Lens => (Type & LensFlag) != 0;
+
+    public bool Dynamic => (Type & DynamicFlag) != 0;
 }
 
 public sealed record PristonStage(

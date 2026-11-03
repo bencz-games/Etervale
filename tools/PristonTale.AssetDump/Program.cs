@@ -115,13 +115,12 @@ void DumpStage(PristonStage stage)
     Console.WriteLine($"  vertices  : {stage.Vertices.Count}");
     Console.WriteLine($"  faces     : {stage.Faces.Count}");
     Console.WriteLine($"  texLinks  : {stage.TexLinks.Count}");
-    // Light type breakdown (PristonRenderer: LightNight=0x1, LightLens=0x2, LightDynamic=0x80000).
     int lNight = 0, lLens = 0, lDyn = 0;
     foreach (var l in stage.Lights)
     {
-        if ((l.Type & 0x1) != 0) lNight++;
-        if ((l.Type & 0x2) != 0) lLens++;
-        if ((l.Type & 0x80000) != 0) lDyn++;
+        if (l.Night) lNight++;
+        if (l.Lens) lLens++;
+        if (l.Dynamic) lDyn++;
     }
     Console.WriteLine($"  lights    : {stage.Lights.Count}  (night={lNight} lens={lLens} dynamic={lDyn})");
     int chained = 0; foreach (var tl in stage.TexLinks) if (tl.NextPointer != 0) chained++;

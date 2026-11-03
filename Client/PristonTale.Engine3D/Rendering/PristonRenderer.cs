@@ -77,9 +77,6 @@ public sealed partial class PristonRenderer : IDisposable
     private uint _renderTime => _renderClock.Milliseconds;
     private bool _disposed;
     private readonly PristonDayNightCycle _dayNight = new();
-    private const int LightNight = 0x00001;
-    private const int LightLens = 0x00002;
-    private const int LightDynamic = 0x80000;
 
     // Stage lamps (Shaders/Lighting/Shading.hlsli): the illuminance at the reference distance (150 units), in units of the
     // authored level over the night reference (PristonPhotometry), falling off with the inverse square; the authored range

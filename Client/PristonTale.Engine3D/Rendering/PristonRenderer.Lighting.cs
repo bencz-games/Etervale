@@ -53,13 +53,12 @@ public sealed partial class PristonRenderer
         {
             var radius = l.Range > 1f ? l.Range : 600f;
             var light = new PristonPointLight(l.Position, radius, l.Color, 1f);
-            var isLens = (l.Type & LightLens) != 0;
-            if ((l.Type & LightNight) != 0) nNight++;
-            if (isLens) nLens++;
-            if ((l.Type & LightDynamic) != 0) nDynamic++;
+            if (l.Night) nNight++;
+            if (l.Lens) nLens++;
+            if (l.Dynamic) nDynamic++;
 
-            if (isLens) glow.Add(light);
-            if (!isLens || (l.Type & LightDynamic) != 0) ground.Add(light);
+            if (l.Lens) glow.Add(light);
+            if (!l.Lens || l.Dynamic) ground.Add(light);
         }
 
         // Only LENS lights receive coronas; dungeon flames use their animated emitters.
