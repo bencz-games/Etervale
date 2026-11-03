@@ -80,7 +80,7 @@ internal sealed partial class FieldSkills
     {
         var rank = cast.Rank;
         _targets.Clear();
-        var limit = rule.MaxTargetsByRank.Length == 10 ? rule.At(rule.MaxTargetsByRank, rank) : rule.MaxTargets;
+        var limit = SkillFormulas.At(rule.MaxTargetsByRank, rank, rule.MaxTargets);
         if (rule.AreaShape == SkillAreaShape.Chain)
         {
             CollectChain(caster, cast, limit, rule.At(rule.Radius, rank));

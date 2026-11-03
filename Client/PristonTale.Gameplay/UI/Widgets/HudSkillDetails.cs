@@ -127,7 +127,7 @@ public static class HudSkillDetails
         }
 
         var radius = rule.At(rule.Radius, rank);
-        var targets = rule.MaxTargetsByRank.Length == 10 ? $", {rule.At(rule.MaxTargetsByRank, rank)} targets" : "";
+        var targets = rule.MaxTargetsByRank.Length > 0 ? $", {rule.At(rule.MaxTargetsByRank, rank)} targets" : "";
         lines.Add(rule.AreaShape switch
         {
             SkillAreaShape.Box => $"Area {rule.BoxWidth} x {radius}{targets}",

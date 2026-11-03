@@ -6,6 +6,7 @@ using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Simulation.World.Motion;
 using PristonTale.Contracts.Skills;
+using PristonTale.Simulation.Progression;
 
 namespace PristonTale.Simulation.Skills;
 
@@ -27,7 +28,7 @@ public static partial class SkillFormulas
     private const int Gauge = 35;
     public const float FrameStepAtRateOne = 80f;
 
-    // Proficiency = min(talent / 3 + item mastery, 50) x 100 + uses (100 per completed use streak), at most 10000.
+    // Proficiency = min(talent / 3 + item mastery, 50) x 100 + uses (100 per completed use streak), at most LearnedSkills.MaxUses.
     // Mastery units M = base + perRank x rank - proficiency / 100, clamped to 1..70. The 35-step gauge then fills one
     // step every max(1, 35 / floor(70 / M)) ticks: from 0.49 s (M 1-3) to 17.15 s (M 36-70).
     public static int CooldownMs(SkillRule rule, int rank, int talent, int itemMastery, int uses)
@@ -38,7 +39,7 @@ public static partial class SkillFormulas
         }
 
         // Final-tier skills have no proficiency to train: they always count as fully trained.
-        var proficiency = IsFinalTier(rule.Code) ? 10000 : Math.Min(10000, Math.Min(talent / 3 + itemMastery, 50) * 100 + Math.Max(0, uses));
+        var proficiency = IsFinalTier(rule.Code) ? LearnedSkills.MaxUses : Math.Min(LearnedSkills.MaxUses, Math.Min(talent / 3 + itemMastery, 50) * 100 + Math.Max(0, uses));
         var mastery = Math.Clamp(rule.MasteryBase + rule.MasteryPerRank * rank - proficiency / 100, 1, 70);
         var step = Math.Max(1, 70 / mastery);
         var ticksPerStep = Math.Max(1, Gauge / step);
@@ -53,8 +54,8 @@ public static partial class SkillFormulas
     // Every completed streak of casts adds 100 to the skill's proficiency (one mastery unit), as the original use counter.
     public static int UsesAfterCast(int uses, int casts, int windowIndex, int rank)
     {
-        var step = CastsPerStep[Math.Clamp(windowIndex, 0, CastsPerStep.Length - 1)] + (Math.Clamp(rank, 1, 10) - 1) / 3;
-        return casts > 0 && casts % step == 0 ? Math.Min(10000, uses + 100) : uses;
+        var step = CastsPerStep[Math.Clamp(windowIndex, 0, CastsPerStep.Length - 1)] + (Math.Clamp(rank, 1, SkillLearning.MaxRank) - 1) / 3;
+        return casts > 0 && casts % step == 0 ? Math.Min(LearnedSkills.MaxUses, uses + 100) : uses;
     }
 
     public static int ManaCost(Skill skill, int rank, ModifierTotals modifiers)
@@ -169,7 +170,7 @@ public static partial class SkillFormulas
     public static SkillMotionPlan Plan(SkillRule rule, int rank)
     {
         var ranked = rule.ForRank(rank);
-        var events = rule.HitFramesByRank.Length == 10 ? rule.HitFramesByRank[Math.Clamp(rank, 1, 10) - 1] : ranked.HitFrames();
+        var events = At(rule.HitFramesByRank, rank, null) ?? ranked.HitFrames();
         var plan = new SkillMotionPlan(ranked.Motion, ranked.MotionIndex, ranked.MotionFrames, events, ranked.MotionSpeed);
 
         var speed = rule.At(rule.MotionSpeedByRank, rank);
@@ -316,7 +317,7 @@ public static partial class SkillFormulas
             damage += damage * rule.BonusPercent / 100;
         }
 
-        var perRank = rule.BonusPercentByRank.Length == 10 ? rule.BonusPercentByRank[Math.Clamp(rank, 1, 10) - 1] : 0;
+        var perRank = At(rule.BonusPercentByRank, rank);
         return perRank == 0 ? damage : damage + damage * perRank / 100;
     }
 
@@ -433,7 +434,10 @@ public static partial class SkillFormulas
         return buff.ResistedByBionic || buff.ResistedBy is not null ? CombatResolver.Shortened(ms, resistance) : ms;
     }
 
-    public static int At(int[] table, int rank) => table is null || table.Length == 0 ? 0 : table[Math.Clamp(rank, 1, table.Length) - 1];
+    // A per-rank table's value at a rank (clamped to the table), or fallback for a table without values.
+    public static T At<T>(T[] table, int rank, T fallback) => table is { Length: > 0 } ? table[Math.Clamp(rank, 1, table.Length) - 1] : fallback;
+
+    public static int At(int[] table, int rank) => At(table, rank, 0);
 
     // The buff's modifiers at this rank; ranged values roll once per cast (see the overload with the ally share).
     public static StatModifier[] BuffModifiers(SkillRule rule, int rank, CombatRng rng) => BuffModifiers(rule.Buff, rank, rng, null);
@@ -480,6 +484,6 @@ public static partial class SkillFormulas
     private static int LevelDivisor(SkillRule rule, int rank) => LevelDivisor(rule.Damage, rank);
 
     private static int LevelDivisor(SkillDamageRule damage, int rank) =>
-        damage.LevelDivisorByRank.Length == 10 ? damage.LevelDivisorByRank[Math.Clamp(rank, 1, 10) - 1] : damage.LevelDivisor;
+        At(damage.LevelDivisorByRank, rank, damage.LevelDivisor);
 
 }

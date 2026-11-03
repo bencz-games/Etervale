@@ -1,6 +1,7 @@
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Combat;
 using PristonTale.Simulation.Items;
+using PristonTale.Simulation.Progression;
 
 namespace PristonTale.Simulation.Skills;
 
@@ -134,7 +135,7 @@ public static class PassiveSkills
             var entries = new List<(SkillRule, int)>();
             foreach (var (code, rank) in skills.Ranks)
             {
-                if (rank > 0 && SkillRuleCatalog.TryGet(code, out var rule) && rule.Passive is { Values.Length: 10 })
+                if (rank > 0 && SkillRuleCatalog.TryGet(code, out var rule) && rule.Passive is { Values.Length: SkillLearning.MaxRank })
                 {
                     entries.Add((rule, rule.At(rule.Passive.Values, rank)));
                 }

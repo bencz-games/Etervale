@@ -2,6 +2,7 @@ using PristonTale.Simulation.Combat;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.World.Monsters;
+using PristonTale.Simulation.Progression;
 
 namespace PristonTale.Simulation.Skills;
 
@@ -245,39 +246,36 @@ public static partial class SkillRuleCatalog
 {
     private static bool MechanicsValid(SkillRule rule)
     {
-        static bool Ranked(int[] table) => table is null || table.Length is 0 or 10;
         var damage = rule.Damage;
         var buff = rule.Buff;
         return Ranked(rule.Volley) && rule.MotionSpeedPercent is > 0 and <= 400 && rule.MotionSpeedSteps is >= 0 and <= 6
             && rule.MaxHits >= 0 && rule.ExtraEvents.All(frame => frame > 0) && rule.Exclusive.All(code => code != 0) && rule.Replaces.All(code => code != 0)
-            && rule.MotionVariants.All(variant => variant.FromRank is >= 1 and <= 10
+            && rule.MotionVariants.All(variant => variant.FromRank is >= 1 and <= SkillLearning.MaxRank
                 && (variant.Motion == SkillMotion.Attack || variant.MotionFrames > 0 && variant.MotionEvents.Length > 0)
                 && variant.MotionEvents.All(frame => frame > 0 && (variant.MotionFrames == 0 || frame <= variant.MotionFrames))
                 && variant.ExtraEvents.All(frame => frame > 0))
             && (rule.Allies is null || Ranked(rule.Allies.Radius) && rule.Allies.OthersPercent is >= 0 and <= 100)
-            && (rule.Charm is null || rule.Charm.Chance.Length == 10 && rule.Charm.LifePercent.Length == 10)
-            && (rule.Resurrect is null || rule.Resurrect.Chance.Length == 10 && rule.Resurrect.Radius > 0)
-            && (rule.Passive is null || rule.Passive.Modifiers.All(modifier => modifier.Values.Length == 10))
+            && (rule.Charm is null || rule.Charm.Chance.Length == SkillLearning.MaxRank && rule.Charm.LifePercent.Length == SkillLearning.MaxRank)
+            && (rule.Resurrect is null || rule.Resurrect.Chance.Length == SkillLearning.MaxRank && rule.Resurrect.Radius > 0)
+            && (rule.Passive is null || rule.Passive.Modifiers.All(modifier => modifier.Values.Length == SkillLearning.MaxRank))
             && (damage is null || DamageValid(damage))
             && (buff is null || BuffValid(buff));
     }
 
     private static bool DamageValid(SkillDamageRule damage)
     {
-        static bool Ranked(int[] table) => table is null || table.Length is 0 or 10;
         return Ranked(damage.BonusPercentByRank) && Ranked(damage.Share) && Ranked(damage.Chance) && damage.ResistanceDivisor >= 1
-            && (damage.Mode == SkillDamageMode.Rolled || damage.Share.Length == 10) && (damage.Main is null || DamageValid(damage.Main));
+            && (damage.Mode == SkillDamageMode.Rolled || damage.Share.Length == SkillLearning.MaxRank) && (damage.Main is null || DamageValid(damage.Main));
     }
 
     private static bool BuffValid(SkillBuffRule buff)
     {
-        static bool Ranked(int[] table) => table is null || table.Length is 0 or 10;
         static bool Choice(SkillEnchantChoice choice) => Ranked(choice.Min) && Ranked(choice.Max) && Ranked(choice.SlowPercent) && Ranked(choice.SlowTenths)
             && choice.Min.Length == choice.Max.Length && choice.SlowPercent.Length == choice.SlowTenths.Length;
         return (buff.Enchant is null || buff.Enchant.Choices.Length > 0 && buff.Enchant.Choices.All(Choice))
-            && (buff.Absorb is null || buff.Absorb.Percent.Length == 10)
-            && (buff.Reflect is null || buff.Reflect.Percent.Length == 10)
-            && (buff.Guard is null || buff.Guard.HealPercent.Length == 10)
+            && (buff.Absorb is null || buff.Absorb.Percent.Length == SkillLearning.MaxRank)
+            && (buff.Reflect is null || buff.Reflect.Percent.Length == SkillLearning.MaxRank)
+            && (buff.Guard is null || buff.Guard.HealPercent.Length == SkillLearning.MaxRank)
             && (buff.Companion is null || buff.Companion.Choices.All(Choice))
             && (buff.Pulse is null || buff.Pulse.IntervalMs > 0 && buff.Pulse.DurationTenths > 0);
     }

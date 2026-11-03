@@ -3,6 +3,7 @@ using PristonTale.Simulation.Combat;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.World.Monsters;
+using PristonTale.Simulation.Progression;
 
 namespace PristonTale.Simulation.Skills;
 
@@ -63,12 +64,12 @@ public static partial class SkillFormulas
     }
 
     // The table value of a rank-indexed array, 0 outside 1..10.
-    public static int RankValue(int[] table, int rank) => table is { Length: 10 } && rank is >= 1 and <= 10 ? table[rank - 1] : 0;
+    public static int RankValue(int[] table, int rank) => table is { Length: 10 } && rank is >= 1 and <= SkillLearning.MaxRank ? table[rank - 1] : 0;
 
     // A share skill's chance (with the level term, lowered by bionic resistance) and its percent of life.
     public static int ShareChance(SkillDamageRule damage, int rank, int casterLevel, int bionicResistance)
     {
-        if (damage.Chance.Length != 10)
+        if (damage.Chance.Length != SkillLearning.MaxRank)
         {
             return 100;
         }

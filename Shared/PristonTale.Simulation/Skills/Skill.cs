@@ -1,4 +1,5 @@
 using PristonTale.Simulation.Items;
+using PristonTale.Simulation.Progression;
 
 namespace PristonTale.Simulation.Skills;
 
@@ -66,9 +67,9 @@ public sealed class Skill
 
     private void ValidateRank(int rank)
     {
-        if (rank is < 1 or > 10 || ManaByRank.Count != 10)
+        if (rank is < 1 or > SkillLearning.MaxRank || ManaByRank.Count != SkillLearning.MaxRank)
         {
-            throw new ArgumentOutOfRangeException(nameof(rank), "A migrated skill rank must be between 1 and 10.");
+            throw new ArgumentOutOfRangeException(nameof(rank), $"A skill rank must be between 1 and {SkillLearning.MaxRank}.");
         }
     }
 }
