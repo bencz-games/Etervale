@@ -34,7 +34,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
     // Like the original per-receiver user limit, a crowd cannot exceed a per-receiver movement budget (about 40 KiB/s at 20 Hz).
     // Spawns and discrete changes always go out; position-only updates are ranked by how overdue they are.
     private const int MovementBudgetBytes = 2048;
-    private const ushort TickIntervalMs = 1000 / WorldServer.TickHz;
+    private const ushort TickIntervalMs = ServerTick.IntervalMs;
 
     private readonly ulong _self;
     private readonly WorldDataHolder _data;

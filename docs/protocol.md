@@ -397,8 +397,10 @@ The client plays remote objects back on that timeline
 and interpolates position, the server's height and facing (shortest arc) linearly at a render time 150 ms behind the
 server, longer (up to 600 ms) when the object's samples arrive at the 2 Hz far-ring cadence. Motion states and combat
 events of the object apply when the render time reaches them. A walking or running object may be extrapolated for 250 ms
-when samples are late, and a jump above 256 units snaps. Walk and run clips play at a rate proportional to the
-interpolated ground speed, and a walk or run state without ground motion is shown as standing.
+when samples are late, and a jump above 256 units snaps. An object standing still gets no entries, so after a silence
+longer than 750 ms the object waits at its last place until one server tick before the next sample. Walk and run clips
+play at a rate proportional to the interpolated ground speed, and a walk or run state without ground motion is shown
+as standing.
 
 ### NPC services
 

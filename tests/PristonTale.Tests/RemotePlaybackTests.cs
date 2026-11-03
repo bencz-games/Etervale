@@ -27,6 +27,7 @@ internal static class RemotePlaybackTests
         yield return ("remote facing interpolates through the short arc across plus and minus pi", FacingWrapAsync);
         yield return ("remote samples snap when the authoritative error exceeds 256 units", SnapAsync);
         yield return ("remote extrapolation is capped at 250 ms and returns to the last sample", ExtrapolationAsync);
+        yield return ("an entity that rested between samples waits at its place and walks off at its pace", RestAsync);
         yield return ("far-ring cadence raises the playback delay and the near ring restores it", CadenceAsync);
         yield return ("remote motion states become due when the render time reaches their sample", StateTimelineAsync);
         yield return ("remote clock follows early packets quickly, late packets slowly and resynchronises", ClockAsync);
@@ -93,6 +94,25 @@ internal static class RemotePlaybackTests
         var idle = new RemoteSnapshotBuffer(Sample(0, 0, MotionState.Stand));
         idle.Add(Sample(200, 14, MotionState.Stand), Vector3.Zero);
         Assert.True(idle.Sample(450).Position.X == 14f, "a standing sample was extrapolated");
+        return Task.CompletedTask;
+    }
+
+    private static Task RestAsync()
+    {
+        // Standing since 0 (the server sends nothing meanwhile), then one tick of a 70 u/s walk reported at 3000.
+        var buffer = new RemoteSnapshotBuffer(Sample(0, 0, MotionState.Stand));
+        buffer.Add(Sample(3000, 3.5f), Vector3.Zero);
+        var waiting = buffer.Sample(2900 + RemoteSnapshotBuffer.BaseDelayMs);
+        Assert.True(waiting.Position.X == 0f && waiting.PlanarSpeed == 0f, $"the entity crept across its rest: {waiting.Position.X}");
+        Assert.True(!buffer.TryTakeDueState(out _), "the rest replayed the state before it");
+        var leaving = buffer.Sample(2975 + RemoteSnapshotBuffer.BaseDelayMs);
+        Assert.Near(1.75f, leaving.Position.X, 0.001f);
+        Assert.Near(70f, leaving.PlanarSpeed, 0.01f);
+        var ahead = buffer.Sample(3100 + RemoteSnapshotBuffer.BaseDelayMs);
+        Assert.True(ahead.Kind == RemotePoseKind.Extrapolated, "the walk stopped at its first sample");
+        Assert.Near(10.5f, ahead.Position.X, 0.001f);
+        Assert.True(buffer.TryTakeDueState(out var walk) && walk.MoveState == MotionState.Walk && !buffer.TryTakeDueState(out _),
+            "the walk was not the one state due after the rest");
         return Task.CompletedTask;
     }
 

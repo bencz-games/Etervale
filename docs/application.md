@@ -132,10 +132,10 @@ captured through its town restart (`WorldServer.CaptureLeftAsync`).
 
 ### Tick loop
 
-`WorldTickService` (server) calls `WorldServer.Tick(1/20 s, ++tick)` at `WorldServer.TickHz` (20) on a thread of its
-own, on an absolute timeline (`TickSchedule`): tick n is due n periods after the start, the ticks owed after a late one
-run back to back, and a stall of more than 5 ticks is skipped and counted. `Tick` ignores non-finite or non-positive
-`dt`, then:
+`WorldTickService` (server) calls `WorldServer.Tick(1/20 s, ++tick)` at `WorldServer.TickHz` (`ServerTick.Hz` in
+Contracts, 20, whose interval the client also reads) on a thread of its own, on an absolute timeline (`TickSchedule`):
+tick n is due n periods after the start, the ticks owed after a late one run back to back, and a stall of more than 5
+ticks is skipped and counted. `Tick` ignores non-finite or non-positive `dt`, then:
 
 1. Command phase: drains up to `CommandsPerTick` (16384) queued commands on the calling thread.
 2. Boss clock: `BossSpawnSchedule.TryBeginPass` on the injected `TimeProvider` yields at most one hour value per pass,

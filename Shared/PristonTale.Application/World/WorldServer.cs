@@ -25,7 +25,7 @@ namespace PristonTale.Application.World;
 
 public sealed partial class WorldServer
 {
-    public const int TickHz = 20;
+    public const int TickHz = ServerTick.Hz;
 
     public const int CommandQueueCapacity = 65536;
 

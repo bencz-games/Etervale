@@ -1,10 +1,13 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Client.Net.Presence;
 using PristonTale.Contracts.Motion;
+using PristonTale.Contracts.World;
 
 namespace PristonTale.Gameplay.World.Remote;
 
-public readonly record struct RemoteSample(double TimeMs, Vector3 Position, float Facing, MotionState MoveState, int Life);
+// Rest marks the copy the buffer adds of the sample before a silence: the entity holds that place until it moves again,
+// and the copy gives no motion state.
+public readonly record struct RemoteSample(double TimeMs, Vector3 Position, float Facing, MotionState MoveState, int Life, bool Rest = false);
 
 public enum RemotePoseKind
 {
@@ -21,6 +24,9 @@ public readonly record struct RemotePose(Vector3 Position, float Facing, float P
 // starts at 150 ms and follows the observed sample cadence (5 Hz near ring, 2 Hz far ring) so a far entity still
 // interpolates instead of stopping between packets. A walking sample may be extrapolated for 250 ms; after that the lead
 // returns to the last sample over another 250 ms, so an entity whose updates stopped never stays ahead of the server.
+// The server sends nothing about an entity that stands still and repeats a moving one's place at least every
+// CadenceGapMs, so a sample after a longer silence started one server tick before it: the entity rests at the previous
+// place until then instead of creeping across the whole silence and leaping at the end.
 public sealed class RemoteSnapshotBuffer
 {
     public const int Capacity = 32;
@@ -90,8 +96,13 @@ public sealed class RemoteSnapshotBuffer
         }
 
         RecordInterval(latest, stamped);
+        if (stamped.TimeMs - latest.TimeMs > CadenceGapMs)
+        {
+            _samples.Add(latest with { TimeMs = stamped.TimeMs - ServerTick.IntervalMs, Rest = true });
+        }
+
         _samples.Add(stamped);
-        if (_samples.Count > Capacity)
+        while (_samples.Count > Capacity)
         {
             _samples.RemoveAt(0);
             _pendingState = Math.Max(0, _pendingState - 1);
@@ -148,14 +159,18 @@ public sealed class RemoteSnapshotBuffer
         return new RemotePose(position, facing, speed, RemotePoseKind.Interpolated, from.MoveState == to.MoveState);
     }
 
-    // Yields, in order, the samples whose motion state is due at the render time of the last Sample call.
+    // Yields, in order, the samples whose motion state is due at the render time of the last Sample call; a rest gives
+    // no state of its own.
     public bool TryTakeDueState(out RemoteSample sample)
     {
-        if (_pendingState < _samples.Count && _samples[_pendingState].TimeMs <= _renderTimeMs)
+        while (_pendingState < _samples.Count && _samples[_pendingState].TimeMs <= _renderTimeMs)
         {
             sample = _samples[_pendingState];
             _pendingState++;
-            return true;
+            if (!sample.Rest)
+            {
+                return true;
+            }
         }
 
         sample = default;

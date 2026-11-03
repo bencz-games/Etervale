@@ -260,8 +260,11 @@ coordinates; their consumers mirror them with `WorldSpace` instead of negating Z
   quickly, late ones slowly; a jump above 1 s resyncs. Without the extension samples are stamped with arrival time.
 - `RemoteSnapshotBuffer` (per entity, 32 samples) renders at `now - delay`. The delay starts at 150 ms and follows the
   observed sample cadence up to 600 ms. Position, height and facing interpolate linearly; a Walk/Run sample may be
-  extrapolated for 250 ms, then the lead returns to the last sample over 250 ms. A sample more than 256 units from the
-  last or drawn position snaps and drops the history. Motion states apply when render time reaches their sample.
+  extrapolated for 250 ms, then the lead returns to the last sample over 250 ms. The server sends nothing about an
+  entity standing still, so a sample after a silence longer than 750 ms adds a rest: the entity stays at its previous
+  place until one server tick (`ServerTick.IntervalMs`) before the sample, instead of creeping across the silence and
+  leaping at its end; a rest gives no motion state. A sample more than 256 units from the last or drawn position snaps
+  and drops the history. Motion states apply when render time reaches their sample.
 - `RemoteEntityBase` owns no rules: the server owns position and motion. Presentation-only choices: Walk/Run playback
   speed follows the interpolated ground speed; Walk/Run without ground motion shows Stand. Combat events share the
   sample timeline.
