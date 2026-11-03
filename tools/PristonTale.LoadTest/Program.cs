@@ -9,6 +9,7 @@ using PristonTale.Contracts.World;
 using PristonTale.Contracts.Combat;
 using PristonTale.Contracts.Characters;
 using PristonTale.Simulation.Items;
+using PristonTale.Protocol.Transport;
 
 // Headless load generator over Etervale's protocol. Each bot logs in, creates a character when the account
 // has none, enters the world and then walks, hunts monsters with basic attacks, casts a skill at them or switches its
@@ -18,7 +19,7 @@ using PristonTale.Simulation.Items;
 var options = Options.Parse(args);
 if (options is null)
 {
-    Console.Error.WriteLine("usage: --count <bots> [--address tcp://localhost:10009] [--prefix bot] [--password bot-pw] [--seconds 60] [--ramp 50]");
+    Console.Error.WriteLine($"usage: --count <bots> [--address {TlsTransport.LocalAddress}] [--prefix bot] [--password bot-pw] [--seconds 60] [--ramp 50]");
     Console.Error.WriteLine("       [--mode walk|fight|cast|items|mixed] [--skill <hex>] [--item-ms 1000] [--server-pid <pid>] [--report <seconds>]");
     return 1;
 }
@@ -561,7 +562,7 @@ internal sealed record Options(string Address, string Prefix, string Password, i
         }
 
         return new Options(
-            values.GetValueOrDefault("--address", "tcp://localhost:10009"),
+            values.GetValueOrDefault("--address", TlsTransport.LocalAddress),
             values.GetValueOrDefault("--prefix", "bot"),
             values.GetValueOrDefault("--password", "bot-pw"),
             count,

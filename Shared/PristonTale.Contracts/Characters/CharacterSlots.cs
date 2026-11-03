@@ -1,4 +1,4 @@
-namespace PristonTale.Simulation.Characters;
+namespace PristonTale.Contracts.Characters;
 
 public static class CharacterSlots
 {

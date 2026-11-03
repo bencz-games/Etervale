@@ -14,6 +14,10 @@ public static class TlsTransport
     public const SslProtocols Protocols = SslProtocols.Tls12 | SslProtocols.Tls13;
     public static readonly TimeSpan DefaultHandshakeTimeout = TimeSpan.FromSeconds(10);
 
+    // The game server's port, and the address of a server on this machine that the client and the tools default to.
+    public const int DefaultPort = 10009;
+    public static readonly string LocalAddress = $"tcp://localhost:{DefaultPort}";
+
     public static async Task<FrameConnection> AcceptAsync(Socket socket, SslStreamCertificateContext certificate, TimeSpan timeout,
         CancellationToken cancellationToken, FrameConnectionOptions? options = null)
     {

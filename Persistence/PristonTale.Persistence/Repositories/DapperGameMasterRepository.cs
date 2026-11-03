@@ -1,7 +1,7 @@
 using Dapper;
 using PristonTale.Persistence.Abstractions;
 using PristonTale.Persistence.Abstractions.GameMasters;
-using PristonTale.Simulation.Characters;
+using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Persistence.Repositories;
 

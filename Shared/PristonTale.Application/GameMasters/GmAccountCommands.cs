@@ -3,6 +3,7 @@ using PristonTale.Persistence.Abstractions.GameMasters;
 using PristonTale.Persistence.Abstractions.Warehouses;
 using PristonTale.Simulation.Characters;
 using static PristonTale.Application.GameMasters.GmInformationCommands;
+using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Application.GameMasters;
 

@@ -131,6 +131,8 @@ async Task<int> CreateBots(List<string> a)
         }
 
         var name = $"Lt{prefix}{index:D4}";
+        if (!CharacterNames.IsValidLength(name))
+            return Usage($"bot name '{name}' is not {CharacterNames.MinLength}–{CharacterNames.MaxLength} characters; use a shorter prefix");
         if (!placed || (await characters.ListByAccountAsync(account.Id)).Count > 0 || await characters.NameExistsAsync(name))
             continue;
         var position = spacing <= 0f
@@ -160,8 +162,8 @@ async Task<int> AddCharacter(List<string> a)
     var account = await accounts.FindByUserIdAsync(user);
     if (account is null)
         return Usage($"no account '{user}' — run create-account first");
-    if (name.Length is < 3 or > 16)
-        return Usage("character name must be 3–16 characters");
+    if (!CharacterNames.IsValidLength(name))
+        return Usage($"character name must be {CharacterNames.MinLength}–{CharacterNames.MaxLength} characters");
     if (await characters.NameExistsAsync(name))
         return Usage($"character name '{name}' is already taken");
 

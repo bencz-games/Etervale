@@ -1,4 +1,5 @@
 using System.Net;
+using PristonTale.Protocol.Transport;
 
 namespace PristonTale.Server.Net;
 
@@ -17,7 +18,7 @@ internal sealed record NetworkLimits
     public int MaxHandshakesPerIp { get; init; } = 4;
     public int LoginTimeoutMs { get; init; } = 30_000;
     // The deadline of an accepted socket's TLS handshake; it cannot be disabled.
-    public int HandshakeTimeoutMs { get; init; } = 10_000;
+    public int HandshakeTimeoutMs { get; init; } = (int)TlsTransport.DefaultHandshakeTimeout.TotalMilliseconds;
     public int LoginFailuresPerAccount { get; init; } = 5;
     public int LoginFailuresPerIp { get; init; } = 20;
     public int LoginFailureWindowMs { get; init; } = 300_000;

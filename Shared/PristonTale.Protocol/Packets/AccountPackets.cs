@@ -146,7 +146,7 @@ public sealed record CharacterListEntry(string Name, PlayerClass Class, int Leve
 // change.
 public sealed record CharacterListPacket(IReadOnlyList<CharacterListEntry> Characters)
 {
-    public const int MaxCharacters = 6;
+    public const int MaxCharacters = CharacterSlots.Maximum;
     public const int MaxSize = 8 + 4 + 4 + MaxCharacters * CharacterListEntry.MaxSize;
 
     public int Write(Span<byte> destination)

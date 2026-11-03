@@ -18,12 +18,13 @@ using PristonTale.Persistence.Postgres;
 using PristonTale.Persistence.Sqlite;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.World.Loot;
+using PristonTale.Protocol.Transport;
 
 namespace PristonTale.Server.Hosting;
 
 public static class HostingExtensions
 {
-    public const int DefaultGamePort = 10009;
+    public const int DefaultGamePort = TlsTransport.DefaultPort;
 
     public static HostApplicationBuilder AddPristonServer(this HostApplicationBuilder builder)
     {

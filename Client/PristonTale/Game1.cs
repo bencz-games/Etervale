@@ -17,7 +17,7 @@ namespace PristonTale;
 
 public class Game1 : Game
 {
-    private const string ServerAddress = "tcp://localhost:10009";
+    private static readonly string ServerAddress = Protocol.Transport.TlsTransport.LocalAddress;
 
     private readonly GraphicsDeviceManager _graphics;
     private GameClient _client;

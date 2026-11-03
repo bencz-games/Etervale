@@ -5,6 +5,7 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Quests;
 using PristonTale.Contracts.Skills;
 using PristonTale.Contracts.Characters;
+using PristonTale.Protocol.Transport;
 
 // smoke [address] [account] [password] [--character NAME] [--skill CODE] [--chat TEXT]
 // Without --character a new Mechanician is created and its skill cast must be answered (refused: unlearned, in town).
@@ -12,7 +13,7 @@ using PristonTale.Contracts.Characters;
 // presence timeline and, for buffs, add its status.
 var positional = args.Where((arg, index) => !arg.StartsWith("--", StringComparison.Ordinal)
     && (index == 0 || !args[index - 1].StartsWith("--", StringComparison.Ordinal))).ToArray();
-var address = positional.Length > 0 ? positional[0] : "tcp://localhost:10009";
+var address = positional.Length > 0 ? positional[0] : TlsTransport.LocalAddress;
 var account = positional.Length > 1 ? positional[1] : "smoke";
 var password = positional.Length > 2 ? positional[2] : "smoke-pw";
 var existing = Option("--character");
