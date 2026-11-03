@@ -13,13 +13,13 @@ public static class QuestClasses
 
     // The quests split the classes by class number, not by tribe: the first four take the Tempskron side (Ricarten, its
     // NPCs and monsters), every later class the Morion side, the assassin included.
-    public static bool IsTempskron(PlayerCharacter character) => (int)ClassOf(character) < 5;
+    public static bool IsTempskron(PlayerCharacter character) => ClassOf(character) < PlayerClass.Atalanta;
 
     // The first rank-up gathers trophies on the Tempskron side and for the assassin; the other classes brew a potion.
     public static bool RanksUpByTrophies(PlayerCharacter character) => IsTempskron(character) || ClassOf(character) == PlayerClass.Assassin;
 
     // The level 30 quest of the Ricarten store serves the eight classic classes.
-    public static bool IsClassicClass(PlayerCharacter character) => (int)ClassOf(character) <= 8;
+    public static bool IsClassicClass(PlayerCharacter character) => ClassOf(character) <= PlayerClass.Priestess;
 
     public static PlayerClass ClassOf(PlayerCharacter character) => character.Definition.Class;
 

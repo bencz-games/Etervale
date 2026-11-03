@@ -16,13 +16,15 @@ public sealed class MagicianClass : CharacterClass
         QuestWeapon: "WM109",
         BeginnerWeapon: "WM101",
         QuestWeaponHunt.Field,
-        QuestItems.ArcaneRing);
+        QuestItems.ArcaneRing,
+        CharacterBrood.Morion,
+        Female: false);
 
     public MagicianClass()
         : base(BuildDefinition(
             PlayerClass.Magician,
             "Magician",
-            CharacterBrood.Morion,
+            Profile.Brood,
             bodyInx: "char\\tmABCD\\mD001.inx",
             headInx: "char\\tmABCD\\Mmh-D01.inx",
             armorTableIndex: 7,

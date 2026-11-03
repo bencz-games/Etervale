@@ -27,8 +27,7 @@ public static class Chocolates
         return chocolate is not null;
     }
 
-    public static bool IsFemale(PlayerClass playerClass) => playerClass is PlayerClass.Archer or PlayerClass.Atalanta or PlayerClass.Priestess
-        or PlayerClass.Assassin;
+    public static bool IsFemale(PlayerClass playerClass) => ClassProfiles.Of(playerClass).Female;
 
     // Used, refused for the other gender (MaleCannotUse or FemaleCannotUse), or AlreadyRunning while Virtual Life runs.
     public static ItemUseStatus Check(ChocolateDefinition chocolate, PlayerCharacter character)

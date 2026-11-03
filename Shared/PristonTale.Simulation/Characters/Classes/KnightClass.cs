@@ -16,13 +16,15 @@ public sealed class KnightClass : CharacterClass
         QuestWeapon: "WS210",
         BeginnerWeapon: "WS202",
         QuestWeaponHunt.Melee,
-        QuestItems.EmperorRing);
+        QuestItems.EmperorRing,
+        CharacterBrood.Morion,
+        Female: false);
 
     public KnightClass()
         : base(BuildDefinition(
             PlayerClass.Knight,
             "Knight",
-            CharacterBrood.Morion,
+            Profile.Brood,
             bodyInx: "char\\tmABCD\\mA001.inx",
             headInx: "char\\tmABCD\\Mmh-A01.inx",
             armorTableIndex: 4,

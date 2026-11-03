@@ -16,13 +16,15 @@ public sealed class PriestessClass : CharacterClass
         QuestWeapon: "WM109",
         BeginnerWeapon: "WM101",
         QuestWeaponHunt.Field,
-        QuestItems.ArcaneRing);
+        QuestItems.ArcaneRing,
+        CharacterBrood.Morion,
+        Female: true);
 
     public PriestessClass()
         : base(BuildDefinition(
             PlayerClass.Priestess,
             "Priestess",
-            CharacterBrood.Morion,
+            Profile.Brood,
             bodyInx: "char\\tmABCD\\mC001.inx",
             headInx: "char\\tmABCD\\Mfh-C01.inx",
             armorTableIndex: 6,

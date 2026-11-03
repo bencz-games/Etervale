@@ -16,13 +16,15 @@ public sealed class AtalantaClass : CharacterClass
         QuestWeapon: "WT109",
         BeginnerWeapon: "WT102",
         QuestWeaponHunt.Ranged,
-        QuestItems.FocusRing);
+        QuestItems.FocusRing,
+        CharacterBrood.Morion,
+        Female: true);
 
     public AtalantaClass()
         : base(BuildDefinition(
             PlayerClass.Atalanta,
             "Atalanta",
-            CharacterBrood.Morion,
+            Profile.Brood,
             bodyInx: "char\\tmABCD\\mB001.inx",
             headInx: "char\\tmABCD\\Mfh-B01.inx",
             armorTableIndex: 5,

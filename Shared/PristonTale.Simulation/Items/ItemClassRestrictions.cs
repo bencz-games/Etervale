@@ -1,5 +1,6 @@
 using System.Globalization;
 using PristonTale.Simulation.Characters;
+using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Simulation.Items;
 
@@ -8,7 +9,8 @@ public static class ItemClassRestrictions
     private const JobBitCode Casters = JobBitCode.Magician | JobBitCode.Priestess | JobBitCode.Shaman;
     private const JobBitCode Fighters = JobBitCode.Mechanician | JobBitCode.Fighter | JobBitCode.Archer
         | JobBitCode.Pikeman | JobBitCode.Atalanta | JobBitCode.Knight | JobBitCode.Assassin;
-    private const JobBitCode Female = JobBitCode.Archer | JobBitCode.Atalanta | JobBitCode.Priestess | JobBitCode.Assassin;
+    private static readonly JobBitCode Female = Enum.GetValues<PlayerClass>().Where(static c => ClassProfiles.Of(c).Female)
+        .Aggregate((JobBitCode)0, static (mask, c) => mask | JobBits.Of(c));
     private const JobBitCode All = Casters | Fighters;
 
     public static uint AllowedJobs(string key)

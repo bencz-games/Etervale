@@ -106,8 +106,10 @@ progression, regeneration and movement rates. `World/`, `Physics/` and `Skills/`
 and declares the class's `ClassProfile` (`Characters/ClassProfile.cs`, looked up with `ClassProfiles.Of(class)` or
 `CharacterClassDef.Profile`): the four tier titles, the fallback motion timing (`PlayerMotionFallback`), the favoured
 weapon (`WeaponDamage`'s level / 6 bonus), the casting weapon that attacks at range (`PlayerAttackReach`), the
-requirement shift of items specialised for it (`ItemRoller`), and the quest weapon, beginner weapon, hunt and rank-up
-ring (`QuestClasses`). A per-class fact belongs in the profile, not in a switch over `PlayerClass`.
+requirement shift of items specialised for it (`ItemRoller`), the quest weapon, beginner weapon, hunt and rank-up ring
+(`QuestClasses`), the realm (the definition's `Brood` and the town of `DeathPenalty.TownField`) and whether its
+characters are female (the female-only armors and the chocolates). A per-class fact belongs in the profile, not in a
+switch over `PlayerClass`.
 The class also loads its skill window from `ClassSkillCatalog.For(class)` (see [skills.md](skills.md)).
 
 | Class | Id | `JobBitCode` | Brood | Str/Spi/Tal/Agi/Hlt | Sight | Life/Mana/Sta/Melee/Ranged/Magic fn |

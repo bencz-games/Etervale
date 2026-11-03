@@ -15,13 +15,15 @@ public sealed class ShamanClass : CharacterClass
         QuestWeapon: "WN109",
         BeginnerWeapon: "",
         QuestWeaponHunt.Field,
-        QuestItems.EmperorRing);
+        QuestItems.EmperorRing,
+        CharacterBrood.Morion,
+        Female: false);
 
     public ShamanClass()
         : base(BuildDefinition(
             PlayerClass.Shaman,
             "Shaman",
-            CharacterBrood.Morion,
+            Profile.Brood,
             bodyInx: "char\\tmABCD\\me001.inx",
             headInx: "char\\tmABCD\\Mmh-E01.inx",
             armorTableIndex: 9,

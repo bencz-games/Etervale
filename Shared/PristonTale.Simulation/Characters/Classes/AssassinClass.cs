@@ -15,13 +15,15 @@ public sealed class AssassinClass : CharacterClass
         QuestWeapon: "WD109",
         BeginnerWeapon: "",
         QuestWeaponHunt.Melee,
-        QuestItems.EmperorRing);
+        QuestItems.EmperorRing,
+        CharacterBrood.Tempskron,
+        Female: true);
 
     public AssassinClass()
         : base(BuildDefinition(
             PlayerClass.Assassin,
             "Assassin",
-            CharacterBrood.Tempskron,
+            Profile.Brood,
             bodyInx: "char\\tmABCD\\e001.inx",
             headInx: "char\\tmABCD\\tfh-e01.inx",
             armorTableIndex: 8,

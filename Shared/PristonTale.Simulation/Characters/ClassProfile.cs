@@ -14,7 +14,8 @@ public readonly record struct MotionFallback(uint AttackEventTicks, int DamageFr
 
 // What the rules know about one class beyond its definition: the titles of its four tiers, its fallback motion timing,
 // the weapon it deals extra damage with (level / 6), the weapon it casts at range with, the requirement shift of items
-// specialised for it (none for the classes items are not rolled for yet), and its quests' weapons, hunt and ring.
+// specialised for it (none for the classes items are not rolled for yet), its quests' weapons, hunt and ring, its
+// realm (whose town it starts and stands up in) and whether its characters are female.
 // Each class declares its profile in its own file.
 public sealed record ClassProfile(
     IReadOnlyList<string> Titles,
@@ -25,7 +26,9 @@ public sealed record ClassProfile(
     string QuestWeapon,
     string BeginnerWeapon,
     QuestWeaponHunt Hunt,
-    uint RankUpRing)
+    uint RankUpRing,
+    CharacterBrood Brood,
+    bool Female)
 {
     public string TitleAt(int tier) => Titles[Math.Clamp(tier, 0, Titles.Count - 1)];
 }

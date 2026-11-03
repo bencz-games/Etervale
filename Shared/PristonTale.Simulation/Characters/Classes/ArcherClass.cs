@@ -16,13 +16,15 @@ public sealed class ArcherClass : CharacterClass
         QuestWeapon: "WS110",
         BeginnerWeapon: "WS102",
         QuestWeaponHunt.Ranged,
-        QuestItems.FocusRing);
+        QuestItems.FocusRing,
+        CharacterBrood.Tempskron,
+        Female: true);
 
     public ArcherClass()
         : base(BuildDefinition(
             PlayerClass.Archer,
             "Archer",
-            CharacterBrood.Tempskron,
+            Profile.Brood,
             bodyInx: "char\\tmABCD\\D001.inx",
             headInx: "char\\tmABCD\\tfh-D01.inx",
             armorTableIndex: 3,

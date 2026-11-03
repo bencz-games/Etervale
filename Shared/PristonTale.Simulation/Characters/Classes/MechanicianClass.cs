@@ -16,13 +16,15 @@ public sealed class MechanicianClass : CharacterClass
         QuestWeapon: "WC108",
         BeginnerWeapon: "WC102",
         QuestWeaponHunt.Melee,
-        QuestItems.EmperorRing);
+        QuestItems.EmperorRing,
+        CharacterBrood.Tempskron,
+        Female: false);
 
     public MechanicianClass()
         : base(BuildDefinition(
             PlayerClass.Mechanician,
             "Mechanician",
-            CharacterBrood.Tempskron,
+            Profile.Brood,
             bodyInx: "char\\tmABCD\\A001.inx",
             headInx: "char\\tmABCD\\tmh-a01.inx",
             armorTableIndex: 0,
