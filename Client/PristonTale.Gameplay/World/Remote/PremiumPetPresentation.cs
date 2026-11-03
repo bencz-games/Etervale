@@ -157,7 +157,9 @@ public sealed class PremiumPetPresentation : IDisposable
                 continue;
             }
 
-            foreach (var pet in new[] { owner.Helper, owner.Phoenix })
+            _ownerPets[0] = owner.Helper;
+            _ownerPets[1] = owner.Phoenix;
+            foreach (var pet in _ownerPets)
             {
                 if (pet is null || !EnsureActor(pet, at.Position))
                 {
@@ -287,6 +289,9 @@ public sealed class PremiumPetPresentation : IDisposable
     }
 
     // One pet's place, animation frame (keyframes of its clip) and attack.
+    // An owner's helper pet and Phoenix, walked each frame through one reused pair.
+    private readonly Pet[] _ownerPets = new Pet[2];
+
     private sealed class Pet(PremiumEffectKind kind)
     {
         public PremiumEffectKind Kind { get; } = kind;

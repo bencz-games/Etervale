@@ -12,6 +12,9 @@ namespace PristonTale.Gameplay.World;
 public sealed partial class GameScene
 {
     private ItemUseEffects _itemEffects;
+    // The anchors the item effects follow, as delegates made once instead of every frame.
+    private Func<ulong, Vector3?> _itemAnchor;
+    private Func<ulong, (Vector3 Position, float Facing)?> _petOwnerPose;
     private PremiumPetPresentation _pets;
     private ForceOrbPresentation _forceOrbs;
 
@@ -56,9 +59,9 @@ public sealed partial class GameScene
             PremiumTimers = timers;
         }
 
-        _pets?.Observe(update, ItemAnchor);
+        _pets?.Observe(update, _itemAnchor ??= ItemAnchor);
         ObserveOwnHead(update);
-        _forceOrbs?.Observe(update, ItemAnchor, _skillClockMs);
+        _forceOrbs?.Observe(update, _itemAnchor ??= ItemAnchor, _skillClockMs);
 
         foreach (var effect in update.ItemEffects)
         {
@@ -109,9 +112,11 @@ public sealed partial class GameScene
 
     private void UpdateItemEffects(float dt)
     {
-        _itemEffects?.Update(_skillClockMs, ItemAnchor, PlayerPosition);
-        _pets?.Update(dt, PetOwnerPose, ItemAnchor, PlayerPosition);
-        _forceOrbs?.Update(_skillClockMs, ItemAnchor);
+        _itemAnchor ??= ItemAnchor;
+        _petOwnerPose ??= PetOwnerPose;
+        _itemEffects?.Update(_skillClockMs, _itemAnchor, PlayerPosition);
+        _pets?.Update(dt, _petOwnerPose, _itemAnchor, PlayerPosition);
+        _forceOrbs?.Update(_skillClockMs, _itemAnchor);
     }
 
     private (Vector3 Position, float Facing)? PetOwnerPose(ulong entityId) =>

@@ -64,7 +64,7 @@ public sealed class HudPremiumTimers
             }
 
             var existing = _entries.FirstOrDefault(entry => entry.Kind == timer.Kind);
-            var entry = existing ?? new Entry { Kind = timer.Kind, Y = Top + Step * next.Count };
+            var entry = existing ?? new Entry { Kind = timer.Kind, Icon = IconPath(timer.Kind), Back = BackPath(timer.Kind), Y = Top + Step * next.Count };
             entry.Value = timer.Value;
             entry.EndMs = nowMs + timer.RemainingSeconds * 1000d;
             if (timer.RemainingSeconds > 10)
@@ -85,16 +85,23 @@ public sealed class HudPremiumTimers
     {
         var frames = _lastMs < 0 ? 0d : Math.Max(0d, nowMs - _lastMs) / FrameMs;
         _lastMs = nowMs;
-        _entries.RemoveAll(entry => entry.EndMs <= nowMs);
+        for (var index = _entries.Count - 1; index >= 0; index--)
+        {
+            if (_entries[index].EndMs <= nowMs)
+            {
+                _entries.RemoveAt(index);
+            }
+        }
+
         for (var index = 0; index < _entries.Count; index++)
         {
             var entry = _entries[index];
             Animate(entry, index, frames, Remaining(entry, nowMs));
             var bounds = new Rectangle(Left, (int)entry.Y, Icon, Icon);
             var a = (int)Math.Clamp(entry.Alpha, 0d, 255d);
-            painter.Stretch(IconPath(entry.Kind), bounds, null, new Color(a, a, a, a));
+            painter.Stretch(entry.Icon, bounds, null, new Color(a, a, a, a));
             var cover = Cover(entry.Kind, Remaining(entry, nowMs));
-            if (!entry.Blinking && cover > 0 && BackPath(entry.Kind) is { } back)
+            if (!entry.Blinking && cover > 0 && entry.Back is { } back)
             {
                 painter.Sprite(back, bounds.X, bounds.Y + Icon - cover, new Rectangle(0, Icon - cover, Icon, cover));
             }
@@ -111,9 +118,23 @@ public sealed class HudPremiumTimers
 
         var x = Left;
         var y = (int)entry.Y;
-        string[] lines = [Name(entry.Kind), Describe(entry.Kind, entry.Value), TimeLeft(Remaining(entry, nowMs))];
+        // The lines are made again only when the time left reaches another second.
+        var remaining = Remaining(entry, nowMs);
+        if (entry.Hover is null || entry.HoverSeconds != remaining)
+        {
+            entry.Hover = [Name(entry.Kind), Describe(entry.Kind, entry.Value), TimeLeft(remaining)];
+            entry.HoverSeconds = remaining;
+        }
+
+        var lines = entry.Hover;
+        var widest = 0;
+        foreach (var line in lines)
+        {
+            widest = Math.Max(widest, painter.Measure(line));
+        }
+
         // The original box is 160 x 96; it grows to the right when this font's lines are wider.
-        var width = Math.Max(160, 20 + lines.Max(painter.Measure) + 16);
+        var width = Math.Max(160, 20 + widest + 16);
         painter.InfoBox(HudPainter.InfoBoxBounds(x + 30, y, width, 96));
         painter.Text(lines[0], x + 50, y + 20, Color.White);
         painter.Text(lines[1], x + 50, y + 50, Effect);
@@ -251,6 +272,10 @@ public sealed class HudPremiumTimers
     private sealed class Entry
     {
         public PremiumEffectKind Kind { get; init; }
+        public string Icon { get; init; }
+        public string Back { get; init; }
+        public string[] Hover { get; set; }
+        public long HoverSeconds { get; set; }
         public int Value { get; set; }
         public double EndMs { get; set; }
         public double Y { get; set; }

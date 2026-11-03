@@ -7,6 +7,8 @@ namespace PristonTale.Simulation.Items;
 // copy's rated absorb cut to one decimal; AbsorbItems counts the copies that carry an absorb of their own.
 public sealed record EquipmentTotals
 {
+    private static readonly EquipmentSlot[] Slots = Enum.GetValues<EquipmentSlot>();
+
     public static readonly EquipmentTotals None = new();
 
     public int AttackRating { get; init; }
@@ -43,7 +45,7 @@ public sealed record EquipmentTotals
         var level = character.Level;
         var totals = new Accumulator();
         Dictionary<int, (ItemSetDefinition Set, int Worn)> sets = null;
-        foreach (var slot in Enum.GetValues<EquipmentSlot>())
+        foreach (var slot in Slots)
         {
             if (character.GetEquipped(slot) is not { } item || !ItemUsability.CanUse(character, item))
             {

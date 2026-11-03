@@ -40,6 +40,14 @@ public sealed class HudSkillHud : IDisposable
     private readonly List<StatusEntry> _ordered = new();
     private readonly HashSet<uint> _visibleCodes = new();
     private readonly Dictionary<uint, float> _buffX = new();
+    // The bar's sort and prune, made once: the newest status first, at the time of the frame being drawn.
+    private readonly List<uint> _gone = new();
+    // The hovered tooltip's lines, made again only when what they show changes.
+    private static readonly Color TipTitle = new(255, 230, 150);
+    private readonly List<string> _tipLines = new();
+    private (Tip Kind, long Subject, long Second) _tipKey = (Tip.Quest, -1, -1);
+    private Comparison<StatusEntry> _newestFirst;
+    private double _sortMs;
     private Texture2D[] _gauge;
     private double _lastBuffDrawMs = -1;
     private Rectangle _questTimer;
@@ -136,7 +144,8 @@ public sealed class HudSkillHud : IDisposable
             }
         }
 
-        _ordered.Sort((a, b) => Elapsed(b, nowMs).CompareTo(Elapsed(a, nowMs)));
+        _sortMs = nowMs;
+        _ordered.Sort(_newestFirst ??= (a, b) => Elapsed(b, _sortMs).CompareTo(Elapsed(a, _sortMs)));
         var shown = Math.Min(_ordered.Count, MaxBuffs);
         _visibleCodes.Clear();
         for (var index = 0; index < shown; index++)
@@ -153,7 +162,16 @@ public sealed class HudSkillHud : IDisposable
             DrawBuff(painter, status, bounds, nowMs);
         }
 
-        foreach (var code in _buffX.Keys.Where(code => !_visibleCodes.Contains(code)).ToArray())
+        _gone.Clear();
+        foreach (var code in _buffX.Keys)
+        {
+            if (!_visibleCodes.Contains(code))
+            {
+                _gone.Add(code);
+            }
+        }
+
+        foreach (var code in _gone)
         {
             _buffX.Remove(code);
         }
@@ -203,23 +221,48 @@ public sealed class HudSkillHud : IDisposable
             return;
         }
 
-        var lines = new List<string> { quest.Progress.Count > 0 ? quest.Progress[0].Title : "Quest" };
-        if (quest.KillsNeeded > 0)
+        // The lines are made again only when the quest, its kills or the second left change.
+        var key = (Tip.Quest, quest.Revision, Math.Max(0, remainingMs) / 1000);
+        if (_tipKey != key)
         {
-            lines.Add($"{quest.TargetName}  {Math.Min(quest.Kills, quest.KillsNeeded)}/{quest.KillsNeeded}");
+            _tipKey = key;
+            _tipLines.Clear();
+            _tipLines.Add(quest.Progress.Count > 0 ? quest.Progress[0].Title : "Quest");
+            if (quest.KillsNeeded > 0)
+            {
+                _tipLines.Add($"{quest.TargetName}  {Math.Min(quest.Kills, quest.KillsNeeded)}/{quest.KillsNeeded}");
+            }
+
+            if (quest.Timer == QuestTimerKind.Expiring)
+            {
+                var left = TimeSpan.FromMilliseconds(Math.Max(0, remainingMs));
+                _tipLines.Add($"Time left: {(int)left.TotalHours}:{left.Minutes:00}:{left.Seconds:00}");
+            }
         }
 
-        if (quest.Timer == QuestTimerKind.Expiring)
+        DrawTip(painter, _questTimer);
+    }
+
+    private enum Tip
+    {
+        Quest,
+        Buff
+    }
+
+    // The tooltip under an icon: its first line in the title colour, the others in white.
+    private void DrawTip(HudPainter painter, Rectangle icon)
+    {
+        var widest = 0;
+        foreach (var line in _tipLines)
         {
-            var left = TimeSpan.FromMilliseconds(Math.Max(0, remainingMs));
-            lines.Add($"Time left: {(int)left.TotalHours}:{left.Minutes:00}:{left.Seconds:00}");
+            widest = Math.Max(widest, painter.Measure(line));
         }
 
-        var bounds = new Rectangle(_questTimer.X, _questTimer.Bottom + 2, lines.Max(painter.Measure) + 16, lines.Count * HudPainter.LineHeight + 8);
+        var bounds = new Rectangle(icon.X, icon.Bottom + 2, widest + 16, _tipLines.Count * HudPainter.LineHeight + 8);
         painter.InfoBox(bounds);
-        for (var line = 0; line < lines.Count; line++)
+        for (var line = 0; line < _tipLines.Count; line++)
         {
-            painter.Text(lines[line], bounds.X + 8, bounds.Y + 4 + line * HudPainter.LineHeight, line == 0 ? new Color(255, 230, 150) : Color.White);
+            painter.Text(_tipLines[line], bounds.X + 8, bounds.Y + 4 + line * HudPainter.LineHeight, line == 0 ? TipTitle : Color.White);
         }
     }
 
@@ -227,42 +270,56 @@ public sealed class HudSkillHud : IDisposable
     public void DrawBuffTooltip(HudPainter painter, IReadOnlyList<StatusEntry> statuses, Point pointer, double nowMs, Func<uint, bool?> summonAutomatic)
     {
         var code = BuffAt(pointer);
-        var status = code == 0 ? null : statuses.FirstOrDefault(entry => entry.Code == code);
+        StatusEntry status = null;
+        for (var index = 0; code != 0 && index < statuses.Count && status is null; index++)
+        {
+            status = statuses[index].Code == code ? statuses[index] : null;
+        }
+
         if (status is null)
         {
             return;
         }
 
-        var lines = new List<string> { Name(code) };
-        if (ItemStatuses.Effect(code) is { } effect)
-        {
-            lines.Add(effect);
-        }
-
         var crystalPet = MonsterCrystals.TryGetByPetStatus(code, out _);
-        if (!status.Permanent && status.DurationMs > 0)
+        var seconds = !status.Permanent && status.DurationMs > 0 ? (int)Math.Ceiling(status.RemainingMs(nowMs) / 1000d) : -1;
+        var automatic = summonAutomatic?.Invoke(code);
+        // The lines are made again only when the status, the second left or the summon's mode change.
+        var key = (Tip.Buff, (long)code << 2 | (automatic is null ? 0L : automatic.Value ? 1L : 2L), (long)seconds);
+        if (_tipKey != key)
         {
-            var seconds = (int)Math.Ceiling(status.RemainingMs(nowMs) / 1000d);
-            lines.Add(crystalPet ? $"Time Left: {seconds / 60}:{seconds % 60:D2}" : $"Time left: {seconds} s");
+            _tipKey = key;
+            _tipLines.Clear();
+            _tipLines.Add(Name(code));
+            if (ItemStatuses.Effect(code) is { } effect)
+            {
+                _tipLines.Add(effect);
+            }
+
+            if (seconds >= 0)
+            {
+                _tipLines.Add(crystalPet ? $"Time Left: {seconds / 60}:{seconds % 60:D2}" : $"Time left: {seconds} s");
+            }
+
+            if (crystalPet)
+            {
+                _tipLines.Add("Right-click to dismiss");
+            }
+
+            if (automatic is { } auto)
+            {
+                _tipLines.Add(auto ? "Attack type: Auto" : "Attack type: Manual");
+                _tipLines.Add("Double-click to switch");
+            }
         }
 
-        if (crystalPet)
+        foreach (var (bounds, drawn) in _drawnBuffs)
         {
-            lines.Add("Right-click to dismiss");
-        }
-
-        if (summonAutomatic?.Invoke(code) is { } automatic)
-        {
-            lines.Add(automatic ? "Attack type: Auto" : "Attack type: Manual");
-            lines.Add("Double-click to switch");
-        }
-
-        var icon = _drawnBuffs.First(entry => entry.Code == code).Bounds;
-        var bounds = new Rectangle(icon.X, icon.Bottom + 2, lines.Max(painter.Measure) + 16, lines.Count * HudPainter.LineHeight + 8);
-        painter.InfoBox(bounds);
-        for (var line = 0; line < lines.Count; line++)
-        {
-            painter.Text(lines[line], bounds.X + 8, bounds.Y + 4 + line * HudPainter.LineHeight, line == 0 ? new Color(255, 230, 150) : Color.White);
+            if (drawn == code)
+            {
+                DrawTip(painter, bounds);
+                return;
+            }
         }
     }
 

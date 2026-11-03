@@ -28,6 +28,7 @@ public enum HudShopAction
 // owned items while that mode is active.
 public sealed class HudShopWindow : IHudServiceWindow
 {
+    private static readonly HudShopButton[] Buttons = Enum.GetValues<HudShopButton>();
     private const int GoodsTab = 2;
     private readonly HudSlide _slide = new();
     private readonly List<List<Placed>>[] _pages = [[], [], []];
@@ -242,7 +243,7 @@ public sealed class HudShopWindow : IHudServiceWindow
     private HudShopButton? ButtonAt(Point pointer)
     {
         var origin = Origin;
-        foreach (var button in Enum.GetValues<HudShopButton>())
+        foreach (var button in Buttons)
         {
             if ((Tab != GoodsTab || button is not (HudShopButton.Repair or HudShopButton.RepairAll)) && Bounds(button, origin).Contains(pointer))
             {

@@ -98,7 +98,14 @@ public sealed partial class GameScene
             return;
         }
 
-        _footprints.RemoveAll(footprint => _skillClockMs - footprint.BornMs >= FootprintLifeMs);
+        for (var index = _footprints.Count - 1; index >= 0; index--)
+        {
+            if (_skillClockMs - _footprints[index].BornMs >= FootprintLifeMs)
+            {
+                _footprints.RemoveAt(index);
+            }
+        }
+
         _footprintTextures[0] ??= _skillFx.Library.GetTexture(RightFootprint);
         _footprintTextures[1] ??= _skillFx.Library.GetTexture(LeftFootprint);
         foreach (var footprint in _footprints)

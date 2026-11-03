@@ -21,6 +21,10 @@ namespace PristonTale.Gameplay.UI;
 // Mouse and keyboard: keys, clicks routed to the windows in priority order, menu buttons and toggles, and what the HUD captures.
 public sealed partial class GameplayHud
 {
+    // The bar's buttons and toggles, read every frame for the pointer.
+    private static readonly HudMenuButton[] MenuButtons = Enum.GetValues<HudMenuButton>();
+    private static readonly HudToggle[] Toggles = Enum.GetValues<HudToggle>();
+
     private bool ClickBuff(Point pointer)
     {
         if (Statuses is null || SelfId == 0)
@@ -451,7 +455,7 @@ public sealed partial class GameplayHud
 
     private static HudMenuButton? ButtonAt(Point design)
     {
-        foreach (var button in Enum.GetValues<HudMenuButton>())
+        foreach (var button in MenuButtons)
         {
             if (HudBar.MenuButton(button).Contains(design))
             {
@@ -464,7 +468,7 @@ public sealed partial class GameplayHud
 
     private static HudToggle? ToggleAt(Point design)
     {
-        foreach (var toggle in Enum.GetValues<HudToggle>())
+        foreach (var toggle in Toggles)
         {
             if (HudBar.Toggle(toggle).Contains(design))
             {

@@ -17,6 +17,7 @@ public sealed class ForceOrbPresentation
     private readonly IScriptEffects _scripts;
     private readonly PristonTransientLights _lights;
     private readonly Dictionary<ulong, Glow> _active = new();
+    private readonly List<ulong> _ending = new();
 
     public ForceOrbPresentation(SkillPresentation skills, IScriptEffects scripts, PristonTransientLights lights)
     {
@@ -61,11 +62,12 @@ public sealed class ForceOrbPresentation
     // Keeps a glow on every holder of a running orb; a glow lasts 30 s and is renewed until the orb ends.
     public void Update(double nowMs, Func<ulong, Vector3?> position)
     {
-        foreach (var (entity, glow) in _active.ToArray())
+        _ending.Clear();
+        foreach (var (entity, glow) in _active)
         {
             if (glow.EndMs <= nowMs)
             {
-                Stop(entity);
+                _ending.Add(entity);
                 continue;
             }
 
@@ -75,6 +77,11 @@ public sealed class ForceOrbPresentation
                 glow.Instance = _skills.Spawn(ItemVfx.OrbGlow(glow.Index), entity, entity, at);
                 glow.RenewMs = nowMs + (ItemVfx.GlowSeconds - 1f) * 1000d;
             }
+        }
+
+        foreach (var entity in _ending)
+        {
+            Stop(entity);
         }
     }
 

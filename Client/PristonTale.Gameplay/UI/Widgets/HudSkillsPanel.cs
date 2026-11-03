@@ -18,10 +18,12 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     private const int TooltipWidth = 260;
 
     private sealed record Entry(Skill Skill, string Level, string[] Description, string[] Weapons, string Cost, string Mouse,
-        int Rank = 0, string Status = "Unlearned", IReadOnlyList<string> Details = null);
+        int Rank = 0, string Status = "Unlearned", IReadOnlyList<string> Details = null, string Button = "", string GrayButton = "");
 
     private static readonly CharacterClassRegistry Classes = new();
     private readonly List<string> _classSprites = [];
+    // The class's tier titles and skill buttons, made once per class instead of every frame.
+    private readonly string[] _titles = new string[PlayerCharacter.LastTier + 1];
     private Entry[] _entries = [];
     private PlayerClass _class;
     private int _points = -1;
@@ -60,9 +62,10 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         _entries = new Entry[skills.Count];
         var previous = _classSprites.ToArray();
         _classSprites.Clear();
-        for (var tier = 0; tier < 4; tier++)
+        for (var tier = 0; tier < _titles.Length; tier++)
         {
-            _classSprites.Add(HudArt.JobTitle(characterClass, tier));
+            _titles[tier] = HudArt.JobTitle(characterClass, tier);
+            _classSprites.Add(_titles[tier]);
         }
 
         for (var index = 0; index < skills.Count; index++)
@@ -74,8 +77,10 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
                 continue;
             }
 
-            _classSprites.Add(HudArt.SkillButton(characterClass, skill.IconKey, false));
-            _classSprites.Add(HudArt.SkillButton(characterClass, skill.IconKey, true));
+            var button = HudArt.SkillButton(characterClass, skill.IconKey, false);
+            var grayButton = HudArt.SkillButton(characterClass, skill.IconKey, true);
+            _classSprites.Add(button);
+            _classSprites.Add(grayButton);
             var weapons = skill.AllowedWeaponsMask == 0 ? "Any weapon" : string.Join(", ", Enum.GetValues<ItemKind>().Where(skill.AllowsWeapon));
             var mouse = skill.MouseUse switch
             {
@@ -88,7 +93,11 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
                 : $"Rank 1: MP {skill.ManaForRank(1)} | SP {skill.StaminaForRank(1)}";
             _entries[index] = new Entry(skill, $"Lv {skill.RequiredLevel}",
                 HudTextLayout.Wrap(font, skill.Description, TooltipWidth - 20, HudPainter.TextScale),
-                HudTextLayout.Wrap(font, "Equipment: " + weapons, TooltipWidth - 20, HudPainter.TextScale), cost, mouse);
+                HudTextLayout.Wrap(font, "Equipment: " + weapons, TooltipWidth - 20, HudPainter.TextScale), cost, mouse)
+            {
+                Button = button,
+                GrayButton = grayButton
+            };
         }
 
         foreach (var path in previous.Except(_classSprites, StringComparer.OrdinalIgnoreCase))
@@ -224,7 +233,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         for (var tier = 0; tier <= Math.Min(_shownTier, PlayerCharacter.LastTier); tier++)
         {
             var title = HudSkillTreeLayout.Title(origin, tier);
-            painter.Sprite(HudArt.JobTitle(_class, tier), title.X, title.Y);
+            painter.Sprite(_titles[tier], title.X, title.Y);
         }
 
         for (var index = 0; index < Shown; index++)
@@ -236,7 +245,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
                 // A pupil sees in colour what the master can teach now (a skill at rank 10 has nothing left to learn);
                 // elsewhere the learned skills are in colour.
                 var usable = skillMaster != 0 ? entry.Rank < SkillLearning.MaxRank && (entry.Rank > 0 || CanTrain(index, state)) : entry.Rank > 0;
-                painter.Sprite(HudArt.SkillButton(_class, entry.Skill.IconKey, !usable), node.X, node.Y);
+                painter.Sprite(usable ? entry.Button : entry.GrayButton, node.X, node.Y);
                 var mastery = HudSkillTreeLayout.MasteryGauge(origin, index);
                 painter.Sprite(entry.Skill.MouseUse == SkillMouseUse.None ? HudArt.SkillGaugePassive : HudArt.SkillGaugeBack, mastery.X, mastery.Y);
 

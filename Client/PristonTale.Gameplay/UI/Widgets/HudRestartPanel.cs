@@ -11,6 +11,7 @@ namespace PristonTale.Gameplay.UI.Widgets;
 // restart is closed the field button stays dark and its help reads red; in the castle field it shows nothing.
 public sealed class HudRestartPanel
 {
+    private static readonly RestartChoice[] Choices = Enum.GetValues<RestartChoice>();
     // A hundred frames of the dead motion at the original's 70 frames a second.
     public const double OpenDelayMs = 100 * 1000d / GameUnits.TicksPerSecond;
     public const double TimeoutMs = 20_000;
@@ -89,7 +90,7 @@ public sealed class HudRestartPanel
             return false;
         }
 
-        foreach (var choice in Enum.GetValues<RestartChoice>())
+        foreach (var choice in Choices)
         {
             if (Button(layout, choice).Contains(pointer) && (choice != RestartChoice.Field || fieldOpen))
             {
@@ -109,7 +110,7 @@ public sealed class HudRestartPanel
 
         var origin = Origin(layout);
         painter.Sprite(HudArt.RestartMain, origin.X, origin.Y);
-        foreach (var choice in Enum.GetValues<RestartChoice>())
+        foreach (var choice in Choices)
         {
             var button = Button(layout, choice);
             if (!button.Contains(pointer) || choice == RestartChoice.Field && castle)

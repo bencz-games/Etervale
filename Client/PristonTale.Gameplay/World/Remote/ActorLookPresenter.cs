@@ -29,6 +29,8 @@ public sealed class ActorLookPresenter
     private readonly HashSet<ActorHandle> _glowing = new();
     private readonly HashSet<ActorHandle> _glowed = new();
     private readonly HashSet<string> _overlays = new(StringComparer.OrdinalIgnoreCase);
+    // The full path of each mix glow texture, made once instead of every frame per holder.
+    private readonly Dictionary<string, string> _mixOverlays = new(StringComparer.OrdinalIgnoreCase);
 
     public ActorLookPresenter(IActorScene scene, PristonActorLoader loader, string assetRoot)
     {
@@ -101,7 +103,12 @@ public sealed class ActorLookPresenter
         var form = look.OverlayForm;
         if (glow.MixTexture.Length > 0)
         {
-            overlay = Path.Combine(_assetRoot, glow.MixTexture);
+            if (!_mixOverlays.TryGetValue(glow.MixTexture, out overlay))
+            {
+                overlay = Path.Combine(_assetRoot, glow.MixTexture);
+                _mixOverlays.Add(glow.MixTexture, overlay);
+            }
+
             form = (uint)glow.MixScroll;
             if (_overlays.Add(overlay))
             {
