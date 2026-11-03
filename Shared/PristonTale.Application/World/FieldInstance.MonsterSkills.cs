@@ -23,6 +23,8 @@ public sealed partial class FieldInstance : IFieldMonsterSkillHost
 
     IReadOnlyList<MonsterDefinition> IFieldMonsterSkillHost.MonsterDefinitions => _catalog.All;
 
+    IReadOnlyList<MonsterDefinition> IFieldMonsterSkillHost.MonsterFamily(int soundCode) => _catalog.Family(soundCode);
+
     MonsterInstance IFieldMonsterSkillHost.SpawnMonster(MonsterDefinition definition, Vector3 position, float facing, int spawnPointIndex) =>
         ((ISpawnSink)this).Spawn(definition, position, spawnPointIndex, facing);
 

@@ -23,6 +23,9 @@ internal interface IFieldMonsterSkillHost
     Dictionary<ulong, WorldPlayer>.ValueCollection Players { get; }
     IReadOnlyList<PreyCandidate> NearbyPlayers(Vector3 origin, float radius);
     IReadOnlyList<MonsterDefinition> MonsterDefinitions { get; }
+
+    // MonsterCatalog.Family.
+    IReadOnlyList<MonsterDefinition> MonsterFamily(int soundCode);
     MonsterInstance SpawnMonster(MonsterDefinition definition, Vector3 position, float facing, int spawnPointIndex);
     void RemoveMonster(ulong entityId);
     void EmitCombatEvent(in CombatEventView combatEvent);
@@ -333,14 +336,9 @@ internal sealed class FieldMonsterSkills
     private MonsterDefinition? Reinforcement(int soundCode)
     {
         MonsterDefinition? chosen = null;
-        foreach (var candidate in _host.MonsterDefinitions)
+        foreach (var candidate in _host.MonsterFamily(soundCode))
         {
-            if (candidate.SoundCode != soundCode)
-            {
-                continue;
-            }
-
-            if (chosen is null || Rank(candidate) < Rank(chosen) || Rank(candidate) == Rank(chosen) && candidate.Code < chosen.Code)
+            if (chosen is null || Rank(candidate) < Rank(chosen))
             {
                 chosen = candidate;
             }

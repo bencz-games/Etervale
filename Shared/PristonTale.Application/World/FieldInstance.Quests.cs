@@ -230,17 +230,7 @@ public sealed partial class FieldInstance
     internal MonsterInstance? OpenDuel(WorldPlayer player, QuestArenaDuel duel, long nowMs)
     {
         CloseDuelsOf(player.EntityId);
-        MonsterDefinition? definition = null;
-        foreach (var candidate in _catalog.All)
-        {
-            if (candidate.SoundCode == duel.SoundCode && (duel.Level == 0 || candidate.Combat.Level == duel.Level)
-                && (definition is null || candidate.Code < definition.Code))
-            {
-                definition = candidate;
-            }
-        }
-
-        if (definition is null)
+        if (!_catalog.TryLowestOfFamily(duel.SoundCode, duel.Level, out var definition))
         {
             return null;
         }
@@ -399,16 +389,7 @@ public sealed partial class FieldInstance
     {
         var sound = duel.MagicMaster ? CharacterSoundCodes.FireElemental
             : _rng.NextExclusive(0, 2) == 0 ? CharacterSoundCodes.MetalGolem : CharacterSoundCodes.SummonedWolverine;
-        MonsterDefinition? definition = null;
-        foreach (var candidate in _catalog.All)
-        {
-            if (candidate.SoundCode == sound && (definition is null || candidate.Code < definition.Code))
-            {
-                definition = candidate;
-            }
-        }
-
-        if (definition is null)
+        if (!_catalog.TryLowestOfFamily(sound, 0, out var definition))
         {
             return;
         }

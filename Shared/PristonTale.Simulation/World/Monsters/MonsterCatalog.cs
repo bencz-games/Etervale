@@ -3,14 +3,35 @@ namespace PristonTale.Simulation.World.Monsters;
 public sealed class MonsterCatalog
 {
     private readonly Dictionary<int, MonsterDefinition> _byCode;
+    private readonly Dictionary<int, MonsterDefinition[]> _bySound;
 
     public MonsterCatalog(IEnumerable<MonsterDefinition> definitions)
     {
         _byCode = definitions.ToDictionary(static d => d.Code);
         All = _byCode.Values.ToList();
+        _bySound = All.GroupBy(static d => d.SoundCode).ToDictionary(static g => g.Key, static g => g.OrderBy(static d => d.Code).ToArray());
     }
 
     public IReadOnlyList<MonsterDefinition> All { get; }
+
+    // The definitions of a sound family (the monsters that share a body and its sounds), lowest code first.
+    public IReadOnlyList<MonsterDefinition> Family(int soundCode) => _bySound.TryGetValue(soundCode, out var family) ? family : [];
+
+    // The family's lowest-code definition, of this level when level is above 0.
+    public bool TryLowestOfFamily(int soundCode, int level, out MonsterDefinition definition)
+    {
+        foreach (var candidate in Family(soundCode))
+        {
+            if (level == 0 || candidate.Combat.Level == level)
+            {
+                definition = candidate;
+                return true;
+            }
+        }
+
+        definition = null;
+        return false;
+    }
 
     public MonsterDefinition Get(int code) => _byCode[code];
 
