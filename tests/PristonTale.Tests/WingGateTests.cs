@@ -145,11 +145,14 @@ internal static class WingGateTests
     private static Task LimitsAsync()
     {
         var world = new WorldCatalog();
-        (int Code, int Level)[] fields = [(11, 55), (27, 80), (28, 85), (29, 90), (31, 90), (34, 70), (35, 90), (38, 100), (39, 100), (40, 100), (12, 0)];
+        (int Code, int Level)[] fields = [(11, 55), (27, 80), (28, 85), (29, 90), (31, 90), (34, 70), (35, 90), (38, 100), (40, 100), (41, 100), (12, 0)];
         foreach (var (code, level) in fields)
         {
             Assert.True(world.GetFieldByCode(code).LimitLevel == level, $"field {code} asks level {world.GetFieldByCode(code).LimitLevel}, not {level}");
         }
+
+        Assert.True(world.GetFieldByCode(12).TravelLevel == 55 && world.GetFieldByCode(36).TravelLevel == 90 && world.GetFieldByCode(36).LimitLevel == 0,
+            "Forbidden Land and Kelvezu's Lair are not reached by wing or teleport at their travel levels, or ask a level to walk in");
 
         var temple = world.GetFieldByCode(23).WarpGates.Where(gate => gate.LimitLevel == 80).ToArray();
         Assert.True(temple.Length == 2 && temple.All(gate => gate.DestinationFieldId == Dungeon6Field.Definition.Id),

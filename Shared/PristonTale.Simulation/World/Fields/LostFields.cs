@@ -3,13 +3,14 @@ namespace PristonTale.Simulation.World.Fields;
 public static class LostField
 {
     public static readonly FieldDef Definition = new(
-        "lost", "Lost Island", FieldState.Ruin, FieldBackdrops.Desert,
+        "lost", "Lost Island", FieldState.Ruin, FieldBackdrops.Lost,
         "Field\\Lost\\lostisland.smd",
         [
             "Field\\Lost\\wf_ani.smd"
         ])
     {
         FieldCode = 37,
+        TravelLevel = 95,
         WarpGates = [new FieldWarpGate(-12610, -1349, 694, 64, 32, "lost", -12555, -1113, 668, 0, 2)],
         Center = new FieldPoint(-12555, -1113),
         Gates = [new FieldGate("Losttemple", -11586, 7704, 0)],
@@ -21,7 +22,7 @@ public static class LostField
 public static class LosttempleField
 {
     public static readonly FieldDef Definition = new(
-        "Losttemple", "Lost Temple", FieldState.Ruin, FieldBackdrops.Desert,
+        "Losttemple", "Lost Temple", FieldState.Ruin, FieldBackdrops.Temple,
         "Field\\Losttemple\\lost_temple.smd", [])
     {
         FieldCode = 38,

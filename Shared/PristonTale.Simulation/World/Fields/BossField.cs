@@ -8,6 +8,7 @@ public static class BossField
         "Field\\Boss\\Boss.smd", [])
     {
         FieldCode = FieldCodes.Boss,
+        TravelLevel = 90,
         Center = new FieldPoint(33000, 50036),
         WarpGates =
         [

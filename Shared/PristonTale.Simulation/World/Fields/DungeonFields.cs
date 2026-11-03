@@ -11,6 +11,7 @@ public static class Dungeon1Field
         ["Field\\dungeon\\dun-1-wheel.smd"])
     {
         FieldCode = FieldCodes.Dungeon1,
+        TravelLevel = 40,
         Center = new FieldPoint(-15384, -24310),
         WarpGates =
         [
@@ -32,6 +33,7 @@ public static class Dungeon2Field
         new("dun-2", "Dungeon 2", FieldState.Dungeon, FieldBackdrops.Ruin2, "Field\\dungeon\\dun-2.smd", [])
         {
             FieldCode = 14,
+            TravelLevel = 50,
             Center = new FieldPoint(-6108, -26880),
             WarpGates =
             [
@@ -50,10 +52,11 @@ public static class Dungeon3Field
         new("dun-3", "Dungeon 3", FieldState.Dungeon, FieldBackdrops.Ruin2, "Field\\dungeon\\dun-3.smd", [])
         {
             FieldCode = 15,
+            TravelLevel = 60,
             Center = new FieldPoint(1827, -28586),
             WarpGates =
             [
-                new FieldWarpGate(1810, -28924, 0, 64, 32, "dun-2", -8176, -25775, 77, 0, 0)
+                new FieldWarpGate(1810, -28924, 0, 64, 32, "dun-2", -8176, -25775, 77, 0, 0) { MoreExits = [new FieldVector(-3738, 73, -27990)] }
             ],
             BackMusicCode = "BGM_CODE_DUNGEON",
             ServerCode = "PLAY_SERVER_CODE_EXTEND"
@@ -103,11 +106,15 @@ public static class Dungeon4Field
         ])
     {
         FieldCode = 22,
+        TravelLevel = 70,
         Center = new FieldPoint(-11108, -41681),
         WarpGates =
         [
             new FieldWarpGate(-10860, -41666, 398, 64, 32, "De-3", 35872, -2016, 804, 0, 0),
             new FieldWarpGate(-12089, -40380, 95, 64, 32, "dun-5", -2527, -37196, 727, 75, 0)
+            {
+                MoreExits = [new FieldVector(-3669, 727, -36444), new FieldVector(-4795, 727, -37198)]
+            }
         ],
         Ambients =
         [
@@ -165,14 +172,15 @@ public static class Dungeon5Field
         ])
     {
         FieldCode = 23,
+        TravelLevel = 75,
         Center = new FieldPoint(-3675, -36597),
         WarpGates =
         [
             new FieldWarpGate(-3665, -36334, 762, 64, 32, "dun-4", -12073, -40701, 95, 0, 0),
             new FieldWarpGate(-4895, -37132, 762, 64, 32, "dun-4", -12073, -40701, 95, 0, 0),
             new FieldWarpGate(-2441, -37137, 762, 64, 32, "dun-4", -12073, -40701, 95, 0, 0),
-            new FieldWarpGate(-3207, -43830, 553, 128, 32, "dun-6", -3650, -45312, 116, 80, 0),
-            new FieldWarpGate(-4025, -43821, 553, 128, 32, "dun-6", -3650, -45312, 116, 80, 0)
+            new FieldWarpGate(-3207, -43830, 553, 128, 32, "dun-6", -3650, -45312, 116, 80, 0) { MoreExits = [new FieldVector(-3668, 3, -50022)] },
+            new FieldWarpGate(-4025, -43821, 553, 128, 32, "dun-6", -3650, -45312, 116, 80, 0) { MoreExits = [new FieldVector(-3668, 3, -50022)] }
         ],
         Ambients =
         [

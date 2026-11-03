@@ -41,7 +41,7 @@ internal static class WingGateTransactions
             return Final(original, command, WingGateStatus.NotReached);
         }
 
-        if (original.Level < WingGates.RequiredLevel(destination, target.LimitLevel))
+        if (original.Level < WingGates.RequiredLevel(destination, target.TravelLevel))
         {
             return Final(original, command, WingGateStatus.LevelTooLow);
         }

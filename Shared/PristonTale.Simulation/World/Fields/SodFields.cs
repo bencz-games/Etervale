@@ -5,7 +5,7 @@ namespace PristonTale.Simulation.World.Fields;
 public static class Sod1Field
 {
     public static readonly FieldDef Definition = new(
-        "sod-1", "SoD 1", FieldState.Ruin, FieldBackdrops.Desert,
+        "sod-1", "SoD 1", FieldState.Ruin, FieldBackdrops.Ruin2,
         "Field\\Sod\\sod-1.smd",
         [
             "Field\\Sod\\s-ani01_Bip.smd",
@@ -42,7 +42,7 @@ public static class Sod2Field
         "sod-2", "SoD 2", FieldState.Ruin, FieldBackdrops.Ruin2,
         "Field\\Sod\\sod-2.smd", [])
     {
-        FieldCode = 44,
+        FieldCode = 45,
         Center = new FieldPoint(21600, 17000),
         BackMusicCode = "BGM_CODE_CUSTOM",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"

@@ -55,6 +55,7 @@ public static class Desert4Field
         ["Field\\desert\\d4-ani01.smd"])
     {
         FieldCode = FieldCodes.Desert4,
+        TravelLevel = 55,
         WarpGates = [new FieldWarpGate(33979, 6080, 969, 64, 32, "De-4", 34100, 6214, 940, 0, 2)],
         Center = new FieldPoint(43988, 12053),
         StartPoints = [new FieldPoint(33740, 6491), new FieldPoint(40691, 11056)],

@@ -62,6 +62,14 @@ public sealed record FieldWarpGate(
 
     // How far from the gate the server accepts a player standing on it.
     public float ServerReach => Radius + ServerTolerance;
+
+    // A gate may lead to several places in its destination: the traveller comes out at one of them, picked at random.
+    public IReadOnlyList<FieldVector> MoreExits { get; init; } = [];
+
+    public int ExitCount => 1 + MoreExits.Count;
+
+    // Exit 0 is the destination point; the others follow in MoreExits.
+    public FieldVector Exit(int index) => index == 0 ? new FieldVector(DestinationX, DestinationY, DestinationZ) : MoreExits[index - 1];
 }
 
 public sealed record FieldAmbient(
@@ -161,7 +169,18 @@ public sealed record FieldDef(
     // The snow skies bring falling snow at every hour.
     public bool Snows => Backdrop == FieldBackdrops.Snow;
     public int SightCells { get; init; }
+
+    // The level a character needs to walk into the field.
     public int LimitLevel { get; init; }
+
+    // The level a character needs to be sent there (wings, teleporters): the walking level unless the field sets its own.
+    public int TravelLevel
+    {
+        get => _travelLevel ?? LimitLevel;
+        init => _travelLevel = value;
+    }
+
+    private readonly int? _travelLevel;
 
     // Dungeon state disables sky and daylight in favor of stage lighting.
     public bool Underground => State == FieldState.Dungeon;

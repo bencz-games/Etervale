@@ -25,6 +25,7 @@ public static class TcaveField
         ])
     {
         FieldCode = 24,
+        TravelLevel = 55,
         Center = new FieldPoint(120126, 26064),
         StartPoints = [new FieldPoint(119319, 26034), new FieldPoint(125606, 24541)],
         WarpGates =
@@ -63,6 +64,7 @@ public static class McaveField
         ])
     {
         FieldCode = 25,
+        TravelLevel = 55,
         Center = new FieldPoint(119966, 35466),
         StartPoints = [new FieldPoint(119320, 35680), new FieldPoint(124380, 33260)],
         WarpGates =
@@ -97,6 +99,7 @@ public static class DcaveField
         ])
     {
         FieldCode = 26,
+        TravelLevel = 65,
         Center = new FieldPoint(158814, 20070),
         WarpGates =
         [

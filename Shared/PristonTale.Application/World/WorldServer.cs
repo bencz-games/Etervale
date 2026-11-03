@@ -262,7 +262,7 @@ public sealed partial class WorldServer
                 || !ReferenceEquals(connection.Outbound, outbound)
                 || !_catalog.TryGetFieldByCode(oldFieldId, out var source)
                 || !_catalog.TryGetFieldByCode(newFieldId, out var destination)
-                || !FieldTransition.TryResolve(source, destination, player.Position, player.Level, out var arrival))
+                || !FieldTransition.TryResolve(source, destination, player.Position, requestedPosition, player.Level, out var arrival))
             {
                 return false;
             }

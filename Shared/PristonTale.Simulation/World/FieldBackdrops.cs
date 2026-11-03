@@ -11,4 +11,6 @@ public static class FieldBackdrops
     public static readonly FieldBackdrop Iron2 = new("FIELD_BACKIMAGE_DAYIRON", "FIELD_BACKIMAGE_GLOWIRON", "FIELD_BACKIMAGE_NIGHTIRON2");
     public static readonly FieldBackdrop Snow = new("FIELD_BACKIMAGE_DAYSNOW", "FIELD_BACKIMAGE_GLOWSNOW", "FIELD_BACKIMAGE_NIGHTSNOW");
     public static readonly FieldBackdrop Greedy = new("FIELD_BACKIMAGE_DAYGREDDY", "FIELD_BACKIMAGE_GLOWGREDDY", "FIELD_BACKIMAGE_NIGHTGREDDY");
+    public static readonly FieldBackdrop Lost = new("FIELD_BACKIMAGE_DAYLOST", "FIELD_BACKIMAGE_GLOWLOST", "FIELD_BACKIMAGE_NIGHTLOST");
+    public static readonly FieldBackdrop Temple = new("FIELD_BACKIMAGE_DAYTEMPLE", "FIELD_BACKIMAGE_GLOWTEMPLE", "FIELD_BACKIMAGE_NIGHTTEMPLE");
 }

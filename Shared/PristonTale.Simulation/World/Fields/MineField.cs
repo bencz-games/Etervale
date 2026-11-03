@@ -6,7 +6,8 @@ public static class Mine1Field
         "mine-1", "Mine 1", FieldState.Dungeon, FieldBackdrops.Ruin2,
         "Field\\Mine\\mine-1.smd", [])
     {
-        FieldCode = 43,
+        FieldCode = 44,
+        TravelLevel = 105,
         Center = new FieldPoint(18006, -34740),
         WarpGates =
         [

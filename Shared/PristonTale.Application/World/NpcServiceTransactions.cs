@@ -200,7 +200,7 @@ internal static class NpcServiceTransactions
             return NpcServiceStatus.Rejected;
         }
 
-        if (candidate.Level < target.LimitLevel)
+        if (candidate.Level < target.TravelLevel)
         {
             return NpcServiceStatus.Rejected;
         }
@@ -286,7 +286,7 @@ internal static class NpcServiceTransactions
         var offers = new List<TeleportOffer>();
         foreach (var destination in TeleportRoutes.For(service.Value))
         {
-            var level = world.TryGetFieldByCode(destination.FieldCode, out var field) ? field.LimitLevel : 0;
+            var level = world.TryGetFieldByCode(destination.FieldCode, out var field) ? field.TravelLevel : 0;
             offers.Add(new TeleportOffer(destination.Index, destination.FieldCode, destination.Name, destination.Price, level));
         }
 

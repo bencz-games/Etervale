@@ -172,14 +172,16 @@ public sealed partial class GameScene
 
         SetActiveField(dest);
         _hasMoveTarget = false;
-        _playerBody.PlanarPosition = WorldSpace.Planar(warp.DestinationX, warp.DestinationZ);
+        // The client picks the exit of a gate with several; the server keeps the exit the report arrives at.
+        var exit = warp.Exit(Random.Shared.Next(warp.ExitCount));
+        _playerBody.PlanarPosition = WorldSpace.Planar(exit.X, exit.Z);
         // The authored destination height is near the floor, not on it: stand on the floor nearest it.
-        _playerBody.Height = warp.DestinationY - GroundTraversal.VisualOffset;
-        PlaceAtHeight(_playerBody, warp.DestinationY);
+        _playerBody.Height = exit.Y - GroundTraversal.VisualOffset;
+        PlaceAtHeight(_playerBody, exit.Y);
         EndFall(landed: false);
         ApplyPlayerWorld();
         _camera = new PristonCamera(_playerBody.Position, _playerForward, ToCameraSettings(destDef.Camera));
-        _log.Info($"[Warp] -> {destDef.Id} at ({warp.DestinationX},{warp.DestinationZ}).");
+        _log.Info($"[Warp] -> {destDef.Id} at ({exit.X},{exit.Z}).");
         return true;
     }
 

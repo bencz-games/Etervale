@@ -18,7 +18,7 @@ public sealed partial class GameScene
     // The player left the stone; the screen closes the map.
     public event Action WingGateLeft;
 
-    public int FieldLimitLevel(int fieldCode) => _worldCatalog is not null && _worldCatalog.TryGetFieldByCode(fieldCode, out var field) ? field.LimitLevel : 0;
+    public int FieldTravelLevel(int fieldCode) => _worldCatalog is not null && _worldCatalog.TryGetFieldByCode(fieldCode, out var field) ? field.TravelLevel : 0;
 
     // The channel and token are taken before the delay: its continuation runs on the pool, where a teardown in between
     // could have cleared or disposed them.

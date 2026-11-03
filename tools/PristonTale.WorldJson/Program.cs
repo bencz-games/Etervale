@@ -42,6 +42,7 @@ var fields = catalog.AllFields.Select(f => new
         dx = w.DestinationX,
         dy = w.DestinationY,
         dz = w.DestinationZ,
+        moreExits = w.MoreExits.Select(e => new { x = e.X, y = e.Y, z = e.Z }).ToArray(),
         limitLevel = w.LimitLevel,
         special = w.SpecialEffect
     }).ToArray()

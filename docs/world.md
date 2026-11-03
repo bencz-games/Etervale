@@ -74,8 +74,10 @@ spawning and despawning; the monster skill area test uses the same value.
 
 `FieldDef` is a code-defined record, one static `Definition` per field in `World/Fields/`. `WorldCatalog()` lists every
 field; `WorldCatalog(IEnumerable<FieldDef>)` builds test catalogs. Lookups by `Id` (string, the stage base name such as
-`village-2`) and by `FieldCode` (int). The server keys live fields by `FieldCode`; both must be unique. All 45 fields of
-the original are there, the game room (`office`, 16, without a map) and Bellatra's second stage (`sod-2`, 44) included.
+`village-2`) and by `FieldCode` (int). The server keys live fields by `FieldCode`; both must be unique. Codes follow the
+original's order: 0-38, then the side-scrolling action field (39, not defined yet), the Endless Tower's first and second
+floors (`dun-7` 40, `dun-8` 41), the Cursed Temple's third floor (`dun-6` 42), the Endless Tower's third floor (`dun-9`
+43), the Ice Mine (`mine-1` 44) and Bellatra's second stage (`sod-2` 45). The game room (`office`, 16) has no map.
 
 | Member | Use |
 |---|---|
@@ -84,8 +86,9 @@ the original are there, the game room (`office`, 16, without a map) and Bellatra
 | `State` (`FieldState`) | `Village` sets the player's in-village flag on entry; `Dungeon` sets `Underground` (no sky) |
 | `Center`, `StartPoints` | `StartPoints[0]` is the NPC teleport arrival; a field restart stands up at the start point nearest to the fall, a town restart at a random one; `Center` is the fallback |
 | `Gates` | Seamless boundaries to an adjacent field (`DestinationFieldId`, X/Z, angle) |
-| `WarpGates` | Portals: trigger X/Z/Y and Width/Height, destination field and X/Z/Y, `LimitLevel`, `SpecialEffect` (1: a delayed warp with the return sparkle; 2: a wing warp stone, its destination point the stone's exit in its own field; see [Wing warp gates](#wing-warp-gates)) |
-| `LimitLevel` | Minimum character level to enter (gates, warps and teleports): Desert 3 (11) 55, Greedy Lake (34) 70, Iron 1 (27) 80, Iron 2 (28) 85, Eura (29), Ice 1 (31) and Ice 2 (35) 90, the Lost Temple (38) and both floors of the Endless Tower (39, 40) 100 |
+| `WarpGates` | Portals: trigger X/Z/Y and Width/Height, destination field and X/Z/Y, `MoreExits` (further destination points: the traveller comes out at one of them, picked at random; Cursed Temple 1F to 2F, 2F to 3F and back, Ancient Prison 3F to 2F, Endless Tower 2F to 3F), `LimitLevel`, `SpecialEffect` (1: a delayed warp with the return sparkle; 2: a wing warp stone, its destination point the stone's exit in its own field; see [Wing warp gates](#wing-warp-gates)) |
+| `LimitLevel` | Minimum character level to walk in through a gate: Desert 3 (11) 55, Greedy Lake (34) 70, Iron 1 (27) 80, Iron 2 (28) 85, Eura (29), Ice 1 (31) and Ice 2 (35) 90, the Lost Temple (38) and the Endless Tower's first two floors (40, 41) 100 |
+| `TravelLevel` | Minimum level to be sent there by a wing stone or a teleporter: `LimitLevel` unless the field sets its own: Forbidden Land (12) 55, Ancient Prison 1F-3F (13-15) 40, 50, 60, the office (16) 1000, Cursed Temple 1F-3F (22, 23, 42) 70, 75, 80, the caves (24-26) 55, 55, 65, Kelvezu's Lair (36) 90, Lost Island (37) 95, Endless Tower 3F (43) 102, Ice Mine (44) 105 |
 | `Ambients`, `Lighting`, `Camera`, `DayNight`, `Backdrop`, `BackMusicCode` | Client presentation |
 | `FieldEvent` | `Nightmare` (Navisko): see Night and day |
 | `HazeReduction`, `SightCells` | The share of the distance haze the field clears (Ricarten 0.2) and the 64-unit cells of sight added before it starts (Ice Ura 1); client presentation |
@@ -98,14 +101,15 @@ adjacent stages.
 ### Field transitions
 
 `FieldTransition.TryResolve` (in `Shared/PristonTale.Application/World/`) authorizes a field change from the player's
-server position; the requested position is never trusted. Rules:
+server position; the requested position only chooses among a warp's authored exits. Rules:
 
-- Refused for an invalid origin, the same field, or `level < destination.LimitLevel`.
-- Warp: a source warp gate to the destination, not a wing warp stone, `level >= warp.LimitLevel`, origin within
-  `FieldWarpGate.ServerReach` (`max(Width, 48) + 64`) planar units of the trigger. Arrival is the warp's authored
-  destination point, settled on the floor within 64 units.
-- Gate: a gate between the two fields (either direction) within 1810 planar units of the origin. The player keeps the
-  position.
+- Refused for an invalid origin or the same field.
+- Warp: a source warp gate to the destination, not a wing warp stone, `level >= warp.LimitLevel` (the destination's
+  `LimitLevel` is not asked), origin within `FieldWarpGate.ServerReach` (`max(Width, 48) + 64`) planar units of the
+  trigger. The client picks one of the gate's exits at random and arrives there; the server takes the exit nearest the
+  reported position, settled on the floor within 64 units.
+- Gate: `level >= destination.LimitLevel` and a gate between the two fields (either direction) within 1810 planar units
+  of the origin. The player keeps the position.
 
 ## Stage collision
 
@@ -523,7 +527,7 @@ or the client's view was stale), the covered one going to the moved item's cell 
 
 Teleport routes (`TeleportRoutes`): route 0 means route 1. Route 1: index 1 field 0 "Mushroom Cave" 100 gold, 2 field 18
 "Beehive Cave" 100, 3 field 7 "Cursed Land" 500, 4 field 12 "Forbidden Land" 1000. The destination field's
-`LimitLevel` applies; arrival is its first start point (or `Center`) placed on the floor. The cave destinations are the
+`TravelLevel` applies; arrival is its first start point (or `Center`) placed on the floor. The cave destinations are the
 fields that hold the cave entrances: field 0 (`fore-3`) has the warp gate to `Tcave`, field 18 (`forever-fall-03`) the
 one to `Mcave`.
 
@@ -593,7 +597,7 @@ Ruinen Village (6), Navisko (9), Forbidden Land (12), Eura (29), Land of Chaos (
 
 - Stepping on a stone opens the wing warp map. Its destinations, in order: Ricarten, Pillai, Land of Dusk, Bamboo
   Forest, Ruinen Village, Navisko Town, Forbidden Land (level 55), Eura Village (90), Land of Chaos (95); the
-  destination field's own `LimitLevel` applies as well.
+  destination field's `TravelLevel` applies as well.
 - Reach: without a wing the first two; with a wing in the pack the best one counts: Metal (`QW101`) 4, Silver 5,
   Gold 6, Dia 7, Chaos 8, Extreme (`QW106`) 9.
 - Fee: Ricarten, Pillai and the field the player stands in are free; elsewhere the wing's fee: 100, 300, 500, 1000,

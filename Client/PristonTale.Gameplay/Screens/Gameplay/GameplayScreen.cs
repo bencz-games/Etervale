@@ -80,7 +80,7 @@ public sealed class GameplayScreen : GameScreen
         _hud.Restart.Restart = _scene.RestartAsync;
         _hud.Restart.ExitRequested += RequestExit;
         _hud.WingGate.Travel = _scene.TravelWingGateAsync;
-        _hud.WingGate.RequiredLevel = _scene.FieldLimitLevel;
+        _hud.WingGate.RequiredLevel = _scene.FieldTravelLevel;
         _scene.WingGateEntered += _hud.WingGate.Open;
         _scene.WingGateLeft += _hud.WingGate.Close;
 

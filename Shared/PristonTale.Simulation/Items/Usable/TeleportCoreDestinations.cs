@@ -2,8 +2,7 @@ namespace PristonTale.Simulation.Items.Usable;
 
 public sealed record TeleportCoreDestination(int Index, int FieldCode, int RequiredLevel, string Name);
 
-// The fields a Teleport Core reaches: 33 destinations shown ten per page, each with the level a character needs. The
-// destinations are named fields; the Cursed Temple and Endless Tower floors use the field codes of this world catalog.
+// The fields a Teleport Core reaches, shown ten per page, each with the level a character needs.
 public static class TeleportCoreDestinations
 {
     public const int PageSize = 10;
@@ -30,7 +29,7 @@ public static class TeleportCoreDestinations
         new(17, 15, 60, "Ancient Prison 3F"),
         new(18, 22, 70, "Cursed Temple 1F"),
         new(19, 23, 75, "Cursed Temple 2F"),
-        new(20, 41, 80, "Cursed Temple 3F"),
+        new(20, 42, 80, "Cursed Temple 3F"),
         new(21, 34, 70, "Lake of Greed"),
         new(22, 27, 80, "Railway of Chaos"),
         new(23, 28, 85, "Heart of Perum"),
@@ -40,9 +39,10 @@ public static class TeleportCoreDestinations
         new(27, 36, 90, "Kelvezu's Lair"),
         new(28, 37, 95, "Lost Island"),
         new(29, 38, 100, "Lost Temple"),
-        new(30, 39, 100, "Endless Tower 1F"),
-        new(31, 40, 100, "Endless Tower 2F"),
-        new(32, 42, 102, "Endless Tower 3F")
+        new(30, 40, 100, "Endless Tower 1F"),
+        new(31, 41, 100, "Endless Tower 2F"),
+        new(32, 43, 102, "Endless Tower 3F"),
+        new(33, 44, 105, "Ice Mine 1F")
     ];
 
     public static int PageCount => (All.Count + PageSize - 1) / PageSize;
