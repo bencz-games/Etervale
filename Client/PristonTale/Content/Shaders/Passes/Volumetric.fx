@@ -67,7 +67,7 @@ static const uint Steps = 16;
 
 float3 ViewRay(float2 uv)
 {
-    return CameraForward + (uv.x * 2.0 - 1.0) * VolumeProjection.x * CameraRight + (1.0 - uv.y * 2.0) * VolumeProjection.y * CameraUp;
+    return CameraRay(uv, VolumeProjection.xy, CameraRight, CameraUp, CameraForward);
 }
 
 // Optical depth from the camera to distance t along a unit direction through a density
@@ -127,8 +127,7 @@ float4 PS_March(FullscreenOut i) : SV_Target0
     float2 q = pixel + VolumeProjection.w * 5.588238;
     float jitter = InterleavedGradientNoise(q);
     float cosTheta = dot(direction, SunDirection);
-    float g = PhaseG;
-    float phase = (1.0 - g * g) / (4.0 * PI * pow(max(1.0 + g * g - 2.0 * g * cosTheta, 1.0e-4), 1.5));
+    float phase = HenyeyGreenstein(cosTheta, PhaseG);
     float stepLength = distance / Steps;
     float scattered = 0.0;
     float entering = 1.0;

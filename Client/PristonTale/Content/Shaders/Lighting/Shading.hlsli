@@ -7,6 +7,8 @@
 #include "Brdf.hlsli"
 #include "Octahedral.hlsli"
 #include "CubeFaces.hlsli"
+#include "Environment.hlsli"
+#include "SphericalHarmonics.hlsli"
 
 // Share of a cascade's far end over which it hands over to the next one (dithered), and the last one fades out.
 static const float CascadeBlendBand = 0.12;
@@ -357,34 +359,21 @@ void AddLocalLights(float3 worldPosition, float3 n, float3 v, float3 albedo, flo
 // Irradiance (E / pi) from the sky's spherical harmonics (Passes/Environment.fx), cosine-convolved per band.
 float3 EnvironmentIrradiance(float3 n)
 {
-    float3 e = EnvironmentSh[0].rgb * 0.282095;
-    e += (EnvironmentSh[1].rgb * n.y + EnvironmentSh[2].rgb * n.z + EnvironmentSh[3].rgb * n.x) * (0.488603 * 2.0 / 3.0);
-    e += (EnvironmentSh[4].rgb * (1.092548 * n.x * n.y) + EnvironmentSh[5].rgb * (1.092548 * n.y * n.z)
-        + EnvironmentSh[6].rgb * (0.315392 * (3.0 * n.z * n.z - 1.0)) + EnvironmentSh[7].rgb * (1.092548 * n.x * n.z)
-        + EnvironmentSh[8].rgb * (0.546274 * (n.x * n.x - n.y * n.y))) * 0.25;
-    return max(e, 0.0);
+    float3 c[9];
+    [unroll]
+    for (uint k = 0; k < 9; k++)
+    {
+        c[k] = EnvironmentSh[k].rgb;
+    }
+
+    return max(EvaluateSh(c, n), 0.0);
 }
 
-// One roughness level of the prefiltered atlas: level k is (base / 2^k) square at x = 2 base (1 - 2^-k).
-float3 EnvironmentLevel(float2 octahedral, float level)
-{
-    float base = EnvironmentParams.y;
-    float size = base * exp2(-level);
-    float offset = 2.0 * base - 2.0 * size;
-    float2 pixel = clamp(octahedral * size, 0.5, size - 0.5);
-    return EnvironmentMap.SampleLevel(EnvironmentSampler, (float2(offset, 0.0) + pixel) / float2(EnvironmentParams.z, base), 0).rgb;
-}
-
-// Prefiltered radiance toward r for a perceptual roughness (levels at roughness k / (levels - 1)), in the light model's
-// units (the atlas's scale, EnvironmentSh[9].x).
+// Prefiltered radiance toward r for a perceptual roughness, in the light model's units (the atlas's scale,
+// EnvironmentSh[9].x).
 float3 EnvironmentSpecular(float3 r, float roughness)
 {
-    float level = saturate(roughness) * (EnvironmentParams.w - 1.0);
-    float level0 = floor(level);
-    float level1 = min(level0 + 1.0, EnvironmentParams.w - 1.0);
-    float2 octahedral = OctahedralEncode(r);
-    float3 radiance = lerp(EnvironmentLevel(octahedral, level0), EnvironmentLevel(octahedral, level1), level - level0);
-    return radiance * EnvironmentSh[9].x;
+    return EnvironmentAtlasRadiance(EnvironmentMap, EnvironmentSampler, EnvironmentParams, r, roughness) * EnvironmentSh[9].x;
 }
 
 // Image-based lighting: the sky's irradiance and its prefiltered radiance with the split-sum BRDF (Karis 2013), the
@@ -411,7 +400,7 @@ void AddAmbient(float3 n, float3 v, float3 albedo, float3 f0, float metallic, fl
     float up = n.y * 0.5 + 0.5;
     float3 irradiance = lerp(GroundAmbient, SkyAmbient, up);
     float nv = saturate(dot(n, v));
-    float3 fresnel = f0 + (max(1.0 - roughness, f0) - f0) * pow(1.0 - nv, 5.0);
+    float3 fresnel = F_SchlickRough(f0, nv, roughness);
     float3 reflected = reflect(-v, n);
     float3 environment = lerp(GroundAmbient, SkyAmbient, reflected.y * 0.5 + 0.5);
     lighting.Diffuse += irradiance * albedo * ((1.0 - metallic) * ao);

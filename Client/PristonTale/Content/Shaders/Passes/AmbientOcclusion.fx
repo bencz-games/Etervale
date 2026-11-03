@@ -48,7 +48,7 @@ static const uint ContactSteps = 10;
 
 float3 ViewRay(float2 uv)
 {
-    return CameraForward + (uv.x * 2.0 - 1.0) * AoProjection.x * CameraRight + (1.0 - uv.y * 2.0) * AoProjection.y * CameraUp;
+    return CameraRay(uv, AoProjection.xy, CameraRight, CameraUp, CameraForward);
 }
 
 float DepthAt(float2 uv)

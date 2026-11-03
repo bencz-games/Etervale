@@ -25,6 +25,7 @@
 // NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 // WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#include "../Core/Common.hlsli"
 #include "../Core/Fullscreen.hlsli"
 
 // ---- Configuration (SMAA_PRESET_HIGH) ----------------------------------------------------------------
@@ -107,10 +108,9 @@ EdgeVSOut VS_Edges(FullscreenIn i)
 float4 PS_Edges(EdgeVSOut i) : SV_Target0
 {
     float2 threshold = float2(SMAA_THRESHOLD, SMAA_THRESHOLD);
-    float3 weights = float3(0.2126, 0.7152, 0.0722);
-    float L = dot(SampleLevelZero(Color, ColorPoint, i.Uv).rgb, weights);
-    float Lleft = dot(SampleLevelZero(Color, ColorPoint, i.Offset0.xy).rgb, weights);
-    float Ltop = dot(SampleLevelZero(Color, ColorPoint, i.Offset0.zw).rgb, weights);
+    float L = Luminance(SampleLevelZero(Color, ColorPoint, i.Uv).rgb);
+    float Lleft = Luminance(SampleLevelZero(Color, ColorPoint, i.Offset0.xy).rgb);
+    float Ltop = Luminance(SampleLevelZero(Color, ColorPoint, i.Offset0.zw).rgb);
 
     float4 delta;
     delta.xy = abs(L - float2(Lleft, Ltop));
@@ -118,13 +118,13 @@ float4 PS_Edges(EdgeVSOut i) : SV_Target0
     if (dot(edges, float2(1.0, 1.0)) == 0.0)
         discard;
 
-    float Lright = dot(SampleLevelZero(Color, ColorPoint, i.Offset1.xy).rgb, weights);
-    float Lbottom = dot(SampleLevelZero(Color, ColorPoint, i.Offset1.zw).rgb, weights);
+    float Lright = Luminance(SampleLevelZero(Color, ColorPoint, i.Offset1.xy).rgb);
+    float Lbottom = Luminance(SampleLevelZero(Color, ColorPoint, i.Offset1.zw).rgb);
     delta.zw = abs(L - float2(Lright, Lbottom));
     float2 maxDelta = max(delta.xy, delta.zw);
 
-    float Lleftleft = dot(SampleLevelZero(Color, ColorPoint, i.Offset2.xy).rgb, weights);
-    float Ltoptop = dot(SampleLevelZero(Color, ColorPoint, i.Offset2.zw).rgb, weights);
+    float Lleftleft = Luminance(SampleLevelZero(Color, ColorPoint, i.Offset2.xy).rgb);
+    float Ltoptop = Luminance(SampleLevelZero(Color, ColorPoint, i.Offset2.zw).rgb);
     delta.zw = abs(float2(Lleft, Ltop) - float2(Lleftleft, Ltoptop));
     maxDelta = max(maxDelta.xy, delta.zw);
     float finalDelta = max(maxDelta.x, maxDelta.y);

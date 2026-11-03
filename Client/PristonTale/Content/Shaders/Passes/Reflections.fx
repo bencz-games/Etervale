@@ -7,7 +7,7 @@
 // The pre-pass's normal target carries the smoothness (1 - roughness) in alpha.
 #include "../Core/Common.hlsli"
 #include "../Core/Fullscreen.hlsli"
-#include "../Lighting/Octahedral.hlsli"
+#include "../Lighting/Environment.hlsli"
 
 cbuffer ReflectionConstants : register(b0)
 {
@@ -56,21 +56,12 @@ float4 PS_Copy(FullscreenOut i) : SV_Target0
 
 float3 ViewRay(float2 uv)
 {
-    return CameraForward + (uv.x * 2.0 - 1.0) * ReflectProjection.x * CameraRight + (1.0 - uv.y * 2.0) * ReflectProjection.y * CameraUp;
+    return CameraRay(uv, ReflectProjection.xy, CameraRight, CameraUp, CameraForward);
 }
 
 float DepthAt(float2 uv)
 {
     return DepthMap.SampleLevel(DepthSampler, uv, 0).r;
-}
-
-float3 EnvironmentLevel(float2 octahedral, float level)
-{
-    float base = EnvironmentInfo.y;
-    float size = base * exp2(-level);
-    float offset = 2.0 * base - 2.0 * size;
-    float2 pixel = clamp(octahedral * size, 0.5, size - 0.5);
-    return EnvironmentMap.SampleLevel(EnvironmentSampler, (float2(offset, 0.0) + pixel) / float2(EnvironmentInfo.z, base), 0).rgb;
 }
 
 // The reflection the lit pass already added (Lighting/Shading.hlsli EnvironmentSpecular).
@@ -81,11 +72,7 @@ float3 EnvironmentReflection(float3 r, float roughness)
         return 0.0;
     }
 
-    float level = saturate(roughness) * (EnvironmentInfo.w - 1.0);
-    float level0 = floor(level);
-    float level1 = min(level0 + 1.0, EnvironmentInfo.w - 1.0);
-    float2 octahedral = OctahedralEncode(r);
-    return lerp(EnvironmentLevel(octahedral, level0), EnvironmentLevel(octahedral, level1), level - level0) * EnvironmentSh[9].x;
+    return EnvironmentAtlasRadiance(EnvironmentMap, EnvironmentSampler, EnvironmentInfo, r, roughness) * EnvironmentSh[9].x;
 }
 
 float2 ClipToUv(float4 clip)

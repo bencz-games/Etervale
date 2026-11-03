@@ -22,8 +22,6 @@ SamplerState SkyColorSampler : register(s0) = sampler_state
     Texture = (SkyColor); MinFilter = Point; MagFilter = Point; MipFilter = Point; AddressU = Clamp; AddressV = Clamp;
 };
 
-// Motion x at or above this marks "no surface: reproject as a direction" (Passes/PostTemporal.fx SkyMotion).
-static const float SkyMotionMarker = 4.0;
 
 struct SceneOut
 {

@@ -119,7 +119,7 @@ static const float MesopicHalf = 0.04;
 float3 MesopicVision(float3 c, float inversePreExposure, float3 tint)
 {
     float x = dot(c, float3(0.4124, 0.3576, 0.1805));
-    float y = dot(c, float3(0.2126, 0.7152, 0.0722));
+    float y = Luminance(c);
     float z = dot(c, float3(0.0193, 0.1192, 0.9505));
     float scotopic = max(y * (1.33 * (1.0 + (y + z) / max(x, 1.0e-6)) - 1.68), 0.0) / ScotopicWhite;
     float rods = MesopicHalf / (MesopicHalf + y * inversePreExposure);

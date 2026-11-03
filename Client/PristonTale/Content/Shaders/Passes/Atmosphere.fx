@@ -433,12 +433,6 @@ float3 CloudPosition(float3 p)
     return float3(p.x + CloudOffset.x, length(p) - BottomRadius - CloudBottom, p.z + CloudOffset.y);
 }
 
-float HenyeyGreenstein(float cosine, float g)
-{
-    float g2 = g * g;
-    return (1.0 - g2) / (4.0 * PI * pow(max(1.0 + g2 - 2.0 * g * cosine, 1e-4), 1.5));
-}
-
 // Strong forward scattering with a weaker backward lobe.
 float CloudPhase(float cosine)
 {

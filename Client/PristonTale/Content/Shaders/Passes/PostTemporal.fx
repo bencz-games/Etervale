@@ -44,7 +44,6 @@ SamplerState HistorySampler : register(s3) = sampler_state
     Texture = (History); MinFilter = Linear; MagFilter = Linear; MipFilter = Point; AddressU = Clamp; AddressV = Clamp;
 };
 
-static const float SkyMotion = 3.0;          // motion x at or above: the sky marker (Passes/SkyComposite.fx)
 static const float FoliageWeight = 0.3;
 static const float FoliageGamma = 0.9;
 static const float2 Diagonals[4] = { float2(-1, -1), float2(1, -1), float2(-1, 1), float2(1, 1) };
@@ -198,7 +197,7 @@ ResolveOut PS_Resolve(FullscreenOut i)
         }
     }
 
-    bool sky = motion.x >= SkyMotion;
+    bool sky = motion.x >= SkyMotionThreshold;
     float2 previousUv = sky ? SkyPreviousUv(uv) : uv - motion.xy;
 
     // 3. History.

@@ -18,6 +18,11 @@ static const float HdrCap = 60000.0;
 static const float SkyDepth = 60000.0;
 static const float SkyDepthThreshold = 50000.0;
 
+// The motion x a sky pixel carries (Passes/SkyComposite.fx), and the value at or above which the temporal pass reads a
+// pixel as sky, below the marker so filtering never loses it.
+static const float SkyMotionMarker = 4.0;
+static const float SkyMotionThreshold = 3.0;
+
 // Interleaved gradient noise (Jimenez 2014) in [0, 1) at a pixel position: a cheap jitter the temporal pass integrates.
 float InterleavedGradientNoise(float2 pixel)
 {
@@ -35,6 +40,20 @@ float Luminance(float3 c)
 float3 SafeNormalize(float3 v)
 {
     return v * rsqrt(max(dot(v, v), 1.0e-12));
+}
+
+// The camera ray through a screen uv ((0, 0) top left), not normalised: its length is one unit of view depth.
+// tanHalfFov holds tan(half fov) along x and y.
+float3 CameraRay(float2 uv, float2 tanHalfFov, float3 right, float3 up, float3 forward)
+{
+    return forward + (uv.x * 2.0 - 1.0) * tanHalfFov.x * right + (1.0 - uv.y * 2.0) * tanHalfFov.y * up;
+}
+
+// The Henyey-Greenstein phase function: the share of scattered light per steradian at this cosine to the light's path.
+float HenyeyGreenstein(float cosine, float g)
+{
+    float g2 = g * g;
+    return (1.0 - g2) / (4.0 * PI * pow(max(1.0 + g2 - 2.0 * g * cosine, 1.0e-4), 1.5));
 }
 
 #endif
