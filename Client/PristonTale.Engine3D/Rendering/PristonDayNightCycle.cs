@@ -13,7 +13,7 @@ internal readonly record struct PristonSkyState(
     Vector3 SkyColor,
     float LampFactor,
     Vector3 TowardSun,
-    float SunElevation)
+    float SunSine)
 {
     // Illuminance on a horizontal surface: what an incident meter at the camera reads.
     public float HorizontalIlluminance =>

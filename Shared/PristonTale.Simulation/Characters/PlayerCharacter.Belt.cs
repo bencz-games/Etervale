@@ -140,7 +140,7 @@ public sealed partial class PlayerCharacter
     public bool TryTakeFromBelt(Guid itemId, int anchor)
     {
         var box = Belt.Find(itemId);
-        if (box < 0)
+        if (box < 0 || anchor >= Inventory.Capacity)
         {
             return false;
         }

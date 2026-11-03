@@ -1,3 +1,4 @@
+using PristonTale.Simulation.World.Spawning;
 using System.Diagnostics.CodeAnalysis;
 using System.Numerics;
 using PristonTale.Simulation.Items.Usable;
@@ -70,8 +71,7 @@ public sealed partial class FieldInstance
             return _skills.CallCrystalPet(owner, crystal, definition);
         }
 
-        var monster = new MonsterInstance(_ids.NextMonsterId(), definition, Terrain.PlaceOnFloor(owner.Position), owner.Facing, spawnPointIndex: -1);
-        _monsters[monster.EntityId] = monster;
+        var monster = ((ISpawnSink)this).Spawn(definition, owner.Position, -1, owner.Facing);
         _soulMonsters[monster.EntityId] = NowMs + MonsterCrystals.SoulLifetimeSeconds * 1000L;
         return monster.Position;
     }

@@ -304,6 +304,8 @@ internal static class QuestTests
         Assert.True(fighter.Tier == 2 && fighter.Quests.Active.State == 5 && ring is { Definition.Name: "Emperor Ring" } && RankUpByQuestWeapon.IsBound(fighter, ring),
             "the second rank-up result differs");
 
+        // Kept in the stored weapon pair, the weapon still expires.
+        Assert.True(fighter.TrySwitchWeaponSet(1) && fighter.StoredWeapon?.InstanceId == weapon.InstanceId, "the quest weapon was not stored");
         Drop(fighter, QuestItems.Vamp, now: 1000 + RankUpByQuestWeapon.WeaponLifetimeMs);
         Assert.True(fighter.FindOwnedItem(weapon.InstanceId) is not null, "the quest weapon expired early");
         Assert.True(QuestDrops.UpkeepDue(fighter, 1001 + RankUpByQuestWeapon.WeaponLifetimeMs), "the expiry was not noticed");

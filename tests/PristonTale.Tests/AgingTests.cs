@@ -160,6 +160,17 @@ internal static class AgingTests
         Assert.True(wearer.Inventory.TryPlace(ring, 0) && wearer.TryEquipFromInventory(0, EquipmentSlot.RingLeft), "the ring did not equip");
         wearer.TallyAging(AgingCounter.Time, 60);
         Assert.True(wearer.Equipment[EquipmentSlot.RingLeft].Maturity.Count == 60, "the ring did not count worn seconds");
+
+        // An Aging Master of the shield-or-orb group finishes a worn orb's aging.
+        var orb = new ItemInstance(Def("OM101", record => record with { Kind = (int)ItemKind.Orb }))
+        {
+            Maturity = new AgingMaturity(0, 1200, AgingStone.None)
+        };
+        var caster = new CharacterClassRegistry().CreatePlayer(PlayerClass.Magician, "Orb", 50);
+        Assert.True(caster.Inventory.TryPlace(orb, 0) && caster.TryEquipFromInventory(0, EquipmentSlot.OffHand), "the orb did not equip");
+        Assert.True(PristonTale.Simulation.Items.Usable.UsableItemCatalog.TryGet("BI137", out var master)
+            && PristonTale.Simulation.Items.Usable.UsableItemEffects.Check(caster, master, 0) == PristonTale.Simulation.Items.Usable.ItemUseStatus.Used,
+            "the shield-or-orb Aging Master refused a worn orb");
         return Task.CompletedTask;
     }
 

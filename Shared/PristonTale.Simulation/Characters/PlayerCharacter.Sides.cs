@@ -122,6 +122,63 @@ public sealed partial class PlayerCharacter
         Held = source.Held?.Copy(source.Held.Count, preserveId: true);
     }
 
+    // Takes up to amount units of the code from the stored weapon pair and the hand, the owned items the bag pages, the
+    // box and the equipment leave out; the units taken.
+    public int TakeStoredOrHeld(uint code, int amount)
+    {
+        var taken = 0;
+        if (taken < amount && _storedWeapon?.Definition.Code == code)
+        {
+            _storedWeapon = null;
+            taken++;
+        }
+
+        if (taken < amount && _storedOffHand?.Definition.Code == code)
+        {
+            _storedOffHand = null;
+            taken++;
+        }
+
+        if (taken < amount && Held?.Definition.Code == code)
+        {
+            var take = Math.Min(Held.Count, amount - taken);
+            Held.Count -= take;
+            Held = Held.Count > 0 ? Held : null;
+            taken += take;
+        }
+
+        if (taken > 0)
+        {
+            OnInventoryChanged();
+        }
+
+        return taken;
+    }
+
+    // Takes the stored weapon, stored off-hand or held item with this id.
+    public bool TakeStoredOrHeld(Guid instanceId)
+    {
+        if (_storedWeapon?.InstanceId == instanceId)
+        {
+            _storedWeapon = null;
+        }
+        else if (_storedOffHand?.InstanceId == instanceId)
+        {
+            _storedOffHand = null;
+        }
+        else if (Held?.InstanceId == instanceId)
+        {
+            Held = null;
+        }
+        else
+        {
+            return false;
+        }
+
+        OnInventoryChanged();
+        return true;
+    }
+
     private IEnumerable<ItemInstance> HiddenItems()
     {
         foreach (var item in HiddenBag.Items())

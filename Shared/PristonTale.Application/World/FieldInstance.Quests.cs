@@ -1,3 +1,4 @@
+using PristonTale.Simulation.World.Spawning;
 using System.Numerics;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
@@ -412,11 +413,8 @@ public sealed partial class FieldInstance
             return;
         }
 
-        var helper = new MonsterInstance(_ids.NextMonsterId(), definition, Terrain.PlaceOnFloor(opponent.Position), opponent.Facing, spawnPointIndex: -1)
-        {
-            DuelPlayerId = player.EntityId
-        };
-        _monsters[helper.EntityId] = helper;
+        var helper = ((ISpawnSink)this).Spawn(definition, opponent.Position, -1, opponent.Facing);
+        helper.DuelPlayerId = player.EntityId;
         duel.HelperId = helper.EntityId;
     }
 

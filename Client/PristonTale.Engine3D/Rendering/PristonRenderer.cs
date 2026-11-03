@@ -144,7 +144,9 @@ public sealed partial class PristonRenderer : IDisposable
     private readonly PristonSkyCapture _skyCapture;
     private Vector3 _towardSun = Vector3.Up;
     private Vector3 _fogSunColour;
-    private float _sunElevation;
+    // The sine of the sun's elevation; above SunLightsSine (just under the horizon) the sun still lights and shadows.
+    private float _sunSine;
+    private const float SunLightsSine = -0.05f;
     private float _lampFactor;
     private PristonFrameExposure _exposure = PristonFrameExposure.Neutral;
     private PristonPostSettings _postSettings = PristonPostSettings.From(new ClientSettings());
@@ -543,7 +545,7 @@ public sealed partial class PristonRenderer : IDisposable
         var sunShadowsEnabled = ShadowsEnabled && lighting.Sun.DiffuseColor != Vector3.Zero && !Underground;
         InvalidateShadowAfterTeleport(camera.Target);
         // The moon's shadows move with the actors only: half the refresh rate is enough for its soft, dim light.
-        var shadowRate = _sunElevation > -0.05f || _shadowUpdateRate == 0 ? _shadowUpdateRate : Math.Max(_shadowUpdateRate / 2, 30);
+        var shadowRate = _sunSine > SunLightsSine || _shadowUpdateRate == 0 ? _shadowUpdateRate : Math.Max(_shadowUpdateRate / 2, 30);
         var sunShadowUpdated = _sunShadowRefresh.ShouldRefresh(_renderTime, shadowRate, sunShadowsEnabled);
         var sunShadowRedraw = sunShadowUpdated;
         if (sunShadowUpdated)
@@ -695,7 +697,7 @@ public sealed partial class PristonRenderer : IDisposable
             DrawPrepass(_renderQueueBuilder.Queue);
             Profiler.End(RenderSection.Prepass);
             // Contact shadows of the sun only, as for the shafts.
-            var contact = _contactShadows && sunShadowsEnabled && _sunElevation > -0.05f;
+            var contact = _contactShadows && sunShadowsEnabled && _sunSine > SunLightsSine;
             if (_ambientOcclusion || contact)
             {
                 Profiler.Begin(RenderSection.AmbientOcclusion);
@@ -777,7 +779,7 @@ public sealed partial class PristonRenderer : IDisposable
         _glowRenderer.Draw(frame, _frameGlowLights, _lampFactor);
         Profiler.End(RenderSection.Glow);
         // Shafts of the sun only: the moon's are too faint to pay for.
-        if (_prepassDrawn && _volumetricLight && sunShadowsEnabled && _sunElevation > -0.05f)
+        if (_prepassDrawn && _volumetricLight && sunShadowsEnabled && _sunSine > SunLightsSine)
         {
             Profiler.Begin(RenderSection.Volumetric);
             // The march stops where the distance fog starts, which covers the medium beyond.

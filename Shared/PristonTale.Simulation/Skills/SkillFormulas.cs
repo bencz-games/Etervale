@@ -174,6 +174,15 @@ public static partial class SkillFormulas
         return speed > 0 ? plan with { Speed = speed } : plan;
     }
 
+    // The hits one cast of the rank deals, as Timing places them: one per loop of a weapon clip, every hit frame of a
+    // skill clip on every loop (at least one).
+    public static int HitCount(SkillRule rule, int rank)
+    {
+        var plan = Plan(rule, rank);
+        var loops = Math.Max(1, rule.At(rule.Loops, rank));
+        return plan.Motion == SkillMotion.Attack ? loops : Math.Max(1, plan.Events.Length) * loops;
+    }
+
     // Playback rate of a skill's motion: a fixed frame step (80 = rate 1), or the caster's attack rate plus the skill's
     // attack-speed steps (each step adds 32/256 to the attack speed, 0.125 to the rate).
     public static float MotionRate(SkillRule rule, int rank, float attackRate)

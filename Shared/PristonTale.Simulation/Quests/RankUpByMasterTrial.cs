@@ -214,7 +214,8 @@ public static class RankUpByMasterTrial
         context.Journal.Active = active with { Kills = kills };
     }
 
-    // The hunt timer counts play time; when it runs out an unfinished hunt step is lost.
+    // The hunt timer counts play time until the master hears of the hunt: when it runs out first, the hunt step is lost,
+    // its kills made or not.
     public static void StepTimer(QuestContext context, long elapsedMs)
     {
         var active = context.Journal.Active;

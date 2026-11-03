@@ -101,7 +101,7 @@ public sealed partial class PristonRenderer
         SkyColor = new Color(skyColor);
         _lampFactor = lampFactor;
         _towardSun = sky.TowardSun;
-        _sunElevation = Underground ? -1f : sky.SunElevation;
+        _sunSine = Underground ? -1f : sky.SunSine;
         _exposure = PristonFrameExposure.ForIlluminance(metered, Underground, ExposureCompensation, EmissiveLuminance);
         var radianceScale = _exposure.PreExposure / MathF.PI;
         var sunColor = sunIlluminance * radianceScale;

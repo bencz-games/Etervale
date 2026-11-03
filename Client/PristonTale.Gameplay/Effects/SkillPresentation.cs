@@ -389,7 +389,7 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
         var sound = rule.ImpactSoundOrder switch
         {
             SkillSoundOrder.Random => sounds[random.Next(sounds.Length)],
-            SkillSoundOrder.Final => impact + 1 >= SkillImpacts.Count(rule, rank) ? sounds[0] : "",
+            SkillSoundOrder.Final => impact + 1 >= SkillFormulas.HitCount(rule, rank) ? sounds[0] : "",
             _ => sounds[impact % sounds.Length]
         };
         return sound == SkillRule.Silent ? "" : sound;

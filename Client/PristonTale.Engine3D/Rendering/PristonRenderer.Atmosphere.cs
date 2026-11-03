@@ -78,7 +78,8 @@ public sealed partial class PristonRenderer
         }
 
         var pre = _exposure.PreExposure;
-        var night = MathHelper.Clamp((-MathHelper.ToDegrees(_sunElevation) - NightBeginsDegrees) / NightFadeDegrees, 0f, 1f);
+        var sunAngle = MathF.Asin(_sunSine);
+        var night = MathHelper.Clamp((-MathHelper.ToDegrees(sunAngle) - NightBeginsDegrees) / NightFadeDegrees, 0f, 1f);
         var phase = MoonPhase * MathF.Tau;
         var towardMoon = PristonDayNightCycle.TowardMoon;
         var side = Vector3.Normalize(Vector3.Cross(Vector3.Up, towardMoon));
@@ -97,7 +98,7 @@ public sealed partial class PristonRenderer
             TimeOfDay / 24f * MathF.Tau,
             night * AirglowLevel / displayScale,
             Aurora ? night * AuroraLevel / displayScale : 0f,
-            RainbowStrength(cloud, rain, _sunElevation, Weather.SunBreak),
+            RainbowStrength(cloud, rain, sunAngle, Weather.SunBreak),
             ClearCirrus * (1f - cloud),
             _renderTime / 1000f,
             displayScale,
@@ -111,7 +112,7 @@ public sealed partial class PristonRenderer
             CloudQuality,
             MathHelper.Clamp(Mist, 0f, 1f));
         // The clouds' moving shadows show under a fair or broken sky; an overcast one already dims the light evenly.
-        _physicalSky.Update(inputs, camera, MathF.Sin(_sunElevation) > PristonPhysicalSky.SunCastsCloudShadows ? SunThrough(cloud, Weather.SunBreak) : 0f);
+        _physicalSky.Update(inputs, camera, _sunSine > PristonPhysicalSky.SunCastsCloudShadows ? SunThrough(cloud, Weather.SunBreak) : 0f);
         _stateCache.InvalidateDeviceState();
     }
 

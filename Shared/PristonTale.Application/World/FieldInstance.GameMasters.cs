@@ -55,7 +55,7 @@ public sealed partial class FieldInstance
     // A monster a game master called at a position, outside the spawn points; it drops nothing unless drops is set.
     internal MonsterInstance SpawnForGameMaster(MonsterDefinition definition, Vector3 position, bool drops)
     {
-        var monster = ((ISpawnSink)this).Spawn(definition, position, -1, _rng.NextUnit() * MathF.Tau);
+        var monster = ((ISpawnSink)this).Spawn(definition, position, -1, FieldSpawner.RandomFacing(_rng));
         monster.DropsDisabled = !drops;
         _spawner.SeedIdleDespawn(monster);
         return monster;

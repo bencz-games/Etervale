@@ -201,6 +201,11 @@ public sealed class GameMasterCommands
                 {
                     context.Reply("> Server busy, try again");
                 }
+                catch (Exception exception) when (exception is System.Data.Common.DbException or InvalidDataException or System.Text.Json.JsonException)
+                {
+                    // Storage refused or held unreadable data: the command fails with a reply and is still audited.
+                    context.Reply("> Storage failed, try again");
+                }
             }
             else if (issuer.GmLevel >= GameMasterLevel.Guide)
             {

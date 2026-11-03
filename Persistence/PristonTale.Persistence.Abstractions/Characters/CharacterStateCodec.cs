@@ -220,6 +220,10 @@ public static class CharacterStateCodec
         return item;
     }
 
+    // The most items a saved item list holds: every cell of both bag pages, the belt's and the special box's boxes and the
+    // hand (CaptureInventory); the equipment's list, slots and the stored pair, stays far below.
+    public const int MaxSavedItems = PlayerCharacter.Sides * Inventory.DefaultWidth * Inventory.DefaultHeight + PotionBelt.Boxes + QuestItemBox.Boxes + 1;
+
     private static SavedItems ReadItems(JsonText json, JsonValueKind blankKind)
     {
         if (IsBlank(json, blankKind))
@@ -228,7 +232,7 @@ public static class CharacterStateCodec
         }
 
         var state = JsonSerializer.Deserialize<SavedItems>(json.Value, Options);
-        if (state is null || state.Version != 1 || state.Items is null || state.Items.Length > PlayerCharacter.Sides * Inventory.DefaultWidth * Inventory.DefaultHeight + PotionBelt.Boxes
+        if (state is null || state.Version != 1 || state.Items is null || state.Items.Length > MaxSavedItems
             || state.ActiveSide is < 0 or >= PlayerCharacter.Sides)
         {
             throw new InvalidDataException("Unsupported item-state version or size.");

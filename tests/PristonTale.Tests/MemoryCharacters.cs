@@ -73,5 +73,11 @@ internal sealed class MemoryCharacters(CharacterRecord initial) : ICharacterRepo
     }
 
     public Task<CharacterRecord> CreateAsync(CharacterRecord record, CancellationToken ct = default) => throw new NotSupportedException();
-    public Task<bool> DeleteByNameAsync(long accountId, string name, CancellationToken ct = default) => throw new NotSupportedException();
+    public bool Deleted { get; private set; }
+
+    public Task<bool> DeleteByNameAsync(long accountId, string name, CancellationToken ct = default)
+    {
+        Deleted = !Deleted && Record.AccountId == accountId && Record.Name == name;
+        return Task.FromResult(Deleted);
+    }
 }

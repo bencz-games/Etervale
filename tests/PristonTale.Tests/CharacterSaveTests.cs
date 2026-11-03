@@ -173,6 +173,28 @@ internal static class CharacterSaveTests
 
         var padded = encoded with { Equipment = new JsonText("{" + new string(' ', 70_000) + "}") };
         CharacterStateCodec.Restore(Classes.CreatePlayer(PlayerClass.Fighter, record.Name), padded, new ItemCatalog([stone]));
+
+        // Both bag pages full of single items, the special item box full and an item in the hand all load back.
+        var cake = new ItemDefinition(PristonTale.Simulation.Quests.QuestItems.Cake, "Cake", ItemKind.Quest);
+        var full = Classes.CreatePlayer(PlayerClass.Fighter, record.Name);
+        for (var page = 0; page < PlayerCharacter.Sides; page++)
+        {
+            while (full.Inventory.TryAdd(new ItemInstance(stone)))
+            {
+            }
+
+            Assert.True(page == PlayerCharacter.Sides - 1 || full.TrySwitchBagPage(page + 1, Guid.Empty), "the next bag page did not show");
+        }
+
+        while (full.QuestBox.TryAdd(new ItemInstance(cake)))
+        {
+        }
+
+        Assert.True(full.TryHold(new ItemInstance(stone)), "the hand did not take an item");
+        var owned = full.OwnedItems().Count();
+        var reloaded = Classes.CreatePlayer(PlayerClass.Fighter, record.Name);
+        CharacterStateCodec.Restore(reloaded, CharacterRecordFactory.Capture(record, full, 3, Vector3.Zero).Encode(), new ItemCatalog([stone, cake]));
+        Assert.True(owned > 150 && reloaded.OwnedItems().Count() == owned, $"a full pack of {owned} items did not load back");
         return Task.CompletedTask;
     }
 

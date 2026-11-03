@@ -382,6 +382,9 @@ internal static class GameMasterCommandTests
         Assert.True(gm.Link.Last == "Unable to connect to account", gm.Link.Last);
         await fixture.SayAsync(gm, "/open_warehouse banker");
         Assert.True(gm.Link.Texts().TakeLast(1).Single() == "> Warehouse ( banker ) Gold( 4500 ) Items( 0 )", gm.Link.Last);
+        await fixture.SayAsync(gm, "/open_warehouse spoiled");
+        Assert.True(gm.Link.Last == "> Storage failed, try again" && fixture.Audit.Entries[^1].Command == "/open_warehouse spoiled",
+            $"an unreadable warehouse was not answered and audited: {gm.Link.Last}");
         Assert.True(ann.Link.Lines.Count == 0, "server commands spoke to other players");
     }
 

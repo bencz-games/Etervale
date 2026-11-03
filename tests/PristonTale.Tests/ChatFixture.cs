@@ -267,7 +267,12 @@ internal sealed class MemoryGameMasters : IGameMasterRepository, IGmAudit
 internal sealed class MemoryAccounts : IAccountRepository
 {
     public Task<AccountRecord?> FindByUserIdAsync(string userId, CancellationToken ct = default) =>
-        Task.FromResult<AccountRecord?>(userId == "banker" ? new AccountRecord(77, "banker", "", false, false) : null);
+        Task.FromResult<AccountRecord?>(userId switch
+        {
+            "banker" => new AccountRecord(77, "banker", "", false, false),
+            "spoiled" => new AccountRecord(78, "spoiled", "", false, false),
+            _ => null
+        });
 
     public Task<AccountRecord> CreateAsync(string userId, string passwordHash, CancellationToken ct = default) => throw new NotSupportedException();
 
@@ -277,7 +282,12 @@ internal sealed class MemoryAccounts : IAccountRepository
 internal sealed class MemoryWarehouses : IWarehouseRepository
 {
     public Task<WarehouseRecord?> FindAsync(long accountId, CancellationToken ct = default) =>
-        Task.FromResult<WarehouseRecord?>(accountId == 77 ? new WarehouseRecord(77, 4500, 1, new JsonText("[]")) : null);
+        Task.FromResult<WarehouseRecord?>(accountId switch
+        {
+            77 => new WarehouseRecord(77, 4500, 1, new JsonText("[]")),
+            78 => new WarehouseRecord(78, 0, 1, new JsonText("{\"version\": 99}")),
+            _ => null
+        });
 
     public Task<bool> SaveWithCharacterAsync(CharacterRecord character, WarehouseRecord warehouse, long expectedRevision, CancellationToken ct = default) =>
         throw new NotSupportedException();

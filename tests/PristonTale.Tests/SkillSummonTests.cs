@@ -157,7 +157,8 @@ internal static class SkillSummonTests
         var third = scenario.Summons.Single();
         scenario.Field.Remove(scenario.Player.EntityId);
         scenario.Run(2);
-        Assert.True(!third.IsAlive, "the summon outlived its owner leaving the field");
+        Assert.True(!third.IsAlive && !scenario.Character.Effects.TryGet(MetalGolem, out _),
+            "the summon outlived its owner leaving the field, or its keep icon stayed on the owner");
 
         var archer = SkillScenario.Create(PlayerClass.Archer, 100, catalog: [SkillScenario.SummonModel("Wolverin", 41)]);
         archer.Learn(RecallWolverine, 3);

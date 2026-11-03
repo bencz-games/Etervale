@@ -169,7 +169,7 @@ public static class UsableItemEffects
             return null;
         }
 
-        return group == 1 && item.Definition.Kind is not (ItemKind.Shield or ItemKind.ForceOrb) ? null : item;
+        return group == 1 && item.Definition.Kind is not (ItemKind.Shield or ItemKind.Orb) ? null : item;
     }
 
     private static long Sum(CharacterAttributes a) => (long)a.Strength + a.Spirit + a.Talent + a.Agility + a.Health;

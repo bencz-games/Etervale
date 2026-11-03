@@ -106,8 +106,8 @@ public static class HudSkillDetails
             lines.Add($"{string.Join("/", damage.BonusBroods)} {Signed(bonus)}%");
         }
 
-        var hits = rule.ForRank(rank).HitFrames().Length * Math.Max(1, rule.At(rule.Loops, rank));
-        if (rule.Motion == SkillMotion.Skill && hits > 1)
+        var hits = SkillFormulas.HitCount(rule, rank);
+        if (SkillFormulas.Plan(rule, rank).Motion == SkillMotion.Skill && hits > 1)
         {
             lines.Add($"{hits} hits");
         }

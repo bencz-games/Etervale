@@ -58,13 +58,3 @@ public static partial class SkillRuleCatalog
         && rule.WeaponGrowth.All(static percent => percent >= 0) && rule.Afterimages is >= 0 and <= 8 && Enum.IsDefined(rule.StatusLook)
         && Enum.IsDefined(rule.ImpactSoundOrder) && rule.CastShieldGlow.Length is 0 or 3;
 }
-
-public static class SkillImpacts
-{
-    // Impacts one cast of the rank has: one per loop of a weapon clip, one per hit frame of a skill clip.
-    public static int Count(SkillRule rule, int rank)
-    {
-        var plan = SkillFormulas.Plan(rule, rank);
-        return plan.Motion == SkillMotion.Attack ? Math.Max(1, rule.At(rule.Loops, rank)) : Math.Max(1, plan.Events.Length);
-    }
-}

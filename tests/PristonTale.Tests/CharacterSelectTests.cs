@@ -17,6 +17,7 @@ internal static class CharacterSelectTests
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
         yield return ("character summary carries persisted equipment into character selection, a stored weapon pair and a right-hand ring beside it", EquipmentSummaryAsync);
+        yield return ("a character in play is not deleted; once released it is", DeleteInPlayAsync);
         yield return ("character-select roster and class positions preserve the original ordering", OriginalPlacementAsync);
         yield return ("character-select face layout scales the authored canvas uniformly", FaceLayoutAsync);
         yield return ("Assassin and Shaman use the original creation definitions", ExtendedClassDefinitionsAsync);
@@ -91,6 +92,27 @@ internal static class CharacterSelectTests
             summary.OffHandKey == "DS101" &&
             summary.InVillage,
             "persisted equipment did not reach the character-select summary");
+
+        // Equipment the catalog no longer knows leaves the character listed without its looks, not the login refused.
+        var unknown = new WorldDataHolder { Current = new WorldData(new ItemCatalog([]), empty.Monsters, empty.Npcs, empty.FieldSpawns, empty.Motions) };
+        var bare = (await new CharacterAppService(sessions, repository, classes, unknown, new WorldCatalog()).ListCharactersAsync(session.SessionToken)).Single();
+        Assert.True(bare.Name == "Armored" && bare.ArmorKey.Length == 0 && bare.WeaponKey.Length == 0, "unreadable equipment refused the character list");
+    }
+
+    private static async Task DeleteInPlayAsync()
+    {
+        var classes = new CharacterClassRegistry();
+        var record = CharacterRecordFactory.NewStarter(classes, 1, "Played", 0, PlayerClass.Fighter, 3) with { Id = 7 };
+        var repository = new MemoryCharacters(record);
+        var sessions = new SessionRegistry();
+        var deleting = sessions.Create(1, "owner");
+        var service = new CharacterAppService(sessions, repository, classes, new WorldDataHolder(), new WorldCatalog());
+        Assert.True(sessions.TryClaimCharacter(record.Id, "playing"), "the character could not be claimed");
+        Assert.True(!(await service.DeleteCharacterAsync(deleting.SessionToken, "Played")).Ok && !repository.Deleted,
+            "a character in play was deleted");
+        sessions.ReleaseCharacter(record.Id, "playing");
+        Assert.True((await service.DeleteCharacterAsync(deleting.SessionToken, "Played")).Ok && repository.Deleted
+            && sessions.TryClaimCharacter(record.Id, "next"), "a released character was not deleted, or its claim stayed");
     }
 
     private static Task OriginalPlacementAsync()

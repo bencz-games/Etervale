@@ -173,6 +173,7 @@ internal static class WorldDataRulesTests
         var creature = watched.MonstersForInspection.Single(monster => monster.Def.Code == wolverine.Code);
         Assert.True(Vector3.Distance(creature.Position, new Vector3(8000, 0, 8000)) < 64,
             $"the creature opened at {creature.Position}, not at the active point near the player");
+        Assert.True(creature.Facing is >= 0f and < MathF.Tau, $"the creature faces {creature.Facing}, not an angle in radians");
         return Task.CompletedTask;
     }
 

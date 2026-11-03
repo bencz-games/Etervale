@@ -131,9 +131,10 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
             _skills.LeaveCrystalPets(leaving);
         }
 
+        // The skills forget the player while it is still here, so its summon's keep icon leaves with the summon.
+        _skills.Forget(entityId);
         _players.Remove(entityId, out _);
         Statuses.Take(entityId);
-        _skills.Forget(entityId);
         Premium.Forget(entityId);
     }
 

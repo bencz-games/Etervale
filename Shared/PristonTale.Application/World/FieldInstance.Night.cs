@@ -130,7 +130,7 @@ public sealed partial class FieldInstance
 
             if (EventCreaturePoint() is { } point)
             {
-                var opened = ((ISpawnSink)this).Spawn(creature, point, -1, _rng.Range(0, 359));
+                var opened = ((ISpawnSink)this).Spawn(creature, point, -1, FieldSpawner.RandomFacing(_rng));
                 opened.StaysUntilDawn = true;
                 _eventCreatures[creature.Code] = opened.EntityId;
             }

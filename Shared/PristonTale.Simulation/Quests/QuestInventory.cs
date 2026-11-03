@@ -25,8 +25,8 @@ public static class QuestInventory
 
     public static bool Holds(PlayerCharacter character, Guid instanceId) => instanceId != Guid.Empty && character.FindOwnedItem(instanceId) is not null;
 
-    // Removes up to amount units of the code from both bag pages, the special item box and the equipment; returns how
-    // many were removed.
+    // Removes up to amount units of the code from every place Count counts: both bag pages, the special item box, the
+    // equipment, the stored weapon pair and the hand; returns how many were removed.
     public static int Remove(PlayerCharacter character, uint code, int amount = int.MaxValue)
     {
         var removed = RemoveFrom(character.Inventory, code, amount);
@@ -59,7 +59,7 @@ public static class QuestInventory
             character.TouchInventory();
         }
 
-        return removed;
+        return removed < amount ? removed + character.TakeStoredOrHeld(code, amount - removed) : removed;
     }
 
     private static int RemoveFrom(Inventory inventory, uint code, int amount)
@@ -106,7 +106,7 @@ public static class QuestInventory
             }
         }
 
-        return false;
+        return character.TakeStoredOrHeld(instanceId);
     }
 
     // Whether every item fits: the placement is tried on a copy of the pack, and the items together must stay within the

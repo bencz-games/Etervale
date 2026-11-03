@@ -198,7 +198,17 @@ internal static class SkillLookTests
         var takes = Enumerable.Range(0, 30).Select(_ => SkillPresentation.ImpactSoundFor(shadow, 0, 1, 5, random)).Distinct().Count();
         Assert.True(takes == 3, $"shadow master played {takes} of 3 takes");
         var piercing = Rule(DivinePiercing);
-        var hits = SkillImpacts.Count(piercing, 5);
+        var hits = SkillFormulas.HitCount(piercing, 5);
+        // The hit count every view shows is the one the motion's timing strikes, ranked frames and loops included.
+        foreach (var rule in SkillRuleCatalog.All)
+        {
+            foreach (var rank in new[] { 1, 5, 10 })
+            {
+                var struck = SkillFormulas.Timing(rule, rank, 1f, (500f, 250f)).HitsAtMs.Length;
+                Assert.True(struck == 0 || SkillFormulas.HitCount(rule, rank) == struck,
+                    $"{rule.Code:X8} rank {rank}: {SkillFormulas.HitCount(rule, rank)} hits counted, {struck} struck");
+            }
+        }
         Assert.True(SkillPresentation.ImpactSoundFor(piercing, hits - 2, 1, 5, random).Length == 0
             && SkillPresentation.ImpactSoundFor(piercing, hits - 1, 1, 5, random).Length > 0, "divine piercing did not sound on its final hit only");
         var cross = Rule(GrandCross);

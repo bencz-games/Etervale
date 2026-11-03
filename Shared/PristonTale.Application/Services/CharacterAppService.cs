@@ -98,11 +98,28 @@ public sealed class CharacterAppService
         var session = Authenticate(sessionToken);
 
         var trimmed = name?.Trim() ?? string.Empty;
+        var found = await _characters.FindByNameForAccountAsync(session.AccountId, trimmed, ct);
+        if (found is null)
+        {
+            return DeleteCharacterOutcome.Denied("character not found");
+        }
 
-        var deleted = await _characters.DeleteByNameAsync(session.AccountId, trimmed, ct);
-        return deleted
-            ? DeleteCharacterOutcome.Success()
-            : DeleteCharacterOutcome.Denied("character not found");
+        // A character in play (by this session or another of the account) is claimed: it cannot be deleted under its saves.
+        if (!_sessions.TryClaimCharacter(found.Id, sessionToken))
+        {
+            return DeleteCharacterOutcome.Denied("the character is in play");
+        }
+
+        try
+        {
+            return await _characters.DeleteByNameAsync(session.AccountId, trimmed, ct)
+                ? DeleteCharacterOutcome.Success()
+                : DeleteCharacterOutcome.Denied("character not found");
+        }
+        finally
+        {
+            _sessions.ReleaseCharacter(found.Id, sessionToken);
+        }
     }
 
     private PlayerSession Authenticate(string token)
@@ -112,7 +129,34 @@ public sealed class CharacterAppService
         return session;
     }
 
+    // A character whose saved equipment cannot be read is listed without its looks, so the rest of the account still logs
+    // in; entering it is refused as an unsupported saved state.
     private CharacterSummary BuildSummary(CharacterRecord character)
+    {
+        var (armorKey, weaponKey, offHandKey) = (string.Empty, string.Empty, string.Empty);
+        try
+        {
+            (armorKey, weaponKey, offHandKey) = VisualKeys(character);
+        }
+        catch (Exception exception) when (exception is InvalidDataException or System.Text.Json.JsonException or ArgumentException)
+        {
+        }
+
+        var inVillage = _world.TryGetFieldByCode(character.FieldId, out var field) && field.State == FieldState.Village;
+        return new CharacterSummary(
+            character.Name,
+            (PlayerClass)character.JobCode,
+            character.Level,
+            character.FaceIndex,
+            character.Tier,
+            character.HairIndex,
+            armorKey,
+            weaponKey,
+            offHandKey,
+            inVillage);
+    }
+
+    private (string Armor, string Weapon, string OffHand) VisualKeys(CharacterRecord character)
     {
         var equipment = CharacterStateCodec.ReadEquipment(character.Equipment);
         var occupiedSlots = new HashSet<EquipmentSlot>();
@@ -146,18 +190,7 @@ public sealed class CharacterAppService
             AssignVisualKey(saved.Slot.Value, definition, ref armorKey, ref weaponKey, ref offHandKey);
         }
 
-        var inVillage = _world.TryGetFieldByCode(character.FieldId, out var field) && field.State == FieldState.Village;
-        return new CharacterSummary(
-            character.Name,
-            (PlayerClass)character.JobCode,
-            character.Level,
-            character.FaceIndex,
-            character.Tier,
-            character.HairIndex,
-            armorKey,
-            weaponKey,
-            offHandKey,
-            inVillage);
+        return (armorKey, weaponKey, offHandKey);
     }
 
     private static void AssignVisualKey(

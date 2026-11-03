@@ -306,7 +306,10 @@ public sealed class FieldSpawner
         return new Vector3(center.X + MathF.Cos(angle) * radius, center.Y, center.Z + MathF.Sin(angle) * radius);
     }
 
-    private float RandomFacing() => _rng.NextUnit() * MathF.Tau;
+    private float RandomFacing() => RandomFacing(_rng);
+
+    // A spawned monster's facing: any direction, in radians.
+    public static float RandomFacing(ISimRng rng) => rng.NextUnit() * MathF.Tau;
 
     private static int CountAlive(IReadOnlyList<MonsterInstance> live)
     {

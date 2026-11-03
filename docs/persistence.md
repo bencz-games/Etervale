@@ -117,8 +117,8 @@ and its account warehouse are always written together, so a gold or item move be
 
 | Column | Shape | Limits on restore |
 | --- | --- | --- |
-| `inventory` | `SavedItems` v1: items with `Anchor` (grid cell), `Slot = null`, plus `Revision`, inventory `Operations`, `ServiceOperations`, `ShopPurchases`; the item in the hand has `Held = true` and `Anchor = -1` (written only when set) | 72 items |
-| `equipment` | `SavedItems` v1: items with `Slot` set and `Anchor = -1` | 72 items |
+| `inventory` | `SavedItems` v1: items with `Anchor` (grid cell), `Slot = null`, plus `Revision`, inventory `Operations`, `ServiceOperations`, `ShopPurchases`; the item in the hand has `Held = true` and `Anchor = -1` (written only when set) | `CharacterStateCodec.MaxSavedItems` (166: both bag pages, belt, special item box, hand) |
+| `equipment` | `SavedItems` v1: items with `Slot` set and `Anchor = -1` | `CharacterStateCodec.MaxSavedItems` |
 | `skills` | `SavedSkills` v1: points, elite points, `(Code, Rank, Uses)`, progression `Revision` and `Operations` | 128 skills, points >= 0 |
 | `warehouses.items` | `SavedItems` v1 with anchors in the warehouse grid | `WarehouseStorage.MaxItems` |
 | `premium` | `SavedPremium` v1 (`PremiumStateCodec.cs`): premium timers `(Kind, Value, DurationSeconds, ExpiresAtSeconds)` with Unix-second expiry, item-use `Operations`, `GravityScrolls`, head mode (1-2 big head, 3 soccer ball) and expiry, `SavedAtSeconds` (the last tick's clock); `{}` is empty | 17 timers; expired timers and heads are dropped on restore; boosters and skill delay move their expiry by the time since `SavedAtSeconds` |
