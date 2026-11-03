@@ -134,11 +134,9 @@ internal sealed class PristonShadowCascades
     }
 
     // The cascade's centre: the focus moved back by the sub-texel part of how far the focus has travelled across the
-    // light, so the centre advances by whole texels and a still receiver keeps its place in the texel grid. Snapping a
-    // fixed world anchor instead (the world origin, tens of thousands of units from the towns) moved the anchor's
-    // rounding phase with every slight turn of the sun, so at each refresh every shadow edge jumped a fraction of a
-    // texel: edges flickered at the refresh rate even with nothing moving. Turning the sun now pivots the grid about the
-    // focus, where the characters are.
+    // light, so the centre advances by whole texels and a still receiver keeps its place in the texel grid. The grid is
+    // anchored at the focus, never at a far world anchor, so a turn of the sun pivots it about the characters and leaves
+    // still shadow edges in place.
     internal static Vector3 FollowFocus(ref FocusSnap snap, Vector3 focus, Vector3 direction, Vector3 up, float worldPerTexel)
     {
         var right = Vector3.Normalize(Vector3.Cross(up, -direction));

@@ -11,8 +11,6 @@ namespace PristonTale.Application.Services;
 
 public sealed class CharacterAppService
 {
-    // New characters start in the starting town (Ricarten = field 3) at its spawn (resolved later).
-
     private readonly ISessionRegistry _sessions;
     private readonly ICharacterRepository _characters;
     private readonly CharacterClassRegistry _classes;

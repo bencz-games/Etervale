@@ -59,12 +59,12 @@ public static class ChatCommandText
         return index < line.Length ? line[index..] : "";
     }
 
-    // C atoi: optional leading blanks and sign, then digits; anything else ends the number (0 when none).
     // An entity id typed in a command: leading digits as an unsigned 64-bit value, 0 when there are none or they overflow.
     public static ulong ToEntityId(string text) =>
         ulong.TryParse(new string(text.TrimStart().TakeWhile(char.IsAsciiDigit).ToArray()), System.Globalization.NumberStyles.None,
             System.Globalization.CultureInfo.InvariantCulture, out var entityId) ? entityId : 0;
 
+    // C atoi: optional leading blanks and sign, then digits; anything else ends the number (0 when none).
     public static int ToNumber(string text)
     {
         var index = 0;

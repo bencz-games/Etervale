@@ -60,8 +60,8 @@ public sealed class WorldPlayer
     // of any height are accepted.
     private const float ReportClimb = 64f;
     // The most each 8-unit step of a report may climb: the client steps up at most GroundTraversal.StepUp (10 units)
-    // every 4 units, so 20, with room for the two sides sampling the ground at different points. Allowing ReportClimb at
-    // every step let one report scale 64 units per step, up any cliff without a wall face.
+    // every 4 units, so 20, with room for the two sides sampling the ground at different points; ReportClimb bounds the
+    // whole report, this each step, so no report scales a cliff without a wall face.
     private const float StepClimb = 24f;
     // Every report is walked in pieces no longer than this, each following the client's wall slide from the floor the
     // last piece stood on, so the rising ground of a ramp is not taken for a wall. A piece may end this far from its

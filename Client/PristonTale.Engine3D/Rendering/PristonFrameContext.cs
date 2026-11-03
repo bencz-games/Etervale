@@ -100,7 +100,7 @@ public readonly record struct PristonDistanceFog(
 
     public static PristonDistanceFog Disabled { get; } = Atmospheric with { Mode = DistanceFogMode.Off };
 
-    // The original game's stepped colour clip (Classic) is no longer drawn: it falls back to the atmospheric fog.
+    // The Classic mode draws the atmospheric fog.
     public static PristonDistanceFog For(DistanceFogMode mode) => mode switch
     {
         DistanceFogMode.Classic or DistanceFogMode.Atmospheric => Atmospheric,

@@ -135,8 +135,6 @@ public static class UsableItemEffects
         }
     }
 
-    // Every learned rank returns its point: the final tier's skills (window 12..15) to the final-tier points.
-
     // The learned skills of a class tier (1..3: the tier's window of SkillsPerTier skills) that are not fully trained.
     private static IEnumerable<Skill> MasterySkills(PlayerCharacter character, int tier)
     {

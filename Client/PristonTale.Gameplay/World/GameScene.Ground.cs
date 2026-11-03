@@ -177,7 +177,6 @@ public sealed partial class GameScene
 
     private Vector2 ResolveEntityCollision(Vector2 oldPlanar, Vector2 desiredPlanar)
     {
-        // Visual terrain heights remain client-only until the authority owns the same geometry.
         if (_remote == null)
         {
             return desiredPlanar;

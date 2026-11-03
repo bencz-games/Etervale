@@ -13,7 +13,7 @@ using PristonTale.Simulation.World.Monsters;
 
 namespace PristonTale.Server.Net;
 
-// Server-side mapping from authoritative views to original Priston structs.
+// Server-side mapping from the authoritative views to Etervale's wire records.
 internal static class WireMapping
 {
 

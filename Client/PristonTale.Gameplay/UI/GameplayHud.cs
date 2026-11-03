@@ -241,8 +241,8 @@ public sealed partial class GameplayHud : IDisposable
     internal uint RightSkillId => _bindings.RightSkillId;
     public HudSkillBindings Bindings => _bindings;
 
-    // Cooldowns and active effects of the local player, and the clock they are kept on (GameScene.Skills).
-    // The client's view of statuses and cooldowns from the server's skill messages.
+    // The local player's statuses and cooldowns from the server's skill messages, and the clock they are kept on
+    // (GameScene.Skills).
     public PristonTale.Gameplay.Effects.StatusBook Statuses { get; set; }
     public PristonTale.Gameplay.Effects.SkillCooldownBook Cooldowns { get; set; }
     public double SkillClockMs { get; set; }

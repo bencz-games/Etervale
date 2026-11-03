@@ -70,8 +70,6 @@ public static class MonsterCrystals
     public static EffectSpec WebSlow() =>
         new(WebSlowStatusCode, EffectSourceKind.Item, true, [StatModifier.Percent(StatKind.MoveSpeed, -50)], control: ControlFlags.Slow);
 
-    // The quest arena refuses every crystal.
-
     // A pet's owner keeps one status per pet in the running-effects bar: the base plus the number of the crystal its icon
     // shows (GP101: 0xF0000565) plus the pet's slot in bits 12-23, so every pet has its own icon, time and dismissal. A
     // player keeps at most ten pets, one per slot.

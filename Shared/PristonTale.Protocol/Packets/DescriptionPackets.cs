@@ -7,7 +7,7 @@ namespace PristonTale.Protocol.Packets;
 
 internal static class DescriptionWire
 {
-    // Version 2 appended the player's shop sign.
+    // Version 2 carries the player's shop sign after the fields of version 1.
     public const ushort Version = 2;
     public const int MaxNameBytes = 64;
     public const int MaxModelBytes = 160;
