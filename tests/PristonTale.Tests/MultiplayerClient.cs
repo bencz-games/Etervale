@@ -142,7 +142,9 @@ internal sealed class MultiplayerClient : IAsyncDisposable
             if (Environment.TickCount64 > deadline)
             {
                 var dump = World.Read(world => string.Join(" | ", world.Combat.Select(entry => $"{entry.Event.Kind}:{entry.Event.AttackerId}>{entry.Event.TargetId}={entry.Event.Damage}"))
-                    + $" self {world.Entities.GetValueOrDefault(EntityId)?.Position} {world.Entities.GetValueOrDefault(EntityId)?.Motion} prey {world.Entities.GetValueOrDefault(target)?.Position} {world.Entities.GetValueOrDefault(target)?.Motion} {world.Entities.GetValueOrDefault(target)?.Life} warps {world.Warps.Count}");
+                    + $" self {world.Entities.GetValueOrDefault(EntityId)?.Position} {world.Entities.GetValueOrDefault(EntityId)?.Motion}"
+                    + $" prey {world.Entities.GetValueOrDefault(target)?.Position} {world.Entities.GetValueOrDefault(target)?.Motion} {world.Entities.GetValueOrDefault(target)?.Life}"
+                    + $" warps {world.Warps.Count}");
                 throw new TimeoutException($"{Name} never finished hunting {target}{World.Failure}: {dump}");
             }
 

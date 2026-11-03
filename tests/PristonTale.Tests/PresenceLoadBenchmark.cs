@@ -154,7 +154,8 @@ internal static class PresenceLoadBenchmark
         Console.WriteLine(string.Create(System.Globalization.CultureInfo.InvariantCulture,
             $"{count,5} {(crowded ? "crowded" : "spread "),-7} | {P(tickTimes, 50),6:F2} / {P(tickTimes, 99),6:F2} | {P(encodeTimes, 50),6:F2} / {P(encodeTimes, 99),6:F2} | "
             + $"{P(totalTimes, 99),7:F2} | {cpu,5:F2} | {bytes / (double)count / seconds,9:F0} | {bytes / (double)count / ticks,7:F0} | "
-            + $"{allocated / 1024.0 / ticks,8:F1} ({tickAllocated / 1024.0 / ticks:F0} tick, {encodeAllocated / 1024.0 / ticks:F0} encode) | {GC.CollectionCount(0) - gcStart.Item1}/{GC.CollectionCount(1) - gcStart.Item2}/{GC.CollectionCount(2) - gcStart.Item3} | "
+            + $"{allocated / 1024.0 / ticks,8:F1} ({tickAllocated / 1024.0 / ticks:F0} tick, {encodeAllocated / 1024.0 / ticks:F0} encode) | "
+            + $"{GC.CollectionCount(0) - gcStart.Item1}/{GC.CollectionCount(1) - gcStart.Item2}/{GC.CollectionCount(2) - gcStart.Item3} | "
             + $"{GC.GetTotalMemory(false) / 1048576.0,6:F0}"));
         sampler?.Print(ticks);
         Console.WriteLine($"    read {ReadTicks * 1000.0 / Stopwatch.Frequency / (WarmupTicks + ticks):F2} ms/tick cpu, encode {EncodeTicks * 1000.0 / Stopwatch.Frequency / (WarmupTicks + ticks):F2} ms/tick cpu");
