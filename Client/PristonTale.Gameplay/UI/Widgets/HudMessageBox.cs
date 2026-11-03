@@ -26,7 +26,7 @@ public static class HudMessageBox
         painter.Sprite(HudArt.MessageBox, bounds.X, bounds.Y);
         painter.Sprite(Accept.Contains(pointer) ? HudArt.YesYellow : HudArt.YesGray, Accept.X, Accept.Y);
         painter.Sprite(Reject.Contains(pointer) ? HudArt.NoYellow : HudArt.NoGray, Reject.X, Reject.Y);
-        painter.TextCentered(painter.Fit(first, VisibleWidth - 16), bounds.Left, bounds.Right, bounds.Y + 20, new Color(255, 255, 180));
+        painter.TextCentered(painter.Fit(first, VisibleWidth - 16), bounds.Left, bounds.Right, bounds.Y + 20, HudTextColors.BoxTitle);
         painter.TextCentered(painter.Fit(second, VisibleWidth - 16), bounds.Left, bounds.Right, bounds.Y + 43);
         if (third is not null)
         {

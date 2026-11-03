@@ -31,7 +31,7 @@ public sealed class HudLevelGuide(HudTextFiles texts, Action<string> requestArt)
     private const int PictureGap = 8;
     private const int MoreWidth = 80;
     private static readonly Point CloseSize = new(32, 16);
-    private static readonly Color MoreColor = new(255, 220, 90);
+    private static readonly Color MoreColor = HudTextColors.Marked;
 
     private LevelGuidePage _page;
     private bool _summary;

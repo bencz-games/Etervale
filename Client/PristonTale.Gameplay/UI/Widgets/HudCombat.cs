@@ -24,7 +24,7 @@ public sealed partial class HudCombat
     private const int NameLift = 21;
     private static readonly Color LevelColor = new(220, 220, 220);
     private static readonly Color MonsterColor = new(255, 160, 120);
-    private static readonly Color NpcColor = new(255, 255, 180);
+    private static readonly Color NpcColor = HudTextColors.BoxTitle;
     // The original name shadow sits one pixel right and one pixel up.
     private static readonly Point NameShadow = new(1, -1);
 

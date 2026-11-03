@@ -87,7 +87,7 @@ public sealed class HudCountBox
     {
         var bounds = Bounds;
         painter.Sprite(HudArt.MessageBox, bounds.X, bounds.Y);
-        painter.TextCentered(painter.Fit(_first, HudMessageBox.VisibleWidth - 16), bounds.Left, bounds.Right, bounds.Y + 20, new Color(255, 255, 180));
+        painter.TextCentered(painter.Fit(_first, HudMessageBox.VisibleWidth - 16), bounds.Left, bounds.Right, bounds.Y + 20, HudTextColors.BoxTitle);
         painter.TextCentered(painter.Fit(_second, HudMessageBox.VisibleWidth - 16), bounds.Left, bounds.Right, bounds.Y + 40);
         painter.Sprite(HudArt.CountField, Field.X, Field.Y);
         painter.Text(_text, Field.X + 8, Field.Y + 6);

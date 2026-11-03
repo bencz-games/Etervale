@@ -6,8 +6,8 @@ namespace PristonTale.Gameplay.UI.Npc;
 // The original item box above the pointer: the name in the item colour and up to two lines below it.
 public static class HudItemTooltip
 {
-    private static readonly Color NameColor = new(255, 255, 180);
-    private static readonly Color LineColor = new(200, 200, 200);
+    private static readonly Color NameColor = HudTextColors.BoxTitle;
+    private static readonly Color LineColor = HudTextColors.Hint;
 
     // Drawn every frame an item is hovered, so it allocates nothing: the empty lines are skipped, not filtered out.
     public static void Draw(HudPainter painter, HudLayout layout, Point pointer, string name, string first, string second = "")

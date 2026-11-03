@@ -30,7 +30,7 @@ public sealed class HudWingGate(IClientLog log)
     public const string CancelButtonHover = "image/clanImage/MessageBox/c1.bmp";
     // The rings start every forty frames of the original's seventy a second while an icon is hovered.
     private const int RingPeriodFrames = 40;
-    private static readonly Color TitleColor = new(255, 255, 240);
+    private static readonly Color TitleColor = HudTextColors.HelpText;
 
     public static readonly string[] Art = [WingGates.MapArt, WingGates.IconArt, WingGates.SelectArt, CancelBox, CancelButton, CancelButtonHover];
 

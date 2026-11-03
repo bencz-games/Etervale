@@ -407,7 +407,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         var bounds = HudPainter.InfoBoxBounds(place.X, place.Y, place.Width, place.Height);
         painter.Flush();
         painter.InfoBox(bounds);
-        painter.Text(title, bounds.X + 10, bounds.Y + 8, new Color(255, 255, 180));
+        painter.Text(title, bounds.X + 10, bounds.Y + 8, HudTextColors.BoxTitle);
         for (var index = 0; index < lines.Length; index++)
         {
             painter.Text(lines[index], bounds.X + 10, bounds.Y + 26 + index * HudPainter.LineHeight, new Color(220, 220, 220));

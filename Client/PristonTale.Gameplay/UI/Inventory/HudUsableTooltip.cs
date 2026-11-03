@@ -175,12 +175,12 @@ public static class HudUsableTooltip
         bounds = HudPainter.InfoBoxBounds(bounds.X, bounds.Y, bounds.Width, bounds.Height);
         painter.Flush();
         painter.InfoBox(bounds);
-        painter.TextCentered(painter.Fit(name, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + 9, new Color(255, 255, 180));
+        painter.TextCentered(painter.Fit(name, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + 9, HudTextColors.BoxTitle);
         for (var index = 0; index < count; index++)
         {
             var isAction = index == lines.Count;
             var text = isAction ? action : lines[index];
-            var color = isAction ? new Color(200, 200, 200) : new Color(150, 220, 255);
+            var color = isAction ? HudTextColors.Hint : new Color(150, 220, 255);
             painter.TextCentered(painter.Fit(text, bounds.Width - 16), bounds.Left, bounds.Right, bounds.Y + 26 + 17 * index, color);
         }
     }

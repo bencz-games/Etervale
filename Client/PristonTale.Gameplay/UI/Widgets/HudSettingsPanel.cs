@@ -80,7 +80,7 @@ internal sealed class HudSettingsPanel
         painter.HelpBox(BoxX, BoxY, SizeW, SizeH);
         var title = Title;
         painter.Sprite(HudArt.HelpTitle, title.X, title.Y);
-        painter.TextCentered("Settings", title.Left, title.Right, title.Y + 7, new Color(255, 255, 180));
+        painter.TextCentered("Settings", title.Left, title.Right, title.Y + 7, HudTextColors.BoxTitle);
         for (var index = 0; index < _labels.Length; index++)
         {
             var row = Row(index);
@@ -93,9 +93,9 @@ internal sealed class HudSettingsPanel
         }
 
         var notes = Row(_labels.Length);
-        painter.Text(painter.Fit(_settings.EffectiveDisplay, notes.Width - 8), notes.X + 6, notes.Y + 6, new Color(200, 200, 200));
+        painter.Text(painter.Fit(_settings.EffectiveDisplay, notes.Width - 8), notes.X + 6, notes.Y + 6, HudTextColors.Hint);
         var hint = _settings.Message.Length > 0 ? "Settings need attention; see the client log." : "Click: next   Shift+click: previous";
-        painter.Text(hint, notes.X + 6, notes.Y + 6 + RowHeight, _settings.Message.Length > 0 ? Color.Orange : new Color(200, 200, 200));
+        painter.Text(hint, notes.X + 6, notes.Y + 6 + RowHeight, _settings.Message.Length > 0 ? Color.Orange : HudTextColors.Hint);
         var ok = OkButton;
         painter.Sprite(HudArt.HelpButton, ok.X - 9, ok.Y - 4);
         painter.Sprite(ok.Contains(pointer) ? HudArt.OkYellow : HudArt.OkGray, ok.X, ok.Y);

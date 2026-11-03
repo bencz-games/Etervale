@@ -121,7 +121,7 @@ public sealed class HudTeleportCore
         painter.HelpBox(BoxX, BoxY, SizeW, SizeH);
         var title = Title;
         painter.Sprite(HudArt.HelpTitle, title.X, title.Y);
-        painter.TextCentered("TELEPORT", title.Left, title.Right, title.Y + 7, new Color(255, 255, 240));
+        painter.TextCentered("TELEPORT", title.Left, title.Right, title.Y + 7, HudTextColors.HelpText);
         painter.TextCentered($"[Teleport Core - Page {Page + 1}]", BoxX, Box.Right, TextY);
         var rule = "=";
         while (painter.Measure(rule + "=") <= Box.Width - 60)

@@ -14,8 +14,8 @@ public sealed class HudQuestDialog
     private const int TextWidth = HudNpcPanel.SizeW * 32;
     private const int TextTop = HudNpcPanel.BoxY + 66;
     private const int LineStep = HudPainter.LineHeight;
-    private static readonly Color TitleColor = new(255, 255, 180);
-    private static readonly Color Highlight = new(255, 220, 90);
+    private static readonly Color TitleColor = HudTextColors.BoxTitle;
+    private static readonly Color Highlight = HudTextColors.Marked;
     private int _firstLine;
     private string _document = "";
     private int _lineCount;

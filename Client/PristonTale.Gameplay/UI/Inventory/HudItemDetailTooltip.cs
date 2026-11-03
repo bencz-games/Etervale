@@ -27,7 +27,7 @@ public static class HudItemDetailTooltip
     public static readonly Color SpecHeaderColor = new(255, 220, 0);
     public static readonly Color SpecColor = new(164, 199, 41);
     public static readonly Color PriceColor = HudTextColors.Highlight;
-    public static readonly Color HintColor = new(200, 200, 200);
+    public static readonly Color HintColor = HudTextColors.Hint;
     public static readonly Color AgingColor = new(119, 200, 254);
     public static readonly Color MixedNameColor = new(150, 255, 255);
     public static readonly Color MixedColor = new(110, 165, 250);

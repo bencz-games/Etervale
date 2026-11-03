@@ -31,8 +31,8 @@ public sealed class HudHelpWindow(HudTextFiles texts, Action<string> requestArt)
     private static readonly Point HelpIconAt = new(233, 24);
     private static readonly Point GuideIconAt = new(513, 25);
     private static readonly Rectangle Title = new(340, 25, 152, 28);
-    private static readonly Color TitleColor = new(255, 255, 240);
-    private static readonly Color Highlight = new(255, 220, 90);
+    private static readonly Color TitleColor = HudTextColors.HelpText;
+    private static readonly Color Highlight = HudTextColors.Marked;
     // The footer: OK in its plate, and on the guide pages the list link, the notice label and the On/Off switch.
     private static readonly Point OkPlateAt = new(392, 361);
     public static readonly Rectangle OkButton = new(401, 365, 32, 16);

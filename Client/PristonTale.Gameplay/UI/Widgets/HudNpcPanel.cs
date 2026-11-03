@@ -30,7 +30,7 @@ public sealed class HudNpcPanel(
     private const int MaxButtonRows = 3;
     private const int MaxDestinations = 4;
     private static readonly Color Unavailable = new(130, 130, 130);
-    private static readonly Color Highlight = new(255, 220, 90);
+    private static readonly Color Highlight = HudTextColors.Marked;
 
     private readonly HudRequest<NpcInteraction> _request = new(log, "NPC interaction failed");
     private string[] _dialog = [];
@@ -197,7 +197,7 @@ public sealed class HudNpcPanel(
         painter.HelpBox(BoxX, BoxY, SizeW, SizeH);
         var title = Title;
         painter.Sprite(HudArt.HelpTitle, title.X, title.Y);
-        painter.TextCentered(painter.Fit(Current.Name, title.Width - 20), title.Left, title.Right, title.Y + 7, new Color(255, 255, 180));
+        painter.TextCentered(painter.Fit(Current.Name, title.Width - 20), title.Left, title.Right, title.Y + 7, HudTextColors.BoxTitle);
         var capacity = LineCapacity;
         string[] lines = Destinations.Count > 0 ? ["Where do you want to go?"] : _dialog;
         for (var line = 0; line < capacity && _firstLine + line < lines.Length; line++)
