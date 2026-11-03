@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.Xna.Framework;
+using PristonTale.Assets;
 using PristonTale.Engine3D.Formats;
 using PristonTale.AssetDump;
 using PristonTale.Contracts.Motion;
@@ -96,12 +97,12 @@ catch (Exception ex)
 // the leading bytes to tell a stage from a model; the reader itself validates the full prefix.
 static string? DetectSmdKind(string path)
 {
-    Span<byte> head = stackalloc byte[24];
+    Span<byte> head = stackalloc byte[SmdLayout.SignatureSize];
     using var fs = File.OpenRead(path);
     var read = fs.Read(head);
     var name = Encoding.ASCII.GetString(head[..read]);
-    if (name.StartsWith("SMD Stage data", StringComparison.Ordinal)) return "stage";
-    if (name.StartsWith("SMD Model data", StringComparison.Ordinal)) return "model";
+    if (name.StartsWith(SmdLayout.StagePrefix, StringComparison.Ordinal)) return "stage";
+    if (name.StartsWith(SmdLayout.ModelPrefix, StringComparison.Ordinal)) return "model";
     return null;
 }
 

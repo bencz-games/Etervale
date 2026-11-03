@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using PristonTale.Assets;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Contracts.Motion;
 
@@ -6,8 +7,6 @@ namespace PristonTale.Engine3D.Formats;
 
 public static class PristonFormatConstants
 {
-    public const string StageHeader = "SMD Stage data Ver 0.72";
-    public const string ModelHeader = "SMD Model data Ver 0.62";
     public const int MotionInfoCount = 512;
     public const int TalkMotionInfoCount = 30;
     public const int NpcMotionInfoCount = 30;
@@ -79,7 +78,7 @@ public sealed record PristonStageLayoutMetadata(
 
 public sealed class PristonStageAreaIndex
 {
-    public const int Width = 256;
+    public const int Width = SmdLayout.AreaWidth;
     public const int CellCount = Width * Width;
 
     private readonly int[] _offsets;

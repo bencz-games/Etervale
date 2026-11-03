@@ -123,7 +123,7 @@ internal static class BinaryAssetValidationProbe
 
     private static bool HasStageSignature(string path)
     {
-        Span<byte> header = stackalloc byte[24];
+        Span<byte> header = stackalloc byte[SmdLayout.SignatureSize];
         using var stream = AssetFiles.OpenRead(path);
         stream.ReadExactly(header);
         var terminator = header.IndexOf((byte)0);
@@ -132,7 +132,7 @@ internal static class BinaryAssetValidationProbe
             terminator = header.Length;
         }
 
-        return Encoding.ASCII.GetString(header[..terminator]).StartsWith("SMD Stage data", StringComparison.Ordinal);
+        return Encoding.ASCII.GetString(header[..terminator]).StartsWith(SmdLayout.StagePrefix, StringComparison.Ordinal);
     }
 
     private sealed class ValidationResult

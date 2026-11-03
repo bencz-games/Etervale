@@ -14,32 +14,25 @@ public static class StageCollisionReader
     // Check-face flag: faces of materials with this MeshState bit block and support characters.
     public const uint CheckFace = 0x00000001;
 
-    private const int FileHeaderSize = 556;
-    private const int Stage3DSize = 262260;
-    private const int StageAreaCells = 256 * 256;
-    private const int StageCountsOffset = 4 + StageAreaCells * 4 + 12 * 4;
-    private const int MaterialGroupSize = 88;
-    private const int MaterialSize = 320;
+    private const int StageCountsOffset = 4 + SmdLayout.AreaWidth * SmdLayout.AreaWidth * 4 + 12 * 4;
     // Material record: 104 bytes of texture slots and states, eleven scalars and the diffuse colour, then UseState at 164.
     private const int MaterialMeshStateOffset = 168;
-    private const int VertexSize = 28;
-    private const int FaceSize = 28;
 
     public static CollisionMesh Read(byte[] data)
     {
-        if (data.Length < FileHeaderSize + Stage3DSize)
+        if (data.Length < SmdLayout.FileHeaderSize + SmdLayout.StageHeaderSize)
         {
             throw new InvalidDataException("Stage SMD is shorter than its headers.");
         }
 
-        var signature = Encoding.ASCII.GetString(data, 0, 24).TrimEnd('\0');
-        if (signature is not ("SMD Stage data Ver 0.72" or "SMD Stage data Ver 0.73"))
+        var signature = Encoding.ASCII.GetString(data, 0, SmdLayout.SignatureSize).TrimEnd('\0');
+        if (signature is not (SmdLayout.StageSignature or SmdLayout.StageSignature73))
         {
             throw new InvalidDataException($"Not a stage SMD: '{signature}'.");
         }
 
         var materialCount = BinaryPrimitives.ReadInt32LittleEndian(data.AsSpan(28));
-        var counts = data.AsSpan(FileHeaderSize + StageCountsOffset);
+        var counts = data.AsSpan(SmdLayout.FileHeaderSize + StageCountsOffset);
         var vertexCount = BinaryPrimitives.ReadInt32LittleEndian(counts);
         var faceCount = BinaryPrimitives.ReadInt32LittleEndian(counts[4..]);
         if (vertexCount < 0 || faceCount < 0 || materialCount < 0 || materialCount > 10_000)
@@ -47,7 +40,7 @@ public static class StageCollisionReader
             throw new InvalidDataException("Stage SMD has invalid counts.");
         }
 
-        var offset = FileHeaderSize + Stage3DSize;
+        var offset = SmdLayout.FileHeaderSize + SmdLayout.StageHeaderSize;
         var checkFace = new bool[materialCount];
         if (materialCount > 0)
         {
@@ -57,13 +50,13 @@ public static class StageCollisionReader
                 throw new InvalidDataException($"Stage SMD declares {materialCount} materials but its group holds {declared}.");
             }
 
-            offset += MaterialGroupSize;
+            offset += SmdLayout.MaterialGroupSize;
             for (var index = 0; index < materialCount; index++)
             {
-                var material = Slice(data, offset, MaterialSize);
+                var material = Slice(data, offset, SmdLayout.MaterialSize);
                 var inUse = BinaryPrimitives.ReadUInt32LittleEndian(material) != 0;
                 checkFace[index] = (BinaryPrimitives.ReadUInt32LittleEndian(material[MaterialMeshStateOffset..]) & CheckFace) != 0;
-                offset += MaterialSize;
+                offset += SmdLayout.MaterialSize;
                 if (inUse)
                 {
                     // In-use materials are followed by a length-prefixed table of texture names.
@@ -81,18 +74,18 @@ public static class StageCollisionReader
         var vertices = new Vector3[vertexCount];
         for (var index = 0; index < vertexCount; index++)
         {
-            var vertex = Slice(data, offset + index * VertexSize, VertexSize);
+            var vertex = Slice(data, offset + index * SmdLayout.StageVertexSize, SmdLayout.StageVertexSize);
             vertices[index] = new Vector3(
                 BinaryPrimitives.ReadInt32LittleEndian(vertex[8..]) / GameUnits.FixedScale,
                 BinaryPrimitives.ReadInt32LittleEndian(vertex[12..]) / GameUnits.FixedScale,
                 BinaryPrimitives.ReadInt32LittleEndian(vertex[16..]) / GameUnits.FixedScale);
         }
 
-        offset += vertexCount * VertexSize;
+        offset += vertexCount * SmdLayout.StageVertexSize;
         var triangles = new List<Triangle>(faceCount);
         for (var index = 0; index < faceCount; index++)
         {
-            var face = Slice(data, offset + index * FaceSize, FaceSize);
+            var face = Slice(data, offset + index * SmdLayout.StageFaceSize, SmdLayout.StageFaceSize);
             int a = BinaryPrimitives.ReadUInt16LittleEndian(face[8..]);
             int b = BinaryPrimitives.ReadUInt16LittleEndian(face[10..]);
             int c = BinaryPrimitives.ReadUInt16LittleEndian(face[12..]);

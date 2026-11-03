@@ -9,13 +9,8 @@ namespace PristonTale.Engine3D.Formats;
 
 public sealed class PristonSmdReader
 {
-    private const int FileHeaderSize = 556;
+    private const int FileHeaderSize = SmdLayout.FileHeaderSize;
     private const int ObjectInfoSize = 40;
-    private const int MaterialGroupSize = 88;
-    private const int MaterialSize = 320;
-    private const int Stage3DSize = 262260;
-    private const int StageVertexSize = 28;
-    private const int StageFaceSize = 28;
     private const int StageLightSize = 28;
     private const int TexLinkSize = 32;
     private const int Obj3DSize = 2236;
@@ -29,7 +24,6 @@ public sealed class PristonSmdReader
     private const int MotionSegmentTableEntries = 32;
     private const uint ObjHeadMagic = 0x41424344;
     private const uint ObjHeadTypeNewNormal = 0x80000000;
-    private const string StageHeaderVersion73 = "SMD Stage data Ver 0.73";
 
     private static ReadOnlySpan<byte> BinaryModelHeader =>
     [
@@ -86,7 +80,7 @@ public sealed class PristonSmdReader
 
         cursor.Position = FileHeaderSize;
         var stage = ReadStageHeader(cursor);
-        AssertRecordSize(cursor, FileHeaderSize, Stage3DSize, "stage header record");
+        AssertRecordSize(cursor, FileHeaderSize, SmdLayout.StageHeaderSize, "stage header record");
 
         var materialGroup = header.MaterialCount > 0
             ? ReadMaterialGroup(cursor, header.MaterialCount)
@@ -226,17 +220,17 @@ public sealed class PristonSmdReader
         }
 
         var headerName = DecodeFixedString(headerBytes);
-        if (string.Equals(headerName, PristonFormatConstants.ModelHeader, StringComparison.Ordinal))
+        if (string.Equals(headerName, SmdLayout.ModelSignature, StringComparison.Ordinal))
         {
             return PristonSmdHeaderKind.Version62Model;
         }
 
-        if (string.Equals(headerName, PristonFormatConstants.StageHeader, StringComparison.Ordinal))
+        if (string.Equals(headerName, SmdLayout.StageSignature, StringComparison.Ordinal))
         {
             return PristonSmdHeaderKind.StageVersion72;
         }
 
-        if (string.Equals(headerName, StageHeaderVersion73, StringComparison.Ordinal))
+        if (string.Equals(headerName, SmdLayout.StageSignature73, StringComparison.Ordinal))
         {
             return PristonSmdHeaderKind.StageVersion73;
         }
@@ -402,7 +396,7 @@ public sealed class PristonSmdReader
         var mapTop = cursor.Int32();
         var mapRight = cursor.Int32();
         var mapBottom = cursor.Int32();
-        AssertRecordSize(cursor, start, Stage3DSize, "stage header record");
+        AssertRecordSize(cursor, start, SmdLayout.StageHeaderSize, "stage header record");
 
         ValidateCount(vertexCount, "stage vertices");
         ValidateCount(faceCount, "stage faces");
@@ -451,7 +445,7 @@ public sealed class PristonSmdReader
         var maximumMaterialCount = cursor.Int32();
         var lastSearchMaterial = cursor.Int32();
         var lastSearchName = cursor.FixedString(64);
-        AssertRecordSize(cursor, start, MaterialGroupSize, "material group record");
+        AssertRecordSize(cursor, start, SmdLayout.MaterialGroupSize, "material group record");
 
         if (materialCount > 10_000)
         {
@@ -509,7 +503,7 @@ public sealed class PristonSmdReader
         var frameMask = cursor.UInt32();
         var shiftFrameSpeed = cursor.UInt32();
         var animationFrame = cursor.UInt32();
-        AssertRecordSize(cursor, start, MaterialSize, "material record");
+        AssertRecordSize(cursor, start, SmdLayout.MaterialSize, "material record");
 
         if (textureCounter > texturePointers32.Length)
         {
@@ -655,7 +649,7 @@ public sealed class PristonSmdReader
         var green = cursor.Int16();
         var red = cursor.Int16();
         var alpha = cursor.Int16();
-        AssertRecordSize(cursor, start, StageVertexSize, "stage vertex record");
+        AssertRecordSize(cursor, start, SmdLayout.StageVertexSize, "stage vertex record");
         return new PristonStageVertex(ToMonoGameStagePosition(x, y, z), PristonBinaryUtil.StageColor(blue, green, red, alpha))
         {
             Sum = sum,
@@ -697,7 +691,7 @@ public sealed class PristonSmdReader
         var material = cursor.UInt16();
         var textureLinkPointer32 = cursor.UInt32();
         var normal = new Short4(cursor.Int16(), cursor.Int16(), cursor.Int16(), cursor.Int16());
-        AssertRecordSize(cursor, start, StageFaceSize, "stage face record");
+        AssertRecordSize(cursor, start, SmdLayout.StageFaceSize, "stage face record");
         return new PristonStageFace(a, b, c, material, TexLinkIndex(textureLinkPointer32, textureLinkBase))
         {
             Sum = sum,
