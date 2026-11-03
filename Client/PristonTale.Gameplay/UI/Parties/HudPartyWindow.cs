@@ -17,7 +17,7 @@ public sealed class HudPartyWindow
 {
     public const int CloseButton = 4;
     private const int LifeWidth = 94;
-    private const double DoubleClickSeconds = 0.4;
+    public const double DoubleClickSeconds = 0.4;
     private static readonly Color NameColor = new(209, 190, 154);
     private static readonly Color PickedColor = new(255, 150, 0);
     private static readonly Color LevelColor = new(255, 190, 107);
@@ -51,12 +51,9 @@ public sealed class HudPartyWindow
 
     public static string LevelText(int level)
     {
-        if ((uint)level >= LevelTexts.Length)
-        {
-            return level > 10 ? $"L{level / 10}x" : $"L{level}";
-        }
+        return (uint)level >= LevelTexts.Length ? Format(level) : LevelTexts[level] ??= Format(level);
 
-        return LevelTexts[level] ??= level > 10 ? $"L{level / 10}x" : $"L{level}";
+        static string Format(int level) => level > 10 ? $"L{level / 10}x" : $"L{level}";
     }
 
     public Point CurrentOrigin(HudLayout layout) => HudSidePanel.Origin(layout, _slide.Move);

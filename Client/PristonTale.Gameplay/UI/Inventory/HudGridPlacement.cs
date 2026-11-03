@@ -44,8 +44,8 @@ public static class HudGridPlacement
         OwnedItemView carried, Point pointer)
     {
         var frame = Frame(carried, pointer);
-        var column = FloorDivide(frame.X + HalfCell - grid.X, CellSize);
-        var row = FloorDivide(frame.Y + HalfCell - grid.Y, CellSize);
+        var column = HudLayout.FloorDivide(frame.X + HalfCell - grid.X, CellSize);
+        var row = HudLayout.FloorDivide(frame.Y + HalfCell - grid.Y, CellSize);
         if (column < 0 || row < 0 || column + carried.Width > columns || row + carried.Height > rows)
         {
             return null;
@@ -79,5 +79,4 @@ public static class HudGridPlacement
             anchor, Covered: covered);
     }
 
-    private static int FloorDivide(int value, int divisor) => value >= 0 ? value / divisor : (value - divisor + 1) / divisor;
 }

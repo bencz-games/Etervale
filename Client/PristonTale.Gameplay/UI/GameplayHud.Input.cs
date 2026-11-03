@@ -39,7 +39,7 @@ public sealed partial class GameplayHud
         }
 
         var now = _clock.Elapsed.TotalSeconds;
-        if (code == _lastBuffClicked && now - _lastBuffClickSeconds < 0.4 && PristonTale.Simulation.Skills.SkillRuleCatalog.TryGet(code, out var rule) && rule.Summon is not null)
+        if (code == _lastBuffClicked && now - _lastBuffClickSeconds < PristonTale.Gameplay.UI.Parties.HudPartyWindow.DoubleClickSeconds && PristonTale.Simulation.Skills.SkillRuleCatalog.TryGet(code, out var rule) && rule.Summon is not null)
         {
             _lastBuffClicked = 0;
             SummonModeRequested?.Invoke(code);

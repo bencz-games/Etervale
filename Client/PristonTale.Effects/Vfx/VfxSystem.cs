@@ -365,12 +365,7 @@ public sealed class VfxInstance
 
     internal Vector3 AnchorPosition(VfxAnchor anchor, string bone, Vector3 offset, IVfxAnchors anchors)
     {
-        var entity = anchor switch
-        {
-            VfxAnchor.Caster => Spawn.CasterId,
-            VfxAnchor.Target => Spawn.TargetId,
-            _ => 0u
-        };
+        var entity = EntityOf(anchor);
         var basis = anchor switch
         {
             VfxAnchor.Caster => CasterPosition,

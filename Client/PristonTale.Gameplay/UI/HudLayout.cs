@@ -43,5 +43,6 @@ public readonly record struct HudLayout(int Scale, int Width, int Height, int Vi
         return new Rectangle(x, y, width, height);
     }
 
-    private static int FloorDivide(int value, int divisor) => value >= 0 ? value / divisor : -((-value + divisor - 1) / divisor);
+    // value / divisor rounded down, for negative values too.
+    internal static int FloorDivide(int value, int divisor) => value >= 0 ? value / divisor : -((-value + divisor - 1) / divisor);
 }

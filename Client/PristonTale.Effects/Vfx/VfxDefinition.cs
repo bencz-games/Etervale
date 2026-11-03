@@ -310,7 +310,7 @@ public sealed record VfxDefinition
         var drawn = part.Shape != VfxPartShape.Model || part.Model.Length > 0;
         return part.Count is >= 1 and <= 1024 && part.Delay >= 0f && part.DelayStep >= 0f && part.DelayRandom >= 0f && part.Frames >= 0 && part.FrameTime > 0f
             && part.TrailPoints is >= 2 and <= CompiledPart.MaxTrailPoints && part.Color.Length == 4 && part.Color.All(float.IsFinite)
-            && vectors.All(Vec3Ok) && ranges.All(static range => range.Length == 2 && range.All(float.IsFinite) && range[1] >= range[0])
+            && vectors.All(Vec3Ok) && ranges.All(RangeOk)
             && part.Lifetime[0] >= 0f && part.Lifetime[1] <= MaxDuration && scalars.All(float.IsFinite) && part.Speed >= 0f && part.Every >= 0f
             && (part.Goal == VfxPartGoal.None || part.Speed > 0f || part.Shape == VfxPartShape.Beam || part.OrbitRadius > 0f) && drawn
             && part.LoopFrom >= 0f && (part.LoopFrom < part.ModelFrames || part.LoopFrom == 0f) && (part.Shape != VfxPartShape.Blade || part.Bone.Length > 0);

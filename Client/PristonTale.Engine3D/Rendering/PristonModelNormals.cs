@@ -11,7 +11,7 @@ namespace PristonTale.Engine3D.Rendering;
 // where the file's already is and where the vertex shader's bone transform brings it back.
 internal static class PristonModelNormals
 {
-    private const float CreaseCosine = 0.5f;
+    private static readonly float CreaseCosine = MathF.Cos(MathHelper.ToRadians(PristonStageNormals.CreaseDegrees));
     // 40 degrees: a hard edge's averaged normal lies 45 (two faces) to 55 degrees (a box corner) off each face, the bends
     // of a low-polygon body's smooth surface within it.
     private const float AuthoredCosine = 0.766f;

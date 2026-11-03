@@ -11,7 +11,7 @@
 
 static const float PI = 3.14159265358979;
 
-// Largest finite half float, and the cap HDR outputs stay below so blending never produces infinities.
+// The cap HDR outputs stay below, under the largest finite half float (65504), so blending never produces infinities.
 static const float HdrCap = 60000.0;
 
 // The view depth written for sky pixels (within half-float range), and the view depth beyond which a pixel is sky.
