@@ -43,8 +43,16 @@ public static class QuestBoard
         ["Job Quest 3th[3]", "Job Quest 3th(Complete)", "Quest4\\ChangeJob4_3_1.msg", "Quest4\\ChangeJob4_3_2.msg"],
         ["Job Quest 3th[3]", "Job Quest 3th(Complete)", "Quest4\\ChangeJob4_3_3.msg", "Quest4\\ChangeJob4_3_4.msg"],
         ["Job Quest 3th[3]", "Job Quest 3th(Complete)", "Quest4\\ChangeJob4_3_5.msg", "Quest4\\ChangeJob4_3_6.msg"],
-        ["Job Quest 3th[4]", "Job Quest 3th(Complete)", "Quest4\\ChangeJob4_4.msg", "Quest4\\ChangeJob4_5.msg"]
+        ["Job Quest 3th[4]", "Job Quest 3th(Complete)", "Quest4\\ChangeJob4_4.msg", "Quest4\\ChangeJob4_5.msg"],
+        ["4th Rank-Up Test[1]", "4th Rank-Up Test(Finished)", "Quest5\\ChangeJob5_1.msg", "Quest5\\ChangeJob5_5.msg"],
+        ["4th Rank-Up Test[2]", "4th Rank-Up Test(Finished)", "Quest5\\ChangeJob5_1.msg", "Quest5\\ChangeJob5_5.msg"],
+        ["4th Rank-Up Test[3]", "4th Rank-Up Test(Finished)", "Quest5\\ChangeJob5_1.msg", "Quest5\\ChangeJob5_5.msg"],
+        ["4th Rank-Up Test[4]", "4th Rank-Up Test(Finished)", "Quest5\\ChangeJob5_2.msg", "Quest5\\ChangeJob5_5.msg"],
+        ["4th Rank-Up Test[5]", "4th Rank-Up Test(Finished)", "Quest5\\ChangeJob5_3.msg", "Quest5\\ChangeJob5_5.msg"],
+        ["4th Rank-Up Test[6]", "4th Rank-Up Test(Finished)", "Quest5\\ChangeJob5_4.msg", "Quest5\\ChangeJob5_5.msg"]
     ];
+
+    private const int FifthRankUpRow = 34;
 
     private static readonly string[][] BeginnerRows =
     [
@@ -106,6 +114,10 @@ public static class QuestBoard
             case QuestCode.RankUpMasterTrial:
                 AddTrialStep(entries, active);
                 break;
+            case QuestCode.RankUpHestian when active.State > 0:
+                // The three hunts, Hosean, the fight and the gem.
+                entries.Add(Open(Rows[FifthRankUpRow + active.State switch { 1 or 2 => 0, 3 or 4 => 1, 5 or 6 => 2, 7 => 3, 8 => 4, _ => 5 }]));
+                break;
             case QuestCode.FuryOfPhantom:
                 AddFuryStep(entries, active.State);
                 break;
@@ -135,6 +147,7 @@ public static class QuestBoard
                 QuestCode.Level80Bonus => Done(Rows[21]),
                 QuestCode.Level90Bonus => Done(Rows[24]),
                 QuestCode.RankUpMasterTrial => Done(Rows[33]),
+                QuestCode.RankUpHestian => Done(Rows[FifthRankUpRow]),
                 QuestCode.FuryOfPhantom => Done(BeginnerRows[14]),
                 _ when LevelQuests.IsLevelQuest(code) => Done(Rows[LevelRow(code)]),
                 _ when QuestCodes.IsElementary(code) => Done(BeginnerRows[BeginnerRow(code, true)]),

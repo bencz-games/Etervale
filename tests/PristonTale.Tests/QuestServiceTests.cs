@@ -36,6 +36,7 @@ internal static class QuestServiceTests
         yield return ("a quest item a monster drops reaches the special item box through the upkeep and the master takes it for the rank-up",
             KillToMasterAsync);
         yield return ("the master duel travels to the arena, yields at a sixteenth and promotes from the victory dialog", ArenaAsync);
+        yield return ("Hosean sends the player to Hestian, whose lives call Xetans for that player alone, and her death wins the fight", HestianArenaAsync);
     }
 
     private static Task PersistenceAsync()
@@ -285,6 +286,44 @@ internal static class QuestServiceTests
         world.WaitFor(snapshot => snapshot.FieldId == 3);
         Assert.True(!(await world.Advance(quests.RequestAsync(token, new QuestCommand(Guid.NewGuid(), 0, QuestAction.Talk, QuestCode.None, 0, 0)))).Ok,
             "a talk without an NPC was accepted after the duel");
+    }
+
+    private static async Task HestianArenaAsync()
+    {
+        var hestian = Monster(60, "Hestian", QuestMonsters.Hestian, life: 100, level: RankUpByHestian.HestianLevel) with
+        {
+            SoundCode = CharacterSoundCodes.Hestian,
+            PotionCount = 3
+        };
+        var xetan = Monster(61, "Xetan", 0, life: 5000, level: 117) with { SoundCode = CharacterSoundCodes.Xetan };
+        var weakXetan = Monster(62, "Small Xetan", 0, life: 5000, level: 43) with { SoundCode = CharacterSoundCodes.Xetan };
+        var world = await QuestWorld.CreateAsync(PlayerClass.Fighter, 82, 3, [new NpcService(NpcServiceKind.QuestGiver, RankUpByHestian.ElderGiverCode)],
+            [hestian, xetan, weakXetan], null, strongWeapon: true);
+        var (quests, token, npc) = (world.Quests, world.Session.SessionToken, world.NpcId);
+        var character = world.Session.Character!;
+        character.Quests.Active = new ActiveQuest { Code = QuestCode.RankUpHestian, State = 7 };
+        for (var stone = 0; stone < RankUpByHestian.MoonStones; stone++)
+        {
+            Give(character, QuestItems.MoonStone);
+        }
+
+        var travel = await world.Advance(quests.RequestAsync(token, new QuestCommand(Guid.NewGuid(), npc, QuestAction.Proceed, QuestCode.RankUpHestian, 7, 0)));
+        Assert.True(travel.Ok && character.Quests.Active.State == 8, "Hosean did not send the player to the arena");
+        var arena = world.WaitFor(snapshot => snapshot.FieldId == QuestArena.FieldCode
+            && snapshot.Entities.Any(entity => entity.Kind == EntityKind.Monster && entity.DuelPlayerId == world.Session.EntityId));
+        var opponent = arena.Entities.Single(entity => entity.Kind == EntityKind.Monster);
+
+        world.Player.Teleport(opponent.Position + new Vector3(20, 0, 0));
+        await world.Advance(world.Server.SetAttackTargetAsync(QuestArena.FieldCode, world.Session.EntityId, opponent.EntityId, true));
+        var called = world.WaitFor(snapshot => snapshot.Entities.Any(entity => entity.Kind == EntityKind.Monster && entity.EntityId != opponent.EntityId), 6000);
+        var xetans = called.Entities.Where(entity => entity.Kind == EntityKind.Monster && entity.EntityId != opponent.EntityId).ToArray();
+        Assert.True(xetans.Length == 2 && xetans.All(entity => entity.DuelPlayerId == world.Session.EntityId && entity.MaxLife == 5000),
+            "Hestian's spent life did not call the level-117 Xetans for her player");
+
+        await world.Advance(world.Server.SetAttackTargetAsync(QuestArena.FieldCode, world.Session.EntityId, opponent.EntityId, true));
+        world.WaitFor(snapshot => snapshot.FieldId == 3 && character.Quests.Active.State == 9, 12000);
+        Assert.True(character.Quests.Active is { State: 9, Timer: QuestTimerKind.None } && QuestInventory.Count(character, QuestItems.MoonStone) == 3,
+            "Hestian's death did not win the fight and send the player home");
     }
 
     private static MonsterDefinition Monster(int code, string name, int questCode, int life, int level = 10) =>

@@ -59,6 +59,7 @@ public static class MonsterVisualFamilies
         0x1650 => "icegolem",
         CharacterSoundCodes.Frost => "frost",
         CharacterSoundCodes.ChaosCara => "chaoscara",
+        CharacterSoundCodes.Hestian => "hestian",
         CharacterSoundCodes.DeathKnight => "deathknight",
         0x1700 => "greatgreven",
         0x1710 => "lizardfolk",

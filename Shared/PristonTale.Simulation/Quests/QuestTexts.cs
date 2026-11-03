@@ -25,6 +25,8 @@ public static class QuestTexts
     public const string QuestItemSlowed = "Decreased ATK speed of quest item";
     public const string FuryWon = "Win in the confrontation with Fury.";
     public const string FuryLost = "Lose in the confrontation with Fury.";
+    public const string HestianWon = "You won over Hestian.";
+    public const string HestianLost = "You lost to Hestian.";
     public const string RewardReceived = "Acquierd items in compensation.";
     public const string TwentyBargons = "You have killed 20 Bargons.";
     public const string SkillsRedistributed = "Statistics has been reset";
@@ -34,6 +36,8 @@ public static class QuestTexts
 
     public static readonly (string, string) CarryOut = ("Do you wanna", "carry out the quest?");
     public static readonly (string, string) RankUp = ("Do you wanna", "rank up?");
+    public static readonly (string, string) RankUpFifth = ("Rank-Up", "want to do?");
+    public static readonly (string, string) ProcessQuest = ("Process quest", "want to do?");
     public static readonly (string, string) TheQuest = ("Do you wanna", "the quest?");
     public static readonly (string, string) SearchQuest = ("Do you wanna", "search for the quest?");
     public static readonly (string, string) GetQuest = ("Do you want to", "get the Quest?");

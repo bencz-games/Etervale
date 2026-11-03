@@ -39,7 +39,10 @@ public enum QuestCode : ushort
     ElementaryF = 0x25,
     ElementaryG = 0x26,
 
-    FuryOfPhantom = 0x28
+    FuryOfPhantom = 0x28,
+
+    // The fourth rank-up, into the fifth tier.
+    RankUpHestian = 0x30
 }
 
 // Completed level-milestone quests (bit per quest); both level 55 branches share one bit.
@@ -77,7 +80,7 @@ public static class QuestCodes
     public static bool IsElementary(QuestCode code) => code is >= QuestCode.ElementaryA and <= QuestCode.ElementaryG;
 
     public static bool IsRankUp(QuestCode code) => code is QuestCode.RankUpTrophies or QuestCode.RankUpHoney or QuestCode.RankUpOil
-        or QuestCode.RankUpQuestWeapon or QuestCode.RankUpMasterTrial;
+        or QuestCode.RankUpQuestWeapon or QuestCode.RankUpMasterTrial or QuestCode.RankUpHestian;
 
     public static bool IsDefined(QuestCode code) => code != QuestCode.None && Enum.IsDefined(code);
 

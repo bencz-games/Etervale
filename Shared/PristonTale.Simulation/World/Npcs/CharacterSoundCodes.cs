@@ -49,6 +49,8 @@ public static class CharacterSoundCodes
     public const int Frozen = 0x1640;
     public const int Frost = 0x1660;
     public const int ChaosCara = 0x1670;
+    public const int Xetan = 0x2160;
+    public const int Hestian = 0x60E0;
     public const int DeathKnight = 0x1680;
     public const int Stingray = 0x1740;
     public const int Kelvezu = 0x1830;
@@ -230,7 +232,7 @@ public static class CharacterSoundCodes
             "KAKOA" => 0x2130,
             "SPRIN" => 0x2140,
             "UNDEADMAPLE" => 0x2150,
-            "XETAN" => 0x2160,
+            "XETAN" => Xetan,
             "BEBECHICK" => BebeChick,
             "PAPACHICK" => PapaChick,
             "MORIF" => Morif,
@@ -305,7 +307,7 @@ public static class CharacterSoundCodes
             "FAUGN" => 0x60B0,
             "GREEDY" => 0x60C0,
             "GURKOB" => 0x60D0,
-            "HESTIAN" => 0x60E0,
+            "HESTIAN" => Hestian,
             "HOUND" => 0x60F0,
             "IBOMBER" => 0x6100,
             "ICESERPENT" => 0x6110,

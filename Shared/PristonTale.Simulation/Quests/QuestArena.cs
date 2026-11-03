@@ -2,7 +2,7 @@ using PristonTale.Simulation.World;
 
 namespace PristonTale.Simulation.Quests;
 
-// The duel arena of the third rank-up and of Fury of Phantom. Each duel is one player against the opponent the quest
+// The duel arena of the third and fourth rank-ups and of Fury of Phantom. Each duel is one player against the opponent the quest
 // opened for that player; inside the arena a player sees and fights only that opponent and its helpers.
 public static class QuestArena
 {
@@ -12,8 +12,8 @@ public static class QuestArena
     public const int OpponentX = 22091;
     public const int OpponentZ = 9673;
 
-    // The opponent leaves the arena half an hour after it appeared.
-    public const long OpponentLifetimeMs = 30 * 60 * 1000;
+    // The opponent leaves the arena half an hour after it appeared, Hestian after a quarter of an hour.
+    public static long OpponentLifetimeMs(QuestCode quest) => quest == QuestCode.RankUpHestian ? 15 * 60 * 1000 : 30 * 60 * 1000;
 
     // The class masters give up at a sixteenth of their life and stand still; Fury must be beaten with no potion left.
     public static bool MasterYields(int life, int maxLife) => maxLife > 0 && life <= maxLife >> 4;

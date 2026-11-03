@@ -99,10 +99,10 @@ quest data the importer reads, and the client's quest dialog, quest window, clas
 
 ### Rank-ups and the class tier
 
-The class tier (0..4) advances only in `RankUpRules.RankUp`; the fifth tier (4) has no rank-up quest yet. The class-change button of the training box a home-town
-skill master opens with the skill window (`QuestAction.ChangeClass`), opens the next rank-up quest when the master is in the class's home town, its class-change
-group is 1 (first rank-up only) or 2 and above (all three), the level is reached (20, 40, 60) and every skill the
-current tier opened has a rank.
+The class tier (0..4) advances only in `RankUpRules.RankUp`. The class-change button of the training box a home-town
+skill master opens with the skill window (`QuestAction.ChangeClass`), opens the next rank-up quest when the master is in
+the class's home town, its class-change group is 1 (first rank-up only), 2 and above (the first three) or 4 (all four),
+the level is reached (20, 40, 60, 80) and every skill the current tier opened has a rank.
 
 1. Tempskron side and assassin (`RankUpByTrophies`): one silver, bronze and golden wolverine trophy, brought to the
    master.
@@ -121,8 +121,17 @@ current tier opened has a rank.
 4. Third rank-up (`RankUpByMasterTrial`): two hunts of 4,900 seconds of play time each (50 kills below level 80, 30
    from 80; prey by level bracket); a lost hunt goes back a step. Then the royal amulet from the bracket's named
    monster, then a duel in the arena with the skill master (Tempskron side) or the magic master (Morion side). The master yields
-   at a sixteenth of its life; the victory dialog promotes to the final tier and sends the player home. Dying in the
+   at a sixteenth of its life; the victory dialog promotes to the fourth tier and sends the player home. Dying in the
    duel goes back to the amulet step.
+5. Fourth rank-up (`RankUpByHestian`, code 0x30, "4th Rank-Up Test"): three hunts of 40 kills and 6,300 seconds of
+   play time each, the prey drawn when the hunt starts (Iron Guard, Chain Golem or Spidertrooper; Dead Zone, Hyper
+   Machine or Goblin Shaman; Grotesque, Dark Specter or Ratoo). Reporting a hunt to the master earns a Moon Stone
+   (QT125); a full pack keeps the hunt reported until there is room, and a hunt that runs out goes back a step (the
+   first back to the master's question). With the three stones, Elder Hosean (quest class 2100, Railway of Chaos)
+   sends the player to the arena, where Hestian (level 100, sound family 0x60E0) must be killed within 420 seconds of
+   play time. Losing (death, time) goes home and back to Hosean, as does a fight abandoned by leaving the arena. After
+   the win Hosean turns the three stones into the Gem of Hestian (QT126); the master takes it for the fifth tier, with
+   no travel. Stones and gem leave the pack whenever this quest is not running.
 
 After each rank-up the master offers one free redistribution of the learned skill ranks (`QuestAction.ResetSkills`).
 The original asks once: No (or Escape) sends `DeclineSkillReset`, which ends the saved offer, so it does not open
@@ -151,11 +160,14 @@ again at the next login.
 
 Field 32 (`QuestArenaField`). Entering it travels the player to (22497, 9605); a character saved there starts in its
 home town. `FieldInstance.OpenDuel` spawns the opponent at (22091, 9673) from the monster catalog by sound code (and
-level for Fury), with life and damage +1.5% per player level above 60 (life capped at 30,000), three potions on top of
-its own (one under 30% life heals half, a quarter for the magic master), 3% helpers (metal golem or wolverine; fire
-elemental for the magic master) and the magic master's 3% blink. The opponent and its helper fight only their player,
-and only that player can hit them. The presence encoder hides other players and other players' duel monsters in the
-arena. Fury falls once its potions are gone; a master yields.
+level for Fury and Hestian), with life and damage +1.5% per player level above 60 (life capped at 30,000), three
+potions on top of its own (one under 30% life heals half, a quarter for the magic master), 3% helpers (metal golem or
+wolverine; fire elemental for the magic master) and the magic master's 3% blink. Hestian instead keeps her potion count
+as lives and calls two level-117 Xetans for her player on every even number of lives left. The opponent, its helper
+and its Xetans fight only their player, and only that player can hit them; they all leave with the duel (half an
+hour, a quarter of an hour for Hestian, or when the player leaves). The presence encoder hides other players and other
+players' duel monsters in the arena. Fury falls once its potions are gone, Hestian once her lives are; a master
+yields. A fight a quest ends on the tick (`QuestContext.Retreat`: Hestian won, or her time out) sends the player home.
 
 ## Wire and storage
 

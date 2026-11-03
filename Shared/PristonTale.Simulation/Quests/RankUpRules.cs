@@ -14,6 +14,7 @@ public static class RankUpRules
         0 => 20,
         1 => 40,
         2 => 60,
+        3 => 80,
         _ => int.MaxValue
     };
 
@@ -38,7 +39,8 @@ public static class RankUpRules
         var character = context.Character;
         var group = context.Npc.ClassChangeGroup;
         if (group <= 0 || !context.Npc.HomeMaster || character.Tier >= PlayerCharacter.LastTier || character.Level < RequiredLevel(character.Tier)
-            || !TierSkillsLearned(character) || group == 1 && character.Tier > 0)
+            || !TierSkillsLearned(character) || group == 1 && character.Tier > 0
+            || character.Tier == PlayerCharacter.UncappedTier && group < RankUpByHestian.MasterGroup)
         {
             return QuestCode.None;
         }
@@ -63,6 +65,8 @@ public static class RankUpRules
                     : QuestCode.RankUpQuestWeapon;
             case 2:
                 return active.Code == QuestCode.RankUpMasterTrial ? QuestCode.None : QuestCode.RankUpMasterTrial;
+            case 3:
+                return active.Code == RankUpByHestian.Code ? QuestCode.None : RankUpByHestian.Code;
             default:
                 return QuestCode.None;
         }
@@ -88,6 +92,7 @@ public static class RankUpRules
             QuestCode.RankUpHoney => QuestSteps.Confirm(code, 0, "ChangeJob2M_M0", QuestTexts.CarryOut),
             QuestCode.RankUpOil => QuestSteps.Confirm(code, 0, "ChangeJob2M_D0", QuestTexts.CarryOut),
             QuestCode.RankUpQuestWeapon => QuestSteps.Confirm(code, 0, "ChangeJob3_0", QuestTexts.TheQuest),
+            QuestCode.RankUpHestian => RankUpByHestian.StartDialog(0),
             _ => QuestSteps.Confirm(code, 0, "ChangeJob4_1Start", QuestTexts.SearchQuest)
         });
         return true;
@@ -101,7 +106,8 @@ public static class RankUpRules
             return;
         }
 
-        if (!RankUpByTrophies.TalkAtMaster(context) && !RankUpByPotion.TalkAtMaster(context) && !RankUpByMasterTrial.TalkAtMaster(context))
+        if (!RankUpByTrophies.TalkAtMaster(context) && !RankUpByPotion.TalkAtMaster(context) && !RankUpByMasterTrial.TalkAtMaster(context)
+            && !RankUpByHestian.TalkAtMaster(context))
         {
             RankUpByQuestWeapon.TalkAtMaster(context);
         }

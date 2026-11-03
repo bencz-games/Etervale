@@ -85,7 +85,7 @@ public static class MonsterSkillRules
     // The great bosses deal eight times their roll to monsters; Kelvezu's blow kills a monster outright.
     public static bool MultipliesAgainstMonsters(MonsterDefinition definition) =>
         definition.SoundCode is CharacterSoundCodes.Babel or CharacterSoundCodes.ChaosCara or CharacterSoundCodes.DeathKnight or CharacterSoundCodes.Mokova
-            or CharacterSoundCodes.Kelvezu;
+            or CharacterSoundCodes.Kelvezu or CharacterSoundCodes.Hestian;
 
     public const int MonsterDamageMultiplier = 8;
 
@@ -132,7 +132,7 @@ public static class MonsterSkillRules
             case CharacterSoundCodes.Chimera:
                 riders[count++] = new MonsterHitRider(MonsterRiderKind.Status, MonsterStatuses.Stun, MonsterStatuses.StunFrames);
                 break;
-            case CharacterSoundCodes.ChaosCara when char.ToUpperInvariant(key) != 'J':
+            case CharacterSoundCodes.ChaosCara or CharacterSoundCodes.Hestian when char.ToUpperInvariant(key) != 'J':
                 riders[count++] = new MonsterHitRider(MonsterRiderKind.ManaByPower);
                 break;
             case CharacterSoundCodes.CastleCrystalIce:

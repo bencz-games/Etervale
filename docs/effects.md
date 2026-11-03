@@ -52,7 +52,7 @@ the client. `assets/` is not in Git, so the data is produced by `ptvfx import <a
 | `Scripts/` | `script.<File>`: one per original effect group script (`Effect/NewEffect/*.lua`) | converted |
 | `Particles/` | `particle.<File>`: one per original particle script (`Effect/Particle/Script/*.part`) | converted |
 | `Costumes/` | Costume wings (`vfx.costume.wing.*`) | `tools/PristonTale.VfxImport/Authored/Costumes/` |
-| `Monsters/<Group>/` | One file per monster family (`vfx.monster.<family>.*`), grouped by region: `Field`, `Iron`, `Ice`, `Temple`, `Revived` | `tools/PristonTale.VfxImport/Authored/Monsters/` |
+| `Monsters/<Group>/` | One file per monster family (`vfx.monster.<family>.*`), grouped by region: `Field`, `Iron`, `Ice`, `Temple`, `Revived`, `Arena` (Hestian, whose skills show Chaos Cara's effects) | `tools/PristonTale.VfxImport/Authored/Monsters/` |
 | `Items/` | Reserved for item effects authored the same way | `Authored/Items/` |
 
 Files load in ordinal order of their relative path. A name defined again replaces the earlier definition (reported as

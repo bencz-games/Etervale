@@ -197,50 +197,18 @@ public static class RankUpByMasterTrial
     public static void OnKill(QuestContext context, int monsterCode)
     {
         var active = context.Journal.Active;
-        if (active.Code != Code || active.Target == 0 || monsterCode != active.Target || active.State > SecondHuntDone || active.KillsNeeded == 0
-            || active.HuntComplete)
+        if (active.Code == Code && active.State <= SecondHuntDone)
         {
-            return;
+            QuestSteps.CreditHunt(context, monsterCode);
         }
-
-        var kills = active.Kills + 1;
-        var name = QuestMonsters.NameOf(active.Target);
-        context.Notice(QuestNoticeKind.Chat, QuestTexts.Count(name, kills));
-        if (kills >= active.KillsNeeded)
-        {
-            context.Notice(QuestNoticeKind.Event, QuestTexts.HuntFinished(active.KillsNeeded, name));
-        }
-
-        context.Journal.Active = active with { Kills = kills };
     }
 
-    // The hunt timer counts play time until the master hears of the hunt: when it runs out first, the hunt step is lost,
-    // its kills made or not.
     public static void StepTimer(QuestContext context, long elapsedMs)
     {
-        var active = context.Journal.Active;
-        if (active.Code != Code || active.Timer != QuestTimerKind.Expiring || elapsedMs <= 0)
+        if (context.Journal.Active.Code == Code)
         {
-            return;
+            QuestSteps.StepHuntTimer(context, elapsedMs);
         }
-
-        var left = active.TimerMs - elapsedMs;
-        if (left > 0)
-        {
-            context.Journal.Active = active with { TimerMs = left };
-            return;
-        }
-
-        // Run out: back one step with the kill count cleared; the needed count is kept so the master restarts the hunt.
-        context.Journal.Active = active with
-        {
-            State = active.KillsNeeded > 0 ? active.State - 1 : active.State,
-            Kills = 0,
-            Target = 0,
-            Timer = QuestTimerKind.None,
-            TimerMs = 0
-        };
-        context.Notice(QuestNoticeKind.Message, QuestTexts.MissionTimedOut);
     }
 
     // The royal amulet drops from the named monster of the step, one at a time.

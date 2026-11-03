@@ -129,6 +129,12 @@ public static class QuestDrops
         {
             QuestInventory.Remove(character, QuestItems.Vamp);
         }
+
+        if (active.Code != RankUpByHestian.Code)
+        {
+            QuestInventory.Remove(character, QuestItems.MoonStone);
+            QuestInventory.Remove(character, QuestItems.GemOfHestian);
+        }
     }
 
     // Whether an upkeep has work besides pending drops; checked by the tick every few seconds and after kills and deaths.
@@ -189,6 +195,7 @@ public static class QuestTick
         ElementaryQuests.OnKill(context, monsterCode);
         FuryOfPhantomQuest.OnKill(context);
         RankUpByMasterTrial.OnKill(context, monsterCode);
+        RankUpByHestian.OnKill(context, monsterCode);
         return RankUpByQuestWeapon.OnKill(context, monsterCode);
     }
 
@@ -208,6 +215,7 @@ public static class QuestTick
         }
 
         RankUpByMasterTrial.StepTimer(context, elapsedMs);
+        RankUpByHestian.StepTimer(context, elapsedMs);
         RankUpByQuestWeapon.CheckLevelSkip(context);
     }
 }

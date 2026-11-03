@@ -83,6 +83,9 @@ public sealed class QuestContext(PlayerCharacter character, QuestNpc npc, IQuest
     public bool ClassChangeOffered { get; set; }
     public QuestTravel Travel { get; set; }
     public QuestArenaDuel Duel { get; set; }
+
+    // The player leaves the arena for the home town and the duel ends (a fight won or lost on the world tick).
+    public bool Retreat { get; set; }
     public QuestStatus Status { get; private set; } = QuestStatus.Ok;
     public string Message { get; private set; } = "";
     public IReadOnlyList<QuestNotice> Notices => _notices;

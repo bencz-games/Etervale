@@ -51,6 +51,7 @@ public static class QuestEngine
             RankUpByPotion.TalkAtAging(context);
         }
 
+        RankUpByHestian.TalkAtElder(context);
         WingQuest.Talk(context);
         if (context.Prompt is null && context.Blocked)
         {
@@ -78,6 +79,7 @@ public static class QuestEngine
             QuestCode.FuryOfPhantom => FuryOfPhantomQuest.Proceed(context, state),
             QuestCode.RankUpQuestWeapon => RankUpByQuestWeapon.Proceed(context, state),
             QuestCode.RankUpMasterTrial => RankUpByMasterTrial.Proceed(context, state),
+            QuestCode.RankUpHestian => RankUpByHestian.Proceed(context, state),
             _ => QuestSteps.Stale(context)
         };
     }
@@ -103,6 +105,7 @@ public static class QuestEngine
             QuestCode.RankUpHoney or QuestCode.RankUpOil => RankUpByPotion.Accept(context, code, state),
             QuestCode.RankUpQuestWeapon => RankUpByQuestWeapon.Accept(context, state),
             QuestCode.RankUpMasterTrial => RankUpByMasterTrial.Accept(context, state),
+            QuestCode.RankUpHestian => RankUpByHestian.Accept(context, state),
             _ => QuestSteps.Stale(context)
         };
     }

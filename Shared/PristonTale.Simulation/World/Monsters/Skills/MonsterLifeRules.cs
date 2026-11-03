@@ -3,7 +3,7 @@ using PristonTale.Simulation.World.Npcs;
 
 namespace PristonTale.Simulation.World.Monsters.Skills;
 
-// Life a monster wins back: potions it drinks, the virtual lives of three bosses and Babel's regeneration.
+// Life a monster wins back: potions it drinks, the virtual lives of four bosses and Babel's regeneration.
 public static class MonsterLifeRules
 {
     // Below 30 % life a monster with potions drinks one when a clip ends; the drink restores half its life when the eating
@@ -11,13 +11,15 @@ public static class MonsterLifeRules
     public const int PotionThresholdPercent = 30;
     public const int PotionHealDivisor = 2;
 
-    // Valento, Kelvezu and Mokova carry their potion count as lives: at 10 % life or less one is spent and life refills.
+    // Valento, Kelvezu, Mokova and Hestian carry their potion count as lives: at 10 % life or less one is spent and life
+    // refills.
     public const int VirtualLifeThresholdPercent = 10;
 
     public static bool HasVirtualLives(MonsterDefinition definition) =>
-        definition.SoundCode is CharacterSoundCodes.DeathKnight or CharacterSoundCodes.Kelvezu or CharacterSoundCodes.Mokova;
+        definition.SoundCode is CharacterSoundCodes.DeathKnight or CharacterSoundCodes.Kelvezu or CharacterSoundCodes.Mokova
+            or CharacterSoundCodes.Hestian;
 
-    // Potions or lives a new monster carries: lives for the three bosses, otherwise rand[1, count] potions with the
+    // Potions or lives a new monster carries: lives for the four bosses, otherwise rand[1, count] potions with the
     // definition's percent chance.
     public static void Prepare(MonsterInstance monster, ISimRng rng)
     {

@@ -92,7 +92,7 @@ internal static class QuestFixture
         foreach (var key in new[]
                  {
                      "QT101", "QT102", "QT103", "QT104", "QT105", "QT106", "QT107", "QT108", "QT109", "QT110", "QT111", "QT112", "QT113", "QT114",
-                     "QT115", "QT116"
+                     "QT115", "QT116", "QT125", "QT126"
                  })
         {
             definitions.Add(new ItemDefinition(Code(key), key, ItemKind.Quest) { CatalogKey = key });

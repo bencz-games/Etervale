@@ -156,7 +156,7 @@ internal static class MonsterPresentationTests
             .Select(definition => definition.Name)
             .ToArray();
         var families = new HashSet<string>(StringComparer.Ordinal);
-        for (var code = 0x1000; code <= 0x5200; code++)
+        for (var code = 0x1000; code <= 0x6FFF; code++)
         {
             foreach (var (level, scale) in new[] { (10, 1f), (50, 1f), (59, 1f), (60, 1f), (70, 1f), (77, 1f), (85, 1f), (95, 1f), (100, 2f) })
             {

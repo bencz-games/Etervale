@@ -24,6 +24,7 @@ internal static class QuestTests
         yield return ("the first Morion rank-up follows the name branch, brews at the aging master and promotes after delivery", PotionAsync);
         yield return ("the second rank-up buys a quest weapon with vamps, grows it by stage and expires it with its ring", QuestWeaponAsync);
         yield return ("the third rank-up hunts against the clock, needs the amulet holder and ends with the duel", MasterTrialAsync);
+        yield return ("the fourth rank-up hunts three times for the Moon Stones, kills Hestian in the arena and trades the gem", HestianAsync);
         yield return ("Fury of Phantom hunts by field, fights three battles and grants the chosen reward", FuryAsync);
         yield return ("the level 80 and 90 bonus chains pay back points, add points per level and curse the hunter", BonusChainsAsync);
         yield return ("the wing exchange takes the held wing, crystals and gold for the next wing", WingAsync);
@@ -372,6 +373,72 @@ internal static class QuestTests
         return Task.CompletedTask;
     }
 
+    private static Task HestianAsync()
+    {
+        var elder = new QuestNpc(GiverCode: RankUpByHestian.ElderGiverCode);
+        var young = Character(PlayerClass.Fighter, "Young", 79, tier: 3);
+        Assert.True(!Talk(young, HomeMaster).ClassChangeOffered, "the fourth rank-up was offered below level 80");
+
+        var fighter = Character(PlayerClass.Fighter, "Fifth", 82, tier: 3);
+        Assert.True(Expect(fighter, HomeMaster, QuestAction.ChangeClass, QuestCode.None, 0, "class change failed").Prompt is
+            { Code: QuestCode.RankUpHestian, Document: "ChangeJob5_1Start", Followup: QuestFollowup.Confirm }, "the fourth rank-up was not offered");
+        Expect(fighter, HomeMaster, QuestAction.Accept, QuestCode.RankUpHestian, 0, "fourth rank-up accept failed");
+        var first = fighter.Quests.Active;
+        Assert.True(first is { State: 1, KillsNeeded: RankUpByHestian.HuntKills, Timer: QuestTimerKind.Expiring, TimerMs: RankUpByHestian.HuntTimeMs }
+            && first.Target is QuestMonsters.IronGuard or QuestMonsters.ChainGolem or QuestMonsters.Spidertrooper, "the first hunt differs");
+        Assert.True(Talk(fighter, HomeMaster).Prompt is { State: 1, Document: "ChangeJob5_1Pass" }, "an unfinished hunt was reported");
+
+        // A first hunt that runs out sends the player back to the master's question.
+        QuestTick.Step(Context(fighter), RankUpByHestian.HuntTimeMs);
+        Assert.True(fighter.Quests.Active is { State: 0, Timer: QuestTimerKind.None }, "a lost first hunt did not go back");
+        Assert.True(Talk(fighter, HomeMaster).Prompt is { State: 0, Followup: QuestFollowup.Confirm }, "the master did not ask again");
+        Expect(fighter, HomeMaster, QuestAction.Accept, QuestCode.RankUpHestian, 0, "the first hunt did not restart");
+
+        for (var hunt = 0; hunt < 3; hunt++)
+        {
+            var state = 1 + hunt * 2;
+            Kill(fighter, fighter.Quests.Active.Target, RankUpByHestian.HuntKills);
+            Assert.True(Talk(fighter, HomeMaster).Prompt is { Followup: QuestFollowup.Proceed } prompt && prompt.State == state + 1
+                && QuestInventory.Count(fighter, QuestItems.MoonStone) == hunt + 1, $"hunt {hunt + 1} did not earn its Moon Stone");
+            Assert.True(Talk(fighter, HomeMaster).Prompt?.State == state + 1 && QuestInventory.Count(fighter, QuestItems.MoonStone) == hunt + 1,
+                "a second talk paid the stone again");
+            Expect(fighter, HomeMaster, QuestAction.Proceed, QuestCode.RankUpHestian, state + 1, $"step after hunt {hunt + 1} failed");
+        }
+
+        Assert.True(fighter.Quests.Active.State == 7 && Talk(fighter, HomeMaster).Prompt is null, "the master did not send the player to Hosean");
+        Assert.True(Talk(fighter, elder).Prompt is { State: 7, Document: "ChangeJob5_4Start" }, "Hosean did not answer the three stones");
+        var arena = Expect(fighter, elder, QuestAction.Proceed, QuestCode.RankUpHestian, 7, "the arena did not open");
+        Assert.True(arena.Duel is { Quest: QuestCode.RankUpHestian, SoundCode: CharacterSoundCodes.Hestian, Level: RankUpByHestian.HestianLevel }
+            && arena.Travel is { Kind: QuestTravelKind.Arena, FieldCode: QuestArena.FieldCode } && arena.Prompt?.Document == "ChangeJob5_4Cheer"
+            && fighter.Quests.Active is { State: 8, TimerMs: RankUpByHestian.FightTimeMs }, "the fight request differs");
+
+        // The fight runs out: lost, home, and Hosean again.
+        var timeout = Context(fighter, field: QuestArena.FieldCode);
+        QuestTick.Step(timeout, RankUpByHestian.FightTimeMs);
+        Assert.True(fighter.Quests.Active.State == 7 && timeout.Retreat && timeout.Notices.Any(n => n.Text == QuestTexts.HestianLost),
+            "a fight out of time was not lost");
+        Expect(fighter, elder, QuestAction.Proceed, QuestCode.RankUpHestian, 7, "the second fight did not open");
+        RankUpByHestian.OnDuelLost(Context(fighter, field: QuestArena.FieldCode));
+        Assert.True(fighter.Quests.Active.State == 7, "a death in the fight did not lose it");
+        Expect(fighter, elder, QuestAction.Proceed, QuestCode.RankUpHestian, 7, "the third fight did not open");
+        var won = Context(fighter, field: QuestArena.FieldCode);
+        Assert.True(RankUpByHestian.OnDuelWon(won) && won.Retreat && fighter.Quests.Active is { State: 9, Timer: QuestTimerKind.None },
+            "Hestian's death did not win the fight");
+
+        Assert.True(Talk(fighter, elder).Prompt is { State: 9, Document: "ChangeJob5_5Start" }, "Hosean did not offer the gem");
+        Expect(fighter, elder, QuestAction.Proceed, QuestCode.RankUpHestian, 9, "the gem was not given");
+        Assert.True(QuestInventory.Count(fighter, QuestItems.MoonStone) == 0 && QuestInventory.Count(fighter, QuestItems.GemOfHestian) == 1,
+            "the stones did not become the gem");
+        Assert.True(Talk(fighter, HomeMaster).Prompt is { State: 10, Document: "ChangeJob5_5End", Followup: QuestFollowup.Confirm },
+            "the master did not ask for the rank-up");
+        Expect(fighter, HomeMaster, QuestAction.Accept, QuestCode.RankUpHestian, 10, "the fifth tier was refused");
+        Assert.True(fighter.Tier == PlayerCharacter.LastTier && fighter.Quests.HasFinished(QuestCode.RankUpHestian)
+            && !QuestInventory.Has(fighter, QuestItems.GemOfHestian) && fighter.Quests.SkillResetOffered && !Talk(fighter, HomeMaster).ClassChangeOffered,
+            "the fifth tier differs");
+        Assert.True(QuestBoard.Finished(fighter).Any(entry => entry.Title == "4th Rank-Up Test(Finished)"), "the finished quest is not listed");
+        return Task.CompletedTask;
+    }
+
     private static Task FuryAsync()
     {
         var npc = new QuestNpc(GiverCode: 1013);
@@ -528,7 +595,10 @@ internal static class QuestTests
         var later = Character(PlayerClass.Fighter, "Later", 40, tier: 1);
         Assert.True(!Talk(later, lowGroup).ClassChangeOffered && Talk(later, HomeMaster).ClassChangeOffered,
             "a first-group master offered a later rank-up");
-        var done = Character(PlayerClass.Fighter, "Done", 100, tier: 3);
+        var fourth = Character(PlayerClass.Fighter, "Fourth", 100, tier: 3);
+        Assert.True(Talk(fourth, HomeMaster).ClassChangeOffered && !Talk(fourth, HomeMaster with { ClassChangeGroup = 3 }).ClassChangeOffered,
+            "only a master of the fourth group offers the fourth rank-up");
+        var done = Character(PlayerClass.Fighter, "Done", 100, tier: PlayerCharacter.LastTier);
         Assert.True(!Talk(done, HomeMaster).ClassChangeOffered
             && Run(done, HomeMaster, QuestAction.ChangeClass, QuestCode.None, 0).Status == QuestStatus.Rejected, "a final-tier class changed again");
         Assert.True(ClassProfiles.Of(PlayerClass.Fighter).TitleAt(1).Length > 0, "job titles are missing");

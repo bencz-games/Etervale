@@ -296,7 +296,10 @@ internal sealed class FieldMonsterSkills
         _changes.Clear();
     }
 
-    // Every second life Kelvezu spends calls two Chaos Cara, Mokova two Dark Guards.
+    // Every second life Kelvezu spends calls two Chaos Cara, Mokova two Dark Guards and Hestian two Xetans of level 117,
+    // who fight only her duel's player.
+    private const int HestianXetanLevel = 117;
+
     private void SpendLives(MonsterInstance monster)
     {
         while (monster.LivesSpent > 0)
@@ -307,6 +310,7 @@ internal sealed class FieldMonsterSkills
             {
                 CharacterSoundCodes.Kelvezu => CharacterSoundCodes.ChaosCara,
                 CharacterSoundCodes.Mokova => CharacterSoundCodes.DarkGuard,
+                CharacterSoundCodes.Hestian => CharacterSoundCodes.Xetan,
                 _ => 0
             };
             if (called == 0 || (remaining & 1) != 0)
@@ -317,14 +321,18 @@ internal sealed class FieldMonsterSkills
             for (var count = 0; count < 2; count++)
             {
                 var offset = new Vector3(_rng.Range(0, 199) - ReinforcementScatter, 0f, _rng.Range(0, 199) - ReinforcementScatter);
-                CallReinforcement(monster, called, monster.Position + offset, VirtualLifeReinforcementCap);
+                var level = called == CharacterSoundCodes.Xetan ? HestianXetanLevel : 0;
+                if (CallReinforcement(monster, called, monster.Position + offset, VirtualLifeReinforcementCap, level) is { } reinforcement)
+                {
+                    reinforcement.DuelPlayerId = monster.DuelPlayerId;
+                }
             }
         }
     }
 
-    private MonsterInstance? CallReinforcement(MonsterInstance caller, int soundCode, Vector3 position, int cap)
+    private MonsterInstance? CallReinforcement(MonsterInstance caller, int soundCode, Vector3 position, int cap, int level = 0)
     {
-        if (PointCount(caller) >= cap || Reinforcement(soundCode) is not { } definition)
+        if (PointCount(caller) >= cap || Reinforcement(soundCode, level) is not { } definition)
         {
             return null;
         }
@@ -332,12 +340,18 @@ internal sealed class FieldMonsterSkills
         return _host.SpawnMonster(definition, position, caller.Facing, caller.SpawnPointIndex);
     }
 
-    // The reinforcement of a family: its ordinary definition of the lowest level, then the lowest code.
-    private MonsterDefinition? Reinforcement(int soundCode)
+    // The reinforcement of a family: its ordinary definition of the lowest level, then the lowest code; with a level, the
+    // first of that level.
+    private MonsterDefinition? Reinforcement(int soundCode, int level = 0)
     {
         MonsterDefinition? chosen = null;
         foreach (var candidate in _host.MonsterFamily(soundCode))
         {
+            if (level > 0 && candidate.Combat.Level != level)
+            {
+                continue;
+            }
+
             if (chosen is null || Rank(candidate) < Rank(chosen))
             {
                 chosen = candidate;

@@ -21,6 +21,8 @@ public static class QuestItems
     public static readonly uint Candy = ItemCodes.Parse("QT114");
     public static readonly uint Cake = ItemCodes.Parse("QT115");
     public static readonly uint LostHammer = ItemCodes.Parse("QT116");
+    public static readonly uint MoonStone = ItemCodes.Parse("QT125");
+    public static readonly uint GemOfHestian = ItemCodes.Parse("QT126");
     public static readonly uint GlassBottle = ItemCodes.Parse("MA101");
     public static readonly uint Honey = ItemCodes.Parse("MA201");
     public static readonly uint Oil = ItemCodes.Parse("MA202");

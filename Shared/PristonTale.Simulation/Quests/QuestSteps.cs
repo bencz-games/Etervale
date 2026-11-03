@@ -47,6 +47,55 @@ public static class QuestSteps
         context.Notice(QuestNoticeKind.Fanfare, "");
     }
 
+    // A kill of the running hunt's prey: counted with its chat line, and the hunt announced finished at its count.
+    public static void CreditHunt(QuestContext context, int monsterCode)
+    {
+        var active = context.Journal.Active;
+        if (active.Target == 0 || monsterCode != active.Target || active.KillsNeeded == 0 || active.HuntComplete)
+        {
+            return;
+        }
+
+        var kills = active.Kills + 1;
+        var name = QuestMonsters.NameOf(active.Target);
+        context.Notice(QuestNoticeKind.Chat, QuestTexts.Count(name, kills));
+        if (kills >= active.KillsNeeded)
+        {
+            context.Notice(QuestNoticeKind.Event, QuestTexts.HuntFinished(active.KillsNeeded, name));
+        }
+
+        context.Journal.Active = active with { Kills = kills };
+    }
+
+    // The hunt timer counts play time until the master hears of the hunt: when it runs out first, the hunt step is lost,
+    // its kills made or not. It goes back one step with the kill count cleared; the needed count is kept so the master
+    // restarts the hunt.
+    public static void StepHuntTimer(QuestContext context, long elapsedMs)
+    {
+        var active = context.Journal.Active;
+        if (active.Timer != QuestTimerKind.Expiring || elapsedMs <= 0)
+        {
+            return;
+        }
+
+        var left = active.TimerMs - elapsedMs;
+        if (left > 0)
+        {
+            context.Journal.Active = active with { TimerMs = left };
+            return;
+        }
+
+        context.Journal.Active = active with
+        {
+            State = active.KillsNeeded > 0 ? active.State - 1 : active.State,
+            Kills = 0,
+            Target = 0,
+            Timer = QuestTimerKind.None,
+            TimerMs = 0
+        };
+        context.Notice(QuestNoticeKind.Message, QuestTexts.MissionTimedOut);
+    }
+
     // A hunt the quest timer icon follows; the fanfare plays as the icon appears.
     public static ActiveQuest StartHunt(QuestContext context, ActiveQuest quest, int target, int count, QuestTimerKind timer, long timerMs = 0)
     {

@@ -1,0 +1,191 @@
+[
+  {
+    "name": "vfx.monster.hestian.attack.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.HulkHit1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          32,
+          -64
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.hestian.skill.kJ",
+    "duration": 4.0,
+    "parts": [
+      {
+        "shape": "Billboard",
+        "anchor": "Target",
+        "offset": [
+          0,
+          508.0,
+          234.4
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          0,
+          39.1
+        ],
+        "speed": 560,
+        "reach": 8,
+        "delay": 0.0,
+        "carryEffect": "particle.ChaosKaraMeteo",
+        "endEffect": "vfx.monster.hestian.meteor.hit"
+      },
+      {
+        "shape": "Billboard",
+        "anchor": "Target",
+        "offset": [
+          0,
+          508.0,
+          156.20000000000002
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          0,
+          -39.1
+        ],
+        "speed": 560,
+        "reach": 8,
+        "delay": 0.4286,
+        "carryEffect": "particle.ChaosKaraMeteo",
+        "endEffect": "vfx.monster.hestian.meteor.hit"
+      },
+      {
+        "shape": "Billboard",
+        "anchor": "Target",
+        "offset": [
+          39.1,
+          508.0,
+          195.3
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          39.1,
+          0,
+          0
+        ],
+        "speed": 560,
+        "reach": 8,
+        "delay": 0.8571,
+        "carryEffect": "particle.ChaosKaraMeteo",
+        "endEffect": "vfx.monster.hestian.meteor.hit"
+      },
+      {
+        "shape": "Billboard",
+        "anchor": "Target",
+        "offset": [
+          -39.1,
+          508.0,
+          195.3
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          -39.1,
+          0,
+          0
+        ],
+        "speed": 560,
+        "reach": 8,
+        "delay": 1.2857,
+        "carryEffect": "particle.ChaosKaraMeteo",
+        "endEffect": "vfx.monster.hestian.meteor.hit"
+      }
+    ],
+    "sounds": [
+      {
+        "path": "wav/Effects/Menu/Event/meteo 1.wav"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.hestian.meteor.hit",
+    "duration": 2.0,
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "color": [
+          0.3922,
+          0.7843,
+          1.0
+        ],
+        "power": 250,
+        "decay": 2
+      }
+    ],
+    "sounds": [
+      {
+        "path": "wav/Effects/Menu/Event/meteo 2.wav"
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.ChaosKaraMeteoHit",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.hestian.skill",
+    "duration": 2.5,
+    "children": [
+      {
+        "effect": "particle.ChaosKaraSkill",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          9.8,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.ChaosKaraSkillUser",
+        "anchor": "Target",
+        "offset": [
+          0,
+          9.8,
+          0
+        ],
+        "turn": true,
+        "delay": 0.1
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.hestian.impact",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.ChaosKaraSkillUser",
+        "anchor": "Target",
+        "offset": [
+          0,
+          9.8,
+          0
+        ],
+        "turn": true,
+        "delay": 0.1
+      }
+    ]
+  }
+]
