@@ -5,7 +5,8 @@ namespace PristonTale.Simulation.World.Ai;
 
 public static class MonsterLocomotion
 {
-    private const float BaseUnitsPerSecond = 70f;
+    // One step of a monster's ground speed; a walk takes one step, a run one more (some families more).
+    public const float BaseUnitsPerSecond = 70f;
 
     public static float UnitsPerSecond(MonsterDefinition definition, bool running)
     {

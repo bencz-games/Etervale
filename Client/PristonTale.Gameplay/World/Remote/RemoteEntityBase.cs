@@ -7,6 +7,7 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Combat;
+using PristonTale.Simulation.World.Ai;
 
 namespace PristonTale.Gameplay.World.Remote;
 
@@ -15,9 +16,9 @@ namespace PristonTale.Gameplay.World.Remote;
 // interpolated ground speed, and a Walk/Run state with no ground motion is shown as Stand.
 public abstract class RemoteEntityBase
 {
-    // MonsterLocomotion: 70 u/s per step, one extra step when running. Learned speeds cover faster templates.
-    private const float ModelWalkSpeed = 70f;
-    private const float ModelRunSpeed = 140f;
+    // MonsterLocomotion's ordinary walk (one step) and run (two). Learned speeds cover faster templates.
+    private const float ModelWalkSpeed = MonsterLocomotion.BaseUnitsPerSecond;
+    private const float ModelRunSpeed = MonsterLocomotion.BaseUnitsPerSecond * 2;
     private const float LearnedSpeedLimit = 3f;
     private const float MinLocomotionScale = 0.5f;
     private const float MaxLocomotionScale = 2f;

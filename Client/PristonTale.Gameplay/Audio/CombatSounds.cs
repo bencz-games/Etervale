@@ -5,6 +5,7 @@ using PristonTale.Gameplay.Effects;
 using PristonTale.Simulation.Items;
 using PristonTale.Assets;
 using PristonTale.Contracts.Characters;
+using PristonTale.Simulation.Characters;
 
 namespace PristonTale.Gameplay.Audio;
 
@@ -151,7 +152,7 @@ public sealed class CombatSounds : IDisposable
             "WP1" => twoHanded ? 6 : 5,
             "WC1" => 7,
             "WS1" => 8,
-            "WM1" when playerClass is PlayerClass.Magician or PlayerClass.Priestess => twoHanded ? 18 : 17,
+            "WM1" when ClassProfiles.CastsWithStaff(playerClass) => twoHanded ? 18 : 17,
             "WM1" or "WH1" => twoHanded ? 10 : 9,
             "WT1" => 11,
             _ => 14

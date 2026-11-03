@@ -3,6 +3,7 @@ using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.Formats;
 using PristonTale.Simulation.Characters;
 using PristonTale.Contracts.Motion;
+using PristonTale.Simulation.Items;
 
 namespace PristonTale.Gameplay.World.Remote;
 
@@ -26,7 +27,7 @@ public sealed class PlayerEquipmentPresentation
 
     public string WeaponKey => (_requestedPlayerVisuals ?? _basePlayerVisuals)?.WeaponKey ?? "";
 
-    public bool HoldsShield => (_requestedPlayerVisuals ?? _basePlayerVisuals)?.OffHandKey?.StartsWith("DS", StringComparison.OrdinalIgnoreCase) == true;
+    public bool HoldsShield => ItemEquipmentMetadata.IsShield((_requestedPlayerVisuals ?? _basePlayerVisuals)?.OffHandKey);
 
     public PlayerEquipmentPresentation(PlayerActorComposer composer, IActorScene scene, IClientLog log, string root,
         CharacterVisualSet visuals, uint jobMask, PlayerActorHandles handles)

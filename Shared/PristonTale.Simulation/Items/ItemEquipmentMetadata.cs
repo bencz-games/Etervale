@@ -54,6 +54,8 @@ public static class ItemEquipmentMetadata
 
     public static bool IsTwoHanded(string catalogKey) => TwoHandedKeys.Contains(catalogKey);
 
+    public static bool IsShield(string catalogKey) => TryGet(catalogKey, out var kind, out _) && kind == ItemKind.Shield;
+
     public static bool TryGet(string catalogKey, out ItemKind kind, out EquipmentSlot slot)
     {
         kind = default;

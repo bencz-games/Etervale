@@ -12,6 +12,7 @@ using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Combat;
 using PristonTale.Contracts.Characters;
+using PristonTale.Simulation.Items;
 
 namespace PristonTale.Gameplay.World.Remote;
 
@@ -670,7 +671,7 @@ public sealed partial class RemoteEntityManager
             case RemoteEntity player:
                 handles = player.Handles;
                 holdsShield = _playerAppearances.TryGetValue(entityId, out var appearance)
-                    && appearance.OffHandKey.StartsWith("DS", StringComparison.OrdinalIgnoreCase);
+                    && ItemEquipmentMetadata.IsShield(appearance.OffHandKey);
                 return true;
             case RemoteModelEntity model:
                 handles = new PlayerActorHandles(model.Actor, ActorHandle.None);
