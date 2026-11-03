@@ -112,6 +112,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
     private bool TryHandleLocked(ReadOnlySpan<byte> packet, out PresenceUpdate? update)
     {
         var code = BinaryPrimitives.ReadUInt32LittleEndian(packet[4..]);
+        var presence = true;
         update = code switch
         {
             EtervaleOpcodes.PresenceEntries => OnPresenceEntries(packet),
@@ -146,17 +147,16 @@ internal sealed class PresenceDecoder : IEventHandleReader
             EtervaleOpcodes.TradeAsked => OnTradeAsked(TradeAskedPacket.Read(packet)),
             EtervaleOpcodes.ContactList => OnContactList(ContactListPacket.Read(packet)),
             EtervaleOpcodes.Weather => Update([], []) with { Weather = WeatherPacket.Read(packet).Weather },
-            _ => null
+            _ => NotPresence(out presence)
         };
-        return update is not null || code is EtervaleOpcodes.PresenceEntries or EtervaleOpcodes.EntityDescription or EtervaleOpcodes.RemoveObjects
-            or EtervaleOpcodes.CombatEvents or EtervaleOpcodes.GroundItems or EtervaleOpcodes.GroundItemsRemoved or EtervaleOpcodes.FieldWarp
-            or EtervaleOpcodes.OwnerStatus or EtervaleOpcodes.Inventory or EtervaleOpcodes.Skills or EtervaleOpcodes.PresenceClock
-            or EtervaleOpcodes.SkillEvents or EtervaleOpcodes.StatusEffects or EtervaleOpcodes.SkillCooldowns or EtervaleOpcodes.SkillCastResult
-            or EtervaleOpcodes.ItemDetails or EtervaleOpcodes.OwnerItemStatus or EtervaleOpcodes.AgingProgress
-            or EtervaleOpcodes.PremiumTimers or EtervaleOpcodes.ItemEffects or EtervaleOpcodes.RestartOffer or EtervaleOpcodes.QuestJournal or EtervaleOpcodes.QuestNotices
-            or EtervaleOpcodes.ChatLine or EtervaleOpcodes.CloseRequest or EtervaleOpcodes.PartyMembers or EtervaleOpcodes.PartyRequest
-            or EtervaleOpcodes.TradeDetails or EtervaleOpcodes.TradeState or EtervaleOpcodes.TradeAsked or EtervaleOpcodes.ContactList
-            or EtervaleOpcodes.Weather;
+        return presence;
+
+        // Another stream's message: no update, and not handled here.
+        static PresenceUpdate? NotPresence(out bool presence)
+        {
+            presence = false;
+            return null;
+        }
     }
 
     private PresenceUpdate OnContactList(ContactListPacket packet) =>
