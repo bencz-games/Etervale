@@ -799,7 +799,6 @@ public sealed class CharacterSelectScreen : GameScreen
     {
         _viewModel.StateIndex = (int)_state;
         _viewModel.ErrorMessage = _errorMessage;
-        _viewModel.ServerName = Context.Backend.ServerName;
         _viewModel.ElapsedSeconds = _elapsedSeconds;
         _viewModel.RosterHasChars = _scene.RosterCount > 0;
         _viewModel.HasSelectedRoster = _selectedIndex >= 0;

@@ -71,7 +71,6 @@ public sealed class GameServerConnection : IGameBackend
     private WorldEntryPacket? _entered;
     private uint _minimumProtocol;
 
-    public string ServerName { get; private set; } = "";
     private string _account = "";
     private bool _disposed;
 
@@ -504,7 +503,6 @@ public sealed class GameServerConnection : IGameBackend
             {
                 var hello = ServerHelloPacket.Read(packet);
                 _minimumProtocol = hello.MinimumProtocol;
-                ServerName = hello.ServerName;
                 break;
             }
             case EtervaleOpcodes.LoginResult:

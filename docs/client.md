@@ -166,7 +166,7 @@ frame.
 
 | Step | Client sends | Completes on |
 |---|---|---|
-| Connect | First `LoginAsync` opens the socket and starts `RunAsync` (receive) and `HeartbeatAsync` (`Heartbeat` every 4 s) | `ServerHello` (minimum protocol, server name for the character screen) |
+| Connect | First `LoginAsync` opens the socket and starts `RunAsync` (receive) and `HeartbeatAsync` (`Heartbeat` every 4 s) | `ServerHello` (minimum protocol, server name) |
 | Login | Encrypted `Login` (protocol version, account, password) | `LoginResult` after the `CharacterList`; a non-zero status, or a `ProtocolVersion.Current` below the hello's minimum, is a denial |
 | Characters | `ListCharactersAsync` returns the list cached at login; create/delete send `CharacterCommand` | `CharacterResult` (a fresh list arrives first on success) |
 | Enter world | `EnterWorld` with the name | `WorldEntry` (id, field, spawn point; a non-zero status is a denial) |
