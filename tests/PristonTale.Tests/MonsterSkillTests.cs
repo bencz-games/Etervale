@@ -77,7 +77,7 @@ internal static class MonsterSkillTests
         var brain = new MonsterAiBrain(new CombatRng(3));
         var prey = new FieldPreyView();
         var character = new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Target", 100);
-        prey.Rebuild([new WorldPlayer(1, new Vector3(40, 0, 0), character, false, default)]);
+        prey.Rebuild(new Dictionary<ulong, WorldPlayer> { [1] = new WorldPlayer(1, new Vector3(40, 0, 0), character, false, default) }.Values);
         var seen = new HashSet<int>();
         for (var swing = 0; swing < 40; swing++)
         {

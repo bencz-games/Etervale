@@ -65,7 +65,7 @@ internal sealed class FieldPremium
         _attacks.Remove(entityId);
     }
 
-    public void Step(IEnumerable<WorldPlayer> players)
+    public void Step(Dictionary<ulong, WorldPlayer>.ValueCollection players)
     {
         if (NowSeconds > 0)
         {

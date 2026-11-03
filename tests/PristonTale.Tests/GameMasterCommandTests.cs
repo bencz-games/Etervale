@@ -179,7 +179,7 @@ internal static class GameMasterCommandTests
         Assert.True(snapshot.Entities.Single(entity => entity.EntityId == gm.Id).Hidden, "the hidden game master's view is not marked hidden");
         var prey = new FieldPreyView();
         var hidden = new WorldPlayer(1, Vector3.Zero, new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Ghost"), false, default) { Hidden = true };
-        prey.Rebuild([hidden]);
+        prey.Rebuild(new Dictionary<ulong, WorldPlayer> { [hidden.EntityId] = hidden }.Values);
         Assert.True(prey.Candidates.Count == 0, "monsters can see a hidden game master");
         await fixture.SayAsync(gm, "/show");
         fixture.Tick(1);

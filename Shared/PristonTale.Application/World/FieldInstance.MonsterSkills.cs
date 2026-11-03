@@ -15,9 +15,9 @@ public sealed partial class FieldInstance : IFieldMonsterSkillHost
     bool IFieldMonsterSkillHost.TryGetMonster(ulong entityId, [MaybeNullWhen(false)] out MonsterInstance monster) =>
         _monsters.TryGetValue(entityId, out monster);
 
-    IEnumerable<MonsterInstance> IFieldMonsterSkillHost.Monsters => _monsters.Values;
+    Dictionary<ulong, MonsterInstance>.ValueCollection IFieldMonsterSkillHost.Monsters => _monsters.Values;
 
-    IEnumerable<WorldPlayer> IFieldMonsterSkillHost.Players => _players.Values;
+    Dictionary<ulong, WorldPlayer>.ValueCollection IFieldMonsterSkillHost.Players => _players.Values;
 
     IReadOnlyList<PreyCandidate> IFieldMonsterSkillHost.NearbyPlayers(Vector3 origin, float radius) => _prey.Nearby(origin, radius);
 

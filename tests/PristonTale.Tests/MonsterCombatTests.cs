@@ -172,7 +172,7 @@ internal static class MonsterCombatTests
     private sealed class CombatHost(WorldPlayer player, MonsterInstance monster) : IFieldCombatHost
     {
         public int EventCount { get; private set; }
-        public IEnumerable<MonsterInstance> Monsters => [monster];
+        public Dictionary<ulong, MonsterInstance>.ValueCollection Monsters { get; } = new Dictionary<ulong, MonsterInstance> { [monster.EntityId] = monster }.Values;
         public IReadOnlyList<PreyCandidate> NearbyPlayers(Vector3 origin, float radius) => [new(player.EntityId, player.Position, !player.IsDead)];
         public void DespawnMonster(ulong entityId) { }
         public MonsterAiTuning TuningFor(MonsterDefinition definition) => new(definition);

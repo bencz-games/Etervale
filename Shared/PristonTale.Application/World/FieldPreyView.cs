@@ -55,7 +55,7 @@ public sealed class FieldPreyView : IPreyView
     // An entity monsters can keep as their target but never acquire by sight (a summon that hit them).
     public void AddTargetOnly(ulong entityId, Vector3 position, bool alive) => _byId[entityId] = new PreyCandidate(entityId, position, alive);
 
-    public void Rebuild(IEnumerable<WorldPlayer> players)
+    public void Rebuild(Dictionary<ulong, WorldPlayer>.ValueCollection players)
     {
         _candidates.Clear();
         _byId.Clear();

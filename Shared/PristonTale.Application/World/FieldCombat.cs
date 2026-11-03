@@ -20,7 +20,8 @@ internal interface IFieldCombatHost
 {
     bool TryGetPlayer(ulong entityId, [MaybeNullWhen(false)] out WorldPlayer player);
     bool TryGetMonster(ulong entityId, [MaybeNullWhen(false)] out MonsterInstance monster);
-    IEnumerable<MonsterInstance> Monsters { get; }
+    // The field's own collections: walked every tick, their struct enumerators box nothing.
+    Dictionary<ulong, MonsterInstance>.ValueCollection Monsters { get; }
     IReadOnlyList<PreyCandidate> NearbyPlayers(Vector3 origin, float radius);
     void DespawnMonster(ulong entityId);
 

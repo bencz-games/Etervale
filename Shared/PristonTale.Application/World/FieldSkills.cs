@@ -17,8 +17,9 @@ internal interface IFieldSkillHost
     FieldTerrain Terrain { get; }
     bool TryGetPlayer(ulong entityId, [MaybeNullWhen(false)] out WorldPlayer player);
     bool TryGetMonster(ulong entityId, [MaybeNullWhen(false)] out MonsterInstance monster);
-    IEnumerable<MonsterInstance> Monsters { get; }
-    IEnumerable<WorldPlayer> Players { get; }
+    // The field's own collections: walked every tick, their struct enumerators box nothing.
+    Dictionary<ulong, MonsterInstance>.ValueCollection Monsters { get; }
+    Dictionary<ulong, WorldPlayer>.ValueCollection Players { get; }
     (float DurationMs, float HitAtMs) PlayerSwingTiming(WorldPlayer player);
     void EmitCombatEvent(in CombatEventView combatEvent);
     KillPayout? ApplyPlayerDamage(WorldPlayer player, MonsterInstance monster, int damage, bool crit, bool forceFlinch = false, ulong sourceEntityId = 0);

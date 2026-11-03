@@ -327,9 +327,9 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
 
     bool IFieldSkillHost.TryGetMonster(ulong entityId, [MaybeNullWhen(false)] out MonsterInstance monster) => _monsters.TryGetValue(entityId, out monster);
 
-    IEnumerable<MonsterInstance> IFieldSkillHost.Monsters => _monsters.Values;
+    Dictionary<ulong, MonsterInstance>.ValueCollection IFieldSkillHost.Monsters => _monsters.Values;
 
-    IEnumerable<WorldPlayer> IFieldSkillHost.Players => _players.Values;
+    Dictionary<ulong, WorldPlayer>.ValueCollection IFieldSkillHost.Players => _players.Values;
 
     KillPayout? IFieldSkillHost.ApplyPlayerDamage(WorldPlayer player, MonsterInstance monster, int damage, bool crit, bool forceFlinch, ulong sourceEntityId) =>
         _combat.ApplyPlayerDamage(player, monster, damage, crit, NowMs, forceFlinch, sourceEntityId);
@@ -677,7 +677,7 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
     bool IFieldCombatHost.TryGetMonster(ulong entityId, [MaybeNullWhen(false)] out MonsterInstance monster)
         => _monsters.TryGetValue(entityId, out monster);
 
-    IEnumerable<MonsterInstance> IFieldCombatHost.Monsters => _monsters.Values;
+    Dictionary<ulong, MonsterInstance>.ValueCollection IFieldCombatHost.Monsters => _monsters.Values;
 
     IReadOnlyList<PreyCandidate> IFieldCombatHost.NearbyPlayers(Vector3 origin, float radius) => _prey.Nearby(origin, radius);
 

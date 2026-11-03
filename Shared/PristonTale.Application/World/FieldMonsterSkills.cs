@@ -18,8 +18,9 @@ internal interface IFieldMonsterSkillHost
 {
     bool TryGetPlayer(ulong entityId, [MaybeNullWhen(false)] out WorldPlayer player);
     bool TryGetMonster(ulong entityId, [MaybeNullWhen(false)] out MonsterInstance monster);
-    IEnumerable<MonsterInstance> Monsters { get; }
-    IEnumerable<WorldPlayer> Players { get; }
+    // The field's own collections: walked every tick, their struct enumerators box nothing.
+    Dictionary<ulong, MonsterInstance>.ValueCollection Monsters { get; }
+    Dictionary<ulong, WorldPlayer>.ValueCollection Players { get; }
     IReadOnlyList<PreyCandidate> NearbyPlayers(Vector3 origin, float radius);
     IReadOnlyList<MonsterDefinition> MonsterDefinitions { get; }
     MonsterInstance SpawnMonster(MonsterDefinition definition, Vector3 position, float facing, int spawnPointIndex);
