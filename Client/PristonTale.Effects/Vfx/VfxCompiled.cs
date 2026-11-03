@@ -16,8 +16,7 @@ public sealed class VfxCurve
         for (var index = 0; index < keys.Length; index++)
         {
             _times[index] = keys[index].T;
-            var v = keys[index].V;
-            _values[index] = new Vector4(v[0], v.Length > 1 ? v[1] : 0f, v.Length > 2 ? v[2] : 0f, v.Length > 3 ? v[3] : 0f);
+            _values[index] = VfxKeys.ToVector4(keys[index].V);
         }
     }
 

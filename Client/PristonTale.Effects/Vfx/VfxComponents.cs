@@ -21,23 +21,10 @@ internal sealed class CompiledComponent
         VelocityMax = VfxDefinition.Vec3(source.VelocityMax);
         Color = new Vector4(source.Color[0], source.Color[1], source.Color[2], source.Color[3]);
         // Events are applied in time order; a set event's ramp is the next ramp of the same kind after it.
-        Events = source.Events.OrderBy(static e => e.T).ToArray();
-        NextRamp = new int[Events.Length];
-        Values = new Vector4[Events.Length];
-        for (var start = 0; start < Events.Length; start++)
-        {
-            var value = Events[start].Value;
-            Values[start] = new Vector4(value[0], value[1], value[2], value.Length > 3 ? value[3] : 0f);
-            NextRamp[start] = -1;
-            for (var end = start + 1; end < Events.Length; end++)
-            {
-                if (Events[end].Ramp && Events[end].Kind == Events[start].Kind)
-                {
-                    NextRamp[start] = end;
-                    break;
-                }
-            }
-        }
+        var events = source.Events.OrderBy(static e => e.T).ToArray();
+        Events = events;
+        Values = events.Select(static e => VfxKeys.ToVector4(e.Value)).ToArray();
+        NextRamp = VfxKeys.NextRamps(events.Length, end => events[end].Ramp, (start, end) => events[end].Kind == events[start].Kind);
     }
 
     public VfxComponentDefinition Source { get; }
@@ -303,23 +290,23 @@ internal sealed class ComponentState
         particle = default;
         particle.Live = true;
         var local = SpawnOffset(ref random);
-        particle.EndTime = Range(source.EndTime[0], source.EndTime[1], ref random);
+        particle.EndTime = VfxRandom.Range(source.EndTime[0], source.EndTime[1], ref random);
         particle.Color = Component.Color;
-        var height = Range(source.SizeMin[1], source.SizeMax[1], ref random);
-        particle.Size = new Vector3(Range(source.SizeMin[0], source.SizeMax[0], ref random), height, height);
+        var height = VfxRandom.Range(source.SizeMin[1], source.SizeMax[1], ref random);
+        particle.Size = new Vector3(VfxRandom.Range(source.SizeMin[0], source.SizeMax[0], ref random), height, height);
         if (!source.Outward)
         {
             particle.Velocity = RandomVelocity(ref random);
             if (source.Beams)
             {
                 particle.Beam = true;
-                particle.Direction = Normalized(RandomVelocity(ref random));
+                particle.Direction = VfxRandom.SafeNormalize(RandomVelocity(ref random));
             }
         }
         else
         {
-            var speed = Range(Component.VelocityMin.X, Component.VelocityMax.X, ref random);
-            var outward = Normalized(local);
+            var speed = VfxRandom.Range(Component.VelocityMin.X, Component.VelocityMax.X, ref random);
+            var outward = VfxRandom.SafeNormalize(local);
             particle.Velocity = outward * speed;
             if (source.Beams)
             {
@@ -336,23 +323,22 @@ internal sealed class ComponentState
         switch (Component.Source.Spawn)
         {
             case VfxSpawnShape.Box:
-                return new Vector3(Range(Component.SpawnMin.X, Component.SpawnMax.X, ref random), Range(Component.SpawnMin.Y, Component.SpawnMax.Y, ref random),
-                    Range(Component.SpawnMin.Z, Component.SpawnMax.Z, ref random));
+                return VfxRandom.Box(Component.SpawnMin, Component.SpawnMax, ref random);
             case VfxSpawnShape.Sphere:
             {
-                var radius = Range(Component.SpawnMin.X, Component.SpawnMax.X, ref random);
-                var x = Range(0f, 4f, ref random);
-                var y = Range(0f, 4f, ref random);
-                var z = Range(0f, 4f, ref random);
+                var radius = VfxRandom.Range(Component.SpawnMin.X, Component.SpawnMax.X, ref random);
+                var x = VfxRandom.Range(0f, 4f, ref random);
+                var y = VfxRandom.Range(0f, 4f, ref random);
+                var z = VfxRandom.Range(0f, 4f, ref random);
                 var rotation = Matrix.CreateRotationX(x) * Matrix.CreateRotationY(y) * Matrix.CreateRotationZ(z);
                 return Vector3.Transform(new Vector3(0f, 0f, radius), rotation);
             }
             case VfxSpawnShape.Doughnut:
             {
-                var jitter = new Vector3(Range(Component.SpawnMin.Y, Component.SpawnMax.Y, ref random), Range(Component.SpawnMin.Y, Component.SpawnMax.Y, ref random),
-                    Range(Component.SpawnMin.Y, Component.SpawnMax.Y, ref random));
-                jitter.Z += Range(Component.SpawnMin.X, Component.SpawnMax.X, ref random);
-                var yaw = Range(0f, 8f, ref random);
+                var jitter = new Vector3(VfxRandom.Range(Component.SpawnMin.Y, Component.SpawnMax.Y, ref random), VfxRandom.Range(Component.SpawnMin.Y, Component.SpawnMax.Y, ref random),
+                    VfxRandom.Range(Component.SpawnMin.Y, Component.SpawnMax.Y, ref random));
+                jitter.Z += VfxRandom.Range(Component.SpawnMin.X, Component.SpawnMax.X, ref random);
+                var yaw = VfxRandom.Range(0f, 8f, ref random);
                 return Vector3.Transform(jitter, Matrix.CreateRotationY(yaw));
             }
             default:
@@ -360,13 +346,7 @@ internal sealed class ComponentState
         }
     }
 
-    private Vector3 RandomVelocity(ref uint random) =>
-        new(Range(Component.VelocityMin.X, Component.VelocityMax.X, ref random), Range(Component.VelocityMin.Y, Component.VelocityMax.Y, ref random),
-            Range(Component.VelocityMin.Z, Component.VelocityMax.Z, ref random));
-
-    private static Vector3 Normalized(Vector3 value) => value.LengthSquared() > 1e-12f ? Vector3.Normalize(value) : Vector3.Zero;
-
-    private static float Range(float min, float max, ref uint random) => min + (max - min) * VfxInstance.NextUnit(ref random);
+    private Vector3 RandomVelocity(ref uint random) => VfxRandom.Box(Component.VelocityMin, Component.VelocityMax, ref random);
 
     private void AdvanceTexture(ref VfxElement element, float dt)
     {
@@ -433,7 +413,7 @@ internal sealed class ComponentState
 
             if (next >= 0)
             {
-                element.ColorStep = (Component.Values[next] - element.Color) / Span(current.T, Component.Events[next].T);
+                element.ColorStep = (Component.Values[next] - element.Color) / VfxKeys.Span(current.T, Component.Events[next].T);
             }
 
             return;
@@ -448,13 +428,7 @@ internal sealed class ComponentState
         if (next >= 0)
         {
             var target = Component.Values[next];
-            element.SizeStep = (new Vector3(target.X, target.Y, target.Z) - element.Size) / Span(current.T, Component.Events[next].T);
+            element.SizeStep = (new Vector3(target.X, target.Y, target.Z) - element.Size) / VfxKeys.Span(current.T, Component.Events[next].T);
         }
-    }
-
-    private static float Span(float from, float to)
-    {
-        var delta = to - from;
-        return delta == 0f ? 1f : delta;
     }
 }

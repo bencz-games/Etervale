@@ -280,23 +280,23 @@ internal sealed class PartState
         part.Phase = PartPhase.Live;
         part.Age = 0f;
         part.Origin = Anchor(instance, anchors, ref part);
-        var local = Box(Part.JitterMin, Part.JitterMax, ref random);
-        var velocity = Box(Part.VelocityMin, Part.VelocityMax, ref random);
+        var local = VfxRandom.Box(Part.JitterMin, Part.JitterMax, ref random);
+        var velocity = VfxRandom.Box(Part.VelocityMin, Part.VelocityMax, ref random);
         var ringed = source.Ring[1] > 0f || source.RingStep != 0f || source.RingRandom;
         var angle = source.RingRandom || !ringed ? VfxInstance.NextUnit(ref random) * 360f : source.RingStart + source.RingStep * index;
         var direction = new Vector3(MathF.Cos(MathHelper.ToRadians(angle)), 0f, MathF.Sin(MathHelper.ToRadians(angle)));
         if (ringed)
         {
-            local += direction * Range(source.Ring, ref random);
+            local += direction * VfxRandom.Range(source.Ring, ref random);
         }
 
-        velocity += direction * Range(source.Radial, ref random);
-        velocity.Y += Range(source.Rise, ref random);
+        velocity += direction * VfxRandom.Range(source.Radial, ref random);
+        velocity.Y += VfxRandom.Range(source.Rise, ref random);
         if (Part.Shell != Vector3.Zero || source.Burst[1] != 0f)
         {
             var shell = RandomDirection(ref random);
             local += shell * Part.Shell;
-            velocity += shell * Range(source.Burst, ref random);
+            velocity += shell * VfxRandom.Range(source.Burst, ref random);
         }
 
         part.Local = Vector3.TransformNormal(local, _turn);
@@ -307,16 +307,16 @@ internal sealed class PartState
         }
 
         part.Start = part.Position;
-        part.Gravity = Range(source.Gravity, ref random);
+        part.Gravity = VfxRandom.Range(source.Gravity, ref random);
         part.MoveTime = Draw(source.MoveTime, ref random);
         part.Swirl = Draw(source.Swirl, ref random);
         part.SwirlGrowth = Draw(source.SwirlGrowth, ref random);
-        part.Life = Range(source.Lifetime, ref random);
-        part.Size = Range(source.Size, ref random);
-        part.Height = source.Height[1] > 0f ? Range(source.Height, ref random) : part.Size;
-        part.HalfWidth = Range(source.Width, ref random);
-        part.Scale = Range(source.Scale, ref random);
-        part.Rotation = Range(source.Rotation, ref random);
+        part.Life = VfxRandom.Range(source.Lifetime, ref random);
+        part.Size = VfxRandom.Range(source.Size, ref random);
+        part.Height = source.Height[1] > 0f ? VfxRandom.Range(source.Height, ref random) : part.Size;
+        part.HalfWidth = VfxRandom.Range(source.Width, ref random);
+        part.Scale = VfxRandom.Range(source.Scale, ref random);
+        part.Rotation = VfxRandom.Range(source.Rotation, ref random);
         part.Angles = Part.Angles;
         part.OrbitAngle = source.OrbitPhase + source.OrbitPhaseStep * index;
         part.OrbitSign = source.OrbitAlternate && (index & 1) == 1 ? -1f : 1f;
@@ -723,20 +723,12 @@ internal sealed class PartState
         return source.Pulse[0] + (source.Pulse[1] - source.Pulse[0]) * triangle;
     }
 
-    private static Vector3 Box(Vector3 min, Vector3 max, ref uint random) =>
-        new(min.X + (max.X - min.X) * VfxInstance.NextUnit(ref random), min.Y + (max.Y - min.Y) * VfxInstance.NextUnit(ref random),
-            min.Z + (max.Z - min.Z) * VfxInstance.NextUnit(ref random));
-
-    private static float Range(float[] range, ref uint random) => range[0] + (range[1] - range[0]) * VfxInstance.NextUnit(ref random);
-
     // A range drawn only when it spans values, so effects that keep it constant draw the same random sequence as before.
-    private static float Draw(float[] range, ref uint random) => range[1] > range[0] ? Range(range, ref random) : range[0];
+    private static float Draw(float[] range, ref uint random) => range[1] > range[0] ? VfxRandom.Range(range, ref random) : range[0];
 
     private static Vector3 RandomDirection(ref uint random)
     {
         var z = VfxInstance.NextUnit(ref random) * 2f - 1f;
-        var angle = VfxInstance.NextUnit(ref random) * MathHelper.TwoPi;
-        var planar = MathF.Sqrt(MathF.Max(0f, 1f - z * z));
-        return new Vector3(MathF.Cos(angle) * planar, z, MathF.Sin(angle) * planar);
+        return VfxRandom.SphereDirection(z, VfxInstance.NextUnit(ref random) * MathHelper.TwoPi);
     }
 }

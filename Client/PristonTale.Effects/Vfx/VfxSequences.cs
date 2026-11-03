@@ -17,25 +17,12 @@ internal sealed class CompiledSequence
         RadiusMax = VfxDefinition.Vec3(source.RadiusMax);
         GravityMin = VfxDefinition.Vec3(source.GravityMin);
         GravityMax = VfxDefinition.Vec3(source.GravityMax);
-        // A stable sort keeps the authored order of events at the same time.
-        Events = source.Events.Select((e, index) => (e, index)).OrderBy(static p => p.e.T).ThenBy(static p => p.index).Select(static p => p.e).ToArray();
-        Min = new Vector4[Events.Length];
-        Max = new Vector4[Events.Length];
-        NextRamp = new int[Events.Length];
-        for (var start = 0; start < Events.Length; start++)
-        {
-            Min[start] = Vector(Events[start].Min);
-            Max[start] = Vector(Events[start].Max);
-            NextRamp[start] = -1;
-            for (var end = start + 1; end < Events.Length; end++)
-            {
-                if (Events[end].Ramp && Events[end].Set == Events[start].Set)
-                {
-                    NextRamp[start] = end;
-                    break;
-                }
-            }
-        }
+        // OrderBy is stable: events at the same time keep their authored order.
+        var events = source.Events.OrderBy(static e => e.T).ToArray();
+        Events = events;
+        Min = events.Select(static e => VfxKeys.ToVector4(e.Min)).ToArray();
+        Max = events.Select(static e => VfxKeys.ToVector4(e.Max)).ToArray();
+        NextRamp = VfxKeys.NextRamps(events.Length, end => events[end].Ramp, (start, end) => events[end].Set == events[start].Set);
     }
 
     public VfxSequenceDefinition Source { get; }
@@ -49,9 +36,6 @@ internal sealed class CompiledSequence
     public Vector4[] Min { get; }
     public Vector4[] Max { get; }
     public int[] NextRamp { get; }
-
-    private static Vector4 Vector(float[] values) =>
-        new(values[0], values.Length > 1 ? values[1] : 0f, values.Length > 2 ? values[2] : 0f, values.Length > 3 ? values[3] : 0f);
 }
 
 public struct VfxSequenceParticle
@@ -212,11 +196,11 @@ internal sealed class SequenceState
                 particle.Orbit += particle.OrbitStep * dt;
                 particle.Stretch += particle.StretchStep * dt;
                 // Gravity is drawn anew every frame.
-                particle.Velocity += Draw(Sequence.GravityMin, Sequence.GravityMax, ref random) * dt;
+                particle.Velocity += VfxRandom.Box(Sequence.GravityMin, Sequence.GravityMax, ref random) * dt;
                 RunEvents(ref particle, ref random);
             }
 
-            var rate = Range(definition.Rate[0], definition.Rate[1], ref random);
+            var rate = VfxRandom.Range(definition.Rate[0], definition.Rate[1], ref random);
             var newParticles = (int)(rate * dt);
             _excess += rate * dt - newParticles;
             if (_excess > 1f)
@@ -284,8 +268,8 @@ internal sealed class SequenceState
         {
             Size = 1f,
             Color = Vector4.One,
-            Lifetime = Range(Sequence.Source.Lifetime[0], Sequence.Source.Lifetime[1], ref random),
-            Local = Draw(Sequence.RadiusMin, Sequence.RadiusMax, ref random),
+            Lifetime = VfxRandom.Range(Sequence.Source.Lifetime[0], Sequence.Source.Lifetime[1], ref random),
+            Local = VfxRandom.Box(Sequence.RadiusMin, Sequence.RadiusMax, ref random),
             World = source
         };
         if (Sequence.Source.Shape == VfxSequenceShape.Trail)
@@ -377,15 +361,14 @@ internal sealed class SequenceState
     private void Visit(int index, ref VfxSequenceParticle particle, ref uint random)
     {
         var e = Sequence.Events[index];
-        var value = Draw(Sequence.Min[index], Sequence.Max[index], ref random);
+        var value = VfxRandom.Box(Sequence.Min[index], Sequence.Max[index], ref random);
         var next = Sequence.NextRamp[index];
         var span = 1f;
         var target = Vector4.Zero;
         if (next >= 0)
         {
-            var delta = Sequence.Events[next].T - e.T;
-            span = delta == 0f ? 1f : delta;
-            target = Draw(Sequence.Min[next], Sequence.Max[next], ref random);
+            span = VfxKeys.Span(e.T, Sequence.Events[next].T);
+            target = VfxRandom.Box(Sequence.Min[next], Sequence.Max[next], ref random);
         }
 
         switch (e.Set)
@@ -425,8 +408,8 @@ internal sealed class SequenceState
                 {
                     particle.Velocity = e.Mode switch
                     {
-                        VfxVelocityMode.Outward => Direction(particle.Local) * value.X,
-                        VfxVelocityMode.Inward => -Direction(particle.Local) * value.X,
+                        VfxVelocityMode.Outward => VfxRandom.SafeNormalize(particle.Local) * value.X,
+                        VfxVelocityMode.Inward => -VfxRandom.SafeNormalize(particle.Local) * value.X,
                         _ => new Vector3(value.X, value.Y, value.Z)
                     };
                 }
@@ -499,13 +482,4 @@ internal sealed class SequenceState
         }
     }
 
-    private static Vector3 Direction(Vector3 value) => value.LengthSquared() > 1e-12f ? Vector3.Normalize(value) : Vector3.Zero;
-
-    private static float Range(float min, float max, ref uint random) => min + (max - min) * VfxInstance.NextUnit(ref random);
-
-    private static Vector3 Draw(Vector3 min, Vector3 max, ref uint random) =>
-        new(Range(min.X, max.X, ref random), Range(min.Y, max.Y, ref random), Range(min.Z, max.Z, ref random));
-
-    private static Vector4 Draw(Vector4 min, Vector4 max, ref uint random) =>
-        new(Range(min.X, max.X, ref random), Range(min.Y, max.Y, ref random), Range(min.Z, max.Z, ref random), Range(min.W, max.W, ref random));
 }
