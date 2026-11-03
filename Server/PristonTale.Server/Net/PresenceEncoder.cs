@@ -1001,12 +1001,10 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
         {
             _inventoryRevision = owner.InventoryRevision;
             ItemWireMapping.SendDetails(owner, connection, _scratch);
-            var items = owner.Items.Select(WireMapping.Item).ToArray();
-            var parts = Math.Max(1, (items.Length + InventoryPartPacket.MaxItemsPerPart - 1) / InventoryPartPacket.MaxItemsPerPart);
-            for (var part = 0; part < parts; part++)
+            var parts = ItemWireMapping.Parts(owner.Items.Select(WireMapping.Item).ToArray(), InventoryPartPacket.MaxItemsPerPart);
+            for (var part = 0; part < parts.Length; part++)
             {
-                var slice = items.Skip(part * InventoryPartPacket.MaxItemsPerPart).Take(InventoryPartPacket.MaxItemsPerPart).ToArray();
-                var packet = new InventoryPartPacket(owner.InventoryRevision, part, parts, slice);
+                var packet = new InventoryPartPacket(owner.InventoryRevision, part, parts.Length, parts[part]);
                 connection.Send(_scratch.AsSpan(0, packet.Write(_scratch)));
             }
         }

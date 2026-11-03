@@ -72,7 +72,7 @@ internal sealed class PristonVolumetricLight : IDisposable
         EnsureSize(width, height);
         for (var c = 0; c < PristonShadowCascades.MaxCascades; c++)
         {
-            var source = Math.Min(c, cascades.Count - 1);
+            var source = cascades.Padded(c);
             _cascadeMatrices[c] = cascades.ViewProjections[source];
             _cascadeAtlas[c] = cascades.AtlasRects[source];
         }

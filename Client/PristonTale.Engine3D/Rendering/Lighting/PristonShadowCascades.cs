@@ -35,6 +35,9 @@ internal sealed class PristonShadowCascades
     }
 
     public int Count { get; private set; } = MaxCascades;
+
+    // The shaders always read MaxCascades: the slots past Count repeat the last cascade.
+    public int Padded(int slot) => Math.Min(slot, Count - 1);
     public int AtlasSize { get; private set; }
     public int TileSize => Count == 1 ? AtlasSize : AtlasSize / 2;
     public IReadOnlyList<Matrix> ViewProjections => _viewProjections;

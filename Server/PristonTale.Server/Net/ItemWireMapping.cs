@@ -19,14 +19,16 @@ public static class ItemWireMapping
     // The details of every owned item at the owner's inventory revision, in parts that precede its inventory parts.
     public static void SendDetails(OwnerState owner, IPacketSink connection, byte[] scratch)
     {
-        var items = owner.Items.Select(Detail).ToArray();
-        var parts = Math.Max(1, (items.Length + ItemDetailsPartPacket.MaxItemsPerPart - 1) / ItemDetailsPartPacket.MaxItemsPerPart);
-        for (var part = 0; part < parts; part++)
+        var parts = Parts(owner.Items.Select(Detail).ToArray(), ItemDetailsPartPacket.MaxItemsPerPart);
+        for (var part = 0; part < parts.Length; part++)
         {
-            var slice = items.Skip(part * ItemDetailsPartPacket.MaxItemsPerPart).Take(ItemDetailsPartPacket.MaxItemsPerPart).ToArray();
-            connection.Send(scratch.AsSpan(0, new ItemDetailsPartPacket(owner.InventoryRevision, part, parts, slice).Write(scratch)));
+            connection.Send(scratch.AsSpan(0, new ItemDetailsPartPacket(owner.InventoryRevision, part, parts.Length, parts[part]).Write(scratch)));
         }
     }
+
+    // A list sent in numbered parts of at most perPart entries; an empty list is one empty part.
+    public static T[][] Parts<T>(T[] items, int perPart) =>
+        items.Length == 0 ? [[]] : items.Chunk(perPart).ToArray();
 
     // An item as a store window shows it (a trade partner's offer, a personal shop, the warehouse).
     public static StoreItemEntry StoreItem(OwnedItemView item) =>

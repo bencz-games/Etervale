@@ -110,7 +110,7 @@ internal sealed class PristonShaderLibrary : IDisposable
             Span<float> ranges = stackalloc float[PristonShadowCascades.MaxCascades];
             for (var c = 0; c < PristonShadowCascades.MaxCascades; c++)
             {
-                var source = Math.Min(c, cascades.Count - 1);
+                var source = cascades.Padded(c);
                 _cascades.ViewProjections[c] = cascades.ViewProjections[source];
                 _cascades.Atlas[c] = cascades.AtlasRects[source];
                 splits[c] = cascades.Splits[source];
