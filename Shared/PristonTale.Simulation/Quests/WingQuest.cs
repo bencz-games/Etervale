@@ -1,4 +1,5 @@
 using PristonTale.Simulation.Items;
+using PristonTale.Simulation.World;
 
 namespace PristonTale.Simulation.Quests;
 
@@ -9,11 +10,8 @@ public static class WingQuest
 {
     private sealed record Recipe(uint[] Needs, int Gold, uint Result, string Documents);
 
-    private static readonly uint[] Wings =
-    [
-        ItemCodes.Parse("QW101"), ItemCodes.Parse("QW102"), ItemCodes.Parse("QW103"), ItemCodes.Parse("QW104"),
-        ItemCodes.Parse("QW105"), ItemCodes.Parse("QW106")
-    ];
+    // The wings in exchange order (WingGates.Wings).
+    private static readonly uint[] Wings = WingGates.Wings.Select(static wing => wing.Code).ToArray();
 
     private static readonly Recipe[] Recipes =
     [
@@ -62,7 +60,7 @@ public static class WingQuest
 
         var recipe = Recipes[index];
         context.Show(CanExchange(context, recipe)
-            ? QuestSteps.Confirm(QuestCode.None, index, recipe.Documents + "_b", QuestTexts.ReceiveWing, QuestTexts.WingNames[index])
+            ? QuestSteps.Confirm(QuestCode.None, index, recipe.Documents + "_b", QuestTexts.ReceiveWing, WingGates.Wings[index].Name)
             : QuestSteps.Close(QuestCode.None, index, recipe.Documents + "_a"));
     }
 

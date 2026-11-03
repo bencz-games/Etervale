@@ -62,5 +62,4 @@ public static class QuestTexts
         "Gothic Staff"
     ];
 
-    public static readonly string[] WingNames = ["Metal Wing", "Silver Wing", "Gold Wing", "Diamond Wing", "Chaos Wing", "Extreme Wing"];
 }

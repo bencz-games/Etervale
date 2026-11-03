@@ -44,7 +44,7 @@ public static class WingGates
         new(ItemCodes.Parse("QW101"), "Metal Wing", 4, 100),
         new(ItemCodes.Parse("QW102"), "Silver Wing", 5, 300),
         new(ItemCodes.Parse("QW103"), "Gold Wing", 6, 500),
-        new(ItemCodes.Parse("QW104"), "Dia Wing", 7, 1000),
+        new(ItemCodes.Parse("QW104"), "Diamond Wing", 7, 1000),
         new(ItemCodes.Parse("QW105"), "Chaos Wing", 8, 2000),
         new(ItemCodes.Parse("QW106"), "Extreme Wing", 9, 4000)
     ];
