@@ -40,6 +40,32 @@ public static partial class SkillFormulas
         return false;
     }
 
+    // True when the rule needs no effect, or one of its required effects is on the player.
+    public static bool HoldsRequiredEffect(PlayerCharacter player, SkillRule rule)
+    {
+        foreach (var code in rule.RequiresEffect)
+        {
+            if (player.Effects.TryGet(code, out _))
+            {
+                return true;
+            }
+        }
+
+        return rule.RequiresEffect.Length == 0;
+    }
+
+    // How long a taunt holds the struck monster: the rule's own table, else the caster buff's or the buff's duration.
+    public static float TauntDurationMs(SkillRule rule, int rank, SkillBuffRule buff)
+    {
+        if (rule.TauntTenths.Length > 0)
+        {
+            return At(rule.TauntTenths, rank) * TenthMs;
+        }
+
+        var held = rule.CasterBuff ?? buff;
+        return held is null ? 0f : BuffDurationMs(held, rank, 0);
+    }
+
     public static bool MatchesBrood(MonsterBrood[] broods, MonsterDefinition target) => target is not null && Array.IndexOf(broods, target.Brood) >= 0;
 
 

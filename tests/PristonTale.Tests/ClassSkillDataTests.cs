@@ -11,12 +11,11 @@ internal static class ClassSkillDataTests
     private sealed record SourceSkill(uint Code, string Name, string Description, string Icon, int Level, int Stamina, int Step, string Use, int[] Mana,
         string[] Weapons);
 
-    // The ported classes have their first four tiers' sixteen skills ported; the fifth tier holds definitions. The Shaman
-    // keeps definitions only: its first tier has costs but no castable rules, its later tiers neither.
+    // The ported classes have their first four tiers' sixteen skills ported; the fifth tier holds definitions.
     private static readonly PlayerClass[] Ported =
     [
         PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Knight, PlayerClass.Atalanta,
-        PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin
+        PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin, PlayerClass.Shaman
     ];
 
     private const int PortedSkills = 16;
@@ -45,6 +44,7 @@ internal static class ClassSkillDataTests
         yield return ("every skill of the ported classes has ten-rank costs and a complete rule on every rank", PortedRulesAsync);
         yield return ("class skill files reject unknown properties and brood names at any depth", StrictDataAsync);
         yield return ("the Assassin's skills keep the original hit frames, areas, party reach and dagger rules", AssassinAsync);
+        yield return ("the Shaman's spells scale by rank, Haunt drains, Soul Manacle spares bosses and Mourning needs a companion", ShamanAsync);
     }
 
     private static Task AssassinAsync()
@@ -62,6 +62,29 @@ internal static class ClassSkillDataTests
         Assert.True(Rule(0x10080002).Passive is { Effect: PassiveEffect.CriticalChance } && ClassSkillCatalog.TryGet(0x10080002, out var mastery)
             && mastery.AllowsWeapon(ItemKind.Dagger) && !mastery.AllowsWeapon(ItemKind.Sword), "the Assassin's mastery does not need daggers");
         Assert.True(Rule(0x10080004).ForRank(1).HitFramesByRank[0].SequenceEqual([1, 19]), "Ninja Shadow does not strike at the cast and at its event");
+        return Task.CompletedTask;
+    }
+
+    private static Task ShamanAsync()
+    {
+        static SkillRule Rule(uint code) => SkillRuleCatalog.TryGet(code, out var rule) ? rule : throw new InvalidOperationException($"{code:X8} has no rule");
+
+        var flare = Rule(0x50020001).Damage;
+        Assert.True(flare.LevelPercent[0] == 50 && flare.SpiritMinDivisorByRank[0] == 5 && flare.SpiritMaxDivisorByRank[9] == 1 && flare.Magic,
+            "Spiritual Flare lost its level share or its spirit divisors by rank");
+        var bolt = Rule(0x50010001).Damage;
+        Assert.True(bolt.WeaponTimesMin[0] == 1 && bolt.WeaponTimesMax[9] == 4 && bolt.SpiritMinDivisor == 8 && bolt.NoCritical, "Dark Bolt lost its weapon multiplier");
+        Assert.True(Rule(0x50010002).Damage is { AreaPercent: 70, MainPercent: 30 } && Rule(0x50010002).MotionEvents.Length == 2, "Dark Wave does not split 70/30 twice");
+        Assert.True(Rule(0x50040004).Damage.Unresisted && Rule(0x50080002).Damage.Unresisted && !bolt.Unresisted, "Scratch and Judgement carry an element");
+        var haunt = Rule(0x50040003).Damage;
+        Assert.True(haunt.Share[0] == 10 && haunt.ShareResistedByBionic && haunt.LifeToCasterCapPercent == 40, "Haunt does not drain");
+        Assert.True(Rule(0x50020002).Buff is { Control: Simulation.Modifiers.ControlFlags.Stun, SparesBosses: true, EndsOnDamage: false }, "Soul Manacle is not a hold");
+        Assert.True(Rule(0x50020003) is { Taunt: true } hunt && SkillFormulas.TauntDurationMs(hunt, 10, null) == 35_000f, "Chasing Hunt does not taunt for its time");
+        var mourning = Rule(0x50080004);
+        Assert.True(mourning.RequiresEffect.SequenceEqual([0x50020004u, 0x50080003u]) && mourning.PartyEcho, "Mourning does not need Migal or Midranda");
+        Assert.True(Rule(0x50020004).Allies!.ExcludeWith.Contains(0x50080003u) && Rule(0x50080003).Exclusive.Contains(0x50020004u),
+            "Migal and Midranda stack");
+        Assert.True(Rule(0x50080001).Summon is { Monster: "Cursed BloodyKnight", LifetimeMs: 355_000 }, "the Bloody Knight summon changed");
         return Task.CompletedTask;
     }
 
@@ -231,13 +254,8 @@ internal static class ClassSkillDataTests
                 $"{playerClass} final-tier rules are not recognised");
         }
 
-        Assert.True(count == 144, $"expected 144 ported skills with rules, got {count}");
+        Assert.True(count == 160, $"expected 160 ported skills with rules, got {count}");
         Assert.True(SkillRuleCatalog.Count == count, $"rules exist for skills that are not ported: {SkillRuleCatalog.Count}");
-        foreach (var playerClass in new[] { PlayerClass.Shaman })
-        {
-            Assert.True(ClassSkillCatalog.For(playerClass).All(skill => !SkillRuleCatalog.TryGet(skill.Code, out var rule) || rule.Kind == SkillKind.Passive),
-                $"{playerClass} gained castable rules");
-        }
         return Task.CompletedTask;
     }
 }

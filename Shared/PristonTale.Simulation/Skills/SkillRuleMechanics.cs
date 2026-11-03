@@ -138,6 +138,8 @@ public sealed partial record SkillBuffRule
     public Element? ResistedBy { get; init; }
     // The effect ends when the holder no longer wields one of the skill's weapons.
     public bool RequiresWeapon { get; init; }
+    // Boss monsters never take the effect.
+    public bool SparesBosses { get; init; }
     public SkillEnchantRule Enchant { get; init; }
     public SkillAbsorbRule Absorb { get; init; }
     public SkillReflectRule Reflect { get; init; }
@@ -167,7 +169,17 @@ public sealed partial record SkillDamageRule
     public SkillDamageRule Main { get; init; }
     // Element damage added to a weapon hit (Min..Max of the rule), resisted by its own element.
     public Element? FlatElement { get; init; }
-    // Share modes: percent of life per rank; Chance per rank plus level / ChanceLevelDivisor.
+    // Spell scaling per rank: the caster's level x LevelPercent / 100 added to both ends, spirit / the rank's divisor
+    // (0: none; empty tables use SpiritMinDivisor and SpiritMaxDivisor) and the weapon's own damage x WeaponTimes.
+    public int[] LevelPercent { get; init; } = [];
+    public int[] SpiritMinDivisorByRank { get; init; } = [];
+    public int[] SpiritMaxDivisorByRank { get; init; } = [];
+    public int[] WeaponTimesMin { get; init; } = [];
+    public int[] WeaponTimesMax { get; init; } = [];
+    // The hit carries no element: no element resistance lowers it.
+    public bool Unresisted { get; init; }
+    // Share modes: percent of life per rank; Chance per rank plus level / ChanceLevelDivisor. A rolled single-target
+    // spell drains Share percent of its target's maximum life after the hit (bosses are spared).
     public int[] Share { get; init; } = [];
     public int[] Chance { get; init; } = [];
     public int ChanceLevelDivisor { get; init; }
@@ -206,6 +218,13 @@ public sealed partial record SkillRule
     public SkillResurrectRule Resurrect { get; init; }
     // Area skills that always strike their target, even outside the area's shape.
     public bool AreaIncludesTarget { get; init; }
+    // How long a taunt holds per rank in tenths of a second; empty uses the caster buff's or the buff's duration.
+    public int[] TauntTenths { get; init; } = [];
+    // The cast needs one of these effects on the caster.
+    public uint[] RequiresEffect { get; init; } = [];
+    // Area skills: the caster's party members within the ally radius who hold one of RequiresEffect strike the same
+    // area around themselves, with their own level and spirit and the caster's weapon.
+    public bool PartyEcho { get; init; }
 
     // The rule as it plays at this rank: the motion variant of the rank replaces the clip.
     public SkillRule ForRank(int rank)
@@ -248,7 +267,8 @@ public static partial class SkillRuleCatalog
     {
         var damage = rule.Damage;
         var buff = rule.Buff;
-        return Ranked(rule.Volley) && rule.MotionSpeedPercent is > 0 and <= 400 && rule.MotionSpeedSteps is >= 0 and <= 6
+        return Ranked(rule.Volley) && Ranked(rule.TauntTenths) && rule.RequiresEffect.All(code => code != 0)
+            && (!rule.PartyEcho || rule.Allies is not null && rule.RequiresEffect.Length > 0) && rule.MotionSpeedPercent is > 0 and <= 400 && rule.MotionSpeedSteps is >= 0 and <= 6
             && rule.MaxHits >= 0 && rule.ExtraEvents.All(frame => frame > 0) && rule.Exclusive.All(code => code != 0) && rule.Replaces.All(code => code != 0)
             && rule.MotionVariants.All(variant => variant.FromRank is >= 1 and <= SkillLearning.MaxRank
                 && (variant.Motion == SkillMotion.Attack || variant.MotionFrames > 0 && variant.MotionEvents.Length > 0)
@@ -265,6 +285,8 @@ public static partial class SkillRuleCatalog
     private static bool DamageValid(SkillDamageRule damage)
     {
         return Ranked(damage.BonusPercentByRank) && Ranked(damage.Share) && Ranked(damage.Chance) && damage.ResistanceDivisor >= 1
+            && Ranked(damage.LevelPercent) && Ranked(damage.SpiritMinDivisorByRank) && Ranked(damage.SpiritMaxDivisorByRank)
+            && Ranked(damage.WeaponTimesMin) && Ranked(damage.WeaponTimesMax)
             && (damage.Mode == SkillDamageMode.Rolled || damage.Share.Length == SkillLearning.MaxRank) && (damage.Main is null || DamageValid(damage.Main));
     }
 

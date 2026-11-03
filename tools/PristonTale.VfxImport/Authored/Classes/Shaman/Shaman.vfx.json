@@ -1,0 +1,680 @@
+[
+  {
+    "name": "vfx.shaman.castcircle",
+    "duration": 3.0,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "image/Sinimage/AssaEffect/StartMagic/MAAM6.smd",
+        "blend": "Additive",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          5.8594,
+          0
+        ],
+        "turn": false,
+        "modelStart": 1,
+        "modelFrames": 20,
+        "modelSpeed": 17.5,
+        "lifetime": [
+          1.1429,
+          1.1429
+        ],
+        "fade": "InOut",
+        "fadeIn": 0.2857,
+        "fadeOut": 0.2857
+      },
+      {
+        "shape": "Ground",
+        "texture": "image/Sinimage/AssaEffect/StartMagic/P/ShamanMagic.tga",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          5.8594,
+          0
+        ],
+        "turn": false,
+        "size": [
+          56.25,
+          56.25
+        ],
+        "lifetime": [
+          2.2857,
+          2.2857
+        ],
+        "fade": "Rise"
+      },
+      {
+        "shape": "Ground",
+        "texture": "image/Sinimage/AssaEffect/StartMagic/P/star05Q_03.bmp",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          5.8594,
+          0
+        ],
+        "turn": false,
+        "size": [
+          72.6562,
+          72.6562
+        ],
+        "color": [
+          255,
+          255,
+          255,
+          120
+        ],
+        "lifetime": [
+          2.2857,
+          2.2857
+        ],
+        "fade": "Rise"
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.darkbolt.shot",
+    "duration": 10,
+    "parts": [
+      {
+        "anchor": "Point",
+        "follow": true,
+        "offset": [
+          0,
+          20,
+          0
+        ],
+        "carryEffect": "particle.DarkBolt"
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.darkbolt.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.DarkBoltHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          24,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.darkwave.left",
+    "duration": 3.0,
+    "parts": [
+      {
+        "anchor": "Caster",
+        "offset": [
+          -20,
+          20,
+          -20
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          24,
+          0
+        ],
+        "speed": 560,
+        "reach": 8,
+        "carryEffect": "particle.DarkWave1",
+        "endEffect": "particle.DarkWaveHit"
+      },
+      {
+        "anchor": "Caster",
+        "offset": [
+          -20,
+          20,
+          -20
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          24,
+          0
+        ],
+        "speed": 560,
+        "reach": 8,
+        "carryEffect": "particle.DarkWave2"
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.darkwave.right",
+    "duration": 3.0,
+    "parts": [
+      {
+        "anchor": "Caster",
+        "offset": [
+          20,
+          20,
+          -20
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          24,
+          0
+        ],
+        "speed": 560,
+        "reach": 8,
+        "carryEffect": "particle.DarkWave1",
+        "endEffect": "particle.DarkWaveHit"
+      },
+      {
+        "anchor": "Caster",
+        "offset": [
+          20,
+          20,
+          -20
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          24,
+          0
+        ],
+        "speed": 560,
+        "reach": 8,
+        "carryEffect": "particle.DarkWave2"
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.curselazy.cast",
+    "duration": 3.0,
+    "children": [
+      {
+        "effect": "vfx.shaman.castcircle",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.CurseLazy1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.curselazy.curse",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.CurseLazy2",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.spiritualflare.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.SpiritualFlare",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.soulmanacle.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.SoulManacle",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.chasinghunt.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.ChasingHunt",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.migal.companion",
+    "duration": 600,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "Effect/AssaEffect/Migal/b_Migal.smd",
+        "blend": "Alpha",
+        "color": [
+          255,
+          255,
+          255,
+          80
+        ],
+        "anchor": "Caster",
+        "follow": true,
+        "offset": [
+          0,
+          39.0625,
+          0
+        ],
+        "modelStart": 10,
+        "modelFrames": 160,
+        "loopFrom": 80,
+        "loop": true,
+        "modelSpeed": 30
+      },
+      {
+        "anchor": "Caster",
+        "follow": true,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "carryEffect": "particle.MigalMember"
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.MigalStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          39.0625,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.rainmaker.cast",
+    "duration": 3.0,
+    "children": [
+      {
+        "effect": "vfx.shaman.castcircle",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.RainMaker1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.rainmaker.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.RainMaker2",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.landofghost.cast",
+    "duration": 3.0,
+    "children": [
+      {
+        "effect": "vfx.shaman.castcircle",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.LandOfGhost1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.landofghost.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.LandOfGhost2",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.haunt.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Haunt1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.Haunt2",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.scratch.cast",
+    "duration": 3.0,
+    "children": [
+      {
+        "effect": "vfx.shaman.castcircle",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.ScratchAura",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.scratch.hit1",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Scratch1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.scratch.hit2",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Scratch2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.bloodyknight.cast",
+    "duration": 3.0,
+    "children": [
+      {
+        "effect": "vfx.shaman.castcircle",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.RecallBloodyKnight",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.judgement.hit",
+    "duration": 2.0,
+    "parts": [
+      {
+        "shape": "Beam",
+        "texture": "Effect/AssaEffect/DeadLay/Ray04.bmp",
+        "color": [
+          200,
+          200,
+          200,
+          255
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          24,
+          -24
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          32,
+          0
+        ],
+        "width": [
+          5.8594,
+          5.8594
+        ],
+        "lifetime": [
+          0.8571,
+          0.8571
+        ],
+        "fade": "InOut",
+        "fadeOut": 0.6429
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.JudgementStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          24,
+          -24
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.JudgementHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          32,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.midranda.companion",
+    "duration": 600,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "Effect/AssaEffect/Midranda/b_Midranda.smd",
+        "blend": "Alpha",
+        "color": [
+          255,
+          255,
+          255,
+          80
+        ],
+        "anchor": "Caster",
+        "follow": true,
+        "offset": [
+          0,
+          39.0625,
+          0
+        ],
+        "modelStart": 10,
+        "modelFrames": 160,
+        "loopFrom": 80,
+        "loop": true,
+        "modelSpeed": 30
+      },
+      {
+        "anchor": "Caster",
+        "follow": true,
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "carryEffect": "particle.MidrandaMember"
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.MidrandaStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          39.0625,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.mourning.cast",
+    "duration": 3.0,
+    "children": [
+      {
+        "effect": "vfx.shaman.castcircle",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.MourningOfPreyStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.mourning.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.MourningOfPreyHit",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  }
+]

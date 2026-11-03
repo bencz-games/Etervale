@@ -156,6 +156,7 @@ internal sealed partial class FieldSkills
         var power = SkillFormulas.RollPower(character, rule, rule.Damage, cast.Rank, _rng);
         var damage = SkillFormulas.PowerAgainst(power, rule.Damage, monster.Def, character.Effects.Totals, monster.Effects.Totals, cast.Rank);
         Pay(caster, monster, SkillFormulas.WithUndeadBonus(damage, character.Effects.Totals, monster.Def), false);
+        DrainAfterHit(caster, rule.Damage, cast.Rank, monster);
         return true;
     }
 

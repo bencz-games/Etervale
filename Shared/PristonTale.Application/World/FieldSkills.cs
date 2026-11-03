@@ -319,12 +319,17 @@ internal sealed partial class FieldSkills
                 break;
             case SkillKind.Area:
                 targetCount = AreaHit(caster, cast, rule, aim);
+                if (rule.PartyEcho)
+                {
+                    targetCount += PartyEcho(caster, cast, rule);
+                }
+
                 break;
             case SkillKind.SelfBuff:
                 targetCount = ApplySupport(caster, cast, rule, nowMs);
                 break;
             case SkillKind.Debuff:
-                if (_host.TryGetMonster(cast.TargetId, out var monster) && monster.IsAlive && !monster.IsSummon)
+                if (_host.TryGetMonster(cast.TargetId, out var monster) && monster.IsAlive && !monster.IsSummon && Takes(rule.Buff, monster))
                 {
                     ApplyEffect(monster.Effects, monster.EntityId, caster.EntityId, cast.Rule.Code, rule.Buff, rank, ResistanceOf(rule.Buff, monster),
                         caster.Character);

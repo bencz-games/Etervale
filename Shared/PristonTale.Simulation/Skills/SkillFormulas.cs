@@ -93,6 +93,11 @@ public static partial class SkillFormulas
             return SkillCastVerdict.AlreadyActive;
         }
 
+        if (!HoldsRequiredEffect(caster, rule))
+        {
+            return SkillCastVerdict.NotCastable;
+        }
+
         if (skill.AllowedWeaponsMask != 0 && !WeaponAllowed(caster, skill))
         {
             return SkillCastVerdict.WeaponNotAllowed;
@@ -324,7 +329,9 @@ public static partial class SkillFormulas
     // The rolled power of a magic bolt or an area skill, before the target's resistance and absorption.
     public static int RollPower(PlayerCharacter caster, SkillRule rule, int rank, CombatRng rng) => RollPower(caster, rule, rule.Damage, rank, rng);
 
-    public static int RollPower(PlayerCharacter caster, SkillRule rule, SkillDamageRule damage, int rank, CombatRng rng)
+    // weaponItem: the weapon damage the spell terms use in place of the caster's own (a party echo strikes with the
+    // weapon of the skill's caster).
+    public static int RollPower(PlayerCharacter caster, SkillRule rule, SkillDamageRule damage, int rank, CombatRng rng, (int Min, int Max)? weaponItem = null)
     {
         var spell = caster.Effects.Totals.Flat(StatKind.SpellDamage);
         var low = rule.At(damage.Min, rank) + spell;
@@ -343,27 +350,35 @@ public static partial class SkillFormulas
             high += attack.Max;
         }
 
+        var item = weaponItem ?? WeaponItemDamage(caster);
         if (damage.WeaponDivisor > 0)
         {
-            var weapon = damage.WeaponFromAttack ? WeaponDamage.Compute(caster) : WeaponItemDamage(caster);
+            var weapon = damage.WeaponFromAttack ? WeaponDamage.Compute(caster) : item;
             low += weapon.Min / damage.WeaponDivisor;
             high += weapon.Max / damage.WeaponDivisor;
         }
 
+        low += item.Min * At(damage.WeaponTimesMin, rank);
+        high += item.Max * At(damage.WeaponTimesMax, rank);
+        var levelPart = caster.Level * At(damage.LevelPercent, rank) / 100;
+        low += levelPart;
+        high += levelPart;
         if (damage.StrengthMaxDivisor > 0)
         {
             high += caster.Attributes.Strength / damage.StrengthMaxDivisor;
         }
 
         var spirit = caster.Attributes.Spirit;
-        if (damage.SpiritMinDivisor > 0)
+        var spiritMin = At(damage.SpiritMinDivisorByRank, rank, damage.SpiritMinDivisor);
+        var spiritMax = At(damage.SpiritMaxDivisorByRank, rank, damage.SpiritMaxDivisor);
+        if (spiritMin > 0)
         {
-            low += spirit / damage.SpiritMinDivisor;
+            low += spirit / spiritMin;
         }
 
-        if (damage.SpiritMaxDivisor > 0)
+        if (spiritMax > 0)
         {
-            high += spirit / damage.SpiritMaxDivisor;
+            high += spirit / spiritMax;
         }
 
         var divisor = LevelDivisor(damage, rank);
@@ -399,9 +414,10 @@ public static partial class SkillFormulas
     public static int PowerAgainst(int power, SkillDamageRule damage, MonsterDefinition target, ModifierTotals attacker, ModifierTotals defender, int rank)
     {
         var resistances = ModifierRules.Resistances(defender, target.Combat.Resistances);
-        var value = damage.ResistanceDivisor > 1
-            ? CombatResolver.ApplyResistance(power, resistances[damage.Element] / damage.ResistanceDivisor)
-            : CombatResolver.ApplyElement(power, damage.Element, resistances);
+        var value = damage.Unresisted ? power
+            : damage.ResistanceDivisor > 1
+                ? CombatResolver.ApplyResistance(power, resistances[damage.Element] / damage.ResistanceDivisor)
+                : CombatResolver.ApplyElement(power, damage.Element, resistances);
         if (damage.Magic)
         {
             value = CombatResolver.ApplyResistance(value, target.MagicResistance);

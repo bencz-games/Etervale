@@ -15,11 +15,16 @@ internal sealed partial class FieldSkills
     // Height a chain link may climb or fall, as the original link search allows.
     private const float ChainHeight = 70f;
     private readonly List<MonsterInstance> _candidates = new();
+    private readonly List<WorldPlayer> _echoes = new();
 
     private static bool Strikeable(MonsterInstance monster) =>
         monster.IsAlive && monster.Def.IsHostile && !monster.IsSummon && !monster.Effects.Has(ControlFlags.Charmed);
 
-    private int AreaHit(WorldPlayer caster, ActiveCast cast, SkillRule rule, Vector3 aim)
+    // Whether the monster takes the effect (a boss is spared by an effect that spares bosses).
+    private static bool Takes(SkillBuffRule? buff, MonsterInstance monster) => buff is not null && !(buff.SparesBosses && monster.Def.IsBoss);
+
+    // weaponItem: the weapon damage of a party echo (the skill caster's), struck by another player around themselves.
+    private int AreaHit(WorldPlayer caster, ActiveCast cast, SkillRule rule, Vector3 aim, (int Min, int Max)? weaponItem = null)
     {
         var rank = cast.Rank;
         var character = caster.Character;
@@ -43,7 +48,7 @@ internal sealed partial class FieldSkills
             return hits + AreaEffects(caster, cast, rule);
         }
 
-        var power = damageRule.Mode == SkillDamageMode.Rolled ? SkillFormulas.RollPower(character, rule, damageRule, rank, _rng) : 0;
+        var power = damageRule.Mode == SkillDamageMode.Rolled ? SkillFormulas.RollPower(character, rule, damageRule, rank, _rng, weaponItem) : 0;
         var drained = 0;
         foreach (var monster in _targets)
         {
@@ -54,7 +59,7 @@ internal sealed partial class FieldSkills
 
             Push(caster, monster, rule.At(rule.PushTo, rank));
             KnockBack(caster, monster, rule.PushBy);
-            if (cast.Rule.Buff is not null && rule.Kind == SkillKind.Area && monster.IsAlive)
+            if (rule.Kind == SkillKind.Area && monster.IsAlive && Takes(cast.Rule.Buff, monster))
             {
                 ApplyEffect(monster.Effects, monster.EntityId, caster.EntityId, cast.Rule.Code, cast.Rule.Buff, rank, ResistanceOf(cast.Rule.Buff, monster),
                     character);
@@ -298,14 +303,14 @@ internal sealed partial class FieldSkills
             }
 
             var buff = rule.Buff ?? cast.Rule.Buff;
-            if (buff is not null)
+            if (Takes(buff, monster))
             {
                 ApplyEffect(monster.Effects, monster.EntityId, caster.EntityId, cast.Rule.Code, buff, cast.Rank, ResistanceOf(buff, monster), caster.Character);
             }
 
             if (rule.Taunt && !Immovable(monster))
             {
-                Taunt(caster, monster, SkillFormulas.BuffDurationMs(rule.CasterBuff ?? buff, cast.Rank, 0));
+                Taunt(caster, monster, SkillFormulas.TauntDurationMs(rule, cast.Rank, buff));
             }
 
             KnockBack(caster, monster, rule.PushBy);
@@ -313,6 +318,52 @@ internal sealed partial class FieldSkills
         }
 
         return hits;
+    }
+
+    // A party echo (SkillRule.PartyEcho): every member within the ally radius who holds one of the required effects
+    // strikes the area around themselves with the caster's weapon.
+    private int PartyEcho(WorldPlayer caster, ActiveCast cast, SkillRule rule)
+    {
+        _echoes.Clear();
+        foreach (var member in AlliesAround(caster, rule, cast.Rank))
+        {
+            if (SkillFormulas.HoldsRequiredEffect(member.Character, rule))
+            {
+                _echoes.Add(member);
+            }
+        }
+
+        var weapon = SkillFormulas.WeaponItemDamage(caster.Character);
+        var hits = 0;
+        foreach (var member in _echoes)
+        {
+            var struck = AreaHit(member, cast, rule, member.Position, weapon);
+            hits += struck;
+            _skillEvents.Add(new SkillEventView(member.EntityId, 0, cast.Rule.Code, SkillEventPhase.Impact, cast.Rank, SkillEventFlags.Area, 0f, 0f,
+                member.Position, member.Facing, struck, AreaRadius(rule, cast.Rank, member, member.Position)));
+        }
+
+        return hits;
+    }
+
+    // A rolled single-target spell's drain (SkillDamageRule.Share): a share of the target's maximum life, lowered by its
+    // bionic resistance and at most the life it has left, returned to the caster up to the rule's cap. Bosses are spared.
+    private void DrainAfterHit(WorldPlayer caster, SkillDamageRule damage, int rank, MonsterInstance monster)
+    {
+        if (damage.Mode != SkillDamageMode.Rolled || damage.Share.Length == 0 || !monster.IsAlive || monster.Def.IsBoss)
+        {
+            return;
+        }
+
+        var percent = SkillFormulas.SharePercent(damage, rank, monster.Def.Combat.Resistances.Bionic);
+        var drained = (int)Math.Min(monster.Life, (long)monster.Def.Combat.MaxLife * percent / 100);
+        if (drained <= 0)
+        {
+            return;
+        }
+
+        Pay(caster, monster, drained, false);
+        ReturnDrainedLife(caster, damage, drained);
     }
 
     // Life taken by a drain returns to the caster, capped at a share of the caster's maximum life.

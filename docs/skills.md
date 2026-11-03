@@ -60,11 +60,16 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   Mechanician lists `0x01010004` before `0x01010003`.
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
-- The eight original classes and the Assassin have a rule for their first four tiers' 16 skills; their fifth tier
-  (levels 80, 83, 86, 90) holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The
-  Shaman file holds window definitions only. The Assassin's skill clips are those of its motion table tagged from 163
-  (the class motion table numbers tags per class: first tag + 4 x tier + slot - 1); its Assassin Mastery grants its
+- The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills; their
+  fifth tier (levels 80, 83, 86, 90) holds definitions only (name, icon, level, costs, weapons) until its rules are
+  ported. The Assassin's and the Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the
+  class motion table numbers tags per class: first tag + 4 x tier + slot - 1); the Assassin Mastery grants its
   critical chance with daggers, which the original's empty weapon list never allowed.
+- The Shaman's spells roll base + level x `levelPercent` / 100 + weapon item damage x `weaponTimes` + spirit / the
+  rank's divisor, never critically. Haunt drains a share of its target's maximum life (bosses spared) and returns it
+  up to 40% of the caster's maximum life; Soul Manacle holds a monster (bosses spared, hits do not end it); Chasing
+  Hunt taunts for `tauntTenths`; Migal and Midranda reach the party within 400 and never stack; Mourning of Pray needs
+  one of them on the caster, and party members holding one echo it around themselves with the caster's weapon.
 
 ## Learning (skill master)
 
@@ -128,8 +133,11 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
 - Area options: `mainInArea` (clicked target always added, beyond the cap, no roll), `areaIncludesTarget` (target
   struck even outside the shape), `rollsAccuracy` (dodgers skipped), `areaAccuracy` (a miss keeps its slot),
   `areaCritical`, `mainHit` (damage rule: an extra weapon hit on the clicked target), `pushBy` (knock-back distance and
-  flinch), `pushTo[10]` (push to this distance), `taunt` (targets lock on the caster for the buff duration). Bosses
-  are not pushed or taunted.
+  flinch), `pushTo[10]` (push to this distance), `taunt` (targets lock on the caster for `tauntTenths[10]`, else the
+  caster buff's or the buff's duration), `partyEcho` (party members within the `allies` radius holding one of
+  `requiresEffect` strike the same area around themselves, with their level and spirit and the caster's weapon).
+  Bosses are not pushed or taunted.
+- Cast requirement: `requiresEffect` (codes: the cast is refused unless one of them runs on the caster).
 - Accuracy and critical: `attackRating[10]`, `attackRatingPlusLevel`, `attackRatingPercent[10]`, `criticalAdd[10]`,
   `criticalPercent[10]` (relative: crit + crit x pct / 100), `borrowedCritical` {`skill`, `values[10]` indexed by that
   skill's rank, `divisor`}, `noAccuracy`, `stopAfterMiss`, `noCriticalHits` (1-based hit numbers), `forceFlinch`,
@@ -171,16 +179,18 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
 | `min[10]`, `max[10]` | Weapon hits: added per hit. Bolts and areas: base range. Equal lengths required |
 | `levelDivisor`, `levelDivisorByRank[10]`, `levelOnMax` | Level / divisor added to both ends (max only with `levelOnMax`) |
 | `weaponDivisor`, `weaponFromAttack`, `spiritMinDivisor`, `spiritMaxDivisor` | Magic terms: weapon (or attack) damage / divisor, spirit / divisor |
+| `levelPercent[10]`, `spiritMinDivisorByRank[10]`, `spiritMaxDivisorByRank[10]`, `weaponTimesMin[10]`, `weaponTimesMax[10]` | Spell terms per rank: level x percent / 100 on both ends, spirit / the rank's divisor (0 none), weapon item damage x times |
 | `strengthMaxDivisor` | Weapon rolls: maximum gains strength / divisor |
 | `attackPower`, `spellPower` | Roll the caster's attack damage with `percent`; tables gain the spell-power percent |
 | `areaPercent` (100), `mainPercent`, `mainElement`, `main` | Area share per target; extra share and element of the main target; a separate main hit |
 | `randomHits[10]` | Power x a count rolled in `hits / 2 + 1 .. hits` |
 | `element` (`Bionic`), `flatElement`, `resistAddedOnly` | Element; `flatElement` makes `min..max` an add resisted by its own element |
 | `resistanceDivisor` (1) | Target resistance divided by this before it applies |
+| `unresisted` | No element: no element resistance lowers the hit |
 | `noCritical`, `neverMiss` | No critical; weapon hits skip the accuracy roll |
 | `bonusBroods`, `bonusPercent`, `bonusPercentByRank[10]` | Extra percent vs broods (`Normal`, `Undead`, `Mutant`, `Demon`, `Mechanic`); every brood list loads as `MonsterBrood[]` and is matched with `SkillFormulas.MatchesBrood` |
 | `mode` | `Rolled` (default), `MaxLifeShare`, `CurrentLifeShare` (percent of each target's life) |
-| `share[10]`, `chance[10]`, `chanceLevelDivisor`, `shareResistedByBionic` | Share modes: percent, chance (+ level / divisor), bionic resistance |
+| `share[10]`, `chance[10]`, `chanceLevelDivisor`, `shareResistedByBionic` | Share modes: percent, chance (+ level / divisor), bionic resistance. A rolled bolt drains `share` percent of its target's maximum life after the hit (bosses spared) |
 | `minLifePercent`, `onlyBroods`, `excludeBroods`, `lifeToCasterCapPercent` | Share filters; drained life returns to the caster up to a cap |
 
 ### Buff rule (`buff`, `casterBuff`)
@@ -196,6 +206,7 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
 | periodic `percentOfMax`, `nonLethal` | Amount is a percent of the maximum; life damage stops at 1 life and ends the effect |
 | `endsOnHit`, `endsOnAreaAttack`, `endsOnDamage` | Stealth consumed by the next single-target hit; ended by an area attack; stun broken by damage |
 | `weaponBound`, `requiresWeapon` | Modifiers count only with a listed main-hand weapon; effect ends when none is wielded |
+| `sparesBosses` | Boss monsters never take the effect |
 | `companion` | Familiar, see below |
 | `counter` {`borrowSkill`, `percent[10]`, `element`, `bonusBroods`, `bonusPercent`} | Strike back when the shield blocks a monster's normal attack |
 | `enchant` {`choices`, `basicOnly`} | Element added to hits; one choice drawn per cast |
