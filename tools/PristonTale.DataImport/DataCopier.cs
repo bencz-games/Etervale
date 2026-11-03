@@ -5,9 +5,9 @@ namespace PristonTale.DataImport;
 
 internal sealed record CopyResult(int Copied, int Kept, int Skipped, int Rejected, IReadOnlyList<string> Report);
 
-// Copies folders of another client's game data into the game data. A file already in the game data is kept as it is;
-// a file of a kind the game does not read is skipped; a model, stage or image the game could not read (an SMD signature
-// the game's reader does not know, a damaged header) is refused and reported.
+// Copies folders or files of another client's game data into the game data. A file already in the game data is kept as
+// it is; a file of a kind the game does not read is skipped; a model, stage or image the game could not read (an SMD
+// signature the game's reader does not know, a damaged header) is refused and reported.
 internal static class DataCopier
 {
     private static readonly HashSet<string> Copied = new(StringComparer.OrdinalIgnoreCase)
@@ -15,21 +15,25 @@ internal static class DataCopier
         ".smd", ".smb", ".bmp", ".tga", ".png", ".jpg", ".wav"
     };
 
-    public static CopyResult Copy(string sourceRoot, string assetRoot, IEnumerable<string> folders, byte mask)
+    public static CopyResult Copy(string sourceRoot, string assetRoot, IEnumerable<string> paths, byte mask)
     {
         var report = new List<string>();
         int copied = 0, kept = 0, skipped = 0, rejected = 0;
-        foreach (var folder in folders)
+        foreach (var path in paths)
         {
-            var source = Path.Combine(sourceRoot, folder);
-            if (!Directory.Exists(source))
+            var source = Path.Combine(sourceRoot, path);
+            if (!File.Exists(source) && !Directory.Exists(source))
             {
-                report.Add($"missing folder: {source}");
+                report.Add($"missing: {source}");
                 rejected++;
                 continue;
             }
 
-            foreach (var file in Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories).Order(StringComparer.OrdinalIgnoreCase))
+            IEnumerable<string> files = File.Exists(source)
+                ? [source]
+                : Directory.EnumerateFiles(source, "*", SearchOption.AllDirectories).Order(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var file in files)
             {
                 var relative = Path.GetRelativePath(sourceRoot, file);
                 if (!Copied.Contains(Path.GetExtension(file)))

@@ -303,7 +303,7 @@ dotnet build tools/PristonTale.DataImport/PristonTale.DataImport.csproj -c Relea
 dotnet run --project tools/PristonTale.DataImport -c Release --no-build -- copy <sourceRoot> assets [--mask 0x82] Field/HeartOfFire ...
 ```
 
-- Each `<folder>` is relative to both roots; its files keep their relative path under `assets/`.
+- Each `<path>` (a folder or a file) is relative to both roots; its files keep their relative path under `assets/`.
 - `--mask` XORs every byte of every file with the given byte first (clients that mask their whole data).
 - Copies only `.smd`, `.smb`, `.bmp`, `.tga`, `.png`, `.jpg` and `.wav`; other files are reported as skipped. A file
   already in `assets/` is kept untouched.

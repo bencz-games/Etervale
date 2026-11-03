@@ -1,16 +1,16 @@
 using System.Globalization;
 using PristonTale.DataImport;
 
-// ptdata copy <sourceRoot> <assetRoot> [--mask <byte>] <folder>...: copies each folder of another client's game data
+// ptdata copy <sourceRoot> <assetRoot> [--mask <byte>] <path>...: copies each folder or file of another client's game data
 // into the game data, unmasking files whose every byte was XORed with the mask, and refuses what the game cannot read.
 if (args.Length < 4 || args[0] != "copy")
 {
-    Console.Error.WriteLine("usage: ptdata copy <sourceRoot> <assetRoot> [--mask <byte>] <folder>...");
+    Console.Error.WriteLine("usage: ptdata copy <sourceRoot> <assetRoot> [--mask <byte>] <path>...");
     return 2;
 }
 
 byte mask = 0;
-var folders = new List<string>();
+var paths = new List<string>();
 for (var index = 3; index < args.Length; index++)
 {
     if (args[index] == "--mask" && index + 1 < args.Length)
@@ -28,10 +28,10 @@ for (var index = 3; index < args.Length; index++)
         continue;
     }
 
-    folders.Add(args[index]);
+    paths.Add(args[index]);
 }
 
-var result = DataCopier.Copy(args[1], args[2], folders, mask);
+var result = DataCopier.Copy(args[1], args[2], paths, mask);
 foreach (var line in result.Report)
 {
     Console.WriteLine(line);
