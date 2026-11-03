@@ -99,7 +99,7 @@ public sealed class PristonSkyLibrary : IDisposable
 
                         var material = materials.Create(Path.GetDirectoryName(path), authored, softAlpha: true);
                         modelBatches.Add(new RenderBatch([], [], Upload(builder, vertices), material));
-                        if (material.BlendType <= PristonBlendType.Alpha)
+                        if (PristonBlendType.Covers(material.BlendType))
                         {
                             opaque.Add((material, vertices));
                         }

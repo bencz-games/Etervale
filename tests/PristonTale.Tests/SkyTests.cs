@@ -18,8 +18,7 @@ internal static class SkyTests
     // profile's space sphere reaches the zenith.
     private static Task OpenTopAsync()
     {
-        var root = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "assets");
-        if (!Directory.Exists(Path.Combine(root, "Effect", "Sky")))
+        if (Assets.AssetFiles.FindAssetsRoot() is not { } root || !Directory.Exists(Path.Combine(root, "Effect", "Sky")))
         {
             return Task.CompletedTask;
         }

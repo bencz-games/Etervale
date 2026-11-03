@@ -108,4 +108,7 @@ internal static class PristonBlendType
     // A colour-weighted, darkening or additive mode (everything but plain alpha): drawn with the blended surfaces, never
     // as a cut-out.
     public static bool IsLate(uint blendType) => blendType is >= Color and <= InverseShadow;
+
+    // No blend or plain alpha: the surface covers what is behind it by its own alpha.
+    public static bool Covers(uint blendType) => blendType <= Alpha;
 }
