@@ -6,6 +6,7 @@ using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.World.Monsters.Skills;
 using PristonTale.Contracts.Units;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Motion;
 
 namespace PristonTale.Gameplay.Effects;
 
@@ -69,9 +70,9 @@ public sealed class MonsterPresentation
     public const int AttackEvents = 2;
     public const int SkillEvents = 4;
 
-    private const int AttackState = 0x100;
-    private const int SkillState = 0x150;
-    private const int DeadState = 0x120;
+    private const int AttackState = (int)MotionCode.Attack;
+    private const int SkillState = (int)MotionCode.Skill;
+    private const int DeadState = (int)MotionCode.Dead;
     private const int MinigSound = 0x1030;
 
     // A corpse darkens from DimStartTicks after its death clip starts, by half a light unit a tick, up to DimMost at
@@ -274,7 +275,7 @@ public sealed class MonsterPresentation
     private void StepAnger(Tracked tracked, ulong entityId, int state, float seconds)
     {
         var frames = seconds * GameUnits.TicksPerSecond;
-        tracked.Anger = Math.Clamp(tracked.Anger + (state is AttackState or 0x110 ? 2f : -1f) * frames, 0f, 100f);
+        tracked.Anger = Math.Clamp(tracked.Anger + (state is AttackState or (int)MotionCode.Damage ? 2f : -1f) * frames, 0f, 100f);
         _scene.SetEntityTint(entityId, new Vector3(tracked.Anger / 256f, -tracked.Anger / 512f, 0f));
     }
 

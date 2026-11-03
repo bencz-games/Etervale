@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using PristonTale.Engine3D.Formats;
 using PristonTale.Gameplay.Effects;
 using PristonTale.Contracts.Units;
+using PristonTale.Contracts.Motion;
 
 namespace PristonTale.Gameplay.Audio;
 
@@ -10,12 +11,12 @@ namespace PristonTale.Gameplay.Audio;
 // in four) its idle sound when it stops. Every client near a monster plays them from the same presence stream.
 public sealed class MonsterSoundCues(CombatSounds sounds, IMonsterScene scene)
 {
-    private const int StandState = 0x40;
-    private const int AttackState = 0x100;
-    private const int DamageState = 0x110;
-    private const int DeadState = 0x120;
-    private const int SkillState = 0x150;
-    private const int WarpState = 0x210;
+    private const int StandState = (int)MotionCode.Stand;
+    private const int AttackState = (int)MotionCode.Attack;
+    private const int DamageState = (int)MotionCode.Damage;
+    private const int DeadState = (int)MotionCode.Dead;
+    private const int SkillState = (int)MotionCode.Skill;
+    private const int WarpState = (int)MotionCode.Warp;
     private const int SoundEvents = 2;
 
     private readonly Dictionary<ulong, Tracked> _tracked = new();
