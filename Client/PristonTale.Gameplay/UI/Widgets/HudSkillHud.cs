@@ -29,7 +29,7 @@ public sealed class HudSkillHud : IDisposable
     private const double FadeOutFrames = 180d;
     private const double BlinkFrames = 4d * 70d;
     private const double BlinkPeriodFrames = 31d;
-    private const string GaugeBackground = "image/Sinimage/skill/keep/GA_.tga";
+    private static readonly string GaugeBackground = KeepIcons.Path("GA_.tga");
     private static readonly CharacterClassRegistry Classes = new();
 
     private readonly HudSprites _sprites;
@@ -81,7 +81,7 @@ public sealed class HudSkillHud : IDisposable
             requests.Add(button);
             if (SkillRuleCatalog.TryGet(skill.Code, out var rule) && rule.KeepIcon.Length > 0)
             {
-                var keep = $"image/Sinimage/skill/keep/{rule.KeepIcon}.tga";
+                var keep = KeepIcons.Path(rule.KeepIcon + ".tga");
                 _keepIcons[skill.Code] = keep;
                 requests.Add(keep);
             }
@@ -454,7 +454,7 @@ public sealed class HudSkillHud : IDisposable
         // Buffs another class's skill put on the player (an ally's blessing) bring their own keep icon.
         if (!_keepIcons.ContainsKey(code) && SkillRuleCatalog.TryGet(code, out var rule) && rule.KeepIcon.Length > 0)
         {
-            var path = $"image/Sinimage/skill/keep/{rule.KeepIcon}.tga";
+            var path = KeepIcons.Path(rule.KeepIcon + ".tga");
             _keepIcons[code] = path;
             _sprites.Request([path]);
         }

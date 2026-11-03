@@ -6,7 +6,6 @@ public static class ItemStatuses
 {
     public const uint PremiumKeepBase = 0xF0000110;
 
-    private const string Keep = "image/Sinimage/skill/keep/";
 
     // A crystal pet shows its crystal's inventory sprite, every crystal's lying in the Event folder.
     private const string CrystalIcons = "image/Sinimage/Items/Event/it";
@@ -61,7 +60,7 @@ public static class ItemStatuses
             return CrystalIcons + crystal.CatalogKey + ".bmp";
         }
 
-        return TryGetPremiumKeep(code, out var kind) ? Keep + kind switch
+        return TryGetPremiumKeep(code, out var kind) ? KeepIcons.Folder + kind switch
         {
             PremiumEffectKind.LifeBooster => "Booster_01.tga",
             PremiumEffectKind.ManaBooster => "Booster_02.tga",

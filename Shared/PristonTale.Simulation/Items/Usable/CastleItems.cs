@@ -22,15 +22,9 @@ public sealed record CastleItemDefinition(string CatalogKey, int Index, string N
 
     public int DurationSeconds => Kind == CastleItemKind.Scroll ? CastleItems.ScrollSeconds : CastleItems.StoneSeconds;
 
-    public EffectSpec Spec() => (Kind, (ScrollEffectKind)Target) switch
-    {
-        (CastleItemKind.Scroll, ScrollEffectKind.Invulnerability) => new EffectSpec(StatusCode, EffectSourceKind.Item, false,
-            [StatModifier.Percent(StatKind.DamageDealt, -50)]),
-        (CastleItemKind.Scroll, ScrollEffectKind.Critical) => new EffectSpec(StatusCode, EffectSourceKind.Item, false,
-            [StatModifier.Flat(StatKind.CriticalChance, CastleItems.ScrollBonus)]),
-        (CastleItemKind.Scroll, _) => new EffectSpec(StatusCode, EffectSourceKind.Item, false, [StatModifier.Flat(StatKind.Evasion, CastleItems.ScrollBonus)]),
-        _ => new EffectSpec(StatusCode, EffectSourceKind.Item, false, ReadOnlySpan<StatModifier>.Empty)
-    };
+    public EffectSpec Spec() => Kind == CastleItemKind.Scroll
+        ? ScrollEffects.Spec((ScrollEffectKind)Target, StatusCode, CastleItems.ScrollBonus)
+        : new EffectSpec(StatusCode, EffectSourceKind.Item, false, ReadOnlySpan<StatModifier>.Empty);
 }
 
 // The Bless Castle items. They work only in the castle field and end when their holder leaves it. A castle scroll
@@ -45,25 +39,23 @@ public static class CastleItems
     public const int ScrollBonus = 5;
     public const int MightPercent = 20;
 
-    private const string Keep = "image/Sinimage/skill/keep/";
-
     public static IReadOnlyList<CastleItemDefinition> All { get; } =
     [
-        new("BC101", 1, "Athanasia", CastleItemKind.Scroll, (int)ScrollEffectKind.Invulnerability, Keep + "S_Ath.tga",
+        new("BC101", 1, "Athanasia", CastleItemKind.Scroll, (int)ScrollEffectKind.Invulnerability, KeepIcons.Path("S_Ath.tga"),
             "Invincible for a while; attack power halved"),
-        new("BC102", 2, "Deadly Edge", CastleItemKind.Scroll, (int)ScrollEffectKind.Critical, Keep + "S_Dea.tga", "Critical chance +5%"),
-        new("BC103", 3, "Avail of Evade", CastleItemKind.Scroll, (int)ScrollEffectKind.Evasion, Keep + "S_Eva.tga", "Evade chance +5%"),
-        new("BC106", 6, "Defiance Stone", CastleItemKind.Defiance, CharacterSoundCodes.CastleCrystalFire, Keep + "F_C_M.tga", "Offsets 50% of the Fire Crystal Tower's attack"),
-        new("BC107", 7, "Defiance Stone", CastleItemKind.Defiance, CharacterSoundCodes.CastleCrystalIce, Keep + "I_C_M.tga", "Offsets 50% of the Ice Crystal Tower's attack"),
-        new("BC108", 8, "Defiance Stone", CastleItemKind.Defiance, CharacterSoundCodes.CastleCrystalLightning, Keep + "L_C_M.tga", "Offsets 50% of the Lightning Crystal Tower's attack"),
-        new("BC109", 9, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Fighter, Keep + "Ft_R.tga", "+20% damage when striking a Fighter"),
-        new("BC110", 10, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Mechanician, Keep + "Mc_R.tga", "+20% damage when striking a Mechanician"),
-        new("BC111", 11, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Pikeman, Keep + "Pk_R.tga", "+20% damage when striking a Pikeman"),
-        new("BC112", 12, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Archer, Keep + "Ac_R.tga", "+20% damage when striking an Archer"),
-        new("BC113", 13, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Knight, Keep + "Kt_R.tga", "+20% damage when striking a Knight"),
-        new("BC114", 14, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Atalanta, Keep + "At_R.tga", "+20% damage when striking an Atalanta"),
-        new("BC115", 15, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Magician, Keep + "Mg_R.tga", "+20% damage when striking a Magician"),
-        new("BC116", 16, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Priestess, Keep + "Pt_R.tga", "+20% damage when striking a Priestess")
+        new("BC102", 2, "Deadly Edge", CastleItemKind.Scroll, (int)ScrollEffectKind.Critical, KeepIcons.Path("S_Dea.tga"), "Critical chance +5%"),
+        new("BC103", 3, "Avail of Evade", CastleItemKind.Scroll, (int)ScrollEffectKind.Evasion, KeepIcons.Path("S_Eva.tga"), "Evade chance +5%"),
+        new("BC106", 6, "Defiance Stone", CastleItemKind.Defiance, CharacterSoundCodes.CastleCrystalFire, KeepIcons.Path("F_C_M.tga"), "Offsets 50% of the Fire Crystal Tower's attack"),
+        new("BC107", 7, "Defiance Stone", CastleItemKind.Defiance, CharacterSoundCodes.CastleCrystalIce, KeepIcons.Path("I_C_M.tga"), "Offsets 50% of the Ice Crystal Tower's attack"),
+        new("BC108", 8, "Defiance Stone", CastleItemKind.Defiance, CharacterSoundCodes.CastleCrystalLightning, KeepIcons.Path("L_C_M.tga"), "Offsets 50% of the Lightning Crystal Tower's attack"),
+        new("BC109", 9, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Fighter, KeepIcons.Path("Ft_R.tga"), "+20% damage when striking a Fighter"),
+        new("BC110", 10, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Mechanician, KeepIcons.Path("Mc_R.tga"), "+20% damage when striking a Mechanician"),
+        new("BC111", 11, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Pikeman, KeepIcons.Path("Pk_R.tga"), "+20% damage when striking a Pikeman"),
+        new("BC112", 12, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Archer, KeepIcons.Path("Ac_R.tga"), "+20% damage when striking an Archer"),
+        new("BC113", 13, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Knight, KeepIcons.Path("Kt_R.tga"), "+20% damage when striking a Knight"),
+        new("BC114", 14, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Atalanta, KeepIcons.Path("At_R.tga"), "+20% damage when striking an Atalanta"),
+        new("BC115", 15, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Magician, KeepIcons.Path("Mg_R.tga"), "+20% damage when striking a Magician"),
+        new("BC116", 16, "Might Stone", CastleItemKind.Might, (int)PlayerClass.Priestess, KeepIcons.Path("Pt_R.tga"), "+20% damage when striking a Priestess")
     ];
 
     public static bool TryGet(string catalogKey, out CastleItemDefinition item)

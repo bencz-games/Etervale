@@ -1,3 +1,5 @@
+using PristonTale.Simulation.Items.Usable;
+
 namespace PristonTale.Gameplay.UI.Quests;
 
 // Asset-relative paths of the quest window (the party window's quest page) and the quest timer icon. A button image
@@ -11,7 +13,7 @@ public static class HudQuestArt
     public const string Description = Party + "quest_win.tga";
     public const string Running = Party + "quest_icon-ing.bmp";
     public const string Hovered = Party + "quest_icon-end.bmp";
-    public const string Timer = "image/Sinimage/skill/keep/QuestTimer.tga";
+    public const string Timer = KeepIcons.Folder + "QuestTimer.tga";
 
     // The list page's buttons in order: previous page, next page, running quests, finished quests, close.
     public static readonly string[] ListButtons =
