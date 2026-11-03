@@ -46,7 +46,8 @@ public static class QuestRewards
     public static bool Level90Life(PlayerCharacter character) =>
         (character.Quests.LevelLog & LevelQuestLog.Level90) != 0 && character.Level >= 90;
 
-    // The level 90 bonus chain curses its hunter: a third less attack damage from the hunt until the chain is finished.
+    // The level 90 bonus chain curses its hunter: thirty percent less attack damage from the hunt until the chain is
+    // finished.
     public static bool Cursed(PlayerCharacter character) =>
         character.Quests.Active is { Code: QuestCode.Level90Bonus, State: >= 2 };
 }

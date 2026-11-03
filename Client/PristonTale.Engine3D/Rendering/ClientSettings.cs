@@ -13,6 +13,9 @@ public enum WindowMode
 
 public sealed record ClientSettings
 {
+    // MSAA takes 2 or 4 samples.
+    public const int MostMultiSamples = 4;
+
     public const int CurrentVersion = 1;
 
     public int Version { get; init; } = CurrentVersion;
@@ -101,7 +104,7 @@ public sealed record ClientSettings
             MaxFps = IsValidFps(MaxFps) ? MaxFps : defaults.MaxFps,
             BackgroundMaxFps = IsValidFps(BackgroundMaxFps) ? BackgroundMaxFps : defaults.BackgroundMaxFps,
             UiScale = float.IsFinite(UiScale) && UiScale is >= 0.75f and <= 1.5f ? UiScale : defaults.UiScale,
-            MultiSampleCount = MultiSampleCount is 0 or 2 or 4 or 8 ? MultiSampleCount : defaults.MultiSampleCount,
+            MultiSampleCount = MultiSampleCount is 0 or 2 or MostMultiSamples ? MultiSampleCount : defaults.MultiSampleCount,
             ShadowMapSize = ShadowMapSize is 1024 or 2048 or 4096 or 8192 ? ShadowMapSize : defaults.ShadowMapSize,
             LampShadowTileSize = LampShadowTileSize is 256 or 512 or 1024 ? LampShadowTileSize : defaults.LampShadowTileSize,
             ShadowUpdateRate = ShadowUpdateRate is 0 or 30 or 60 or 120 ? ShadowUpdateRate : defaults.ShadowUpdateRate,

@@ -53,7 +53,6 @@ public sealed partial class GameScene : IMonsterScene
             return;
         }
 
-        _remote.CollectMonsters(_monsterViews);
         _monsterFx.Update(_monsterViews, seconds);
     }
 

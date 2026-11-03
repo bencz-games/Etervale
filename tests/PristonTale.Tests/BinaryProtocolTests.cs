@@ -60,6 +60,8 @@ internal static class BinaryProtocolTests
         var length = VarInt.Write(maximum, ulong.MaxValue);
         var at = 0;
         Assert.True(length == 10 && VarInt.Read(maximum, ref at) == ulong.MaxValue, "the largest value did not round-trip");
+        Assert.True(VarInt.UnZigZag(VarInt.ZigZag(int.MinValue)) == int.MinValue, "the smallest zigzag value did not round-trip");
+        Assert.Throws<InvalidDataException>(() => VarInt.UnZigZag((ulong)uint.MaxValue + 1), "a zigzag value wider than 32 bits was truncated");
         return Task.CompletedTask;
     }
 

@@ -84,6 +84,16 @@ internal sealed class PersonalShopRequests(Action<IFramePacket> send)
         _pending.FailAll(error);
     }
 
-    private Task<PersonalShopReply> RequestAsync(Guid operationId, IFramePacket packet, CancellationToken ct) =>
-        _pending.RequestAsync(operationId, () => send(packet), ct);
+    // A listing gathered for a request that is cancelled or times out is dropped with it, not kept until the connection ends.
+    private async Task<PersonalShopReply> RequestAsync(Guid operationId, IFramePacket packet, CancellationToken ct)
+    {
+        try
+        {
+            return await _pending.RequestAsync(operationId, () => send(packet), ct);
+        }
+        finally
+        {
+            _listings.TryRemove(operationId, out _);
+        }
+    }
 }

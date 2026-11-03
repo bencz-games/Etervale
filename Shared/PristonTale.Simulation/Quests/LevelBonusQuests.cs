@@ -1,9 +1,9 @@
 namespace PristonTale.Simulation.Quests;
 
-// The bonus chains after the milestones. Level 80: the first NPC sends the player to a second one, three vamp sheltoms of
-// named bosses buy a recommendation, and the first NPC turns it into two extra stat points per level from 80 on. Level
-// 90: the second NPC curses the player to hunt fifty of one of three monsters with a third less damage; dying resets
-// the hunt; the reward is three extra stat points per level from 90 on.
+// The bonus chains after the milestones. Level 80: the first NPC sends the player to a second one, three vamp sheltoms
+// of named bosses buy a recommendation, and the first NPC turns it into two extra stat points per level from 80 on.
+// Level 90: the second NPC curses the player to hunt fifty of one of three monsters with thirty percent less damage;
+// dying resets the hunt; the reward is three extra stat points per level from 90 on.
 public static class LevelBonusQuests
 {
     private const int MinimumLevel80 = 80;

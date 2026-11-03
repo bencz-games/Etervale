@@ -46,7 +46,7 @@ public sealed class PristonSkyLibrary : IDisposable
 
     private void Load(GraphicsDevice device, string root)
     {
-        var manifest = PristonSkyManifest.Read(Path.Combine(root, "Effect/Sky/test32.txt"));
+        var manifest = PristonSkyManifest.Read(AssetFiles.Combine(root, "Effect/Sky/test32.txt"));
         var reader = new PristonSmdReader();
         var builder = new PristonGpuMeshBuilder(device);
         var materials = new PristonMaterialRuntimeFactory(_textures);
@@ -65,7 +65,7 @@ public sealed class PristonSkyLibrary : IDisposable
                     relative = "Effect/Sky/losttemple/day/space.smd";
                 }
 
-                var path = AssetFiles.Resolve(Path.Combine(root, relative));
+                var path = AssetFiles.Resolve(AssetFiles.Combine(root, relative));
                 var key = (path, layer.Color);
                 if (!cache.TryGetValue(key, out var prepared))
                 {

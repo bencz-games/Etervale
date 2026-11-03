@@ -190,8 +190,8 @@ public sealed class HudSprites : IDisposable
         for (var index = 0; index < paths.Length; index++)
         {
             var path = paths[index];
-            var file = AssetFiles.Resolve(Path.Combine(assetRoot, path.Replace('/', Path.DirectorySeparatorChar)));
-            if (!File.Exists(file))
+            var file = AssetFiles.Combine(assetRoot, path);
+            if (!AssetFiles.Exists(file))
             {
                 result[index] = new Prepared(path, DecodedPristonImage.Empty, true);
                 continue;
@@ -201,7 +201,7 @@ public sealed class HudSprites : IDisposable
             DecodedPristonImage image;
             try
             {
-                image = PristonImageDecoder.Decode(File.ReadAllBytes(file), extension, bmpCoverage: true);
+                image = PristonImageDecoder.Decode(AssetFiles.ReadAllBytes(file), extension, bmpCoverage: true);
             }
             catch (Exception exception) when (exception is IOException or ArgumentException or IndexOutOfRangeException or InvalidDataException)
             {

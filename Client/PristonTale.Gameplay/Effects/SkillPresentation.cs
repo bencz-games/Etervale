@@ -34,14 +34,16 @@ public interface ISkillSceneHost : IVfxAnchors
 
     // How the entity's actors look this frame (tints, translucency, shield swaps, afterimages); Normal once a look ends.
     void ApplyLook(ulong entityId, in EntityLook look) { }
+
+    // How far behind the server's timeline another entity is drawn, so its skill events wait as long as its motion does.
+    double PlaybackDelayMsOf(ulong entityId) => World.Remote.RemoteSnapshotBuffer.BaseDelayMs;
 }
 
 // Turns the server's skill timeline into motions, effects, sounds, lights, floating numbers and the buff and
-// cooldown state the HUD shows. Events of other entities wait for the remote playback delay, so their effects line up
-// with the interpolated motion; the local player's events play at once.
+// cooldown state the HUD shows. Events of other entities wait for their caster's playback delay, so their effects line
+// up with the interpolated motion; the local player's events play at once.
 public sealed class SkillPresentation : IVfxServices, IDisposable
 {
-    public const double RemoteDelayMs = 150d;
     public const string ReviveEffect = "vfx.priestess.resurrection.rise";
     private const float ChainLinkSeconds = 0.08f;
     // Game-thread time per frame spent registering effect definitions until all are ready.
@@ -101,7 +103,7 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
 
         foreach (var skillEvent in update.SkillEvents)
         {
-            var due = nowMs + (skillEvent.CasterId == _host.SelfId ? 0d : RemoteDelayMs);
+            var due = nowMs + (skillEvent.CasterId == _host.SelfId ? 0d : _host.PlaybackDelayMsOf(skillEvent.CasterId));
             _pending.Add(new Pending(due, PendingKind.Event, skillEvent, 0));
         }
 

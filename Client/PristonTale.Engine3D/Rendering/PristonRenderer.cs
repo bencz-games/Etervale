@@ -219,7 +219,7 @@ public sealed partial class PristonRenderer : IDisposable
         RealisticSky = settings.RealisticSky;
         CloudQuality = settings.CloudQuality;
         _fullShadowRefresh = true;
-        _multiSampleCount = settings.AntiAliasing == AntiAliasingMode.Msaa ? Math.Clamp(settings.MultiSampleCount, 2, 4) : 0;
+        _multiSampleCount = settings.AntiAliasing == AntiAliasingMode.Msaa ? Math.Clamp(settings.MultiSampleCount, 2, ClientSettings.MostMultiSamples) : 0;
         ShadowsEnabled = settings.ShadowsEnabled;
         DistanceFog = PristonDistanceFog.For(settings.DistanceFog);
         DebugView = settings.DebugView;

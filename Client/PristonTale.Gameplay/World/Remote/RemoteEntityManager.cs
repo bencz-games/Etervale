@@ -592,6 +592,10 @@ public sealed partial class RemoteEntityManager
         return false;
     }
 
+    // An entity's drawing delay behind the server's timeline; the base delay for one not in the roster.
+    public double PlaybackDelayMsOf(ulong entityId) =>
+        _entities.TryGetValue(entityId, out var entity) ? entity.PlaybackDelayMs : RemoteSnapshotBuffer.BaseDelayMs;
+
     public bool TryGetDrawnFacing(ulong entityId, out float facing)
     {
         if (_entities.TryGetValue(entityId, out var entity))

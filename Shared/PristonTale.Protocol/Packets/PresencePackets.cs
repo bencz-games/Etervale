@@ -67,7 +67,9 @@ public static class VarInt
 
     public static uint ZigZag(int value) => (uint)((value << 1) ^ (value >> 31));
 
-    public static int UnZigZag(ulong value) => (int)(uint)(value >> 1) ^ -(int)(uint)(value & 1);
+    // A zigzag value wider than 32 bits is refused, as every 32-bit varint is.
+    public static int UnZigZag(ulong value) =>
+        value <= uint.MaxValue ? (int)(uint)(value >> 1) ^ -(int)(uint)(value & 1) : throw new InvalidDataException("Variable-length value exceeds 32 bits.");
 }
 
 // A position as the presence wire carries it: world units times PositionScale, rounded and held to what 24 bits carry.
@@ -294,7 +296,7 @@ public static class PresenceWire
     }
 
     private static int ReadChange(ReadOnlySpan<byte> source, ref int offset) =>
-        VarInt.Read(source, ref offset) is var value && value <= uint.MaxValue ? VarInt.UnZigZag(value) : throw new InvalidDataException("Presence change exceeds 32 bits.");
+        VarInt.UnZigZag(VarInt.Read(source, ref offset));
 
     private static int ChangeSize(PresencePoint change) =>
         VarInt.Size(VarInt.ZigZag(change.X)) + VarInt.Size(VarInt.ZigZag(change.Y)) + VarInt.Size(VarInt.ZigZag(change.Z));

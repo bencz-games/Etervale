@@ -27,6 +27,9 @@ public abstract class RemoteEntityBase
     private const int MaxPendingEvents = 32;
 
     private readonly RemoteSnapshotBuffer _track;
+
+    // How far behind the server's timeline the entity is drawn (its snapshot buffer's adaptive delay).
+    public double PlaybackDelayMs => _track.DelayMs;
     private readonly Queue<(double TimeMs, CombatEventInfo Event)> _events = new();
     private readonly ActorMotionController _controller = new();
     private Vector3 _renderPosition;

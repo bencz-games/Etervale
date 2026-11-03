@@ -465,7 +465,7 @@ public sealed class VfxInstance
             any |= PartStates[index].Update(this, dt, emitting, anchors, system, ref _random);
         }
 
-        FireOneShots(definition, anchors, services, system);
+        FireOneShots(definition, anchors, services, system, emitting);
         var children = definition.Children;
         for (var index = 0; index < _children.Length; index++)
         {
@@ -536,9 +536,11 @@ public sealed class VfxInstance
             && definition.Children.Length == 0 && definition.Parts.Length == 0 && Age <= definition.Duration;
     }
 
-    private void FireOneShots(VfxDefinition definition, IVfxAnchors anchors, IVfxServices? services, VfxSystem system)
+    // Children, lights and sounds start only while the effect emits: once Stop() or its duration ends emission, a one-shot
+    // still waiting for its delay never starts.
+    private void FireOneShots(VfxDefinition definition, IVfxAnchors anchors, IVfxServices? services, VfxSystem system, bool emitting)
     {
-        if (_stopped)
+        if (!emitting)
         {
             return;
         }

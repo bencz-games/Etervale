@@ -52,7 +52,7 @@ internal static class PersonalShopHudTests
         };
         var character = new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Seller");
         var state = OwnerState.Capture(character) with { Items = [Axe, Potions], Money = 1000, InventoryRevision = 7 };
-        shop.Update(state);
+        shop.Update(state, 0);
 
         shop.OpenOwn(inTown: false);
         Assert.True(!shop.Window.IsOpen && notes[^1] == PersonalShopMessages.Of(PersonalShopStatus.NotInTown), "a shop opens in a town only");
@@ -75,14 +75,39 @@ internal static class PersonalShopHudTests
         shop.Window.Hide();
         Assert.True(shop.Holds(Potions.InstanceId), "a selling listing survives its window");
         shop.SignShown = true;
-        shop.Update(state);
+        shop.Update(state, 0);
         shop.SignShown = false;
-        shop.Update(state);
+        shop.Update(state, 0);
         Assert.True(!shop.Selling && !shop.InterceptBagClick(Axe), "a shop whose sign came down no longer holds the bag while closed");
+
+        // An opened shop whose sign never arrives counts as closed after 300 of the game's ticks, however fast the frames.
+        var waiting = new HudPersonalShopController(NullClientLog.Instance)
+        {
+            Client = client,
+            Notify = notes.Add,
+            AskCount = (first, _, highest, accept) => asked = (first, highest, accept)
+        };
+        waiting.Update(state, 0);
+        waiting.OpenOwn(inTown: true);
+        waiting.Window.Advance(1);
+        waiting.InterceptBagClick(Potions);
+        asked!.Value.Accept(50);
+        waiting.Click(HudStoreLayout.Repair(waiting.Window.Origin).Center);
+        waiting.Type("Wait", _ => false, static _ => true, static text => text.Length);
+        waiting.Type([], key => key == Microsoft.Xna.Framework.Input.Keys.Enter, static _ => true, static text => text.Length);
+        await WaitAsync(waiting, state, () => waiting.Selling);
+        for (var frame = 0; frame < 2000; frame++)
+        {
+            waiting.Update(state, frame * 0.5);
+        }
+
+        Assert.True(waiting.Selling, "the sign's wait ran by frames, not by time");
+        waiting.Update(state, 300 * 1000d / PristonTale.Contracts.Units.GameUnits.TicksPerSecond + 1);
+        Assert.True(!waiting.Selling, "an opened shop without its sign kept selling past its wait");
 
         var seller = new OwnedItemView(Guid.NewGuid(), Axe.Code, Axe.Name, Axe.Kind, 1, 0, -1, 2, 3, "WA101");
         var buyer = new HudPersonalShopController(NullClientLog.Instance) { Client = client, Notify = notes.Add };
-        buyer.Update(state);
+        buyer.Update(state, 0);
         buyer.Window.Show(new PersonalShopListing(9, [new PersonalShopOffer(seller, 400)]));
         buyer.Window.Advance(1);
         Assert.True(buyer.Click(HudStoreLayout.Cell(buyer.Window.Origin, 0).Center) && buyer.ModalOpen, "one item asks whether to buy it");
@@ -96,12 +121,12 @@ internal static class PersonalShopHudTests
     {
         for (var frame = 0; frame < 200 && !done(); frame++)
         {
-            shop.Update(state);
+            shop.Update(state, 0);
             await Task.Delay(1);
         }
 
         Assert.True(done(), "the request was sent");
-        shop.Update(state);
+        shop.Update(state, 0);
     }
 
     private sealed class FakeShops : IPersonalShopClient

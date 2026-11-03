@@ -118,7 +118,7 @@ public class Game1 : Game
 
         _client.Update(gameTime, IsActive);
         UpdateDiagnostics();
-        _lastKeyboardState = Keyboard.GetState();
+        _lastKeyboardState = keyboard;
         base.Update(gameTime);
         _timing.RecordUpdate(Stopwatch.GetTimestamp() - started, GC.GetAllocatedBytesForCurrentThread() - allocated);
     }

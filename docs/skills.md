@@ -328,8 +328,10 @@ Input and cast flow (`GameScene.Skills.cs`, `HudSkillBindings`, `GameplayHud`):
   that key to the skill and side (one key per skill); pressing `F1`-`F8` elsewhere selects the bound skill. `Ctrl`
   suppresses the keys. Sockets fall back to the basic attack (`0x11111111`) when a skill is lost.
 - A click with a skill in the clicked socket picks the entity under the cursor: `Enemy` needs a monster, `Ally` takes a
-  picked player or none, `Self`/`None` cast at once. Local pre-checks (rank, cooldown, unmodified mana/stamina) show a
-  notice instead of sending. The avatar walks until within the client's `CastRange - 8`, faces the target and sends.
+  picked player or none, `Self`/`None` cast at once. Local pre-checks (rank, cooldown) show a notice instead of sending;
+  mana and stamina are the server's (`SkillFormulas.ManaCost`/`StaminaCost`, with the cost-reducing effects), refused as
+  `NotEnoughMana`/`NotEnoughStamina`. The avatar walks until within `SkillFormulas.Range` of the owner's attack range,
+  less 8, faces the target and sends.
   An unanswered cast locks the avatar for at most 1500 ms. Refusals map to notices in `OnCastResolved`. When the lock
   ends, the local motion controller returns from `Skill` to `Stand` (`EndSkillMotion`), so the floor is followed again.
 - Charge: an accepted charge skill records its button; releasing it while casting sends `SkillCastCommand.Release`.
@@ -339,7 +341,8 @@ Input and cast flow (`GameScene.Skills.cs`, `HudSkillBindings`, `GameplayHud`):
 
 Presentation (`SkillPresentation`):
 
-- Own events run at once; other entities' events wait `RemoteDelayMs` (150 ms) to match interpolated playback.
+- Own events run at once; another entity's events wait its playback delay (`ISkillSceneHost.PlaybackDelayMsOf`, the
+  snapshot buffer's adaptive 150 to 600 ms) to match its interpolated motion.
 - `Start`: plays the motion plan at a rate that fits the server's `DurationMs` (weapon clips: per loop), spawns
   `castEffect`, plays `castSound`, launches `projectileEffect` at `HitAtMs` over the shared flight time and arc.
 - `Impact`: familiar/counter strikes fly `companionEffect` from above the caster; chain, familiar and ally impacts

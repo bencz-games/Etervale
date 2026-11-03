@@ -44,7 +44,6 @@ public sealed partial class GameScene
         _combatSounds.Update();
         if (_remote is not null && _playerBody is not null)
         {
-            _remote.CollectMonsters(_monsterViews);
             _monsterSounds.Update(_monsterViews, _playerBody.Position);
         }
 

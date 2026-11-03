@@ -232,12 +232,6 @@ public sealed partial class GameScene : ISkillSceneHost
             return true;
         }
 
-        if (Owner is { } owner && (owner.Mana < skill.ManaForRank(rank) || owner.Stamina < skill.StaminaForRank(rank)))
-        {
-            SkillNotice?.Invoke(owner.Mana < skill.ManaForRank(rank) ? "Not enough mana." : "Not enough stamina.");
-            return true;
-        }
-
         _lootInteraction?.Cancel();
         ClearAttackTarget();
         _pendingCast = new PendingCast(code, rule, rank, target);
@@ -308,18 +302,8 @@ public sealed partial class GameScene : ISkillSceneHost
 
     private void CancelPendingCast() => _pendingCast = null;
 
-    // The distance the avatar walks into before casting, as the server measures it (SkillFormulas.Range).
-    private float CastRange(SkillRule rule, int rank)
-    {
-        var weapon = Owner?.AttackRange ?? 50f;
-        var table = rule.At(rule.Range, rank);
-        return rule.RangeMode switch
-        {
-            SkillRangeMode.AtLeastWeapon => MathF.Max(table, weapon),
-            SkillRangeMode.AddWeapon => weapon + table,
-            _ => table > 0 ? table : weapon + (weapon - 50f) * rule.At(rule.ReachPercent, rank) / 100f + rule.At(rule.ReachBonus, rank)
-        };
-    }
+    // The distance the avatar walks into before casting, as the server measures it.
+    private float CastRange(SkillRule rule, int rank) => SkillFormulas.Range(rule, rank, Owner?.AttackRange ?? PristonTale.Simulation.Combat.MeleeReach.PlayerBaseRange);
 
     // Releasing the mouse button of a held charge tells the server; holding through the window charges fully on its own.
     private void UpdateCharge(MouseState mouse)
@@ -462,6 +446,9 @@ public sealed partial class GameScene : ISkillSceneHost
         PlayerActors.SeekMotion(_actorScene, framesFromStart);
         PlayerActors.SetPlaybackRate(_actorScene, rate);
     }
+
+    double ISkillSceneHost.PlaybackDelayMsOf(ulong entityId) =>
+        _remote?.PlaybackDelayMsOf(entityId) ?? World.Remote.RemoteSnapshotBuffer.BaseDelayMs;
 
     float ISkillSceneHost.AttackRateOf(ulong entityId) =>
         entityId == _remote?.SelfEntityId ? PlayerRateFor(MotionCode.Attack) : _remote?.AttackRateOf(entityId) ?? 1f;

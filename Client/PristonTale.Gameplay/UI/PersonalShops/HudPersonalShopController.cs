@@ -19,8 +19,9 @@ public sealed class HudPersonalShopController(IClientLog log)
 {
     private const string NoRoom = "The shop has no room for this item";
     private const string NothingToSell = "No more items to sell";
-    // Frames an opened shop waits for its sign (the player's description) before it counts as closed again.
-    private const int SignWaitFrames = 300;
+    // How long an opened shop waits for its sign (the player's description) before it counts as closed again: 300 of the
+    // game's ticks.
+    private const double SignWaitMs = 300 * 1000d / PristonTale.Contracts.Units.GameUnits.TicksPerSecond;
     private static readonly Rectangle ReopenBounds = new(10, 220, 70, 70);
 
     private readonly HudRequest<PersonalShopReply> _request = new(log, "Personal shop request failed");
@@ -30,7 +31,8 @@ public sealed class HudPersonalShopController(IClientLog log)
     private long _followed = -1;
     private PersonalShopAction _sent;
     private ulong _sentTo;
-    private int _signWait;
+    private double _nowMs;
+    private double _signWaitUntilMs;
 
     public HudPersonalShopWindow Window { get; } = new();
     public IPersonalShopClient Client { get; set; }
@@ -43,7 +45,7 @@ public sealed class HudPersonalShopController(IClientLog log)
     public bool SignShown { get; set; }
 
     // The player's own shop sells: its sign hangs, or an opened shop waits for it.
-    public bool Selling => SignShown || _signWait > 0;
+    public bool Selling => SignShown || _nowMs < _signWaitUntilMs;
 
     public bool ModalOpen => _sign.IsOpen || _confirm is not null;
     public bool SignOpen => _sign.IsOpen;
@@ -72,10 +74,15 @@ public sealed class HudPersonalShopController(IClientLog log)
         }
     }
 
-    public void Update(OwnerState state)
+    public void Update(OwnerState state, double nowMs)
     {
         _state = state;
-        _signWait = SignShown ? 0 : Math.Max(0, _signWait - 1);
+        _nowMs = nowMs;
+        if (SignShown)
+        {
+            _signWaitUntilMs = 0;
+        }
+
         if (state is not null && state.InventoryRevision != _followed)
         {
             _followed = state.InventoryRevision;
@@ -315,11 +322,11 @@ public sealed class HudPersonalShopController(IClientLog log)
         }
         else if (_sent == PersonalShopAction.Open && reply.Outcome.Ok)
         {
-            _signWait = SignWaitFrames;
+            _signWaitUntilMs = _nowMs + SignWaitMs;
         }
         else if (_sent == PersonalShopAction.Close && reply.Outcome.Ok)
         {
-            _signWait = 0;
+            _signWaitUntilMs = 0;
         }
 
         if (!reply.Outcome.Ok)

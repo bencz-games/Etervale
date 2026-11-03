@@ -345,6 +345,21 @@ internal static class VfxLayerTests
         instance.Stop();
         Run(system, 0.05f);
         Assert.True(child.SequenceStates[0].LiveCount == 1, "a stopped child must let its particles play out");
+
+        // A child whose delay passes the parent's duration never starts, though the parent's particles keep it alive.
+        library.Register(new VfxDefinition
+        {
+            Name = "test.short",
+            Duration = 0.1f,
+            Sequences = [new VfxSequenceDefinition { Texture = "x.bmp", Count = 1, Rate = [100f, 100f], Lifetime = [100f, 100f] }],
+            Children = [new VfxChildDefinition { Effect = "test.child", Anchor = VfxAnchor.Caster, Delay = 0.3f }]
+        });
+        library.TryGet("test.short", out var shortParent);
+        var late = new VfxSystem(anchors, null, library);
+        late.Spawn(shortParent, new VfxSpawn(1, 0, Vector3.Zero, 0f));
+        Run(late, 0.5f);
+        Assert.True(late.Instances.Count == 1 && late.Instances.Single().Effect.Definition.Name == "test.short",
+            "a child started after its parent's emission ended, or the parent did not stay alive");
         return Task.CompletedTask;
     }
 

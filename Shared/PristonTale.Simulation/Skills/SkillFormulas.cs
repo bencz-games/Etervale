@@ -120,15 +120,18 @@ public static partial class SkillFormulas
 
     // Cast range: the skill's table (at least the weapon's range, or added to it, per RangeMode), or the weapon's attack
     // range r grown by the skill: r + (r - 50) x percent / 100 plus a flat bonus.
-    public static float Range(SkillRule rule, int rank, PlayerCharacter caster)
+    public static float Range(SkillRule rule, int rank, PlayerCharacter caster) => Range(rule, rank, PlayerAttackReach.For(caster));
+
+    // The same for a caster's weapon reach (PlayerAttackReach, which the owner's client receives as its attack range).
+    public static float Range(SkillRule rule, int rank, float reach)
     {
         var range = rule.At(rule.Range, rank);
         switch (rule.RangeMode)
         {
             case SkillRangeMode.AtLeastWeapon:
-                return Math.Max(range, PlayerAttackReach.For(caster));
+                return Math.Max(range, reach);
             case SkillRangeMode.AddWeapon:
-                return PlayerAttackReach.For(caster) + range;
+                return reach + range;
         }
 
         if (range > 0)
@@ -136,8 +139,7 @@ public static partial class SkillFormulas
             return range;
         }
 
-        var reach = PlayerAttackReach.For(caster);
-        return reach + (reach - 50f) * rule.At(rule.ReachPercent, rank) / 100f + rule.At(rule.ReachBonus, rank);
+        return reach + (reach - MeleeReach.PlayerBaseRange) * rule.At(rule.ReachPercent, rank) / 100f + rule.At(rule.ReachBonus, rank);
     }
 
     // The timeline of a held charge (see SkillChargeRule): the full-charge hits and length, and where the window starts

@@ -406,7 +406,7 @@ public sealed partial class GameplayHud : IDisposable
         ApplyQuests();
         ApplyServices(state);
         _personalShop.SignShown = SelfId != 0 && ShopSigns.ContainsKey(SelfId);
-        _personalShop.Update(state);
+        _personalShop.Update(state, _clock.Elapsed.TotalMilliseconds);
         if (_npc.ReadyToOpen)
         {
             _skillMaster = 0;

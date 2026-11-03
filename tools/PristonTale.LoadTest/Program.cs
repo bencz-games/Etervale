@@ -303,8 +303,19 @@ internal sealed class BotWorld(ulong self)
     private Vector3? _correction;
     private TimeSpan? _castWait;
 
-    // Where the server last showed this bot.
-    public Vector3? Self { get; private set; }
+    // Where the server last showed this bot (written by the drain task, read by the play loop).
+    private Vector3? _self;
+
+    public Vector3? Self
+    {
+        get
+        {
+            lock (_gate)
+            {
+                return _self;
+            }
+        }
+    }
 
     // The inventory revision the next command expects and the bag page shown: the newer of the last command's answer and
     // the last owner state (one sent before the answer carries an older revision). Null before the first owner state.
@@ -352,7 +363,7 @@ internal sealed class BotWorld(ulong self)
             {
                 if (spawn.EntityId == self)
                 {
-                    Self = spawn.Position;
+                    _self = spawn.Position;
                 }
 
                 if (spawn.Kind == EntityKind.Monster && spawn.OwnerId == 0)
@@ -366,7 +377,7 @@ internal sealed class BotWorld(ulong self)
                 var state = update.States[index];
                 if (state.EntityId == self)
                 {
-                    Self = state.Position;
+                    _self = state.Position;
                 }
 
                 if (_monsters.ContainsKey(state.EntityId))
@@ -534,8 +545,18 @@ internal sealed record Options(string Address, string Prefix, string Password, i
             values[args[index]] = args[index + 1];
         }
 
+        // A malformed number is a usage error (exit 1), as a missing count is.
+        bool Number(string name, int fallback, out int value) =>
+            int.TryParse(values.GetValueOrDefault(name, fallback.ToString(CultureInfo.InvariantCulture)), NumberStyles.Integer, CultureInfo.InvariantCulture,
+                out value);
+
+        var skillText = values.GetValueOrDefault("--skill", "0x01010002");
+        skillText = skillText.StartsWith("0x", StringComparison.OrdinalIgnoreCase) ? skillText[2..] : skillText;
         if (!values.TryGetValue("--count", out var countText) || !int.TryParse(countText, out var count) || count < 1
-            || !Enum.TryParse<BotMode>(values.GetValueOrDefault("--mode", "walk"), ignoreCase: true, out var mode))
+            || !Enum.TryParse<BotMode>(values.GetValueOrDefault("--mode", "walk"), ignoreCase: true, out var mode)
+            || !Number("--seconds", 60, out var seconds) || !Number("--ramp", 50, out var ramp) || !Number("--server-pid", 0, out var serverPid)
+            || !Number("--report", 5, out var report) || !Number("--item-ms", 1000, out var itemMs)
+            || !uint.TryParse(skillText, NumberStyles.HexNumber, CultureInfo.InvariantCulture, out var skill))
         {
             return null;
         }
@@ -545,12 +566,12 @@ internal sealed record Options(string Address, string Prefix, string Password, i
             values.GetValueOrDefault("--prefix", "bot"),
             values.GetValueOrDefault("--password", "bot-pw"),
             count,
-            int.Parse(values.GetValueOrDefault("--seconds", "60"), CultureInfo.InvariantCulture),
-            Math.Max(1, int.Parse(values.GetValueOrDefault("--ramp", "50"), CultureInfo.InvariantCulture)),
+            seconds,
+            Math.Max(1, ramp),
             mode,
-            Convert.ToUInt32(values.GetValueOrDefault("--skill", "0x01010002"), 16),
-            int.Parse(values.GetValueOrDefault("--server-pid", "0"), CultureInfo.InvariantCulture),
-            Math.Max(1, int.Parse(values.GetValueOrDefault("--report", "5"), CultureInfo.InvariantCulture)),
-            Math.Max(50, int.Parse(values.GetValueOrDefault("--item-ms", "1000"), CultureInfo.InvariantCulture)));
+            skill,
+            serverPid,
+            Math.Max(1, report),
+            Math.Max(50, itemMs));
     }
 }

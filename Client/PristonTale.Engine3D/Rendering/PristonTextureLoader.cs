@@ -329,25 +329,20 @@ public sealed class PristonTextureLoader : IDisposable
         return Path.GetFullPath(directory).Replace('\\', '/') + "|" + name.Replace('\\', '/') + "|" + opacity.Replace('\\', '/');
     }
 
+    // A texture a model names with another extension than the one shipped is looked for under these, in its own folder.
+    private static readonly string[] TextureExtensions = [".bmp", ".tga", ".jpg", ".jpeg"];
+
     internal static string ResolvePath(string directory, string name)
     {
-        var normalized = name.Replace('\\', Path.DirectorySeparatorChar);
-        var resolved = AssetFiles.Resolve(Path.Combine(directory, normalized));
+        var named = AssetFiles.Combine(directory, name);
+        var resolved = AssetFiles.Resolve(named);
         if (File.Exists(resolved))
         {
             return resolved;
         }
 
-        var stem = Path.Combine(directory, Path.GetFileNameWithoutExtension(normalized));
-        foreach (var extension in new[]
-        {
-            ".bmp",
-            ".tga",
-            ".jpg",
-            ".jpeg"
-        }
-
-        )
+        var stem = Path.ChangeExtension(named, null);
+        foreach (var extension in TextureExtensions)
         {
             var candidate = AssetFiles.Resolve(stem + extension);
             if (File.Exists(candidate))
