@@ -28,6 +28,10 @@ public static class ItemWireMapping
         }
     }
 
+    // An item as a store window shows it (a trade partner's offer, a personal shop, the warehouse).
+    public static StoreItemEntry StoreItem(OwnedItemView item) =>
+        new(item.InstanceId, item.Code, (byte)item.Kind, item.Count, item.Anchor, (short)item.Width, (short)item.Height, item.Name);
+
     public static ItemDetailEntry Detail(OwnedItemView item)
     {
         var details = item.Details;

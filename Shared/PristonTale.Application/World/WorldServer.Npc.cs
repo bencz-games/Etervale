@@ -3,6 +3,7 @@ using PristonTale.Simulation.PersonalShops;
 using PristonTale.Simulation.Trades;
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Application.Services;
 
 namespace PristonTale.Application.World;
 
@@ -45,7 +46,7 @@ public sealed partial class WorldServer
         {
             if (!TryGetPlaying(session, out var connection) || !_fields.TryGetValue(connection.FieldId, out var field))
             {
-                return NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, "character is not playing");
+                return NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, DurableFailures.Message(DurableFailure.NotPlaying));
             }
 
             return NpcServiceTransactions.Check(connection.Player, field, command, out _, out _);

@@ -30,8 +30,7 @@ internal static class NpcWireMapping
         if (reply.Warehouse is { } warehouse)
         {
             var entries = warehouse.Items.Take(WarehousePacket.MaxItems)
-                .Select(item => new StoreItemEntry(item.InstanceId, item.Code, (byte)item.Kind, item.Count, item.Anchor, (short)item.Width,
-                    (short)item.Height, item.Name))
+                .Select(ItemWireMapping.StoreItem)
                 .ToArray();
             send(new WarehousePacket(operation, npc, warehouse.Revision, warehouse.Money, warehouse.Weight, warehouse.MaxWeight,
                 (short)warehouse.Columns, (short)warehouse.Rows, entries).Write);

@@ -54,8 +54,7 @@ internal sealed partial class ClientSession
         if (reply.Listing is { } listing)
         {
             var offers = listing.Offers
-                .Select(static offer => new PersonalShopOfferWire(new StoreItemEntry(offer.Item.InstanceId, offer.Item.Code, (byte)offer.Item.Kind,
-                    offer.Item.Count, offer.Item.Anchor, (short)offer.Item.Width, (short)offer.Item.Height, offer.Item.Name), offer.UnitPrice))
+                .Select(static offer => new PersonalShopOfferWire(ItemWireMapping.StoreItem(offer.Item), offer.UnitPrice))
                 .ToArray();
             SendLarge(new PersonalShopListingPacket(operation, listing.SellerId, offers).Write,
                 PersonalShopListingPacket.MaxSize);

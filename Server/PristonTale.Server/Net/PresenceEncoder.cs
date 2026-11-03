@@ -388,8 +388,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
                 {
                     var item = view.PartnerItems[index];
                     details[index] = ItemWireMapping.Detail(item);
-                    items[index] = new StoreItemEntry(item.InstanceId, item.Code, (byte)item.Kind, item.Count, item.Anchor, (short)item.Width,
-                        (short)item.Height, item.Name);
+                    items[index] = ItemWireMapping.StoreItem(item);
                 }
 
                 var own = new TradeEntryWire[view.Own.Entries.Count];

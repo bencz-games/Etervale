@@ -15,6 +15,19 @@ public enum DurableFailure
     Conflict
 }
 
+public static class DurableFailures
+{
+    // The text a refused durable operation answers with.
+    public static string Message(DurableFailure failure) => failure switch
+    {
+        DurableFailure.NoSession => "invalid session",
+        DurableFailure.Busy => "save or character operation pending; retry",
+        DurableFailure.StorageFailed => "storage rejected operation; character unchanged",
+        DurableFailure.Conflict => "the warehouse changed elsewhere; open it again",
+        _ => "character is not playing"
+    };
+}
+
 // The path of every character change. The session's save gate admits one change per character at a time (saves share
 // it); under it the tick prepares and then commits. An ordinary change is stored in the background after its commit
 // (ICharacterSaves); a transfer between characters, or to the ground or the account warehouse, is stored before its

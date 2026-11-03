@@ -32,14 +32,13 @@ public sealed class NpcAppService(
             session => world.PrepareNpcServiceAsync(session, command),
             world.CommitNpcServiceAsync,
             prepared => prepared.Reply,
-            failure => failure switch
+            failure => Failed(failure switch
             {
-                DurableFailure.NoSession => Failed(NpcServiceStatus.Rejected, "invalid session"),
-                DurableFailure.Busy => Failed(NpcServiceStatus.Busy, "save or character operation pending; retry"),
-                DurableFailure.StorageFailed => Failed(NpcServiceStatus.StorageFailed, "storage rejected operation; character unchanged"),
-                DurableFailure.Conflict => Failed(NpcServiceStatus.Conflict, "the warehouse changed elsewhere; open it again"),
-                _ => Failed(NpcServiceStatus.Rejected, "character is not playing")
-            },
+                DurableFailure.Busy => NpcServiceStatus.Busy,
+                DurableFailure.StorageFailed => NpcServiceStatus.StorageFailed,
+                DurableFailure.Conflict => NpcServiceStatus.Conflict,
+                _ => NpcServiceStatus.Rejected
+            }, DurableFailures.Message(failure)),
             StoreAsync,
             storeFirst: static prepared => prepared.Warehouse is not null);
     }
