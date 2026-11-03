@@ -36,6 +36,10 @@ public sealed class HudWingGate(IClientLog log)
 
     private readonly HudRequest<WingGateOutcome> _request = new(log, "Wing gate trip failed");
     private WingGateDestination _confirm;
+    private WingGateDestination _helpFor;
+    private string[] _help;
+    private long _wingRevision = -1;
+    private WingGateWing _wing;
     private WingGateDestination _ringAt;
     private double _ringStartMs = double.NegativeInfinity;
     private int _currentField;
@@ -192,20 +196,11 @@ public sealed class HudWingGate(IClientLog log)
         var title = HudNpcPanel.Title;
         painter.Sprite(HudArt.HelpTitle, title.X, title.Y);
         painter.TextCentered(hovered?.Name ?? "Warp gate", title.Left, title.Right, title.Y + 7, TitleColor);
-        var document = $"{WingGates.DocumentFolder}/{hovered?.Document ?? WingGates.IntroDocument}.sin";
-        var lines = documents.Wrapped(document, font, TextWidth) ?? [];
-        var fee = 0;
+        var lines = HelpLines(font, documents, hovered);
         var capacity = (HudNpcPanel.OkButton.Y - 8 - TextY) / HudPainter.LineHeight;
         for (var line = 0; line < lines.Length && line < capacity; line++)
         {
-            var text = lines[line];
-            if (hovered is null && text.Contains("%d", StringComparison.Ordinal) && fee < WingGates.Wings.Count)
-            {
-                var at = text.IndexOf("%d", StringComparison.Ordinal);
-                text = text[..at] + WingGates.Wings[fee++].Fee + text[(at + 2)..];
-            }
-
-            painter.Text(text, TextX, TextY + line * HudPainter.LineHeight);
+            painter.Text(lines[line], TextX, TextY + line * HudPainter.LineHeight);
         }
     }
 
@@ -248,8 +243,53 @@ public sealed class HudWingGate(IClientLog log)
         painter.Sprite(cancel.Contains(pointer) ? CancelButtonHover : CancelButton, cancel.X + 8, cancel.Y + 4);
     }
 
-    private static WingGateWing Wing(OwnerState state) =>
-        state is null ? null : WingGates.BestWing(state.Items.Where(static item => item.InBag || item.QuestBox >= 0).Select(static item => item.Code));
+    // The help of the hovered destination (the introduction, its %d filled with the wings' fees, when none), made again only
+    // when the hovered destination changes or its document has loaded.
+    private string[] HelpLines(SpriteFont font, HudQuestDocuments documents, WingGateDestination hovered)
+    {
+        if (_help is not null && ReferenceEquals(_helpFor, hovered))
+        {
+            return _help;
+        }
+
+        var document = $"{WingGates.DocumentFolder}/{hovered?.Document ?? WingGates.IntroDocument}.sin";
+        if (documents.Wrapped(document, font, TextWidth) is not { } wrapped)
+        {
+            return [];
+        }
+
+        var lines = (string[])wrapped.Clone();
+        var fee = 0;
+        for (var line = 0; hovered is null && line < lines.Length; line++)
+        {
+            var at = lines[line].IndexOf("%d", StringComparison.Ordinal);
+            if (at >= 0 && fee < WingGates.Wings.Count)
+            {
+                lines[line] = lines[line][..at] + WingGates.Wings[fee++].Fee + lines[line][(at + 2)..];
+            }
+        }
+
+        _helpFor = hovered;
+        _help = lines;
+        return lines;
+    }
+
+    // The best wing carried, worked out again only when the inventory changes.
+    private WingGateWing Wing(OwnerState state)
+    {
+        if (state is null)
+        {
+            return null;
+        }
+
+        if (state.InventoryRevision != _wingRevision)
+        {
+            _wingRevision = state.InventoryRevision;
+            _wing = WingGates.BestWing(state.Items.Where(static item => item.InBag || item.QuestBox >= 0).Select(static item => item.Code));
+        }
+
+        return _wing;
+    }
 
     private void Report(WingGateStatus status)
     {
