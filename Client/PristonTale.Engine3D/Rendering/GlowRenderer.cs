@@ -7,9 +7,8 @@ namespace PristonTale.Engine3D.Rendering;
 
 internal sealed class GlowRenderer : IDisposable
 {
-    // Corona size is per-light, scaled from the light's own radius (a torch with a small radius gets
-    // a small glow; a big street lamp a larger one) and clamped — a single fixed size made dense
-    // dungeon torch-lights (192 in dun-5) read as huge overlapping blobs instead of torch flames.
+    // Corona size is per-light, scaled from the light's own radius (a torch with a small radius gets a small glow, a big
+    // street lamp a larger one) and clamped, so dense torch-lit dungeons read as flames, not overlapping blobs.
     private const float GlowRadiusFactor = 0.30f;
     private const float GlowMinSize = 34f;
     private const float GlowMaxSize = 130f;
@@ -64,8 +63,7 @@ internal sealed class GlowRenderer : IDisposable
         _effect.Projection = frame.Projection;
 
         _graphicsDevice.BlendState = BlendState.Additive;
-        // Depth-TEST so walls/trees in front of a lamp occlude its glow (no more "glow through
-        // walls"), but depth-WRITE off (DepthRead) since it's an additive transparent billboard.
+        // Depth-tested, so walls and trees in front of a lamp hide its glow, without depth writes: an additive billboard.
         _graphicsDevice.DepthStencilState = PristonDepth.Read;
         _graphicsDevice.RasterizerState = RasterizerState.CullNone;
 

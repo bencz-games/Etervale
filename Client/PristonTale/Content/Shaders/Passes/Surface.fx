@@ -303,8 +303,7 @@ float4 ShadeSurface(VSOut i, bool masked)
         // A translucent surface lit from behind looks up its shadow on the sun's side.
         bool transmits = Translucency > 0.0 && back > nl;
         float3 shadowNormal = transmits ? -s.Normal : s.Normal;
-        // Actors take no contact shadows: the march across their own thin bodies left dark patches that changed with the
-        // view and the pose.
+        // Actors take no contact shadows: a march across their own thin bodies would shade them by view and pose.
         bool actor = ActorReceiver > 0.5;
         float shadow = SunShadow(i.WorldPosition, shadowNormal, max(nl, transmits ? back : 0.0), i.ViewDepth, i.Position.xy,
             actor ? ActorShadowBias : 0.0, actor ? 1.0 : occlusion.y) * CloudShadowAt(i.WorldPosition);

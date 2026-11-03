@@ -219,7 +219,7 @@ public sealed partial class VfxRenderer
         new(SrgbToLinear(color.X / 255f), SrgbToLinear(color.Y / 255f), SrgbToLinear(color.Z / 255f), Math.Clamp(color.W / 255f, 0f, 1f));
 
     // The sRGB curve sampled at 1024 steps and read with linear interpolation (within 1e-6 of the curve): every particle
-    // decodes its colour each frame, and the curve's Pow was the costliest part of building a quad.
+    // decodes its colour each frame, so the decode must not cost a Pow per channel.
     private const int SrgbSteps = 1024;
     private static readonly float[] SrgbTable = BuildSrgbTable();
 

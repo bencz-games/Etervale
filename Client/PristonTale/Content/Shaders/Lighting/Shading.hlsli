@@ -62,10 +62,9 @@ float ShadowLitAt(float2 uv, float reference)
 // The continuous tent of half-width reach around a point of the atlas (in texels, from the atlas origin): reach 2 is
 // the 3x3 tent (four gathers over 4x4 texels, standard deviation 0.82 texel), reach 3 the 5x5 tent (nine gathers over 6x6
 // texels, 1.22). Each texel weighs (reach - |dx|)(reach - |dy|) by its distance to the point, reach^4 in all, so the edge
-// moves continuously, and the result is the same in every frame. A disk turned per pixel and frame left its noise for
-// the temporal anti-aliasing to average, which it cannot where the history is clipped (an animated character's shadow)
-// or absent (MSAA, FXAA, SMAA): the edges crawled. Also returns the depth and count of the texels in front of the
-// reference.
+// moves continuously, and the result is the same in every frame, with no noise left for the temporal anti-aliasing (which
+// cannot average it where the history is clipped or absent). Also returns the depth and count of the texels in front of
+// the reference.
 float ShadowTent(Texture2D<float4> map, SamplerState state, float2 texel, float2 grid, float reference, int reach,
                  out float blockerSum, out float blockers)
 {

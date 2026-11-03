@@ -592,42 +592,14 @@ beside them, a tenth cast an area skill every three seconds, monsters fight back
 | 2000 | crowded | 9.82 / 36.81 ms | 18.85 / 43.24 ms | 25.2 KiB/s (1.3 KiB/tick) | 880 KiB |
 | 5000 | crowded | 13.36 / 70.00 ms | 31.37 / 55.90 ms | 27.4 KiB/s (1.4 KiB/tick) | 2459 KiB |
 
-The rows include the descriptions the server now pushes ahead of every spawn, which earlier runs never sent (the
-benchmark does not ask for them), and the cap of 100 players a receiver shows. Presence v2 (handles, position changes,
-changed fields only, the clock in the message), measured back to back against the build before it, cut 2000 spread
-from 4302 to 2976 bytes per client per second and 2000 crowded from 31246 to 25774 bytes even with those descriptions;
-the 2000 bots of `LoadTest --mode walk`, which do ask, went from 9.5 to 5.5 KiB/s each. Building the pushed
-descriptions allocates about 180 KiB more per crowded tick on the encoders.
-
-The compact presence entries halved the spread traffic and cut the crowded traffic by about 60%: with the original
-play-data entries (84 bytes near, 40 far) the same runs sent 7.6 to 8.4 KiB/s spread and 54.6 to 60.2 KiB/s crowded, and
-5000 crowded encoded in 33.25 / 59.79 ms.
-
-Routing events by entity instead of scanning them, measured back to back on the same build and machine, cut the
-encoders' CPU per tick from 193 to 132 ms for 2000 crowded players and from 719 to 421 ms for 5000 (encode p50 33.7 to
-25.1 ms), with the same bytes sent. Run-to-run noise on this machine moves single percentiles by up to a third, so
+The rows include the descriptions the server pushes ahead of every spawn (the benchmark does not ask for them) and the
+cap of 100 players a receiver shows. Run-to-run noise on this machine moves single percentiles by up to a third, so
 compare runs taken back to back.
 
-Before the shared frames, the crowd cap and the allocation work, the same benchmark measured 1000 crowded at 2.68 /
-35.81 ms tick and 34.83 / 116.88 ms encode with 98.7 KiB/s per client and 4.9 MiB allocated per tick, and 5000 crowded
-at 16 / 735 ms tick and 455 / 1584 ms encode with 354 KiB/s per client and an 8.6 GiB heap.
-
-The end-to-end load test below was measured with the original play-data entries, before the compact presence entries
-(`tools/PristonTale.LoadTest --mode mixed`: half the bots walk, three in ten hunt the nearest
-monster with basic attacks, two in ten cast Mechanic Bomb) ran against the imported world on Forest 1 with full stage
-collision, the server and every bot on the same machine. Crowded bots start inside a 500-unit square, spread bots on an
-80-unit grid; each run measured 60 s after the ramp:
-
-| Bots | Layout | Failures | World tick p50 / p99 | Server CPU | Allocated | Working set | Out per connection |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 500 | crowded | 0 | 2.77 / 6.60 ms | 1.5 cores | 1.9 MiB/s | 594 MiB | 29.1 KiB/s (1.5 KiB/tick) |
-| 500 | spread | 0 | 4.96 / 7.14 ms | 2.4 cores | 1.7 MiB/s | 695 MiB | 33.7 KiB/s (1.7 KiB/tick) |
-| 1000 | crowded | 0 | 4.31 / 10.10 ms | 2.6 cores | 4.6 MiB/s | 835 MiB | 30.9 KiB/s (1.6 KiB/tick) |
-| 1000 | spread | 0 | 4.52 / 9.88 ms | 2.5 cores | 4.4 MiB/s | 890 MiB | 45.0 KiB/s (2.3 KiB/tick) |
-| 2000 | crowded | 0 | 11.40 / 25.07 ms | 6.2 cores | 10.4 MiB/s | 1257 MiB | 30.2 KiB/s (1.5 KiB/tick) |
-| 2000 | spread | 0 | 12.96 / 28.70 ms | 6.0 cores | 8.6 MiB/s | 1438 MiB | 34.8 KiB/s (1.8 KiB/tick) |
-| 5000 | crowded | 0 | 26.29 / 48.87 ms | 9.3 cores | 27.1 MiB/s | 4398 MiB | 18.4 KiB/s (0.9 KiB/tick) |
-| 5000 | spread | 0 | 22.93 / 42.93 ms | 9.0 cores | 22.2 MiB/s | 3452 MiB | 15.7 KiB/s (0.8 KiB/tick) |
+The end-to-end load test (`tools/PristonTale.LoadTest --mode mixed`: half the bots walk, three in ten hunt the nearest
+monster with basic attacks, two in ten cast Mechanic Bomb) runs against the imported world on Forest 1 with full stage
+collision, the server and every bot on the same machine; crowded bots start inside a 500-unit square, spread bots on an
+80-unit grid, and each run is measured 60 s after the ramp.
 
 Stored commands (`--mode items`, 2000 bots each switching the bag page once a second, PostgreSQL in Docker on the
 same machine, `Database:MaxPoolSize` 20): the server answers about 1740 commands/s at p50 19 ms, p99 52 to 65 ms and
@@ -635,7 +607,7 @@ at most 95 ms (the prepare and the commit take a tick each), with no refusal and
 character store ([application.md](application.md#character-saves)) writes about 1450 characters/s in batches of 100
 (65 ms each), its queue bounded by the characters playing, and the tick stays at p50 11 ms.
 
-Before this work the load test's 2000 crowded run allocated 57 to 82 MiB/s. At 5000 bots the load-test process itself
+At 5000 bots the load-test process itself
 uses most of the remaining cores, so the tick shares the machine; the encoders then fall behind the 20 Hz tick, their
 outboxes coalesce, and each client receives fewer, larger updates (the lower bandwidth per connection) while every
 event still arrives in order. The many position corrections in these runs come from the bots walking straight through

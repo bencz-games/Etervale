@@ -5,7 +5,7 @@
 // sun's and the moon's discs, the stars and the Milky Way, the aurora, high cirrus, the clouds and a rainbow. Lengths
 // in km with the planet's centre at the origin and y up. The sky pass writes display-referred sRGB codes into the sky
 // targets the painted domes use (decoded by the scene with the same exposure), so the fog's capture and the image-based
-// lighting take the physical sky as they took the domes.
+// lighting take the physical sky as they take the domes.
 #include "../Core/Common.hlsli"
 #include "../Core/Color.hlsli"
 #include "../Core/Fullscreen.hlsli"

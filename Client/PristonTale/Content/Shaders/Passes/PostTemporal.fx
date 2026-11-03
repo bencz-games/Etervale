@@ -2,8 +2,8 @@
 // After Karis, "High Quality Temporal Supersampling" (SIGGRAPH 2014), Salvi, "An Excursion in Temporal Supersampling"
 // (GDC 2016) and Pedersen, "Temporal Reprojection Anti-Aliasing in INSIDE" (GDC 2016):
 //  - current sample: Gaussian reconstruction around the unjittered pixel centre from the 3x3 neighbourhood, which also
-//    gives the variance box (YCoCg). A 5-tap cross gave a box too tight for jittered high-frequency texture (stone, gold
-//    trims): the history was clipped nearly every frame and the pixel followed the jitter, a visible shimmer;
+//    gives the variance box (YCoCg), wide enough that jittered high-frequency texture (stone, gold trims) keeps its
+//    history instead of following the jitter;
 //  - motion: of the closest surface among the centre and its four diagonals (silhouettes keep their own motion).
 //    Surfaces write their motion (Passes/Surface.fx: skinned actors from their previous bone palette, wind and water from
 //    the previous animation time, everything from the previous view-projection); the sky marker reprojects the view

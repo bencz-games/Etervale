@@ -723,7 +723,7 @@ internal sealed class PartState
         return source.Pulse[0] + (source.Pulse[1] - source.Pulse[0]) * triangle;
     }
 
-    // A range drawn only when it spans values, so effects that keep it constant draw the same random sequence as before.
+    // A range drawn only when it spans values: a constant range takes no number from the random sequence.
     private static float Draw(float[] range, ref uint random) => range[1] > range[0] ? VfxRandom.Range(range, ref random) : range[0];
 
     private static Vector3 RandomDirection(ref uint random)

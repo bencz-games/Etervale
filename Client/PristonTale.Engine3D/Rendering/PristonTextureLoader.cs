@@ -53,9 +53,8 @@ public sealed class PristonTextureLoader : IDisposable
     // Decodes one texture on a worker so a later LoadTexture only uploads it.
     public Task PrepareTextureAsync(string directory, string name) => PrepareAsync(directory, name, string.Empty);
 
-    // Yields the bytes uploaded by each texture so the caller can time and budget every step. Splitting a texture
-    // into mip or row slices was measured not to shorten the worst step: a single small DesktopGL SetData already
-    // stalls for several milliseconds, so the cost is per call rather than per byte.
+    // Yields the bytes uploaded by each texture so the caller can time and budget every step. A texture uploads whole:
+    // an upload costs per call rather than per byte, so slicing it would not shorten the worst step.
     internal IEnumerable<long> UploadPreparedTextures(string directory, IEnumerable<PristonMaterial> materials)
     {
         foreach (var request in TextureRequests(materials))

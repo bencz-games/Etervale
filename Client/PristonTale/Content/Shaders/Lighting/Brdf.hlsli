@@ -27,8 +27,8 @@ float3 F_Schlick(float3 f0, float vh)
 }
 
 // The grazing reflectance of a rough surface: microfacet shadowing keeps a rough dielectric (skin, cloth, stone) from
-// turning into a mirror at grazing angles, so its Fresnel rises only to max(1 - roughness, F0) (Lagarde 2014). Without
-// it the dark legacy albedos took a grey, metallic rim from the sky and the sun behind them.
+// turning into a mirror at grazing angles, so its Fresnel rises only to max(1 - roughness, F0) (Lagarde 2014), and dark
+// albedos keep no grey, metallic rim from the sky and the sun behind them.
 float3 GrazingReflectance(float3 f0, float perceptualRoughness)
 {
     return max(1.0 - perceptualRoughness, f0);

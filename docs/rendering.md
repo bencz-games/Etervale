@@ -121,7 +121,7 @@ Described in Etervale's terms; readers keep every field, including padding, for 
 - Stage normals: the stage file has none per vertex, so `PristonStageNormals` computes one per face corner over the whole
   stage before the faces are split by material: the area-weighted normals of every face touching the corner's position
   that leans at most 60 degrees (`CreaseDegrees`) from the corner's face. Faces of materials never drawn (invisible or without a texture) take no part, so a collision-only ramp or blocker on the ground's vertices does not bend it. Ground stays smooth across material and UV
-  seams (the sun's N.L no longer breaks along ground triangles) and walls keep their edge with the floor. The normal
+  seams (the sun's N.L is continuous across ground triangles) and walls keep their edge with the floor. The normal
   rides on `PristonCornerVertex.Normal`; corners without one (models) are still averaged over their welded faces, and
   scrolling materials keep per-triangle normals.
 - Actors (`AddActor`) get GPU resources shared per `PristonActor`, a bone palette (at most 64 bones,
@@ -342,25 +342,24 @@ they took the domes.
 
 ## Shadows
 
-- **Sun cascades** (`Lighting/PristonShadowCascades.cs`): up to 4 over 9000 units of view depth from 60, practical
-  split (lambda 0.8), each slice enclosed in a sphere, casters up to 4000 units beyond toward the light. A cascade's
-  centre follows its focus by whole texels (`FollowFocus`: the sub-texel part of the focus's travel across the light is
-  kept as a residual), so a still receiver keeps its place in the texel grid while the camera moves, and a turning sun
-  pivots the grid about the focus. Snapping a fixed world anchor (the origin, tens of thousands of units from the towns)
-  instead moved the anchor's rounding phase with every slight turn of the sun, and every shadow edge jumped a fraction of
-  a texel at each refresh, a flicker at the refresh rate with nothing moving. Cascades 0-1 refresh every update, 2 every second, 3 every fourth; a new light direction or a
-  focus jump over 350 units refreshes all. Refresh rate `shadowUpdateRate` (`FixedRateRefreshScheduler`), halved by
-  moonlight. Between refreshes cascades 0-1 still redraw every frame on their current fit, so the characters near the
-  camera cast from their current pose (a caster a refresh old darkens a running character lit from behind). Characters
-  and monsters receive the sun's shadow 40 units further along the light (`ActorShadowBias`), so their own thin
-  low-polygon bodies do not shade themselves in flickering triangles while buildings and trees still shade them. Over a
-  cascade's blend band both cascades are sampled and blended, never one picked per pixel by noise. The filter is a
-  continuous tent (`ShadowTent`): every texel it reaches is weighted by its distance to the point, so an edge slides
-  continuously, and the result is the same in every frame. PCF (the moon): the 5x5 tent, nine gathers. PCSS by day
-  (light radius tangent 0.01): the 3x3 tent (four gathers), whose blocker count two rings of corners three and five
-  texels out extend; a penumbra wider than 1.5 texels (tall casters far above the receiver) blends by 3 texels into a
-  16-tap disk of its radius, turned per pixel. A disk turned per pixel and frame everywhere left its noise to the
-  temporal anti-aliasing, which cannot average it on an animated character's shadow or without TAA: the edges crawled. Casters draw two-sided; the wind/water displacement matches the lit pass.
+- **Sun cascades** (`Lighting/PristonShadowCascades.cs`): up to 4 over 9000 units of view depth from 60, practical split
+  (lambda 0.8), each slice enclosed in a sphere, casters up to 4000 units beyond toward the light. A cascade's centre
+  follows its focus by whole texels (`FollowFocus`: the sub-texel part of the focus's travel across the light is kept as
+  a residual), so a still receiver keeps its place in the texel grid while the camera moves, and a turning sun pivots
+  the grid about the focus, so still shadow edges stay in place. Cascades 0-1 refresh every update, 2 every second, 3
+  every fourth; a new light direction or a focus jump over 350 units refreshes all. Refresh rate `shadowUpdateRate`
+  (`FixedRateRefreshScheduler`), halved by moonlight. Between refreshes cascades 0-1 still redraw every frame on their
+  current fit, so the characters near the camera cast from their current pose (a caster a refresh old darkens a running
+  character lit from behind). Characters and monsters receive the sun's shadow 40 units further along the light
+  (`ActorShadowBias`), so their own thin low-polygon bodies do not shade themselves in flickering triangles while
+  buildings and trees still shade them. Over a cascade's blend band both cascades are sampled and blended, never one
+  picked per pixel by noise. The filter is a continuous tent (`ShadowTent`): every texel it reaches is weighted by its
+  distance to the point, so an edge slides continuously, and the result is the same in every frame. PCF (the moon): the
+  5x5 tent, nine gathers. PCSS by day (light radius tangent 0.01): the 3x3 tent (four gathers), whose blocker count two
+  rings of corners three and five texels out extend; a penumbra wider than 1.5 texels (tall casters far above the
+  receiver) blends by 3 texels into a 16-tap disk of its radius, turned per pixel but not per frame, so the edges hold
+  still on animated characters and without the temporal anti-aliasing. Casters draw two-sided; the wind/water
+  displacement matches the lit pass.
 - **Lamp shadows** (`Lighting/PristonLampShadows.cs`): the `lampShadowCount` lamps nearest the focus (after the
   transient lights) keep a row of six 90-degree cube faces storing distance / radius. A lamp keeps its row while it
   stays near; new rows draw at once, the others on every frame a skinned caster's bounds meet the lamp's sphere (and once
