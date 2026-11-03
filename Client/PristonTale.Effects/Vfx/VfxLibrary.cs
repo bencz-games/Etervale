@@ -108,13 +108,10 @@ public sealed class VfxLibrary
             return new CompiledComponent(component, [Texture(component.Texture)], null);
         }
 
-        var dot = component.Texture.LastIndexOf('.');
-        var stem = dot > 0 ? component.Texture[..dot] : component.Texture;
-        var extension = dot > 0 ? component.Texture[dot..] : "";
         var textures = new Texture2D[component.Frames];
         for (var index = 0; index < textures.Length; index++)
         {
-            textures[index] = Texture($"{stem}{index + 1}{extension}");
+            textures[index] = Texture(VfxCatalog.FrameName(component.Texture, index + 1));
         }
 
         return new CompiledComponent(component, textures, null);

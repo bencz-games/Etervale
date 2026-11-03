@@ -347,9 +347,8 @@ internal static class EffectScriptConverter
                 // Numbered frames are named from the stem; the stem file itself need not exist.
                 var normalized = AssetPaths.Normalize(Folder + _texture);
                 var dot = normalized.LastIndexOf('.');
-                var stem = dot > 0 ? normalized[..dot] : normalized;
                 var extension = dot > 0 ? normalized[dot..] : "";
-                if (!assets.TryResolve($"{stem}1{extension}", out var firstFrame))
+                if (!assets.TryResolve(VfxCatalog.FrameName(normalized, 1), out var firstFrame))
                 {
                     report.Add($"{name}: animated texture {_texture} is missing; the {kind} component is left out");
                     return false;
@@ -358,7 +357,7 @@ internal static class EffectScriptConverter
                 texture = firstFrame[..^(1 + extension.Length)] + extension;
                 for (var frame = 2; frame <= _frames; frame++)
                 {
-                    if (!assets.TryResolve($"{stem}{frame}{extension}", out _))
+                    if (!assets.TryResolve(VfxCatalog.FrameName(normalized, frame), out _))
                     {
                         report.Add($"{name}: frame {frame} of {_texture} is missing");
                     }

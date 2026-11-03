@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using PristonTale.Effects.Vfx;
 
 namespace PristonTale.Effects.Scripts;
 
@@ -66,18 +67,15 @@ public sealed class BillboardSequence
             throw new InvalidDataException($"Image set {dataFile} has {count} images.");
         }
 
-        var dot = source.IndexOf('.', StringComparison.Ordinal);
-        if (dot <= 0)
+        if (source.LastIndexOf('.') <= 0)
         {
             throw new InvalidDataException($"Image set {dataFile} names no extension.");
         }
 
-        var stem = source[..dot];
-        var extension = source[(dot + 1)..];
         var images = new string[count];
         for (var index = 0; index < count; index++)
         {
-            images[index] = $"{stem}{index + 1}.{extension}";
+            images[index] = VfxCatalog.FrameName(source, index + 1);
         }
 
         var imageNumbers = Numbers(Required(animation, "ImageNum", animationName));

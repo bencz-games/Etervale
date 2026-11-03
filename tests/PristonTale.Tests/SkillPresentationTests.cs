@@ -19,11 +19,22 @@ internal static class SkillPresentationTests
     {
         yield return ("effect definitions validate every layer and reject unknown builtin textures", DefinitionsAsync);
         yield return ("the effect catalog reads Effect/Vfx recursively, skips broken files and reports replaced names", CatalogAsync);
+        yield return ("a numbered effect frame puts its number before the last dot", FrameNamesAsync);
         yield return ("game data effects cover every effect, child, texture, model and sound the skill rules use", GameDataAsync);
         yield return ("vfx system emits, travels, pools instances and keeps its budget", SystemAsync);
         yield return ("cooldown and status books follow the server's messages", BooksAsync);
         yield return ("skill sockets offer learned active skills and drop lost ones", BindingsAsync);
         yield return ("floating combat text keeps a bounded ring", FloatingTextAsync);
+    }
+
+    private static Task FrameNamesAsync()
+    {
+        Assert.True(VfxCatalog.FrameName("Effect/Fire.bmp", 3) == "Effect/Fire3.bmp", "frame number goes before the extension");
+        Assert.True(VfxCatalog.FrameName("Effect/v1.2/Ice.light.tga", 12) == "Effect/v1.2/Ice.light12.tga", "only the last dot starts the extension");
+        Assert.True(VfxCatalog.FrameName("Glow", 2) == "Glow2", "a name without extension ends with the number");
+        Assert.True(VfxCatalog.Frames("Spark.bmp", 1).SequenceEqual(["Spark.bmp"])
+            && VfxCatalog.Frames("Spark.bmp", 2).SequenceEqual(["Spark1.bmp", "Spark2.bmp"]), "a single frame keeps the plain name");
+        return Task.CompletedTask;
     }
 
     private static Task DefinitionsAsync()

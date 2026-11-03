@@ -65,7 +65,14 @@ public sealed class VfxCatalog
         return new VfxCatalog(definitions, paths.Length, errors);
     }
 
-    // A texture path, or its numbered frames "<stem>1.<ext>" .. "<stem><frames>.<ext>" when frames > 1.
+    // The numbered frame of a texture, "<stem><frame>.<ext>": the number goes before the last dot.
+    public static string FrameName(string texture, int frame)
+    {
+        var dot = texture.LastIndexOf('.');
+        return dot > 0 ? $"{texture[..dot]}{frame}{texture[dot..]}" : $"{texture}{frame}";
+    }
+
+    // A texture path, or its numbered frames 1 .. frames when frames > 1.
     public static IEnumerable<string> Frames(string texture, int frames)
     {
         if (frames <= 1)
@@ -74,12 +81,9 @@ public sealed class VfxCatalog
             yield break;
         }
 
-        var dot = texture.LastIndexOf('.');
-        var stem = dot > 0 ? texture[..dot] : texture;
-        var extension = dot > 0 ? texture[dot..] : "";
         for (var frame = 1; frame <= frames; frame++)
         {
-            yield return $"{stem}{frame}{extension}";
+            yield return FrameName(texture, frame);
         }
     }
 
@@ -120,12 +124,9 @@ public sealed class VfxCatalog
                 continue;
             }
 
-            var dot = component.Texture.LastIndexOf('.');
-            var stem = dot > 0 ? component.Texture[..dot] : component.Texture;
-            var extension = dot > 0 ? component.Texture[dot..] : "";
             for (var frame = 1; frame <= component.Frames; frame++)
             {
-                yield return $"{stem}{frame}{extension}";
+                yield return FrameName(component.Texture, frame);
             }
         }
     }
