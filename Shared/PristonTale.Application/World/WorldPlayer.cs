@@ -572,7 +572,7 @@ public sealed class WorldPlayer
     public bool InAttackRange(Vector3 worldPos)
     {
         float range = AttackRange;
-        return DistanceSqTo(worldPos) <= range * range && MathF.Abs(worldPos.Y - Position.Y) <= 64f;
+        return DistanceSqTo(worldPos) <= range * range && MathF.Abs(worldPos.Y - Position.Y) <= MonsterAttackReach.VerticalEntryLimit;
     }
 
     public void BeginSwing(ulong targetId, Vector3 targetPos, float durationMs, float hitAtMs)

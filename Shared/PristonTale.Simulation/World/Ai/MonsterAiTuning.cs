@@ -4,6 +4,8 @@ using PristonTale.Simulation.World.Monsters.Skills;
 using PristonTale.Simulation.World.Motion;
 using PristonTale.Contracts.Motion;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Units;
+using PristonTale.Simulation.Characters;
 
 namespace PristonTale.Simulation.World.Ai;
 
@@ -198,15 +200,14 @@ public sealed class MonsterAiTuning
 
     public float DieDurationMs { get; }
 
+    // Without an attack clip: a one-second swing at attack speed 6, shortened by the attack speed's play rate, hitting
+    // at frame 40 of 72.
+    private const float FallbackSwingMs = 1000f;
+    private const float FallbackHitFraction = 40f / 72f;
+
     private static (float windup, float cooldown) DeriveAttackTiming(int attackSpeed)
     {
-        // Verified play-rate factor: rate = 256 (1.0 in 8.8 fixed point) + 32*clamp(AtkSpeed-6,0,6). Higher rate => faster anim.
-        int clamped = Math.Clamp(attackSpeed - 6, 0, 6);
-        float rate = 256f + (32f * clamped);
-        const float baseDurationMs = 1000f; // Chosen slow-end fallback.
-        float cooldown = baseDurationMs * (256f / rate);
-        const float windupFraction = 40f / 72f; // Chosen fallback event frame.
-        float windup = cooldown * windupFraction;
-        return (windup, cooldown);
+        var cooldown = FallbackSwingMs * GameUnits.FixedOne / AnimationRate.AttackSpeedMainFrame(attackSpeed);
+        return (cooldown * FallbackHitFraction, cooldown);
     }
 }

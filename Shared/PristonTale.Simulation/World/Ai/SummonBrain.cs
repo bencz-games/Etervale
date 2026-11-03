@@ -21,7 +21,6 @@ public sealed class SummonBrain
     private const float FollowStopDistance = 90f;
     private const float AttackReachPad = 32f;
     private const float MinimumAttackReach = 80f;
-    private const float VerticalLimit = 64f;
 
     private readonly ISimRng _rng;
 
@@ -79,7 +78,7 @@ public sealed class SummonBrain
         summon.AiState = MonsterAiState.Chase;
         var reach = AttackReach(summon.Def);
         var distance = Planar.Distance(summon.Position, target.Position);
-        if (distance < reach && MathF.Abs(summon.Position.Y - target.Position.Y) <= VerticalLimit)
+        if (distance < reach && MathF.Abs(summon.Position.Y - target.Position.Y) <= MonsterAttackReach.VerticalEntryLimit)
         {
             Face(summon, target.Position);
             BeginAttack(summon, tuning);
@@ -87,7 +86,7 @@ public sealed class SummonBrain
         }
 
         summon.Motion = Locomotion(tuning);
-        MoveToward(summon, target.Position, reach - 8f, dtMs);
+        MoveToward(summon, target.Position, reach - MonsterAiTuning.StopMargin, dtMs);
         return null;
     }
 
