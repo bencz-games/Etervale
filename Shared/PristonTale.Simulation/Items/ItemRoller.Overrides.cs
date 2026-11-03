@@ -97,7 +97,7 @@ public static partial class ItemRoller
 
             if (mask != 0)
             {
-                price += price * 2 / 10;
+                price = SpecializedPrice(price);
             }
 
             requirements = Shift(requirements, chosen, range => Range(rng, range, middle));
@@ -160,7 +160,7 @@ public static partial class ItemRoller
 
         var weapon = template.DamageMin.Max != 0 || template.DamageMax.Max != 0;
         var mask = specJob != 0 ? specJob : template.SpecJob;
-        var price = specJob != 0 ? definition.Price + definition.Price * 2 / 10 : definition.Price;
+        var price = specJob != 0 ? SpecializedPrice(definition.Price) : definition.Price;
         var requirements = mask != 0 ? Shift(definition.Requirements, mask, static range => range.Min) : definition.Requirements;
         var bonus = ItemSpecBonus.None;
         if (mask != 0)
@@ -229,4 +229,7 @@ public static partial class ItemRoller
         var span = (int)((range.Max - range.Min) * steps);
         return span <= 0 ? range.Max : range.Min + span / steps;
     }
+
+    // A copy specialized for a class costs a fifth more.
+    private static int SpecializedPrice(int price) => price + price * 2 / 10;
 }

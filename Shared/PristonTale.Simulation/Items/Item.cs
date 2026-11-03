@@ -105,9 +105,7 @@ public sealed record ItemDefinition(
     public bool IsEquippable => EquipSlot.HasValue;
     public bool IsStackable => MaxStack > 1;
 
-    public bool IsWeapon => Kind is ItemKind.Sword or ItemKind.Axe or ItemKind.Hammer
-        or ItemKind.Claw or ItemKind.Pole or ItemKind.Bow or ItemKind.ThrowingWeapon or ItemKind.Staff
-        or ItemKind.Dagger or ItemKind.Phantom or ItemKind.Vambrace;
+    public bool IsWeapon => ItemEquipmentMetadata.SlotOf(Kind) == EquipmentSlot.Weapon;
 }
 
 public sealed class ItemInstance

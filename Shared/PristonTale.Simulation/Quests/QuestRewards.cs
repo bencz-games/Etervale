@@ -47,7 +47,7 @@ public static class QuestRewards
         (character.Quests.LevelLog & LevelQuestLog.Level85) != 0 && character.Level >= 85;
 
     public static bool SecondRankUpLife(PlayerCharacter character) =>
-        character.Quests.Active.Code != QuestCode.RankUpQuestWeapon && character.Tier >= 2 && character.Level >= 40;
+        character.Quests.Active.Code != QuestCode.RankUpQuestWeapon && character.Tier >= 2 && character.Level >= RankUpRules.RequiredLevel(1);
 
     public static bool Level90Life(PlayerCharacter character) =>
         (character.Quests.LevelLog & LevelQuestLog.Level90) != 0 && character.Level >= 90;

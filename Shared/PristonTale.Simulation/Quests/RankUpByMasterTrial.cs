@@ -9,7 +9,7 @@ namespace PristonTale.Simulation.Quests;
 public static class RankUpByMasterTrial
 {
     public const QuestCode Code = QuestCode.RankUpMasterTrial;
-    public const int MinimumLevel = 60;
+    public static readonly int MinimumLevel = RankUpRules.RequiredLevel(2);
     public const int DuelMinimumLevel = 49;
 
     // 4900 seconds of play time per hunt; the timer runs in every field and through deaths.
