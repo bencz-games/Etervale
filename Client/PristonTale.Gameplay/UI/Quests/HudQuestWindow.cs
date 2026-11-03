@@ -18,12 +18,8 @@ public enum HudQuestPage
 // (eight lines of 20 px, wrapped to 160 px) with its own arrows and close.
 public sealed class HudQuestWindow
 {
-    public const int Width = 256;
-    public const int Height = 256;
     public const int RowsPerPage = 5;
     public const int DescriptionLines = 8;
-    private const int DesignX = 539;
-    private const int DesignY = 155;
     private const int DescriptionWidth = 160;
     private static readonly Color DescriptionColor = new(255, 190, 107);
     private static readonly Color Selected = new(255, 0, 0);
@@ -42,15 +38,10 @@ public sealed class HudQuestWindow
     public bool FullyOpen => _slide.FullyOpen;
     public bool DescriptionOpen => _selected >= 0;
 
-    public static Point Origin(HudLayout layout, int slideMove = HudSlide.Full) =>
-        new(layout.Width - (HudLayout.DesignWidth - DesignX) * Math.Clamp(slideMove, 0, HudSlide.Full) / HudSlide.Full, DesignY + layout.BottomOffset);
-
-    public static Rectangle Bounds(Point origin) => new(origin.X, origin.Y - 8, Width, Height + 8);
-
-    public static Rectangle DescriptionBounds(Point origin) => new(origin.X - 195, origin.Y + 15, Width, Height);
+    public static Rectangle DescriptionBounds(Point origin) => new(origin.X - 195, origin.Y + 15, HudSidePanel.Width, HudSidePanel.Height);
 
     // List buttons: previous page, next page, running, finished, close.
-    public static Rectangle ListButton(Point origin, int index) => new(origin.X + 100 + index * 23, origin.Y + 220, 20, 20);
+    public static Rectangle ListButton(Point origin, int index) => HudSidePanel.Button(origin, index);
 
     // Description buttons: previous lines, next lines, close.
     public static Rectangle PageButton(Point origin, int index) => index switch
@@ -62,7 +53,7 @@ public sealed class HudQuestWindow
 
     public static Rectangle Row(Point origin, int row) => new(origin.X + 110, origin.Y + 40 + row * 30, 120, 20);
 
-    public Point CurrentOrigin(HudLayout layout) => Origin(layout, _slide.Move);
+    public Point CurrentOrigin(HudLayout layout) => HudSidePanel.Origin(layout, _slide.Move);
 
     public void Toggle()
     {
@@ -89,7 +80,7 @@ public sealed class HudQuestWindow
         }
 
         var origin = CurrentOrigin(layout);
-        return Bounds(origin).Contains(pointer) || DescriptionOpen && DescriptionBounds(origin).Contains(pointer);
+        return HudSidePanel.Bounds(origin).Contains(pointer) || DescriptionOpen && DescriptionBounds(origin).Contains(pointer);
     }
 
     private static IReadOnlyList<QuestBoardEntry> Entries(QuestView view, HudQuestPage page) =>
@@ -201,8 +192,8 @@ public sealed class HudQuestWindow
             painter.Stretch(HudQuestArt.Description, panel);
         }
 
-        painter.Stretch(HudQuestArt.Window, new Rectangle(origin.X, origin.Y, Width, Height));
-        painter.Stretch(HudQuestArt.Title, new Rectangle(origin.X, origin.Y - 8, Width, 32));
+        painter.Stretch(HudQuestArt.Window, new Rectangle(origin.X, origin.Y, HudSidePanel.Width, HudSidePanel.Height));
+        painter.Stretch(HudQuestArt.Title, new Rectangle(origin.X, origin.Y - 8, HudSidePanel.Width, 32));
         if (!active)
         {
             return;

@@ -15,11 +15,7 @@ namespace PristonTale.Gameplay.UI.Parties;
 // with nobody picked); a double click whispers to it.
 public sealed class HudPartyWindow
 {
-    public const int Width = 256;
-    public const int Height = 256;
     public const int CloseButton = 4;
-    private const int DesignX = 539;
-    private const int DesignY = 155;
     private const int LifeWidth = 94;
     private const double DoubleClickSeconds = 0.4;
     private static readonly Color NameColor = new(209, 190, 154);
@@ -46,12 +42,6 @@ public sealed class HudPartyWindow
     public Action<PartyCommand, ulong> Commanded { get; set; }
     public Action<string> Whispered { get; set; }
 
-    public static Point Origin(HudLayout layout, int slideMove = HudSlide.Full) =>
-        new(layout.Width - (HudLayout.DesignWidth - DesignX) * Math.Clamp(slideMove, 0, HudSlide.Full) / HudSlide.Full, DesignY + layout.BottomOffset);
-
-    public static Rectangle Bounds(Point origin) => new(origin.X, origin.Y - 8, Width, Height + 8);
-
-    public static Rectangle Button(Point origin, int index) => new(origin.X + 100 + index * 23, origin.Y + 220, 20, 20);
 
     // What the pointer must be over to point at a member (its mark, name and level).
     public static Rectangle Row(Point origin, int index) => new(origin.X + 80, origin.Y + 38 + index * 30 - 10, 110, 28);
@@ -69,7 +59,7 @@ public sealed class HudPartyWindow
         return LevelTexts[level] ??= level > 10 ? $"L{level / 10}x" : $"L{level}";
     }
 
-    public Point CurrentOrigin(HudLayout layout) => Origin(layout, _slide.Move);
+    public Point CurrentOrigin(HudLayout layout) => HudSidePanel.Origin(layout, _slide.Move);
 
     public HudPartyWindow() => Friends.Closed = Close;
 
@@ -109,7 +99,7 @@ public sealed class HudPartyWindow
 
     public void Advance(double seconds) => _slide.Advance(seconds);
 
-    public bool Contains(HudLayout layout, Point pointer) => _slide.Visible && Bounds(CurrentOrigin(layout)).Contains(pointer);
+    public bool Contains(HudLayout layout, Point pointer) => _slide.Visible && HudSidePanel.Bounds(CurrentOrigin(layout)).Contains(pointer);
 
     // A picked member who left is no longer picked.
     public void Refresh(PartyInfo party)
@@ -143,7 +133,7 @@ public sealed class HudPartyWindow
 
         for (var index = 0; index <= CloseButton; index++)
         {
-            if (!Button(origin, index).Contains(pointer))
+            if (!HudSidePanel.Button(origin, index).Contains(pointer))
             {
                 continue;
             }
@@ -195,8 +185,8 @@ public sealed class HudPartyWindow
         }
 
         var origin = CurrentOrigin(layout);
-        painter.Stretch(HudPartyArt.Window, new Rectangle(origin.X, origin.Y, Width, Height));
-        painter.Stretch(ShowsFriends ? Contacts.HudContactArt.Title : HudPartyArt.Title, new Rectangle(origin.X, origin.Y - 8, Width, 32));
+        painter.Stretch(HudPartyArt.Window, new Rectangle(origin.X, origin.Y, HudSidePanel.Width, HudSidePanel.Height));
+        painter.Stretch(ShowsFriends ? Contacts.HudContactArt.Title : HudPartyArt.Title, new Rectangle(origin.X, origin.Y - 8, HudSidePanel.Width, 32));
         if (!_slide.FullyOpen)
         {
             return;
@@ -217,7 +207,7 @@ public sealed class HudPartyWindow
         string tipArt = null;
         for (var index = 0; index <= CloseButton; index++)
         {
-            var bounds = Button(origin, index);
+            var bounds = HudSidePanel.Button(origin, index);
             var hovered = bounds.Contains(pointer) && Enabled(index, party, self);
             painter.Sprite(hovered ? HudPartyArt.Buttons[index] : HudPartyArt.ButtonsIdle[index], bounds.X, bounds.Y);
             if (hovered)

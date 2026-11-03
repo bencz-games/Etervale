@@ -129,9 +129,9 @@ internal static class QuestHudTests
             && HudQuestDocuments.BoardPath("LevelQuest\\Quest30.Msg") == "image/party/party_DATA/LevelQuest/Quest30.Msg", "quest text paths differ");
 
         var layout = HudLayout.Create(800, 600);
-        var origin = HudQuestWindow.Origin(layout);
-        Assert.True(origin == new Point(539, 155) && HudQuestWindow.Origin(HudLayout.Create(1024, 768)) == new Point(1024 - 261, 155 + 168)
-            && HudPartyWindow.Origin(HudLayout.Create(1024, 768)) == new Point(1024 - 261, 155 + 168), "the quest and party windows are not right and bottom anchored");
+        var origin = HudSidePanel.Origin(layout);
+        Assert.True(origin == new Point(539, 155) && HudSidePanel.Origin(HudLayout.Create(1024, 768)) == new Point(1024 - 261, 155 + 168)
+            && HudSidePanel.Origin(HudLayout.Create(1024, 768)) == new Point(1024 - 261, 155 + 168), "the quest and party windows are not right and bottom anchored");
         Assert.True(HudQuestWindow.ListButton(origin, 0) == new Rectangle(639, 375, 20, 20) && HudQuestWindow.ListButton(origin, 4).X == 639 + 4 * 23
             && HudQuestWindow.Row(origin, 1) == new Rectangle(649, 225, 120, 20) && HudQuestWindow.DescriptionBounds(origin).X == 344,
             "the quest window layout differs");

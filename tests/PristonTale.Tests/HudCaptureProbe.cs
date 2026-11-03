@@ -389,7 +389,7 @@ internal sealed class HudCaptureProbe : Game
 
             if (scenario.Quest == ProbeQuest.WindowDescription)
             {
-                Click(state, layout, HudQuestWindow.Row(HudQuestWindow.Origin(layout), 0).Center);
+                Click(state, layout, HudQuestWindow.Row(HudSidePanel.Origin(layout), 0).Center);
             }
 
             _helpReady = scenario.Help == ProbeHelp.None;

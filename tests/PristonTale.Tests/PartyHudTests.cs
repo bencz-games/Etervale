@@ -47,7 +47,7 @@ internal static class PartyHudTests
 
         var bob = HudPartyWindow.Row(origin, 1).Center;
         Assert.True(window.Click(layout, bob, Party, 1, 10) && window.Picked == 2, "a click picks the member");
-        Assert.True(window.Click(layout, HudPartyWindow.Button(origin, (int)PartyCommand.Kick).Center, Party, 1, 11)
+        Assert.True(window.Click(layout, HudSidePanel.Button(origin, (int)PartyCommand.Kick).Center, Party, 1, 11)
             && commands is [(PartyCommand.Kick, 2)] && window.Picked == 0, "kick acts on the picked member and clears the pick");
         window.Click(layout, bob, Party, 1, 20);
         window.Click(layout, bob, Party, 1, 20.2);
@@ -56,12 +56,12 @@ internal static class PartyHudTests
         window.Click(layout, HudPartyWindow.Row(origin, 0).Center, Party, 1, 30.1);
         Assert.True(whispers.Count == 1, "the player whispered to itself");
 
-        window.Click(layout, HudPartyWindow.Button(origin, (int)PartyCommand.Delegate).Center, Party, 2, 40);
+        window.Click(layout, HudSidePanel.Button(origin, (int)PartyCommand.Delegate).Center, Party, 2, 40);
         Assert.True(commands.Count == 1, "a member used a leader's button");
         window.Click(layout, bob, Party, 1, 45);
         window.Refresh(new PartyInfo([Party.Members[0]]));
         Assert.True(window.Picked == 0, "a member who left stayed picked");
-        Assert.True(window.Click(layout, HudPartyWindow.Button(origin, HudPartyWindow.CloseButton).Center, Party, 1, 50) && !window.Open,
+        Assert.True(window.Click(layout, HudSidePanel.Button(origin, HudPartyWindow.CloseButton).Center, Party, 1, 50) && !window.Open,
             "close did not close");
         return Task.CompletedTask;
     }
