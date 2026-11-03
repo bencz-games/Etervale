@@ -50,7 +50,7 @@ public static partial class SkillFormulas
         var value = WithBroodBonus(power, damage, target, rank);
         var resistances = ModifierRules.Resistances(defender, target.Combat.Resistances);
         var resistance = resistances[damage.Element] / Math.Max(1, damage.ResistanceDivisor);
-        value -= value * Math.Clamp(resistance, -100, 100) / 100;
+        value = CombatResolver.ApplyResistance(value, resistance);
         value = CombatResolver.ApplyAbsorbMonster(value, target.Combat.Absorption + defender.Flat(StatKind.Absorption));
         return ModifierRules.ScaleDamage(value, attacker, defender);
     }
@@ -83,13 +83,13 @@ public static partial class SkillFormulas
         }
 
         var chance = RankValue(damage.Chance, rank) + (damage.ChanceLevelDivisor > 0 ? casterLevel / damage.ChanceLevelDivisor : 0);
-        return chance - chance * Math.Clamp(bionicResistance, -100, 100) / 100;
+        return CombatResolver.ApplyResistance(chance, bionicResistance);
     }
 
     public static int SharePercent(SkillDamageRule damage, int rank, int bionicResistance)
     {
         var share = RankValue(damage.Share, rank);
-        return damage.ShareResistedByBionic ? share - share * Math.Clamp(bionicResistance, -100, 100) / 100 : share;
+        return damage.ShareResistedByBionic ? CombatResolver.ApplyResistance(share, bionicResistance) : share;
     }
 
     // The charm's success chance on a monster: the table lowered by its bionic resistance.

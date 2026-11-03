@@ -399,7 +399,7 @@ public static partial class SkillFormulas
     {
         var resistances = ModifierRules.Resistances(defender, target.Combat.Resistances);
         var value = damage.ResistanceDivisor > 1
-            ? power - power * Math.Clamp(resistances[damage.Element] / damage.ResistanceDivisor, -100, 100) / 100
+            ? CombatResolver.ApplyResistance(power, resistances[damage.Element] / damage.ResistanceDivisor)
             : CombatResolver.ApplyElement(power, damage.Element, resistances);
         if (damage.Magic)
         {

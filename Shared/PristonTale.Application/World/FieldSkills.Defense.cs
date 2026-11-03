@@ -71,8 +71,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
 
             var range = attacker.Def.Combat.AttackDamage;
             var power = _rng.Range(range.Min, Math.Max(range.Min, range.Max)) * SkillFormulas.RankValue(rule.Buff.Reflect.Percent, RankOfEffect(target.EntityId, code)) / 100;
-            var bionic = Math.Clamp((int)attacker.Def.Combat.Resistances.Bionic, -100, 100);
-            power -= power * bionic / 100;
+            power = CombatResolver.ApplyResistance(power, attacker.Def.Combat.Resistances.Bionic);
             power -= power * attacker.Def.Combat.Absorption / 100;
             if (power > 0)
             {
@@ -171,7 +170,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
             var rank = RankOfEffect(player.EntityId, code);
             var part = _rng.Range(SkillFormulas.RankValue(choice.Min, rank), Math.Max(SkillFormulas.RankValue(choice.Min, rank), SkillFormulas.RankValue(choice.Max, rank)));
             var resistances = ModifierRules.Resistances(monster.Effects.Totals, monster.Def.Combat.Resistances);
-            part -= part * Math.Clamp((int)resistances[choice.Element], -100, 100) / 100;
+            part = CombatResolver.ApplyResistance(part, resistances[choice.Element]);
             added += part > 0 ? CombatResolver.ApplyAbsorbMonster(part, monster.Def.Combat.Absorption) : 0;
             Slow(player, monster, rule.Code, choice, rank);
         }

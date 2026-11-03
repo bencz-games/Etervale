@@ -59,7 +59,7 @@ internal sealed partial class FieldSkills
         var damage = result.Damage;
         if (damageRule.FlatElement is { } flatElement)
         {
-            var resisted = elemental * Math.Clamp((int)monster.Def.Combat.Resistances[flatElement], -100, 100) / 100;
+            var resisted = elemental - CombatResolver.ApplyResistance(elemental, monster.Def.Combat.Resistances[flatElement]);
             damage = Math.Max(1, damage - resisted);
         }
         else

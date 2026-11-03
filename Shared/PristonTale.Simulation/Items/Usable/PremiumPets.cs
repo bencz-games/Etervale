@@ -70,8 +70,7 @@ public static class PremiumPets
         var damage = rng.Range(min, max);
         if (ElementOf(pet) is { } element)
         {
-            var resist = Math.Clamp((int)monster.Resistances[element], -100, 100);
-            damage -= damage * resist / 100;
+            damage = Combat.CombatResolver.ApplyResistance(damage, monster.Resistances[element]);
         }
 
         damage -= damage * Math.Clamp(monster.Absorption, 0, 100) / 100;

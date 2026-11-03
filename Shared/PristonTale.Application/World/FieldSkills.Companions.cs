@@ -109,7 +109,7 @@ internal sealed partial class FieldSkills
             var (low, high) = SkillFormulas.CompanionDamage(rules, choice, rank, character);
             var damage = _rng.Range(low, high) + character.Effects.Totals.Flat(StatKind.CompanionDamage);
             var resistances = ModifierRules.Resistances(target.Effects.Totals, target.Def.Combat.Resistances);
-            damage -= damage * Math.Clamp((int)resistances[choice.Element], -100, 100) / 100;
+            damage = CombatResolver.ApplyResistance(damage, resistances[choice.Element]);
             damage = CombatResolver.ApplyAbsorbMonster(damage, target.Def.Combat.Absorption + target.Effects.Totals.Flat(StatKind.Absorption));
             dealt = ModifierRules.ScaleDamage(damage, character.Effects.Totals, target.Effects.Totals);
             Slow(holder, target, rule.Code, choice, rank);
