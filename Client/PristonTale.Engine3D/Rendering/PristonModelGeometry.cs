@@ -10,15 +10,7 @@ internal static class PristonModelGeometry
     {
         var groups = new Dictionary<int, List<PristonCornerVertex>>();
         var transforms = new PristonModelAnimator(skeleton ?? model).Evaluate(frame);
-        Dictionary<string, int> bones = null;
-        if (skeleton is not null)
-        {
-            bones = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-            for (int index = 0; index < skeleton.Objects.Count; index++)
-            {
-                bones.TryAdd(skeleton.Objects[index].Name, index);
-            }
-        }
+        var bones = skeleton?.ObjectIndexByName();
 
         for (var objectIndex = 0; objectIndex < model.Objects.Count; objectIndex++)
         {

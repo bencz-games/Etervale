@@ -405,6 +405,36 @@ public sealed record PristonModel(
     public PristonSourceTrailerMetadata SourceTrailer { get; init; }
     public bool IsAnimated => Objects.Any(o => o.IsAnimated);
     public int LastFrame => Objects.Count == 0 ? 0 : Objects.Max(o => o.LastFrame);
+
+    // A bone or object is found by name, case-insensitively; the first object of a name wins.
+    public int ObjectIndex(string name)
+    {
+        for (var index = 0; index < Objects.Count; index++)
+        {
+            if (Objects[index].Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+            {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    // ObjectIndex for every named object at once.
+    public Dictionary<string, int> ObjectIndexByName()
+    {
+        var byName = new Dictionary<string, int>(Objects.Count, StringComparer.OrdinalIgnoreCase);
+        for (var index = 0; index < Objects.Count; index++)
+        {
+            var name = Objects[index].Name;
+            if (name.Length > 0)
+            {
+                byName.TryAdd(name, index);
+            }
+        }
+
+        return byName;
+    }
 }
 
 public sealed record PristonMotionInfo(

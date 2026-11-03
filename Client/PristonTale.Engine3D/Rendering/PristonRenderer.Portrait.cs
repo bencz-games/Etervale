@@ -50,17 +50,7 @@ public sealed partial class PristonRenderer
             return false;
         }
 
-        var objects = runtime.Instance.Actor.Skeleton.Objects;
-        var bone = -1;
-        for (var index = 0; index < objects.Count; index++)
-        {
-            if (objects[index].Name.Equals(boneName, StringComparison.OrdinalIgnoreCase))
-            {
-                bone = index;
-                break;
-            }
-        }
-
+        var bone = runtime.Instance.Actor.Skeleton.ObjectIndex(boneName);
         var position = Vector3.Zero;
         if (bone >= 0)
         {

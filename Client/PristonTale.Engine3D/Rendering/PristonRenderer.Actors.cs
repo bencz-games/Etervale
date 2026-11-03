@@ -209,23 +209,20 @@ public sealed partial class PristonRenderer
             return false;
         }
 
-        var objects = actor.Instance.Actor.Skeleton.Objects;
-        for (int index = 0; index < objects.Count; index++)
+        var index = actor.Instance.Actor.Skeleton.ObjectIndex(boneName);
+        if (index < 0)
         {
-            if (objects[index].Name.Equals(boneName, StringComparison.OrdinalIgnoreCase))
-            {
-                var bones = actor.SampleSkeleton();
-                if (index >= bones.Length)
-                {
-                    return false;
-                }
-
-                world = bones[index] * actor.World;
-                return true;
-            }
+            return false;
         }
 
-        return false;
+        var bones = actor.SampleSkeleton();
+        if (index >= bones.Length)
+        {
+            return false;
+        }
+
+        world = bones[index] * actor.World;
+        return true;
     }
 
     // cheerBoneName: the bone the child hangs from while the parent plays Yahoo (a weapon put on the back), or null.
@@ -245,15 +242,8 @@ public sealed partial class PristonRenderer
 
     private static int FindAttachBone(ActorRuntime owner, string boneName)
     {
-        for (int index = 0; index < owner.Instance.Actor.Skeleton.Objects.Count; index++)
-        {
-            if (owner.Instance.Actor.Skeleton.Objects[index].Name.Equals(boneName, StringComparison.OrdinalIgnoreCase))
-            {
-                return index;
-            }
-        }
-
-        throw new InvalidDataException($"Equipment bone '{boneName}' is missing from '{owner.Instance.Actor.Skeleton.Path}'.");
+        var index = owner.Instance.Actor.Skeleton.ObjectIndex(boneName);
+        return index >= 0 ? index : throw new InvalidDataException($"Equipment bone '{boneName}' is missing from '{owner.Instance.Actor.Skeleton.Path}'.");
     }
 
     private bool TryResolveActor(ActorHandle handle, out ActorRuntime runtime)

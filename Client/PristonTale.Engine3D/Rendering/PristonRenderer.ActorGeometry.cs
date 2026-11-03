@@ -192,7 +192,7 @@ public sealed partial class PristonRenderer
     private PreparedActorGeometry PrepareActorGeometry(PristonActor actor)
     {
         var groups = new Dictionary<int, List<ActorTriangleRef>>();
-        var boneLookup = BuildObjectLookup(actor.Skeleton);
+        var boneLookup = actor.Skeleton.ObjectIndexByName();
         var meshTransforms = BuildBindPoseTransforms(actor.Mesh);
 
         // The shared armor mesh contains several variants and LODs; the INX group selects the visible objects.
@@ -469,15 +469,6 @@ public sealed partial class PristonRenderer
 
     private static Matrix[] BuildBindPoseTransforms(PristonModel model) =>
         new PristonModelAnimator(model).Evaluate(0f);
-
-    private static Dictionary<string, int> BuildObjectLookup(PristonModel model)
-    {
-        var lookup = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
-        for (var i = 0; i < model.Objects.Count; i++)
-            if (model.Objects[i].Name.Length > 0 && !lookup.ContainsKey(model.Objects[i].Name))
-                lookup.Add(model.Objects[i].Name, i);
-        return lookup;
-    }
 
     private static PristonMotionInfo SelectActorMotion(PristonActor actor)
     {

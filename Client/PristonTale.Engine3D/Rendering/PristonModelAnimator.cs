@@ -237,15 +237,7 @@ public sealed class PristonModelAnimator
             ParentIndices = new int[count];
             ParentInverses = new Matrix[count];
             RotationQuaternions = new Quaternion[count][];
-            var byName = new Dictionary<string, int>(count, StringComparer.OrdinalIgnoreCase);
-            for (var index = 0; index < count; index++)
-            {
-                var name = model.Objects[index].Name;
-                if (name.Length > 0 && !byName.ContainsKey(name))
-                {
-                    byName.Add(name, index);
-                }
-            }
+            var byName = model.ObjectIndexByName();
 
             for (var index = 0; index < count; index++)
             {
