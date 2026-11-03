@@ -11,8 +11,6 @@ namespace PristonTale.Application.Services;
 
 public sealed class CharacterAppService
 {
-    // Up to 6 characters per account, matching the original character slot count.
-    private const int MaxCharactersPerAccount = CharacterSlots.Maximum;
     // New characters start in the starting town (Ricarten = field 3) at its spawn (resolved later).
 
     private readonly ISessionRegistry _sessions;
@@ -68,9 +66,8 @@ public sealed class CharacterAppService
             return CreateCharacterOutcome.Failed(CreateCharacterFailure.NameTaken);
 
         var usedSlots = await _characters.UsedSlotsAsync(session.AccountId, ct);
-        if (usedSlots.Count >= MaxCharactersPerAccount)
+        if (CharacterSlots.FirstFree(usedSlots) is not { } slot)
             return CreateCharacterOutcome.Failed(CreateCharacterFailure.NoFreeSlot);
-        var slot = FirstFreeSlot(usedSlots);
 
         var record = CharacterRecordFactory.NewStarter(
             _classes,
@@ -211,18 +208,5 @@ public sealed class CharacterAppService
                 offHandKey = definition.CatalogKey;
                 break;
         }
-    }
-
-    private static short FirstFreeSlot(IReadOnlyList<short> used)
-    {
-        for (short slot = 0; slot < MaxCharactersPerAccount; slot++)
-        {
-            if (!used.Contains(slot))
-            {
-                return slot;
-            }
-        }
-
-        throw new InvalidOperationException("no free slot");
     }
 }

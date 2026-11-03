@@ -1,6 +1,7 @@
 using Dapper;
 using PristonTale.Persistence.Abstractions;
 using PristonTale.Persistence.Abstractions.GameMasters;
+using PristonTale.Simulation.Characters;
 
 namespace PristonTale.Persistence.Repositories;
 
@@ -69,15 +70,9 @@ public sealed class DapperGameMasterRepository(IDbConnectionFactory connectionFa
             return CharacterTransfer.NoCharacter;
         }
 
-        var used = (await connection.QueryAsync<short>(new CommandDefinition(
-            "SELECT slot FROM characters WHERE account_id = @account", new { account }, transaction, cancellationToken: ct))).ToHashSet();
-        short slot = 0;
-        while (used.Contains(slot))
-        {
-            slot++;
-        }
-
-        if (slot >= maxSlots)
+        var used = await connection.QueryAsync<short>(new CommandDefinition(
+            "SELECT slot FROM characters WHERE account_id = @account", new { account }, transaction, cancellationToken: ct));
+        if (CharacterSlots.FirstFree(used) is not { } slot || slot >= maxSlots)
         {
             await transaction.RollbackAsync(ct);
             return CharacterTransfer.NoFreeSlot;

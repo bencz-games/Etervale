@@ -15,7 +15,6 @@ using PristonTale.Simulation.World;
 // is identical to what the server would create. The schema is ensured idempotently via DatabaseMigrator.
 
 const string DefaultSqlitePath = "data/pristontale.db";
-const int MaxSlots = 6;
 
 var argv = new List<string>(args);
 var requestedConnection = TakeOption(argv, "--conn");
@@ -166,11 +165,8 @@ async Task<int> AddCharacter(List<string> a)
     if (await characters.NameExistsAsync(name))
         return Usage($"character name '{name}' is already taken");
 
-    var used = await characters.UsedSlotsAsync(account.Id);
-    if (used.Count >= MaxSlots)
-        return Usage($"account '{user}' has no free character slots (max {MaxSlots})");
-    short slot = 0;
-    while (used.Contains(slot)) slot++;
+    if (CharacterSlots.FirstFree(await characters.UsedSlotsAsync(account.Id)) is not { } slot)
+        return Usage($"account '{user}' has no free character slots (max {CharacterSlots.Maximum})");
 
     var record = CharacterRecordFactory.NewStarter(classes, account.Id, name, slot, playerClass, PristonTale.Simulation.Progression.DeathPenalty.TownField(playerClass), level: level);
     var created = await characters.CreateAsync(record);

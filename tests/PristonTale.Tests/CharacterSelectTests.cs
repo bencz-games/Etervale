@@ -18,10 +18,18 @@ internal static class CharacterSelectTests
     {
         yield return ("character summary carries persisted equipment into character selection, a stored weapon pair and a right-hand ring beside it", EquipmentSummaryAsync);
         yield return ("a character in play is not deleted; once released it is", DeleteInPlayAsync);
+        yield return ("a new or moved character takes the account's lowest free slot, none past the sixth", FreeSlotAsync);
         yield return ("character-select roster and class positions preserve the original ordering", OriginalPlacementAsync);
         yield return ("character-select face layout scales the authored canvas uniformly", FaceLayoutAsync);
         yield return ("Assassin and Shaman use the original creation definitions", ExtendedClassDefinitionsAsync);
         yield return ("a text box takes the window's typed text, so a held Backspace or key repeats, and only while focused", TypedTextAsync);
+    }
+
+    private static Task FreeSlotAsync()
+    {
+        Assert.True(CharacterSlots.FirstFree([]) == 0 && CharacterSlots.FirstFree([0, 1, 3]) == 2, "the lowest gap is taken");
+        Assert.True(CharacterSlots.FirstFree([5, 4, 3, 2, 1, 0]) is null, "six characters fill the account");
+        return Task.CompletedTask;
     }
 
     private static Task TypedTextAsync()
