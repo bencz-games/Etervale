@@ -569,7 +569,7 @@ public sealed partial class PristonRenderer : IDisposable
             ? new PristonLampShadowFrame(_lampShadows.Atlas, _lampShadows.Rows, _lampShadows.FaceSize, _lampShadows.Lamps)
             : default;
         var displayScale = _exposure.DisplayScale;
-        var skyRadiance = SrgbToLinear((BackgroundColor ?? SkyColor).ToVector3()) / displayScale;
+        var skyRadiance = PristonColorSpace.SrgbToLinear((BackgroundColor ?? SkyColor).ToVector3()) / displayScale;
         var projection = camera.Projection;
         var jitterPixels = Vector2.Zero;
         var jitterClip = Vector2.Zero;
@@ -874,11 +874,6 @@ public sealed partial class PristonRenderer : IDisposable
 
     // Samples of the HDR scene target as created (0 without MSAA).
     public int EffectiveMultiSampleCount => _sceneTargets.EffectiveMultiSampleCount;
-
-    private static Vector3 SrgbToLinear(Vector3 colour) => new(SrgbToLinear(colour.X), SrgbToLinear(colour.Y), SrgbToLinear(colour.Z));
-
-    private static float SrgbToLinear(float value) =>
-        value <= 0.04045f ? value / 12.92f : MathF.Pow((value + 0.055f) / 1.055f, 2.4f);
 
     private const int MaxActiveLights = 32;
     private int _maxLocalLights = MaxActiveLights;

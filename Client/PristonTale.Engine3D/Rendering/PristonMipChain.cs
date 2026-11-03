@@ -170,8 +170,7 @@ internal static class PristonMipChain
         var table = new float[256];
         for (var index = 0; index < table.Length; index++)
         {
-            var value = index / 255.0;
-            table[index] = (float)(value <= 0.04045 ? value / 12.92 : Math.Pow((value + 0.055) / 1.055, 2.4));
+            table[index] = PristonColorSpace.SrgbToLinear(index / 255f);
         }
 
         return table;
@@ -182,9 +181,8 @@ internal static class PristonMipChain
         var table = new byte[LinearToSrgbSteps];
         for (var index = 0; index < table.Length; index++)
         {
-            var value = index / (double)(LinearToSrgbSteps - 1);
-            var encoded = value <= 0.0031308 ? value * 12.92 : 1.055 * Math.Pow(value, 1.0 / 2.4) - 0.055;
-            table[index] = (byte)Math.Clamp((int)Math.Round(encoded * 255.0), 0, 255);
+            var encoded = PristonColorSpace.LinearToSrgb(index / (float)(LinearToSrgbSteps - 1));
+            table[index] = (byte)Math.Clamp((int)MathF.Round(encoded * 255f), 0, 255);
         }
 
         return table;

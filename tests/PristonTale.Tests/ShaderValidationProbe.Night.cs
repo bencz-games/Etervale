@@ -51,7 +51,7 @@ internal sealed partial class ShaderValidationProbe
         var up = new Vector3(sh[0].X, sh[0].Y, sh[0].Z) * 0.282095f + new Vector3(sh[1].X, sh[1].Y, sh[1].Z) * (0.488603f * 2f / 3f);
         // A dark rough dielectric (albedo 0.05, the original terrain's) seen at n.v = 0.5, reflecting toward the dome's moon.
         var eye = new Vector3(0f, 500f, -866.5f);
-        var albedo = SrgbToLinear(63f / 255f);
+        var albedo = PristonColorSpace.SrgbToLinear(63f / 255f);
         using var dark = Texture(new Color(63, 63, 63, 255));
         var material = Material(dark, selfIllum: false);
         var (uniformSpecular, uniformDiffuse) = AmbientSplit(uniform, material, dark, eye, albedo);
@@ -131,7 +131,7 @@ internal sealed partial class ShaderValidationProbe
             var grey = new Vector3(0.18f);
             var expected = PristonDisplayTransform.PbrNeutral(PristonDisplayTransform.Mesopic(grey, 1f / preExposure, nightHue));
             var actual = ComposeFlat(grey, frame);
-            var expectedBytes = new Vector3(LinearToSrgb(expected.X), LinearToSrgb(expected.Y), LinearToSrgb(expected.Z)) * 255f;
+            var expectedBytes = new Vector3(PristonColorSpace.LinearToSrgb(expected.X), PristonColorSpace.LinearToSrgb(expected.Y), PristonColorSpace.LinearToSrgb(expected.Z)) * 255f;
             Assert.True(MathF.Abs(actual.R - expectedBytes.X) <= 1.6f && MathF.Abs(actual.B - expectedBytes.Z) <= 1.6f,
                 $"mesopic vision at EV {ev}: expected {expectedBytes}, got {actual}");
             Assert.True(night ? actual.B - actual.R >= 8 : Math.Abs(actual.B - actual.R) <= 1,

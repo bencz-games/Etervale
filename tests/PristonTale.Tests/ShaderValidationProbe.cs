@@ -45,7 +45,7 @@ internal sealed partial class ShaderValidationProbe : Game
         Content = new AbsoluteContentManager(Services, contentRoot);
     }
 
-    private static float Grey => SrgbToLinear(128f / 255f);
+    private static float Grey => PristonColorSpace.SrgbToLinear(128f / 255f);
 
     protected override void Draw(GameTime gameTime)
     {
@@ -162,7 +162,7 @@ internal sealed partial class ShaderValidationProbe : Game
         _shaders.ApplyFrame(Frame(0.3f, 0.8f));
         var material = Material(_grey, selfIllum: false);
         var light = new Color(150, 150, 150);
-        var linear = SrgbToLinear(150f / 255f);
+        var linear = PristonColorSpace.SrgbToLinear(150f / 255f);
         var roughness = material.Description.Roughness;
         // The authored light also occludes the sky's reflection (the ambient's f0 term), viewed along the normal.
         var occlusion = Math.Clamp(MathF.Pow(1f + linear, MathF.Pow(2f, -16f * roughness - 1f)) - 1f + linear, 0f, 1f);
@@ -200,7 +200,7 @@ internal sealed partial class ShaderValidationProbe : Game
         var captured = new Color(51, 102, 153);
         GraphicsDevice.Clear(captured);
         GraphicsDevice.SetRenderTarget(null);
-        var sky = new Vector3(SrgbToLinear(51f / 255f), SrgbToLinear(102f / 255f), SrgbToLinear(153f / 255f));
+        var sky = new Vector3(PristonColorSpace.SrgbToLinear(51f / 255f), PristonColorSpace.SrgbToLinear(102f / 255f), PristonColorSpace.SrgbToLinear(153f / 255f));
         _shaders.ApplyFrame(Frame(0f, 0f) with { Fog = fog, FogSky = new PristonFogSky(capture, true, Vector3.Up, Vector3.Zero) });
         material = Material(_white, selfIllum: true);
         Verify(Surface(material, _white, Vector2.Zero, skinned), skinned, Vector3.One + (sky - Vector3.One) * opacity, $"sky capture fog skin={skinned}");
@@ -403,17 +403,11 @@ internal sealed partial class ShaderValidationProbe : Game
         return diffuse + specular;
     }
 
-    private static float SrgbToLinear(float value) =>
-        value <= 0.04045f ? value / 12.92f : MathF.Pow((value + 0.055f) / 1.055f, 2.4f);
-
-    private static float LinearToSrgb(float value) =>
-        value <= 0.0031308f ? value * 12.92f : 1.055f * MathF.Pow(value, 1f / 2.4f) - 0.055f;
-
     // Khronos PBR Neutral for a grey value below its compression start, then the sRGB curve.
     private static float DisplayEncode(float grey)
     {
         var offset = grey < 0.08f ? grey - 6.25f * grey * grey : 0.04f;
-        return LinearToSrgb(grey - offset);
+        return PristonColorSpace.LinearToSrgb(grey - offset);
     }
 
     private Texture2D Texture(Color color)

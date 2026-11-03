@@ -2,6 +2,7 @@ using System.Globalization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Engine3D.Diagnostics;
+using PristonTale.Engine3D.Rendering;
 
 namespace PristonTale.Engine3D.Rendering.Post;
 
@@ -62,13 +63,13 @@ internal static class PristonColorGrading
     // Applied to sRGB-encoded display colour.
     internal static Vector3 BuiltInLook(Vector3 encoded)
     {
-        var linear = new Vector3(SrgbToLinear(encoded.X), SrgbToLinear(encoded.Y), SrgbToLinear(encoded.Z));
+        var linear = PristonColorSpace.SrgbToLinear(encoded);
         var luminance = 0.2126f * linear.X + 0.7152f * linear.Y + 0.0722f * linear.Z;
         linear = Vector3.Max(Vector3.Zero, new Vector3(luminance) + (linear - new Vector3(luminance)) * Saturation);
         var shadows = 1f - MathHelper.Clamp(luminance * 4f, 0f, 1f);
         var highlights = MathHelper.Clamp((luminance - 0.35f) * 2f, 0f, 1f);
         linear += new Vector3(-0.5f, 0f, 1f) * (SplitTone * shadows * 0.25f) + new Vector3(1f, 0.4f, -0.6f) * (SplitTone * highlights);
-        var result = new Vector3(LinearToSrgb(linear.X), LinearToSrgb(linear.Y), LinearToSrgb(linear.Z));
+        var result = new Vector3(Encode(linear.X), Encode(linear.Y), Encode(linear.Z));
         return new Vector3(SCurve(result.X), SCurve(result.Y), SCurve(result.Z));
     }
 
@@ -79,14 +80,7 @@ internal static class PristonColorGrading
         return MathHelper.Lerp(c, smooth, Contrast);
     }
 
-    private static float SrgbToLinear(float value) =>
-        value <= 0.04045f ? value / 12.92f : MathF.Pow((value + 0.055f) / 1.055f, 2.4f);
-
-    private static float LinearToSrgb(float value)
-    {
-        var c = MathHelper.Clamp(value, 0f, 1f);
-        return c <= 0.0031308f ? c * 12.92f : 1.055f * MathF.Pow(c, 1f / 2.4f) - 0.055f;
-    }
+    private static float Encode(float value) => PristonColorSpace.LinearToSrgb(MathHelper.Clamp(value, 0f, 1f));
 
     internal sealed class CubeLut
     {

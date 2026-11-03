@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Engine3D.Formats;
+using PristonTale.Engine3D.Rendering;
 
 namespace PristonTale.Engine3D.Rendering.Lighting;
 
@@ -76,18 +77,12 @@ internal sealed class PristonStageBakedLight
     private static bool ValidCorner(PristonStage stage, int index) => index >= 0 && index < stage.Vertices.Count;
 
     internal static double LinearLuminance(Color colour) =>
-        PristonPhotometry.Luminance(new Vector3(SrgbToLinear(colour.R / 255f), SrgbToLinear(colour.G / 255f), SrgbToLinear(colour.B / 255f)));
+        PristonPhotometry.Luminance(new Vector3(PristonColorSpace.SrgbToLinear(colour.R / 255f), PristonColorSpace.SrgbToLinear(colour.G / 255f), PristonColorSpace.SrgbToLinear(colour.B / 255f)));
 
     private static Color Grey(double linear)
     {
-        var encoded = LinearToSrgb((float)Math.Clamp(linear, 0.0, 1.0));
+        var encoded = PristonColorSpace.LinearToSrgb((float)Math.Clamp(linear, 0.0, 1.0));
         var value = (byte)MathF.Round(encoded * 255f);
         return new Color(value, value, value);
     }
-
-    private static float SrgbToLinear(float value) =>
-        value <= 0.04045f ? value / 12.92f : MathF.Pow((value + 0.055f) / 1.055f, 2.4f);
-
-    private static float LinearToSrgb(float value) =>
-        value <= 0.0031308f ? value * 12.92f : 1.055f * MathF.Pow(value, 1f / 2.4f) - 0.055f;
 }

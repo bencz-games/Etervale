@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PristonTale.Engine3D.Rendering;
 
 namespace PristonTale.Effects.Vfx;
 
@@ -235,7 +236,7 @@ public sealed partial class VfxRenderer
         for (var index = 0; index <= SrgbSteps; index++)
         {
             var value = index / (float)SrgbSteps;
-            table[index] = value <= 0.04045f ? value / 12.92f : MathF.Pow((value + 0.055f) / 1.055f, 2.4f);
+            table[index] = PristonColorSpace.SrgbToLinear(value);
         }
 
         return table;

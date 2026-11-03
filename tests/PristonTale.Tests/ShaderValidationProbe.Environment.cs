@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.Rendering.Lighting;
 using PristonTale.Engine3D.Rendering.Post;
+using PristonTale.Engine3D.Rendering;
 
 namespace PristonTale.Tests;
 
@@ -15,7 +16,7 @@ internal sealed partial class ShaderValidationProbe
     private void VerifyEnvironment()
     {
         using var triangle = new PristonFullscreenTriangle(GraphicsDevice);
-        var radiance = SrgbToLinear(128f / 255f);
+        var radiance = PristonColorSpace.SrgbToLinear(128f / 255f);
         foreach (var sky in new[] { new Vector3(0.2f, 0.25f, 0.3f), new Vector3(0.1f, 0.12f, 0.15f) })
         {
             using var effect = Content.Load<Effect>(PristonEnvironmentLighting.Asset).Clone();

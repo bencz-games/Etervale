@@ -143,7 +143,7 @@ internal sealed partial class ShaderValidationProbe
         {
             var expected = PristonDisplayTransform.Apply(mode, new Vector3(value));
             var actual = ComposeFlat(new Vector3(value), UnitPostFrame(mode));
-            var expectedByte = LinearToSrgb(expected.X) * 255f;
+            var expectedByte = PristonColorSpace.LinearToSrgb(expected.X) * 255f;
             Assert.True(MathF.Abs(actual.R - expectedByte) <= 1.6f, $"display transform {mode} at {value}: expected {expectedByte:F1}, got {actual}");
             _verified++;
         }
@@ -155,7 +155,7 @@ internal sealed partial class ShaderValidationProbe
         var settings = UnitPostFrame() with { Settings = UnitPostFrame().Settings with { ColorGrading = true } };
         foreach (var value in new[] { 0.05f, 0.18f, 0.5f })
         {
-            var encoded = LinearToSrgb(PristonDisplayTransform.PbrNeutral(new Vector3(value)).X);
+            var encoded = PristonColorSpace.LinearToSrgb(PristonDisplayTransform.PbrNeutral(new Vector3(value)).X);
             var expected = PristonColorGrading.BuiltInLook(new Vector3(encoded)).X * 255f;
             var actual = ComposeFlat(new Vector3(value), settings);
             Assert.True(MathF.Abs(actual.R - expected) <= 2.5f, $"colour grade at {value}: expected {expected:F1}, got {actual}");
