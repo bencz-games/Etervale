@@ -289,8 +289,10 @@ internal static class WorldImportTests
         Assert.True(missing.Length == 0, $"crystals or skills call unregistered monsters: {string.Join(", ", missing)}");
 
         // An unregistered identity takes the next id and its label as key, numbered when the key is taken.
-        Assert.True(monsters.Resolve("새 몬스터", "fury") is { Id: 604, Key: "Fury 5" } && monsters.Resolve("다른 몬스터", "") is { Id: 605, Key: "Monster 605" }
-            && monsters.Added.Count == 2, "an unregistered identity was not keyed as the registry promises");
+        var registry = new IdentityRegistry("monsters.json", "Monster", StringComparer.Ordinal,
+            [new(1, "Fury", "퓨리"), new(7, "Fury 2", "퓨리 두목")]);
+        Assert.True(registry.Resolve("새 몬스터", "fury") is { Id: 8, Key: "Fury 3" } && registry.Resolve("다른 몬스터", "") is { Id: 9, Key: "Monster 9" }
+            && registry.Added.Count == 2, "an unregistered identity was not keyed as the registry promises");
         return Task.CompletedTask;
     }
 

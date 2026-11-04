@@ -601,5 +601,11 @@
   {"id": 600, "key": "Zombi", "source": "좀비"},
   {"id": 601, "key": "Zombie", "source": "Zombi"},
   {"id": 602, "key": "Zzangpy", "source": "짱피"},
-  {"id": 603, "key": "Zzangpy 2", "source": " 짱피 "}
+  {"id": 603, "key": "Zzangpy 2", "source": " 짱피 "},
+  {"id": 604, "key": "Mokova 3", "source": "모코바TP"},
+  {"id": 605, "key": "Valento 4", "source": "발렌토DVM"},
+  {"id": 606, "key": "Vega Demir 3", "source": " 베가 드미르 두목 "},
+  {"id": 607, "key": "Fury 5", "source": "퓨리 두목"},
+  {"id": 608, "key": "Vega Demir 4", "source": " 베가 드미르S15 "},
+  {"id": 609, "key": "Vega Demir 5", "source": " 베가 드미르Sb6 "}
 ]
