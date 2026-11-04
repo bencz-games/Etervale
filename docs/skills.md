@@ -62,7 +62,7 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   entry at `index`. A code is unique across all files (load fails otherwise).
 - The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills. The
   fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter, the Pikeman, the Archer, the
-  Knight and the Atalanta; the other classes' fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
+  Knight, the Atalanta and the Priestess; the other classes' fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
   Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
   class: first tag + 4 x tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers,
   which the original's empty weapon list never allowed.
@@ -101,6 +101,11 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   or a clicked player (any player, no party); Galaxy Coup strikes the enemies around its target that its accuracy,
   raised by its percent, reaches, with the attack raised by its rate; Summon Arcuda calls the bear (`Arcuda`) for
   355 s; Snippy Fear throws two javelins beyond the javelin's reach with a relative critical bonus.
+- The Priestess's fifth tier: Spirit Impact strikes the enemies around its target with a spell roll (the Shaman's
+  terms: base, level x 50%, weapon item damage x 2 to 5, spirit / 2 and / 1); Piercing Ice never misses, rolling its
+  table plus the attack damage raised 200 to 830% (`attackPowerPercent`); Summon Ramiel gives evasion and an angel that
+  strikes every 7 to 4 s, and it and Summon Muspell exclude each other; Blessing Krishna raises defence by a percent and
+  absorption. Spells with `spellPower` take the elemental spirits' boost.
 
 ## Learning (skill master)
 
@@ -218,6 +223,7 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
 | `tablePercent[10]` | Bolts and areas: `min`..`max` alone gain this percent before the attack power and the other terms join them |
 | `strengthMaxDivisor` | Weapon rolls: maximum gains strength / divisor |
 | `attackPower`, `spellPower` | Roll the caster's attack damage with `percent`; tables gain the spell-power percent |
+| `attackPowerPercent[10]` | The attack damage alone gains this percent before it joins the roll |
 | `areaPercent` (100), `mainPercent`, `mainElement`, `main` | Area share per target; extra share and element of the main target; a separate main hit |
 | `randomHits[10]` | Power x a count rolled in `hits / 2 + 1 .. hits` |
 | `element` (`Bionic`), `flatElement`, `resistAddedOnly` | Element; `flatElement` makes `min..max` an add resisted by its own element |

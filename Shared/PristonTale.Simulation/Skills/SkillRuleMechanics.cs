@@ -157,6 +157,8 @@ public sealed partial record SkillDamageRule
     public SkillDamageMode Mode { get; init; } = SkillDamageMode.Rolled;
     // The caster's attack damage (weapon, attributes and modifiers) is rolled and gains Percent.
     public bool AttackPower { get; init; }
+    // The attack damage alone gains this percent per rank before it joins the roll.
+    public int[] AttackPowerPercent { get; init; } = [];
     // The tables gain the caster's spell power percent (an elemental spirit's boost).
     public bool SpellPower { get; init; }
     // Brood bonus per rank, applied after BonusPercent.
@@ -290,7 +292,7 @@ public static partial class SkillRuleCatalog
     {
         return Ranked(damage.BonusPercentByRank) && Ranked(damage.Share) && Ranked(damage.Chance) && damage.ResistanceDivisor >= 1
             && Ranked(damage.LevelPercent) && Ranked(damage.SpiritMinDivisorByRank) && Ranked(damage.SpiritMaxDivisorByRank)
-            && Ranked(damage.WeaponTimesMin) && Ranked(damage.WeaponTimesMax) && Ranked(damage.TablePercent)
+            && Ranked(damage.WeaponTimesMin) && Ranked(damage.WeaponTimesMax) && Ranked(damage.TablePercent) && Ranked(damage.AttackPowerPercent)
             && (damage.Mode == SkillDamageMode.Rolled || damage.Share.Length == SkillLearning.MaxRank) && (damage.Main is null || DamageValid(damage.Main));
     }
 

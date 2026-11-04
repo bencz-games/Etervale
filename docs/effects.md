@@ -395,6 +395,10 @@ Every active skill draws `vfx.priestess.castcircle` at the feet: the animated ci
 | Regeneration Field | The field model and particles while channelling | `regenfield.cast` |
 | Chain Lightning | A sky bolt at the hit; flickering beams between the chained targets | `chainlightning.cast`, `chainlightning.link` |
 | Summon Muspell | The spirit hovering above the caster with flames; its strikes | `muspell.*` |
+| Spirit Impact | Shockwave flashes at the caster and at the target | `vfx.priestess.spiritimpact.hit` |
+| Piercing Ice | Casting circle; an ice spear flying to the target and bursting | `vfx.priestess.piercingice.*` |
+| Summon Ramiel | The angel model and its particles over the caster while active; hit particles and the hand's glow at each strike | `vfx.priestess.ramiel.*` |
+| Blessing Krishna | Casting circle; a burst and an aura while active | `vfx.priestess.krishna.*` |
 
 ### Magician
 

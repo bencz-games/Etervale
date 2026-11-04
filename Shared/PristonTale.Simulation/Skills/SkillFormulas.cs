@@ -362,8 +362,9 @@ public static partial class SkillFormulas
         if (damage.AttackPower)
         {
             var attack = WeaponDamage.Compute(caster);
-            low += attack.Min;
-            high += attack.Max;
+            var attackPercent = At(damage.AttackPowerPercent, rank);
+            low += attack.Min + attack.Min * attackPercent / 100;
+            high += attack.Max + attack.Max * attackPercent / 100;
         }
 
         var item = weaponItem ?? WeaponItemDamage(caster);

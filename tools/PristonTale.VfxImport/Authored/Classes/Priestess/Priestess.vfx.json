@@ -2422,5 +2422,224 @@
         "turn": true
       }
     ]
+  },
+  {
+    "name": "vfx.priestess.spiritimpact.hit",
+    "duration": 2.0,
+    "parts": [
+      {
+        "animation": "SkillSpiritImpact1.ini",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          24,
+          0
+        ]
+      },
+      {
+        "animation": "SkillSpiritImpact2.ini",
+        "anchor": "Point",
+        "offset": [
+          0,
+          24,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.priestess.piercingice.shot",
+    "duration": 4.0,
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Tempskron/VenomSpear 02.wav",
+        "delay": 0.1
+      }
+    ],
+    "parts": [
+      {
+        "shape": "Billboard",
+        "size": [
+          1,
+          1
+        ],
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          24,
+          0
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          24,
+          0
+        ],
+        "speed": 900.0,
+        "reach": 8,
+        "end": "Vanish",
+        "carryEffect": "vfx.priestess.piercingice.spear",
+        "endEffect": "particle.Skill5PriestessPiercingIceHit"
+      }
+    ]
+  },
+  {
+    "name": "vfx.priestess.piercingice.spear",
+    "duration": 3.0,
+    "children": [
+      {
+        "effect": "particle.Skill5PriestessPiercingIce1",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "follow": true
+      },
+      {
+        "effect": "particle.Skill5PriestessPiercingIce2",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.priestess.ramiel.spirit",
+    "duration": 600,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "Effect/AssaEffect/Ramiel/b_Ramiel.smd",
+        "skeleton": "Effect/AssaEffect/Ramiel/b_Ramiel.smb",
+        "blend": "Alpha",
+        "color": [
+          255,
+          255,
+          255,
+          160
+        ],
+        "anchor": "Caster",
+        "follow": true,
+        "offset": [
+          0,
+          39.0625,
+          0
+        ],
+        "modelFrames": 420,
+        "loop": true,
+        "modelSpeed": 30
+      },
+      {
+        "anchor": "Caster",
+        "follow": true,
+        "offset": [
+          0,
+          59.0625,
+          0
+        ],
+        "carryEffect": "particle.Skill5PriestessRamiel"
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.Skill5PriestessRamielStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          39.0625,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.priestess.ramiel.strike",
+    "duration": 2.0,
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "color": [
+          0.6,
+          0.7,
+          1.0
+        ],
+        "power": 180,
+        "decay": 3
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.Skill5PriestessRamielHit1",
+        "anchor": "Point",
+        "offset": [
+          0,
+          25,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.Skill5PriestessRamielHand",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          70.3125,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.priestess.krishna.burst",
+    "duration": 0.5,
+    "children": [
+      {
+        "effect": "particle.S5_Pr_BlessingKrishna_Effect",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.priestess.krishna.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.S5_Pr_BlessingKrishna",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
   }
 ]
