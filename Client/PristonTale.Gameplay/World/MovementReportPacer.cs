@@ -26,6 +26,17 @@ internal sealed class MovementReportPacer
 
     public void Advance(float seconds) => _clockMs += seconds * 1000.0;
 
+    // A report sent outside the pacing (the position a skill cast is measured from): its state is the last one reported.
+    public void Taken(bool moving, bool running, ulong target, int fieldCode)
+    {
+        _due = false;
+        _lastMs = _clockMs;
+        _moving = moving;
+        _running = running;
+        _target = target;
+        _fieldCode = fieldCode;
+    }
+
     // Whether a report goes out now with this state; the state is then the last one reported.
     public bool TryTake(bool moving, bool running, ulong target, int fieldCode)
     {

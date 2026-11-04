@@ -482,13 +482,29 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
         var current = _playerController.Current;
         var moving = current is MotionCode.Walk or MotionCode.Run;
         var running = current == MotionCode.Run;
-        var target = _attackInput.TargetId;
-        var fieldCode = _activeField.Definition.FieldCode;
-        if (!_reports.TryTake(moving, running, target, fieldCode))
+        if (_reports.TryTake(moving, running, _attackInput.TargetId, _activeField.Definition.FieldCode))
+        {
+            SendMovementReport(moving, running);
+        }
+    }
+
+    // The position the server measures a cast from: reported at once, ahead of the cast on the same ordered stream, so a
+    // walk into range is not measured from the last paced report behind it.
+    private void ReportMovementNow()
+    {
+        if (_playChannel == null || _activeField == null || _playerBody == null)
         {
             return;
         }
 
+        _reports.Taken(false, false, _attackInput.TargetId, _activeField.Definition.FieldCode);
+        SendMovementReport(false, false);
+    }
+
+    private void SendMovementReport(bool moving, bool running)
+    {
+        var target = _attackInput.TargetId;
+        var fieldCode = _activeField.Definition.FieldCode;
         var planar = _playerBody.PlanarPosition;
         var position = WorldSpace.Mirror(new NumVector3(planar.X, _playerBody.Height, planar.Y));
         var facing = WorldSpace.TransportFacing(_playerForward);

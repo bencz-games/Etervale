@@ -55,6 +55,14 @@ internal static class ClientTests
         Assert.True(!pacer.TryTake(false, false, 0, 3), "a standing player reported before a second");
         pacer.Advance(0.11f);
         Assert.True(pacer.TryTake(false, false, 0, 3), "a standing player did not report after a second");
+
+        // A cast reports its position at once, inside the gap; the pacing does not send that state again.
+        pacer.Advance(0.02f);
+        pacer.Request();
+        pacer.Taken(false, false, 0, 3);
+        Assert.True(!pacer.TryTake(false, false, 0, 3), "the position reported ahead of a cast went out again");
+        pacer.Advance(1.01f);
+        Assert.True(pacer.TryTake(false, false, 0, 3), "the pacing did not resume after a cast's report");
         return Task.CompletedTask;
     }
 

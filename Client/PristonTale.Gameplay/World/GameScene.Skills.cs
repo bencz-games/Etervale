@@ -297,7 +297,7 @@ public sealed partial class GameScene : ISkillSceneHost
         StopPredictedMovement();
         _castLockUntilMs = _skillClockMs + CastAnswerTimeoutMs;
         _hasMoveTarget = false;
-        _reports.Request();
+        ReportMovementNow();
         var planar = _playerBody.PlanarPosition;
         var point = WorldSpace.Mirror(new NumVector3(planar.X, _playerBody.Height, planar.Y));
         SendUpstream(_playChannel.SendSkillCastAsync(++_castSequence, pending.Code, target, point, _presenceCts.Token), "skill cast");
