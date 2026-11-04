@@ -624,10 +624,12 @@ Ruinen Village (6), Navisko (9), Forbidden Land (12), Eura (29), Land of Chaos (
 `CharacterSoundCodes` names every sound family code a rule or sound reads (NPCs, castle objects, and the monsters
 with rules of their own); `CharacterSoundCodes.Resolve(key)` maps the authored sound keyword of a monster or NPC to its
 sound family code. The
-importer stores it; the client audio library and the AI rules key on it. The 54 keywords of monsters newer than the
-original sound table (Greedy, Hestian, the invaders, the lizards, the mine and laboratory monsters...) have Etervale's
-own codes from 0x6000, one per sound folder; MapleFairy, MapleTree, Furia, Lucifer, KhanDoor, LizardDoor, Sakura and
-Soldier_D have no sound folder and stay silent.
+importer stores it; the client audio library and the AI rules key on it. The keywords of monsters newer than the
+original sound table (Greedy, Hestian, the invaders, the lizards, the mine and laboratory monsters, Soldier_D, and the
+ChinaPT client's later monsters Adevayo to Ziddane, whose folders come from that client) have Etervale's own codes from
+0x6000, one per sound folder; Furia, the red gladiator's keyword, names the Fury's sounds. MapleFairy, MapleTree,
+Lucifer, KhanDoor, LizardDoor and Sakura have no sound folder in any client and stay silent. Hopy's and DeadZone's
+files name their sounds (HOPT, DeadZone) as the later servers do.
 
 ## Driving surface (Application)
 

@@ -224,6 +224,26 @@ public static class CharacterSoundBanks
         (0x6320, "wav/Effects/monster/UndeadMiner"),
         (0x6330, "wav/Effects/monster/UndeadStalker"),
         (0x6340, "wav/Effects/monster/WLord"),
-        (0x6350, "wav/Effects/monster/Yagditha")
+        (0x6350, "wav/Effects/monster/Yagditha"),
+        (0x6360, "wav/Effects/NPC/Soldier_D"),
+        (0x6370, "wav/Effects/monster/Adevayo"),
+        (0x6380, "wav/Effects/monster/Amesyst"),
+        (0x6390, "wav/Effects/monster/Amonk"),
+        (0x63A0, "wav/Effects/monster/Aragonian"),
+        (0x63B0, "wav/Effects/monster/CrystalWrath"),
+        (0x63C0, "wav/Effects/Deius"),
+        (0x63D0, "wav/Effects/Grangium"),
+        (0x63E0, "wav/Effects/monster/Korpion"),
+        (0x63F0, "wav/Effects/Oblanko"),
+        (0x6400, "wav/Effects/monster/QuartzBat"),
+        (0x6410, "wav/Effects/monster/QuartzSaurus"),
+        (0x6420, "wav/Effects/Raeda"),
+        (0x6430, "wav/Effects/monster/Rakoo"),
+        (0x6440, "wav/Effects/Roblanko"),
+        (0x6450, "wav/Effects/Sylers"),
+        (0x6460, "wav/Effects/Tees"),
+        (0x6470, "wav/Effects/Toos"),
+        (0x6480, "wav/Effects/monster/UndeadSlave"),
+        (0x6490, "wav/Effects/monster/Ziddane")
     ];
 }
