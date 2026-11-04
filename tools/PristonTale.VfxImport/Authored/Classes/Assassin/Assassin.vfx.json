@@ -273,5 +273,119 @@
         "turn": true
       }
     ]
+  },
+  {
+    "name": "vfx.assassin.shadowbomb.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.ShadowBomb",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.risingslash.cast",
+    "duration": 0.5,
+    "children": [
+      {
+        "effect": "particle.RisingSlash1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.risingslash.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.RisingSlash2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.violentstab.cast",
+    "duration": 0.5,
+    "children": [
+      {
+        "effect": "particle.ViolenceStab1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.violentstab.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.ViolenceStab2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.violentstab.second",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.ViolenceStab3",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.assassin.storm.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Storm",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
   }
 ]

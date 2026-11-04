@@ -62,7 +62,8 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   entry at `index`. A code is unique across all files (load fails otherwise).
 - The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills. The
   fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter, the Pikeman, the Archer, the
-  Knight, the Atalanta, the Priestess and the Magician; the other classes' fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
+  Knight, the Atalanta, the Priestess, the Magician and the Assassin; the other classes' fifth tier holds definitions
+  only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
   Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
   class: first tag + 4 x tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers,
   which the original's empty weapon list never allowed.
@@ -113,6 +114,9 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   never misses, rolling its table plus the attack raised 200 to 830%; Third Anima adds 15 to 150 spell power (plus 8 to
   35 by Spirit Elemental's rank) and takes 5 to 50% of the maximum mana on the caster or a clicked Magician, Priestess
   or Shaman (`allyClasses`), and it and Spirit Elemental replace each other.
+- The Assassin's fifth tier: Shadow Bomb strikes up to its rank's count of enemies around the caster with its table
+  raised by Land Mining's rate (as the original server raises it) plus the attack damage; Rising Slash, Violent Stab
+  (two hits) and Storm are strong strikes.
 
 ## Learning (skill master)
 

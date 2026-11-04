@@ -42,6 +42,13 @@ internal sealed class SkillCaptureProbe : Game, ISkillSceneHost
         (PlayerClass.Priestess, "WM101", ""), (PlayerClass.Magician, "WM101", "")
     ];
 
+    // The classes outside the first eight groups, by their skill code's high byte; their daggers and phantoms have no
+    // model in the equipment tables, so they cast empty-handed.
+    private static readonly Dictionary<uint, (PlayerClass Class, string Weapon, string OffHand)> LaterClasses = new()
+    {
+        [0x10] = (PlayerClass.Assassin, "", ""), [0x50] = (PlayerClass.Shaman, "", "")
+    };
+
     private readonly (PlayerClass Class, string Weapon, string OffHand, uint Skill, float[] Times)[] Casts;
     private readonly string _assets;
     private readonly string _output;
@@ -289,10 +296,10 @@ internal sealed class SkillCaptureProbe : Game, ISkillSceneHost
         _renderer.SetTimeOfDay(17.5f);
     }
 
-    // The skill code's high byte is its class group (1 Mechanician .. 8 Magician).
+    // The skill code's high byte is its class group (1 Mechanician .. 8 Magician, then LaterClasses).
     private static (PlayerClass, string, string, uint, float[]) Cast(uint skill)
     {
-        var (playerClass, weapon, offHand) = Equipment[(int)(skill >> 24) - 1];
+        var (playerClass, weapon, offHand) = LaterClasses.TryGetValue(skill >> 24, out var later) ? later : Equipment[(int)(skill >> 24) - 1];
         return (playerClass, weapon, offHand, skill, [0.4f, 0.8f, 1.2f, 1.7f, 2.4f, 4f]);
     }
 

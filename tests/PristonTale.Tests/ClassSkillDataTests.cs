@@ -19,7 +19,7 @@ internal static class ClassSkillDataTests
         PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin, PlayerClass.Shaman
     ];
 
-    private static readonly PlayerClass[] FifthTierPorted = [PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Knight, PlayerClass.Atalanta, PlayerClass.Priestess, PlayerClass.Magician];
+    private static readonly PlayerClass[] FifthTierPorted = [PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Knight, PlayerClass.Atalanta, PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin];
 
     private const int PortedSkills = 16;
     private const int FifthTierSkills = 4;

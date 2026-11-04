@@ -423,6 +423,15 @@ Every cast draws `vfx.magician.castcircle` (the Magician's circle textures) unle
 | Prima Ignis | Casting circle; the primal fire rolling ahead of the caster | `vfx.magician.primaignis.shot` |
 | Third Anima | Casting circle; five sigils orbiting the holder while active (Zenith's aura) | `vfx.magician.thirdanima.aura` |
 
+### Assassin and Shaman fifth tier
+
+| Skill | Original | Effects |
+|---|---|---|
+| Shadow Bomb | The bomb's burst at the caster | `vfx.assassin.shadowbomb.hit` |
+| Rising Slash | Particles at the caster, then at the target | `vfx.assassin.risingslash.*` |
+| Violent Stab | Particles at the caster; one burst at the target per stab | `vfx.assassin.violentstab.*` |
+| Storm | The wind wall at the target | `vfx.assassin.storm.hit` |
+
 ### Actor looks and per-hit sounds
 
 Rule fields beside the effect names (docs/skills.md) draw what the original does to the actors themselves:

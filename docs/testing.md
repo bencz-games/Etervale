@@ -61,7 +61,7 @@ Default case files by area (all `tests/PristonTale.Tests/<Name>.cs`):
 | Skill data | `ClassSkillDataTests`, `SkillCatalogTests`, `SkillSystemTests`, `PassiveSkillTests`, `SkillWireTests` | Catalog, formulas, wire |
 | Skill mechanics | `SkillAllyTests`, `SkillAreaTests`, `SkillChargeTests`, `SkillCompanionTests`, `SkillControlTests` | Server resolution |
 | Skill mechanics | `SkillDefenseTests`, `SkillEnchantTests`, `SkillResurrectionTests`, `SkillStealthTests`, `SkillSummonTests` | Server resolution |
-| Class skills | `MechanicianSkillTests`, `FighterSkillTests`, `PikemanSkillTests`, `ArcherSkillTests`, `KnightSkillTests`, `AtalantaSkillTests`, `PriestessSkillTests`, `MagicianSkillTests` | A class's own skills that need more than their table (the fifth tiers) |
+| Class skills | `MechanicianSkillTests`, `FighterSkillTests`, `PikemanSkillTests`, `ArcherSkillTests`, `KnightSkillTests`, `AtalantaSkillTests`, `PriestessSkillTests`, `MagicianSkillTests`, `AssassinSkillTests` | A class's own skills that need more than their table (the fifth tiers) |
 | Skill client | `SkillPresentationTests`, `VfxLayerTests`, `VfxImportTests` | VFX definitions, catalog, layers, converter, authored data, cooldown and status books |
 | Quests | `QuestTests` (with `QuestFixture`), `QuestServiceTests`, `QuestHudTests` | Every quest family's steps, rank-ups and the tier; journal storage, quest messages, durable requests, kill credit, upkeep, the arena duel; quest HUD flows and layout |
 | Trades | `TradeTests` (with `ChatFixture`), `TradeHudTests` | Requests, offers, locks and their delay, the stored exchange, refusals, how a trade ends (also while it is stored), offered items changed elsewhere, both sides locking at once, rules, wire; the trade window |
@@ -244,7 +244,8 @@ dotnet run --project tests/PristonTale.Tests -c Release --no-build -- --inspect-
 Other probe details:
 
 - `--capture-skills` casts Fire Ball, Healing, Pike Wind, Extreme Shield and Impact, or the comma-separated hex codes
-  given (for example `0x05040004,0x07080003`), through the client's skill presentation with the server's timeline; it
+  given (for example `0x05040004,0x07080003`; the Assassin and the Shaman cast empty-handed, their weapons having no
+  model in the equipment tables), through the client's skill presentation with the server's timeline; it
   fails when a cast starts no motion or shows no effect light. Besides `<class>-<skill>-<time>.png` (the lit stage) it
   saves `<...>.dark.png`, the effects alone on a dark backdrop, because the exposed stage hides additive light, and
   `<...>.actor.png`, the caster and the dummy at noon without effects, for skill looks on the actors (tints,
