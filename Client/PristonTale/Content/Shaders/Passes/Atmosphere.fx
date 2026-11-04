@@ -365,6 +365,8 @@ float4 SmoothNoise(float3 uvw)
 // How far the deck closes the low sky: none under a fair sky, a third overcast, all of it in a storm (from coverage
 // DeckClosesAt over DeckCloses).
 static const float DeckClosesAt = 0.45;
+// The share of the hue a fully closed sky loses.
+static const float ClosedSkyGrey = 0.9;
 static const float DeckCloses = 0.35;
 float DeckClosure()
 {
@@ -543,6 +545,7 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
     float phase = CloudPhase(dot(direction, toLight));
     float3 zenith = SkyViewAt(float3(0.0, 1.0, 0.0));
     float3 horizon = SkyViewAt(float3(direction.x, 0.05, direction.z));
+    float closed = DeckClosure();
     float throughput = 1.0;
     float3 radiance = 0.0;
     [loop]
@@ -567,6 +570,9 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
         float single = exp(-depth) * lerp(1.0, 1.0 - exp(-depth * 2.0 - 0.1), 0.5) * phase;
         float diffuse = 0.25 / (1.0 + 0.11 * depth);
         float3 sunLight = TransmittanceToSpace(p, toLight) * lightLevel;
+        // Under a closing sky the light reaching a cloud has crossed the deck: a low sun's red turns grey, so a storm at
+        // dawn or dusk shows a grey deck, not one glowing orange from inside.
+        sunLight = lerp(sunLight, Luminance(sunLight).xxx, closed);
         // A rain cloud's denser body keeps the sky's light from its base.
         float3 ambient = lerp(horizon, zenith, height) * (0.5 + 0.5 * height) / Clouds.y;
         // Under a closing sky the clouds light each other: their ambient light turns grey.
@@ -583,7 +589,6 @@ float4 PS_Clouds(FullscreenOut i) : SV_Target0
     // Far clouds fade into the haze between them and the viewer; under a closing sky the deck goes on past the march,
     // so the haze takes the deck's grey instead of opening onto the sky.
     float haze = exp(-start / CloudHazeKilometres);
-    float closed = DeckClosure();
     float3 deck = (Luminance(lerp(horizon, zenith, 0.3)) * 0.6 / Clouds.y + Night.z * NightCloudGlow) * float3(0.92, 0.95, 1.0);
     return float4(radiance * haze + deck * (1.0 - haze) * closed, lerp(1.0, throughput, haze) * (1.0 - (1.0 - haze) * closed));
 }
@@ -835,6 +840,12 @@ float4 PS_Sky(FullscreenOut i) : SV_Target0
     {
         float4 edge = SmoothClouds(CloudUv(normalize(float3(direction.x, 0.01, direction.z))));
         colour = lerp(colour, colour * edge.a + edge.rgb, DeckClosure());
+    }
+
+    // A closed sky is grey whatever the hour: the glow of a low sun behind the deck keeps a trace of its warmth only.
+    if (CloudShadowArea.w > 0.5)
+    {
+        colour = lerp(colour, Luminance(colour).xxx, ClosedSkyGrey * DeckClosure());
     }
 
     // Without drawn clouds an overcast sky turns a flat grey of its own light.

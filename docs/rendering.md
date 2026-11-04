@@ -294,7 +294,9 @@ they took the domes.
   tile) fades out between 12 and 30 km, where its cells would shimmer, and far clouds fade into the haze over 35 km. The
   sun lights the clouds by day and the moon by night, and at night they keep a glow of their own (the night sky's, the
   moon's and the town's), so a stormy night shows its deck; under a closing sky the far haze takes the deck's grey
-  instead of opening onto the horizon. A cloud with a body hides the stars and the moon as it hides the sun. Off: an
+  instead of opening onto the horizon, the light that reaches the clouds turns grey as their ambient light does, and the
+  whole sky loses 90 % of its hue (`ClosedSkyGrey`), so a rain or a storm at dawn or dusk shows a grey deck and grey
+  fog, not an orange glow. A cloud with a body hides the stars and the moon as it hides the sun. Off: an
   overcast sky turns a flat grey instead.
 - Cloud shadows: the clouds' transmittance toward the sun over 6 km around the camera (256^2), read by the surfaces'
   sun term (`Surface.fx` `CloudShadowAt`, `PristonCloudShadowFrame`) at the clear share of the sky (an overcast sky

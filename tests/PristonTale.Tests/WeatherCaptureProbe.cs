@@ -62,6 +62,8 @@ internal sealed class WeatherCaptureProbe : Game
         new("sky-classic-rain-dusk", 21.5f, new PristonWeather(1f, 0.7f, 0f, Breeze), Sky: true, Classic: true),
         new("sky-classic-rain-night", 0.5f, new PristonWeather(1f, 0.7f, 0f, Breeze), Sky: true, Classic: true),
         new("mist-harbour", 4.6f, PristonWeather.Clear, Mist: true, Heading: 1.57f, At: Harbour),
+        // A storm as the day breaks in the morning mist: the deck and the mist stay grey, not lit orange by the low sun.
+        new("storm-dawn-mist", 5.3f, new PristonWeather(1f, 0.88f, 0f, Breeze * 3f), Mist: true),
         // Broken clouds in a strong wind over consecutive frames: their edges must glide, not waver.
         new("sky-drift", 14f, new PristonWeather(0.45f, 0f, 0f, new Vector2(360f, 0f)), Sky: true, Heading: 1.2f, Frames: 8)
     ];
