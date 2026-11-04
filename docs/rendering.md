@@ -403,7 +403,9 @@ they took the domes.
 
 - **TAA** (`Post/PristonTemporalAntiAliasing.cs`): Halton (2, 3) jitter of 8 samples; current weight 0.08 at rest to
   0.25 at 8 px/frame; variance clip gamma 1.25 over the 3x3 neighbourhood (a 5-tap cross left jittered stone and
-  gold trims shimmering); depth tolerance 0.06; motion of skinned actors from the previous bone
+  gold trims shimmering); Gaussian reconstruction of the current frame with sharpness 5 (a third of a pixel); the
+  final pass's sharpening gets 0.4 more (capped at 1), since the average of the jittered frames keeps only about two
+  thirds of fine texture contrast; depth tolerance 0.06; motion of skinned actors from the previous bone
   palette (`PristonSkinPalette` keeps the previous pose, stamped per motion frame), of wind and water from the previous
   animation time. Volumetric and AO noise rotate per frame only with TAA.
 - **MSAA:** scene target multisampled (2-4), the back buffer never.

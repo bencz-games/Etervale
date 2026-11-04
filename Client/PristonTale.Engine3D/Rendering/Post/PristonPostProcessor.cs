@@ -112,7 +112,7 @@ internal sealed class PristonPostProcessor : IDisposable
         _lut.SetValue(_lutTexture);
         _exposureState.SetValue(Exposure.State);
         _sourceRect.SetValue(frame.SourceRect);
-        _screenParams.SetValue(new Vector4(scene.Width, scene.Height, _frame++ % 64, settings.Sharpening));
+        _screenParams.SetValue(new Vector4(scene.Width, scene.Height, _frame++ % 64, settings.EffectiveSharpening));
         _toneParams.SetValue(new Vector4((float)settings.Tonemapper, settings.ColorGrading ? 1f : 0f, bloomStrength, fixedMultiplier));
         _debugParams.SetValue(new Vector4(frame.DebugExposure ? 1f : 0f, 1f / frame.Exposure.PreExposure, 0f, 0f));
         _mesopicParams.SetValue(new Vector4(frame.Exposure.NightHue == Vector3.Zero ? Vector3.One : frame.Exposure.NightHue, 0f));
@@ -240,6 +240,10 @@ internal sealed record PristonPostSettings(
         settings.ColorGradingLut,
         settings.Sharpening,
         settings.AutoExposure);
+
+    public float EffectiveSharpening => AntiAliasing == AntiAliasingMode.Taa
+        ? MathF.Min(1f, Sharpening + PristonTemporalAntiAliasing.CompensatingSharpening)
+        : Sharpening;
 }
 
 // One frame's inputs of the post chain: the options, the light model's exposure inputs, the viewport part of the scene

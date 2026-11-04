@@ -15,8 +15,12 @@ internal sealed class PristonTemporalAntiAliasing : IDisposable
     public const float MovingWeight = 0.25f;
     public const float MovingSpeed = 8f;
     public const float VarianceGamma = 1.25f;
-    // Sharpness of the Gaussian reconstruction of the current frame (per pixel squared).
-    public const float FilterSharpness = 2.5f;
+    // Sharpness of the Gaussian reconstruction of the current frame (per pixel squared): a standard deviation of a third
+    // of a pixel, so the frame adds little blur to the jitter's own spread over the pixel.
+    public const float FilterSharpness = 5f;
+    // Added to the final pass's sharpening (capped at 1) while this resolve runs: averaging the jittered frames softens
+    // fine texture by about a third, and this sharpening restores most of it.
+    public const float CompensatingSharpening = 0.4f;
     public const float DepthTolerance = 0.06f;
 
     private readonly GraphicsDevice _device;

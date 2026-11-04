@@ -1,9 +1,10 @@
 // Temporal anti-aliasing resolve (PristonTemporalAntiAliasing), on the pre-exposed HDR scene before bloom and exposure.
 // After Karis, "High Quality Temporal Supersampling" (SIGGRAPH 2014), Salvi, "An Excursion in Temporal Supersampling"
 // (GDC 2016) and Pedersen, "Temporal Reprojection Anti-Aliasing in INSIDE" (GDC 2016):
-//  - current sample: Gaussian reconstruction around the unjittered pixel centre from the 3x3 neighbourhood, which also
-//    gives the variance box (YCoCg), wide enough that jittered high-frequency texture (stone, gold trims) keeps its
-//    history instead of following the jitter;
+//  - current sample: Gaussian reconstruction around the unjittered pixel centre from the 3x3 neighbourhood (a third of a
+//    pixel wide, so it adds little to the jitter's own blur; the final pass sharpens what the average still softens);
+//    the variance box (YCoCg) comes from the whole neighbourhood, so jittered high-frequency texture (stone, gold trims)
+//    keeps its history instead of following the jitter;
 //  - motion: of the closest surface among the centre and its four diagonals (silhouettes keep their own motion).
 //    Surfaces write their motion (Passes/Surface.fx: skinned actors from their previous bone palette, wind and water from
 //    the previous animation time, everything from the previous view-projection); the sky marker reprojects the view
