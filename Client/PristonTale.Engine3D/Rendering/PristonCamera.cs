@@ -20,6 +20,7 @@ public sealed class PristonCamera
     private int _projectionHeight = -1;
     private float _projectionFieldOfView = float.NaN;
     private bool _hasPosition;
+    private readonly PristonCameraWave _wave = new();
 
     public PristonCamera(Vector3 target, Vector3 forward, PristonCameraSettings settings = null)
     {
@@ -42,6 +43,7 @@ public sealed class PristonCamera
         _yaw = WorldSpace.RenderYaw(normalized);
         _hasPosition = false;
         _hasMouse = false;
+        _wave.Stop();
         UpdateFollow(target, 0f);
     }
 
@@ -58,6 +60,9 @@ public sealed class PristonCamera
 
     public void SetScriptedView(GraphicsDevice graphicsDevice, Vector3 position, Vector3 lookAt)
         => SetScriptedView(graphicsDevice, position, lookAt, Vector3.Up);
+
+    // Shakes the follow view (PristonCameraWave); a new shake replaces a running one.
+    public void Wave(int factor, int delayFrames) => _wave.Start(factor, delayFrames);
 
     public void SetScriptedView(GraphicsDevice graphicsDevice, Vector3 position, Vector3 lookAt, Vector3 up) =>
         SetScriptedView(graphicsDevice, position, lookAt, up, _fieldOfViewRadians);
@@ -162,7 +167,7 @@ public sealed class PristonCamera
             lookAt = Vector3.Lerp(Target, lookAt, alpha);
         }
 
-        var arm = lookAt - CameraForward() * _distance;
+        var arm = lookAt - CameraForward() * MathF.Max(0f, _distance + _wave.Advance(deltaSeconds));
         var desired = arm;
         if (_hasPosition)
         {

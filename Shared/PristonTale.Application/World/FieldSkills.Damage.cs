@@ -83,12 +83,23 @@ internal sealed partial class FieldSkills
         var burst = cast.Rule.Burst;
         var origin = caster.Position;
         Pay(caster, monster, damage, result.Crit, cast.Rule.ForceFlinch);
+        AfflictStruck(caster, cast, monster);
         if (burst is not null && burst.AfterHit == hit)
         {
             Burst(caster, cast, rule, origin);
         }
 
         return true;
+    }
+
+    // A weapon skill's harmful effect lands on the monster its hit struck (a dash that stuns).
+    private void AfflictStruck(WorldPlayer caster, ActiveCast cast, MonsterInstance monster)
+    {
+        var buff = cast.Rule.Buff;
+        if (buff is { Harmful: true } && monster.IsAlive && Takes(buff, monster))
+        {
+            ApplyEffect(monster.Effects, monster.EntityId, caster.EntityId, cast.Rule.Code, buff, cast.Rank, ResistanceOf(buff, monster), caster.Character);
+        }
     }
 
     // Several shots in one strike: each rolls accuracy with the skill's rating, the hits add up their own damage rolls.
@@ -117,6 +128,7 @@ internal sealed partial class FieldSkills
         damage = SkillFormulas.WithBroodBonus(damage, rule.Damage, monster.Def, cast.Rank);
         damage = SkillFormulas.WithUndeadBonus(damage, character.Effects.Totals, monster.Def);
         Pay(caster, monster, ModifierRules.ScaleDamage(damage, character.Effects.Totals, monster.Effects.Totals), false);
+        AfflictStruck(caster, cast, monster);
         return true;
     }
 

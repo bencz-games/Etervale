@@ -7,6 +7,7 @@ using PristonTale.Effects.Vfx;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.Rendering.Lighting;
 using PristonTale.Protocol.Packets;
+using PristonTale.Simulation.Physics;
 using PristonTale.Simulation.Skills;
 using PristonTale.Contracts.Combat;
 using PristonTale.Contracts.Skills;
@@ -37,6 +38,9 @@ public interface ISkillSceneHost : IVfxAnchors
 
     // How far behind the server's timeline another entity is drawn, so its skill events wait as long as its motion does.
     double PlaybackDelayMsOf(ulong entityId) => World.Remote.RemoteSnapshotBuffer.BaseDelayMs;
+
+    // A skill's impact shakes the local player's camera by this factor (SkillRule.CameraShake).
+    void ShakeCamera(int factor) { }
 }
 
 // Turns the server's skill timeline into motions, effects, sounds, lights, floating numbers and the buff and
@@ -369,6 +373,14 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
         }
 
         _sounds.Play(ImpactSoundOf(rule, skillEvent, impact), point, _host.ListenerPosition);
+        if (rule.CameraShake)
+        {
+            var distance = Planar.Distance(Position(skillEvent.CasterId, skillEvent.Position).ToNumerics(), _host.ListenerPosition.ToNumerics());
+            if (distance < SkillRule.CameraShakeReach)
+            {
+                _host.ShakeCamera((int)((SkillRule.CameraShakeReach - distance) / 15f));
+            }
+        }
     }
 
     // The impact's sound: the rule's per-hit list when it has one (landed hits only), else its single impact sound.

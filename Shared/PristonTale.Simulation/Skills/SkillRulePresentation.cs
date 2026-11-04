@@ -51,6 +51,9 @@ public sealed partial record SkillRule
     public int[] CastShieldGlow { get; init; } = [];
     // Two effects (a light and its trail) circling the held weapon on either side while the status lasts.
     public string[] WeaponOrbit { get; init; } = [];
+    // Each impact shakes the camera of the players within CameraShakeReach of the caster, by (reach - distance) / 15.
+    public bool CameraShake { get; init; }
+    public const int CameraShakeReach = 400;
 }
 
 public static partial class SkillRuleCatalog

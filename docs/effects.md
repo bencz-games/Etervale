@@ -292,6 +292,10 @@ converted scripts.
 | Destroyer | Long bone band; converted hit group per hit | `vfx.trail.bone.long`, `vfx.fighter.destroyer.hit` |
 | Berserker | Converted group and particles on the caster while active | `vfx.fighter.berserker.aura` |
 | Cyclone Strike | Long bone band; normal hit on each target | `vfx.fighter.cyclone.*` |
+| Down Hit | Down Hit band and a warm light at each strike, hit particles, a flash at the third; the camera shakes near the caster | `vfx.trail.downhit`, `vfx.fighter.downhit.*` |
+| Power Dash | Extinction burst at the caster; the dash models at the target | `vfx.fighter.powerdash.*` |
+| Mortal Blow | Long Down Hit band; triple impact flash and swing at both strikes; the camera shakes | `vfx.trail.mortalblow`, `vfx.fighter.mortalblow.*` |
+| Bloody Berserker | Red lights, roar models and dust; converted group and particles while active; red rage glow | `vfx.fighter.bloodyberserker.*` |
 
 ### Pikeman
 

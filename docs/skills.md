@@ -61,11 +61,11 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
 - The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills. The
-  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician; the other classes' fifth tier holds definitions
-  only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the Shaman's skill clips are
-  those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per class: first tag + 4 x
-  tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers, which the original's
-  empty weapon list never allowed.
+  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician and the Fighter; the other classes' fifth tier
+  holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
+  Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
+  class: first tag + 4 x tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers,
+  which the original's empty weapon list never allowed.
 - The Shaman's spells roll base + level x `levelPercent` / 100 + weapon item damage x `weaponTimes` + spirit / the
   rank's divisor, never critically. Haunt drains a share of its target's maximum life (bosses spared) and returns it
   up to 40% of the caster's maximum life; Soul Manacle holds a monster (bosses spared, hits do not end it); Chasing
@@ -76,6 +76,11 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   speeds the attack only while one of its weapons is held; Rolling Smash strikes four times with a flat then percent
   attack rating; Power Enhancement raises both ends of the caster's attack damage and half as much of the maximum of
   the party members within its range, and ends on a Mechanician holding none of its weapons.
+- The Fighter's fifth tier: Down Hit strikes three times with a percent attack rating; Power Dash reaches 190 and
+  stuns the monster it struck for 10 to 37 s, which its hits do not end; Mortal Blow strikes its target with the attack
+  raised by its percent and up to its rank's count of enemies around the caster with its table, once, on the clip's
+  first event; Bloody Berserker adds flat damage to single-target hits and lowers absorption, and it and the Berserker
+  end each other. Down Hit and Mortal Blow shake the camera of the players near the caster (`cameraShake`).
 
 ## Learning (skill master)
 
@@ -152,7 +157,7 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
   caster after that weapon hit; `lifeCost[10]`: weapon skills pay tenths of a percent of max life per landed hit,
   `LifeToMana` converts that percent of max life into the same percent of max mana.
 - Effects: `buff`, `casterBuff` (buff rules, below; `casterBuff` applies on the first hit, for areas only when a target
-  was hit); `healMin[10]`, `healMax[10]` (plus weapon item damage / 3 and spirit / 8 on the minimum, / 6 on the
+  was hit; a weapon attack's harmful `buff` lands on the monster each of its hits struck); `healMin[10]`, `healMax[10]` (plus weapon item damage / 3 and spirit / 8 on the minimum, / 6 on the
   maximum); `allies`, `passive`, `summon`, `charm`, `resurrect` (below).
 - Variants: `modes` (rule fragments, one drawn per cast, such as an element per cast; timing stays the parent's; at most
   four fit the wire's two mode bits); `charge` (below).
@@ -176,7 +181,8 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
   status lasts, from the cast's hit on), `weaponGrowth[10]` (percent growth of a red translucent weapon copy during the
   cast), `afterimages` (0..8, trailing copies through the cast), `castShieldBone` and `castShieldGlow[3]` (the held
   shield moves to that body bone and glows during the cast), `weaponOrbit` (two effects, a light and its trail, circling
-  the holder's weapon while the status lasts).
+  the holder's weapon while the status lasts), `cameraShake` (each impact shakes the camera of the players within 400
+  of the caster by (400 - distance) / 15 units of view distance, `PristonCameraWave`).
 
 ### Damage rule (`damage`, `mainHit`, `damage.main`)
 

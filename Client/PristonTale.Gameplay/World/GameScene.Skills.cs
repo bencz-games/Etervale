@@ -450,6 +450,9 @@ public sealed partial class GameScene : ISkillSceneHost
         PlayerActors.SetPlaybackRate(_actorScene, rate);
     }
 
+    // The original's skill shake swings the view every third frame.
+    void ISkillSceneHost.ShakeCamera(int factor) => _camera?.Wave(factor, 2);
+
     double ISkillSceneHost.PlaybackDelayMsOf(ulong entityId) =>
         _remote?.PlaybackDelayMsOf(entityId) ?? World.Remote.RemoteSnapshotBuffer.BaseDelayMs;
 
