@@ -98,7 +98,7 @@ internal sealed partial class FieldSkills
     private void AfflictStruck(WorldPlayer caster, ActiveCast cast, MonsterInstance monster)
     {
         var buff = cast.Rule.Buff;
-        if (buff is { Harmful: true } && monster.IsAlive && Takes(buff, monster))
+        if (buff is { Harmful: true } && monster.IsAlive && Takes(buff, monster) && (buff.LifeCut.Length == 0 || Shrink(caster, monster, buff, cast.Rank)))
         {
             ApplyEffect(monster.Effects, monster.EntityId, caster.EntityId, cast.Rule.Code, buff, cast.Rank, ResistanceOf(buff, monster), caster.Character);
         }

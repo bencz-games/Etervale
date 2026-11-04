@@ -62,7 +62,7 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   entry at `index`. A code is unique across all files (load fails otherwise).
 - The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills. The
   fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter, the Pikeman, the Archer, the
-  Knight, the Atalanta and the Priestess; the other classes' fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
+  Knight, the Atalanta, the Priestess and the Magician; the other classes' fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
   Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
   class: first tag + 4 x tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers,
   which the original's empty weapon list never allowed.
@@ -106,6 +106,13 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   table plus the attack damage raised 200 to 830% (`attackPowerPercent`); Summon Ramiel gives evasion and an angel that
   strikes every 7 to 4 s, and it and Summon Muspell exclude each other; Blessing Krishna raises defence by a percent and
   absorption. Spells with `spellPower` take the elemental spirits' boost.
+- The Magician's fifth tier: Silraphim strikes the enemies around its target with a spell roll (level x 100%); Vis
+  Tenus's hit shrinks the monster it struck for 10 to 55 s (`lifeCut`, `FieldSkills.Shrink`): it loses 10 to 55% of its
+  maximum life (a monster with no more life dies at once) and 10 to 37% of its damage and draws at half its size, all
+  given back when it ends, bosses spared; the caster waits for it to end (`casterBuff` with `exclusive`); Prima Ignis
+  never misses, rolling its table plus the attack raised 200 to 830%; Third Anima adds 15 to 150 spell power (plus 8 to
+  35 by Spirit Elemental's rank) and takes 5 to 50% of the maximum mana on the caster or a clicked Magician, Priestess
+  or Shaman (`allyClasses`), and it and Spirit Elemental replace each other.
 
 ## Learning (skill master)
 
@@ -172,6 +179,7 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
   flinch), `pushTo[10]` (push to this distance), `taunt` (targets lock on the caster for `tauntTenths[10]`, else the
   caster buff's or the buff's duration), `partyEcho` (party members within the `allies` radius holding one of
   `requiresEffect` strike the same area around themselves, with their level and spirit and the caster's weapon).
+  `allyClasses`: the classes another player must be to take an `Ally` rule.
   Bosses are not pushed or taunted.
 - Cast requirement: `requiresEffect` (codes: the cast is refused unless one of them runs on the caster).
 - Accuracy and critical: `attackRating[10]`, `attackRatingPlusLevel`, `attackRatingPercent[10]`, `criticalAdd[10]`,
@@ -250,6 +258,7 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
 | `endsOnHit`, `endsOnAreaAttack`, `endsOnDamage` | Stealth consumed by the next single-target hit; ended by an area attack; stun broken by damage |
 | `weaponBound`, `requiresWeapon` | Modifiers count only with a listed main-hand weapon; effect ends when none is wielded |
 | `sparesBosses` | Boss monsters never take the effect |
+| `lifeCut[10]` | A monster loses this percent of its maximum life while the effect lasts and draws smaller; one with no more life dies |
 | `companion` | Familiar, see below |
 | `counter` {`borrowSkill`, `percent[10]`, `element`, `bonusBroods`, `bonusPercent`} | Strike back when the shield blocks a monster's normal attack |
 | `enchant` {`choices`, `basicOnly`} | Element added to hits; one choice drawn per cast |

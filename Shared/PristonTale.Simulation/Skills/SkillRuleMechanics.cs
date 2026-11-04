@@ -140,6 +140,8 @@ public sealed partial record SkillBuffRule
     public bool RequiresWeapon { get; init; }
     // Boss monsters never take the effect.
     public bool SparesBosses { get; init; }
+    // Percent of a monster's maximum life the effect takes while it lasts, the monster drawn smaller (FieldSkills.Shrink).
+    public int[] LifeCut { get; init; } = [];
     public SkillEnchantRule Enchant { get; init; }
     public SkillAbsorbRule Absorb { get; init; }
     public SkillReflectRule Reflect { get; init; }
@@ -219,6 +221,8 @@ public sealed partial record SkillRule
     public uint[] Exclusive { get; init; } = [];
     // These effects end on the caster when the skill is cast.
     public uint[] Replaces { get; init; } = [];
+    // The classes another player must be to take an Ally rule (any when empty).
+    public Contracts.Characters.PlayerClass[] AllyClasses { get; init; } = [];
     public SkillAllyRule Allies { get; init; }
     public SkillCharmRule Charm { get; init; }
     public SkillResurrectRule Resurrect { get; init; }
@@ -300,7 +304,7 @@ public static partial class SkillRuleCatalog
     {
         static bool Choice(SkillEnchantChoice choice) => Ranked(choice.Min) && Ranked(choice.Max) && Ranked(choice.SlowPercent) && Ranked(choice.SlowTenths)
             && choice.Min.Length == choice.Max.Length && choice.SlowPercent.Length == choice.SlowTenths.Length;
-        return (buff.Enchant is null || buff.Enchant.Choices.Length > 0 && buff.Enchant.Choices.All(Choice))
+        return Ranked(buff.LifeCut) && (buff.Enchant is null || buff.Enchant.Choices.Length > 0 && buff.Enchant.Choices.All(Choice))
             && (buff.Absorb is null || buff.Absorb.Percent.Length == SkillLearning.MaxRank)
             && (buff.Reflect is null || buff.Reflect.Percent.Length == SkillLearning.MaxRank)
             && (buff.Guard is null || buff.Guard.HealPercent.Length == SkillLearning.MaxRank)

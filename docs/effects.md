@@ -418,6 +418,10 @@ Every cast draws `vfx.magician.castcircle` (the Magician's circle textures) unle
 | Fire Elemental, Distortion | The cast circle; distorted targets glow red-yellow and wobble | `castcircle`; `statusLook` Distortion |
 | Flame Wave | Five fire streams fanning ahead | `flamewave.wave` |
 | Meteo | Four burning meteors falling around the target, a burst where each lands (once per cast) | `meteo.fall`, `meteo.hit`; `impactEffects` |
+| Silraphim | Casting circle; the Silraphim flash at the target | `vfx.magician.castcircle`, `vfx.magician.silraphim.hit` |
+| Vis Tenus | The shrinking flash at the target, which draws at half its size while shrunk | `vfx.magician.vistenus.beam` |
+| Prima Ignis | Casting circle; the primal fire rolling ahead of the caster | `vfx.magician.primaignis.shot` |
+| Third Anima | Casting circle; five sigils orbiting the holder while active (Zenith's aura) | `vfx.magician.thirdanima.aura` |
 
 ### Actor looks and per-hit sounds
 

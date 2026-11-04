@@ -466,7 +466,8 @@ internal sealed partial class FieldSkills
                     return SupportBlocked(player, rule) ? SkillCastVerdict.AlreadyActive : SkillCastVerdict.Accepted;
                 }
 
-                if (!_host.TryGetPlayer(request.TargetId, out var ally) || ally.IsDead || rule.Allies is { Party: true } && !player.SharesPartyWith(ally))
+                if (!_host.TryGetPlayer(request.TargetId, out var ally) || ally.IsDead || rule.Allies is { Party: true } && !player.SharesPartyWith(ally)
+                    || rule.AllyClasses.Length > 0 && !rule.AllyClasses.Contains(ally.Character.Class.Class))
                 {
                     return SkillCastVerdict.InvalidTarget;
                 }

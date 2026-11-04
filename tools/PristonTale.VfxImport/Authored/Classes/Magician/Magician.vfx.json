@@ -2057,5 +2057,201 @@
         "turn": true
       }
     ]
+  },
+  {
+    "name": "vfx.magician.silraphim.hit",
+    "duration": 2.0,
+    "parts": [
+      {
+        "animation": "SkillSilraphim1.ini",
+        "anchor": "Point",
+        "offset": [
+          0,
+          19.5312,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.magician.vistenus.beam",
+    "duration": 2.0,
+    "parts": [
+      {
+        "animation": "SkillVisTenus1.ini",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.magician.primaignis.shot",
+    "duration": 2.0,
+    "parts": [
+      {
+        "shape": "Billboard",
+        "size": [
+          1,
+          1
+        ],
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          39.0625,
+          -30
+        ],
+        "velocityMin": [
+          0,
+          0,
+          -350
+        ],
+        "velocityMax": [
+          0,
+          0,
+          -350
+        ],
+        "lifetime": [
+          1.2,
+          1.2
+        ],
+        "carryEffect": "particle.Skill5MagicianPrimaIgnisShot"
+      }
+    ]
+  },
+  {
+    "name": "vfx.magician.thirdanima.aura",
+    "duration": 600,
+    "parts": [
+      {
+        "texture": "image/Sinimage/Effect/SkillEffect/ThirdAnima/1os.tga",
+        "size": [
+          3.9062,
+          3.9062
+        ],
+        "color": [
+          208,
+          208,
+          208,
+          255
+        ],
+        "anchor": "Caster",
+        "follow": true,
+        "turn": false,
+        "offset": [
+          0,
+          27.3438,
+          0
+        ],
+        "orbitRadius": 16,
+        "orbitSpeed": 153.8086,
+        "orbitPhase": 337.5
+      },
+      {
+        "texture": "image/Sinimage/Effect/SkillEffect/ThirdAnima/2os.tga",
+        "size": [
+          3.9062,
+          3.9062
+        ],
+        "color": [
+          208,
+          208,
+          208,
+          255
+        ],
+        "anchor": "Caster",
+        "follow": true,
+        "turn": false,
+        "offset": [
+          0,
+          27.3438,
+          0
+        ],
+        "orbitRadius": 16,
+        "orbitSpeed": 153.8086,
+        "orbitPhase": 45
+      },
+      {
+        "texture": "image/Sinimage/Effect/SkillEffect/ThirdAnima/3os.tga",
+        "size": [
+          3.9062,
+          3.9062
+        ],
+        "color": [
+          208,
+          208,
+          208,
+          255
+        ],
+        "anchor": "Caster",
+        "follow": true,
+        "turn": false,
+        "offset": [
+          0,
+          27.3438,
+          0
+        ],
+        "orbitRadius": 16,
+        "orbitSpeed": 153.8086,
+        "orbitPhase": 112.5
+      },
+      {
+        "texture": "image/Sinimage/Effect/SkillEffect/ThirdAnima/4os.tga",
+        "size": [
+          3.9062,
+          3.9062
+        ],
+        "color": [
+          208,
+          208,
+          208,
+          255
+        ],
+        "anchor": "Caster",
+        "follow": true,
+        "turn": false,
+        "offset": [
+          0,
+          27.3438,
+          0
+        ],
+        "orbitRadius": 16,
+        "orbitSpeed": 153.8086,
+        "orbitPhase": 180
+      },
+      {
+        "texture": "image/Sinimage/Effect/SkillEffect/ThirdAnima/5os.tga",
+        "size": [
+          3.9062,
+          3.9062
+        ],
+        "color": [
+          208,
+          208,
+          208,
+          255
+        ],
+        "anchor": "Caster",
+        "follow": true,
+        "turn": false,
+        "offset": [
+          0,
+          27.3438,
+          0
+        ],
+        "orbitRadius": 16,
+        "orbitSpeed": 153.8086,
+        "orbitPhase": 247.5
+      }
+    ]
   }
 ]

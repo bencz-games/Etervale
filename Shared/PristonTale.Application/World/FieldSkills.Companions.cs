@@ -148,6 +148,8 @@ internal sealed partial class FieldSkills
         {
             EndCrystalPets(change.Entity, code);
         }
+
+        EndShrink(change);
     }
 
     private sealed class Companion(ulong holderId, SkillRule rule, int rank)
