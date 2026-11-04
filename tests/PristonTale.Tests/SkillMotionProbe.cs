@@ -51,7 +51,9 @@ internal static class SkillMotionProbe
                     continue;
                 }
 
-                var classTags = Enumerable.Range(first, 20).Select(static tag => (byte)tag).ToArray();
+                // A class's tags run up to the next class's first one (the Knight's last two pass its twentieth).
+                var next = FirstTags.Values.Where(tag => tag > first).DefaultIfEmpty(first + 20).Min();
+                var classTags = Enumerable.Range(first, next - first).Select(static tag => (byte)tag).ToArray();
                 if (rule.Motion == SkillMotion.Skill)
                 {
                     Check(playerClass, rule, rule.MotionIndex, rule.MotionFrames, rule.MotionEvents, classTags, motions, failures);

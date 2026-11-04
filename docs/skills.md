@@ -61,8 +61,8 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
 - The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills. The
-  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter, the Pikeman and the Archer; the
-  other classes' fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
+  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter, the Pikeman, the Archer and the
+  Knight; the other classes' fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
   Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
   class: first tag + 4 x tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers,
   which the original's empty weapon list never allowed.
@@ -91,6 +91,12 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   65 beyond the bow's reach; Nature Splash and Circle Trap strike every enemy around their target with the attack
   raised by their rate, Circle Trap slowing them by 10 to 28% for 0.5 to 5 s. Stuns of monster holds (Power Dash,
   Evade Shot) spare bosses.
+- The Knight's fifth tier: Soul Breaker strikes as the cast starts with a flat attack rating; Crescent Moon strikes
+  every enemy around its target with the attack raised by its rate; Saint Blade strikes as the cast starts and at its
+  first event, the second hit borrowing Grand Cross's attack rating percent by its rank (`borrowedRating`), both raised
+  against the undead; Holy Benedic adds damage against the undead to the caster or a clicked party member, and to the
+  caster and the party members within 200 (an `Ally` rule whose `allies` has a radius reaches them too). The Knight's
+  fifth-tier clips are tagged 99 to 102, past its twentieth tag.
 
 ## Learning (skill master)
 
@@ -161,7 +167,8 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
 - Cast requirement: `requiresEffect` (codes: the cast is refused unless one of them runs on the caster).
 - Accuracy and critical: `attackRating[10]`, `attackRatingPlusLevel`, `attackRatingPercent[10]`, `criticalAdd[10]`,
   `criticalPercent[10]` (relative: crit + crit x pct / 100), `borrowedCritical` {`skill`, `values[10]` indexed by that
-  skill's rank, `divisor`}, `noAccuracy`, `stopAfterMiss`, `noCriticalHits` (1-based hit numbers), `forceFlinch`,
+  skill's rank, `divisor`}, `borrowedRating` {`skill`, `values[10]`, `fromHit`}: attack rating percent from that
+  skill's rank on the hits from `fromHit` (1-based) on, `noAccuracy`, `stopAfterMiss`, `noCriticalHits` (1-based hit numbers), `forceFlinch`,
   `volley[10]` (shots per strike, each rolls accuracy, damage adds up).
 - Damage: `damage` (damage rule, below); `burst` {`afterHit`, `radius`, `percent` (100), `element`}: a burst around the
   caster after that weapon hit; `lifeCost[10]`: weapon skills pay tenths of a percent of max life per landed hit,

@@ -1663,5 +1663,167 @@
         "stopWithParent": false
       }
     ]
+  },
+  {
+    "name": "vfx.knight.soulbreaker.cast",
+    "duration": 2.0,
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Tempskron/AvengingCrash 01.wav",
+        "delay": 0.75
+      }
+    ],
+    "children": [
+      {
+        "effect": "vfx.knight.piercing.thrust",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "delay": 0.75,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.knight.crescentmoon.cast",
+    "duration": 3.57,
+    "children": [
+      {
+        "effect": "particle.Skill5_Knight_CrescentMoon1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "bone": "Bip weapon01",
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.knight.crescentmoon.hit",
+    "duration": 2.0,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "image/Sinimage/AssaEffect/CresentMoon/CresentMoon.smd",
+        "blend": "Additive",
+        "anchor": "Caster",
+        "modelFrames": 20,
+        "modelSpeed": 30,
+        "fade": "InOut",
+        "fadeIn": 0.1,
+        "fadeOut": 0.17
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.Skill5_Knight_CrescentMoon2",
+        "anchor": "Point",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.knight.saintblade.hit",
+    "duration": 2.0,
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Tempskron/ChainLance 02.wav",
+        "delay": 0.33
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.Skill5_Knight_SaintBlade1",
+        "anchor": "Point",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "delay": 0.33,
+        "stopWithParent": false
+      },
+      {
+        "effect": "particle.Skill5_Knight_SaintBlade2",
+        "anchor": "Point",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "delay": 0.33,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.knight.holybenedic.cast",
+    "duration": 3.0,
+    "children": [
+      {
+        "effect": "particle.Skill5KnightHolyBenedicHand1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "bone": "Bip01 L Hand",
+        "follow": true
+      },
+      {
+        "effect": "particle.Skill5KnightHolyBenedicHand2",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "bone": "Bip01 L Hand",
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.knight.holybenedic.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.Skill5_Knight_HolyBenedic2",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      },
+      {
+        "effect": "particle.Skill5_Knight_HolyBenedic",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
   }
 ]

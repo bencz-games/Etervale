@@ -352,6 +352,10 @@ converted scripts.
 | Grand Cross | Hit particles on the first hit, the cross model and other particles on the second | `grandcross.hit`, `grandcross.hit2` (`impactEffects`) |
 | Sword of Justice | Its group at the caster and a blue light | `justice.blade`, `justice.hit` |
 | Divine Piercing | Hit particles per hit; the sound on the last hit only | `divinepiercing.blade`, `divinepiercing.hit` |
+| Soul Breaker | The piercing thrust and its wake at the clip's event | `vfx.knight.soulbreaker.cast`, `vfx.knight.piercing.thrust` |
+| Crescent Moon | Particles at the weapon; the crescent model at the caster and a burst at the target | `vfx.knight.crescentmoon.*` |
+| Saint Blade | Holy swords and particles at the target after the second hit | `vfx.knight.saintblade.hit` |
+| Holy Benedic | Particles at the left hand; a burst and an aura on each holder while active | `vfx.knight.holybenedic.*` |
 
 ### Atalanta
 

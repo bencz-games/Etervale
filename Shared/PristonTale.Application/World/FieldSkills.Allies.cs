@@ -50,7 +50,7 @@ internal sealed partial class FieldSkills
                 EmitAllyImpact(caster, holder, rule, rank);
             }
 
-            return 1;
+            return 1 + (rule.Allies is { Radius.Length: > 0 } ? SupportAround(caster, holder, rule, rank, nowMs) : 0);
         }
 
         ApplyPlayerEffect(caster, caster, rule, rank, false, 0f, nowMs);
@@ -63,6 +63,32 @@ internal sealed partial class FieldSkills
         var count = 1;
         foreach (var ally in AlliesAround(caster, rule, rank))
         {
+            ApplyPlayerEffect(ally, caster, rule, rank, true, 0f, nowMs);
+            EmitAllyImpact(caster, ally, rule, rank);
+            count++;
+        }
+
+        return count;
+    }
+
+    // An ally rule with an allies radius also reaches the caster and the allies around the caster, besides the player it
+    // went to; those already holding it are skipped.
+    private int SupportAround(WorldPlayer caster, WorldPlayer holder, SkillRule rule, int rank, long nowMs)
+    {
+        var count = 0;
+        if (!ReferenceEquals(holder, caster) && !SupportBlocked(caster, rule))
+        {
+            ApplyPlayerEffect(caster, caster, rule, rank, false, 0f, nowMs);
+            count++;
+        }
+
+        foreach (var ally in AlliesAround(caster, rule, rank))
+        {
+            if (ReferenceEquals(ally, holder) || SupportBlocked(ally, rule))
+            {
+                continue;
+            }
+
             ApplyPlayerEffect(ally, caster, rule, rank, true, 0f, nowMs);
             EmitAllyImpact(caster, ally, rule, rank);
             count++;

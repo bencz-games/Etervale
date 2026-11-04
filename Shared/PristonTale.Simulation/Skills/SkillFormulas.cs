@@ -254,6 +254,7 @@ public static partial class SkillFormulas
         var damage = rule.Damage ?? new SkillDamageRule();
         var rating = basic.AttackRating + rule.At(rule.AttackRating, rank) + (rule.AttackRatingPlusLevel ? caster.Level : 0);
         rating += rating * rule.At(rule.AttackRatingPercent, rank) / 100;
+        rating += rating * BorrowedRating(caster, rule, hit) / 100;
         var flat = 0;
         // An elemental add (FlatElement) is rolled by the caller, which resists it with its own element.
         if (damage.Min.Length > 0 && damage.FlatElement is null)
@@ -303,6 +304,18 @@ public static partial class SkillFormulas
 
         var rank = caster.Skills.RankOf(borrowed.Skill);
         return rank == 0 ? 0 : rule.At(borrowed.Values, rank) / Math.Max(1, borrowed.Divisor);
+    }
+
+    private static int BorrowedRating(PlayerCharacter caster, SkillRule rule, int hit)
+    {
+        var borrowed = rule.BorrowedRating;
+        if (borrowed is null || hit + 1 < borrowed.FromHit)
+        {
+            return 0;
+        }
+
+        var rank = caster.Skills.RankOf(borrowed.Skill);
+        return rank == 0 ? 0 : rule.At(borrowed.Values, rank);
     }
 
     // The brood bonus of a weapon skill, applied after the hit like the original's race bonus: the fixed percent, then

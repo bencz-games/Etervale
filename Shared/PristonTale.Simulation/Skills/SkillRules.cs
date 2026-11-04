@@ -219,6 +219,15 @@ public sealed record SkillBorrowedCritical
     public int Divisor { get; init; } = 1;
 }
 
+// Attack rating percent a weapon skill's hits from FromHit on (1-based) borrow from another learned skill: Values indexed
+// by that skill's rank (none while it is not learned).
+public sealed record SkillBorrowedRating
+{
+    public uint Skill { get; init; }
+    public int[] Values { get; init; } = [];
+    public int FromHit { get; init; } = 1;
+}
+
 // A burst around the caster that follows one hit of a weapon skill: the hit's rolled attack damage with the skill's
 // percent, scaled by Percent, to every enemy within Radius (element resistance and absorption apply, no critical).
 public sealed record SkillBurstRule
@@ -337,6 +346,7 @@ public sealed partial record SkillRule
     // Relative critical chance increase: critical + critical x percent / 100.
     public int[] CriticalPercent { get; init; } = [];
     public SkillBorrowedCritical BorrowedCritical { get; init; }
+    public SkillBorrowedRating BorrowedRating { get; init; }
     public SkillBurstRule Burst { get; init; }
     public SkillChargeRule Charge { get; init; }
     // Areas: a weapon hit with this damage rule on the clicked target besides the area share; accuracy rolled per area
@@ -433,7 +443,8 @@ public static partial class SkillRuleCatalog
         && rule.MotionRatePercent is > 0 and <= 400
         && rule.MotionEvents.All(frame => frame > 0 && (rule.MotionFrames == 0 || frame <= rule.MotionFrames))
         && WellFormed(rule.Damage) && WellFormed(rule.MainHit) && WellFormed(rule.Buff) && WellFormed(rule.CasterBuff)
-        && (rule.BorrowedCritical is null || rule.BorrowedCritical.Values.Length == SkillLearning.MaxRank && rule.BorrowedCritical.Divisor > 0);
+        && (rule.BorrowedCritical is null || rule.BorrowedCritical.Values.Length == SkillLearning.MaxRank && rule.BorrowedCritical.Divisor > 0)
+        && (rule.BorrowedRating is null || rule.BorrowedRating.Values.Length == SkillLearning.MaxRank && rule.BorrowedRating.FromHit >= 1);
 
     private static bool WellFormed(SkillDamageRule damage) => damage is null || Ranked(damage.Percent) && Ranked(damage.PercentAfter)
         && Ranked(damage.Min) && Ranked(damage.Max) && Ranked(damage.RandomHits) && Ranked(damage.LevelDivisorByRank) && Ranked(damage.BonusPercentByRank)
