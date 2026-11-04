@@ -82,6 +82,11 @@ public static class HudSkillDetails
         if (damage.Min.Length == 10)
         {
             lines.Add($"Damage {rule.At(damage.Min, rank)}-{rule.At(damage.Max, rank)}{(damage.Element == Simulation.Combat.Element.Bionic ? "" : " " + damage.Element)}");
+            var tablePercent = SkillFormulas.RankValue(damage.TablePercent, rank);
+            if (tablePercent != 0)
+            {
+                lines.Add($"Adding rate {Signed(tablePercent)}%");
+            }
         }
 
         if (percent != 0)

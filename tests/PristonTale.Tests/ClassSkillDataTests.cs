@@ -11,14 +11,18 @@ internal static class ClassSkillDataTests
     private sealed record SourceSkill(uint Code, string Name, string Description, string Icon, int Level, int Stamina, int Step, string Use, int[] Mana,
         string[] Weapons);
 
-    // The ported classes have their first four tiers' sixteen skills ported; the fifth tier holds definitions.
+    // The ported classes have their first four tiers' sixteen skills ported; the fifth tier has rules for the classes
+    // listed in FifthTierPorted and holds definitions for the others.
     private static readonly PlayerClass[] Ported =
     [
         PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Knight, PlayerClass.Atalanta,
         PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin, PlayerClass.Shaman
     ];
 
+    private static readonly PlayerClass[] FifthTierPorted = [PlayerClass.Mechanician];
+
     private const int PortedSkills = 16;
+    private const int FifthTierSkills = 4;
 
     // Names whose original spelling was a typo or an abbreviation; the window shows the corrected one.
     private static readonly Dictionary<string, string> Renamed = new()
@@ -219,7 +223,7 @@ internal static class ClassSkillDataTests
         var count = 0;
         foreach (var playerClass in Ported)
         {
-            var skills = ClassSkillCatalog.For(playerClass).Take(PortedSkills).ToArray();
+            var skills = ClassSkillCatalog.For(playerClass).Take(PortedSkills + (FifthTierPorted.Contains(playerClass) ? FifthTierSkills : 0)).ToArray();
             foreach (var skill in skills)
             {
                 Assert.True(skill.ManaByRank.Count == 10, $"{skill.Name} has no ten-rank costs");
@@ -254,7 +258,8 @@ internal static class ClassSkillDataTests
                 $"{playerClass} final-tier rules are not recognised");
         }
 
-        Assert.True(count == 160, $"expected 160 ported skills with rules, got {count}");
+        var expected = Ported.Length * PortedSkills + FifthTierPorted.Length * FifthTierSkills;
+        Assert.True(count == expected, $"expected {expected} ported skills with rules, got {count}");
         Assert.True(SkillRuleCatalog.Count == count, $"rules exist for skills that are not ported: {SkillRuleCatalog.Count}");
         return Task.CompletedTask;
     }

@@ -2116,5 +2116,171 @@
         "sized": false
       }
     ]
+  },
+  {
+    "name": "vfx.mech.landmining.cast",
+    "duration": 0.5,
+    "children": [
+      {
+        "effect": "particle.Skill5_Mecanician_LandMining",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.mech.hypersonic.cast",
+    "duration": 0.5,
+    "children": [
+      {
+        "effect": "script.Skill5_Mecanician_HyperSonic",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.mech.rollingsmash.hit",
+    "duration": 0.5,
+    "children": [
+      {
+        "effect": "particle.Skill5_Meca_RollingSmash_Hit",
+        "anchor": "Point",
+        "offset": [
+          0,
+          24,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.mech.rollingsmash.tornado",
+    "duration": 1.0,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "Effect/AssaEffect/RollingSmash/Tornado.smd",
+        "blend": "Additive",
+        "anchor": "Caster",
+        "turn": false,
+        "offset": [
+          0,
+          -70,
+          0
+        ],
+        "rise": [
+          54.6875,
+          54.6875
+        ],
+        "tumble": [
+          0,
+          -1230.47,
+          0
+        ],
+        "lifetime": [
+          0.8571,
+          0.8571
+        ],
+        "fade": "InOut",
+        "fadeIn": 0.2186,
+        "fadeOut": 0.2186
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.Skill5_Meca_RollingSmash_Hit",
+        "anchor": "Point",
+        "offset": [
+          0,
+          24,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.mech.rollingsmash.final",
+    "duration": 0.5,
+    "children": [
+      {
+        "effect": "particle.Skill5_Meca_RollingSmash_Hit",
+        "anchor": "Point",
+        "offset": [
+          0,
+          24,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      },
+      {
+        "effect": "particle.Skill5_Meca_RollingSmash_Down",
+        "anchor": "Point",
+        "offset": [
+          0,
+          7.8125,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.mech.powerenhance.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.Skill5_Meca_PowerEnhance_Start",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      },
+      {
+        "effect": "particle.Skill5_Mecanician_PowerEnhance1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "bone": "Bip weapon01",
+        "follow": true
+      },
+      {
+        "effect": "particle.Skill5_Mecanician_PowerEnhance2",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "bone": "Bip weapon01",
+        "follow": true
+      }
+    ]
   }
 ]

@@ -33,7 +33,7 @@ writes that data, and the gameplay glue in `Client/PristonTale.Gameplay/Effects/
 | `Client/PristonTale.Gameplay/Effects/MonsterVisualFamilies.cs` | Sound family (and level, size) to effect family |
 | `Client/PristonTale.Gameplay/Effects/ActorLooks.cs`, `World/Remote/ActorLookPresenter.cs` | `ActorLookBook`: skill looks per entity from statuses, casts and impacts; the presenter paints them on actors (tint, opacity, overlay, wobble, shield swap, weapon copy, afterimage echoes) |
 | `Client/PristonTale.Gameplay/Effects/CostumeWings.cs` | Wings of the premium costume body items |
-| `Shared/PristonTale.Simulation/Items/HeldItemGlow.cs`, `Client/PristonTale.Gameplay/World/GameScene.HeldItems.cs`, `Effects/ClassUpLights.cs` | The glow of held weapons and shields (unique colours, aging colours, mix textures) and the class-up weapon lights |
+| `Shared/PristonTale.Simulation/Items/HeldItemGlow.cs`, `Client/PristonTale.Gameplay/World/GameScene.HeldItems.cs`, `Effects/WeaponOrbitLights.cs` | The glow of held weapons and shields (unique colours, aging colours, mix textures), the class-up weapon lights and the weapon orbits of skill statuses |
 | `Shared/PristonTale.Simulation/Skills/SkillRulePresentation.cs` | Rule fields for per-hit sounds and effects and actor looks |
 | `Client/PristonTale.Engine3D/Rendering/PristonVfxEffect.cs`, `PristonMeshEffect.cs` | VFX shader wrapper (`Vfx.fx`, blend modes) and baked effect models |
 | [`tools/PristonTale.VfxImport/`](../tools/PristonTale.VfxImport) | `ptvfx import`: converts the original effect scripts and installs the hand-authored definitions |
@@ -274,6 +274,10 @@ converted scripts.
 | Impulsion | Weapon glow; rays and hit particles; lightning arcs between chained targets | `vfx.mech.impulsion.*` |
 | Compulsion, Metal Golem | Converted effect groups at the caster | `vfx.mech.compulsion.cast`, `vfx.mech.metalgolem.cast` |
 | Magnetic Sphere | Orb machine hovering by the caster; lightning and shots to what it strikes | `vfx.mech.magneticsphere.*` |
+| Land Mining | Mine particles at the caster; Mechanic Bomb's fire burst over the caster at the hit | `vfx.mech.landmining.cast`, `vfx.impact.bomb` |
+| Hyper Sonic | Converted effect group at the caster; two lights circling the weapon while active (`weaponOrbit`) | `vfx.mech.hypersonic.cast`, `particle.Skill5_Mecanician_HyperSonic1`/`2` |
+| Rolling Smash | Hit particles at each strike; a spinning tornado model rising from the caster at the third, a falling burst at the target at the fourth | `vfx.mech.rollingsmash.*` |
+| Power Enhancement | A starting burst and two particle streams at the weapon hand of each holder while active | `vfx.mech.powerenhance.aura` |
 
 ### Fighter
 
@@ -442,13 +446,14 @@ blink is a steady colour; a positive scale grows the item up to it with the puls
 every other described player: `ActorLookPresenter.PaintGlow` adds the pulse to the look the item last took (the mix
 texture replaces the look's overlay) and `EndGlowFrame` returns items that stopped glowing to that look.
 
-Class-up lights (`ClassUpLights`): while its holder is alive, a weapon with the class-up light carries two lights,
+Class-up lights (`WeaponOrbitLights`): while its holder is alive, a weapon with the class-up light carries two lights,
 each `particle.ClassUpWeapon1` (the light) plus `particle.ClassUpWeapon2` (its trail), circling a point of the weapon
 (along its length, `TryGetActorReach`: a sword at 0.8 of it, 0.75 above 5000 fixed units; a staff 0.7; a bow 0.7 turned
 45 degrees, in the left hand its end less 10 turned a quarter; a javelin 0.4 behind the grip; a claw twice its reach
 beside the hand; anything else its middle; a two-handed weapon's point leans 9 degrees). The circle turns 70/4096 of a
 turn and its radius moves 10 between 1000 and 1600 fixed units each 70 Hz frame, across the weapon (a claw's and a
-bow's along it).
+bow's along it). A skill status whose rule names a `weaponOrbit` (Hyper Sonic) draws the same two lights with its own
+light and trail effects on its holder's weapon while it lasts, beside any class-up light.
 
 ## Limitations
 

@@ -72,7 +72,7 @@ internal static class SkillMotionProbe
         Assert.True(failures.Count == 0, $"{failures.Count} skill motions disagree with the class motion tables");
     }
 
-    // The class motion tables tag skill clips with the class's first tag + 4 x tier + slot - 1 (tier 0 to 3); the first
+    // The class motion tables tag skill clips with the class's first tag + 4 x tier + slot - 1 (tier 0 to 4); the first
     // tags of the eight class groups, as the shipped tables number them.
     private static readonly Dictionary<uint, int> FirstTags = new()
     {
@@ -81,7 +81,7 @@ internal static class SkillMotionProbe
 
     public static byte Tag(uint code)
     {
-        var tier = BitOperations.Log2((code >> 16) & 0xF);
+        var tier = BitOperations.Log2((code >> 16) & 0x1F);
         return (byte)(FirstTags[code >> 24] + 4 * tier + (int)(code & 0xF) - 1);
     }
 

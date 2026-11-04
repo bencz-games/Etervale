@@ -49,6 +49,8 @@ public sealed partial record SkillRule
     // (0..255 per channel).
     public string CastShieldBone { get; init; } = "";
     public int[] CastShieldGlow { get; init; } = [];
+    // Two effects (a light and its trail) circling the held weapon on either side while the status lasts.
+    public string[] WeaponOrbit { get; init; } = [];
 }
 
 public static partial class SkillRuleCatalog
@@ -56,5 +58,6 @@ public static partial class SkillRuleCatalog
     private static bool PresentationValid(SkillRule rule) =>
         rule.ImpactSounds.All(static sound => sound.Length > 0) && rule.RageGlow is >= 0 and <= 255 && Ranked(rule.WeaponGrowth)
         && rule.WeaponGrowth.All(static percent => percent >= 0) && rule.Afterimages is >= 0 and <= 8 && Enum.IsDefined(rule.StatusLook)
-        && Enum.IsDefined(rule.ImpactSoundOrder) && rule.CastShieldGlow.Length is 0 or 3;
+        && Enum.IsDefined(rule.ImpactSoundOrder) && rule.CastShieldGlow.Length is 0 or 3
+        && (rule.WeaponOrbit.Length == 0 || rule.WeaponOrbit.Length == 2 && rule.WeaponOrbit.All(static name => name.Length > 0));
 }

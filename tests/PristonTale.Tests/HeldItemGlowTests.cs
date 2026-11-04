@@ -87,13 +87,13 @@ internal static class HeldItemGlowTests
 
     private static Task ClassUpAsync()
     {
-        Assert.True(ClassUpLights.Center("WA105", 40f, false, false) == new Vector3(0f, 20f, 0f), "an axe's lights are not at its middle");
-        Assert.True(ClassUpLights.Center("WS205", 40f, false, false) == new Vector3(0f, 30f, 0f)
-            && ClassUpLights.Center("WS205", 10f, false, false) == new Vector3(0f, 8f, 0f), "a sword's lights are not near its tip");
-        Assert.True(ClassUpLights.Center("WT105", 40f, false, false) == new Vector3(0f, -16f, 0f)
-            && ClassUpLights.Center("WC105", 10f, false, false) == new Vector3(20f, 0f, 0f), "a javelin's or claw's lights differ");
-        Assert.True(ClassUpLights.Center("WS105", 40f, true, false) == new Vector3(30f, 0f, 0f), "a left-hand bow's lights differ");
-        var leaning = ClassUpLights.Center("WP105", 40f, false, true);
+        Assert.True(WeaponOrbitLights.Center("WA105", 40f, false, false) == new Vector3(0f, 20f, 0f), "an axe's lights are not at its middle");
+        Assert.True(WeaponOrbitLights.Center("WS205", 40f, false, false) == new Vector3(0f, 30f, 0f)
+            && WeaponOrbitLights.Center("WS205", 10f, false, false) == new Vector3(0f, 8f, 0f), "a sword's lights are not near its tip");
+        Assert.True(WeaponOrbitLights.Center("WT105", 40f, false, false) == new Vector3(0f, -16f, 0f)
+            && WeaponOrbitLights.Center("WC105", 10f, false, false) == new Vector3(20f, 0f, 0f), "a javelin's or claw's lights differ");
+        Assert.True(WeaponOrbitLights.Center("WS105", 40f, true, false) == new Vector3(30f, 0f, 0f), "a left-hand bow's lights differ");
+        var leaning = WeaponOrbitLights.Center("WP105", 40f, false, true);
         Assert.True(Math.Abs(leaning.Length() - 20f) < 1e-4f && leaning.Z > 0f, $"a two-handed weapon's point does not lean: {leaning}");
         return Task.CompletedTask;
     }

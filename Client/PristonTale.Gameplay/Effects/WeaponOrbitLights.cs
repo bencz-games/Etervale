@@ -5,30 +5,35 @@ using PristonTale.Contracts.Units;
 
 namespace PristonTale.Gameplay.Effects;
 
-// The class-up light a weapon's effect setting gives it (HeldItemGlow.ClassUp): two lights circle a point of the held
-// weapon, each a pair of particle scripts (ClassUpWeapon1 follows the light, ClassUpWeapon2 trails behind it). The point
-// lies along the weapon's length by its kind (a sword near the tip, a staff or bow further up, a javelin behind the
-// grip, a claw beside the hand, anything else at the middle); the circle turns 70/4096 of a turn and its radius moves 10
-// of 1000..1600 fixed units each 70 Hz frame, in the plane across the weapon (a claw's and a bow's along it).
-public sealed class ClassUpLights
+// Two lights circling a point of the held weapon, each a pair of particle scripts (the light, and its trail behind it):
+// the class-up light a weapon's effect setting gives it (HeldItemGlow.ClassUp, ClassUpWeapon1 and ClassUpWeapon2) and
+// the orbit of a skill's status (SkillRule.WeaponOrbit). The point lies along the weapon's length by its kind (a sword
+// near the tip, a staff or bow further up, a javelin behind the grip, a claw beside the hand, anything else at the
+// middle); the circle turns 70/4096 of a turn and its radius moves 10 of 1000..1600 fixed units each 70 Hz frame, in the
+// plane across the weapon (a claw's and a bow's along it).
+public sealed class WeaponOrbitLights
 {
-    public const string Light = "particle.ClassUpWeapon1";
-    public const string Trail = "particle.ClassUpWeapon2";
+    public const string ClassUpLight = "particle.ClassUpWeapon1";
+    public const string ClassUpTrail = "particle.ClassUpWeapon2";
+    // The orbit key of the class-up light; a skill's orbit is keyed by its skill code.
+    public const uint ClassUp = 0;
 
-    private readonly Dictionary<ulong, Holder> _held = new();
-    private readonly HashSet<ulong> _seen = new();
-    private readonly List<ulong> _gone = new();
+    private readonly Dictionary<(ulong Entity, uint Code), Holder> _held = new();
+    private readonly HashSet<(ulong Entity, uint Code)> _seen = new();
+    private readonly List<(ulong Entity, uint Code)> _gone = new();
 
-    // One holder this frame: its weapon's world matrix, its reach along the weapon (model units), its catalog key, whether
-    // the weapon is held in the left hand and two-handed. Holders not reported before EndFrame lose their lights.
-    public void Hold(SkillPresentation skills, ulong entityId, Matrix weaponWorld, float reach, string weaponKey, bool leftHand, bool twoHanded,
-        float seconds)
+    // One orbit this frame: its holder and key, the light and trail effects, the weapon's world matrix, its reach along the
+    // weapon (model units), its catalog key, whether the weapon is held in the left hand and two-handed. Orbits not
+    // reported before EndFrame stop.
+    public void Hold(SkillPresentation skills, ulong entityId, uint code, string light, string trail, Matrix weaponWorld, float reach, string weaponKey,
+        bool leftHand, bool twoHanded, float seconds)
     {
-        _seen.Add(entityId);
-        if (!_held.TryGetValue(entityId, out var holder))
+        var key = (entityId, code);
+        _seen.Add(key);
+        if (!_held.TryGetValue(key, out var holder))
         {
-            holder = new Holder();
-            _held.Add(entityId, holder);
+            holder = new Holder(light, trail);
+            _held.Add(key, holder);
         }
 
         holder.Advance(seconds);
@@ -46,18 +51,18 @@ public sealed class ClassUpLights
     public void EndFrame()
     {
         _gone.Clear();
-        foreach (var (entity, holder) in _held)
+        foreach (var (key, holder) in _held)
         {
-            if (!_seen.Contains(entity))
+            if (!_seen.Contains(key))
             {
                 holder.Stop();
-                _gone.Add(entity);
+                _gone.Add(key);
             }
         }
 
-        foreach (var entity in _gone)
+        foreach (var key in _gone)
         {
-            _held.Remove(entity);
+            _held.Remove(key);
         }
 
         _seen.Clear();
@@ -113,7 +118,7 @@ public sealed class ClassUpLights
         return leftHand || ItemEquipmentMetadata.KindOf(weaponKey) is ItemKind.Claw or ItemKind.Bow;
     }
 
-    private sealed class Holder
+    private sealed class Holder(string light, string trail)
     {
         private readonly VfxHandle[] _effects = new VfxHandle[4];
         private float _frames;
@@ -142,15 +147,15 @@ public sealed class ClassUpLights
             }
         }
 
-        // Light 0 or 1: its two scripts move to the point, started again once they ended.
-        public void Place(SkillPresentation skills, int light, Vector3 point)
+        // Side 0 or 1: its light and trail move to the point, started again once they ended.
+        public void Place(SkillPresentation skills, int side, Vector3 point)
         {
             for (var part = 0; part < 2; part++)
             {
-                var slot = light * 2 + part;
+                var slot = side * 2 + part;
                 if (!_effects[slot].Alive)
                 {
-                    _effects[slot] = skills.SpawnAt(part == 0 ? Light : Trail, point, Matrix.Identity);
+                    _effects[slot] = skills.SpawnAt(part == 0 ? light : trail, point, Matrix.Identity);
                 }
 
                 _effects[slot].MoveTo(point);

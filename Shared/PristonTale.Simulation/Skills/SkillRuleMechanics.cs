@@ -176,6 +176,8 @@ public sealed partial record SkillDamageRule
     public int[] SpiritMaxDivisorByRank { get; init; } = [];
     public int[] WeaponTimesMin { get; init; } = [];
     public int[] WeaponTimesMax { get; init; } = [];
+    // The Min..Max range alone gains this percent per rank, before the attack power or the other terms join it.
+    public int[] TablePercent { get; init; } = [];
     // The hit carries no element: no element resistance lowers it.
     public bool Unresisted { get; init; }
     // Share modes: percent of life per rank; Chance per rank plus level / ChanceLevelDivisor. A rolled single-target
@@ -286,7 +288,7 @@ public static partial class SkillRuleCatalog
     {
         return Ranked(damage.BonusPercentByRank) && Ranked(damage.Share) && Ranked(damage.Chance) && damage.ResistanceDivisor >= 1
             && Ranked(damage.LevelPercent) && Ranked(damage.SpiritMinDivisorByRank) && Ranked(damage.SpiritMaxDivisorByRank)
-            && Ranked(damage.WeaponTimesMin) && Ranked(damage.WeaponTimesMax)
+            && Ranked(damage.WeaponTimesMin) && Ranked(damage.WeaponTimesMax) && Ranked(damage.TablePercent)
             && (damage.Mode == SkillDamageMode.Rolled || damage.Share.Length == SkillLearning.MaxRank) && (damage.Main is null || DamageValid(damage.Main));
     }
 

@@ -47,7 +47,7 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 | `Client/PristonTale.Gameplay/UI/Widgets/HudSkillBindings.cs` | Left/right mouse sockets and the eight `F1`-`F8` short keys (in memory, not saved) |
 | `Client/PristonTale.Gameplay/UI/Widgets/HudSkillHud.cs` | Bottom-bar sockets with cooldown sweep; continuous-skill bar (keep icons, duration gauge, summon mode tooltip) |
 | `Client/PristonTale.Gameplay/UI/Widgets/HudSkillDetails.cs` | Tooltip numbers per rank, read from the same `SkillRule` |
-| `tests/PristonTale.Tests/Skill*Tests.cs`, `ClassSkillDataTests.cs`, `PassiveSkillTests.cs` | Regression cases; `SkillScenario`/`SkillFixtures` build a one-player field for server tests |
+| `tests/PristonTale.Tests/Skill*Tests.cs`, `<Class>SkillTests.cs`, `ClassSkillDataTests.cs`, `PassiveSkillTests.cs` | Regression cases (by mechanic, or by class for a class's own skills); `SkillScenario`/`SkillFixtures` build a one-player field for server tests |
 
 ## Skill identity and window order
 
@@ -60,16 +60,22 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   Mechanician lists `0x01010004` before `0x01010003`.
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
-- The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills; their
-  fifth tier (levels 80, 83, 86, 90) holds definitions only (name, icon, level, costs, weapons) until its rules are
-  ported. The Assassin's and the Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the
-  class motion table numbers tags per class: first tag + 4 x tier + slot - 1); the Assassin Mastery grants its
-  critical chance with daggers, which the original's empty weapon list never allowed.
+- The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills. The
+  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician; the other classes' fifth tier holds definitions
+  only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the Shaman's skill clips are
+  those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per class: first tag + 4 x
+  tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers, which the original's
+  empty weapon list never allowed.
 - The Shaman's spells roll base + level x `levelPercent` / 100 + weapon item damage x `weaponTimes` + spirit / the
   rank's divisor, never critically. Haunt drains a share of its target's maximum life (bosses spared) and returns it
   up to 40% of the caster's maximum life; Soul Manacle holds a monster (bosses spared, hits do not end it); Chasing
   Hunt taunts for `tauntTenths`; Migal and Midranda reach the party within 400 and never stack; Mourning of Pray needs
   one of them on the caster, and party members holding one echo it around themselves with the caster's weapon.
+- The Mechanician's fifth tier: Land Mining strikes up to its rank's count of enemies around the caster (no target
+  needed) with its mine damage raised by its rate plus the attack damage, half more on mechanic monsters; Hyper Sonic
+  speeds the attack only while one of its weapons is held; Rolling Smash strikes four times with a flat then percent
+  attack rating; Power Enhancement raises both ends of the caster's attack damage and half as much of the maximum of
+  the party members within its range, and ends on a Mechanician holding none of its weapons.
 
 ## Learning (skill master)
 
@@ -169,7 +175,8 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
   (red light 0..255 at each impact, fading 70 a second), `shieldModel` (drawn instead of a held shield while the
   status lasts, from the cast's hit on), `weaponGrowth[10]` (percent growth of a red translucent weapon copy during the
   cast), `afterimages` (0..8, trailing copies through the cast), `castShieldBone` and `castShieldGlow[3]` (the held
-  shield moves to that body bone and glows during the cast).
+  shield moves to that body bone and glows during the cast), `weaponOrbit` (two effects, a light and its trail, circling
+  the holder's weapon while the status lasts).
 
 ### Damage rule (`damage`, `mainHit`, `damage.main`)
 
@@ -180,6 +187,7 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
 | `levelDivisor`, `levelDivisorByRank[10]`, `levelOnMax` | Level / divisor added to both ends (max only with `levelOnMax`) |
 | `weaponDivisor`, `weaponFromAttack`, `spiritMinDivisor`, `spiritMaxDivisor` | Magic terms: weapon (or attack) damage / divisor, spirit / divisor |
 | `levelPercent[10]`, `spiritMinDivisorByRank[10]`, `spiritMaxDivisorByRank[10]`, `weaponTimesMin[10]`, `weaponTimesMax[10]` | Spell terms per rank: level x percent / 100 on both ends, spirit / the rank's divisor (0 none), weapon item damage x times |
+| `tablePercent[10]` | Bolts and areas: `min`..`max` alone gain this percent before the attack power and the other terms join them |
 | `strengthMaxDivisor` | Weapon rolls: maximum gains strength / divisor |
 | `attackPower`, `spellPower` | Roll the caster's attack damage with `percent`; tables gain the spell-power percent |
 | `areaPercent` (100), `mainPercent`, `mainElement`, `main` | Area share per target; extra share and element of the main target; a separate main hit |

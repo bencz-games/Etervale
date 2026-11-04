@@ -334,8 +334,11 @@ public static partial class SkillFormulas
     public static int RollPower(PlayerCharacter caster, SkillRule rule, SkillDamageRule damage, int rank, CombatRng rng, (int Min, int Max)? weaponItem = null)
     {
         var spell = caster.Effects.Totals.Flat(StatKind.SpellDamage);
-        var low = rule.At(damage.Min, rank) + spell;
-        var high = rule.At(damage.Max, rank) + spell;
+        var tablePercent = At(damage.TablePercent, rank);
+        var low = rule.At(damage.Min, rank);
+        var high = rule.At(damage.Max, rank);
+        low += low * tablePercent / 100 + spell;
+        high += high * tablePercent / 100 + spell;
         if (damage.SpellPower)
         {
             var boost = caster.Effects.Totals.Flat(StatKind.SpellPower);
