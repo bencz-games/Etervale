@@ -39,6 +39,10 @@ Applies throughout this repository. Follow the user's explicit instructions firs
     is kept where it belongs (applied and committed, or recorded in the repository).
   - Anything an ongoing task still uses stays until that task ends; a file worth keeping beyond it moves into the
     repository first.
+- Hard rule: never read environment variables in the code (client, server, engine, tools or tests) to configure
+  behaviour, tune values or switch features. Settings belong in the settings files beside the executable, command-line
+  arguments or code constants. A variable may be read only in a throwaway local experiment, and that code is removed
+  right after the experiment, before anything else is done; it never reaches a commit.
 
 ## Platforms
 
