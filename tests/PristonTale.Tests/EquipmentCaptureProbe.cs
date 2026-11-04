@@ -49,7 +49,7 @@ internal sealed class EquipmentCaptureProbe : Game
         _composer = new PlayerActorComposer(scene, new PristonActorLoader());
         _camera = new PristonCamera(Vector3.Zero, Vector3.Forward, new PristonCameraSettings { FieldOfViewDegrees = 38 });
         var registry = new CharacterClassRegistry();
-        string[] weapons = ["WA101", "WC101", "WS101", "WP101", "WT101", "WS201", "WM101", "WM101"];
+        string[] weapons = ["WA101", "WC101", "WS101", "WP101", "WT101", "WS201", "WM101", "WM101", "WD101", "WN101"];
         if (_ranged)
         {
             weapons = ["WS110", "WS101", "WS104"];

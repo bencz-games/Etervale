@@ -63,7 +63,7 @@ public sealed partial class GameScene
     private void Hold(ulong entityId, PlayerActorHandles handles, in HeldItemGlow weapon, in HeldItemGlow offHand, string weaponKey, bool shown)
     {
         _looks.PaintGlow(handles.Weapon, weapon, _heldClockMs);
-        _looks.PaintGlow(handles.OffHand, offHand, _heldClockMs);
+        _looks.PaintGlow(handles.OffHand, handles.Twin ? weapon : offHand, _heldClockMs);
 
         if (!shown || weaponKey.Length == 0 || !_renderer.TryGetActorWorld(handles.Weapon, out var world)
             || !_renderer.TryGetActorReach(handles.Weapon, out var reach))

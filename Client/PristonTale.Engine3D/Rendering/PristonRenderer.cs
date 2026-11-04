@@ -1040,6 +1040,9 @@ public sealed partial class PristonRenderer : IDisposable
         public ActorHandle Parent { get; set; } = ActorHandle.None;
         public int ParentBone { get; set; }
         public int CheerBone { get; set; } = -1;
+        // Applied in the bone's frame before it, and the lift raises the result.
+        public Matrix AttachOffset { get; set; } = Matrix.Identity;
+        public float AttachLift { get; set; }
         public ActorGpuResource GpuResource { get; set; }
 
         public bool Alive { get; set; } = true;

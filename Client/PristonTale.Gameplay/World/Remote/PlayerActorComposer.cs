@@ -14,6 +14,9 @@ public readonly record struct PlayerActorHandles(ActorHandle Body, ActorHandle H
     public ActorHandle Weapon { get; init; } = ActorHandle.None;
     public ActorHandle OffHand { get; init; } = ActorHandle.None;
 
+    // The off-hand actor is a second copy of the weapon (the Assassin's left dagger), glowing as the weapon does.
+    public bool Twin { get; init; }
+
     // The body and the head move and play as one (the weapons follow by attachment).
     public void SetWorld(IActorScene scene, Matrix world)
     {
@@ -213,9 +216,27 @@ public sealed class PlayerActorComposer(IActorScene scene, PristonActorLoader ac
                         VisibleInMainPass = visibleInMainPass
                     })
                 };
-                var held = EquipmentVisuals.WeaponBone(visuals.WeaponKey, visuals.InVillage);
-                var back = EquipmentVisuals.WeaponBone(visuals.WeaponKey, village: true);
+                var held = EquipmentVisuals.WeaponBone(visuals, visuals.InVillage);
+                var back = EquipmentVisuals.WeaponBone(visuals, village: true);
                 _scene.AttachActor(handles.Weapon, handles.Body, held, back == held ? null : back);
+                if (EquipmentVisuals.WeaponHover(visuals) is { } hover)
+                {
+                    _scene.SetActorAttachOffset(handles.Weapon, hover.Offset, hover.Lift);
+                }
+
+                if (prepared.OffHand is null && EquipmentVisuals.TwinBone(visuals, visuals.InVillage) is { } twinHeld)
+                {
+                    handles = handles with
+                    {
+                        OffHand = _scene.AddActor(new PristonActorInstance(prepared.Weapon, world, MotionCode.Stand)
+                        {
+                            VisibleInMainPass = visibleInMainPass
+                        }),
+                        Twin = true
+                    };
+                    var twinBack = EquipmentVisuals.TwinBone(visuals, village: true);
+                    _scene.AttachActor(handles.OffHand, handles.Body, twinHeld, twinBack == twinHeld ? null : twinBack);
+                }
             }
 
             if (prepared.OffHand is not null)

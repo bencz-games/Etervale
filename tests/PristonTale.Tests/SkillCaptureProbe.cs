@@ -42,11 +42,10 @@ internal sealed class SkillCaptureProbe : Game, ISkillSceneHost
         (PlayerClass.Priestess, "WM101", ""), (PlayerClass.Magician, "WM101", "")
     ];
 
-    // The classes outside the first eight groups, by their skill code's high byte; their daggers and phantoms have no
-    // model in the equipment tables, so they cast empty-handed.
+    // The classes outside the first eight groups, by their skill code's high byte.
     private static readonly Dictionary<uint, (PlayerClass Class, string Weapon, string OffHand)> LaterClasses = new()
     {
-        [0x10] = (PlayerClass.Assassin, "", ""), [0x50] = (PlayerClass.Shaman, "", "")
+        [0x10] = (PlayerClass.Assassin, "WD101", ""), [0x50] = (PlayerClass.Shaman, "WN101", "")
     };
 
     private readonly (PlayerClass Class, string Weapon, string OffHand, uint Skill, float[] Times)[] Casts;

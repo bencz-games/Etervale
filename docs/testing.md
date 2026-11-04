@@ -244,8 +244,7 @@ dotnet run --project tests/PristonTale.Tests -c Release --no-build -- --inspect-
 Other probe details:
 
 - `--capture-skills` casts Fire Ball, Healing, Pike Wind, Extreme Shield and Impact, or the comma-separated hex codes
-  given (for example `0x05040004,0x07080003`; the Assassin and the Shaman cast empty-handed, their weapons having no
-  model in the equipment tables), through the client's skill presentation with the server's timeline; it
+  given (for example `0x05040004,0x07080003`), through the client's skill presentation with the server's timeline; it
   fails when a cast starts no motion or shows no effect light. Besides `<class>-<skill>-<time>.png` (the lit stage) it
   saves `<...>.dark.png`, the effects alone on a dark backdrop, because the exposed stage hides additive light, and
   `<...>.actor.png`, the caster and the dummy at noon without effects, for skill looks on the actors (tints,

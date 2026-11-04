@@ -751,7 +751,12 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   armour or robe wears the body of its catalog ordinal (`ArmorSlots`: ordinals from 26 sit sixteen slots further, so
   DA126-129 wear the 25th-28th bodies, DA301/401 the 29th, DA302-304/402-404 the 30th-32nd and DA131+ the costume
   bodies) from its class row (A, B, C, D, mA, mB, mC, mD, E, mE; 75 slots each); premium costumes (`CA`) keep the class
-  body and wear wings, and an armour missing from `ArmorSlots` keeps the class body.
+  body and wear wings, and an armour missing from `ArmorSlots` keeps the class body. The phantoms and daggers take the
+  motion indices of the Shaman's and the Assassin's own motion files (phantoms 101-129 and 151-153 from 261, daggers
+  from 293). The Assassin holds a dagger in each hand (`Bip weapon01` and `Bip weapon05`, the left copy being the
+  off-hand actor with the weapon's glow) and hangs the two on `Bip in07` and `Bip in08` in a village; the Shaman's
+  phantom hovers behind its back at all times (`Bip in01`, turned 2250 angle units about the bone, moved 10 back and
+  raised 1000 fixed units, `SetActorAttachOffset`).
 - Progression (`GameScene.Progression`): a `LevelUp` combat event plays `vfx.player.levelup` (with the level-up chime) at
   the player, a `SkillLearned` event the skill-learn light (`ItemVfx.Learn`) and sound, for every client near.
 - Item sounds (`ItemSoundRules`, `image/Sinimage/Sound`): an item sounds by catalog family (three characters of its key,

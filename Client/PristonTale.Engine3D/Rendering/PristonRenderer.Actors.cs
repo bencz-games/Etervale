@@ -240,6 +240,20 @@ public sealed partial class PristonRenderer
         UpdateActor(item);
     }
 
+    // Places an attached actor off its bone: the offset in the bone's frame, then the lift upward.
+    public void SetActorAttachOffset(ActorHandle child, Matrix offset, float lift)
+    {
+        if (!TryResolveActor(child, out var item) || !TryResolveActor(item.Parent, out var owner))
+        {
+            throw new ArgumentException("Invalid equipment attachment handle.");
+        }
+
+        item.AttachOffset = offset;
+        item.AttachLift = lift;
+        item.World = AttachedWorld(item, owner);
+        UpdateActor(item);
+    }
+
     private static int FindAttachBone(ActorRuntime owner, string boneName)
     {
         var index = owner.Instance.Actor.Skeleton.ObjectIndex(boneName);

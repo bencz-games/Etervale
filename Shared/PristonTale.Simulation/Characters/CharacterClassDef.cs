@@ -11,7 +11,9 @@ public sealed record CharacterClassDef(
     CharacterAttributes GrowthPerLevel,
     CharacterFunctionProfile FunctionProfile)
 {
-    public uint MotionJobMask => 1u << ((int)Class - 1);
+    public uint MotionJobMask => JobMaskOf(Class);
+
+    public static uint JobMaskOf(PlayerClass playerClass) => 1u << ((int)playerClass - 1);
 
     public JobBitCode JobBitCode => JobBits.Of(Class);
 
