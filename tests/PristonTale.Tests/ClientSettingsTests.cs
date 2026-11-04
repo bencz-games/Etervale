@@ -36,6 +36,8 @@ internal static class ClientSettingsTests
             Monitor = -2
         };
         Assert.True(settings.Validate(NullClientLog.Instance) == new ClientSettings(), "invalid settings did not restore safe defaults");
+        Assert.True(new ClientSettings { ServerAddress = " " }.Validate(NullClientLog.Instance).ServerAddress == new ClientSettings().ServerAddress,
+            "a blank server address was kept");
         Assert.True(new ClientSettings { MultiSampleCount = 8 }.Validate(NullClientLog.Instance).MultiSampleCount == new ClientSettings().MultiSampleCount,
             "eight MSAA samples, which the renderer cannot run, were kept");
         settings = new ClientSettings { WindowWidth = 3440, WindowHeight = 1440, RefreshRate = 165, MaxFps = 237, Monitor = 2 };
@@ -70,11 +72,12 @@ internal static class ClientSettingsTests
         var path = Path.Combine(Path.GetTempPath(), "priston-settings-" + Guid.NewGuid().ToString("N") + ".json");
         try
         {
-            await File.WriteAllTextAsync(path, "{\"version\":1,\"maxFps\":144}");
+            await File.WriteAllTextAsync(path, "{\"version\":1,\"maxFps\":144,\"serverAddress\":\"play.example.com:10037\"}");
             var store = new ClientSettingsStore(path, NullClientLog.Instance);
             var loaded = store.Load();
             await store.CompleteAsync();
             Assert.True(loaded.MaxFps == 144, "existing setting was not loaded");
+            Assert.True(loaded.ServerAddress == "play.example.com:10037", "the server address was not loaded");
             Assert.True(loaded.ShadowUpdateRate == 60, "missing shadow refresh setting did not inherit the current default");
             Assert.True(loaded.MusicEnabled && loaded.SoundEnabled, "missing audio settings did not inherit enabled defaults");
             Assert.True(store.LastError.Length == 0, "compatible older settings produced a load error");

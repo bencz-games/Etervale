@@ -60,8 +60,8 @@ rendering internals, skill presentation and VFX data have their own documents (s
 2. `Game1` constructor: HiDef device, `PreferMultiSampling = false` (the renderer owns its multisampled HDR target),
    `IsFixedTimeStep = false`, resizable window, `Content.RootDirectory = "Content"`.
 3. `Game1.LoadContent` creates `PresentationController` and `GameClient(GraphicsDevice, Content, ResolveAssetRoot(),
-   "tcp://localhost:10009", presentation)`. The server address is the `Game1.ServerAddress` constant; there is no
-   setting for it.
+   serverAddress, presentation)`. The address is the settings' `serverAddress` (default `localhost`, port 10009) through
+   `Game1.ResolveServerAddress`; one that does not parse is logged and replaced by `tcp://localhost:10009`.
 4. `GameClient.LoadContent` loads, synchronously on the game thread: the UI font, `HudAtlas.LoadBootstrap`,
    `PristonSkyLibrary.LoadBootstrap`, `EffectLibrary.LoadBootstrap`, `PristonAudioLibrary.LoadBootstrap`. It then
    creates the single `GameServerConnection` (not connected yet), the `ScreenContext` and the first screen,
@@ -163,8 +163,9 @@ frame.
 ## Network client
 
 `GameServerConnection` implements `IGameBackend` over one TLS connection (`TlsTransport.ConnectAsync`, then
-`FrameConnection`; `Shared/PristonTale.Protocol/Transport`). The address is `tcp://host:port`, optionally with
-`?cert=<sha-256 hex>` to pin the server certificate. Wire details live in [protocol.md](protocol.md).
+`FrameConnection`; `Shared/PristonTale.Protocol/Transport`). The address (`TlsTransport.ParseAddress`) is `host`,
+`host:port` or `tcp://host:port`, port 10009 when left out, optionally with `?cert=<sha-256 hex>` to pin the server
+certificate. Wire details live in [protocol.md](protocol.md).
 
 | Step | Client sends | Completes on |
 |---|---|---|

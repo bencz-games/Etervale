@@ -26,6 +26,7 @@ internal static class BinaryProtocolTests
         yield return ("TLS connections deliver frames in order, coalesce sends and check the server certificate", ConnectionAsync);
         yield return ("a connection counts its backlog until the stream takes it, and a batch of sends leaves in one write", BacklogAsync);
         yield return ("a connection whose backlog stops draining closes as stalled", StallAsync);
+        yield return ("a server address takes a host, host:port or tcp:// form, the game port when none is given", ServerAddressAsync);
     }
 
     private static Task MalformedAsync()
@@ -241,6 +242,26 @@ internal static class BinaryProtocolTests
 
         async Task<FrameConnection> AcceptAsync() =>
             await TlsTransport.AcceptAsync(await listener.AcceptAsync(timeout.Token), context, TlsTransport.DefaultHandshakeTimeout, timeout.Token);
+    }
+
+    private static Task ServerAddressAsync()
+    {
+        var host = TlsTransport.ParseAddress(" play.example.com ");
+        Assert.True(host.Host == "play.example.com" && host.Port == TlsTransport.DefaultPort, $"a bare host became {host}");
+        var ip = TlsTransport.ParseAddress("203.0.113.7:10037");
+        Assert.True(ip.Host == "203.0.113.7" && ip.Port == 10037, $"an IP with its port became {ip}");
+        var local = TlsTransport.ParseAddress(TlsTransport.LocalAddress);
+        Assert.True(local.Host == "localhost" && local.Port == TlsTransport.DefaultPort, $"the local address became {local}");
+        var pin = new string('a', SHA256.HashSizeInBytes * 2);
+        var pinned = TlsTransport.ParseAddress($"[::1]?cert={pin}");
+        Assert.True(pinned.Port == TlsTransport.DefaultPort && pinned.Query == $"?cert={pin}", $"an IPv6 address with a pin became {pinned}");
+        Assert.True(TlsTransport.ParseAddress(pinned.AbsoluteUri) == pinned, "a parsed address did not parse to itself");
+        foreach (var invalid in new[] { "", "http://play.example.com", "play.example.com:0", "play.example.com:99999", "play.example.com?cert=zz", $"host?cert={pin}00" })
+        {
+            Assert.Throws<ArgumentException>(() => TlsTransport.ParseAddress(invalid), $"\"{invalid}\" was accepted as a server address");
+        }
+
+        return Task.CompletedTask;
     }
 
     private static async Task BacklogAsync()

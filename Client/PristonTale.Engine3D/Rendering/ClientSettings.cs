@@ -20,6 +20,8 @@ public sealed record ClientSettings
     public const int CurrentVersion = 1;
 
     public int Version { get; init; } = CurrentVersion;
+    // The game server: host, host:port or tcp://host:port, optionally with ?cert=<sha-256 hex> (TlsTransport.ParseAddress).
+    public string ServerAddress { get; init; } = "localhost";
     public int Monitor { get; init; } = -1;
     public int WindowWidth { get; init; } = 1280;
     public int WindowHeight { get; init; } = 720;
@@ -97,6 +99,7 @@ public sealed record ClientSettings
         var defaults = new ClientSettings();
         var valid = this with
         {
+            ServerAddress = string.IsNullOrWhiteSpace(ServerAddress) ? defaults.ServerAddress : ServerAddress,
             Monitor = Monitor >= -1 ? Monitor : defaults.Monitor,
             WindowWidth = WindowWidth is >= 800 and <= 16384 ? WindowWidth : defaults.WindowWidth,
             WindowHeight = WindowHeight is >= 600 and <= 16384 ? WindowHeight : defaults.WindowHeight,

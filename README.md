@@ -122,9 +122,10 @@ Run the client in another terminal and log in with the account you created:
 dotnet run --project Client/PristonTale -c Release --no-build
 ```
 
-The client connects to `tcp://localhost:10009` over TLS. On its first start the server creates a self-signed
-certificate at `data/server-certificate.pfx` and logs its SHA-256; a client on the same machine accepts it, and a remote
-client (`SmokeClient`, `LoadTest`) pins it with `tcp://host:10009?cert=<sha-256>`. Set `Network:Certificate:Path` (and
+The client connects over TLS to `serverAddress` in `client-settings.json` beside its executable (`localhost` by
+default; `host`, `host:port` or `tcp://host:port`, port 10009 when left out). On its first start the server creates a
+self-signed certificate at `data/server-certificate.pfx` and logs its SHA-256; a client on the same machine accepts it,
+and a remote client (the game, `SmokeClient`, `LoadTest`) pins it with `host:10009?cert=<sha-256>`. Set `Network:Certificate:Path` (and
 `Network:Certificate:Password`) to use a certificate of your own. The server applies pending migrations at startup but does not run the
 importer, so import first. A migration, catalog or stage-collision load failure stops server startup; without assets,
 pass `--Assets:AllowMissingTerrain=true` to run fields without terrain checks.

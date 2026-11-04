@@ -18,6 +18,26 @@ public static class TlsTransport
     public const int DefaultPort = 10009;
     public static readonly string LocalAddress = $"tcp://localhost:{DefaultPort}";
 
+    // A server address: "host", "host:port" or "tcp://host:port", with DefaultPort when the port is left out, and
+    // optionally "?cert=<sha-256 hex>" to pin the server certificate (checked here, so a bad pin is refused up front).
+    public static Uri ParseAddress(string text)
+    {
+        var trimmed = text.Trim();
+        var absolute = trimmed.Contains("://", StringComparison.Ordinal) ? trimmed : "tcp://" + trimmed;
+        if (!Uri.TryCreate(absolute, UriKind.Absolute, out var address) || address.Scheme != "tcp" || address.Host.Length == 0 || address.Port == 0)
+        {
+            throw new ArgumentException($"\"{text}\" is not a server address: expected host, host:port or tcp://host:port.", nameof(text));
+        }
+
+        if (address.IsDefaultPort)
+        {
+            address = new UriBuilder(address) { Port = DefaultPort }.Uri;
+        }
+
+        _ = ServerCertificatePolicy.FromAddress(address);
+        return address;
+    }
+
     public static async Task<FrameConnection> AcceptAsync(Socket socket, SslStreamCertificateContext certificate, TimeSpan timeout,
         CancellationToken cancellationToken, FrameConnectionOptions? options = null)
     {
@@ -103,7 +123,7 @@ public sealed record ServerCertificatePolicy(string Host, byte[]? PinnedSha256 =
             if (pair.Length == 2 && pair[0].Equals("cert", StringComparison.OrdinalIgnoreCase))
             {
                 var hex = Uri.UnescapeDataString(pair[1]).Replace(":", "", StringComparison.Ordinal).Replace(" ", "", StringComparison.Ordinal);
-                var pin = Convert.FromHexString(hex);
+                var pin = IsHex(hex) ? Convert.FromHexString(hex) : [];
                 if (pin.Length != SHA256.HashSizeInBytes)
                 {
                     throw new ArgumentException("The cert pin must be a SHA-256 hash (64 hex digits).", nameof(address));
@@ -115,6 +135,8 @@ public sealed record ServerCertificatePolicy(string Host, byte[]? PinnedSha256 =
 
         return new ServerCertificatePolicy(address.Host);
     }
+
+    private static bool IsHex(string text) => text.Length % 2 == 0 && text.All(char.IsAsciiHexDigit);
 
     private static bool IsLoopback(string host) =>
         host.Equals("localhost", StringComparison.OrdinalIgnoreCase) || IPAddress.TryParse(host.Trim('[', ']'), out var address) && IPAddress.IsLoopback(address);

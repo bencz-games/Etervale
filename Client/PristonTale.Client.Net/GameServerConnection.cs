@@ -76,12 +76,7 @@ public sealed class GameServerConnection : IGameBackend
 
     public GameServerConnection(string address)
     {
-        var uri = new Uri(address, UriKind.Absolute);
-        if (uri.Scheme != "tcp" || uri.Host.Length == 0 || uri.Port < 1)
-        {
-            throw new ArgumentException("Expected a tcp://host:port server address.", nameof(address));
-        }
-
+        var uri = TlsTransport.ParseAddress(address);
         _host = uri.Host;
         _port = uri.Port;
         _certificatePolicy = ServerCertificatePolicy.FromAddress(uri);
