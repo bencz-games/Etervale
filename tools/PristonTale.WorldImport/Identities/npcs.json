@@ -167,5 +167,7 @@
   {"id": 166, "key": "Stella 2", "source": "UnlockStella.npc"},
   {"id": 167, "key": "Force Master 2", "source": "yura-Force-master.NPC"},
   {"id": 168, "key": "Eura Guard 2", "source": "yura-guard1.npc"},
-  {"id": 169, "key": "Ricarten Guard 4", "source": "yura-guard2.npc"}
+  {"id": 169, "key": "Ricarten Guard 4", "source": "yura-guard2.npc"},
+  {"id": 170, "key": "Cuepy Costumes", "source": "event-costume-cuepy.npc"},
+  {"id": 171, "key": "Hopy Costumes", "source": "event-costume-hopy.npc"}
 ]
