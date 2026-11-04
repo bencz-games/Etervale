@@ -42,6 +42,9 @@ public sealed class IdentityRegistry
 
     public string FileName { get; }
 
+    // The highest id registered or given out; an unregistered identity takes the next.
+    public int LastId => _lastId;
+
     // Identities this import met that the registry file lacks, in the order met.
     public List<Entry> Added { get; } = [];
 
