@@ -1296,5 +1296,243 @@
         "turn": true
       }
     ]
+  },
+  {
+    "name": "vfx.archer.evadeshot.cast",
+    "duration": 3.0,
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Morion/eXtremeRage 01.wav",
+        "delay": 0.56
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.Skill5_Acher_EvadeShot2",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "bone": "Bip weapon01",
+        "follow": true
+      },
+      {
+        "effect": "particle.Skill5_Acher_EvadeShot3",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "bone": "Bip weapon01",
+        "follow": true
+      },
+      {
+        "effect": "particle.Skill5_Acher_Evade_ShotEffect",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          11.72,
+          25
+        ],
+        "turn": true,
+        "stopWithParent": false
+      },
+      {
+        "effect": "particle.Skill5_Acher_EvadeShot4",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      },
+      {
+        "effect": "particle.Skill3Hit3",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "delay": 0.56,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.archer.thunderroop.cast",
+    "duration": 1.5,
+    "parts": [
+      {
+        "animation": "ThunderRoop2.ini",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.archer.thunderroop.bolt",
+    "duration": 10,
+    "parts": [
+      {
+        "shape": "Billboard",
+        "size": [
+          1,
+          1
+        ],
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "anchor": "Caster",
+        "bone": "Bip weapon01",
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          28,
+          0
+        ],
+        "speed": 900.0,
+        "reach": 8,
+        "end": "Vanish",
+        "carryEffect": "particle.Skill5ArcherThubderRoopShot2"
+      }
+    ]
+  },
+  {
+    "name": "vfx.archer.thunderroop.shot",
+    "duration": 2.0,
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Tempskron/Perfect Aim 01.wav"
+      }
+    ],
+    "children": [
+      {
+        "effect": "vfx.archer.thunderroop.bolt",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.archer.naturesplash.cast",
+    "duration": 4.0,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "Effect/AssaEffect/EvilMaple/NatureSplash.smd",
+        "blend": "Additive",
+        "anchor": "Caster",
+        "delay": 1.1,
+        "offset": [
+          0,
+          31.25,
+          0
+        ],
+        "lifetime": [
+          1.0,
+          1.0
+        ],
+        "fade": "InOut",
+        "fadeIn": 0.25,
+        "fadeOut": 0.25
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.EvilMaple",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          25
+        ],
+        "turn": true,
+        "delay": 1.1,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.archer.circletrap.shot",
+    "duration": 10,
+    "parts": [
+      {
+        "shape": "Billboard",
+        "size": [
+          1,
+          1
+        ],
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "anchor": "Caster",
+        "bone": "Bip weapon01",
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          24,
+          0
+        ],
+        "speed": 900.0,
+        "reach": 8,
+        "end": "Vanish",
+        "carryEffect": "particle.Skill5ArcherCircleTrap1"
+      }
+    ]
+  },
+  {
+    "name": "vfx.archer.circletrap.hit",
+    "duration": 2.0,
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Tempskron/Perfect Aim 01.wav"
+      }
+    ],
+    "parts": [
+      {
+        "animation": "CircleTrap.ini",
+        "anchor": "Point",
+        "offset": [
+          0,
+          11.72,
+          0
+        ]
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.Skill5ArcherCircleTrapHit",
+        "anchor": "Point",
+        "offset": [
+          0,
+          24,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
   }
 ]

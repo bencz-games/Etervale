@@ -61,8 +61,8 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
 - The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills. The
-  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter and the Pikeman; the other classes'
-  fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
+  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter, the Pikeman and the Archer; the
+  other classes' fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
   Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
   class: first tag + 4 x tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers,
   which the original's empty weapon list never allowed.
@@ -86,6 +86,11 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   the attack rating and lowers absorption; Side Spin Attack strikes twice and each landed strike drains 10 to 37% of
   the monster's maximum life (lowered by its bionic resistance) from a monster above half its life, bosses too but never
   the undead, giving back up to 40% of the caster's maximum life.
+- The Archer's fifth tier: Evade Shot reaches 300 and its arrow, at the clip's second event, stuns the monster it struck
+  for 4 to 17 s; Thunder Roop shoots twice, as the cast starts and at its event, with a percent attack rating and 20 to
+  65 beyond the bow's reach; Nature Splash and Circle Trap strike every enemy around their target with the attack
+  raised by their rate, Circle Trap slowing them by 10 to 28% for 0.5 to 5 s. Stuns of monster holds (Power Dash,
+  Evade Shot) spare bosses.
 
 ## Learning (skill master)
 

@@ -332,6 +332,10 @@ converted scripts.
 | Recall Wolverine | Fire particles | `vfx.archer.wolverine.cast` |
 | Phoenix Shot | Phoenix model flying through the target carrying fire | `vfx.archer.phoenix.shot` |
 | Force of Nature | Converted group on the caster while active | `vfx.archer.nature.aura` |
+| Evade Shot | Particle streams at the bow, a burst ahead of and on the caster, hit particles on the target at the first event; Avalanche's arrow and hit at the second | `vfx.archer.evadeshot.cast`, `vfx.archer.avalanche.*` |
+| Thunder Roop | Thunder flash at the caster; a lightning bolt from the bow to the target at the second arrow | `vfx.archer.thunderroop.*` |
+| Nature Splash | Maple model over the caster and maple particles ahead; Avalanche's arrow and hit | `vfx.archer.naturesplash.cast`, `vfx.archer.avalanche.*` |
+| Circle Trap | Particle shot to the target; the trap flash and hit particles there | `vfx.archer.circletrap.*` |
 
 ### Knight
 

@@ -128,7 +128,7 @@
     { "code": "0x02100002", "name": "Power Dash", "tier": "Job5", "category": "AreaAttack", "icon": "TF83 P_Dash", "description": "Run to the opponent and turn into Stun status.", "requiredLevel": 83, "mouse": "Right", "mana": [70, 75, 80, 85, 90, 95, 100, 105, 110, 115], "stamina": [81, 2], "weapons": ["Axe", "Hammer", "Sword"],
       "kind": "WeaponAttack", "target": "Enemy", "masteryBase": 150, "masteryPerRank": 0,
       "range": [190, 190, 190, 190, 190, 190, 190, 190, 190, 190], "damage": {"percent": [15, 30, 45, 60, 75, 90, 105, 120, 135, 150]},
-      "buff": { "durationTenths": [100, 130, 160, 190, 220, 250, 280, 310, 340, 370], "control": "Stun", "harmful": true },
+      "buff": { "durationTenths": [100, 130, 160, 190, 220, 250, 280, 310, 340, 370], "control": "Stun", "harmful": true, "sparesBosses": true },
       "motionIndex": 159, "motionFrames": 38, "motionEvents": [24], "motionSpeed": 70, "castEffect": "vfx.fighter.powerdash.cast",
       "impactEffect": "vfx.fighter.powerdash.hit", "castSound": "wav/Effects/Skill/Morion/EnchantWpn_magic_C 2.wav",
       "impactSound": "wav/Effects/Skill/Morion/Extinct 1.wav" },
