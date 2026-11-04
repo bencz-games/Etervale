@@ -5,6 +5,7 @@ using PristonTale.Application.Services;
 using PristonTale.Effects.Vfx;
 using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.Rendering;
+using PristonTale.Simulation.Characters;
 using PristonTale.Gameplay.Effects;
 using PristonTale.Gameplay.Screens.CharacterSelect;
 using PristonTale.Gameplay.Screens.Opening;
@@ -19,6 +20,8 @@ namespace PristonTale.Tests;
 //    builds them;
 //    fails when more than BlownLimit of the frame is clipped to white (the statues beside the braziers were), or more
 //    than SaturatedLimit has a channel clipped (the flames and their glow have one; statues burnt to orange would exceed it);
+//    then each class of both lineups opens the face selection, whose portrait fails when it draws fewer than
+//    PortraitPixels pixels over the world's frame;
 //  - "actor": NPCs in daylight on a flat background, front and back; fails when the ring of pixels along a silhouette is
 //    brighter than the actor's interior by more than RimLimit (a grey, metallic rim from grazing specular);
 //  - "opening": the login screen's scene (the opening flythrough with its meteors and fires), as the screen builds it;
@@ -32,6 +35,8 @@ internal sealed partial class SceneLookProbe : Game
     private const float SaturatedLimit = 0.05f;
     private const float RimLimit = 1.25f;
     private const float TintLimit = 1.8f;
+    private const int PortraitPixels = 2000;
+    private static readonly CharacterBrood[] FaceBroods = [CharacterBrood.Tempskron, CharacterBrood.Morion];
     private readonly string _root;
     private readonly string _output;
     private readonly string _mode;
@@ -52,6 +57,11 @@ internal sealed partial class SceneLookProbe : Game
     private VfxRenderer? _flameRenderer;
     private CharSelectFlames? _flames;
     private bool _built;
+    private CharacterSelectPortrait? _portrait;
+    private int _faceBrood = -1;
+    private int _faceJob;
+    private bool _faceOpen;
+    private int _faceWait;
     private int _frames;
 
     public SceneLookProbe(string mode, string root, string content, string output)
@@ -118,7 +128,10 @@ internal sealed partial class SceneLookProbe : Game
             _flameSystem = new VfxSystem(VfxNoAnchors.Instance, new TransientLightServices(_renderer.TransientLights), library);
             _flameRenderer = new VfxRenderer(GraphicsDevice, Content);
             _flames = new CharSelectFlames(_flameSystem, beam, CharacterSelectScreen.BrazierPositions);
-            _preparation = _selectScene.PrepareRosterAsync(_roster, CancellationToken.None);
+            _portrait = new CharacterSelectPortrait(GraphicsDevice);
+            _preparation = Task.WhenAll(_selectScene.PrepareRosterAsync(_roster, CancellationToken.None),
+                _selectScene.PrepareJobLineupAsync(CharacterBrood.Tempskron, CancellationToken.None),
+                _selectScene.PrepareJobLineupAsync(CharacterBrood.Morion, CancellationToken.None));
             return;
         }
 
@@ -243,7 +256,11 @@ internal sealed partial class SceneLookProbe : Game
         _renderer.ComposeScene();
         if (_mode == "charselect" && _frames == 150)
         {
-            Finish(Capture(camera, "charselect"), Blown);
+            Blown(Capture(camera, "charselect"));
+        }
+        else if (_mode == "charselect" && _frames > 150)
+        {
+            CheckFace();
         }
         else if (_mode != "charselect" && (_frames == 140 || _frames == 290))
         {
@@ -318,6 +335,58 @@ internal sealed partial class SceneLookProbe : Game
         {
             Exit();
         }
+    }
+
+    // One class per step: its face selection is opened, and a frame later its portrait is drawn after the world's frame,
+    // as the screen draws it.
+    private void CheckFace()
+    {
+        if (!_faceOpen)
+        {
+            if (_faceBrood < 0 || _faceJob + 1 >= _selectScene.JobCount)
+            {
+                if (++_faceBrood >= FaceBroods.Length)
+                {
+                    Exit();
+                    return;
+                }
+
+                _selectScene.BuildJobLineup(FaceBroods[_faceBrood]);
+                _faceJob = 0;
+            }
+            else
+            {
+                _faceJob++;
+            }
+
+            _selectScene.OpenFacePreview(_faceJob, 0);
+            _faceOpen = true;
+            _faceWait = 0;
+            return;
+        }
+
+        const int width = 256;
+        const int height = 384;
+        var playerClass = _selectScene.JobClass(_faceJob);
+        var texture = _portrait!.Render(_renderer, _selectScene.FacePreviewHandles, width, height);
+        if (texture is null)
+        {
+            Assert.True(++_faceWait < 60, $"the {playerClass} face portrait never had bounds");
+            return;
+        }
+
+        var pixels = new Color[width * height];
+        texture.GetData(pixels);
+        Directory.CreateDirectory(_output);
+        using (var stream = File.Create(Path.Combine(_output, $"face-{playerClass}.png")))
+        {
+            texture.SaveAsPng(stream, width, height);
+        }
+
+        var drawn = pixels.Count(static p => p.A > 0);
+        Console.WriteLine($"LOOK face {playerClass}: {drawn} pixels drawn");
+        Assert.True(drawn >= PortraitPixels, $"the {playerClass} face portrait drew {drawn} pixels");
+        _faceOpen = false;
     }
 
     private static void Blown(Color[] pixels)
@@ -428,6 +497,7 @@ internal sealed partial class SceneLookProbe : Game
     protected override void UnloadContent()
     {
         _flameRenderer?.Dispose();
+        _portrait?.Dispose();
         _opening?.Dispose();
         _effects?.Dispose();
         _sky?.Dispose();

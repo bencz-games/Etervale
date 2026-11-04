@@ -295,7 +295,7 @@ Draws the static and skinned surface effects into a float target and checks agai
 
 | Mode | Fails when |
 | --- | --- |
-| `charselect` | Character-select stage, braziers with their green flames (`CharSelectFlames`), roster: > 2 % of the frame clipped to white or > 5 % with a clipped channel |
+| `charselect` | Character-select stage, braziers with their green flames (`CharSelectFlames`), roster: > 2 % of the frame clipped to white or > 5 % with a clipped channel; then the face selection of every class of both lineups, drawn after the world's frame: a portrait (`face-<class>.png`) with fewer than 2000 pixels |
 | `actor` | NPCs at noon, front and back: the two-pixel silhouette ring is more than 1.25 times the interior luminance |
 | `opening` | Login flythrough with meteors: the town in the lower third is more than 1.8 times redder than blue |
 | `scenery` | Ricarten metal on a stage quad vs an animated scenery model, noon and 20:00: luminance > 8 % apart, saturation > 0.05 apart, |

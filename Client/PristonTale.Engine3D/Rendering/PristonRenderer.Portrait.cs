@@ -164,10 +164,6 @@ public sealed partial class PristonRenderer
             Exposure: exposure,
             DisplayOutput: true,
             EmissionScale: 1f / exposure);
-        // The portrait has no depth prepass of its own; the world's flag from the previous frame would select the
-        // prepassed depth state (test without write) and leave the actor's own layers sorted by draw order.
-        var prepassDrawn = _prepassDrawn;
-        _prepassDrawn = false;
         _neutralActorPass = true;
         try
         {
@@ -176,7 +172,6 @@ public sealed partial class PristonRenderer
         finally
         {
             _neutralActorPass = false;
-            _prepassDrawn = prepassDrawn;
         }
     }
 
@@ -194,7 +189,23 @@ public sealed partial class PristonRenderer
         return _portraitBatches.Count > 0;
     }
 
+    // The portrait has no depth prepass of its own; the world's flag from its frame would select the prepassed depth
+    // test (equal, without write) against the portrait's cleared depth, and nothing opaque would be drawn.
     private void DrawPortraitBatches(PristonFrameContext frame)
+    {
+        var prepassDrawn = _prepassDrawn;
+        _prepassDrawn = false;
+        try
+        {
+            DrawPortraitQueue(frame);
+        }
+        finally
+        {
+            _prepassDrawn = prepassDrawn;
+        }
+    }
+
+    private void DrawPortraitQueue(PristonFrameContext frame)
     {
         _portraitQueueBuilder.Build(_portraitBatches, [], frame, includeShadowCasters: false);
 
