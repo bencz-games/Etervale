@@ -7,6 +7,7 @@ public static class Dungeon7Field
         "Field\\endless\\dun-7.smd", [])
     {
         FieldCode = 40,
+        Ambience = FieldAmbience.Dungeon,
         Center = new FieldPoint(14255, -39099),
         LimitLevel = 100,
         WarpGates =
@@ -26,6 +27,7 @@ public static class Dungeon8Field
         "Field\\endless\\dun-8.smd", [])
     {
         FieldCode = 41,
+        Ambience = FieldAmbience.Dungeon,
         Center = new FieldPoint(5255, -37897),
         LimitLevel = 100,
         WarpGates =
@@ -45,6 +47,7 @@ public static class Dungeon9Field
         "Field\\endless\\dun-9.smd", [])
     {
         FieldCode = 43,
+        Ambience = FieldAmbience.Dungeon,
         TravelLevel = 102,
         Center = new FieldPoint(4896, -42330),
         StartPoints = [new FieldPoint(4896, -42330), new FieldPoint(6418, -42330)],
@@ -86,6 +89,7 @@ public static class Dungeon6Field
         ])
     {
         FieldCode = 42,
+        Ambience = FieldAmbience.Dungeon,
         TravelLevel = 80,
         Center = new FieldPoint(-3660, -45200),
         WarpGates =

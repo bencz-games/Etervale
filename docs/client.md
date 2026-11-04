@@ -723,8 +723,12 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   0.5 s fade-in of the loops. The music and sound options do not mute them, as in the original.
 - `TalkSound.GetSoundCode` hashes the CP949 bytes of an NPC line (ASCII letters uppercased) into the talk file
   code.
-- `FieldAudioController.SelectField` picks music by `FieldDef.BackMusicCode` (3.6 s fade); field ambience depends on the
-  field state and, in forests, the time of day; positional ambience uses the original distance falloff.
+- `FieldAudioController.SelectField` picks music by `FieldDef.BackMusicCode` (3.6 s fade); field ambience is the
+  field's own loop (`FieldDef.Ambience`) when it names one, else depends on the field state and, in forests, the time of
+  day; positional ambience uses the original distance falloff. The original plays no loop in the dungeons after the
+  26th field nor in the action fields; Etervale names one for each: Boss, Fall Game and Heart of Fire the dark
+  sanctuary, Endless Tower 6 to 9 the dungeon, Mine 1 and Sea of Abyss the cave, Ancient Weapons and Stemple the
+  temple, Secret Laboratory the iron works, Crystal Nest and Land of Nurwn the ice wind, Swamp the forest night.
 - `NpcAudioController` plays the dialog line or a motion sound of the NPC at its position relative to the listener.
 - `MusicEnabled`/`SoundEnabled` come from client settings each frame (`ApplySettings`) and apply in the world.
 - Skill sounds: `SkillSoundBank` ([skills.md](skills.md)).

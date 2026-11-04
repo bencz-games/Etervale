@@ -7,6 +7,7 @@ public static class Mine1Field
         "Field\\Mine\\mine-1.smd", [])
     {
         FieldCode = 44,
+        Ambience = FieldAmbience.Cave,
         TravelLevel = 105,
         Center = new FieldPoint(18006, -34740),
         WarpGates =
@@ -27,6 +28,7 @@ public static class CrystalNestField
         "Field\\CrystalNest\\CrystalNest.smd", [])
     {
         FieldCode = 52,
+        Ambience = FieldAmbience.IceWind,
         LimitLevel = 130,
         Center = new FieldPoint(35235, -93821),
         StartPoints = [new FieldPoint(35235, -93821)],

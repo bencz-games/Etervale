@@ -8,6 +8,7 @@ public static class BossField
         "Field\\Boss\\Boss.smd", [])
     {
         FieldCode = FieldCodes.Boss,
+        Ambience = FieldAmbience.DarkSanctuary,
         TravelLevel = 90,
         Center = new FieldPoint(33000, 50036),
         WarpGates =
@@ -31,6 +32,7 @@ public static class HeartOfFireField
         "Field\\HeartOfFire\\HeartOfFire.smd", [])
     {
         FieldCode = 51,
+        Ambience = FieldAmbience.DarkSanctuary,
         LimitLevel = 125,
         Center = new FieldPoint(28700, -74000),
         WarpGates =

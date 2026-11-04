@@ -27,6 +27,7 @@ public static class FallGameField
         ])
     {
         FieldCode = FieldCodes.FallGame,
+        Ambience = FieldAmbience.DarkSanctuary,
         Center = new FieldPoint(5800, 36747),
         StartPoints = [new FieldPoint(5800, 36795), new FieldPoint(5830, 36764), new FieldPoint(5800, 36736)],
         ActionCamera = new FieldActionCamera(213140, 36421, 5583, 11483),
@@ -42,6 +43,7 @@ public static class SwampField
         "Field\\swamp\\swamp.smd", [])
     {
         FieldCode = 47,
+        Ambience = FieldAmbience.ForestNight,
         Center = new FieldPoint(4550, 42820),
         ActionCamera = new FieldActionCamera(44800, 42440, 4350, 8550),
         BackMusicCode = "BGM_CODE_DUNGEON",

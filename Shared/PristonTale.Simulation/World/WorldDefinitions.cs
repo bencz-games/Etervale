@@ -21,6 +21,24 @@ public enum FieldState
     Action
 }
 
+// A field's continuous background loop, in the order of the client's field ambience files.
+public enum FieldAmbience
+{
+    Town,
+    ForestDay,
+    ForestNight,
+    RuinWind,
+    DesertWind,
+    Dungeon,
+    Temple,
+    Cave,
+    DarkSanctuary,
+    Iron,
+    Iron2,
+    BabelApproach,
+    IceWind
+}
+
 public sealed record FieldBackdrop(
     string Day,
     string Glow,
@@ -171,6 +189,9 @@ public sealed record FieldDef(
     public IReadOnlyList<FieldGate> Gates { get; init; } = [];
     public IReadOnlyList<FieldWarpGate> WarpGates { get; init; } = [];
     public IReadOnlyList<FieldAmbient> Ambients { get; init; } = [];
+
+    // The background loop when the field names its own; null keeps its state's.
+    public FieldAmbience? Ambience { get; init; }
     public FieldLighting Lighting { get; init; } = new();
     public FieldCamera Camera { get; init; } = new();
     public FieldDayNight DayNight { get; init; } = new();

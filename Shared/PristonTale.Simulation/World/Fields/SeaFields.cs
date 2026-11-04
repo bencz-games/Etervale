@@ -20,6 +20,7 @@ public static class SeaOfAbyssField
         ])
     {
         FieldCode = 49,
+        Ambience = FieldAmbience.Cave,
         LimitLevel = 112,
         Center = new FieldPoint(-19925, -3858),
         WarpGates =
@@ -40,6 +41,7 @@ public static class StempleField
         "Field\\SeaA\\Stemple.smd", [])
     {
         FieldCode = 50,
+        Ambience = FieldAmbience.Temple,
         LimitLevel = 116,
         Center = new FieldPoint(-28284, 27144),
         WarpGates =

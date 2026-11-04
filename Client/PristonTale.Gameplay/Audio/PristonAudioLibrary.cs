@@ -75,6 +75,7 @@ public sealed class PristonAudioLibrary : IDisposable
         "wav/Ambient/dungeon_cage 1.wav"
     ];
 
+    // In FieldAmbience order.
     private static readonly string[] FieldAmbientFiles =
     [
         "wav/Ambient/tempskron-town.wav",

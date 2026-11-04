@@ -8,6 +8,7 @@ public static class SlabField
         "Field\\Slab\\Slab.smd", [])
     {
         FieldCode = 46,
+        Ambience = FieldAmbience.Iron,
         LimitLevel = 108,
         Center = new FieldPoint(-11975, -62457),
         WarpGates =
@@ -39,6 +40,7 @@ public static class AncientWeaponsField
         ])
     {
         FieldCode = 48,
+        Ambience = FieldAmbience.Temple,
         LimitLevel = 110,
         Center = new FieldPoint(12795, -73112),
         WarpGates =
@@ -62,6 +64,7 @@ public static class LandOfNurwnField
         "Field\\LandofNurwn\\LandofNurwn.smd", [])
     {
         FieldCode = 53,
+        Ambience = FieldAmbience.IceWind,
         LimitLevel = 132,
         Center = new FieldPoint(-11702, -87663),
         StartPoints = [new FieldPoint(-11702, -87663)],

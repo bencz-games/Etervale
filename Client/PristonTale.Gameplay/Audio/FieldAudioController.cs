@@ -161,6 +161,11 @@ public sealed class FieldAudioController : IDisposable
     internal static int SelectFieldAmbientCode(FieldDef field, float timeOfDay)
     {
         ArgumentNullException.ThrowIfNull(field);
+        if (field.Ambience is { } ambience)
+        {
+            return (int)ambience;
+        }
+
         return field.State switch
         {
             FieldState.Ruin => 3,
