@@ -7,9 +7,15 @@ public static class Locomotion
     private const int WalkFieldFactor = 180; // >>8  ≈ 0.703x outside villages
     private const int RunFactor = 460;       // >>8  ≈ 1.797x
 
-    public static int BaseTranslation(int moveSpeedStat)
+    // The original's walk steps by a level of the move speed held to StepLimit; a lifted limit (Talaria) steps by the
+    // move speed itself, one level above the held one.
+    public const int StepLimit = 9;
+
+    public static int StepLevel(int moveSpeed, bool unbound) => unbound ? moveSpeed + 1 : Math.Min(moveSpeed, StepLimit);
+
+    public static int BaseTranslation(int stepLevel)
     {
-        int level = Math.Clamp(moveSpeedStat, 1, 9);
+        int level = Math.Max(stepLevel, 1);
         return 250 + (10 * (level - 1));
     }
 

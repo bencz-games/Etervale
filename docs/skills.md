@@ -61,8 +61,8 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
 - The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills. The
-  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter, the Pikeman, the Archer and the
-  Knight; the other classes' fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
+  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter, the Pikeman, the Archer, the
+  Knight and the Atalanta; the other classes' fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
   Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
   class: first tag + 4 x tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers,
   which the original's empty weapon list never allowed.
@@ -97,6 +97,10 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   against the undead; Holy Benedic adds damage against the undead to the caster or a clicked party member, and to the
   caster and the party members within 200 (an `Ally` rule whose `allies` has a radius reaches them too). The Knight's
   fifth-tier clips are tagged 99 to 102, past its twentieth tag.
+- The Atalanta's fifth tier: Talaria adds 1 to 4 move speed and lifts the step limit (`MoveSpeedUnbound`) of the caster
+  or a clicked player (any player, no party); Galaxy Coup strikes the enemies around its target that its accuracy,
+  raised by its percent, reaches, with the attack raised by its rate; Summon Arcuda calls the bear (`Arcuda`) for
+  355 s; Snippy Fear throws two javelins beyond the javelin's reach with a relative critical bonus.
 
 ## Learning (skill master)
 

@@ -75,7 +75,9 @@ progression, regeneration and movement rates. `World/`, `Physics/` and `Skills/`
   computed in `float` and cast (`DerivedStats.Compute`); keep the cast points when editing.
 - World distances are in original world units (the same units as `PristonTale.Geometry` and field data).
 - Fixed point: `Locomotion` and `AnimationRate` use 8-bit fixed point (256 = 1.0) and the original 70 Hz tick.
-  `Locomotion.BaseTranslation(moveSpeed) = 250 + 10 * (clamp(moveSpeed, 1, 9) - 1)` per tick; walk in the field is
+  `Locomotion.BaseTranslation(stepLevel) = 250 + 10 * (max(stepLevel, 1) - 1)` per tick, where the derived `MoveSpeed`
+  is the step level: the move speed held to 9, or one above the move speed while `MoveSpeedUnbound` lifts the limit
+  (Talaria, `Locomotion.StepLevel`); walk in the field is
   `* 180 >> 8`, run is `* 460 >> 8`, walk in a village uses the base; units/s = perTick / 256 * 70.
 - `AnimationRate.AttackSpeedMainFrame(stat) = 256 + 32 * clamp(stat - 6, 0, 6)`; `AttackRate` adds the
   `AttackMotionSpeed` percent, then frame step `(80 * speed) >> 8`, normalised by 80. `MoveRate` caps the per-tick
@@ -195,7 +197,7 @@ Level `L`, attributes `Str Spi Tal Agi Hlt`; float arithmetic, truncated at the 
 | Defence | `Agi/2 + Tal/4 + L*1.4 + items.Defence` |
 | Absorption | `trunc(Defence/100 + L/10 + items.Absorb + (Str+Tal)/40) + 1 + min(2, items.AbsorbItems/2)` (truncated defence) |
 | MaxWeight | `(int)(Str*2 + Hlt*1.5 + L*3 + 60)` |
-| MoveSpeed | `trunc((Tal + Hlt + L + 60) / 150 - carried/MaxWeight + items.MoveSpeed) + 1` |
+| MoveSpeed | `trunc((Tal + Hlt + L + 60) / 150 - carried/MaxWeight + items.MoveSpeed) + 1`; after the modifiers, the step level (`Locomotion.StepLevel`) |
 | MaxLife fn 1 / 2 | `L*2.1 + Hlt*2.4 + Str*0.8 - 10` / `L*2.1 + Hlt*2.2 + Str*0.6 - 5` |
 | MaxLife fn 3 / 4 / 5 | `L*1.8 + Hlt*2.1 + Str*0.3` / `L*1.5 + Hlt*2.1` / `L*1.5 + Hlt*1.9` |
 | MaxMana fn 1 / 2 / 3 | `L*1.5+Spi*3.8` / `L*0.9+Spi*2.7` / `L*0.6+Spi*2.2` |

@@ -2624,5 +2624,131 @@
         "follow": true
       }
     ]
+  },
+  {
+    "name": "vfx.atalanta.talaria.cast",
+    "duration": 0.5,
+    "children": [
+      {
+        "effect": "particle.Skill5_Atalanta_Talaria_StartEffect",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.atalanta.talaria.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.Skill5_Atalanta_Talaria_EndEffect",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      },
+      {
+        "effect": "particle.Skill5_Atalanta_Talaria_KeepEffect",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.atalanta.galaxycoup.cast",
+    "duration": 2.0,
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Tempskron/AofR 01.wav"
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.Skill5_Atalanta_Galaxy_CoupEffect",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      },
+      {
+        "effect": "particle.Skill5AtalantaGalaxyCoup",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.atalanta.arcuda.cast",
+    "duration": 0.5,
+    "children": [
+      {
+        "effect": "particle.Skill5_Atalanta_SummonArcuda_Effect",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.atalanta.snippyfear.shot",
+    "duration": 3.0,
+    "parts": [
+      {
+        "shape": "Billboard",
+        "size": [
+          1,
+          1
+        ],
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 R Hand",
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          40,
+          0
+        ],
+        "speed": 900.0,
+        "reach": 8,
+        "end": "Vanish",
+        "carryEffect": "particle.Skill5AtalantaSnippyFearShot"
+      }
+    ]
   }
 ]

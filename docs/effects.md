@@ -371,6 +371,10 @@ converted scripts.
 | Lightning Javelin | Animated bolt strip; spark ribbons, a light and the lightning group on arrival | `lightning.shot` |
 | Storm Javelin | Per hit a rolling storm javelin with light strips flying ahead; twist burst on the target | `storm.javelin` |
 | X-Rage, Vengeance | Shots diving from above the caster (Vengeance: from the hand), each ending in a hit group | `xrage.cast`, `vengeance.cast` |
+| Talaria | A burst at the caster; a burst and an aura on the holder while active | `vfx.atalanta.talaria.*` |
+| Galaxy Coup | Particles at the caster and at the target | `vfx.atalanta.galaxycoup.cast` |
+| Summon Arcuda | Summoning particles at the caster | `vfx.atalanta.arcuda.cast` |
+| Snippy Fear | A particle javelin flying from the hand to the target at each throw | `vfx.atalanta.snippyfear.shot` |
 
 ### Priestess
 

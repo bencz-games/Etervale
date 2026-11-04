@@ -77,7 +77,9 @@ public enum StatKind : byte
     CompanionDamage = 48,
     // Damage added to the power roll of every spell (magic force orbs).
     SpellDamage = 49,
-    Count = 50
+    // Any positive value lifts the step limit of the move speed (Locomotion.StepLevel).
+    MoveSpeedUnbound = 50,
+    Count = 51
 }
 
 public enum ModifierOp : byte

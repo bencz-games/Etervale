@@ -24,7 +24,7 @@ public static class ModifierRules
             AttackDamageMax = Math.Max(0, totals.Apply(StatKind.DamageMax, stats.AttackDamageMax)),
             Defence = Math.Max(0, totals.Apply(StatKind.Defence, stats.Defence)),
             Absorption = Math.Max(0, totals.Apply(StatKind.Absorption, stats.Absorption)),
-            MoveSpeed = Math.Max(0, totals.Apply(StatKind.MoveSpeed, stats.MoveSpeed)),
+            MoveSpeed = Locomotion.StepLevel(Math.Max(0, totals.Apply(StatKind.MoveSpeed, stats.MoveSpeed)), totals.Flat(StatKind.MoveSpeedUnbound) > 0),
             AttackSpeed = totals.Apply(StatKind.AttackSpeed, stats.AttackSpeed)
         };
     }
