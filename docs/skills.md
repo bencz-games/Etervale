@@ -61,8 +61,8 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
 - The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills. The
-  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician and the Fighter; the other classes' fifth tier
-  holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
+  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter and the Pikeman; the other classes'
+  fifth tier holds definitions only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
   Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
   class: first tag + 4 x tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers,
   which the original's empty weapon list never allowed.
@@ -81,6 +81,11 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   raised by its percent and up to its rank's count of enemies around the caster with its table, once, on the clip's
   first event; Bloody Berserker adds flat damage to single-target hits and lowers absorption, and it and the Berserker
   end each other. Down Hit and Mortal Blow shake the camera of the players near the caster (`cameraShake`).
+- The Pikeman's fifth tier: Dancing Reaper is one strong strike; Final Spear strikes up to six enemies around the caster
+  without missing, with a spear rising under each (`targetEffect`); Amplified raises both ends of the attack damage and
+  the attack rating and lowers absorption; Side Spin Attack strikes twice and each landed strike drains 10 to 37% of
+  the monster's maximum life (lowered by its bionic resistance) from a monster above half its life, bosses too but never
+  the undead, giving back up to 40% of the caster's maximum life.
 
 ## Learning (skill master)
 
@@ -182,7 +187,8 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
   cast), `afterimages` (0..8, trailing copies through the cast), `castShieldBone` and `castShieldGlow[3]` (the held
   shield moves to that body bone and glows during the cast), `weaponOrbit` (two effects, a light and its trail, circling
   the holder's weapon while the status lasts), `cameraShake` (each impact shakes the camera of the players within 400
-  of the caster by (400 - distance) / 15 units of view distance, `PristonCameraWave`).
+  of the caster by (400 - distance) / 15 units of view distance, `PristonCameraWave`), `targetEffect` (an effect on
+  each enemy an area struck; the server reports each with a `Struck` impact).
 
 ### Damage rule (`damage`, `mainHit`, `damage.main`)
 
@@ -204,8 +210,9 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
 | `noCritical`, `neverMiss` | No critical; weapon hits skip the accuracy roll |
 | `bonusBroods`, `bonusPercent`, `bonusPercentByRank[10]` | Extra percent vs broods (`Normal`, `Undead`, `Mutant`, `Demon`, `Mechanic`); every brood list loads as `MonsterBrood[]` and is matched with `SkillFormulas.MatchesBrood` |
 | `mode` | `Rolled` (default), `MaxLifeShare`, `CurrentLifeShare` (percent of each target's life) |
-| `share[10]`, `chance[10]`, `chanceLevelDivisor`, `shareResistedByBionic` | Share modes: percent, chance (+ level / divisor), bionic resistance. A rolled bolt drains `share` percent of its target's maximum life after the hit (bosses spared) |
-| `minLifePercent`, `onlyBroods`, `excludeBroods`, `lifeToCasterCapPercent` | Share filters; drained life returns to the caster up to a cap |
+| `share[10]`, `chance[10]`, `chanceLevelDivisor`, `shareResistedByBionic` | Share modes: percent, chance (+ level / divisor), bionic resistance. A rolled bolt and a weapon attack drain `share` percent of the struck monster's maximum life after each hit (bosses spared unless `drainsBosses`) |
+| `minLifePercent`, `onlyBroods`, `excludeBroods`, `lifeToCasterCapPercent` | Share filters (the drain after a hit reads the life before it); drained life returns to the caster up to a cap |
+| `drainsBosses` | The drain after a hit (a bolt's or a weapon attack's `share`) takes from bosses too |
 
 ### Buff rule (`buff`, `casterBuff`)
 

@@ -341,6 +341,16 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
 
     private void Impact(SkillEventInfo skillEvent, SkillRule rule)
     {
+        if ((skillEvent.Flags & SkillEventFlags.Struck) != 0)
+        {
+            if (rule.TargetEffect.Length > 0)
+            {
+                Spawn(rule.TargetEffect, skillEvent.CasterId, skillEvent.TargetId, Position(skillEvent.TargetId, skillEvent.Position), -skillEvent.Facing);
+            }
+
+            return;
+        }
+
         if ((skillEvent.Flags & (SkillEventFlags.Companion | SkillEventFlags.Counter)) != 0 && rule.CompanionEffect.Length > 0)
         {
             Strike(skillEvent, rule);

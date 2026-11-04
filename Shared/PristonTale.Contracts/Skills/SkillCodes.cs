@@ -60,7 +60,10 @@ public enum SkillEventFlags : ushort
     // Two bits: the resolution mode picked for the cast (Mode and WithMode read and set it).
     Mode1 = 256,
     Mode2 = 512,
-    ModeMask = Mode1 | Mode2
+    ModeMask = Mode1 | Mode2,
+
+    // An enemy an area struck, for a rule that shows an effect on each (SkillRule.TargetEffect).
+    Struck = 1024
 }
 
 public static class SkillEventFlagsExtensions

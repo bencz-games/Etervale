@@ -54,6 +54,8 @@ public sealed partial record SkillRule
     // Each impact shakes the camera of the players within CameraShakeReach of the caster, by (reach - distance) / 15.
     public bool CameraShake { get; init; }
     public const int CameraShakeReach = 400;
+    // An effect on each enemy an area struck; the server reports each with a Struck impact.
+    public string TargetEffect { get; init; } = "";
 }
 
 public static partial class SkillRuleCatalog

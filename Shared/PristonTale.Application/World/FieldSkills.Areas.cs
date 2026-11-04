@@ -71,6 +71,7 @@ internal sealed partial class FieldSkills
                 Pay(caster, monster, damage, crit, cast.Rule.ForceFlinch);
             }
 
+            ReportStruck(caster, cast, monster);
             hits++;
         }
 
@@ -348,9 +349,13 @@ internal sealed partial class FieldSkills
 
     // A rolled single-target spell's drain (SkillDamageRule.Share): a share of the target's maximum life, lowered by its
     // bionic resistance and at most the life it has left, returned to the caster up to the rule's cap. Bosses are spared.
-    private void DrainAfterHit(WorldPlayer caster, SkillDamageRule damage, int rank, MonsterInstance monster)
+    // lifeBefore: the monster's life before the hit, which the share filters read (MinLifePercent).
+    private void DrainAfterHit(WorldPlayer caster, SkillDamageRule damage, int rank, MonsterInstance monster, int lifeBefore)
     {
-        if (damage.Mode != SkillDamageMode.Rolled || damage.Share.Length == 0 || !monster.IsAlive || monster.Def.IsBoss)
+        if (damage.Mode != SkillDamageMode.Rolled || damage.Share.Length == 0 || !monster.IsAlive || monster.Def.IsBoss && !damage.DrainsBosses
+            || damage.OnlyBroods.Length > 0 && !SkillFormulas.MatchesBrood(damage.OnlyBroods, monster.Def)
+            || damage.ExcludeBroods.Length > 0 && SkillFormulas.MatchesBrood(damage.ExcludeBroods, monster.Def)
+            || damage.MinLifePercent > 0 && (long)lifeBefore * 100 <= (long)monster.Def.Combat.MaxLife * damage.MinLifePercent)
         {
             return;
         }
@@ -364,6 +369,16 @@ internal sealed partial class FieldSkills
 
         Pay(caster, monster, drained, false);
         ReturnDrainedLife(caster, damage, drained);
+    }
+
+    // An area's struck enemy, for a rule that shows an effect on each.
+    private void ReportStruck(WorldPlayer caster, ActiveCast cast, MonsterInstance monster)
+    {
+        if (cast.Rule.TargetEffect.Length > 0)
+        {
+            _skillEvents.Add(new SkillEventView(caster.EntityId, monster.EntityId, cast.Rule.Code, SkillEventPhase.Impact, cast.Rank,
+                SkillEventFlags.Struck | SkillEventFlags.Area, 0f, 0f, monster.Position, 0f, 1, 0f));
+        }
     }
 
     // Life taken by a drain returns to the caster, capped at a share of the caster's maximum life.

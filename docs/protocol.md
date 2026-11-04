@@ -277,7 +277,8 @@ writes 0 in `SkillCastResult.ServerTick`.
 
 A skill entry is `{uint8 Phase (1 start, 2 impact, 3 cancel, 4 release), uint8 Fields, varuint Flags (1 area, 2
 projectile, 4 self, 8 chain link from X, Y, Z to Target, 16 familiar strike, 32 support reaching another player, 64
-counter strike, 128 full charge, bits 8-9 the resolution mode drawn for the cast), uint32 SkillCode, uint8 Rank, entity
+counter strike, 128 full charge, bits 8-9 the resolution mode drawn for the cast, 1024 an enemy an area struck at
+X, Y, Z, for a rule with a `targetEffect`), uint32 SkillCode, uint8 Rank, entity
 Caster}`, then what `Fields` names: 1 entity Target, 2 time DurationMs and HitAtMs, 4 point X, Y, Z, 8 varint Angle, 16
 varuint TargetCount, 32 varint Radius. A release entry gives the shortened remaining motion in `DurationMs` and the time
 to its next hit in `HitAtMs`. A status entry is `{uint8 Op (1 add, 2 refresh, 3 remove, 4 tick), uint8 Fields, uint32

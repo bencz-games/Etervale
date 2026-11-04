@@ -307,6 +307,10 @@ converted scripts.
 | Tornado | Two bands sweeping a full turn through the target, two round impacts there | `vfx.pike.tornado.hit` |
 | Expansion | Enlarged red translucent weapon (`weaponGrowth`); round impact per hit | `vfx.pike.expansion.hit` |
 | Venom Spear | Particles ahead of the caster; venom model and three particle bursts at each target | `vfx.pike.venomspear.*` |
+| Dancing Reaper | Light band; hit particles and a critical flash at the target | `vfx.pike.dancingreaper.*` |
+| Final Spear | Particle streams at the weapon; a spear model rising under each enemy struck with two particle bursts | `vfx.pike.finalspear.*` |
+| Amplified | Particle aura for 3 s; Physical Absorption's burst and its orbiting shields while active | `vfx.pike.amplified.cast`, `vfx.cast.absorb`, `vfx.buff.absorb` |
+| Side Spin Attack | Ray band; Destroyer's hit at the first strike, a triple impact above the target at the second | `vfx.pike.sidespin.*`, `vfx.fighter.destroyer.hit` |
 | Vanish | Flares rushing through the caster and particles; translucent body | `vfx.pike.vanish.cast`; `statusLook` |
 | Chain Lance | Red band; hit particles per hit | `vfx.trail.red`, `vfx.pike.chainlance.hit` |
 | Assassin Eye | Converted eye group above the marked target | `vfx.pike.assassineye.mark` |

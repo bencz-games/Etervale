@@ -191,6 +191,8 @@ public sealed partial record SkillDamageRule
     public MonsterBrood[] ExcludeBroods { get; init; } = [];
     // The life taken is returned to the caster, at most this percent of the caster's maximum life.
     public int LifeToCasterCapPercent { get; init; }
+    // The drain after a hit takes from bosses too (it spares them otherwise).
+    public bool DrainsBosses { get; init; }
 }
 
 public sealed partial record SkillRule

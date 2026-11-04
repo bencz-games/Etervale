@@ -82,8 +82,10 @@ internal sealed partial class FieldSkills
 
         var burst = cast.Rule.Burst;
         var origin = caster.Position;
+        var lifeBefore = monster.Life;
         Pay(caster, monster, damage, result.Crit, cast.Rule.ForceFlinch);
         AfflictStruck(caster, cast, monster);
+        DrainAfterHit(caster, damageRule, rank, monster, lifeBefore);
         if (burst is not null && burst.AfterHit == hit)
         {
             Burst(caster, cast, rule, origin);
@@ -167,8 +169,9 @@ internal sealed partial class FieldSkills
         var character = caster.Character;
         var power = SkillFormulas.RollPower(character, rule, rule.Damage, cast.Rank, _rng);
         var damage = SkillFormulas.PowerAgainst(power, rule.Damage, monster.Def, character.Effects.Totals, monster.Effects.Totals, cast.Rank);
+        var lifeBefore = monster.Life;
         Pay(caster, monster, SkillFormulas.WithUndeadBonus(damage, character.Effects.Totals, monster.Def), false);
-        DrainAfterHit(caster, rule.Damage, cast.Rank, monster);
+        DrainAfterHit(caster, rule.Damage, cast.Rank, monster, lifeBefore);
         return true;
     }
 

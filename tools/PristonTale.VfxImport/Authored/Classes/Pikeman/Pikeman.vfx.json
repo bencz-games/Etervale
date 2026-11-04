@@ -860,5 +860,213 @@
         "fadeOut": 0.4
       }
     ]
+  },
+  {
+    "name": "vfx.pike.dancingreaper.cast",
+    "duration": 2.2,
+    "parts": [
+      {
+        "shape": "Blade",
+        "texture": "Effect/AssaEffect/Skill3Texture/light3_02.bmp",
+        "blend": "Additive",
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "anchor": "Caster",
+        "bone": "Bip weapon01",
+        "boneWorld": true,
+        "bladeLength": 42,
+        "trailPoints": 32,
+        "trailFade": 7.9688,
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "fade": "InOut",
+        "fadeIn": 0.08,
+        "fadeOut": 0.25
+      }
+    ]
+  },
+  {
+    "name": "vfx.pike.dancingreaper.hit",
+    "duration": 1.5,
+    "children": [
+      {
+        "effect": "particle.Skill3Hit7",
+        "anchor": "Point",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      },
+      {
+        "effect": "vfx.impact.critical",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.pike.finalspear.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill5_PikeMan_FinalSpear1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "bone": "Bip weapon01",
+        "follow": true
+      },
+      {
+        "effect": "particle.Skill5_PikeMan_FinalSpear2",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "bone": "Bip weapon01",
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.pike.finalspear.target",
+    "duration": 1.5,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "Effect/AssaEffect/Skill3Mesh/pk5_FinalSpear.smd",
+        "blend": "Additive",
+        "anchor": "Point",
+        "modelFrames": 24,
+        "modelSpeed": 30,
+        "fade": "InOut",
+        "fadeIn": 0.1,
+        "fadeOut": 0.2
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.Skill5_PikeMan_FinalSpear3",
+        "anchor": "Point",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      },
+      {
+        "effect": "particle.Skill5_PikeMan_FinalSpear4",
+        "anchor": "Point",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.pike.amplified.cast",
+    "duration": 3.0,
+    "children": [
+      {
+        "effect": "particle.Skill5PikemanAmplified",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.pike.sidespin.cast",
+    "duration": 2.2,
+    "parts": [
+      {
+        "shape": "Blade",
+        "texture": "Effect/AssaEffect/DeadLay/Ray03.bmp",
+        "blend": "Additive",
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "anchor": "Caster",
+        "bone": "Bip weapon01",
+        "boneWorld": true,
+        "bladeLength": 42,
+        "trailPoints": 32,
+        "trailFade": 7.9688,
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "fade": "InOut",
+        "fadeIn": 0.08,
+        "fadeOut": 0.25
+      }
+    ]
+  },
+  {
+    "name": "vfx.pike.sidespin.hit",
+    "duration": 2.0,
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          22,
+          0
+        ],
+        "color": [
+          0.3922,
+          0.0,
+          0.0
+        ],
+        "power": 400,
+        "decay": 10
+      }
+    ],
+    "children": [
+      {
+        "effect": "vfx.common.tripleimpact",
+        "anchor": "Point",
+        "offset": [
+          0,
+          22,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
   }
 ]
