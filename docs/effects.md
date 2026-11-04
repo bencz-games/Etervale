@@ -431,6 +431,9 @@ Every cast draws `vfx.magician.castcircle` (the Magician's circle textures) unle
 | Rising Slash | Particles at the caster, then at the target | `vfx.assassin.risingslash.*` |
 | Violent Stab | Particles at the caster; one burst at the target per stab | `vfx.assassin.violentstab.*` |
 | Storm | The wind wall at the target | `vfx.assassin.storm.hit` |
+| Creed | The casting circle and the rising light at the caster; the light kept while it lasts | `vfx.shaman.creed.*` |
+| Press Of Deity | One meteor falling onto the target, bursting there | `vfx.shaman.pressofdeity.*` |
+| Ghostly Nail | The casting circle and the nails at the caster; their burst at the target | `vfx.shaman.ghostlynail.*` |
 
 ### Actor looks and per-hit sounds
 

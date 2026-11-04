@@ -676,5 +676,150 @@
         "turn": true
       }
     ]
+  },
+  {
+    "name": "vfx.shaman.creed.cast",
+    "duration": 2.4,
+    "children": [
+      {
+        "effect": "vfx.shaman.castcircle",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.CreedStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.creed.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.CreedKeep",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.pressofdeity.fall",
+    "duration": 4.0,
+    "parts": [
+      {
+        "anchor": "Point",
+        "turn": false,
+        "offset": [
+          0,
+          507.8125,
+          -195.3125
+        ],
+        "goal": "Point",
+        "goalOffset": [
+          0,
+          0,
+          0
+        ],
+        "speed": 560,
+        "reach": 6,
+        "carryEffect": "particle.PressOfDeity2",
+        "endEffect": "vfx.shaman.pressofdeity.hit"
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.pressofdeity.hit",
+    "duration": 3.0,
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "color": [
+          0.7,
+          0.4,
+          1.0
+        ],
+        "power": 250,
+        "decay": 2
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.PressOfDeity1",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.ghostlynail.cast",
+    "duration": 2.4,
+    "children": [
+      {
+        "effect": "vfx.shaman.castcircle",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.GhostyNail1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true,
+        "stopWithParent": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.shaman.ghostlynail.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.GhostyNail2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "turn": true
+      }
+    ]
   }
 ]

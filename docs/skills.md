@@ -60,11 +60,8 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   Mechanician lists `0x01010004` before `0x01010003`.
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
-- The eight original classes, the Assassin and the Shaman have a rule for their first four tiers' 16 skills. The
-  fifth tier (levels 80, 83, 86, 90) has rules for the Mechanician, the Fighter, the Pikeman, the Archer, the
-  Knight, the Atalanta, the Priestess, the Magician and the Assassin; the other classes' fifth tier holds definitions
-  only (name, icon, level, costs, weapons) until its rules are ported. The Assassin's and the
-  Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
+- The eight original classes, the Assassin and the Shaman have a rule for all 20 skills of their five tiers (the fifth
+  at levels 80, 83, 86, 90). The Assassin's and the Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
   class: first tag + 4 x tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers,
   which the original's empty weapon list never allowed.
 - The Shaman's spells roll base + level x `levelPercent` / 100 + weapon item damage x `weaponTimes` + spirit / the
@@ -117,6 +114,10 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 - The Assassin's fifth tier: Shadow Bomb strikes up to its rank's count of enemies around the caster with its table
   raised by Land Mining's rate (as the original server raises it) plus the attack damage; Rising Slash, Violent Stab
   (two hits) and Storm are strong strikes.
+- The Shaman's fifth tier: Creed raises maximum mana and stamina 10 to 28% for 90 to 270 s; Press Of Deity strikes the
+  enemies within 110 to 200 of its target with a spell roll (level x 100%, weapon item damage x 2 to 6), a meteor
+  falling onto the target; Ghostly Nail is an unresisted spell bolt (weapon item damage x 4 to 13); High Regeneration
+  raises maximum life 5 to 32% while learned.
 
 ## Learning (skill master)
 
