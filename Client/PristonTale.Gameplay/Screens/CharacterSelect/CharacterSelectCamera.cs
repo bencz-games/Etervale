@@ -11,9 +11,10 @@ internal sealed class CharacterSelectCamera
     private const int CameraAngleX = 90;
 
     private static readonly float[] CameraZPos = [300f, 370f, 550f, 720f, 700f];
+    // The original's vertical angle (pi / 4.4) over the full rail: the lineup, the statues and the orb keep its framing.
+    private const float FieldOfViewRadians = MathF.PI / 4.4f;
 
-    private const float CameraDistanceScale = 0.85f;
-    private static float Rail(int state) => CameraZPos[state] * CameraDistanceScale;
+    private static float Rail(int state) => CameraZPos[state];
 
     private const float CameraDollyFastPerSecond = 235f;
     private const float CameraDollySlowPerSecond = 23f;
@@ -90,7 +91,7 @@ internal sealed class CharacterSelectCamera
         var radians = CameraAngleX * GameUnits.RadiansPerAngle;
         var offset = new Vector3(0f, _distance * MathF.Sin(radians), _distance * MathF.Cos(radians));
         var target = _target + new Vector3(0f, sway, 0f);
-        _camera.SetScriptedView(graphicsDevice, target + offset, target);
+        _camera.SetScriptedView(graphicsDevice, target + offset, target, Vector3.Up, FieldOfViewRadians);
     }
 
     private static float TriangleWave(float seconds, float period)

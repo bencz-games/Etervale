@@ -98,7 +98,9 @@ OpeningScreen --login ok--> CharacterSelectScreen --enter world ok--> GameplaySc
   succeeded or the connection closed) the controller first calls `ScreenContext.RenewBackend`: `GameClient` installs a
   new `GameServerConnection` and disposes the old one off the game thread.
 - `CharacterSelectScreen`: sub-states `CharacterSelect`, `RaceSelect`, `JobSelect`, `FaceSelect`, `Name`. The roster
-  shows each character in its armour, empty-handed. While a
+  shows each character in its armour, empty-handed. `CharacterSelectCamera` dollies along the original's rail (300 to
+  720 units per sub-state) with its vertical angle of pi / 4.4, whatever the settings' field of view; the stage is lit by
+  an even ambient only, without lamps (`ConfigureLighting`). While a
   `Busy` operation (roster load, roster/job actor preparation, enter, delete, create) runs, input is ignored and
   `PollBusy` checks the task. A successful `EnterWorldAsync` builds an `EnteredCharacter` (class, name, level, face,
   field code, spawn x/z, tier, hair) and requests `GameplayScreen`. The Exit button returns to `OpeningScreen`; the next

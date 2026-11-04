@@ -179,29 +179,13 @@ public sealed class CharacterSelectScreen : GameScreen
         _lastKeyboard = keyboard;
     }
 
-    // The scene's light: the braziers and a warm, dim interior ambient (also used by the regression's capture probe).
+    // The scene's light: an even interior ambient and no lamps, so the statues keep their own colours under the green
+    // flames (also used by the regression's capture probe).
     internal static void ConfigureLighting(PristonRenderer renderer)
     {
-        renderer.ConfigureFieldLighting(intensity: 1.6f, rangeScale: 1f, overrideLights: BuildTorchLights(), glowIntensity: 1f, glowScale: 1f);
         renderer.Underground = true;
         renderer.UndergroundAmbient = new Vector3(0.85f, 0.82f, 0.78f);
         renderer.ActorFloorLight = false;
-    }
-
-    private static PristonPointLight[] BuildTorchLights()
-    {
-        var warm = new Vector3(1.0f, 0.6f, 0.35f);
-        const float radius = 120f;
-        // Lamp intensities are the light at a shared reference distance of 150 units (Shaders/Lighting/Shading.hlsli),
-        // beyond these braziers' reach: they are set to light the statues beside them warmly without burning them out.
-        const float intensity = 0.035f;
-        var lights = new PristonPointLight[BrazierPositions.Length];
-        for (var i = 0; i < BrazierPositions.Length; i++)
-        {
-            lights[i] = new PristonPointLight(BrazierPositions[i], radius, warm, intensity);
-        }
-
-        return lights;
     }
 
     private void BeginLoadRoster()
