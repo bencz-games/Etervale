@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Input;
 using PristonTale.Gameplay.Audio;
 using PristonTale.Gameplay.Screens.CharacterSelect;
 using PristonTale.Gameplay.Screens.Framework;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.Screens.Opening;
 
@@ -13,7 +14,7 @@ public sealed class OpeningScreen : GameScreen
 
     private LoginAudio _audio;
     private KeyboardState _lastKeyboard;
-    private string _status = "Opening";
+    private string _status;
 
     private bool _loginRevealed;
 
@@ -37,7 +38,7 @@ public sealed class OpeningScreen : GameScreen
         _cinematic.Load();
         _audio = LoginAudio.Opening(Context.Audio);
         _loginController = new OpeningLoginController(Context, _audio);
-        _status = $"Opening: {_cinematic.StatusSuffix}";
+        _status = $"{ClientText.Opening(Context.Presentation.Requested.Language)}: {_cinematic.StatusSuffix}";
     }
 
     public override void Update(GameTime gameTime)

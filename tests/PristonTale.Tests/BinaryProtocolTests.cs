@@ -100,6 +100,8 @@ internal static class BinaryProtocolTests
         Assert.True(ServerHelloPacket.Read(buffer.AsSpan(0, hello.Write(buffer))) == hello, "server hello round trip changed fields");
         var login = new LoginPacket(ProtocolVersion.Current, "conta", "sênha✓");
         Assert.True(LoginPacket.Read(buffer.AsSpan(0, login.Write(buffer))) == login, "login round trip changed the account or password");
+        var localizedLogin = new LoginPacket(ProtocolVersion.Current, "conta", "senha", "pt-BR");
+        Assert.True(LoginPacket.Read(buffer.AsSpan(0, localizedLogin.Write(buffer))) == localizedLogin, "login language was not preserved");
         Assert.True(LoginResultPacket.Read(buffer.AsSpan(0, new LoginResultPacket(Contracts.Sessions.LoginFailure.Busy).Write(buffer))).Status == Contracts.Sessions.LoginFailure.Busy,
             "login result lost its status");
 

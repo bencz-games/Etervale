@@ -13,6 +13,7 @@ using PristonTale.Contracts.World;
 using PristonTale.Contracts.Skills;
 using PristonTale.Engine3D;
 using PristonTale.Gameplay.UI.Widgets;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.World;
 
@@ -22,10 +23,6 @@ namespace PristonTale.Gameplay.World;
 public sealed partial class GameScene : ISkillSceneHost
 {
     // The refusals a cast meets, from the server or the client's own checks.
-    private const string NotReadyText = "The skill is not ready yet.";
-    private const string NoManaText = "Not enough mana.";
-    private const string NoStaminaText = "Not enough stamina.";
-
     // A cast the server has not answered yet keeps the avatar still for at most this long.
     private const double CastAnswerTimeoutMs = 1500d;
     private const float RangeMargin = 8f;
@@ -170,9 +167,9 @@ public sealed partial class GameScene : ISkillSceneHost
             _castLockUntilMs = 0d;
             SkillNotice?.Invoke(result.Status switch
             {
-                SkillCastVerdict.Cooldown => NotReadyText,
-                SkillCastVerdict.NotEnoughMana => NoManaText,
-                SkillCastVerdict.NotEnoughStamina => NoStaminaText,
+                SkillCastVerdict.Cooldown => ClientText.SkillNotReady(Language),
+                SkillCastVerdict.NotEnoughMana => ClientText.NotEnoughMana(Language),
+                SkillCastVerdict.NotEnoughStamina => ClientText.NotEnoughStamina(Language),
                 SkillCastVerdict.OutOfRange => "The target is out of range.",
                 SkillCastVerdict.WeaponNotAllowed => "This skill needs another weapon.",
                 SkillCastVerdict.InVillage => "Skills cannot be used in town.",
@@ -226,13 +223,13 @@ public sealed partial class GameScene : ISkillSceneHost
         var skill = FindSkill(code);
         if (rank <= 0 || skill is null)
         {
-            SkillNotice?.Invoke("Learn this skill at a skill master first.");
+            SkillNotice?.Invoke(ClientText.LearnSkillFirst(Language));
             return true;
         }
 
         if (!_skillFx.Cooldowns.Ready(code, _skillClockMs))
         {
-            SkillNotice?.Invoke(NotReadyText);
+            SkillNotice?.Invoke(ClientText.SkillNotReady(Language));
             return true;
         }
 
@@ -343,7 +340,7 @@ public sealed partial class GameScene : ISkillSceneHost
         _summonAggressive[skillCode] = aggressive;
         var command = aggressive ? SkillCastCommand.SummonAggressive : SkillCastCommand.SummonPassive;
         SendUpstream(_playChannel.SendSkillCommandAsync(++_castSequence, skillCode, command, _presenceCts.Token), "summon mode");
-        SkillNotice?.Invoke(aggressive ? $"{rule.Name}: attacks any enemy nearby." : $"{rule.Name}: attacks only your target.");
+        SkillNotice?.Invoke(ClientText.SkillTargetMode(Language, rule.Name, aggressive));
     }
 
     // A confirmed right click on a crystal pet's icon dismisses the pet of that status.
@@ -355,7 +352,7 @@ public sealed partial class GameScene : ISkillSceneHost
         }
 
         SendUpstream(_playChannel.SendDismissCrystalPetsAsync(statusCode, _presenceCts.Token), "crystal pet dismissal");
-        SkillNotice?.Invoke("Pet has been dismissed");
+        SkillNotice?.Invoke(ClientText.PetDismissed(Language));
     }
 
     // True when the summon skill's monster picks its own enemies, false when it fights only the owner's target; null

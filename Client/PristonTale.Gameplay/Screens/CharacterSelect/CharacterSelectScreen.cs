@@ -7,6 +7,7 @@ using PristonTale.Engine3D.Rendering;
 using PristonTale.Gameplay.Audio;
 using PristonTale.Gameplay.Effects;
 using PristonTale.Gameplay.Screens.Framework;
+using PristonTale.Gameplay.Localization;
 using PristonTale.Gameplay.Screens.Gameplay;
 using PristonTale.Gameplay.Screens.Opening;
 using PristonTale.Gameplay.UI;
@@ -90,7 +91,7 @@ public sealed class CharacterSelectScreen : GameScreen
         _actorLoader = new PristonActorLoader(_assetCache);
     }
 
-    public override string StatusText => "Character select";
+    public override string StatusText => ClientText.CharacterSelect(Context.Presentation.Requested.Language);
 
     public override void Enter()
     {

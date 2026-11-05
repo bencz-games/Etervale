@@ -2,13 +2,13 @@ namespace PristonTale.Persistence.Abstractions.WorldData;
 
 public interface IWorldDataRepository
 {
-    Task<IReadOnlyList<ItemTemplateRecord>> GetAllItemTemplatesAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<ItemTemplateRecord>> GetAllItemTemplatesAsync(string language = CatalogLanguages.English, CancellationToken ct = default);
 
     Task<IReadOnlyList<ItemSetRecord>> GetAllItemSetsAsync(CancellationToken ct = default) => Task.FromResult<IReadOnlyList<ItemSetRecord>>([]);
 
-    Task<IReadOnlyList<MonsterRecord>> GetAllMonstersAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<MonsterRecord>> GetAllMonstersAsync(string language = CatalogLanguages.English, CancellationToken ct = default);
 
-    Task<IReadOnlyList<NpcRecord>> GetAllNpcsAsync(CancellationToken ct = default);
+    Task<IReadOnlyList<NpcRecord>> GetAllNpcsAsync(string language = CatalogLanguages.English, CancellationToken ct = default);
 
     Task<IReadOnlyList<FieldSpawnRecord>> GetAllFieldSpawnsAsync(CancellationToken ct = default);
 

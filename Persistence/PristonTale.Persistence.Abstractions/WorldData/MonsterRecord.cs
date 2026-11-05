@@ -1,7 +1,7 @@
 namespace PristonTale.Persistence.Abstractions.WorldData;
 
-// Id: the importer's stable monster id, also the runtime monster code; Key: its unique English key; Name: its English
-// name (monster_texts), null without one.
+// Id: the importer's stable monster id, also the runtime monster code; Key: its unique English key; Name: its selected-
+// language name (monster_texts), null without one.
 public sealed record MonsterRecord(
     int Id,
     string Key,

@@ -22,7 +22,7 @@ internal sealed class HudSettingsPanel
     private static readonly GraphicsQuality[] Presets = [GraphicsQuality.Low, GraphicsQuality.Medium, GraphicsQuality.High, GraphicsQuality.Ultra];
     private static readonly int[] ShadowUpdateRates = [30, 60, 120, 0];
     private readonly PresentationSettings _settings;
-    private readonly string[] _labels = new string[19];
+    private readonly string[] _labels = new string[20];
     private ClientSettings _labelSettings;
 
     public HudSettingsPanel(PresentationSettings settings) => _settings = settings;
@@ -70,6 +70,7 @@ internal sealed class HudSettingsPanel
                 16 => current with { WeatherEnabled = !current.WeatherEnabled },
                 17 => current with { RealisticSky = !current.RealisticSky },
                 18 => current with { Quality = GraphicsQuality.Custom, CloudQuality = (CloudQuality)(((int)current.CloudQuality + direction + CloudQualities) % CloudQualities) },
+                19 => current with { Language = NextLanguage(current.Language, direction) },
                 _ => current
             };
             return;
@@ -217,5 +218,22 @@ internal sealed class HudSettingsPanel
         _labels[16] = settings.WeatherEnabled ? "Weather: on" : "Weather: off";
         _labels[17] = settings.RealisticSky ? "Sky: realistic" : "Sky: classic";
         _labels[18] = $"Clouds: {settings.CloudQuality}";
+        _labels[19] = $"Language: {settings.Language}";
+    }
+
+    private static string NextLanguage(string language, int direction)
+    {
+        var languages = ClientSettings.SupportedLanguages;
+        var index = 0;
+        for (var candidate = 0; candidate < languages.Count; candidate++)
+        {
+            if (string.Equals(languages[candidate], language, StringComparison.OrdinalIgnoreCase))
+            {
+                index = candidate;
+                break;
+            }
+        }
+
+        return languages[(index + direction + languages.Count) % languages.Count];
     }
 }

@@ -23,6 +23,7 @@ using PristonTale.Contracts.World;
 using PristonTale.Contracts.Skills;
 using PristonTale.Contracts.Sessions;
 using PristonTale.Contracts.Units;
+using PristonTale.Persistence.Abstractions.WorldData;
 
 namespace PristonTale.Server.Net;
 
@@ -33,6 +34,7 @@ internal sealed record SessionServices(
     ISessionRegistry Registry,
     WorldServer World,
     WorldDataHolder WorldData,
+    WorldDataLanguagesHolder LocalizedWorldData,
     ILogger Logger,
     NetworkLimits Limits,
     LoginThrottle LoginThrottle,
@@ -383,6 +385,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         }
 
         throttle.RecordSuccess(request.Account);
+        session.Language = CatalogLanguages.Normalize(request.Language);
         if (session.GmLevel == 0 && _services.Control.Full(_services.World.PlayerCount))
         {
             // Only game masters may join a full server.
@@ -498,7 +501,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
 
         _player = player;
         _outbox = outbox;
-        _encoder = new PresenceEncoder(session.EntityId, _services.WorldData);
+        _encoder = new PresenceEncoder(session.EntityId, _services.WorldData, _services.LocalizedWorldData, session.Language);
         SendLarge(new WorldJoinedPacket(session.EntityId, Environment.TickCount64, (byte)Math.Clamp(session.GmLevel, 0, 255),
             _services.World.GameClockMs).Write, WorldJoinedPacket.Size);
         _pump = PumpAsync(outbox, _encoder);

@@ -63,6 +63,7 @@ renderer through `PresentationSettings.ApplyRendering` and apply at once.
 |---|---|---|---|---|
 | `version` | int, `1` | must be 1 | | Any other value: defaults and a read-only store. |
 | `serverAddress` | string, `"localhost"` | not blank | | The game server, read at startup (`Game1.ResolveServerAddress`, `TlsTransport.ParseAddress`): `host`, `host:port` or `tcp://host:port`, a host name or an IP (IPv6 in brackets), port 10009 when left out; `?cert=<sha-256 hex>` pins the server certificate (needed for a remote server whose certificate the system does not trust, such as the self-signed one). An address that does not parse is logged and the client connects to `tcp://localhost:10009`. A change needs a restart. |
+| `language` | string, `"en"` | `en`, `pt-BR` | yes | The selected client language. Unsupported values fall back to English. The `.resx` gameplay catalog uses this value; the selected code is sent to the server on the next login. |
 | `monitor` | int, `-1` | >= -1 | yes | -1 current. The Vulkan platform offers the primary monitor only; a value above 0 logs a warning and uses the primary monitor. Display. |
 | `windowWidth`, `windowHeight` | int, `1280`, `720` | 800-16384, 600-16384 | yes (resolution) | Windowed size (the window is resizable; a manual resize is accepted and saved, except while maximized: the restored size is kept). Fullscreen picks the closest primary-monitor mode; borderless uses the desktop size. Display. |
 | `windowX`, `windowY`, `windowMaximized` | int or null, null; bool, `false` | any | no (saved on exit) | Where the windowed window was left: its client area's top-left in desktop coordinates (MonoGame's `Window.Position`) while not maximized, and whether it was maximized. The first windowed apply restores the position while the title bar lands on the primary monitor (otherwise, or without a position, the window opens centred on it with its title bar on screen), then maximizes the window if it was. Later applies centre a window that no longer fits. A platform that places windows itself (a Wayland session) may ignore the position. Not display fields: moving or maximizing the window applies nothing. |
@@ -114,11 +115,15 @@ renderer through `PresentationSettings.ApplyRendering` and apply at once.
 `Validate` checks enums with `Enum.IsDefined`, numbers against the lists above and floats with `float.IsFinite`. The
 booleans have no validation. An unknown enum name is a JSON error (whole file ignored), not a per-field fallback.
 
+Client interface text is stored in `Client/PristonTale.Gameplay/Localization/ClientText.resx` (English neutral resources)
+and culture-specific satellite resources such as `ClientText.pt-BR.resx`. To add a language, register its canonical BCP 47
+code in `ClientSettings.SupportedLanguages`, add its resource file and add the same code to the server catalog language list.
+
 ## In-game Settings panel
 
 `HudSettingsPanel` rows, in order: Window, Monitor, Resolution, Frequency, VSync, BGM, Audio, Maximum FPS, Background
 FPS, Anti-aliasing, Sun shadow, Graphics quality, Shadow animation, Shadows, Target HP, Name plates, Weather, Sky,
-Clouds. Click cycles
+Clouds, Language. Click cycles
 forward, Shift+click backward. Resolution offers only the sizes the primary monitor reports (at least 800x600,
 `HudSettingsPanel.Resolutions`): any of them in fullscreen, those that fit on the desktop below the window's title bar
 when windowed, and none when borderless (it covers the desktop). Graphics quality cycles Low, Medium, High, Ultra;

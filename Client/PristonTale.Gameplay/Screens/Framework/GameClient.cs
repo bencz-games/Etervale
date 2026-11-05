@@ -8,6 +8,7 @@ using PristonTale.Gameplay.Screens.Opening;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI;
 using PristonTale.Gameplay.Audio;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.Screens.Framework;
 
@@ -48,10 +49,10 @@ public sealed class GameClient : IDisposable
         {
             if (_shutdown is not null)
             {
-                return "Saving and disconnecting…";
+                return ClientText.SavingAndDisconnecting(_presentation.Requested.Language);
             }
 
-            return _screen?.StatusText ?? "Loading…";
+            return _screen?.StatusText ?? ClientText.Loading(_presentation.Requested.Language);
         }
     }
 

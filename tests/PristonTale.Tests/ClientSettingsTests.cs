@@ -1,6 +1,7 @@
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.IO;
 using PristonTale.Engine3D.Rendering;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Tests;
 
@@ -14,6 +15,7 @@ internal static class ClientSettingsTests
         yield return ("settings persistence drains the latest snapshot on shutdown", PersistenceAsync);
         yield return ("invalid and future settings documents survive attempted saves", PreserveInvalidAsync);
         yield return ("settings write failures are observable without faulting gameplay", WriteFailureAsync);
+        yield return ("client text falls back to English and translates Brazilian Portuguese skill notices", LocalizationAsync);
         yield return ("frame pacing has no catch-up bursts and separates foreground limits", PacingAsync);
         yield return ("a texture named with another extension is found in the subfolder its name points to", TextureExtensionAsync);
     }
@@ -40,6 +42,10 @@ internal static class ClientSettingsTests
             "a blank server address was kept");
         Assert.True(new ClientSettings { MultiSampleCount = 8 }.Validate(NullClientLog.Instance).MultiSampleCount == new ClientSettings().MultiSampleCount,
             "eight MSAA samples, which the renderer cannot run, were kept");
+        Assert.True(new ClientSettings { Language = "fr" }.Validate(NullClientLog.Instance).Language == ClientSettings.EnglishLanguage,
+            "unsupported language was kept");
+        Assert.True(new ClientSettings { Language = ClientSettings.BrazilianPortugueseLanguage }.Validate(NullClientLog.Instance).Language == ClientSettings.BrazilianPortugueseLanguage,
+            "Brazilian Portuguese was rejected");
         settings = new ClientSettings { WindowWidth = 3440, WindowHeight = 1440, RefreshRate = 165, MaxFps = 237, Monitor = 2 };
         Assert.True(settings.Validate(NullClientLog.Instance) == settings, "valid custom mode or frame limit was lost");
         Assert.True(settings.HasSameDisplay(settings with { MaxFps = 60, UiScale = 1.2f, MusicEnabled = false, SoundEnabled = false }), "non-device settings triggered display reset");
@@ -64,6 +70,17 @@ internal static class ClientSettingsTests
             Directory.Delete(directory, recursive: true);
         }
 
+        return Task.CompletedTask;
+    }
+
+    private static Task LocalizationAsync()
+    {
+        Assert.True(ClientText.NotEnoughMana(ClientSettings.BrazilianPortugueseLanguage) == "Mana insuficiente.",
+            "Brazilian Portuguese skill text was not translated");
+        Assert.True(ClientText.NotEnoughMana("unknown") == "Not enough mana.",
+            "unknown language did not fall back to English");
+        Assert.True(ClientText.CharacterSelect(ClientSettings.BrazilianPortugueseLanguage) == "Seleção de personagem",
+            "Brazilian Portuguese status text was not translated");
         return Task.CompletedTask;
     }
 

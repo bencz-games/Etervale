@@ -24,11 +24,14 @@ public sealed partial class WorldServer
             }
 
             var definition = npc.Definition;
+            var localizedDefinition = _localizedData.Get(session.Language, _worldData.Current).Npcs.TryGet(definition.Code, out var translated)
+                ? translated
+                : definition;
             var offers = definition.Services
                 .Select(service => new NpcServiceOffer(service.Kind, service.Value, NpcServiceAvailability.IsAvailable(service), PricePercent(service)))
                 .ToArray();
-            string[] line = definition.Dialog.Count == 0 ? [] : [definition.Dialog[_dialogRandom.Next(definition.Dialog.Count)]];
-            return new NpcInteraction(true, npc.EntityId, definition.Label, offers, line, "");
+            string[] line = localizedDefinition.Dialog.Count == 0 ? [] : [localizedDefinition.Dialog[_dialogRandom.Next(localizedDefinition.Dialog.Count)]];
+            return new NpcInteraction(true, npc.EntityId, localizedDefinition.Label, offers, line, "");
         });
     }
 

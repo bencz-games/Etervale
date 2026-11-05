@@ -47,6 +47,7 @@ public sealed partial class WorldServer
     private readonly Dictionary<ulong, Connection> _connections = new();
     private readonly EntityIdAllocator _ids = new();
     private readonly WorldDataHolder _worldData;
+    private readonly WorldDataLanguagesHolder _localizedData;
     private readonly WorldCatalog _catalog;
     private readonly TimeProvider _clock;
     private readonly long _clockOrigin;
@@ -89,10 +90,12 @@ public sealed partial class WorldServer
         FieldTerrainCatalog? terrain = null,
         WorldServerOptions? options = null,
         ICharacterSaves? saves = null,
-        IGameLog? log = null)
+        IGameLog? log = null,
+        WorldDataLanguagesHolder? localizedData = null)
     {
         _saves = saves;
         _log = log;
+        _localizedData = localizedData ?? new WorldDataLanguagesHolder();
         _options = (options ?? WorldServerOptions.Default).Validated();
         _worldData = worldData;
         _terrain = terrain ?? new FieldTerrainCatalog();

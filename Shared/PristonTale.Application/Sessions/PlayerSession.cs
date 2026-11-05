@@ -25,6 +25,7 @@ public sealed class PlayerSession
     public required long AccountId { get; init; }
     public required string UserId { get; init; }
     public required ulong EntityId { get; init; }
+    public string Language { get; set; } = "en";
 
     // The account's game-master level at login (0 for players).
     public int GmLevel { get; set; }

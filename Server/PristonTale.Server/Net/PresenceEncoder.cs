@@ -1,6 +1,7 @@
 using System.Numerics;
 using System.Runtime.InteropServices;
 using PristonTale.Application.World;
+using PristonTale.Persistence.Abstractions.WorldData;
 using PristonTale.Protocol.Binary;
 using PristonTale.Protocol.Packets;
 using PristonTale.Protocol.Transport;
@@ -38,6 +39,8 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
 
     private readonly ulong _self;
     private readonly WorldDataHolder _data;
+    private readonly WorldDataLanguagesHolder _localizedData;
+    private readonly string _language;
     private readonly object _gate = new();
     private readonly Dictionary<ulong, Known> _known = new();
     private readonly Dictionary<Guid, GroundDropView> _drops = new();
@@ -98,12 +101,16 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
     private EntityGrid? _describeGrid;
     private EntityView[] _entities = [];
 
-    public PresenceEncoder(ulong self, WorldDataHolder data)
+    public PresenceEncoder(ulong self, WorldDataHolder data, WorldDataLanguagesHolder? localizedData = null, string language = CatalogLanguages.English)
     {
         _self = self;
         _data = data;
+        _localizedData = localizedData ?? new WorldDataLanguagesHolder();
+        _language = CatalogLanguages.Normalize(language);
         _isShown = index => _known.ContainsKey(_entities[index].EntityId);
     }
+
+    private WorldData LocalizedData => _localizedData.Get(_language, _data.Current);
 
     public EntityKind? KindOf(ulong entityId)
     {
@@ -141,12 +148,12 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
             if (_heldFrame is { } frame && view.Revision != 0 && ReferenceEquals(frame.Views, _describeViews))
             {
                 NoteTemplate(view, view.Revision);
-                connection.Send(frame.Attachment(SharedPresenceWire.Create).Description(index, view, _data.Current));
+                connection.Send(frame.Attachment(SharedPresenceWire.Create).Description(index, view, LocalizedData));
                 return true;
             }
 
             NoteTemplate(view, known.Revision);
-            connection.Send(_scratch.AsSpan(0, DescriptionPacket(view, known.Revision, _data.Current).Write(_scratch)));
+            connection.Send(_scratch.AsSpan(0, DescriptionPacket(view, known.Revision, LocalizedData).Write(_scratch)));
             return true;
         }
     }
@@ -649,11 +656,11 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
         NoteTemplate(view, revision);
         if (_wire is { } wire && view.Revision != 0)
         {
-            connection.Send(wire.Description(index, view, _data.Current));
+            connection.Send(wire.Description(index, view, LocalizedData));
             return;
         }
 
-        connection.Send(_scratch.AsSpan(0, DescriptionPacket(view, revision, _data.Current).Write(_scratch)));
+        connection.Send(_scratch.AsSpan(0, DescriptionPacket(view, revision, LocalizedData).Write(_scratch)));
     }
 
     // The client keeps the last description of each shared template it was sent.

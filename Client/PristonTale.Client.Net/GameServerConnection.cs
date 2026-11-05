@@ -102,13 +102,14 @@ public sealed class GameServerConnection : IGameBackend
 
     public long BytesSent => _connection?.BytesSent ?? 0;
 
-    public async Task<LoginOutcome> LoginAsync(string account, string password, CancellationToken ct = default)
+    public async Task<LoginOutcome> LoginAsync(string account, string password, CancellationToken ct = default, string language = "en")
     {
         await ConnectAsync(ct);
         await _requestGate.WaitAsync(ct);
         try
         {
-            if (!Fits(account, AccountWire.MaxAccountBytes) || !Fits(password, AccountWire.MaxPasswordBytes))
+            if (!Fits(account, AccountWire.MaxAccountBytes) || !Fits(password, AccountWire.MaxPasswordBytes)
+                || !Fits(language, AccountWire.MaxLanguageBytes))
             {
                 return LoginOutcome.Denied(LoginFailure.BadCredentials);
             }
@@ -116,7 +117,7 @@ public sealed class GameServerConnection : IGameBackend
             var pending = new PendingLogin();
             _login = pending;
             _account = account;
-            Send(new LoginPacket(ProtocolVersion.Current, account, password));
+            Send(new LoginPacket(ProtocolVersion.Current, account, password, language));
             var outcome = await pending.Completion.Task.WaitAsync(ct);
             if (outcome.Ok)
             {
