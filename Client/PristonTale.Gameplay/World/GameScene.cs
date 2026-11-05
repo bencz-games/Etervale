@@ -410,6 +410,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     private float _warpCooldown;
     private FieldWarpGate _pendingWarp;
     private WarpInfo _pendingFieldWarp;
+    private bool _awaitingFieldPresence;
     // The server settles teleports within twice the drop tolerance of their height.
     private const float WarpFloorTolerance = 64f;
     // A warp landing farther than this from the server's place is corrected to it.
@@ -476,7 +477,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     private void UpdateMovementReport(float dt)
     {
         _reports.Advance(dt);
-        if (_playChannel == null || _activeField == null || _playerBody == null)
+        if (_pendingFieldWarp is not null || _playChannel == null || _activeField == null || _playerBody == null)
         {
             return;
         }

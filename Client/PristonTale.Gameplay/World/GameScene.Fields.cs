@@ -39,6 +39,14 @@ public sealed partial class GameScene
         LoadField(assetRoot, field, entered);
     }
 
+    public void PrepareField(int fieldCode)
+    {
+        if (_fieldStreamer is not null && _worldCatalog.TryGetFieldByCode(fieldCode, out var field))
+        {
+            RequestField(field);
+        }
+    }
+
     public void LoadField(string assetRoot, FieldDef field, EnteredCharacter entered = null)
     {
         _assetRoot = assetRoot;

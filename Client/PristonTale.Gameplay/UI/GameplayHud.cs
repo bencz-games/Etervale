@@ -111,6 +111,7 @@ public sealed partial class GameplayHud : IDisposable
     private int _bindingRefusals;
     private int _serviceOpened;
     private double _lastUpdate;
+    private readonly Action<int> _prepareField;
 
     public GameplayHud(ScreenContext context, Func<InventoryCommand, Task<InventoryOutcome>> applyInventory,
         Func<ProgressionCommand, Task<ProgressionOutcome>> applyProgression = null,
@@ -118,6 +119,7 @@ public sealed partial class GameplayHud : IDisposable
         Action<NpcInteraction> npcOpened = null,
         Action npcClosed = null,
         Func<NpcServiceCommand, Task<NpcServiceReply>> requestNpcService = null,
+        Action<int> prepareField = null,
         Func<QuestCommand, Task<QuestOutcome>> requestQuest = null)
     {
         _context = context;
@@ -140,6 +142,7 @@ public sealed partial class GameplayHud : IDisposable
         _npc = new HudNpcPanel(interactNpc, context.Log, npcOpened, npcClosed);
         _portrait = new HudTargetPortrait(context.GraphicsDevice);
         _services = new HudNpcServiceController(requestNpcService, context.Log);
+        _prepareField = prepareField;
         _itemUse = new HudItemUseController(UseItemAsync, context.Log);
         _restart = new HudRestartPanel(context.Log);
         _premium = new HudPremiumTimers(_sprites);

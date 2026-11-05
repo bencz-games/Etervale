@@ -327,9 +327,11 @@ The client owns its own locomotion; the server validates and corrects.
 - Only `FieldWarp` moves the avatar: a forced warp (server rejected a report), a warp that activates another field, or a
   difference above 200 units snaps the body and camera and stands it on the floor nearest the warp's height (within 64
   units, else the highest floor). A warp to another field code activates that field if loaded; otherwise it requests the
-  field and holds the warp (`_pendingFieldWarp`, the player stops) until the field is in the world, then applies it. The
-  held warp can be replaced by the unforced warp that confirms the field (which keeps the force of the held one), and a
-  restart can move the player across before the field loads, so activating the field always places the height. A body
+  field and holds the warp (`_pendingFieldWarp`, stopping movement and attack) until the field is in the world, then
+  applies it. Teleporter destination selection starts that field preparation before the service request completes, and
+  presence from the old field is ignored while the destination is loading. The held warp can be replaced by the
+  unforced warp that confirms the field (which keeps the force of the held one), and a restart can move the player across
+  before the field loads, so activating the field always places the height. A body
   left with no floor under it (placed before its field's ground was there) is put on the floor nearest the server's
   height each frame (`KeepOnFloor`). A warp gate's authored destination height is a hint: the body stands on the floor
   nearest it.

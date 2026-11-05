@@ -39,6 +39,7 @@ public sealed class GameplayScreen : GameScreen
             _scene.PlayNpcInteractionAudio,
             _scene.StopNpcTalk,
             _scene.RequestNpcServiceAsync,
+            _scene.PrepareField,
             _scene.RequestQuestAsync);
         _hud.CharacterName = _scene.Player.Name;
         _hud.CharacterClass = _scene.Player.Class.Class;
