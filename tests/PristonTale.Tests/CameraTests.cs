@@ -19,6 +19,7 @@ internal static class CameraTests
         yield return ("camera left behind a wall the target crossed re-anchors on its arm", StrandedAsync);
         yield return ("wide windows cap the horizontal field of view instead of stretching the edges", FieldOfViewAsync);
         yield return ("camera lateral edge orbit is timed and respects viewport and focus", EdgeOrbitAsync);
+        yield return ("camera arrows orbit horizontally and vertically", KeyboardOrbitAsync);
         yield return ("camera follow is time based and teleport reanchoring preserves framing", FollowAsync);
         yield return ("camera uses middle drag and respects UI pointer ownership", InputAsync);
     }
@@ -242,6 +243,36 @@ internal static class CameraTests
             Assert.True(paused.Position == initial, "focus regain replayed stale edge input");
         }
 
+        return Task.CompletedTask;
+    }
+
+    private static Task KeyboardOrbitAsync()
+    {
+        var camera = CreateCamera();
+        camera.UpdateOrbit(Mouse(400, 300));
+        camera.UpdateFollow(Vector3.Zero, 0);
+        var initialDistance = camera.Position.Length();
+        camera.UpdateOrbit(Mouse(400, 300), new KeyboardState(Keys.Left, Keys.Up), deltaSeconds: 1f);
+        camera.UpdateFollow(Vector3.Zero, 0);
+
+        Assert.Near(1f, camera.FlatForward.X, 0.0001f);
+        Assert.Near(0, camera.FlatForward.Z, 0.0001f);
+        Assert.True(camera.Position.Length() < initialDistance, "up arrow did not move the camera closer");
+        camera.UpdateOrbit(Mouse(400, 300), new KeyboardState(Keys.Right, Keys.Down), deltaSeconds: 2f);
+        camera.UpdateFollow(Vector3.Zero, 0);
+        var fartherDistance = camera.Position.Length();
+        Assert.True(fartherDistance > initialDistance, "down arrow did not move the camera away");
+        camera.UpdateOrbit(Mouse(400, 300), new KeyboardState(Keys.Up), pointerCaptured: true, deltaSeconds: 1f);
+        camera.UpdateFollow(Vector3.Zero, 0);
+        Assert.True(camera.Position.Length() < fartherDistance, "up arrow was blocked by mouse capture");
+
+        var responsive = CreateCamera();
+        responsive.UpdateOrbit(Mouse(400, 300));
+        responsive.UpdateFollow(Vector3.Zero, 0);
+        var frameDistance = responsive.Position.Length();
+        responsive.UpdateOrbit(Mouse(400, 300), new KeyboardState(Keys.Up), deltaSeconds: 1f / 60f);
+        responsive.UpdateFollow(Vector3.Zero, 0);
+        Assert.True(responsive.Position.Length() < frameDistance - 1f, "up arrow zoom is too slow for a frame-sized update");
         return Task.CompletedTask;
     }
 

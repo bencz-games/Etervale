@@ -136,6 +136,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     private bool _runFlag = true;
     // After a double click on the ground the player keeps walking toward the cursor until it is blocked or clicks again.
     private bool _followCursor;
+    private bool _holdCursorMovement;
 
     private readonly AttackInputController _attackInput = new();
     private readonly TargetSelection _targetSelection = new();

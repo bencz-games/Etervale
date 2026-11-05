@@ -54,8 +54,14 @@ public sealed partial class GameScene
         if (MovementLocked && (_hasMoveTarget || _followCursor))
         {
             _followCursor = false;
+            _holdCursorMovement = false;
             StopPredictedMovement();
             _reports.Request();
+        }
+
+        if (mouse.LeftButton == ButtonState.Released)
+        {
+            _holdCursorMovement = false;
         }
 
         if (!WorldClicksBlocked && RightAttackEnabled && mouse.RightButton == ButtonState.Pressed
@@ -77,6 +83,7 @@ public sealed partial class GameScene
             var doubleClick = (nowMs - _lastLeftClickMs) <= DoubleClickMs;
             _lastLeftClickMs = nowMs;
             _followCursor = false;
+            _holdCursorMovement = false;
             if (TryPickLoot(mouse))
             {
             }
@@ -94,6 +101,7 @@ public sealed partial class GameScene
                 ClearAttackTarget();
                 _lootInteraction.Cancel();
                 _followCursor = doubleClick;
+                _holdCursorMovement = true;
                 _reports.Request();
             }
         }
@@ -110,7 +118,7 @@ public sealed partial class GameScene
         UpdateReachedPlayer();
         _lootInteraction?.Update(_groundLoot, _playerBody.Position, _serverPlanarPosition, Owner);
         UpdateAttackPresentation(gameTime);
-        if (_followCursor && !WorldClicksBlocked && !SelfCasting)
+        if ((_holdCursorMovement || _followCursor) && !WorldClicksBlocked && !SelfCasting)
         {
             SetMoveTarget(mouse);
         }

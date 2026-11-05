@@ -19,6 +19,7 @@ public sealed record PristonCameraSettings
     public float FollowSmoothing { get; init; } = 14f;
     public float MouseOrbitSensitivity { get; init; } = 0.006f;
     public float MouseZoomSensitivity { get; init; } = 0.35f;
+    public float KeyboardZoomUnitsPerSecond { get; init; } = 300f;
     // A pointer within this many pixels of the window's side edge orbits the camera; the angular speed is per second,
     // so it does not depend on the frame rate.
     public int EdgeOrbitWidth { get; init; } = 8;
