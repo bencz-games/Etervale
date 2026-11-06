@@ -297,7 +297,7 @@ internal static class TradeTests
         var sell = new NpcServiceCommand(Guid.NewGuid(), 1, NpcServiceKind.Shop, NpcServiceAction.Sell, ann.Session.Character.InventoryRevision,
             ItemId: potions.InstanceId);
         var prepared = await fixture.World.RunAsync(fixture.World.World.PrepareNpcServiceAsync(ann.Session, sell));
-        Assert.True(prepared?.Reply.Outcome is { Message: TradeMessages.Trading } && prepared.Candidate is null, "an NPC service ran during a trade");
+        Assert.True(prepared?.Reply.Outcome is { Message.Id: GameTextId.CloseTradeFirst } && prepared.Candidate is null, "an NPC service ran during a trade");
     }
 
     private static async Task ConcurrencyAsync()

@@ -586,21 +586,21 @@ internal sealed class HudCaptureProbe : Game
         {
             MerchantNpc => new NpcInteraction(true, id, "Blacksmith Goden",
                 [Offer(NpcServiceKind.QuestGiver, 1018, false), Offer(NpcServiceKind.Shop, 0, true)],
-                ["Welcome to Goden's. We deal with equipment for warriors of every level, so take your time."], ""),
+                ["Welcome to Goden's. We deal with equipment for warriors of every level, so take your time."], GameText.None),
             WarehouseNpc => new NpcInteraction(true, id, "Warehouse keeper, Arent",
                 [Offer(NpcServiceKind.QuestGiver, 1015, false), Offer(NpcServiceKind.Warehouse, 0, true)],
-                ["Here is the key. Just take it and do not touch my things."], ""),
+                ["Here is the key. Just take it and do not touch my things."], GameText.None),
             TeleporterNpc => new NpcInteraction(true, id, "Clever Newter",
                 [Offer(NpcServiceKind.QuestGiver, 2201, false), Offer(NpcServiceKind.Teleporter, 1, true), Offer(NpcServiceKind.ItemAging, 0, true),
                     Offer(NpcServiceKind.ItemMix, 200, false)],
-                ["I have researched and studied for the prosperity of Pillai all my life. Teleporting is not free, though."], ""),
+                ["I have researched and studied for the prosperity of Pillai all my life. Teleporting is not free, though."], GameText.None),
             MixerNpc => new NpcInteraction(true, id, "Mixer Rayon", [Offer(NpcServiceKind.QuestGiver, 1016, false), Offer(NpcServiceKind.ItemMix, 0, true)],
-                ["Bring me the item and the sheltoms of a formula."], ""),
+                ["Bring me the item and the sheltoms of a formula."], GameText.None),
             AlchemistNpc => new NpcInteraction(true, id, "Alchemist Lisa",
                 [Offer(NpcServiceKind.QuestGiver, 1017, false), Offer(NpcServiceKind.ItemMix, Simulation.Items.Mixing.MixingWork.AlchemyMode, true)],
-                ["Sheltoms become force orbs here."], ""),
+                ["Sheltoms become force orbs here."], GameText.None),
             _ => new NpcInteraction(true, id, "Skill Master, Verkan", [Offer(NpcServiceKind.QuestGiver, 1003, false), Offer(NpcServiceKind.SkillMaster, 4, true)],
-                ["Welcome to the school of skills. Choose a skill to learn or improve.", "Choose a skill."], "")
+                ["Welcome to the school of skills. Choose a skill to learn or improve.", "Choose a skill."], GameText.None)
         };
     }
 
@@ -646,7 +646,7 @@ internal sealed class HudCaptureProbe : Game
 
     private NpcServiceReply Reply(NpcServiceCommand command)
     {
-        var ok = new NpcServiceOutcome(true, NpcServiceStatus.Ok, _owner.InventoryRevision, 1, "");
+        var ok = new NpcServiceOutcome(true, NpcServiceStatus.Ok, _owner.InventoryRevision, 1, GameText.None);
         if (command.Action != NpcServiceAction.Open)
         {
             return new NpcServiceReply(ok);

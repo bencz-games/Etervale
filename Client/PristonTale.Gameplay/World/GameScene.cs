@@ -291,14 +291,14 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     public Task<PristonTale.Simulation.World.Npcs.NpcInteraction> InteractNpcAsync(ulong entityId)
     {
         return _playChannel is not null ? _playChannel.InteractNpcAsync(entityId, _presenceCts.Token)
-            : Task.FromResult(PristonTale.Simulation.World.Npcs.NpcInteraction.Rejected(NoConnection));
+            : Task.FromResult(PristonTale.Simulation.World.Npcs.NpcInteraction.Rejected(PristonTale.Contracts.Texts.GameText.None));
     }
 
     public Task<PristonTale.Simulation.World.Npcs.NpcServiceReply> RequestNpcServiceAsync(PristonTale.Simulation.World.Npcs.NpcServiceCommand command)
     {
         return _playChannel is not null ? _playChannel.RequestNpcServiceAsync(command, _presenceCts.Token)
             : Task.FromResult(new PristonTale.Simulation.World.Npcs.NpcServiceReply(PristonTale.Simulation.World.Npcs.NpcServiceOutcome.Failed(
-                PristonTale.Simulation.World.Npcs.NpcServiceStatus.Rejected, NoConnection)));
+                PristonTale.Simulation.World.Npcs.NpcServiceStatus.Rejected, PristonTale.Contracts.Texts.GameText.None)));
     }
 
     public Task<PristonTale.Simulation.Quests.QuestOutcome> RequestQuestAsync(PristonTale.Simulation.Quests.QuestCommand command)

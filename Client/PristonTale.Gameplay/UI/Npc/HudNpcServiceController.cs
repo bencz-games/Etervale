@@ -2,6 +2,7 @@ using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Gameplay.UI.Npc;
 
@@ -51,7 +52,7 @@ public sealed class HudNpcServiceController(Func<NpcServiceCommand, Task<NpcServ
 
         _pendingCommand = command;
         _request.Start(() => request(command),
-            _ => new NpcServiceReply(NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, HudRequest.ConnectionError)));
+            _ => new NpcServiceReply(NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, GameText.None)));
         return true;
     }
 
@@ -88,7 +89,8 @@ public sealed class HudNpcServiceController(Func<NpcServiceCommand, Task<NpcServ
             return;
         }
 
-        Message = outcome.Ok ? Describe(command, outcome) : outcome.Message;
+        // A refusal without a line is the client's own: the server was not reached.
+        Message = outcome.Ok ? Describe(command, outcome) : outcome.Message.IsNone ? HudRequest.ConnectionError : ClientText.Format(outcome.Message);
         LastOk = outcome.Ok;
         LastCommand = command;
         LastWork = reply.Work;
@@ -130,7 +132,7 @@ public sealed class HudNpcServiceController(Func<NpcServiceCommand, Task<NpcServ
         NpcServiceAction.Sell => ClientText.Get("Npc.Sold"),
         NpcServiceAction.Repair or NpcServiceAction.RepairAll => ClientText.Get("Npc.Repaired"),
         NpcServiceAction.Teleport => ClientText.Get("Npc.Teleporting"),
-        _ => outcome.Message
+        _ => ClientText.Format(outcome.Message)
     };
 
     public ShopQuote QuoteFor(Guid itemId)

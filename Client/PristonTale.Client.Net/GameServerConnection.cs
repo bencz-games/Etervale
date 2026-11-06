@@ -22,6 +22,7 @@ using PristonTale.Contracts.Sessions;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Units;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Client.Net;
 
@@ -315,7 +316,7 @@ public sealed class GameServerConnection : IGameBackend
         ThrowIfDisconnected();
         if (_npcDialogs.IsWaiting(entityId))
         {
-            return NpcInteraction.Rejected("already talking to this NPC");
+            return NpcInteraction.Rejected(GameText.Of(GameTextId.AlreadyTalking));
         }
 
         return await _npcDialogs.RequestAsync(entityId, () => SendAttackRequest(entityId, sustained: false, 0), ct);
@@ -594,7 +595,7 @@ public sealed class GameServerConnection : IGameBackend
     }
 
     private void AddServicePart(Guid operationId, Func<NpcServiceReply, NpcServiceReply> add) =>
-        _serviceParts.AddOrUpdate(operationId, _ => add(new NpcServiceReply(NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, ""))), (_, reply) => add(reply));
+        _serviceParts.AddOrUpdate(operationId, _ => add(new NpcServiceReply(NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, GameText.None))), (_, reply) => add(reply));
 
     private void OnServiceMessage(uint code, ReadOnlySpan<byte> packet)
     {

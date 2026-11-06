@@ -693,14 +693,14 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         {
             AdmitStoredOperation();
             reply = session is null || _player is null
-                ? new NpcServiceReply(NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, "enter the world first"))
+                ? new NpcServiceReply(NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, GameText.Of(GameTextId.EnterWorldFirst)))
                 : await _services.Npc.RequestAsync(RequireToken(), command);
         }
         catch (Exception ex) when (ex is InvalidSessionException or InvalidOperationException or System.Data.Common.DbException)
         {
             reply = new NpcServiceReply(ex is WorldBusyException
-                ? NpcServiceOutcome.Failed(NpcServiceStatus.Busy, ex.Message)
-                : NpcServiceOutcome.Failed(NpcServiceStatus.StorageFailed, ex.Message));
+                ? NpcServiceOutcome.Failed(NpcServiceStatus.Busy, Refusal(ex))
+                : NpcServiceOutcome.Failed(NpcServiceStatus.StorageFailed, Refusal(ex)));
         }
 
         NpcWireMapping.SendState(request, reply, packet => SendLarge(packet, FrameCodec.MaxFrameSize));

@@ -3,6 +3,7 @@ using PristonTale.Persistence.Abstractions.Characters;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -17,17 +18,17 @@ internal static class MobileShopTransactions
         var original = player.Character;
         if (!session.MobileShopOpen || player.IsDead)
         {
-            return NpcServiceTransactions.Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.OutOfReach, "no shop is open here", original.InventoryRevision));
+            return NpcServiceTransactions.Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.OutOfReach, GameText.Of(GameTextId.NoShopHere), original.InventoryRevision));
         }
 
         switch (command.Action)
         {
             case NpcServiceAction.Close:
                 session.MobileShopOpen = false;
-                return new PreparedNpcOperation(original, null, null, new NpcServiceReply(NpcServiceTransactions.Done(original, null, "")));
+                return new PreparedNpcOperation(original, null, null, new NpcServiceReply(NpcServiceTransactions.Done(original, null, GameText.None)));
             case NpcServiceAction.Open:
             case NpcServiceAction.Refresh:
-                return new PreparedNpcOperation(original, null, null, new NpcServiceReply(NpcServiceTransactions.Done(original, null, ""))
+                return new PreparedNpcOperation(original, null, null, new NpcServiceReply(NpcServiceTransactions.Done(original, null, GameText.None))
                 {
                     Catalog = command.Action == NpcServiceAction.Open ? [] : null,
                     Quotes = NpcServiceTransactions.Quotes(original)
@@ -37,7 +38,7 @@ internal static class MobileShopTransactions
             case NpcServiceAction.RepairAll:
                 break;
             default:
-                return NpcServiceTransactions.Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, "this shop only buys and repairs", original.InventoryRevision));
+                return NpcServiceTransactions.Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, GameText.Of(GameTextId.ShopBuysAndRepairs), original.InventoryRevision));
         }
 
         if (NpcServiceTransactions.Settled(original, null, command) is { } settled)
@@ -49,12 +50,12 @@ internal static class MobileShopTransactions
         var status = NpcServiceTransactions.SellOrRepair(candidate, command);
         if (status != NpcServiceStatus.Ok)
         {
-            return NpcServiceTransactions.Final(original, NpcServiceOutcome.Failed(status, NpcServiceTransactions.Describe(status, "the shop refused"), original.InventoryRevision));
+            return NpcServiceTransactions.Final(original, NpcServiceOutcome.Failed(status, NpcServiceTransactions.Describe(status, GameTextId.ShopRefused), original.InventoryRevision));
         }
 
         candidate.RecordServiceOperation(command);
         var snapshot = CharacterRecordFactory.Capture(session.Loaded!, candidate, field.FieldId, player.Position);
-        var reply = new NpcServiceReply(NpcServiceTransactions.Done(candidate, null, "")) { Quotes = NpcServiceTransactions.Quotes(candidate) };
+        var reply = new NpcServiceReply(NpcServiceTransactions.Done(candidate, null, GameText.None)) { Quotes = NpcServiceTransactions.Quotes(candidate) };
         return new PreparedNpcOperation(original, candidate, snapshot, reply, candidate.Money - original.Money);
     }
 }

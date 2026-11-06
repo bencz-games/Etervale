@@ -76,5 +76,23 @@ public enum GameTextId : ushort
 
     // Progression.
     SkillMasterAway = 250,
-    ProgressionRefused = 251
+    ProgressionRefused = 251,
+
+    // NPCs and their services.
+    NpcOutOfReach = 300,
+    NpcNoSuchService = 301,
+    ServiceNotAvailable = 302,
+    OtherTownMaster = 303,
+    WarehouseNotOpen = 304,
+    ServiceStale = 305,
+    NpcRefused = 306,
+    WrongPuzzle = 307,
+    WrongMaterials = 308,
+    NoShopHere = 309,
+    ShopBuysAndRepairs = 310,
+    ShopRefused = 311,
+    WarehouseUnreadable = 312,
+    EnterWorldFirst = 313,
+    CloseTradeFirst = 314,
+    AlreadyTalking = 315
 }

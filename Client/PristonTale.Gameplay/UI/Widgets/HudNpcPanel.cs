@@ -5,6 +5,7 @@ using PristonTale.Gameplay.UI.Npc;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -84,7 +85,7 @@ public sealed class HudNpcPanel(
             _dismissed = false;
             _firstLine = 0;
             Destinations = [];
-            _request.Start(() => interact(entityId), _ => NpcInteraction.Rejected(HudRequest.ConnectionError));
+            _request.Start(() => interact(entityId), _ => NpcInteraction.Rejected(GameText.None));
         }
     }
 
@@ -105,7 +106,7 @@ public sealed class HudNpcPanel(
 
         _dialog = Current.Ok
             ? Current.Dialog.SelectMany(line => HudTextLayout.Wrap(font, line, TextWidth, HudPainter.TextScale)).ToArray()
-            : HudTextLayout.Wrap(font, Current.Message, TextWidth, HudPainter.TextScale);
+            : HudTextLayout.Wrap(font, Current.Message.IsNone ? HudRequest.ConnectionError : ClientText.Format(Current.Message), TextWidth, HudPainter.TextScale);
         _services = Current.Ok ? Buttons(Current) : [];
         _firstLine = 0;
         ReadyToOpen = true;

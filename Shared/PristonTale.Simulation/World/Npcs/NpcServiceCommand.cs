@@ -1,5 +1,6 @@
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.World.Npcs;
 
@@ -89,9 +90,9 @@ public sealed record AppliedServiceOperation(NpcServiceCommand Command, long Rev
     Guid IAppliedOperation.OperationId => Command?.OperationId ?? Guid.Empty;
 }
 
-public sealed record NpcServiceOutcome(bool Ok, NpcServiceStatus Status, long Revision, long StorageRevision, string Message)
+public sealed record NpcServiceOutcome(bool Ok, NpcServiceStatus Status, long Revision, long StorageRevision, GameText Message)
 {
-    public static NpcServiceOutcome Failed(NpcServiceStatus status, string message, long revision = 0, long storageRevision = 0) =>
+    public static NpcServiceOutcome Failed(NpcServiceStatus status, GameText message, long revision = 0, long storageRevision = 0) =>
         new(false, status, revision, storageRevision, message);
 }
 

@@ -1,4 +1,5 @@
 using PristonTale.Protocol.Binary;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Protocol.Packets;
 
@@ -28,14 +29,14 @@ public readonly record struct NpcServiceEntry(byte Kind, bool Available, int Val
     public const int Size = 8;
 }
 
-// Completes an NPC click: {header, uint64 NpcId, int32 Ok, text Name, text Message, int32 ServiceCount,
+// Completes an NPC click: {header, uint64 NpcId, int32 Ok, text Name, game text Message, int32 ServiceCount,
 // services {uint8 Kind, uint8 Available, uint16 0, int32 Value}, int32 LineCount, text lines}.
-public sealed record NpcDialogPacket(ulong NpcId, bool Ok, string Name, string Message, IReadOnlyList<NpcServiceEntry> Services,
+public sealed record NpcDialogPacket(ulong NpcId, bool Ok, string Name, GameText Message, IReadOnlyList<NpcServiceEntry> Services,
     IReadOnlyList<string> Lines)
 {
     public const int MaxServices = 32;
     public const int MaxLines = 20;
-    private const int MinimumSize = 8 + 4 + 8 + 4 + 2 + 2 + 4 + 4;
+    private const int MinimumSize = 8 + 4 + 8 + 4 + 2 + GameTextWire.MinimumSize + 4 + 4;
 
     public int Write(Span<byte> destination)
     {
@@ -49,7 +50,7 @@ public sealed record NpcDialogPacket(ulong NpcId, bool Ok, string Name, string M
         writer.UInt64(NpcId);
         writer.Int32(Ok ? 1 : 0);
         NpcWire.Text(ref writer, Name, NpcWire.MaxNameBytes);
-        NpcWire.Text(ref writer, Message, NpcWire.MaxMessageBytes);
+        GameTextWire.Write(ref writer, Message);
         writer.Int32(Services.Count);
         foreach (var service in Services)
         {
@@ -75,7 +76,7 @@ public sealed record NpcDialogPacket(ulong NpcId, bool Ok, string Name, string M
         var entityId = reader.UInt64();
         var ok = reader.Int32() != 0;
         var name = NpcWire.Text(ref reader, NpcWire.MaxNameBytes);
-        var message = NpcWire.Text(ref reader, NpcWire.MaxMessageBytes);
+        var message = GameTextWire.Read(ref reader);
         var serviceCount = reader.Int32();
         if (serviceCount < 0 || serviceCount > MaxServices)
         {
@@ -205,10 +206,10 @@ public sealed record NpcServiceRequestPacket(
 
 // S→C completion of a service request, sent after the state messages the request produced.
 public sealed record NpcServiceResultPacket(Guid OperationId, ulong NpcId, byte Service, byte Action, ushort Status, bool Ok,
-    long Revision, long StorageRevision, string Message)
+    long Revision, long StorageRevision, GameText Message)
 {
-    public const int MaxSize = 8 + 4 + 16 + 8 + 4 + 4 + 8 + 8 + 2 + NpcWire.MaxMessageBytes;
-    private const int MinimumSize = MaxSize - NpcWire.MaxMessageBytes;
+    private const int MinimumSize = 8 + 4 + 16 + 8 + 4 + 4 + 8 + 8 + GameTextWire.MinimumSize;
+    public const int MaxSize = MinimumSize - GameTextWire.MinimumSize + GameTextWire.MaximumSize;
 
     public int Write(Span<byte> destination)
     {
@@ -222,7 +223,7 @@ public sealed record NpcServiceResultPacket(Guid OperationId, ulong NpcId, byte 
         writer.Int32(Ok ? 1 : 0);
         writer.Int64(Revision);
         writer.Int64(StorageRevision);
-        NpcWire.Text(ref writer, Message, NpcWire.MaxMessageBytes);
+        GameTextWire.Write(ref writer, Message);
         return writer.Finish();
     }
 
@@ -238,8 +239,7 @@ public sealed record NpcServiceResultPacket(Guid OperationId, ulong NpcId, byte 
         var ok = r.Int32() != 0;
         var revision = r.Int64();
         var storage = r.Int64();
-        return new NpcServiceResultPacket(operation, entityId, service, action, status, ok, revision, storage,
-            NpcWire.Text(ref r, NpcWire.MaxMessageBytes));
+        return new NpcServiceResultPacket(operation, entityId, service, action, status, ok, revision, storage, GameTextWire.Read(ref r));
     }
 }
 

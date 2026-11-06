@@ -21,6 +21,7 @@ using PristonTale.WorldImport;
 using PristonTale.Contracts.World;
 using PristonTale.Assets;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -227,16 +228,17 @@ internal static class NpcServiceTests
     private static Task ProtocolAsync()
     {
         var buffer = new byte[Protocol.Binary.FrameCodec.MaxFrameSize];
-        var dialog = new NpcDialogPacket(7, true, "Skill Master, Verkan", "", [new NpcServiceEntry(2, true, 4), new NpcServiceEntry(4, false, 1003)],
+        var dialog = new NpcDialogPacket(7, true, "Skill Master, Verkan", GameText.Of(GameTextId.NpcRefused), [new NpcServiceEntry(2, true, 4), new NpcServiceEntry(4, false, 1003)],
             ["Stout body and noble mind.", "스킬"]);
         var readDialog = NpcDialogPacket.Read(buffer.AsSpan(0, dialog.Write(buffer)));
-        Assert.True(readDialog.Name == dialog.Name && readDialog.Services.SequenceEqual(dialog.Services) && readDialog.Lines.SequenceEqual(dialog.Lines),
+        Assert.True(readDialog.Name == dialog.Name && readDialog.Message == dialog.Message && readDialog.Services.SequenceEqual(dialog.Services) && readDialog.Lines.SequenceEqual(dialog.Lines),
             "dialog round trip differs");
 
         var request = new NpcServiceRequestPacket(Guid.NewGuid(), 7, 1, 10, 3, 4, AxeCode, Guid.NewGuid(), 5, 1, 99, Covered: Guid.NewGuid());
         Assert.True(NpcServiceRequestPacket.Read(buffer.AsSpan(0, request.Write(buffer))) == request && request.Write(buffer) == NpcServiceRequestPacket.Size,
             "request round trip differs");
-        var result = new NpcServiceResultPacket(request.OperationId, 7, 1, 10, (ushort)NpcServiceStatus.NotEnoughGold, false, 3, 4, "not enough gold");
+        var result = new NpcServiceResultPacket(request.OperationId, 7, 1, 10, (ushort)NpcServiceStatus.NotEnoughGold, false, 3, 4,
+            GameText.Of(GameTextId.NotEnoughGold));
         Assert.True(NpcServiceResultPacket.Read(buffer.AsSpan(0, result.Write(buffer))) == result, "result round trip differs");
 
         var catalog = new ShopCatalogPacket(request.OperationId, 7, Enumerable.Range(0, ShopCatalogPacket.MaxItems)
@@ -292,7 +294,7 @@ internal static class NpcServiceTests
         var found = character.Inventory.FindByDefinition(Axe(), out var axe);
         Assert.True(bought.Outcome.Ok && found && character.Money == 940 && fixture.Characters.Record.Money == 940, "buy was not durable");
         var writes = fixture.Characters.UpdateCount;
-        Assert.True((await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, buy))).Outcome.Message == "already committed"
+        Assert.True((await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, buy))).Outcome.Message == GameText.Of(GameTextId.AlreadyApplied)
             && fixture.Characters.UpdateCount == writes && character.Money == 940, "a replayed buy charged again");
         Assert.True((await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, buy with { ItemCode = PotionCode }))).Outcome.Status
             == NpcServiceStatus.Conflict, "a reused operation id was accepted for another purchase");

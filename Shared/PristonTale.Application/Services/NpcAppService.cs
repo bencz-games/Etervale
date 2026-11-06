@@ -5,6 +5,7 @@ using PristonTale.Application.World;
 using PristonTale.Persistence.Abstractions.Characters;
 using PristonTale.Persistence.Abstractions.Warehouses;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.Services;
 
@@ -38,7 +39,7 @@ public sealed class NpcAppService(
                 DurableFailure.StorageFailed => NpcServiceStatus.StorageFailed,
                 DurableFailure.Conflict => NpcServiceStatus.Conflict,
                 _ => NpcServiceStatus.Rejected
-            }, DurableFailures.Message(failure)),
+            }, DurableFailures.Text(failure)),
             StoreAsync,
             storeFirst: static prepared => prepared.Warehouse is not null);
     }
@@ -75,9 +76,9 @@ public sealed class NpcAppService(
         catch (Exception exception) when (exception is InvalidDataException or JsonException or ArgumentException)
         {
             session.Warehouse = null;
-            return Failed(NpcServiceStatus.StorageFailed, "the saved warehouse cannot be read");
+            return Failed(NpcServiceStatus.StorageFailed, GameText.Of(GameTextId.WarehouseUnreadable));
         }
     }
 
-    private static NpcServiceReply Failed(NpcServiceStatus status, string message) => new(NpcServiceOutcome.Failed(status, message));
+    private static NpcServiceReply Failed(NpcServiceStatus status, GameText message) => new(NpcServiceOutcome.Failed(status, message));
 }

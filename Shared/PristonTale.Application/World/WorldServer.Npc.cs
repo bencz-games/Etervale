@@ -4,6 +4,7 @@ using PristonTale.Simulation.Trades;
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Application.Services;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -20,7 +21,7 @@ public sealed partial class WorldServer
             if (!TryGetPlaying(session, out var connection) || !_fields.TryGetValue(connection.FieldId, out var field)
                 || !field.TryGetNpc(npcId, out var npc) || !NpcServiceTransactions.CanReach(connection.Player, npc))
             {
-                return NpcInteraction.Rejected("approach this NPC while alive");
+                return NpcInteraction.Rejected(GameText.Of(GameTextId.NpcOutOfReach));
             }
 
             var definition = npc.Definition;
@@ -31,7 +32,7 @@ public sealed partial class WorldServer
                 .Select(service => new NpcServiceOffer(service.Kind, service.Value, NpcServiceAvailability.IsAvailable(service), PricePercent(service)))
                 .ToArray();
             string[] line = localizedDefinition.Dialog.Count == 0 ? [] : [localizedDefinition.Dialog[_dialogRandom.Next(localizedDefinition.Dialog.Count)]];
-            return new NpcInteraction(true, npc.EntityId, localizedDefinition.Label, offers, line, "");
+            return new NpcInteraction(true, npc.EntityId, localizedDefinition.Label, offers, line, GameText.None);
         });
     }
 
@@ -49,7 +50,7 @@ public sealed partial class WorldServer
         {
             if (!TryGetPlaying(session, out var connection) || !_fields.TryGetValue(connection.FieldId, out var field))
             {
-                return NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, DurableFailures.Message(DurableFailure.NotPlaying));
+                return NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, DurableFailures.Text(DurableFailure.NotPlaying));
             }
 
             return NpcServiceTransactions.Check(connection.Player, field, command, out _, out _);
@@ -69,7 +70,7 @@ public sealed partial class WorldServer
             if (connection.Player.Shop is not null || connection.Player.Trade is not null)
             {
                 var revision = connection.Player.Character.InventoryRevision;
-                var message = connection.Player.Shop is not null ? PersonalShopMessages.Of(PersonalShopStatus.Selling) : TradeMessages.Trading;
+                var message = GameText.Of(connection.Player.Shop is not null ? GameTextId.CloseShopFirst : GameTextId.CloseTradeFirst);
                 return new PreparedNpcOperation(connection.Player.Character, null, null, new NpcServiceReply(NpcServiceOutcome.Failed(NpcServiceStatus.Rejected,
                     message, revision)));
             }

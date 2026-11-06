@@ -1,4 +1,5 @@
 using PristonTale.Simulation.Physics;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.World.Npcs;
 
@@ -7,7 +8,7 @@ namespace PristonTale.Simulation.World.Npcs;
 public sealed record NpcServiceOffer(NpcServiceKind Kind, int Value, bool Available, int PricePercent = 100);
 
 public sealed record NpcInteraction(bool Ok, ulong EntityId, string Name, IReadOnlyList<NpcServiceOffer> Services, IReadOnlyList<string> Dialog,
-    string Message)
+    GameText Message)
 {
     public const float Reach = 96f;
 
@@ -30,5 +31,5 @@ public sealed record NpcInteraction(bool Ok, ulong EntityId, string Name, IReadO
 
     public bool Offers(NpcServiceKind kind) => Ok && Services.Any(offer => offer.Kind == kind && offer.Available);
 
-    public static NpcInteraction Rejected(string message) => new(false, 0, "", [], [], message);
+    public static NpcInteraction Rejected(GameText message) => new(false, 0, "", [], [], message);
 }

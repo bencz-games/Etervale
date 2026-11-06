@@ -5,6 +5,7 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -21,33 +22,33 @@ internal static class NpcServiceTransactions
         service = null;
         if (!field.TryGetNpc(command.NpcEntityId, out npc) || !CanReach(player, npc))
         {
-            return NpcServiceOutcome.Failed(NpcServiceStatus.OutOfReach, "approach this NPC while alive");
+            return NpcServiceOutcome.Failed(NpcServiceStatus.OutOfReach, GameText.Of(GameTextId.NpcOutOfReach));
         }
 
         service = npc.Definition.Find(command.Service);
         if (service is null || !Enum.IsDefined(command.Action) || !Accepts(command.Service, command.Action))
         {
-            return NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, "this NPC does not offer that");
+            return NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, GameText.Of(GameTextId.NpcNoSuchService));
         }
 
         if (!NpcServiceAvailability.IsAvailable(service))
         {
-            return NpcServiceOutcome.Failed(NpcServiceStatus.NotAvailable, "this service is not available yet");
+            return NpcServiceOutcome.Failed(NpcServiceStatus.NotAvailable, GameText.Of(GameTextId.ServiceNotAvailable));
         }
 
         // A skill master trains only the classes of its own town: Ricarten's the Tempskron, Pillai's the Morion.
         if (command.Service == NpcServiceKind.SkillMaster && !Simulation.Quests.QuestClasses.IsHomeTown(player.Character, field.FieldId))
         {
-            return NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, "this master trains another town's classes");
+            return NpcServiceOutcome.Failed(NpcServiceStatus.Rejected, GameText.Of(GameTextId.OtherTownMaster));
         }
 
         // A character over the weight limit cannot open the warehouse.
         if (command.Service == NpcServiceKind.Warehouse && command.Action == NpcServiceAction.Open && CarriedWeight.IsOverweight(player.Character))
         {
-            return NpcServiceOutcome.Failed(NpcServiceStatus.OverWeight, ItemRuleMessages.OverWeight);
+            return NpcServiceOutcome.Failed(NpcServiceStatus.OverWeight, GameText.Of(GameTextId.OverWeight));
         }
 
-        return new NpcServiceOutcome(true, NpcServiceStatus.Ok, player.Character.InventoryRevision, 0, "");
+        return new NpcServiceOutcome(true, NpcServiceStatus.Ok, player.Character.InventoryRevision, 0, GameText.None);
     }
 
     public static PreparedNpcOperation Prepare(PlayerSession session, WorldPlayer player, FieldInstance field, NpcServiceCommand command,
@@ -68,12 +69,12 @@ internal static class NpcServiceTransactions
 
         if (command.Service == NpcServiceKind.Warehouse && storage is null && command.Action != NpcServiceAction.Close)
         {
-            return Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.NotOpen, "open the warehouse first", original.InventoryRevision));
+            return Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.NotOpen, GameText.Of(GameTextId.WarehouseNotOpen), original.InventoryRevision));
         }
 
         if (!NpcServiceActions.IsDurable(command.Action))
         {
-            var shown = Show(command, npc!, service!, original, storage, items, world, Done(original, storage, ""));
+            var shown = Show(command, npc!, service!, original, storage, items, world, Done(original, storage, GameText.None));
             return new PreparedNpcOperation(original, null, null, shown);
         }
 
@@ -88,17 +89,17 @@ internal static class NpcServiceTransactions
         {
             if (applied.Command != command)
             {
-                return Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.Conflict, "operation identity conflict", original.InventoryRevision));
+                return Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.Conflict, GameText.Of(GameTextId.OperationConflict), original.InventoryRevision));
             }
 
-            var replayed = State(command, original, storage, Done(original, storage, "already committed"));
+            var replayed = State(command, original, storage, Done(original, storage, GameText.Of(GameTextId.AlreadyApplied)));
             return new PreparedNpcOperation(original, null, null, replayed);
         }
 
         if (command.OperationId == Guid.Empty || command.ExpectedRevision != original.InventoryRevision
             || storage is not null && command.Service == NpcServiceKind.Warehouse && command.ExpectedStorageRevision != storage.Revision)
         {
-            return Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.Stale, "stale inventory or warehouse revision",
+            return Final(original, NpcServiceOutcome.Failed(NpcServiceStatus.Stale, GameText.Of(GameTextId.ServiceStale),
                 original.InventoryRevision, storage?.Revision ?? 0));
         }
 
@@ -186,7 +187,7 @@ internal static class NpcServiceTransactions
 
         candidate.RecordServiceOperation(command);
         var snapshot = CharacterRecordFactory.Capture(session.Loaded!, candidate, fieldId, position);
-        var outcome = Done(candidate, storage ?? session.Warehouse, "");
+        var outcome = Done(candidate, storage ?? session.Warehouse, GameText.None);
         var reply = State(command, candidate, storage, outcome) with { Arrival = arrival, Work = work };
         return new PreparedNpcOperation(original, candidate, snapshot, reply, candidate.Money - original.Money, storage,
             session.Warehouse?.Revision ?? 0);
@@ -307,18 +308,18 @@ internal static class NpcServiceTransactions
         _ => false
     };
 
-    internal static string Describe(NpcServiceStatus status, string refusal = "the NPC refused") => status switch
+    internal static GameText Describe(NpcServiceStatus status, GameTextId refusal = GameTextId.NpcRefused) => GameText.Of(status switch
     {
-        NpcServiceStatus.NotEnoughGold => "not enough gold",
-        NpcServiceStatus.NoSpace => "not enough room",
-        NpcServiceStatus.GoldLimit => "you cannot carry more gold",
-        NpcServiceStatus.OverWeight => ItemRuleMessages.OverWeight,
-        NpcServiceStatus.WrongPuzzle => "The puzzle is wrong",
-        NpcServiceStatus.WrongMaterials => "These materials do not fit this work",
+        NpcServiceStatus.NotEnoughGold => GameTextId.NotEnoughGold,
+        NpcServiceStatus.NoSpace => GameTextId.NoSpace,
+        NpcServiceStatus.GoldLimit => GameTextId.GoldLimit,
+        NpcServiceStatus.OverWeight => GameTextId.OverWeight,
+        NpcServiceStatus.WrongPuzzle => GameTextId.WrongPuzzle,
+        NpcServiceStatus.WrongMaterials => GameTextId.WrongMaterials,
         _ => refusal
-    };
+    });
 
-    internal static NpcServiceOutcome Done(PlayerCharacter character, WarehouseStorage? storage, string message) =>
+    internal static NpcServiceOutcome Done(PlayerCharacter character, WarehouseStorage? storage, GameText message) =>
         new(true, NpcServiceStatus.Ok, character.InventoryRevision, storage?.Revision ?? 0, message);
 
     internal static PreparedNpcOperation Final(PlayerCharacter original, NpcServiceOutcome outcome) =>
