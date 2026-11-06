@@ -91,7 +91,7 @@ public sealed class CharacterSelectScreen : GameScreen
         _actorLoader = new PristonActorLoader(_assetCache);
     }
 
-    public override string StatusText => ClientText.CharacterSelect(Context.Presentation.Requested.Language);
+    public override string StatusText => ClientText.Get("Status.CharacterSelect");
 
     public override void Enter()
     {

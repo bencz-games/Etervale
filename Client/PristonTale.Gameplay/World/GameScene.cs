@@ -191,7 +191,6 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     }
 
     public string Status { get; private set; } = "Not loaded";
-    public string Language { get; set; } = ClientSettings.EnglishLanguage;
 
     public PlayerCharacter Player => _player;
     public OwnerState Owner { get; private set; }

@@ -38,7 +38,7 @@ public sealed class OpeningScreen : GameScreen
         _cinematic.Load();
         _audio = LoginAudio.Opening(Context.Audio);
         _loginController = new OpeningLoginController(Context, _audio);
-        _status = $"{ClientText.Opening(Context.Presentation.Requested.Language)}: {_cinematic.StatusSuffix}";
+        _status = ClientText.Format("Status.Opening", _cinematic.StatusSuffix);
     }
 
     public override void Update(GameTime gameTime)

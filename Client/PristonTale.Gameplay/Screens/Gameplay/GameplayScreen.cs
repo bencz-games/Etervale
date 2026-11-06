@@ -29,7 +29,6 @@ public sealed class GameplayScreen : GameScreen
     public override void Enter()
     {
         _scene = new GameScene(Context.GraphicsDevice, Context.Content, Context.Log, Context.Sky, Context.Effects, Context.Presentation, Context.Audio);
-        _scene.Language = Context.Presentation.Requested.Language;
         _scene.LoadEntered(Context.AssetRoot, _entered);
         _hud = new GameplayHud(
             Context,
@@ -129,7 +128,6 @@ public sealed class GameplayScreen : GameScreen
 
     public override void Update(GameTime gameTime)
     {
-        _scene.Language = Context.Presentation.Requested.Language;
         var catalog = _pendingHudCatalog;
         if (catalog is not null)
         {

@@ -167,15 +167,15 @@ public sealed partial class GameScene : ISkillSceneHost
             _castLockUntilMs = 0d;
             SkillNotice?.Invoke(result.Status switch
             {
-                SkillCastVerdict.Cooldown => ClientText.SkillNotReady(Language),
-                SkillCastVerdict.NotEnoughMana => ClientText.NotEnoughMana(Language),
-                SkillCastVerdict.NotEnoughStamina => ClientText.NotEnoughStamina(Language),
-                SkillCastVerdict.OutOfRange => "The target is out of range.",
-                SkillCastVerdict.WeaponNotAllowed => "This skill needs another weapon.",
-                SkillCastVerdict.InVillage => "Skills cannot be used in town.",
-                SkillCastVerdict.AlreadyActive => "That effect is still active.",
-                SkillCastVerdict.InvalidTarget => "There is no valid target for this skill.",
-                _ => "The skill cannot be used now."
+                SkillCastVerdict.Cooldown => ClientText.Get("Skill.NotReady"),
+                SkillCastVerdict.NotEnoughMana => ClientText.Get("Skill.NotEnoughMana"),
+                SkillCastVerdict.NotEnoughStamina => ClientText.Get("Skill.NotEnoughStamina"),
+                SkillCastVerdict.OutOfRange => ClientText.Get("Skill.OutOfRange"),
+                SkillCastVerdict.WeaponNotAllowed => ClientText.Get("Skill.WeaponNotAllowed"),
+                SkillCastVerdict.InVillage => ClientText.Get("Skill.InVillage"),
+                SkillCastVerdict.AlreadyActive => ClientText.Get("Skill.AlreadyActive"),
+                SkillCastVerdict.InvalidTarget => ClientText.Get("Skill.InvalidTarget"),
+                _ => ClientText.Get("Skill.CannotUse")
             });
         }
     }
@@ -223,13 +223,13 @@ public sealed partial class GameScene : ISkillSceneHost
         var skill = FindSkill(code);
         if (rank <= 0 || skill is null)
         {
-            SkillNotice?.Invoke(ClientText.LearnSkillFirst(Language));
+            SkillNotice?.Invoke(ClientText.Get("Skill.LearnFirst"));
             return true;
         }
 
         if (!_skillFx.Cooldowns.Ready(code, _skillClockMs))
         {
-            SkillNotice?.Invoke(ClientText.SkillNotReady(Language));
+            SkillNotice?.Invoke(ClientText.Get("Skill.NotReady"));
             return true;
         }
 
@@ -340,7 +340,7 @@ public sealed partial class GameScene : ISkillSceneHost
         _summonAggressive[skillCode] = aggressive;
         var command = aggressive ? SkillCastCommand.SummonAggressive : SkillCastCommand.SummonPassive;
         SendUpstream(_playChannel.SendSkillCommandAsync(++_castSequence, skillCode, command, _presenceCts.Token), "summon mode");
-        SkillNotice?.Invoke(ClientText.SkillTargetMode(Language, rule.Name, aggressive));
+        SkillNotice?.Invoke(ClientText.Format(aggressive ? "Skill.TargetAggressive" : "Skill.TargetFocused", rule.Name));
     }
 
     // A confirmed right click on a crystal pet's icon dismisses the pet of that status.
@@ -352,7 +352,7 @@ public sealed partial class GameScene : ISkillSceneHost
         }
 
         SendUpstream(_playChannel.SendDismissCrystalPetsAsync(statusCode, _presenceCts.Token), "crystal pet dismissal");
-        SkillNotice?.Invoke(ClientText.PetDismissed(Language));
+        SkillNotice?.Invoke(ClientText.Get("Pet.Dismissed"));
     }
 
     // True when the summon skill's monster picks its own enemies, false when it fights only the owner's target; null

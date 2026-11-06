@@ -4,34 +4,34 @@ using PristonTale.Engine3D.Rendering;
 
 namespace PristonTale.Gameplay.Localization;
 
+// The client's phrases: ClientText.resx holds the English ones, ClientText.<language>.resx their translations, keyed
+// by name. The shown language follows client-settings.json (Use); a phrase a translation lacks falls back to English.
+// Formats take their arguments in invariant culture.
 public static class ClientText
 {
     private static readonly ResourceManager Resources = new(typeof(ClientText));
+    private static CultureInfo _culture = CultureInfo.GetCultureInfo(ClientSettings.EnglishLanguage);
 
-    public static string Loading(string language) => Get("Loading", language);
+    public static string Language { get; private set; } = ClientSettings.EnglishLanguage;
 
-    public static string SavingAndDisconnecting(string language) => Get("SavingAndDisconnecting", language);
-
-    public static string CharacterSelect(string language) => Get("CharacterSelect", language);
-
-    public static string Opening(string language) => Get("Opening", language);
-
-    public static string SkillNotReady(string language) => Get("SkillNotReady", language);
-
-    public static string NotEnoughMana(string language) => Get("NotEnoughMana", language);
-
-    public static string NotEnoughStamina(string language) => Get("NotEnoughStamina", language);
-
-    public static string LearnSkillFirst(string language) => Get("LearnSkillFirst", language);
-
-    public static string PetDismissed(string language) => Get("PetDismissed", language);
-
-    public static string SkillTargetMode(string language, string skillName, bool aggressive) =>
-        string.Format(Get(aggressive ? "SkillTargetAggressive" : "SkillTargetFocused", language), skillName);
-
-    private static string Get(string key, string language)
+    public static void Use(string language)
     {
-        var culture = CultureInfo.GetCultureInfo(ClientSettings.NormalizeLanguage(language));
-        return Resources.GetString(key, culture) ?? Resources.GetString(key, CultureInfo.InvariantCulture) ?? key;
+        var normalized = ClientSettings.NormalizeLanguage(language);
+        if (normalized != Language)
+        {
+            Language = normalized;
+            _culture = CultureInfo.GetCultureInfo(normalized);
+        }
     }
+
+    public static string Get(string key) => Resources.GetString(key, _culture) ?? key;
+
+    public static string Format(string key, object arg0) => string.Format(CultureInfo.InvariantCulture, Get(key), arg0);
+
+    public static string Format(string key, object arg0, object arg1) => string.Format(CultureInfo.InvariantCulture, Get(key), arg0, arg1);
+
+    public static string Format(string key, object arg0, object arg1, object arg2) =>
+        string.Format(CultureInfo.InvariantCulture, Get(key), arg0, arg1, arg2);
+
+    public static string Format(string key, params object[] args) => string.Format(CultureInfo.InvariantCulture, Get(key), args);
 }

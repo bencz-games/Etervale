@@ -4,15 +4,21 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="Loading" xml:space="preserve"><value>Carregando…</value></data>
-  <data name="SavingAndDisconnecting" xml:space="preserve"><value>Salvando e desconectando…</value></data>
-  <data name="CharacterSelect" xml:space="preserve"><value>Seleção de personagem</value></data>
-  <data name="Opening" xml:space="preserve"><value>Abertura</value></data>
-  <data name="SkillNotReady" xml:space="preserve"><value>A habilidade ainda não está pronta.</value></data>
-  <data name="NotEnoughMana" xml:space="preserve"><value>Mana insuficiente.</value></data>
-  <data name="NotEnoughStamina" xml:space="preserve"><value>Stamina insuficiente.</value></data>
-  <data name="LearnSkillFirst" xml:space="preserve"><value>Aprenda esta habilidade com um mestre de habilidades primeiro.</value></data>
-  <data name="PetDismissed" xml:space="preserve"><value>Mascote dispensado.</value></data>
-  <data name="SkillTargetAggressive" xml:space="preserve"><value>{0}: ataca qualquer inimigo próximo.</value></data>
-  <data name="SkillTargetFocused" xml:space="preserve"><value>{0}: ataca apenas o seu alvo.</value></data>
+  <data name="Pet.Dismissed" xml:space="preserve"><value>Mascote dispensado</value></data>
+  <data name="Skill.AlreadyActive" xml:space="preserve"><value>Esse efeito ainda está ativo.</value></data>
+  <data name="Skill.CannotUse" xml:space="preserve"><value>A habilidade não pode ser usada agora.</value></data>
+  <data name="Skill.InVillage" xml:space="preserve"><value>Habilidades não podem ser usadas na cidade.</value></data>
+  <data name="Skill.InvalidTarget" xml:space="preserve"><value>Não há um alvo válido para esta habilidade.</value></data>
+  <data name="Skill.LearnFirst" xml:space="preserve"><value>Aprenda esta habilidade com um mestre de habilidades primeiro.</value></data>
+  <data name="Skill.NotEnoughMana" xml:space="preserve"><value>Mana insuficiente.</value></data>
+  <data name="Skill.NotEnoughStamina" xml:space="preserve"><value>Stamina insuficiente.</value></data>
+  <data name="Skill.NotReady" xml:space="preserve"><value>A habilidade ainda não está pronta.</value></data>
+  <data name="Skill.OutOfRange" xml:space="preserve"><value>O alvo está fora de alcance.</value></data>
+  <data name="Skill.TargetAggressive" xml:space="preserve"><value>{0}: ataca qualquer inimigo próximo.</value></data>
+  <data name="Skill.TargetFocused" xml:space="preserve"><value>{0}: ataca apenas o seu alvo.</value></data>
+  <data name="Skill.WeaponNotAllowed" xml:space="preserve"><value>Esta habilidade precisa de outra arma.</value></data>
+  <data name="Status.CharacterSelect" xml:space="preserve"><value>Seleção de personagem</value></data>
+  <data name="Status.Loading" xml:space="preserve"><value>Carregando…</value></data>
+  <data name="Status.Opening" xml:space="preserve"><value>Abertura: {0}</value></data>
+  <data name="Status.SavingAndDisconnecting" xml:space="preserve"><value>Salvando e desconectando…</value></data>
 </root>

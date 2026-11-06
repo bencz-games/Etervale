@@ -4,15 +4,21 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
-  <data name="Loading" xml:space="preserve"><value>Loading…</value></data>
-  <data name="SavingAndDisconnecting" xml:space="preserve"><value>Saving and disconnecting…</value></data>
-  <data name="CharacterSelect" xml:space="preserve"><value>Character select</value></data>
-  <data name="Opening" xml:space="preserve"><value>Opening</value></data>
-  <data name="SkillNotReady" xml:space="preserve"><value>The skill is not ready yet.</value></data>
-  <data name="NotEnoughMana" xml:space="preserve"><value>Not enough mana.</value></data>
-  <data name="NotEnoughStamina" xml:space="preserve"><value>Not enough stamina.</value></data>
-  <data name="LearnSkillFirst" xml:space="preserve"><value>Learn this skill at a skill master first.</value></data>
-  <data name="PetDismissed" xml:space="preserve"><value>Pet has been dismissed</value></data>
-  <data name="SkillTargetAggressive" xml:space="preserve"><value>{0}: attacks any enemy nearby.</value></data>
-  <data name="SkillTargetFocused" xml:space="preserve"><value>{0}: attacks only your target.</value></data>
+  <data name="Pet.Dismissed" xml:space="preserve"><value>Pet has been dismissed</value></data>
+  <data name="Skill.AlreadyActive" xml:space="preserve"><value>That effect is still active.</value></data>
+  <data name="Skill.CannotUse" xml:space="preserve"><value>The skill cannot be used now.</value></data>
+  <data name="Skill.InVillage" xml:space="preserve"><value>Skills cannot be used in town.</value></data>
+  <data name="Skill.InvalidTarget" xml:space="preserve"><value>There is no valid target for this skill.</value></data>
+  <data name="Skill.LearnFirst" xml:space="preserve"><value>Learn this skill at a skill master first.</value></data>
+  <data name="Skill.NotEnoughMana" xml:space="preserve"><value>Not enough mana.</value></data>
+  <data name="Skill.NotEnoughStamina" xml:space="preserve"><value>Not enough stamina.</value></data>
+  <data name="Skill.NotReady" xml:space="preserve"><value>The skill is not ready yet.</value></data>
+  <data name="Skill.OutOfRange" xml:space="preserve"><value>The target is out of range.</value></data>
+  <data name="Skill.TargetAggressive" xml:space="preserve"><value>{0}: attacks any enemy nearby.</value></data>
+  <data name="Skill.TargetFocused" xml:space="preserve"><value>{0}: attacks only your target.</value></data>
+  <data name="Skill.WeaponNotAllowed" xml:space="preserve"><value>This skill needs another weapon.</value></data>
+  <data name="Status.CharacterSelect" xml:space="preserve"><value>Character select</value></data>
+  <data name="Status.Loading" xml:space="preserve"><value>Loading…</value></data>
+  <data name="Status.Opening" xml:space="preserve"><value>Opening: {0}</value></data>
+  <data name="Status.SavingAndDisconnecting" xml:space="preserve"><value>Saving and disconnecting…</value></data>
 </root>

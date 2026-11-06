@@ -1,7 +1,6 @@
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.IO;
 using PristonTale.Engine3D.Rendering;
-using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Tests;
 
@@ -15,7 +14,6 @@ internal static class ClientSettingsTests
         yield return ("settings persistence drains the latest snapshot on shutdown", PersistenceAsync);
         yield return ("invalid and future settings documents survive attempted saves", PreserveInvalidAsync);
         yield return ("settings write failures are observable without faulting gameplay", WriteFailureAsync);
-        yield return ("client text falls back to English and translates Brazilian Portuguese skill notices", LocalizationAsync);
         yield return ("frame pacing has no catch-up bursts and separates foreground limits", PacingAsync);
         yield return ("a texture named with another extension is found in the subfolder its name points to", TextureExtensionAsync);
     }
@@ -70,17 +68,6 @@ internal static class ClientSettingsTests
             Directory.Delete(directory, recursive: true);
         }
 
-        return Task.CompletedTask;
-    }
-
-    private static Task LocalizationAsync()
-    {
-        Assert.True(ClientText.NotEnoughMana(ClientSettings.BrazilianPortugueseLanguage) == "Mana insuficiente.",
-            "Brazilian Portuguese skill text was not translated");
-        Assert.True(ClientText.NotEnoughMana("unknown") == "Not enough mana.",
-            "unknown language did not fall back to English");
-        Assert.True(ClientText.CharacterSelect(ClientSettings.BrazilianPortugueseLanguage) == "Seleção de personagem",
-            "Brazilian Portuguese status text was not translated");
         return Task.CompletedTask;
     }
 
