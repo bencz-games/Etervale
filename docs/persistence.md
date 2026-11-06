@@ -214,7 +214,8 @@ them holds the id. No Korean text is stored.
 
 Player-facing text lives in `*_texts` tables, one row per entity and language (`languages`, BCP-47 codes). Every
 entity has its English name (`en`, `CatalogLanguages.English`); another language is an optional translation added as
-`languages` and `*_texts` rows. The server loads supported languages once and selects the session's language, falling back
+`languages` and `*_texts` rows (the world importer writes them from its `Translations`, [world-import.md](world-import.md#pipeline)).
+The server loads supported languages once and selects the session's language, falling back
 to English; an entity without a name in either language shows its code or key.
 
 | Table | Columns and constraints |

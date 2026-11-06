@@ -26,6 +26,8 @@
   <ItemGroup>
     <!-- The monster, NPC and named unique registries (IdentityRegistry, NamedUniqueRegistry), read as PristonTale.WorldImport.Identities.<file>. -->
     <EmbeddedResource Include="Identities\*.json" LogicalName="PristonTale.WorldImport.Identities.%(Filename)%(Extension)" />
+    <!-- The catalog texts in other languages (Importer.Translations), read as PristonTale.WorldImport.Translations.<language>.json. -->
+    <EmbeddedResource Include="Translations\*.json" LogicalName="PristonTale.WorldImport.Translations.%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>

@@ -122,6 +122,7 @@ static void PrintReport(ImportReport r)
     Console.WriteLine($"monsters: {r.MonsterRows,5} rows from {r.MonsterFilesParsed} files  (drop lines {r.MonsterDropLineRows}, line items {r.MonsterDropItemRows}, bonus {r.MonsterDropPlusRows})");
     Console.WriteLine($"npcs:     {r.NpcRows,5} rows from {r.NpcFilesParsed} files  (shop {r.NpcShopRows}, services {r.NpcServiceRows}, with dialog {r.NpcDialogRows}, dialog lines {r.DialogLineRows})");
     Console.WriteLine($"fields:   {r.FieldRows,5} rows  (points {r.SpawnPointRows}, mon-spawns {r.MonsterSpawnRows}, bosses {r.BossSpawnRows}, fixed-npc {r.FixedNpcRows})");
+    Console.WriteLine($"translations: {r.TranslatedNameRows} names, {r.TranslatedDialogRows} dialog lines");
     Console.WriteLine($"motion:   {r.MotionModelRows,5} models → {r.MotionTableRows} tables ({r.MotionSlotRows} clip rows; unresolved {r.MotionUnresolvedModels})");
     Console.WriteLine();
     Console.WriteLine("=== cross-ref resolution (resolved / dangling) ===");

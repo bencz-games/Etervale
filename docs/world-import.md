@@ -86,8 +86,14 @@ executable directory for `assets/GameServer` or `GameServer`; otherwise `./GameS
 4. Write in foreign-key order: item sets and items (each definition with its English name, bonuses and random
    classes), monsters (name, drop lines, bonus drops), NPCs (name, dialog, services, shop), fields (spawn points,
    monster spawns, bosses and their hours, NPC placements), motion timing, `world_source_files`,
-   `world_entity_variants`.
+   `world_entity_variants`, then the other languages' texts.
 5. Commit. Any exception rolls back the whole import.
+
+The other languages' texts come from `Translations/<language>.json`, embedded in the importer
+(`Importer.Translations`): `npcs` (by NPC key: `name` and `dialog`, a line per English ordinal), `monsters` (by monster
+key) and `items` (by item code, every variant of the code). Each text is a `*_texts` or `npc_dialog_lines` row of that
+language beside the English one, so a re-import keeps them; a key the catalog lacks is a warning. `pt-BR.json` holds
+the Brazilian Portuguese names and dialog lines of every NPC; monsters and items keep their English names.
 
 Directories are matched case-insensitively (`OpenItem`, `Monster`, `NPC`, `Field`); file patterns too, because the
 data mixes `.npc`/`.NPC` and `.inf`/`.INF`. Only the top level of each directory is parsed (for example

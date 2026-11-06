@@ -87,6 +87,7 @@ public sealed partial class Importer
         await WriteMotionTimingAsync(conn, tx, monsters, npcs, monsterIds, npcIds, report, ct);
         await WriteSourceFilesAsync(conn, tx, report, ct);
         await WriteEntityVariantsAsync(conn, tx, report, ct);
+        await WriteTranslationsAsync(conn, tx, report, ct);
 
         await tx.CommitAsync(ct);
         return report;

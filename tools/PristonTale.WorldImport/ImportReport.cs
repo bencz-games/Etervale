@@ -49,5 +49,9 @@ public sealed class ImportReport
     public int BossMonsterRefsResolved { get; set; }
     public int BossMonsterRefsDangling { get; set; }
 
+    // Rows of the other languages' texts (Translations/<language>.json).
+    public int TranslatedNameRows { get; set; }
+    public int TranslatedDialogRows { get; set; }
+
     public readonly List<string> Warnings = [];
 }
