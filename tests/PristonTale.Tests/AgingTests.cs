@@ -65,9 +65,12 @@ internal static class AgingTests
         var costume = new ItemInstance(Def("DA131", record => record with { Kind = (int)ItemKind.Armor }));
         var ring = new ItemInstance(Def("OR201", record => record with { Kind = (int)ItemKind.Ring }));
         var amulet = new ItemInstance(Def("OA101", record => record with { Kind = (int)ItemKind.Amulet }));
+        var highArmor = new ItemInstance(Def("DA304", record => record with { Kind = (int)ItemKind.Armor }));
         Assert.True(!AgingRules.Ageable(mixed) && !AgingRules.Ageable(maturing) && !AgingRules.Ageable(top) && !AgingRules.Ageable(costume),
             "a mixed, maturing, +20 or costume copy was ageable");
-        Assert.True(AgingRules.Ageable(ring) && !AgingRules.Ageable(amulet), "the aging ring or an amulet has the wrong ageability");
+        AgingRules.AgeTo(highArmor, AgingRules.MaxLevel);
+        Assert.True(AgingRules.Ageable(ring) && !AgingRules.Ageable(amulet) && highArmor.UpgradeLevel == AgingRules.MaxLevel,
+            "the aging ring, amulet or high-level armor has the wrong ageability");
         Assert.True(AgingRules.CounterOf(Axe()) == AgingCounter.Attack && AgingRules.CounterOf(ring) == AgingCounter.Time
             && AgingRules.CounterOf(new ItemInstance(Def("DS101"))) == AgingCounter.Block
             && AgingRules.CounterOf(new ItemInstance(Def("WC101"))) == AgingCounter.Critical
@@ -303,15 +306,15 @@ internal static class AgingTests
         {
             AgedStats.Damage => ["WA1", "WC1", "WH1", "WM1", "WP1", "WS1", "WS2", "WT1"],
             AgedStats.Critical => ["WC1", "WP1", "WS1", "WT1", "WS2"],
-            AgedStats.Defence => ["OM1", "DA1", "DA2", "DB1", "DG1", "OA2"],
+            AgedStats.Defence => ["OM1", "DA1", "DA2", "DA3", "DA4", "DB1", "DG1", "OA2"],
             AgedStats.AttackRating => ["WA1", "WC1", "WM1", "WH1", "WP1", "WS2", "OA2"],
-            AgedStats.Absorb => ["OM1", "DA1", "DS1", "DA2", "DB1", "DG1"],
+            AgedStats.Absorb => ["OM1", "DA1", "DS1", "DA2", "DA3", "DA4", "DB1", "DG1"],
             AgedStats.Block => ["DS1"],
-            AgedStats.Integrity => ["WA1", "WH1", "WS1", "DS1", "OM1", "DA1", "DA2", "DB1", "DG1", "OA2"],
+            AgedStats.Integrity => ["WA1", "WH1", "WS1", "DS1", "OM1", "DA1", "DA2", "DA3", "DA4", "DB1", "DG1", "OA2"],
             _ => ["WM1", "WS1", "WT1"]
         };
 
-        string[] families = ["WA1", "WC1", "WH1", "WM1", "WP1", "WS1", "WS2", "WT1", "DA1", "DS1", "OM1", "DA2", "DG1", "DB1", "OA2", "OR2"];
+        string[] families = ["WA1", "WC1", "WH1", "WM1", "WP1", "WS1", "WS2", "WT1", "DA1", "DS1", "OM1", "DA2", "DA3", "DA4", "DG1", "DB1", "OA2", "OR2"];
         foreach (var family in families)
         {
             foreach (var stat in Enum.GetValues<AgedStats>().Where(static stat => stat != AgedStats.None))

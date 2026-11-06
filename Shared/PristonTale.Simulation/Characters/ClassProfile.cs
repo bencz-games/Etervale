@@ -53,6 +53,7 @@ public static class ClassProfiles
         PlayerClass.Priestess => PriestessClass.Profile,
         PlayerClass.Assassin => AssassinClass.Profile,
         PlayerClass.Shaman => ShamanClass.Profile,
+        PlayerClass.MartialArtist => MartialArtistClass.Profile,
         _ => throw new ArgumentOutOfRangeException(nameof(playerClass))
     };
 }

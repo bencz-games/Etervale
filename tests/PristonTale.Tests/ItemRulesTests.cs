@@ -489,7 +489,7 @@ internal static class ItemRulesTests
         try
         {
             var parsed = new ItemTxtParser().Parse(path);
-            Assert.True(parsed.JobRandom.SequenceEqual([(long)JobBitCode.Assassin, (long)JobBitCode.Fighter]), "unknown classes were stored or known ones lost");
+            Assert.True(parsed.JobRandom.SequenceEqual([(long)JobBitCode.Assassin, (long)JobBitCode.MartialArtist, (long)JobBitCode.Fighter]), "unknown classes were stored or known ones lost");
             Assert.True(parsed.JobMask == (long)JobBitCode.Atalanta, "the fixed specialization did not keep the last class, or the misspelled Atalanter was not Atalanta");
             var record = Record("WD120") with
             {
@@ -500,7 +500,7 @@ internal static class ItemRulesTests
             var template = WorldDataFactory.ToItemTemplate(record);
             Assert.True(template.Spec.LevelDamage == 6 && template.Spec.LevelAttackRating == new ItemRange(1, 3) && template.Spec.Critical == 4
                 && template.Spec.LifeRegenRange == new ItemFloatRange(2.6f, 2.8f), "special bonuses were not mapped");
-            Assert.True(template.RandomSpecJobs.SequenceEqual([(uint)JobBitCode.Assassin, (uint)JobBitCode.Fighter]), "random classes were not kept in order");
+            Assert.True(template.RandomSpecJobs.SequenceEqual([(uint)JobBitCode.Assassin, (uint)JobBitCode.MartialArtist, (uint)JobBitCode.Fighter]), "random classes were not kept in order");
         }
         finally
         {

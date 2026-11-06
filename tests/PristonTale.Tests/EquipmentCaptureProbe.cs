@@ -49,7 +49,7 @@ internal sealed class EquipmentCaptureProbe : Game
         _composer = new PlayerActorComposer(scene, new PristonActorLoader());
         _camera = new PristonCamera(Vector3.Zero, Vector3.Forward, new PristonCameraSettings { FieldOfViewDegrees = 38 });
         var registry = new CharacterClassRegistry();
-        string[] weapons = ["WA101", "WC101", "WS101", "WP101", "WT101", "WS201", "WM101", "WM101", "WD101", "WN101"];
+        string[] weapons = ["WA101", "WC101", "WS101", "WP101", "WT101", "WS201", "WM101", "WM101", "WD101", "WN101", "WV101"];
         if (_ranged)
         {
             weapons = ["WS110", "WS101", "WS104"];
@@ -58,7 +58,7 @@ internal sealed class EquipmentCaptureProbe : Game
         var pending = new List<Task>();
         for (int index = 0; index < weapons.Length; index++)
         {
-            var job = _ranged ? PlayerClass.Mechanician : (PlayerClass)(index + 1);
+            var job = _ranged ? PlayerClass.Mechanician : index == 10 ? PlayerClass.MartialArtist : (PlayerClass)(index + 1);
             var definition = registry.Get(job).Definition;
             var visuals = EquipmentVisuals.Apply(definition.DefaultVisuals, _ranged ? "DA119" : "DA108", weapons[index],
                 !_ranged && index is 0 or 1 or 4 or 5 ? "DS101" : "", false, definition.MotionJobMask);

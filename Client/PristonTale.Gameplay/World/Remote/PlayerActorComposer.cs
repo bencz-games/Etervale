@@ -236,6 +236,10 @@ public sealed class PlayerActorComposer(IActorScene scene, PristonActorLoader ac
                     };
                     var twinBack = EquipmentVisuals.TwinBone(visuals, village: true);
                     _scene.AttachActor(handles.OffHand, handles.Body, twinHeld, twinBack == twinHeld ? null : twinBack);
+                    if (EquipmentVisuals.TwinAttachmentOffset(visuals) is { } twinOffset)
+                    {
+                        _scene.SetActorAttachOffset(handles.OffHand, twinOffset, 0f);
+                    }
                 }
             }
 

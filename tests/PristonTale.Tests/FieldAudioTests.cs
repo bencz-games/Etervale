@@ -108,7 +108,7 @@ internal static class FieldAudioTests
     {
         var codes = CharacterSoundBanks.Directories.Select(bank => bank.Code).ToHashSet();
         Assert.True(codes.Contains(0x1600) && codes.Contains(CharacterSoundCodes.Wolverine) && codes.Contains(CharacterSoundCodes.Morif)
-            && Enumerable.Range(1, 10).All(codes.Contains), "a monster, NPC or class bank is missing");
+            && Enumerable.Range(1, 11).All(codes.Contains), "a monster, NPC or class bank is missing");
         Assert.True(CharacterSoundCodes.Resolve("Furia") == CharacterSoundCodes.Fury, "the red gladiator lost the Fury's sounds");
         foreach (var keyword in (string[])["Greedy", "Hestian", "ISoldier", "Lizard_Papa", "UndeadStalker", "Yagditha", "Soldier_D"])
         {

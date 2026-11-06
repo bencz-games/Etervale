@@ -44,6 +44,8 @@ public sealed class FieldAudioController : IDisposable
     public void SelectField(FieldDef field)
     {
         ArgumentNullException.ThrowIfNull(field);
+        StopFieldAmbience();
+        StopPositionalAmbience();
         _field = field;
         _ambients = field.Ambients;
         SelectMusic(field.BackMusicCode);

@@ -56,6 +56,17 @@ internal static class RangedEquipmentTests
         Assert.True(EquipmentVisuals.WeaponBone("WS120", false) == "Bip weapon01", "late catalog entry lost its imported hand");
         Assert.True(EquipmentVisuals.WeaponBone("WS120", true) == "Bip in01", "unlisted village weapon bypassed the original default bone");
         Assert.True(EquipmentVisuals.WeaponBone("ws110", false) == "Bip weapon01", "catalog hand lookup became case-sensitive");
+        Assert.True(EquipmentVisuals.HasModel("WV101") && EquipmentVisuals.MeshPath("WV101").EndsWith("itWV101.smd", StringComparison.OrdinalIgnoreCase),
+            "Martial Artist's starter vambrace has no equipment model");
+        Assert.True(EquipmentVisuals.WeaponBone("WV101", false) == "Bip weapon01", "generic vambrace lookup changed");
+        var martialArtist = new CharacterClassRegistry().Get(PlayerClass.MartialArtist).Definition;
+        var visuals = EquipmentVisuals.Apply(martialArtist.DefaultVisuals, "", "WV101", "", false, martialArtist.MotionJobMask);
+        Assert.True(EquipmentVisuals.WeaponBone(visuals, false) == "Bip01 R Hand"
+            && EquipmentVisuals.WeaponBone(visuals, true) == "Bip01 R Hand"
+            && EquipmentVisuals.TwinBone(visuals, false) == "Bip01 L Hand"
+            && EquipmentVisuals.TwinBone(visuals, true) == "Bip01 L Hand", "Martial Artist's vambraces use the wrong attachment bones");
+        Assert.True(EquipmentVisuals.TwinAttachmentOffset(visuals) is { } offset
+            && offset == Matrix.CreateRotationX(MathHelper.Pi), "Martial Artist's left vambrace is not turned for the left hand");
         return Task.CompletedTask;
     }
 

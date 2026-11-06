@@ -738,10 +738,11 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
 - `MusicEnabled`/`SoundEnabled` come from client settings each frame (`ApplySettings`) and apply in the world.
 - Skill sounds: `SkillSoundBank` ([skills.md](skills.md)).
 - Character sounds (`CombatSounds`): `CharacterSoundBanks` maps every character sound code to its folder (monsters and
-  summons by sound code, NPCs, player classes 1 to 10 by class code); a file plays for the motion its name starts with
+  summons by sound code, NPCs, player classes 1 to 11 by class code); a file plays for the motion its name starts with
   (`attack`, `damage`, `dead`, `neutral`, `move`, `disappear`/`change`, `skill`, `hammer`). Every folder is listed
-  once on a worker when `CombatSounds` is built (the game thread never enumerates one); a character's files are
-  decoded through a `SkillSoundBank` when it first appears, and a sound not ready yet is skipped.
+  once on a worker when `CombatSounds` is built (the game thread never enumerates one); banks without a supplied asset
+  folder are not mapped and remain silent until that folder is installed. A character's files are decoded through a
+  `SkillSoundBank` when it first appears, and a sound not ready yet is skipped.
   Monsters drawn smaller than their model play higher (3600/2205 of the rate), more than twice as large lower
   (1400/2205).
 - `MonsterSoundCues` follows each monster's animation like `MonsterPresentation`: the attack or skill sound on the
@@ -759,15 +760,17 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   hand class), model (`image/sinimage/Items/DropItem/it<model>.smd`, also its ground model), hand and village bone. An
   armour or robe wears the body of its catalog ordinal (`ArmorSlots`: ordinals from 26 sit sixteen slots further, so
   DA126-129 wear the 25th-28th bodies, DA301/401 the 29th, DA302-304/402-404 the 30th-32nd and DA131+ the costume
-  bodies) from its class row (A, B, C, D, mA, mB, mC, mD, E, mE; 75 slots each); premium costumes (`CA`) keep the class
-  body and wear wings, and an armour missing from `ArmorSlots` keeps the class body. The phantoms and daggers take the
-  motion indices of the Shaman's and the Assassin's own motion files (phantoms 101-129 and 151-153 from 261, daggers
-  from 293). The Assassin holds a dagger in each hand (`Bip weapon01` and `Bip weapon05`, the left copy being the
-  off-hand actor with the weapon's glow) and hangs the two on `Bip in07` and `Bip in08` in a village; the Shaman's
+  bodies) from its class row (A, B, C, D, mA, mB, mC, mD, E, mE, f; 75 slots each); premium costumes (`CA`) keep the
+  class body and wear wings, and an armour missing from `ArmorSlots` keeps the class body. The phantoms and daggers use
+  the Shaman's and the Assassin's motion indices (phantoms 101-129 and 151-153 from 261, daggers from 293). Martial
+  Artist vambraces use two attached copies on `Bip01 R Hand` and `Bip01 L Hand` in both fields and villages; the left
+  copy turns the mesh 180 degrees around its local X axis so it faces outward like the right copy. The
+  Assassin holds a dagger in each hand (`Bip weapon01` and `Bip weapon05`), with the left copy carrying the weapon's glow,
+  and hangs the two on `Bip in07` and `Bip in08` in a village; the Shaman's phantom
   phantom hovers behind its back at all times (`Bip in01`, turned 2250 angle units about the bone, moved 10 back and
   raised 1000 fixed units, `SetActorAttachOffset`).
-- Progression (`GameScene.Progression`): a `LevelUp` combat event plays `vfx.player.levelup` (with the level-up chime) at
-  the player, a `SkillLearned` event the skill-learn light (`ItemVfx.Learn`) and sound, for every client near.
+- Progression (`GameScene.Progression`): a `LevelUp` combat event plays `vfx.player.levelup` (with the level-up chime)
+  at the player, a `SkillLearned` event the skill-learn light (`ItemVfx.Learn`) and sound, for every client near.
 - Item sounds (`ItemSoundRules`, `image/Sinimage/Sound`): an item sounds by catalog family (three characters of its key,
   then two: axes, claws, hammers, staves, spears, bows, swords, throwing weapons, armour, boots, gloves, shields,
   amulets, armlets, rings, sheltoms, potions...) with per-item exceptions; gold rings the coin. They play for the local

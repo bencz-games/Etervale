@@ -19,6 +19,7 @@ public enum JobBitCode : uint
     Priestess = 0x00040000,
     Magician = 0x00080000,
     Assassin = 0x00000010,
+    MartialArtist = 0x00000020,
     Shaman = 0x00100000
 }
 

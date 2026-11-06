@@ -8,7 +8,7 @@ public static class ItemClassRestrictions
 {
     private const JobBitCode Casters = JobBitCode.Magician | JobBitCode.Priestess | JobBitCode.Shaman;
     private const JobBitCode Fighters = JobBitCode.Mechanician | JobBitCode.Fighter | JobBitCode.Archer
-        | JobBitCode.Pikeman | JobBitCode.Atalanta | JobBitCode.Knight | JobBitCode.Assassin;
+        | JobBitCode.Pikeman | JobBitCode.Atalanta | JobBitCode.Knight | JobBitCode.Assassin | JobBitCode.MartialArtist;
     private static readonly JobBitCode Female = Enum.GetValues<PlayerClass>().Where(static c => ClassProfiles.Of(c).Female)
         .Aggregate((JobBitCode)0, static (mask, c) => mask | JobBits.Of(c));
     private const JobBitCode All = Casters | Fighters;

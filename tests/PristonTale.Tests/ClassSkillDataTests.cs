@@ -15,7 +15,7 @@ internal static class ClassSkillDataTests
     private static readonly PlayerClass[] Ported =
     [
         PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Knight, PlayerClass.Atalanta,
-        PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin, PlayerClass.Shaman
+        PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin, PlayerClass.Shaman, PlayerClass.MartialArtist
     ];
 
     private const int PortedSkills = 20;
@@ -34,6 +34,7 @@ internal static class ClassSkillDataTests
     private static readonly Dictionary<string, ItemKind> WeaponCodes = new()
     {
         ["WA1"] = ItemKind.Axe, ["WC1"] = ItemKind.Claw, ["WD1"] = ItemKind.Dagger, ["WH1"] = ItemKind.Hammer, ["WM1"] = ItemKind.Staff,
+        ["WV1"] = ItemKind.Vambrace,
         ["WN1"] = ItemKind.Phantom, ["WP1"] = ItemKind.Pole, ["WS1"] = ItemKind.Bow, ["WS2"] = ItemKind.Sword, ["WT1"] = ItemKind.ThrowingWeapon,
         ["DS1"] = ItemKind.Shield
     };
@@ -41,6 +42,7 @@ internal static class ClassSkillDataTests
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
         yield return ("class skill data keeps the original codes, window order, levels, mouse sides, weapons and ten-rank costs", MetadataAsync);
+        yield return ("Martial Artist skill buttons use its own asset family", MartialArtistIconsAsync);
         yield return ("every skill of the ported classes has ten-rank costs and a complete rule on every rank", PortedRulesAsync);
         yield return ("class skill files reject unknown properties and brood names at any depth", StrictDataAsync);
         yield return ("the Assassin's skills keep the original hit frames, areas, party reach and dagger rules", AssassinAsync);
@@ -62,6 +64,14 @@ internal static class ClassSkillDataTests
         Assert.True(Rule(0x10080002).Passive is { Effect: PassiveEffect.CriticalChance } && ClassSkillCatalog.TryGet(0x10080002, out var mastery)
             && mastery.AllowsWeapon(ItemKind.Dagger) && !mastery.AllowsWeapon(ItemKind.Sword), "the Assassin's mastery does not need daggers");
         Assert.True(Rule(0x10080004).ForRank(1).HitFramesByRank[0].SequenceEqual([1, 19]), "Ninja Shadow does not strike at the cast and at its event");
+        return Task.CompletedTask;
+    }
+
+    private static Task MartialArtistIconsAsync()
+    {
+        var skills = ClassSkillCatalog.For(PlayerClass.MartialArtist);
+        Assert.True(skills.Count == 20 && skills.All(skill => skill.IconKey.StartsWith("TMA", StringComparison.Ordinal)),
+            "Martial Artist skills point at another class's button art");
         return Task.CompletedTask;
     }
 
@@ -162,7 +172,7 @@ internal static class ClassSkillDataTests
             }
         }
 
-        Assert.True(seen.Count == 200, "class skill catalog is incomplete");
+        Assert.True(seen.Count == 220, "class skill catalog is incomplete");
         Assert.True(Enum.GetValues<PlayerClass>().All(playerClass => ClassSkillCatalog.For(playerClass).Skip(16)
                 .All(skill => skill.RequiredLevel is 80 or 83 or 86 or 90 && skill.ManaByRank.Count == 10)),
             "a fifth-tier skill lost its level or its costs");
