@@ -21,7 +21,7 @@ internal static class HelpGuideTests
         yield return ("the level guide offers a page on reaching its level or entering fresh, and its notice opens a summary that closes", NoticeAsync);
         yield return ("the help window moves between help, the guide's list of reached subjects and a page, and switches the level guide", WindowAsync);
         yield return ("a text of the data is read from its translation in another language, and from the data in English or without one", TranslationAsync);
-        yield return ("the Brazilian Portuguese texts translate the help, the level guide's subjects, the helper pet and every quest window description, in UTF-8", TranslationsAsync);
+        yield return ("the Brazilian Portuguese texts translate the help, the level guide's subjects, the helper pet, the quest dialogs and every quest window description, in UTF-8", TranslationsAsync);
     }
 
     private const string Subjects = """
@@ -152,8 +152,11 @@ internal static class HelpGuideTests
         var missing = board.Append(HudHelpWindow.HelpFile).Append(LevelGuideBook.SubjectsFile).Append(HelpPetMessages.FilePath).Where(path => !files.Contains(path)).ToArray();
         Assert.True(missing.Length == 0, "texts without a translation: " + string.Join(", ", missing));
         var strange = files.Where(path => !board.Contains(path) && path != HudHelpWindow.HelpFile && path != HelpPetMessages.FilePath
+            && !path.StartsWith(HudQuestDocuments.DialogFolder + "/", StringComparison.Ordinal)
             && !path.StartsWith(LevelGuideBook.Folder, StringComparison.Ordinal)).ToArray();
         Assert.True(strange.Length == 0, "translations of no text the client reads: " + string.Join(", ", strange));
+        var dialogs = files.Where(static path => path.StartsWith(HudQuestDocuments.DialogFolder + "/", StringComparison.Ordinal)).ToArray();
+        Assert.True(dialogs.Length > 0 && dialogs.All(static path => path.EndsWith(".sin", StringComparison.Ordinal)), "the quest dialogs are not translated as .sin files");
         var strict = new UTF8Encoding(false, true);
         foreach (var file in files)
         {
