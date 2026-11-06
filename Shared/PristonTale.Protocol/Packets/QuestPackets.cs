@@ -30,6 +30,7 @@ public static class QuestWire
         GameTextWire.Write(ref writer, prompt.ConfirmLine1);
         GameTextWire.Write(ref writer, prompt.ConfirmLine2);
         GameTextWire.Write(ref writer, prompt.ConfirmDetail);
+        GameTextWire.Write(ref writer, prompt.Subject);
         writer.Int32(prompt.Choices.Count);
         for (var index = 0; index < prompt.Choices.Count; index++)
         {
@@ -50,6 +51,7 @@ public static class QuestWire
         var first = GameTextWire.Read(ref reader);
         var second = GameTextWire.Read(ref reader);
         var detail = GameTextWire.Read(ref reader);
+        var subject = GameTextWire.Read(ref reader);
         var count = reader.Int32();
         if (count < 0 || count > MaxChoices)
         {
@@ -64,14 +66,14 @@ public static class QuestWire
             documents[index] = NpcWire.Text(ref reader, MaxTextBytes);
         }
 
-        return new QuestPromptEntry(code, state, followup, choice, document, title, first, second, detail, choices, documents);
+        return new QuestPromptEntry(code, state, followup, choice, document, title, first, second, detail, subject, choices, documents);
     }
 
     internal static int PromptSize(QuestPromptEntry prompt)
     {
         var size = 12 + NpcWire.TextSize(prompt.Document, MaxTextBytes) + GameTextWire.Size(prompt.Title)
             + GameTextWire.Size(prompt.ConfirmLine1) + GameTextWire.Size(prompt.ConfirmLine2)
-            + GameTextWire.Size(prompt.ConfirmDetail) + 4;
+            + GameTextWire.Size(prompt.ConfirmDetail) + GameTextWire.Size(prompt.Subject) + 4;
         for (var index = 0; index < prompt.Choices.Count; index++)
         {
             size += NpcWire.TextSize(prompt.Choices[index], MaxTextBytes) + NpcWire.TextSize(prompt.ChoiceDocuments[index], MaxTextBytes);
@@ -138,6 +140,7 @@ public sealed record QuestPromptEntry(
     GameText ConfirmLine1,
     GameText ConfirmLine2,
     GameText ConfirmDetail,
+    GameText Subject,
     IReadOnlyList<string> Choices,
     IReadOnlyList<string> ChoiceDocuments);
 

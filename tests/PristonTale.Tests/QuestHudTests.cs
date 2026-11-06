@@ -123,6 +123,8 @@ internal static class QuestHudTests
         var bytes = Encoding.GetEncoding(1252).GetBytes("\r\nAlgo aconteceu! Poções\r\n\tem Navisko\r\n\r\n");
         var lines = HudQuestDocuments.Decode(bytes);
         Assert.True(lines.Length == 2 && lines[0] == "Algo aconteceu! Poções" && lines[1] == " em Navisko", "quest text decoding differs");
+        Assert.True(HudQuestDocuments.WithSubject("Hunt 50 $$%s quickly.", "Omega") == "Hunt 50 Omega quickly."
+            && HudQuestDocuments.WithSubject("No mark here", "Omega") == "No mark here", "a dialog's subject mark was not replaced by the subject");
         var paragraphs = HudQuestDocuments.Paragraphs(["Algo aconteceu! Um", " grupo de Bargon", "", "", "- primeiro", "segue", "2) segundo",
             "Poder de Ataque: 63-80       Add. HP : 50", "Vel. da Arma   : 8", "==========", ""]);
         Assert.True(paragraphs.SequenceEqual(["Algo aconteceu! Um grupo de Bargon", "", "- primeiro segue", "2) segundo",

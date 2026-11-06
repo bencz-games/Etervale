@@ -15,7 +15,12 @@ public sealed partial class HudQuestDocuments(string assetRoot, IClientLog log)
 
     private static readonly Encoding Latin = CreateEncoding();
     private readonly HudTextFiles _files = new(assetRoot, Latin, log, "Quest");
-    private readonly Dictionary<(string Language, string Path, int Width), string[]> _wrapped = new();
+    private readonly Dictionary<(string Language, string Path, int Width, string Subject), string[]> _wrapped = new();
+
+    // The mark a dialog puts where the quest's subject is named.
+    public const string SubjectMark = "$$%s";
+
+    public static string WithSubject(string line, string subject) => line.Replace(SubjectMark, subject, StringComparison.Ordinal);
 
     public static string DialogPath(string document) => $"{DialogFolder}/{document}.sin";
 
@@ -24,10 +29,10 @@ public sealed partial class HudQuestDocuments(string assetRoot, IClientLog log)
     // The raw lines of a file, or null while it loads.
     public string[] Lines(string relativePath) => _files.Lines(relativePath);
 
-    // The lines of a file wrapped to a width in design pixels, or null while it loads.
-    public string[] Wrapped(string relativePath, SpriteFont font, int width)
+    // The lines of a file wrapped to a width in design pixels, its "$$%s" naming the subject, or null while it loads.
+    public string[] Wrapped(string relativePath, SpriteFont font, int width, string subject = "")
     {
-        if (_wrapped.TryGetValue((Localization.ClientText.Language, relativePath, width), out var wrapped))
+        if (_wrapped.TryGetValue((Localization.ClientText.Language, relativePath, width, subject), out var wrapped))
         {
             return wrapped;
         }
@@ -39,7 +44,7 @@ public sealed partial class HudQuestDocuments(string assetRoot, IClientLog log)
         }
 
         var result = new List<string>();
-        foreach (var paragraph in Paragraphs(lines))
+        foreach (var paragraph in Paragraphs(lines).Select(line => WithSubject(line, subject)))
         {
             if (paragraph.Length == 0)
             {
@@ -61,7 +66,7 @@ public sealed partial class HudQuestDocuments(string assetRoot, IClientLog log)
         }
 
         wrapped = result.ToArray();
-        _wrapped[(Localization.ClientText.Language, relativePath, width)] = wrapped;
+        _wrapped[(Localization.ClientText.Language, relativePath, width, subject)] = wrapped;
         return wrapped;
     }
 

@@ -85,7 +85,8 @@ quest data the importer reads, and the client's quest dialog, quest window, clas
   vamps for a recommendation; the first turns it into +2 stat points per level from 80, paid back for the levels
   already reached.
 - Level 90 bonus chain (1012, then 1013, from level 90): the second NPC draws Omega, D-Machine or Mountain; fifty kills
-  under a curse of -30% damage; a death restarts the hunt; +3 more stat points per level from 90.
+  under a curse of -30% damage; a death restarts the hunt; +3 more stat points per level from 90. The dialogs that tell
+  the hunt name the drawn prey: the prompt's `Subject` replaces the document's `$$%s` (`HudQuestDocuments.WithSubject`).
 - Beginner quests A..G (`ElementaryQuests`): the instructor (1014) offers them in order up to level 39; finishers
   1015-1022 serve one tribe or both. Cake to the warehouse keeper, 5 Hopy or Rabie, candy to the smith, 5 Hobgoblin or
   North Goblin, 10 Skeleton or Corrupt, 10 Cyclops, the lost hammer dropped by Bargons while the quest runs. Rewards are

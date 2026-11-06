@@ -81,7 +81,7 @@ public sealed class HudQuestDialog
         title = new Rectangle(title.Center.X - titleWidth / 2, title.Y, titleWidth, title.Height);
         HudNpcPanel.DrawPlate(painter, title, Color.White);
         painter.TextCentered(painter.Fit(heading, title.Width - 20), title.Left, title.Right, title.Y + 7, TitleColor);
-        var lines = documents.Wrapped(HudQuestDocuments.DialogPath(document), font, TextWidth) ?? [];
+        var lines = documents.Wrapped(HudQuestDocuments.DialogPath(document), font, TextWidth, ClientText.Format(dialog.Subject)) ?? [];
         _lineCount = lines.Length;
         var capacity = LineCapacity(dialog);
         _firstLine = Math.Clamp(_firstLine, 0, Math.Max(0, lines.Length - capacity));

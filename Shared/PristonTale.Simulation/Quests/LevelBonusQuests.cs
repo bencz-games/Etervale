@@ -1,3 +1,5 @@
+using PristonTale.Contracts.Texts;
+
 namespace PristonTale.Simulation.Quests;
 
 // The bonus chains after the milestones. Level 80: the first NPC sends the player to a second one, three vamp sheltoms
@@ -111,16 +113,21 @@ public static class LevelBonusQuests
                     journal.Active = active with { Variant = context.Rng.NextInclusive(1, CursedPrey.Length), KillsNeeded = CursedHuntCount };
                 }
 
-                context.Show(QuestSteps.Proceed(code, 1, "LevelQuest90_2start2"));
+                context.Show(QuestSteps.Proceed(code, 1, "LevelQuest90_2start2") with { Subject = Prey(journal.Active.Variant) });
                 break;
             case 2:
-                context.Show(QuestSteps.Close(code, 2, second ? "LevelQuest90_2Path2" : "LevelQuest90_2Path"));
+                context.Show(second ? QuestSteps.Close(code, 2, "LevelQuest90_2Path2") with { Subject = Prey(active.Variant) }
+                    : QuestSteps.Close(code, 2, "LevelQuest90_2Path"));
                 break;
             case 3:
                 context.Show(QuestSteps.Proceed(code, 3, "LevelQuest90_2end"));
                 break;
         }
     }
+
+    // The prey family a variant draws, named in the dialogs that tell the hunt.
+    private static GameText Prey(int variant) =>
+        variant is >= 1 and <= 3 ? QuestTexts.Name(QuestMonsters.NameOf(CursedPrey[variant - 1])) : GameText.None;
 
     private static bool HasVamps(QuestContext context) =>
         QuestInventory.Has(context.Character, QuestItems.BonusVampOne) && QuestInventory.Has(context.Character, QuestItems.BonusVampTwo)

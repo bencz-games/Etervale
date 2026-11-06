@@ -89,7 +89,7 @@ internal static class QuestServiceTests
             "the quest request differs");
 
         var prompt = new QuestPromptEntry(0x28, 13, (byte)QuestFollowup.ConfirmChoice, 2, "haQuestFuryItem2", QuestTexts.QuestTitle,
-            QuestTexts.ReceiveItem.Item1, QuestTexts.ReceiveItem.Item2, QuestTexts.Name("Extreme Talon"), ["Minotaur Axe", "Extreme Talon"], ["haQuestFuryItem1", "haQuestFuryItem2"]);
+            QuestTexts.ReceiveItem.Item1, QuestTexts.ReceiveItem.Item2, QuestTexts.Name("Extreme Talon"), QuestTexts.Name("Omega"), ["Minotaur Axe", "Extreme Talon"], ["haQuestFuryItem1", "haQuestFuryItem2"]);
         QuestNoticeEntry[] notices = [new((byte)QuestNoticeKind.Chat, QuestTexts.Count("Bargon", 3)), new((byte)QuestNoticeKind.Fanfare, GameText.None)];
         var result = new QuestResultPacket(request.OperationId, (byte)QuestStatus.Ok, true, true, false, 41, GameText.None, prompt, notices);
         var length = result.Write(buffer);
@@ -117,7 +117,7 @@ internal static class QuestServiceTests
     private static bool Same(QuestPromptEntry left, QuestPromptEntry right) =>
         left.Code == right.Code && left.State == right.State && left.Followup == right.Followup && left.Choice == right.Choice
         && left.Document == right.Document && left.Title == right.Title && left.ConfirmLine1 == right.ConfirmLine1 && left.ConfirmLine2 == right.ConfirmLine2
-        && left.ConfirmDetail == right.ConfirmDetail && left.Choices.SequenceEqual(right.Choices) && left.ChoiceDocuments.SequenceEqual(right.ChoiceDocuments);
+        && left.ConfirmDetail == right.ConfirmDetail && left.Subject == right.Subject && left.Choices.SequenceEqual(right.Choices) && left.ChoiceDocuments.SequenceEqual(right.ChoiceDocuments);
 
     private static Task PresenceAsync()
     {

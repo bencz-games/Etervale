@@ -17,7 +17,7 @@ internal static class QuestWireMapping
     public static QuestPromptEntry? ToPrompt(QuestPrompt? prompt) => prompt is null
         ? null
         : new QuestPromptEntry((ushort)prompt.Code, prompt.State, (byte)prompt.Followup, prompt.Choice, prompt.Document, prompt.Title,
-            prompt.ConfirmLine1, prompt.ConfirmLine2, prompt.ConfirmDetail, prompt.Choices.Take(QuestWire.MaxChoices).ToArray(),
+            prompt.ConfirmLine1, prompt.ConfirmLine2, prompt.ConfirmDetail, prompt.Subject, prompt.Choices.Take(QuestWire.MaxChoices).ToArray(),
             prompt.ChoiceDocuments.Take(QuestWire.MaxChoices).ToArray());
 
     public static QuestNoticeEntry[] ToNotices(IReadOnlyList<QuestNotice> notices) =>

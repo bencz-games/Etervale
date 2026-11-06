@@ -91,6 +91,9 @@ public sealed record QuestPrompt(QuestCode Code, int State, string Document, Que
 
     // Shown under the confirmation lines: a job title, a destination or an item name.
     public GameText ConfirmDetail { get; init; }
+
+    // What the document's "$$%s" names: the monster a hunt draws.
+    public GameText Subject { get; init; }
     public IReadOnlyList<string> Choices { get; init; } = [];
     public IReadOnlyList<string> ChoiceDocuments { get; init; } = [];
     public int Choice { get; init; }

@@ -24,6 +24,7 @@ internal static class QuestWireReader
             ConfirmLine1 = entry.ConfirmLine1,
             ConfirmLine2 = entry.ConfirmLine2,
             ConfirmDetail = entry.ConfirmDetail,
+            Subject = entry.Subject,
             Choices = entry.Choices,
             ChoiceDocuments = entry.ChoiceDocuments,
             Choice = entry.Choice

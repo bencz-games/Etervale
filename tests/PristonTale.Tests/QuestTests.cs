@@ -519,9 +519,14 @@ internal static class QuestTests
         var curser = new QuestNpc(GiverCode: 1013);
         Assert.True(Talk(cursed, giver).Prompt is { Code: QuestCode.Level90Bonus, State: 0 }, "the level 90 chain was not offered");
         Expect(cursed, giver, QuestAction.Accept, QuestCode.Level90Bonus, 0, "level 90 chain accept failed");
-        Talk(cursed, curser);
+        var told = Talk(cursed, curser).Prompt;
         Assert.True(cursed.Quests.Active.Variant is >= 1 and <= 3, "the cursed prey was not drawn");
+        var prey = new[] { QuestMonsters.Omega, QuestMonsters.DMachine, QuestMonsters.Mountain }[cursed.Quests.Active.Variant - 1];
+        Assert.True(told is { Document: "LevelQuest90_2start2" } && told.Subject == QuestTexts.Name(QuestMonsters.NameOf(prey)),
+            "the cursed hunt's dialog does not name the drawn prey");
         Expect(cursed, curser, QuestAction.Proceed, QuestCode.Level90Bonus, 1, "the cursed hunt did not start");
+        Assert.True(Talk(cursed, curser).Prompt is { Document: "LevelQuest90_2Path2" } path && path.Subject == QuestTexts.Name(QuestMonsters.NameOf(prey)),
+            "the running cursed hunt's dialog does not name its prey");
         cursed.RefreshQuestEffects();
         Assert.True(cursed.Effects.TryGet(QuestEffects.CurseCode, out _) && cursed.Quests.Active.KillsNeeded == 50, "the curse is missing");
         Assert.True(QuestTick.OnDeath(Context(cursed)) == false && cursed.Quests.Active is { State: 1, Variant: 0 }, "a death did not reset the curse hunt");
