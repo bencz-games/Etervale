@@ -10,6 +10,9 @@ public interface IWorldDataRepository
 
     Task<IReadOnlyList<NpcRecord>> GetAllNpcsAsync(string language = CatalogLanguages.English, CancellationToken ct = default);
 
+    // True when any item, monster or NPC name or NPC dialog line is stored in the language.
+    Task<bool> HasCatalogTextsAsync(string language, CancellationToken ct = default) => Task.FromResult(true);
+
     Task<IReadOnlyList<FieldSpawnRecord>> GetAllFieldSpawnsAsync(CancellationToken ct = default);
 
     Task<IReadOnlyList<MotionModelRecord>> GetAllMotionModelsAsync(CancellationToken ct = default);

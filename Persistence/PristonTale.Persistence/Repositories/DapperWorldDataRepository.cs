@@ -229,6 +229,18 @@ public sealed class DapperWorldDataRepository(IDbConnectionFactory connectionFac
             """, cancellationToken: ct))).ToList();
     }
 
+    public async Task<bool> HasCatalogTextsAsync(string language, CancellationToken ct = default)
+    {
+        await using var connection = await connectionFactory.OpenAsync(ct);
+        return await connection.ExecuteScalarAsync<int>(new CommandDefinition(
+            """
+            SELECT CASE WHEN EXISTS (SELECT 1 FROM item_texts WHERE language = @Language)
+                OR EXISTS (SELECT 1 FROM monster_texts WHERE language = @Language)
+                OR EXISTS (SELECT 1 FROM npc_texts WHERE language = @Language)
+                OR EXISTS (SELECT 1 FROM npc_dialog_lines WHERE language = @Language) THEN 1 ELSE 0 END
+            """, new { Language = CatalogLanguages.Normalize(language) }, cancellationToken: ct)) == 1;
+    }
+
     private static async Task<IReadOnlyDictionary<long, string?>> CatalogTextsAsync(
         System.Data.Common.DbConnection connection, string table, string ownerColumn, string language, CancellationToken ct)
     {

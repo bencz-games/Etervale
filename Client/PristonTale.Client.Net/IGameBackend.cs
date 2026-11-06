@@ -12,7 +12,7 @@ public interface IGameBackend : IAsyncDisposable
     // through a new backend.
     bool RequiresNewConnection { get; }
 
-    Task<LoginOutcome> LoginAsync(string account, string password, CancellationToken ct = default, string language = "en");
+    Task<LoginOutcome> LoginAsync(string account, string password, string language, CancellationToken ct = default);
 
     Task<IReadOnlyList<CharacterSummary>> ListCharactersAsync(CancellationToken ct = default);
 

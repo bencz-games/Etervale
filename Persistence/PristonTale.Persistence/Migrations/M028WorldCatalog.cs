@@ -37,7 +37,6 @@ public sealed class M028WorldCatalog : Migration
             .WithColumn("code").AsString(16).PrimaryKey()
             .WithColumn("name").AsString(64).NotNullable();
         Insert.IntoTable("languages").Row(new { code = Abstractions.WorldData.CatalogLanguages.English, name = "English" });
-        Insert.IntoTable("languages").Row(new { code = Abstractions.WorldData.CatalogLanguages.BrazilianPortuguese, name = "Portuguese (Brazil)" });
 
         CreateItems();
         CreateMonsters();

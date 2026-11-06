@@ -11,14 +11,15 @@ public sealed class WorldDataLoadService(
 {
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        var data = await worldData.BuildAsync(cancellationToken, CatalogLanguages.English);
+        var data = await worldData.BuildAsync(CatalogLanguages.English, cancellationToken);
         holder.Current = data;
         localizedHolder.Set(CatalogLanguages.English, data);
+        // A language without any stored text reads the English catalog itself instead of a copy of it.
         foreach (var language in CatalogLanguages.Supported)
         {
-            if (language != CatalogLanguages.English)
+            if (language != CatalogLanguages.English && await worldData.HasTextsAsync(language, cancellationToken))
             {
-                localizedHolder.Set(language, await worldData.BuildAsync(cancellationToken, language));
+                localizedHolder.Set(language, await worldData.BuildAsync(language, cancellationToken));
             }
         }
 

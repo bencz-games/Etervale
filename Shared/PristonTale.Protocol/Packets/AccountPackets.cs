@@ -9,7 +9,7 @@ namespace PristonTale.Protocol.Packets;
 public static class ProtocolVersion
 {
     public const uint Current = 4;
-    public const uint Minimum = 3;
+    public const uint Minimum = 4;
 }
 
 // Account messages: the server greets every connection, the client logs in, manages its characters and keeps the
@@ -20,7 +20,6 @@ public static class AccountWire
     public const int MaxAccountBytes = 64;
     public const int MaxPasswordBytes = 128;
     public const int MaxLanguageBytes = 16;
-    public const string DefaultLanguage = "en";
     public const int MaxNameBytes = 64;
 }
 
@@ -54,8 +53,9 @@ public readonly record struct ServerHelloPacket(uint Protocol, uint MinimumProto
     }
 }
 
-// C->S {header, uint16 Version = 1, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B)}.
-public readonly record struct LoginPacket(uint Protocol, string Account, string Password, string Language = AccountWire.DefaultLanguage) : IFramePacket
+// C->S {header, uint16 Version = 1, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language
+// (16 B)}. A login without the language is read only so that a client older than protocol 4 is told it is outdated.
+public readonly record struct LoginPacket(uint Protocol, string Account, string Password, string Language) : IFramePacket
 {
     public const int MaxSize = 8 + 4 + 4 + 2 + AccountWire.MaxAccountBytes + 2 + AccountWire.MaxPasswordBytes + 2 + AccountWire.MaxLanguageBytes;
 
@@ -78,7 +78,7 @@ public readonly record struct LoginPacket(uint Protocol, string Account, string 
         var protocol = reader.UInt32();
         var account = Utf8Text.Read(ref reader, AccountWire.MaxAccountBytes, "Login");
         var password = Utf8Text.Read(ref reader, AccountWire.MaxPasswordBytes, "Login");
-        var language = reader.Remaining > 0 ? Utf8Text.Read(ref reader, AccountWire.MaxLanguageBytes, "Login") : AccountWire.DefaultLanguage;
+        var language = reader.Remaining > 0 ? Utf8Text.Read(ref reader, AccountWire.MaxLanguageBytes, "Login") : "";
         return new LoginPacket(protocol, account, password, language);
     }
 }

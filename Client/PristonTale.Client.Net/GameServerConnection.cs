@@ -102,7 +102,7 @@ public sealed class GameServerConnection : IGameBackend
 
     public long BytesSent => _connection?.BytesSent ?? 0;
 
-    public async Task<LoginOutcome> LoginAsync(string account, string password, CancellationToken ct = default, string language = "en")
+    public async Task<LoginOutcome> LoginAsync(string account, string password, string language, CancellationToken ct = default)
     {
         await ConnectAsync(ct);
         await _requestGate.WaitAsync(ct);

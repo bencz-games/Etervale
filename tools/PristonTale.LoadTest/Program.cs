@@ -116,7 +116,7 @@ internal static class Bot
         try
         {
             await using var connection = new GameServerConnection(options.Address);
-            var login = await connection.LoginAsync(account, options.Password, stop);
+            var login = await connection.LoginAsync(account, options.Password, "en", stop);
             if (!login.Ok)
             {
                 throw new InvalidOperationException($"login: {login.Message}");

@@ -98,10 +98,13 @@ internal static class BinaryProtocolTests
         var buffer = new byte[FrameCodec.MaxFrameSize];
         var hello = new ServerHelloPacket(ProtocolVersion.Current, ProtocolVersion.Minimum, 12);
         Assert.True(ServerHelloPacket.Read(buffer.AsSpan(0, hello.Write(buffer))) == hello, "server hello round trip changed fields");
-        var login = new LoginPacket(ProtocolVersion.Current, "conta", "sênha✓");
-        Assert.True(LoginPacket.Read(buffer.AsSpan(0, login.Write(buffer))) == login, "login round trip changed the account or password");
-        var localizedLogin = new LoginPacket(ProtocolVersion.Current, "conta", "senha", "pt-BR");
-        Assert.True(LoginPacket.Read(buffer.AsSpan(0, localizedLogin.Write(buffer))) == localizedLogin, "login language was not preserved");
+        var login = new LoginPacket(ProtocolVersion.Current, "conta", "sênha✓", "pt-BR");
+        Assert.True(LoginPacket.Read(buffer.AsSpan(0, login.Write(buffer))) == login, "login round trip changed the account, password or language");
+        // A client before protocol 4 sends no language; its login still reads, so the server can tell it is outdated.
+        var outdated = buffer.AsSpan(0, login.Write(buffer) - 2 - "pt-BR".Length).ToArray();
+        System.Buffers.Binary.BinaryPrimitives.WriteInt32LittleEndian(outdated, outdated.Length);
+        var read3 = LoginPacket.Read(outdated);
+        Assert.True(read3.Language == "" && read3.Password == "sênha✓", "a login without the language did not read");
         Assert.True(LoginResultPacket.Read(buffer.AsSpan(0, new LoginResultPacket(Contracts.Sessions.LoginFailure.Busy).Write(buffer))).Status == Contracts.Sessions.LoginFailure.Busy,
             "login result lost its status");
 

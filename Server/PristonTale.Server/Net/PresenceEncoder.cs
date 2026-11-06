@@ -112,6 +112,10 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
 
     private WorldData LocalizedData => _localizedData.Get(_language, _data.Current);
 
+    // The frame's shared descriptions carry the names of the authoritative catalog; a session reading another language's
+    // names encodes its own.
+    private bool SharesDescriptions => ReferenceEquals(LocalizedData, _data.Current);
+
     public EntityKind? KindOf(ulong entityId)
     {
         lock (_gate)
@@ -145,7 +149,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
             }
 
             ref readonly var view = ref _describeViews[index];
-            if (_heldFrame is { } frame && view.Revision != 0 && ReferenceEquals(frame.Views, _describeViews))
+            if (_heldFrame is { } frame && view.Revision != 0 && ReferenceEquals(frame.Views, _describeViews) && SharesDescriptions)
             {
                 NoteTemplate(view, view.Revision);
                 connection.Send(frame.Attachment(SharedPresenceWire.Create).Description(index, view, LocalizedData));
@@ -243,7 +247,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
         _clockTick = tick;
         _clockPending = true;
         // Descriptions every receiver of this frame shares are encoded once by whichever encoder needs them first.
-        _wire = snapshot.Frame is { } frame && ReferenceEquals(frame.Views, snapshot.Entities)
+        _wire = snapshot.Frame is { } frame && ReferenceEquals(frame.Views, snapshot.Entities) && SharesDescriptions
             ? frame.Attachment(SharedPresenceWire.Create)
             : null;
         _entities = snapshot.Entities;

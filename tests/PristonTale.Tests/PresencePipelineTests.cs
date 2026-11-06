@@ -1,5 +1,6 @@
 using System.Numerics;
 using PristonTale.Application.World;
+using PristonTale.Simulation.World.Monsters;
 using PristonTale.Client.Net.Presence;
 using PristonTale.Protocol.Packets;
 using PristonTale.Server.Net;
@@ -23,6 +24,7 @@ internal static class PresencePipelineTests
         yield return ("presence frames are reused only when no reader pins them and never while an outbox can still hand them out", FramesAsync);
         yield return ("a description encoded once for all receivers is byte for byte what one receiver would encode", SharedWireAsync);
         yield return ("a new large frame describing one entity takes one pooled buffer, not one for every entity", SharedWireBuffersAsync);
+        yield return ("a receiver reading another language's names never shares the frame's descriptions", LanguageDescriptionsAsync);
         yield return ("events routed by the entities a receiver knows are the events a full scan finds, in the field's order", RoutedEventsAsync);
         yield return ("presence entries carry handles, 64-bit ids and sequences, 32-bit life, only the values that changed and world-wide positions at an eighth of a unit, whole or as a change",
             EntriesAsync);
@@ -83,6 +85,31 @@ internal static class PresencePipelineTests
         Assert.True(scanned.Events.Select(item => item.Damage).SequenceEqual([1000, 2000, 3000]), $"scanned {string.Join(",", scanned.Events.Select(item => item.Damage))}");
         Assert.True(routed.StatusEffects.Select(item => item.StatusCode).SequenceEqual([8u]) && scanned.StatusEffects.Select(item => item.StatusCode).SequenceEqual([8u]),
             "a status of an unseen entity was routed, or a seen one was lost");
+        return Task.CompletedTask;
+    }
+
+    private static Task LanguageDescriptionsAsync()
+    {
+        var english = new WorldDataHolder { Current = new WorldData(WorldData.Empty.Items, new MonsterCatalog([ChatFixture.Hopy]), WorldData.Empty.Npcs,
+            WorldData.Empty.FieldSpawns, WorldData.Empty.Motions) };
+        var localized = new WorldDataLanguagesHolder();
+        localized.Set("en", english.Current);
+        localized.Set("pt-BR", new WorldData(WorldData.Empty.Items, new MonsterCatalog([ChatFixture.Hopy with { Name = "Hopi" }]), WorldData.Empty.Npcs,
+            WorldData.Empty.FieldSpawns, WorldData.Empty.Motions));
+        EntityView[] views =
+        [
+            new(1, EntityKind.Player, false, Vector3.Zero, 0f, MotionState.Stand, 1, 100, 100, default),
+            new(10, EntityKind.Monster, false, new Vector3(30, 0, 0), 0f, MotionState.Stand, 4, 50, 50, default, templateId: 1) { Revision = 1 }
+        ];
+        var frame = new PresenceFrame(views.Length);
+        views.CopyTo(frame.Views, 0);
+        frame.Grid.Rebuild(frame.Views);
+        frame.Routes.Rebuild([], [], [], []);
+        var snapshot = new WorldSnapshot(5, frame.Views, [], 3) { Grid = frame.Grid, Frame = frame };
+        string Seen(string language) => new WireRoundTrip(1, english, localized, language).PushMerged(snapshot).Spawns.Single(spawn => spawn.EntityId == 10).Name;
+        var portuguese = Seen("pt-BR");
+        var englishName = Seen("en");
+        Assert.True(portuguese == "Hopi" && englishName == "Hopy", $"pt-BR saw {portuguese} and English {englishName}");
         return Task.CompletedTask;
     }
 

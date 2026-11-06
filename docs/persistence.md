@@ -30,7 +30,7 @@ FluentMigrator migrations, the schema, and the SQLite and PostgreSQL providers. 
 | `.../Security/PasswordHasher.cs` | PBKDF2-SHA256 hashes: `pbkdf2-sha256$<iterations>$<salt b64>$<key b64>` |
 | `Persistence/PristonTale.Persistence/Repositories/` | `Dapper*Repository` implementations shared by both providers |
 | `Persistence/PristonTale.Persistence/PersistenceServiceCollectionExtensions.cs` | `AddPristonRepositories`: the repositories and the migration runner both providers register, given the provider's migration processor |
-| `Persistence/PristonTale.Persistence/Migrations/` | `M013Baseline`, `M014PortraitData`, `M015NpcServices`, `M016QuestData`, `M019GameMasters`, `M021MonsterSkillData`, `M022MonsterExperience64`, `M023ItemFootprints`, `M024WorldDataFields`, `M026Contacts`, `M027CatalogIdentities`, `M028WorldCatalog`, `M029NpcPlacementFacts`, `M030CharacterSaveSequence`, `M031GameLogs`, `M032StarterGifts`, `M033HelpPet`, `M034StarterOffHand`, `M035FieldOrder`, `FluentMigratorDatabaseMigrator` |
+| `Persistence/PristonTale.Persistence/Migrations/` | `M013Baseline`, `M014PortraitData`, `M015NpcServices`, `M016QuestData`, `M019GameMasters`, `M021MonsterSkillData`, `M022MonsterExperience64`, `M023ItemFootprints`, `M024WorldDataFields`, `M026Contacts`, `M027CatalogIdentities`, `M028WorldCatalog`, `M029NpcPlacementFacts`, `M030CharacterSaveSequence`, `M031GameLogs`, `M032StarterGifts`, `M033HelpPet`, `M034StarterOffHand`, `M035FieldOrder`, `M036CatalogPortuguese`, `FluentMigratorDatabaseMigrator` |
 | `Persistence/PristonTale.Persistence.Sqlite/` | `AddPristonSqlite`, connection factory (WAL), Dapper type handlers |
 | `Persistence/PristonTale.Persistence.Postgres/` | `AddPristonPostgres`, `NpgsqlDataSource` factory, `jsonb` handler for `JsonText` |
 | `docker-compose.yml` | Local PostgreSQL 17 for development |
@@ -158,7 +158,7 @@ FluentMigrator scans `PristonTale.Persistence` for `[Migration(n)]` classes. Ver
 | 25 | `M025ServerSettings` | `server_settings` table (`name` PK, `value`, `description`, `updated_at`); the server fills it at start |
 | 26 | `M026Contacts` | `character_contacts` table and its unique index |
 | 27 | `M027CatalogIdentities` | Drops and recreates `monsters`, `npcs` and every table that references them, keyed by id; adds `monster_labels`, `npc_labels`, `npc_dialog_lines`, `item_labels`; empties `world_entity_variants` and `world_import_unresolved_refs`; drops the `svc_*` columns and `npcs.dialog`. Import again afterwards. `Down` throws: restore a backup instead |
-| 28 | `M028WorldCatalog` | Drops every world catalog table of the earlier migrations and `mailboxes`; drops `warehouses.buy_area_count` and `characters.derived_stats`, which nothing read; creates `languages` (seeded with `en` and `pt-BR`) and the catalog [below](#world-catalog); empties `world_entity_variants` and `world_import_unresolved_refs`. Import again afterwards. `Down` throws: restore a backup instead |
+| 28 | `M028WorldCatalog` | Drops every world catalog table of the earlier migrations and `mailboxes`; drops `warehouses.buy_area_count` and `characters.derived_stats`, which nothing read; creates `languages` (seeded with `en`) and the catalog [below](#world-catalog); empties `world_entity_variants` and `world_import_unresolved_refs`. Import again afterwards. `Down` throws: restore a backup instead |
 | 29 | `M029NpcPlacementFacts` | Drops `field_npcs.quest_trigger` and `size_level`: the class and size a placement record carries belong to the NPC file that lacks them, and the importer gives them to it. Import again afterwards |
 | 30 | `M030CharacterSaveSequence` | `characters.save_seq` (int64, default 0): the save sequence of the stored capture |
 | 31 | `M031GameLogs` | The game log tables (`item_transfers`, `currency_sinks`, `server_events`) and their indexes |
@@ -166,6 +166,7 @@ FluentMigrator scans `PristonTale.Persistence` for `[Migration(n)]` classes. Ver
 | 33 | `M033HelpPet` | `characters.help_pet` (int16, default 0) and `help_pet_hidden` (bool, default false): the beginner's helper pet and whether the player hid it |
 | 34 | `M034StarterOffHand` | The off-hand became the third starter gift: a `starter_gifts_received` of 3 or more rises by one, so a served character stays served |
 | 35 | `M035FieldOrder` | The action field took code 39: field codes 39-44 rise by one in `characters.field_id`, `item_transfers.field_id` and `fields.field_code`, the highest first |
+| 36 | `M036CatalogPortuguese` | Adds `pt-BR` (Portuguese (Brazil)) to `languages` |
 
 Upgrade path: databases from the earlier migration set at version 12 upgrade in place. Databases at
 versions 1-11 make `M013Baseline` throw; bring them to 12 with the previous release or back up and recreate them.

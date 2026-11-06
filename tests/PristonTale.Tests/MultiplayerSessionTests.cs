@@ -98,9 +98,9 @@ internal static class MultiplayerSessionTests
         var account = await server.CreatePlayerAsync(new PlayerSetup("Patient", PlayerClass.Fighter, 10, MultiplayerServer.HuntingField, MultiplayerServer.Camp));
         await using var connection = new Client.Net.GameServerConnection(server.Address);
         await server.ExecuteAsync("ALTER TABLE characters RENAME TO characters_away");
-        var refused = await connection.LoginAsync(account, MultiplayerServer.Password);
+        var refused = await connection.LoginAsync(account, MultiplayerServer.Password, "en");
         await server.ExecuteAsync("ALTER TABLE characters_away RENAME TO characters");
-        var again = await connection.LoginAsync(account, MultiplayerServer.Password);
+        var again = await connection.LoginAsync(account, MultiplayerServer.Password, "en");
         Assert.True(refused is { Ok: false, Failure: LoginFailure.Busy } && again.Ok
             && (await connection.ListCharactersAsync()).Any(static character => character.Name == "Patient"),
             $"a refused character list left the connection logged in: {refused.Failure}, then {again.Failure}");
@@ -124,7 +124,7 @@ internal static class MultiplayerSessionTests
             return ValueTask.CompletedTask;
         }, timeout.Token);
         var buffer = new byte[Protocol.Packets.LoginPacket.MaxSize];
-        connection.Send(buffer.AsSpan(0, new Protocol.Packets.LoginPacket(Protocol.Packets.ProtocolVersion.Minimum - 1, account, MultiplayerServer.Password).Write(buffer)));
+        connection.Send(buffer.AsSpan(0, new Protocol.Packets.LoginPacket(Protocol.Packets.ProtocolVersion.Minimum - 1, account, MultiplayerServer.Password, "en").Write(buffer)));
         Assert.True(await answer.Task.WaitAsync(timeout.Token) == LoginFailure.OutdatedClient, "a client of an older protocol was let in");
         connection.Close("test done");
         await run;
@@ -138,7 +138,7 @@ internal static class MultiplayerSessionTests
             var name = "New" + playerClass;
             var account = await server.CreateAccountAsync(name);
             await using var connection = new Client.Net.GameServerConnection(server.Address);
-            Assert.True((await connection.LoginAsync(account, MultiplayerServer.Password)).Ok, "the new player could not log in");
+            Assert.True((await connection.LoginAsync(account, MultiplayerServer.Password, "en")).Ok, "the new player could not log in");
             Assert.True((await connection.CreateCharacterAsync(name, playerClass, 0)).Ok, $"a {playerClass} could not be created");
             var entered = await connection.EnterWorldAsync(name);
             Assert.True(entered is { Ok: true } && entered.FieldId == town, $"a new {playerClass} started in field {entered.FieldId}, not {town}");

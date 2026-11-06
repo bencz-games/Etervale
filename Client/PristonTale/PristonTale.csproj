@@ -7,8 +7,10 @@
         <TieredCompilation>true</TieredCompilation>
         <TieredPGO>true</TieredPGO>
         <PublishReadyToRun>true</PublishReadyToRun>
-        <!-- Localization resources use the BCP 47 cultures selected in client-settings.json. -->
-        <InvariantGlobalization>false</InvariantGlobalization>
+        <!-- Formatting and parsing stay culture-invariant whatever the system's culture; the client text resources are
+             looked up by the BCP 47 name of client-settings.json's language, which needs cultures created by name. -->
+        <InvariantGlobalization>true</InvariantGlobalization>
+        <PredefinedCulturesOnly>false</PredefinedCulturesOnly>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <MonoGamePlatform>DesktopVK</MonoGamePlatform>
     </PropertyGroup>

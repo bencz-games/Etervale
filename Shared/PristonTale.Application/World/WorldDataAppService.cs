@@ -11,7 +11,9 @@ public sealed class WorldDataAppService
 
     public WorldDataAppService(IWorldDataRepository repository) => _repository = repository;
 
-    public async Task<WorldData> BuildAsync(CancellationToken ct = default, string language = CatalogLanguages.English)
+    public Task<bool> HasTextsAsync(string language, CancellationToken ct = default) => _repository.HasCatalogTextsAsync(language, ct);
+
+    public async Task<WorldData> BuildAsync(string language = CatalogLanguages.English, CancellationToken ct = default)
     {
         language = CatalogLanguages.Normalize(language);
         var itemRecords = await _repository.GetAllItemTemplatesAsync(language, ct);

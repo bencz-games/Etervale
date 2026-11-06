@@ -18,9 +18,9 @@ internal sealed class WireRoundTrip
     private readonly CapturingSink _sink = new();
     private readonly Queue<ulong> _requests = new();
 
-    public WireRoundTrip(ulong self, WorldDataHolder? data = null)
+    public WireRoundTrip(ulong self, WorldDataHolder? data = null, WorldDataLanguagesHolder? localized = null, string language = "en")
     {
-        _encoder = new PresenceEncoder(self, data ?? new WorldDataHolder());
+        _encoder = new PresenceEncoder(self, data ?? new WorldDataHolder(), localized, language);
         Catalog = new WorldRenderCatalog();
         _decoder = new PresenceDecoder(Catalog, _requests.Enqueue) { SelfEntityId = self };
     }

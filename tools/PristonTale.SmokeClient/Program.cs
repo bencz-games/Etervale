@@ -21,7 +21,7 @@ var skillCode = Option("--skill") is { } code ? Convert.ToUInt32(code.Replace("0
 Console.WriteLine($"Connecting to {address}…");
 await using var conn = new GameServerConnection(address);
 
-var login = await conn.LoginAsync(account, password);
+var login = await conn.LoginAsync(account, password, "en");
 Console.WriteLine($"Login            : ok={login.Ok} msg=\"{login.Message}\"");
 if (!login.Ok)
 {

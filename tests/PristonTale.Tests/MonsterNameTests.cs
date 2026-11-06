@@ -25,6 +25,8 @@ internal static class MonsterNameTests
             await using var provider = services.BuildServiceProvider();
             var migrator = provider.GetRequiredService<IDatabaseMigrator>();
             await migrator.MigrateAsync();
+            Assert.True(!await provider.GetRequiredService<IWorldDataRepository>().HasCatalogTextsAsync(CatalogLanguages.BrazilianPortuguese),
+                "an empty catalog claimed Portuguese text");
 
             var connections = provider.GetRequiredService<IDbConnectionFactory>();
             await using (var connection = await connections.OpenAsync())
@@ -46,6 +48,7 @@ internal static class MonsterNameTests
             Assert.True(records[0] is { Id: 196, Key: "HOPY", Name: "Hopy", MaxDropsPerKill: 2 } && records[1] is { Id: 197, Name: null },
                 "the runtime did not read the English name, or read a name a monster has not");
             var portuguese = await repository.GetAllMonstersAsync(CatalogLanguages.BrazilianPortuguese);
+            Assert.True(await repository.HasCatalogTextsAsync(CatalogLanguages.BrazilianPortuguese), "a stored Portuguese name was not found");
             Assert.True(portuguese[0].Name == "Hopi" && portuguese[1].Name == null, "the catalog language did not select pt-BR with English fallback");
             Assert.True(records[0].DropLines.Single() is { Weight: 9, Items.Count: 2 }, "the drop line or its items were not read");
 
