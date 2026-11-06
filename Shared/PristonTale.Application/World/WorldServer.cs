@@ -20,6 +20,7 @@ using PristonTale.Simulation.Skills;
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Fields;
 using PristonTale.Contracts.Skills;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -460,19 +461,19 @@ public sealed partial class WorldServer
             {
                 var duplicate = applied.Command == command;
                 return new PreparedCharacterOperation<InventoryOutcome>(original, null, null,
-                    new InventoryOutcome(duplicate, applied.Revision, duplicate ? "already committed" : "operation identity conflict"));
+                    new InventoryOutcome(duplicate, applied.Revision, GameText.Of(duplicate ? GameTextId.AlreadyApplied : GameTextId.OperationConflict)));
             }
 
             if (connection.Player.Shop is not null && command.Action != InventoryAction.ConsumePotion)
             {
                 return new PreparedCharacterOperation<InventoryOutcome>(original, null, null,
-                    new InventoryOutcome(false, original.InventoryRevision, PersonalShopMessages.Of(PersonalShopStatus.Selling)));
+                    new InventoryOutcome(false, original.InventoryRevision, GameText.Of(GameTextId.CloseShopFirst)));
             }
 
             if (connection.Player.Offers(command.ItemId))
             {
                 return new PreparedCharacterOperation<InventoryOutcome>(original, null, null,
-                    new InventoryOutcome(false, original.InventoryRevision, Simulation.Trades.TradeMessages.InTrade));
+                    new InventoryOutcome(false, original.InventoryRevision, GameText.Of(GameTextId.ItemInTrade)));
             }
 
             if (command.Action == InventoryAction.Pickup)
@@ -488,7 +489,7 @@ public sealed partial class WorldServer
             if (command.Action == InventoryAction.ConsumePotion && (connection.Player.IsDead || connection.Player.HasPendingPotion))
             {
                 return new PreparedCharacterOperation<InventoryOutcome>(original, null, null,
-                    new InventoryOutcome(false, original.InventoryRevision, "cannot use another potion now"));
+                    new InventoryOutcome(false, original.InventoryRevision, GameText.Of(GameTextId.PotionNotNow)));
             }
 
             var candidate = original.CloneForInventoryOperation();
@@ -496,12 +497,12 @@ public sealed partial class WorldServer
             {
                 return new PreparedCharacterOperation<InventoryOutcome>(original, null, null,
                     new InventoryOutcome(false, original.InventoryRevision,
-                        InventoryCommands.Refusal(original, command) ?? ItemRuleMessages.StaleInventory));
+                        InventoryCommands.Refusal(original, command) is { IsNone: false } refusal ? refusal : GameText.Of(GameTextId.StaleInventory)));
             }
 
             candidate.RecordInventoryOperation(command);
             var snapshot = CharacterRecordFactory.Capture(session.Loaded, candidate, connection.FieldId, connection.Player.Position);
-            var outcome = new InventoryOutcome(true, candidate.InventoryRevision, "");
+            var outcome = new InventoryOutcome(true, candidate.InventoryRevision, GameText.None);
             if (command.Action == InventoryAction.ConsumePotion)
             {
                 return new PreparedPotionOperation(original, candidate, snapshot, outcome, original.FindOwnedItem(command.ItemId)!.Definition.Potion!);

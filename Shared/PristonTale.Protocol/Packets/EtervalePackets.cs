@@ -1,5 +1,6 @@
 using PristonTale.Protocol.Binary;
 using PristonTale.Contracts.Combat;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Protocol.Packets;
 
@@ -240,11 +241,11 @@ public sealed record ProgressionCommandPacket(Guid OperationId, long ExpectedRev
 }
 
 // Shared reply for inventory and progression commands, correlated by OperationId: {header, Guid OperationId, int32 Ok,
-// int64 Revision, text Message (128 B)}.
-public sealed record OperationResultPacket(uint Code, Guid OperationId, bool Ok, long Revision, string Message)
+// int64 Revision, game text Message}.
+public sealed record OperationResultPacket(uint Code, Guid OperationId, bool Ok, long Revision, GameText Message)
 {
-    public const int MaxMessageBytes = 128;
-    public const int MaxSize = 8 + 16 + 4 + 8 + 2 + MaxMessageBytes;
+    public const int MinSize = 8 + 16 + 4 + 8 + GameTextWire.MinimumSize;
+    public const int MaxSize = MinSize - GameTextWire.MinimumSize + GameTextWire.MaximumSize;
 
     public int Write(Span<byte> destination)
     {
@@ -252,14 +253,14 @@ public sealed record OperationResultPacket(uint Code, Guid OperationId, bool Ok,
         writer.Guid(OperationId);
         writer.Int32(Ok ? 1 : 0);
         writer.Int64(Revision);
-        Utf8Text.Write(ref writer, Message, MaxMessageBytes);
+        GameTextWire.Write(ref writer, Message);
         return writer.Finish();
     }
 
     public static OperationResultPacket Read(ReadOnlySpan<byte> packet)
     {
-        var r = new PacketReader(packet, MaxSize - MaxMessageBytes);
-        return new OperationResultPacket(r.Code, r.Guid(), r.Int32() != 0, r.Int64(), Utf8Text.Read(ref r, MaxMessageBytes, "Operation result"));
+        var r = new PacketReader(packet, MinSize);
+        return new OperationResultPacket(r.Code, r.Guid(), r.Int32() != 0, r.Int64(), GameTextWire.Read(ref r));
     }
 }
 

@@ -16,6 +16,7 @@ using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Contracts.Characters;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -253,7 +254,7 @@ public sealed partial class GameplayHud
         var affordable = offer.Price > 0 ? state.Money / offer.Price : offer.MaxStack;
         if (affordable < 1)
         {
-            _notice.Show(ItemRuleMessages.NotEnoughGold);
+            _notice.Show(ClientText.Get(GameTextId.NotEnoughGold));
             return;
         }
 
@@ -443,7 +444,7 @@ public sealed partial class GameplayHud
             case HudWorkActionKind.Start when state is not null:
                 if (state.Money < bench.Price(state))
                 {
-                    _notice.Show(ItemRuleMessages.NotEnoughGold);
+                    _notice.Show(ClientText.Get(GameTextId.NotEnoughGold));
                     break;
                 }
 

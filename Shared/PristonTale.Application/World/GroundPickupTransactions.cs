@@ -3,6 +3,7 @@ using PristonTale.Persistence.Abstractions.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Parties;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -17,7 +18,7 @@ internal static class GroundPickupTransactions
         if (command.ExpectedRevision != original.InventoryRevision || command.Count != 1 || command.Destination is not (0 or InventoryCommand.PickupToBag)
             || !field.GroundLoot.TryReserve(dropId, command.OperationId, player, out var drop, out var item))
         {
-            return new(original, null, null, new(false, original.InventoryRevision, "drop unavailable or out of reach"));
+            return new(original, null, null, new(false, original.InventoryRevision, GameText.Of(GameTextId.DropOutOfReach)));
         }
 
         bool prepared = false;
@@ -26,20 +27,20 @@ internal static class GroundPickupTransactions
             var candidate = original.CloneForInventoryOperation();
             if (item is not null && !CarriedWeight.CanTake(candidate, CarriedWeight.Of(item)))
             {
-                return new(original, null, null, new(false, original.InventoryRevision, ItemRuleMessages.OverWeight));
+                return new(original, null, null, new(false, original.InventoryRevision, GameText.Of(GameTextId.OverWeight)));
             }
 
             long gold = drop!.Gold ? drop.Amount : 0;
             var shares = PartyRules.SharesGold(gold) ? Shares(gold, sharers, out gold) : [];
             if (!candidate.ReceiveGroundLoot(item, (int)gold, command.Destination == InventoryCommand.PickupToBag))
             {
-                return new(original, null, null, new(false, original.InventoryRevision, "inventory full or money limit reached"));
+                return new(original, null, null, new(false, original.InventoryRevision, GameText.Of(GameTextId.PickupNoRoom)));
             }
 
             candidate.RecordInventoryOperation(command);
             var snapshot = CharacterRecordFactory.Capture(session.Loaded!, candidate, field.FieldId, player.Position);
             var result = new PreparedPickupOperation(original, candidate, snapshot,
-                new(true, candidate.InventoryRevision, string.Empty), field.GroundLoot, drop.Id, command.OperationId, gold, shares);
+                new(true, candidate.InventoryRevision, GameText.None), field.GroundLoot, drop.Id, command.OperationId, gold, shares);
             prepared = true;
             return result;
         }

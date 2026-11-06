@@ -16,6 +16,7 @@ using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Social;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -77,7 +78,7 @@ internal sealed class ChatCaptureProbe : Game
         _batch = new SpriteBatch(GraphicsDevice);
         var font = Content.Load<SpriteFont>("Fonts/UI");
         var context = new ScreenContext(GraphicsDevice, Content, _batch, font, _assetRoot, null!, ConsoleClientLog.Instance, _ => { }, _presentation);
-        _hud = new GameplayHud(context, _ => Task.FromResult(new InventoryOutcome(false, 0, "capture")));
+        _hud = new GameplayHud(context, _ => Task.FromResult(new InventoryOutcome(false, 0, GameText.Of(GameTextId.RequestRefused))));
         _hud.CharacterName = "Panzer";
         _hud.CharacterClass = PlayerClass.Mechanician;
         _owner = OwnerState.Capture(new CharacterClassRegistry().CreatePlayer(PlayerClass.Mechanician, "Panzer"));

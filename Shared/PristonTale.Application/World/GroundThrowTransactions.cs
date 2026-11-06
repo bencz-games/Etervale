@@ -2,6 +2,7 @@ using PristonTale.Application.Sessions;
 using PristonTale.Persistence.Abstractions.Characters;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -19,17 +20,17 @@ internal static class GroundThrowTransactions
         var item = anchor >= 0 ? original.Inventory[anchor] : fromHand ? original.Held : null;
         if (command.ExpectedRevision != original.InventoryRevision || command.Count < 1 || command.Count > (gold ? original.Money : item?.Count ?? 0))
         {
-            return Refused(original, ItemRuleMessages.StaleInventory);
+            return Refused(original, GameTextId.StaleInventory);
         }
 
         if (item is not null && !ItemDropRules.CanDrop(original, item))
         {
-            return Refused(original, ItemRuleMessages.CannotDrop);
+            return Refused(original, GameTextId.CannotDrop);
         }
 
         if (field.GroundLoot.Count >= FieldGroundLoot.Capacity)
         {
-            return Refused(original, "there is no room on the ground");
+            return Refused(original, GameTextId.NoRoomOnGround);
         }
 
         var candidate = original.CloneForInventoryOperation();
@@ -42,10 +43,10 @@ internal static class GroundThrowTransactions
 
         candidate.RecordInventoryOperation(command);
         var snapshot = CharacterRecordFactory.Capture(session.Loaded!, candidate, field.FieldId, player.Position);
-        return new PreparedThrowOperation(original, candidate, snapshot, new(true, candidate.InventoryRevision, string.Empty), field,
+        return new PreparedThrowOperation(original, candidate, snapshot, new(true, candidate.InventoryRevision, GameText.None), field,
             thrown?.Copy(thrown.Count, preserveId: true), gold ? command.Count : 0, player.Position, player.EntityId);
     }
 
-    private static PreparedCharacterOperation<InventoryOutcome> Refused(PlayerCharacter original, string message) =>
-        new(original, null, null, new(false, original.InventoryRevision, message));
+    private static PreparedCharacterOperation<InventoryOutcome> Refused(PlayerCharacter original, GameTextId refusal) =>
+        new(original, null, null, new(false, original.InventoryRevision, GameText.Of(refusal)));
 }

@@ -16,6 +16,7 @@ using PristonTale.WorldImport.Parsers;
 using PristonTale.Contracts.Motion;
 using PristonTale.Assets;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -159,7 +160,7 @@ internal static class ItemRulesTests
         var heavy = new ItemInstance(Def("WA110", record => record with { ReqLevel = 40, AttackRatingMin = 50 }));
         Assert.True(character.Inventory.TryPlace(heavy, 0) && !character.TryEquipFromInventory(0, EquipmentSlot.Weapon), "an item above the level equipped");
         var command = new InventoryCommand(Guid.NewGuid(), character.InventoryRevision, InventoryAction.Equip, heavy.InstanceId, 0, 0, EquipmentSlot.Weapon);
-        Assert.True(InventoryCommands.Refusal(character, command) == ItemRuleMessages.CannotUse, "the refusal does not name the unmet requirement");
+        Assert.True(InventoryCommands.Refusal(character, command) == GameText.Of(GameTextId.CannotUseYet), "the refusal does not name the unmet requirement");
         var robe = new ItemInstance(Def("DA201"));
         Assert.True(character.Inventory.TryPlace(robe, 20) && !character.TryEquipFromInventory(20, EquipmentSlot.Armor), "a fighter wore a robe");
 
@@ -378,7 +379,7 @@ internal static class ItemRulesTests
         character.Inventory.TryPlace(new ItemInstance(stone), 60);
         Assert.True(CarriedWeight.IsOverweight(character) && !character.TryUnequip(EquipmentSlot.RingLeft), "unequipping while overweight was allowed");
         var command = new InventoryCommand(Guid.NewGuid(), character.InventoryRevision, InventoryAction.Unequip, ring.InstanceId, 0, 0, EquipmentSlot.RingLeft);
-        Assert.True(InventoryCommands.Refusal(character, command) == ItemRuleMessages.OverWeight, "the refusal does not name the weight");
+        Assert.True(InventoryCommands.Refusal(character, command) == GameText.Of(GameTextId.OverWeight), "the refusal does not name the weight");
 
         var drain = -Regeneration.StaminaPerSecond(character, RegenerationPosture.Running);
         var expected = (1000 + character.CarriedWeight) / (character.Derived.MaxWeight + character.Attributes.Strength / 2 + 500) + 0.4f;

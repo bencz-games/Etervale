@@ -1,6 +1,7 @@
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Simulation.Progression;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -22,7 +23,7 @@ public sealed class HudProgressionController(Func<ProgressionCommand, Task<Progr
 
         Message = ClientText.Get("Progression.Saving");
         _request.Start(() => apply(command),
-            _ => new ProgressionOutcome(false, command.ExpectedRevision, ClientText.Get("Progression.ConnectionError")));
+            _ => new ProgressionOutcome(false, command.ExpectedRevision, GameText.None));
     }
 
     public void Update()
@@ -32,7 +33,9 @@ public sealed class HudProgressionController(Func<ProgressionCommand, Task<Progr
             return;
         }
 
-        Message = outcome.Ok ? ClientText.Get("Progression.Saved") : outcome.Message;
+        // A refusal without a line is the client's own: the server was not reached.
+        Message = outcome.Ok ? ClientText.Get("Progression.Saved")
+            : outcome.Message.IsNone ? ClientText.Get("Progression.ConnectionError") : ClientText.Format(outcome.Message);
         LastOk = outcome.Ok;
         Completions++;
     }

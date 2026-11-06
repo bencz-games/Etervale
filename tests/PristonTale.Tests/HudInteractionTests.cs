@@ -16,6 +16,7 @@ using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Contracts.Characters;
 using PristonTale.Contracts.World;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -206,7 +207,7 @@ internal static class HudInteractionTests
         var controller = new HudInventoryController(null!, command =>
         {
             sent = command;
-            return Task.FromResult(new InventoryOutcome(true, 4, ""));
+            return Task.FromResult(new InventoryOutcome(true, 4, GameText.None));
         });
         controller.Update(state, layout, false, default, default);
         controller.PickupLocked = true;
@@ -236,7 +237,7 @@ internal static class HudInteractionTests
         var carried = new OwnedItemView(Guid.NewGuid(), 1, "Carried", ItemKind.Axe, 1, 0, -1, 1, 1);
         var other = new OwnedItemView(Guid.NewGuid(), 2, "Other", ItemKind.Axe, 1, 4, -1, 1, 1);
         var state = OwnerState.Capture(new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Carry")) with { Items = [carried, other], InventoryRevision = 1 };
-        var controller = new HudInventoryController(null!, _ => Task.FromResult(new InventoryOutcome(true, 2, "")));
+        var controller = new HudInventoryController(null!, _ => Task.FromResult(new InventoryOutcome(true, 2, GameText.None)));
         var origin = HudInventoryLayout.Origin(layout);
         var start = HudInventoryLayout.Bounds(origin, carried).Center;
         var over = HudInventoryLayout.Bounds(origin, other).Center;
@@ -270,7 +271,7 @@ internal static class HudInteractionTests
             var controller = new HudInventoryController(null!, command =>
             {
                 sent = command;
-                return Task.FromResult(new InventoryOutcome(true, 8, ""));
+                return Task.FromResult(new InventoryOutcome(true, 8, GameText.None));
             });
             var origin = HudInventoryLayout.Origin(layout);
             var pointer = HudInventoryLayout.Bag(origin).Location + new Point(10, 10);
@@ -482,7 +483,7 @@ internal static class HudInteractionTests
         var controller = new HudInventoryController(null!, command =>
         {
             sent.Add(command);
-            return Task.FromResult(new InventoryOutcome(true, state.InventoryRevision + 1, ""));
+            return Task.FromResult(new InventoryOutcome(true, state.InventoryRevision + 1, GameText.None));
         });
         controller.Update(state, layout, true, default, MouseAt(HudInventoryLayout.Cell(origin, 0).Center, layout.Scale, ButtonState.Pressed));
         controller.Update(state, layout, true, default, default);
@@ -513,7 +514,7 @@ internal static class HudInteractionTests
         // Set down, the stone stays where it was set down, not in its old cell, until the owner state shows it moved.
         var away = new Point(target.X + 100, target.Y);
         Assert.True(controller.Dragging == Guid.Empty && controller.Held == id && controller.HeldAt(away) == target, "the set-down stone left the click point");
-        reply.SetResult(new InventoryOutcome(true, 4, ""));
+        reply.SetResult(new InventoryOutcome(true, 4, GameText.None));
         await Task.Yield();
         controller.Update(state, layout, true, default, default);
         Assert.True(controller.Held == id, "the stone went back to its old cell before the owner state showed the move");
@@ -521,7 +522,7 @@ internal static class HudInteractionTests
         // A later command refused before that owner state does not put the stone back in its old cell either.
         reply = new TaskCompletionSource<InventoryOutcome>();
         controller.Update(state, layout, true, default, MouseAt(HudInventoryLayout.PageButton(origin, 1).Center, layout.Scale, ButtonState.Pressed));
-        reply.SetResult(new InventoryOutcome(false, 3, "refused"));
+        reply.SetResult(new InventoryOutcome(false, 3, GameText.Of(GameTextId.RequestRefused)));
         await Task.Yield();
         controller.Update(state, layout, true, default, default);
         Assert.True(controller.Completions == 2 && controller.Held == id, "a later refused command put the set-down stone back in its old cell");
@@ -544,7 +545,7 @@ internal static class HudInteractionTests
         var controller = new HudInventoryController(null!, command =>
         {
             sent = command;
-            return Task.FromResult(new InventoryOutcome(true, command.ExpectedRevision + 1, ""));
+            return Task.FromResult(new InventoryOutcome(true, command.ExpectedRevision + 1, GameText.None));
         })
         { ItemSound = sounds.Add, QuestBoxStored = frame => glowAt = frame };
         controller.Update(state, layout, true, default, default);
@@ -614,7 +615,7 @@ internal static class HudInteractionTests
         controller.Update(state with { InventoryRevision = 6 }, layout, true, default, MouseAt(HudInventoryLayout.Cell(origin, 0).Center, layout.Scale, ButtonState.Pressed));
         controller.Update(state with { InventoryRevision = 6 }, layout, true, default, default);
         controller.Update(state with { InventoryRevision = 6 }, layout, true, default, MouseAt(HudInventoryLayout.Cell(origin, 5).Center, layout.Scale, ButtonState.Pressed));
-        reply.SetResult(new InventoryOutcome(true, 7, ""));
+        reply.SetResult(new InventoryOutcome(true, 7, GameText.None));
         await Task.Yield();
         controller.Update(state with { InventoryRevision = 6 }, layout, true, default, default);
         Assert.True(sounds is ["MA101", "MA101"], $"lifting and moving the stone sounded {string.Join(", ", sounds)}");
@@ -650,7 +651,7 @@ internal static class HudInteractionTests
         // Thrown above the window, the stone shows nowhere, not back in a bag cell, until the owner state shows it gone.
         Throw();
         Assert.True(controller.Dragging == Guid.Empty && controller.Held == Guid.Empty && controller.Thrown == id, "the thrown stone showed back in the bag");
-        reply.SetResult(new InventoryOutcome(true, 4, ""));
+        reply.SetResult(new InventoryOutcome(true, 4, GameText.None));
         await Task.Yield();
         controller.Update(state, layout, true, default, default);
         Assert.True(controller.Thrown == id, "the thrown stone showed in the bag before the owner state showed it gone");
@@ -660,7 +661,7 @@ internal static class HudInteractionTests
         // A refused throw shows the stone in its place again.
         reply = new TaskCompletionSource<InventoryOutcome>();
         Throw();
-        reply.SetResult(new InventoryOutcome(false, 3, "refused"));
+        reply.SetResult(new InventoryOutcome(false, 3, GameText.Of(GameTextId.RequestRefused)));
         await Task.Yield();
         controller.Update(state, layout, true, default, default);
         Assert.True(controller.Thrown == Guid.Empty, "a refused throw kept the stone hidden");
@@ -676,7 +677,7 @@ internal static class HudInteractionTests
         var controller = new HudInventoryController(null!, command =>
         {
             sent.Add(command);
-            return Task.FromResult(new InventoryOutcome(true, 4, ""));
+            return Task.FromResult(new InventoryOutcome(true, 4, GameText.None));
         });
         controller.Update(state, layout, false, default, default);
         Assert.True(!controller.ExpectPickup(2), "a pickup came to the cursor with the window closed");

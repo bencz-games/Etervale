@@ -264,7 +264,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     public Task<PristonTale.Simulation.Items.InventoryOutcome> ApplyInventoryAsync(PristonTale.Simulation.Items.InventoryCommand command)
     {
         return _playChannel is not null ? _playChannel.ApplyInventoryAsync(command, _presenceCts.Token)
-            : Task.FromResult(new PristonTale.Simulation.Items.InventoryOutcome(false, 0, NoConnection));
+            : Task.FromResult(new PristonTale.Simulation.Items.InventoryOutcome(false, 0, PristonTale.Contracts.Texts.GameText.None));
     }
     public event Action<ulong> NpcSelected;
     // Asked as a ground item's pickup leaves, with its item code: whether it comes to the inventory's cursor; that
@@ -285,7 +285,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     public Task<PristonTale.Simulation.Progression.ProgressionOutcome> ApplyProgressionAsync(PristonTale.Simulation.Progression.ProgressionCommand command)
     {
         return _playChannel is not null ? _playChannel.ApplyProgressionAsync(command, _presenceCts.Token)
-            : Task.FromResult(new PristonTale.Simulation.Progression.ProgressionOutcome(false, 0, NoConnection));
+            : Task.FromResult(new PristonTale.Simulation.Progression.ProgressionOutcome(false, 0, PristonTale.Contracts.Texts.GameText.None));
     }
 
     public Task<PristonTale.Simulation.World.Npcs.NpcInteraction> InteractNpcAsync(ulong entityId)

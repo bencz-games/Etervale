@@ -1,4 +1,5 @@
 using PristonTale.Simulation.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Items;
 
@@ -38,7 +39,7 @@ public sealed record InventoryCommand(Guid OperationId, long ExpectedRevision, I
     public const int PickupToBag = 1;
 }
 
-public sealed record InventoryOutcome(bool Ok, long Revision, string Message);
+public sealed record InventoryOutcome(bool Ok, long Revision, GameText Message);
 public sealed record AppliedInventoryOperation(InventoryCommand Command, long Revision) : IAppliedOperation
 {
     Guid IAppliedOperation.OperationId => Command?.OperationId ?? Guid.Empty;
@@ -91,19 +92,19 @@ public static class InventoryCommands
     }
 
     // The item rule that refuses a command, for the player's message; null when the command fails for another reason.
-    public static string Refusal(PlayerCharacter character, InventoryCommand command)
+    public static GameText Refusal(PlayerCharacter character, InventoryCommand command)
     {
         switch (command.Action)
         {
             case InventoryAction.Equip:
                 var anchor = character.Inventory.Find(command.ItemId);
                 return anchor >= 0 && character.Inventory[anchor] is { } item && item.Definition.IsEquippable && !ItemUsability.CanUse(character, item)
-                    ? ItemRuleMessages.CannotUse
-                    : null;
+                    ? GameText.Of(GameTextId.CannotUseYet)
+                    : GameText.None;
             case InventoryAction.Unequip:
-                return CarriedWeight.IsOverweight(character) ? ItemRuleMessages.OverWeight : null;
+                return CarriedWeight.IsOverweight(character) ? GameText.Of(GameTextId.OverWeight) : GameText.None;
             default:
-                return null;
+                return GameText.None;
         }
     }
 }

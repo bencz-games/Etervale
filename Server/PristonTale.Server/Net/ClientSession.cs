@@ -24,6 +24,7 @@ using PristonTale.Contracts.Skills;
 using PristonTale.Contracts.Sessions;
 using PristonTale.Contracts.Units;
 using PristonTale.Persistence.Abstractions.WorldData;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Server.Net;
 
@@ -753,7 +754,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         }
         catch (Exception ex) when (ex is InvalidSessionException or InvalidOperationException or System.Data.Common.DbException)
         {
-            outcome = new InventoryOutcome(false, request.ExpectedRevision, ex.Message);
+            outcome = new InventoryOutcome(false, request.ExpectedRevision, Refusal(ex));
         }
 
         var result = new OperationResultPacket(EtervaleOpcodes.InventoryResult, request.OperationId, outcome.Ok, outcome.Revision, outcome.Message);
@@ -863,7 +864,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         }
         catch (Exception ex) when (ex is InvalidSessionException or InvalidOperationException)
         {
-            outcome = new ProgressionOutcome(false, request.ExpectedRevision, ex.Message);
+            outcome = new ProgressionOutcome(false, request.ExpectedRevision, Refusal(ex));
         }
 
         var result = new OperationResultPacket(EtervaleOpcodes.ProgressionResult, request.OperationId, outcome.Ok, outcome.Revision, outcome.Message);
@@ -919,6 +920,15 @@ internal sealed partial class ClientSession : IMovementVerdictSink
     }
 
     private string RequireToken() => _token ?? throw new InvalidOperationException("Log in first.");
+
+    // The line a client reads for an operation the server refused by an exception before its domain rules.
+    private static GameText Refusal(Exception refusal) => GameText.Of(refusal switch
+    {
+        WorldBusyException => GameTextId.TooManyRequests,
+        InvalidSessionException => GameTextId.NoSession,
+        System.Data.Common.DbException => GameTextId.CharacterUnchanged,
+        _ => GameTextId.RequestRefused
+    });
 
     private void LogRejected(uint code, string reason)
     {

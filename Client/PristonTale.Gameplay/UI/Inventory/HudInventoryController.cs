@@ -5,6 +5,7 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Items.Usable;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
@@ -186,7 +187,8 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
         {
             _completedOperation = null;
             _pendingOperation = false;
-            Message = completed.Message;
+            // A refusal without a line is the client's own: the server was not reached.
+            Message = !completed.Message.IsNone ? ClientText.Format(completed.Message) : completed.Ok ? "" : ClientText.Get("Inventory.OperationFailed");
             LastOk = completed.Ok;
             Completions++;
             if (completed.Ok && _pendingSound is not null)
@@ -695,7 +697,7 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
         catch (Exception exception)
         {
             _context.Log.Error("inventory operation failed", exception);
-            _completedOperation = new InventoryOutcome(false, 0, ClientText.Get("Inventory.OperationFailed"));
+            _completedOperation = new InventoryOutcome(false, 0, GameText.None);
         }
     }
 

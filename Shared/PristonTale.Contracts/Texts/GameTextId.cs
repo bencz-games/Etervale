@@ -20,6 +20,14 @@ public enum GameTextId : ushort
     // The answer to a retried operation the server had already applied.
     AlreadyApplied = 10,
 
+    // Refusals of any character operation before its domain rules.
+    NoSession = 11,
+    CharacterBusy = 12,
+    WarehouseChanged = 13,
+    NotPlaying = 14,
+    TooManyRequests = 15,
+    RequestRefused = 16,
+
     // Item use.
     ItemUsed = 100,
     ItemNotUsable = 101,
@@ -33,7 +41,7 @@ public enum GameTextId : ushort
     DeadCannotUse = 109,
     UseDelay = 110,
     OperationConflict = 111,
-    UseStorageFailed = 112,
+    CharacterUnchanged = 112,
     ClanOnly = 113,
     MaleCannotUse = 114,
     FemaleCannotUse = 115,
@@ -56,5 +64,17 @@ public enum GameTextId : ushort
     LuckyBagHeld = 126,
 
     // {0} the item's name, {1} the count.
-    ItemsReceived = 127
+    ItemsReceived = 127,
+
+    // Inventory and ground.
+    DropOutOfReach = 200,
+    PickupNoRoom = 201,
+    NoRoomOnGround = 202,
+    PotionNotNow = 203,
+    ItemInTrade = 204,
+    CloseShopFirst = 205,
+
+    // Progression.
+    SkillMasterAway = 250,
+    ProgressionRefused = 251
 }

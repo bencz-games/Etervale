@@ -78,14 +78,19 @@
   <data name="Game.AlreadyApplied" xml:space="preserve"><value>Já foi feito</value></data>
   <data name="Game.CannotDrop" xml:space="preserve"><value>Este item não pode ser jogado fora</value></data>
   <data name="Game.CannotUseYet" xml:space="preserve"><value>O item ainda não pode ser usado</value></data>
+  <data name="Game.CharacterBusy" xml:space="preserve"><value>Um salvamento ou outra operação do personagem está pendente; tente de novo</value></data>
+  <data name="Game.CharacterUnchanged" xml:space="preserve"><value>O armazenamento recusou a operação; o personagem não mudou</value></data>
   <data name="Game.ClanOnly" xml:space="preserve"><value>Só membros de um clã regular podem usar este item</value></data>
+  <data name="Game.CloseShopFirst" xml:space="preserve"><value>Feche sua loja pessoal primeiro</value></data>
   <data name="Game.CrystalRefused" xml:space="preserve"><value>Você não pode usar este cristal</value></data>
   <data name="Game.DeadCannotUse" xml:space="preserve"><value>Não é possível usar itens enquanto está morto</value></data>
+  <data name="Game.DropOutOfReach" xml:space="preserve"><value>O item sumiu ou está fora de alcance</value></data>
   <data name="Game.FemaleCannotUse" xml:space="preserve"><value>A personagem feminina não pode usar</value></data>
   <data name="Game.GoldLimit" xml:space="preserve"><value>Excede a quantidade máxima de ouro que você pode carregar</value></data>
   <data name="Game.GravityStoneUsed" xml:space="preserve"><value>Você usou uma Gravity Stone</value></data>
   <data name="Game.InventoryChanged" xml:space="preserve"><value>O inventário mudou; tente de novo</value></data>
   <data name="Game.ItemAlreadyRunning" xml:space="preserve"><value>Este item já está em uso</value></data>
+  <data name="Game.ItemInTrade" xml:space="preserve"><value>O item está na janela de troca</value></data>
   <data name="Game.ItemNamedUsed" xml:space="preserve"><value>{0} usado</value></data>
   <data name="Game.ItemNotHere" xml:space="preserve"><value>Este item não pode ser usado aqui</value></data>
   <data name="Game.ItemNotUsable" xml:space="preserve"><value>Este item não pode ser usado</value></data>
@@ -96,21 +101,30 @@
   <data name="Game.LevelTooLow" xml:space="preserve"><value>Seu nível é baixo demais</value></data>
   <data name="Game.LuckyBagHeld" xml:space="preserve"><value>A lucky bag continha {0}</value></data>
   <data name="Game.MaleCannotUse" xml:space="preserve"><value>O personagem masculino não pode usar</value></data>
+  <data name="Game.NoRoomOnGround" xml:space="preserve"><value>Não há espaço no chão</value></data>
+  <data name="Game.NoSession" xml:space="preserve"><value>Sessão inválida</value></data>
   <data name="Game.NoSpace" xml:space="preserve"><value>Não há espaço suficiente no inventário</value></data>
   <data name="Game.NotEnoughGold" xml:space="preserve"><value>Ouro insuficiente</value></data>
+  <data name="Game.NotPlaying" xml:space="preserve"><value>O personagem não está jogando</value></data>
   <data name="Game.NothingToChange" xml:space="preserve"><value>Não há nada para este item mudar</value></data>
   <data name="Game.OperationConflict" xml:space="preserve"><value>Conflito de identidade da operação</value></data>
   <data name="Game.OverWeight" xml:space="preserve"><value>Você excedeu o limite de peso do inventário</value></data>
+  <data name="Game.PickupNoRoom" xml:space="preserve"><value>Inventário cheio ou limite de ouro atingido</value></data>
+  <data name="Game.PotionNotNow" xml:space="preserve"><value>Você não pode usar outra poção agora</value></data>
   <data name="Game.PotionNotStored" xml:space="preserve"><value>Poções não podem ser guardadas</value></data>
+  <data name="Game.ProgressionRefused" xml:space="preserve"><value>Requisitos não atendidos ou o personagem mudou; tente de novo</value></data>
+  <data name="Game.RequestRefused" xml:space="preserve"><value>O pedido foi recusado</value></data>
   <data name="Game.SameAttributeRunning" xml:space="preserve"><value>Um item com o mesmo atributo já está em uso</value></data>
+  <data name="Game.SkillMasterAway" xml:space="preserve"><value>Aproxime-se, vivo, do mestre de habilidades da sua cidade</value></data>
   <data name="Game.SkillsMastered" xml:space="preserve"><value>O treino das habilidades está completo</value></data>
   <data name="Game.SkillsReset" xml:space="preserve"><value>Seus pontos de habilidade podem ser distribuídos de novo</value></data>
   <data name="Game.StaleInventory" xml:space="preserve"><value>Operação inválida ou o inventário mudou; tente de novo</value></data>
   <data name="Game.StatsReset" xml:space="preserve"><value>Seus pontos de atributo podem ser distribuídos de novo</value></data>
   <data name="Game.StorageRejected" xml:space="preserve"><value>O armazenamento recusou a operação; nada mudou</value></data>
   <data name="Game.SummonLimit" xml:space="preserve"><value>Você só pode ter {0} invocações de cristal ao mesmo tempo</value></data>
+  <data name="Game.TooManyRequests" xml:space="preserve"><value>Pedidos demais; espere um momento</value></data>
   <data name="Game.UseDelay" xml:space="preserve"><value>Espere um momento antes de usar outro</value></data>
-  <data name="Game.UseStorageFailed" xml:space="preserve"><value>O armazenamento recusou a operação; o personagem não mudou</value></data>
+  <data name="Game.WarehouseChanged" xml:space="preserve"><value>O armazém mudou em outro lugar; abra de novo</value></data>
   <data name="Guide.More" xml:space="preserve"><value>&gt;&gt;mais...</value></data>
   <data name="Hud.AttackAuto" xml:space="preserve"><value>Tipo de ataque: automático</value></data>
   <data name="Hud.AttackManual" xml:space="preserve"><value>Tipo de ataque: manual</value></data>

@@ -11,6 +11,7 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Trades;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -174,7 +175,7 @@ internal static class TradeTests
 
         var drop = new InventoryCommand(Guid.NewGuid(), ann.Session.Character!.InventoryRevision, InventoryAction.Drop, axe.InstanceId, 0, 1, default);
         var prepared = await fixture.World.RunAsync(fixture.World.World.PrepareInventoryAsync(ann.Session, drop));
-        Assert.True(prepared is { Outcome.Ok: false, Outcome.Message: TradeMessages.InTrade }, "an offered item left the bag");
+        Assert.True(prepared is { Outcome.Ok: false, Outcome.Message.Id: GameTextId.ItemInTrade }, "an offered item left the bag");
     }
 
     private static async Task RefusalsAsync()

@@ -16,6 +16,7 @@ using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Items.Usable;
 using PristonTale.Contracts.Skills;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -136,7 +137,7 @@ internal sealed class ItemHudCaptureProbe : Game
         _batch = new SpriteBatch(GraphicsDevice);
         var font = Content.Load<SpriteFont>("Fonts/UI");
         var context = new ScreenContext(GraphicsDevice, Content, _batch, font, _assetRoot, null!, ConsoleClientLog.Instance, _ => { }, _presentation);
-        _hud = new GameplayHud(context, _ => Task.FromResult(new InventoryOutcome(false, 0, "Capture fixture: commands disabled")));
+        _hud = new GameplayHud(context, _ => Task.FromResult(new InventoryOutcome(false, 0, GameText.Of(GameTextId.RequestRefused))));
         _hud.CharacterName = "Panzer";
         _hud.CharacterClass = PlayerClass.Mechanician;
         _hud.UseItem = command => Task.FromResult(ItemUseOutcome.Refused(command.ExpectedRevision, ItemUseStatus.NotUsable));

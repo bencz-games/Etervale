@@ -12,6 +12,7 @@ using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World;
 using PristonTale.Contracts.Sessions;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.Services;
 
@@ -200,7 +201,7 @@ public sealed class SessionAppService
     {
         return ApplyDurableAsync(sessionToken, session => _host!.PrepareInventoryAsync(session, command),
             (session, operation) => _host!.CommitInventoryAsync(session, operation),
-            message => new InventoryOutcome(false, 0, message), ct);
+            text => new InventoryOutcome(false, 0, text), ct);
     }
 
     public Task<ProgressionOutcome> ApplyProgressionAsync(
@@ -208,22 +209,22 @@ public sealed class SessionAppService
     {
         return ApplyDurableAsync(sessionToken, session => _host!.PrepareProgressionAsync(session, command),
             (session, operation) => _host!.CommitProgressionAsync(session, operation),
-            message => new ProgressionOutcome(false, 0, message), ct);
+            text => new ProgressionOutcome(false, 0, text), ct);
     }
 
     private async Task<TOutcome> ApplyDurableAsync<TOutcome>(string token,
         Func<PlayerSession, Task<PreparedCharacterOperation<TOutcome>?>> prepare,
         Func<PlayerSession, PreparedCharacterOperation<TOutcome>, Task<bool>> commit,
-        Func<string, TOutcome> rejected, CancellationToken ct)
+        Func<GameText, TOutcome> rejected, CancellationToken ct)
     {
         if (_host is null)
         {
-            return rejected(DurableFailures.Message(DurableFailure.NoSession));
+            return rejected(DurableFailures.Text(DurableFailure.NoSession));
         }
 
         using var lease = await _durable.AdmitAsync(_sessions, token, ct);
         return await lease.RunAsync(prepare, commit, prepared => prepared.Outcome,
-            failure => rejected(DurableFailures.Message(failure)),
+            failure => rejected(DurableFailures.Text(failure)),
             // An item or gold thrown to the ground is stored before it lands there, so no crash keeps it in the bag and on
             // the ground; any other change is stored in the background.
             async (session, prepared) => await _characters.UpdateAsync(session.Stamp(prepared.Snapshot!), CancellationToken.None)

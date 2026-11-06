@@ -9,6 +9,7 @@ using PristonTale.Simulation.Items;
 using PristonTale.Simulation.PersonalShops;
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -145,7 +146,7 @@ internal static class PersonalShopTests
         var sessions = new SessionAppService(fixture.Sessions, new CharacterClassRegistry(), fixture.Characters, new ImmediateSaves(fixture.Characters), fixture.Catalog, fixture.World, fixture.Data);
         var move = await fixture.RunAsync(sessions.ApplyInventoryAsync(seller.Session.SessionToken,
             new InventoryCommand(Guid.NewGuid(), character.InventoryRevision, InventoryAction.Move, axe.InstanceId, 20, 1, default)));
-        Assert.True(!move.Ok && move.Message == PersonalShopMessages.Of(PersonalShopStatus.Selling), "a selling player moves no item");
+        Assert.True(!move.Ok && move.Message == GameText.Of(GameTextId.CloseShopFirst), "a selling player moves no item");
 
         var potion = character.Inventory.Items().Single(item => item.Definition == Tonic);
         var drink = await fixture.RunAsync(sessions.ApplyInventoryAsync(seller.Session.SessionToken,

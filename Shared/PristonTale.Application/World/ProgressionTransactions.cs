@@ -2,6 +2,7 @@ using PristonTale.Application.Sessions;
 using PristonTale.Persistence.Abstractions.Characters;
 using PristonTale.Simulation.Progression;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -15,7 +16,7 @@ internal static class ProgressionTransactions
         {
             var replay = operation.Command == command;
             return new PreparedCharacterOperation<ProgressionOutcome>(original, null, null,
-                new ProgressionOutcome(replay, operation.Revision, replay ? "already committed" : "operation identity conflict"));
+                new ProgressionOutcome(replay, operation.Revision, GameText.Of(replay ? GameTextId.AlreadyApplied : GameTextId.OperationConflict)));
         }
 
         if (player.IsDead || command.Action == ProgressionAction.LearnSkill
@@ -23,18 +24,18 @@ internal static class ProgressionTransactions
                 || !Simulation.Quests.QuestClasses.IsHomeTown(player.Character, field.FieldId)))
         {
             return new PreparedCharacterOperation<ProgressionOutcome>(original, null, null,
-                new ProgressionOutcome(false, original.ProgressionRevision, "approach your town's skill master while alive"));
+                new ProgressionOutcome(false, original.ProgressionRevision, GameText.Of(GameTextId.SkillMasterAway)));
         }
 
         var candidate = original.CloneForInventoryOperation();
         if (!candidate.ApplyProgression(command))
         {
             return new PreparedCharacterOperation<ProgressionOutcome>(original, null, null,
-                new ProgressionOutcome(false, original.ProgressionRevision, "requirements not met or stale progression revision"));
+                new ProgressionOutcome(false, original.ProgressionRevision, GameText.Of(GameTextId.ProgressionRefused)));
         }
 
         var snapshot = CharacterRecordFactory.Capture(session.Loaded!, candidate, field.FieldId, player.Position);
         return new PreparedCharacterOperation<ProgressionOutcome>(original, candidate, snapshot,
-            new ProgressionOutcome(true, candidate.ProgressionRevision, ""));
+            new ProgressionOutcome(true, candidate.ProgressionRevision, GameText.None));
     }
 }

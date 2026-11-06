@@ -13,6 +13,7 @@ using PristonTale.Simulation.World.Loot;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -65,7 +66,7 @@ internal static class GroundPickupTransactionTests
         Assert.True((await WorldPump.RunAsync(world, service.ApplyInventoryAsync(session.SessionToken, Throw(potion, 2)))).Ok, "two potions were not thrown");
         Assert.True((await WorldPump.RunAsync(world, service.ApplyInventoryAsync(session.SessionToken, Throw(sword, 1)))).Ok, "the sword was not thrown");
         var refused = await WorldPump.RunAsync(world, service.ApplyInventoryAsync(session.SessionToken, Throw(quest, 1)));
-        Assert.True(!refused.Ok && refused.Message == ItemRuleMessages.CannotDrop, $"a quest item was thrown or refused as {refused.Message}");
+        Assert.True(!refused.Ok && refused.Message == GameText.Of(GameTextId.CannotDrop), $"a quest item was thrown or refused as {refused.Message}");
         InventoryCommand Gold(int amount) =>
             new(Guid.NewGuid(), session.Character!.InventoryRevision, InventoryAction.DropGold, Guid.Empty, 0, amount, default);
         Assert.True(!(await WorldPump.RunAsync(world, service.ApplyInventoryAsync(session.SessionToken, Gold(501)))).Ok

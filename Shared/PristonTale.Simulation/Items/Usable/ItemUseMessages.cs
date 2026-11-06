@@ -25,7 +25,7 @@ public static class ItemUseMessages
         ItemUseStatus.Dead => GameTextId.DeadCannotUse,
         ItemUseStatus.Delay => GameTextId.UseDelay,
         ItemUseStatus.Conflict => GameTextId.OperationConflict,
-        ItemUseStatus.StorageFailed => GameTextId.UseStorageFailed,
+        ItemUseStatus.StorageFailed => GameTextId.CharacterUnchanged,
         ItemUseStatus.ClanOnly => GameTextId.ClanOnly,
         ItemUseStatus.NoSpace => GameTextId.NoSpace,
         ItemUseStatus.OverWeight => GameTextId.OverWeight,

@@ -41,5 +41,7 @@ public static class ClientText
         : text.Args.IsEmpty ? Get(GameKey(text.Id))
         : string.Format(CultureInfo.InvariantCulture, Get(GameKey(text.Id)), [.. text.Args]);
 
+    public static string Get(GameTextId id) => Get(GameKey(id));
+
     public static string GameKey(GameTextId id) => "Game." + id;
 }

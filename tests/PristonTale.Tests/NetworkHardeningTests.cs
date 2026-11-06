@@ -9,6 +9,7 @@ using PristonTale.Server.Net;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.World;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -204,7 +205,7 @@ internal static class NetworkHardeningTests
             outcomes.Add(outcome);
         }
 
-        Assert.True(outcomes.Take(3).All(static outcome => outcome.Ok) && outcomes.Skip(3).Any(static outcome => outcome is { Ok: false, Message: "too many requests" }),
+        Assert.True(outcomes.Take(3).All(static outcome => outcome.Ok) && outcomes.Skip(3).Any(static outcome => outcome is { Ok: false, Message.Id: GameTextId.TooManyRequests }),
             $"the bucket did not refuse a burst past it: {string.Join(", ", outcomes.Select(static outcome => outcome.Message))}");
     }
 

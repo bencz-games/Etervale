@@ -22,6 +22,7 @@ using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Assets;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -220,7 +221,7 @@ internal sealed class RenderBenchmarkProbe : Game
             _uiAtlas);
         _hud = new GameplayHud(
             context,
-            _ => Task.FromResult(new InventoryOutcome(false, 0, "benchmark commands disabled")));
+            _ => Task.FromResult(new InventoryOutcome(false, 0, GameText.Of(GameTextId.RequestRefused))));
         _hud.CharacterName = "Benchmark";
         _hud.CharacterClass = PlayerClass.Mechanician;
         var player = new CharacterClassRegistry().CreatePlayer(PlayerClass.Mechanician, "Benchmark");

@@ -27,6 +27,7 @@ using PristonTale.Contracts.Combat;
 using PristonTale.Contracts.Skills;
 using PristonTale.Assets;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -239,7 +240,7 @@ internal sealed class HudCaptureProbe : Game
         var context = new ScreenContext(GraphicsDevice, Content, _batch, font,
             _assetRoot, null!, ConsoleClientLog.Instance, _ => { }, _presentation);
         _hud = new GameplayHud(context,
-            _ => Task.FromResult(new InventoryOutcome(false, 0, "Capture fixture: commands disabled")),
+            _ => Task.FromResult(new InventoryOutcome(false, 0, GameText.Of(GameTextId.RequestRefused))),
             interactNpc: id => Task.FromResult(Interaction(id)),
             requestNpcService: command => Task.FromResult(Reply(command)),
             requestQuest: command => Task.FromResult(QuestReply(command)));

@@ -7,6 +7,7 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Gameplay.UI.Npc;
 
@@ -126,7 +127,7 @@ public sealed class HudWarehouseWindow : IHudServiceWindow
 
         if (WarehouseStorage.RefusedOnSetDown(carried.Kind))
         {
-            return new HudWarehouseAction(HudWarehouseActionKind.Refused, Message: ItemRuleMessages.PotionNotStored);
+            return new HudWarehouseAction(HudWarehouseActionKind.Refused, Message: ClientText.Get(GameTextId.PotionNotStored));
         }
 
         if (!placement.SetsDown)

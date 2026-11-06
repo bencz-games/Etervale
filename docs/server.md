@@ -347,7 +347,7 @@ of the regression suite ([testing.md](testing.md#multiplayer-propagation)):
 | `ConnectionLimiter` | per remote address, process-wide | Refuses sockets above `MaxConnectionsPerIp`; released when the session ends. |
 | `PacketRateLimiter` | per connection, fixed window | Counts every decoded packet except `DescribeEntity`; exceeding it closes with `packet flood`. |
 | `TokenBucket` | per connection | `DescribeEntity` beyond the bucket is dropped (a few-byte request costs a description of up to a few hundred bytes). |
-| Stored operations | per connection | A request that copies the character on the tick beyond `StoredOperationBurst` / `StoredOperationsPerSecond` is answered busy (`too many requests`). |
+| Stored operations | per connection | A request that copies the character on the tick beyond `StoredOperationBurst` / `StoredOperationsPerSecond` is answered busy (the `TooManyRequests` game text). |
 | `LoginThrottle` | per account (case-insensitive) and per address | Only `BadCredentials` counts. A blocked attempt gets `LoginResult` busy before the password hash is computed. Success clears the account counter only. At most 65536 keys per map. |
 | Login timeout | per connection | Unauthenticated sockets close after `LoginTimeoutSeconds`. |
 | Second login | per connection | `Login` after a successful login gets `LoginResult` 3 (already logged in). |
