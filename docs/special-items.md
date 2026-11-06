@@ -227,7 +227,7 @@ clan and refuses (`ClanOnly`).
 - Scrolls and force orbs are status effects (codes `0xF0000001..3`, `0xF0000200 + icon`) and show in the
   running-effects bar with their keep icons; castle items use `0xF0000400 + index` and their keep icons, boosters and
   the skill-delay item show there from the premium timers (`HudPremiumKeeps`, codes `0xF0000110 + kind`) with their
-  full duration under the gauge. The hover box adds the effect line (`ItemStatuses.Effect`).
+  full duration under the gauge. The hover box adds the effect line (`DataText.StatusEffect`, in the shown language).
 - Ether cores, crystal summons (at the called monster) and the Restoration play the return sparkle with the learn
   sound; the soccer-ball head starts and ends with the learn light; boosters and lucky bags play the drink sound; a gift
   box the eat sound under an orange light. Foods show the potion effects of their restored resources.
