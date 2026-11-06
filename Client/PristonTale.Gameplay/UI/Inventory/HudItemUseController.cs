@@ -5,6 +5,7 @@ using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items.Usable;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
@@ -137,7 +138,8 @@ public sealed class HudItemUseController(Func<ItemUseCommand, Task<ItemUseOutcom
         }
 
         LastOutcome = outcome;
-        Message = outcome.Message;
+        // A refusal without a line is the client's own: the server was not reached.
+        Message = outcome.Message.IsNone ? ClientText.Get("ItemUse.ConnectionError") : ClientText.Format(outcome.Message);
         Completions++;
         if (outcome.Ok && UsableItemCatalog.TryGet(Simulation.Items.ItemCodes.KeyOf(outcome.ItemCode), out var rule)
             && rule.Action == UsableItemAction.MobileShop)
@@ -177,7 +179,7 @@ public sealed class HudItemUseController(Func<ItemUseCommand, Task<ItemUseOutcom
 
         _request.Start(() => use(command), _ => ItemUseOutcome.Refused(command.ExpectedRevision, ItemUseStatus.StorageFailed) with
         {
-            Message = ClientText.Get("ItemUse.ConnectionError")
+            Message = GameText.None
         });
     }
 

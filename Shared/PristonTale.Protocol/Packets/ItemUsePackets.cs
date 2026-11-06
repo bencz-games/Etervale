@@ -1,4 +1,5 @@
 using PristonTale.Protocol.Binary;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Protocol.Packets;
 
@@ -8,7 +9,6 @@ public static class ItemUseWire
 {
     public const ushort Version = 1;
     public const int MaxTextBytes = 64;
-    public const int MaxMessageBytes = 128;
 
     internal static void Header(ref PacketWriter writer) => WireHeader.Write(ref writer, Version);
 
@@ -42,11 +42,11 @@ public sealed record ItemUseCommandPacket(Guid OperationId, long ExpectedRevisio
 }
 
 // S->C: the answer to one item use. {header, Guid OperationId, int32 Ok, int64 Revision, uint16 Status, uint16 0,
-// uint32 ItemCode, text Message}.
-public sealed record ItemUseResultPacket(Guid OperationId, bool Ok, long Revision, ushort Status, uint ItemCode, string Message)
+// uint32 ItemCode, game text Message}.
+public sealed record ItemUseResultPacket(Guid OperationId, bool Ok, long Revision, ushort Status, uint ItemCode, GameText Message)
 {
-    public const int MinimumSize = 8 + 4 + 16 + 4 + 8 + 4 + 4 + 2;
-    public const int MaximumSize = MinimumSize + ItemUseWire.MaxMessageBytes;
+    public const int MinimumSize = 8 + 4 + 16 + 4 + 8 + 4 + 4 + GameTextWire.MinimumSize;
+    public const int MaximumSize = MinimumSize - GameTextWire.MinimumSize + GameTextWire.MaximumSize;
 
     public int Write(Span<byte> destination)
     {
@@ -57,7 +57,7 @@ public sealed record ItemUseResultPacket(Guid OperationId, bool Ok, long Revisio
         writer.Int64(Revision);
         WireHeader.Write(ref writer, Status);
         writer.UInt32(ItemCode);
-        NpcWire.Text(ref writer, Message, ItemUseWire.MaxMessageBytes);
+        GameTextWire.Write(ref writer, Message);
         return writer.Finish();
     }
 
@@ -71,7 +71,7 @@ public sealed record ItemUseResultPacket(Guid OperationId, bool Ok, long Revisio
         var status = reader.UInt16();
         reader.Skip(2);
         var code = reader.UInt32();
-        return new ItemUseResultPacket(operation, ok, revision, status, code, NpcWire.Text(ref reader, ItemUseWire.MaxMessageBytes));
+        return new ItemUseResultPacket(operation, ok, revision, status, code, GameTextWire.Read(ref reader));
     }
 }
 

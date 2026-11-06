@@ -26,7 +26,7 @@ and draws the result.
 | `.../Usable/PremiumPets.cs` | Pet damage, elements, helper chance, strike timings, Nepsys slow |
 | `.../Usable/UsableItemEffects.cs` | The character part of a use (timers, resets, mastery, aging, Gravity Scroll, big head) |
 | `.../Usable/ItemScrolls.cs`, `ForceOrbs.cs`, `TeleportCoreDestinations.cs` | Scroll effects, force orb tables, the Teleport Core fields |
-| `.../Usable/ItemUseCommand.cs`, `ItemUseMessages.cs`, `ItemEffectKind.cs` | Command, statuses, outcome and history; the effect kinds sent to clients |
+| `.../Usable/ItemUseCommand.cs`, `ItemUseMessages.cs`, `ItemEffectKind.cs` | Command, statuses, outcome and history; the game text of each status (the client words it); the effect kinds sent to clients |
 | `Shared/PristonTale.Application/Services/ItemUseAppService.cs` | Prepare and commit under the session's `SaveGate`, then the save queue |
 | `Shared/PristonTale.Application/World/ItemUseTransactions.cs` | Tick-side shared checks and the candidate of a use |
 | `Shared/PristonTale.Application/World/ItemUses/ItemUseAction.cs` | `ItemUseAction`, one per `UsableItemAction` (`ItemUseActions.For`): `ForTheDead`, `Consumes`, `ReappliesAtCommit`, `Check`, `Arrival`, `Extend`, `Message`, `Store`, `Commit` (session), `Apply` (world, returns the effect viewers see) |

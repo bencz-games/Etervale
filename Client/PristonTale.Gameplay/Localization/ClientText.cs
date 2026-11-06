@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Resources;
 using PristonTale.Engine3D.Rendering;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Gameplay.Localization;
 
@@ -34,4 +35,11 @@ public static class ClientText
         string.Format(CultureInfo.InvariantCulture, Get(key), arg0, arg1, arg2);
 
     public static string Format(string key, params object[] args) => string.Format(CultureInfo.InvariantCulture, Get(key), args);
+
+    // A line of the server or the simulation, worded by the phrase GameKey names.
+    public static string Format(GameText text) => text.IsNone ? ""
+        : text.Args.IsEmpty ? Get(GameKey(text.Id))
+        : string.Format(CultureInfo.InvariantCulture, Get(GameKey(text.Id)), [.. text.Args]);
+
+    public static string GameKey(GameTextId id) => "Game." + id;
 }

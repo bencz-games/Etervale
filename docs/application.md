@@ -387,7 +387,7 @@ Revisions and idempotency:
 - Applied operations are kept per character in five histories (inventory, service, progression, item use, quests),
   each an `OperationHistory<T>` capped at the last 64 and looked up with `Find(operationId)`; storage keeps the newest 16
   of each (a reloaded client retries only what it sent last). The same id with an identical command replays as success
-  ("already committed") with the recorded revision; the same id with a different command is an "operation identity
+  ("already committed"; an item use answers the `AlreadyApplied` game text) with the recorded revision; the same id with a different command is an "operation identity
   conflict". This makes a retry after a lost reply safe and never charges twice.
 - Commit merges only the transaction's domain into the live character (inventory, equipment, histories, money
   delta). Life, experience, skill use counters and position keep changing on the tick and are not overwritten; the

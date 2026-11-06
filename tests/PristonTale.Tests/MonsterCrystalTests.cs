@@ -11,6 +11,7 @@ using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.World.Ai;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -86,7 +87,7 @@ internal static class MonsterCrystalTests
         var over = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("GP101")));
         await harness.AdvanceAsync(over);
         Assert.True((await over).Outcome.Status == ItemUseStatus.SummonLimit && harness.Item("GP101") is not null, "the eleventh crystal was not refused and kept");
-        Assert.True((await over).Outcome.Message == "You can only have 10 crystal summons at a time", "the eleventh crystal's refusal does not name the limit");
+        Assert.True((await over).Outcome.Message == GameText.Of(GameTextId.SummonLimit, "10"), "the eleventh crystal's refusal does not name the limit");
     }
 
     private static async Task RefusalsAsync()

@@ -1,4 +1,5 @@
 using PristonTale.Simulation.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Items.Usable;
 
@@ -33,7 +34,7 @@ public enum ItemUseStatus : ushort
     SummonLimit = 21
 }
 
-public sealed record ItemUseOutcome(bool Ok, long Revision, ItemUseStatus Status, uint ItemCode, string Message)
+public sealed record ItemUseOutcome(bool Ok, long Revision, ItemUseStatus Status, uint ItemCode, GameText Message)
 {
     public static ItemUseOutcome Refused(long revision, ItemUseStatus status, uint itemCode = 0) =>
         new(false, revision, status, itemCode, ItemUseMessages.For(status));

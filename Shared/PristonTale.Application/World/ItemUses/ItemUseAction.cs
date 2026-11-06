@@ -6,6 +6,7 @@ using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Items.Usable;
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World.ItemUses;
 
@@ -50,7 +51,7 @@ internal abstract class ItemUseAction
     // What the use adds to the candidate beyond the character rules: prizes, a crystal's monster, gold, food.
     public virtual ItemUseExtra Extend(in ItemUseRequest use, PlayerCharacter candidate) => ItemUseExtra.None;
 
-    public virtual string Message(ItemDefinition item) => $"{item.Name} used";
+    public virtual GameText Message(ItemDefinition item) => GameText.Of(GameTextId.ItemNamedUsed, item.Name);
 
     // The stored record of a use that changes what the character row holds outside the character state.
     public virtual CharacterSaveSnapshot Store(CharacterSaveSnapshot snapshot, UsableItemRule rule) => snapshot;

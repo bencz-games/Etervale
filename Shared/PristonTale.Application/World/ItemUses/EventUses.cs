@@ -1,6 +1,8 @@
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Items.Usable;
+using PristonTale.Contracts.Texts;
+using System.Globalization;
 
 namespace PristonTale.Application.World.ItemUses;
 
@@ -71,8 +73,10 @@ internal sealed class GiftBoxUse : ItemUseAction
             return new ItemUseExtra(ItemUseStatus.NoSpace);
         }
 
-        var count = item.Count > 1 ? $" x{item.Count}" : "";
-        return new ItemUseExtra(ItemUseStatus.Used, Food: Meal, Message: $"You received {item.Definition.Name}{count}");
+        var message = item.Count > 1
+            ? GameText.Of(GameTextId.ItemsReceived, item.Definition.Name, item.Count.ToString(CultureInfo.InvariantCulture))
+            : GameText.Of(GameTextId.ItemReceived, item.Definition.Name);
+        return new ItemUseExtra(ItemUseStatus.Used, Food: Meal, Message: message);
     }
 
     // The tiger capsule's eater cheers.
@@ -145,7 +149,7 @@ internal sealed class PuzzleBagUse : ItemUseAction
 
         candidate.Inventory[anchor].Sealed = false;
         candidate.TouchInventory();
-        return new ItemUseExtra(ItemUseStatus.Used, Money: -Puzzles.RevealCost, Message: $"The lucky bag held {use.Item.Definition.Name}");
+        return new ItemUseExtra(ItemUseStatus.Used, Money: -Puzzles.RevealCost, Message: GameText.Of(GameTextId.LuckyBagHeld, use.Item.Definition.Name));
     }
 
     public override ItemUseEffect Apply(in ItemUseInWorld use) => new(ItemEffectKind.Drink);

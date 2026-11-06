@@ -18,6 +18,7 @@ using PristonTale.Simulation.World.Npcs;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -290,7 +291,8 @@ internal static class SpecialItemTests
         var command = new ItemUseCommandPacket(Guid.NewGuid(), 7, Guid.NewGuid(), 12, "Happy new year");
         var read = ItemUseCommandPacket.Read(buffer.AsSpan(0, command.Write(buffer)));
         Assert.True(read == command, "item use command");
-        var result = new ItemUseResultPacket(Guid.NewGuid(), true, 9, (ushort)ItemUseStatus.LevelTooLow, 0x080B0800, "Your level is too low");
+        var result = new ItemUseResultPacket(Guid.NewGuid(), true, 9, (ushort)ItemUseStatus.LevelTooLow, 0x080B0800,
+            GameText.Of(GameTextId.ItemsReceived, "Claw", "3"));
         Assert.True(ItemUseResultPacket.Read(buffer.AsSpan(0, result.Write(buffer))) == result, "item use result");
         var timers = new PremiumTimersPacket(3, [new PremiumTimerEntry(2, 30, 100, 86400), new PremiumTimerEntry(7, 0, 5, 3600)]);
         var timersRead = PremiumTimersPacket.Read(buffer.AsSpan(0, timers.Write(buffer)));

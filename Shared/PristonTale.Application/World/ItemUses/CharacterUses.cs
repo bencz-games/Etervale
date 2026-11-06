@@ -1,5 +1,6 @@
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Items.Usable;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World.ItemUses;
 
@@ -15,17 +16,17 @@ internal sealed class PremiumTimersUse : ItemUseAction
 
 internal sealed class ResetAttributesUse : ItemUseAction
 {
-    public override string Message(ItemDefinition item) => "Your stat points can be distributed again";
+    public override GameText Message(ItemDefinition item) => GameText.Of(GameTextId.StatsReset);
 }
 
 internal sealed class ResetSkillsUse : ItemUseAction
 {
-    public override string Message(ItemDefinition item) => "Your skill points can be distributed again";
+    public override GameText Message(ItemDefinition item) => GameText.Of(GameTextId.SkillsReset);
 }
 
 internal sealed class SkillMasteryUse : ItemUseAction
 {
-    public override string Message(ItemDefinition item) => "Skill training is complete";
+    public override GameText Message(ItemDefinition item) => GameText.Of(GameTextId.SkillsMastered);
 
     public override ItemUseEffect Apply(in ItemUseInWorld use) => new(ItemEffectKind.Mastery);
 }
@@ -35,10 +36,10 @@ internal sealed class AgingMasteryUse : ItemUseAction
 {
     public override bool ReappliesAtCommit => false;
 
-    public override string Message(ItemDefinition item) => "The aged item has matured";
+    public override GameText Message(ItemDefinition item) => GameText.Of(GameTextId.AgedItemMatured);
 }
 
 internal sealed class GravityScrollUse : ItemUseAction
 {
-    public override string Message(ItemDefinition item) => "You used a Gravity Stone";
+    public override GameText Message(ItemDefinition item) => GameText.Of(GameTextId.GravityStoneUsed);
 }

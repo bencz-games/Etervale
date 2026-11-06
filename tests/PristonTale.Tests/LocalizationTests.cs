@@ -7,6 +7,7 @@ using PristonTale.Simulation.Combat;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.World.Monsters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -24,6 +25,7 @@ internal static partial class LocalizationTests
         yield return ("every phrase key the client code asks for exists", KeysAsync);
         yield return ("every phrase key the client builds from a value exists", BuiltKeysAsync);
         yield return ("the client shows the chosen language and English for an unknown one", LanguageAsync);
+        yield return ("a line of the server is worded by its phrase with its arguments in the shown language", GameTextAsync);
     }
 
     private static string RepositoryRoot()
@@ -89,13 +91,33 @@ internal static partial class LocalizationTests
             .Concat(Enum.GetNames<ItemKind>().Select(static name => "ItemKind." + name))
             .Concat(Enum.GetNames<LoginFailure>().Select(static name => "Login.Failure." + name))
             .Concat(Enum.GetNames<EnterWorldFailure>().Select(static name => "CharSelect.EnterFailure." + name))
-            .Concat(Enum.GetNames<CreateCharacterFailure>().Select(static name => "CharSelect.CreateFailure." + name));
+            .Concat(Enum.GetNames<CreateCharacterFailure>().Select(static name => "CharSelect.CreateFailure." + name))
+            .Concat(Enum.GetValues<GameTextId>().Where(static id => id != GameTextId.None).Select(ClientText.GameKey));
 
     private static Task BuiltKeysAsync()
     {
         var english = Load("ClientText.resx");
         var unknown = BuiltKeys().Where(key => !english.ContainsKey(key)).ToArray();
         Assert.True(unknown.Length == 0, "built keys without a phrase: " + string.Join(", ", unknown));
+        return Task.CompletedTask;
+    }
+
+    private static Task GameTextAsync()
+    {
+        var received = GameText.Of(GameTextId.ItemsReceived, "Claw", "3");
+        try
+        {
+            ClientText.Use(ClientSettings.BrazilianPortugueseLanguage);
+            Assert.True(ClientText.Format(received) == "Você recebeu Claw x3" && ClientText.Format(GameText.Of(GameTextId.ItemUsed)) == "Item usado"
+                && ClientText.Format(GameText.None).Length == 0, "a game text is not worded in Brazilian Portuguese");
+            ClientText.Use(ClientSettings.EnglishLanguage);
+            Assert.True(ClientText.Format(received) == "You received Claw x3", "a game text is not worded in English");
+        }
+        finally
+        {
+            ClientText.Use(ClientSettings.EnglishLanguage);
+        }
+
         return Task.CompletedTask;
     }
 

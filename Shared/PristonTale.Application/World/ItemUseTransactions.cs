@@ -7,6 +7,7 @@ using PristonTale.Simulation.Items.Usable;
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Ai;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -37,7 +38,7 @@ internal sealed record ItemUseContext(PlayerSession Session, WorldPlayer Player,
 
 // What a use adds to its candidate beyond the character part: a refusal, the crystal's monster, the gold taken, the
 // food eaten and the line the player reads.
-internal readonly record struct ItemUseExtra(ItemUseStatus Status, string Summon = "", long Money = 0, PotionDefinition? Food = null, string Message = "")
+internal readonly record struct ItemUseExtra(ItemUseStatus Status, string Summon = "", long Money = 0, PotionDefinition? Food = null, GameText Message = default)
 {
     public static ItemUseExtra None => new(ItemUseStatus.Used);
 }
@@ -55,7 +56,7 @@ internal static class ItemUseTransactions
         if (original.ItemUses.Find(command.OperationId) is { } applied)
         {
             return applied.Command == command
-                ? Final(original, command, applied.Outcome with { Message = "already committed" })
+                ? Final(original, command, applied.Outcome with { Message = GameText.Of(GameTextId.AlreadyApplied) })
                 : Final(original, command, ItemUseOutcome.Refused(original.InventoryRevision, ItemUseStatus.Conflict));
         }
 
@@ -94,7 +95,7 @@ internal static class ItemUseTransactions
         }
 
         UsableItemEffects.Apply(candidate, rule, context.NowSeconds, BigHeadMode(context.Roll));
-        var message = extra.Message.Length > 0 ? extra.Message : action.Message(item.Definition);
+        var message = extra.Message.IsNone ? action.Message(item.Definition) : extra.Message;
         var outcome = new ItemUseOutcome(true, candidate.InventoryRevision, ItemUseStatus.Used, code, message);
         candidate.ItemUses.Record(new AppliedItemUse(command, outcome.Revision, outcome));
         var arrival = action.Arrival(use);

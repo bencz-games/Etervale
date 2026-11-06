@@ -118,6 +118,10 @@ booleans have no validation. An unknown enum name is a JSON error (whole file ig
 Client interface text is stored in `Client/PristonTale.Gameplay/Localization/ClientText.resx` (English neutral resources)
 and culture-specific satellite resources such as `ClientText.pt-BR.resx`. To add a language, register its canonical BCP 47
 code in `ClientSettings.SupportedLanguages`, add its resource file and add the same code to the server catalog language list.
+Lines the server or the simulation has for the player travel as a `GameText` (a `GameTextId` and its arguments, see
+[protocol](protocol.md#conventions)); the client words each by its `Game.<id>` phrase. `LocalizationTests` checks that
+both files hold the same phrases with the same placeholders, and that every phrase the client asks for or builds from a
+value (`GameTextId` included) exists.
 
 ## In-game Settings panel
 

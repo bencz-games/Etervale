@@ -6,6 +6,7 @@ using PristonTale.Simulation.Items.Usable;
 using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.World.Loot;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -58,7 +59,7 @@ internal static class EventItemTests
         var open = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("SP105")));
         await harness.AdvanceAsync(open);
         var reply = await open;
-        Assert.True(reply.Outcome.Ok && harness.Item("SP105") is null && character.OwnedItems().Count() == 1 && reply.Outcome.Message.StartsWith("You received"),
+        Assert.True(reply.Outcome.Ok && harness.Item("SP105") is null && character.OwnedItems().Count() == 1 && reply.Outcome.Message.Id is GameTextId.ItemReceived or GameTextId.ItemsReceived,
             "the box did not turn into its prize");
         Assert.True(harness.Repository.Record.Inventory.Value.Contains(character.OwnedItems().Single().InstanceId.ToString(), StringComparison.Ordinal),
             "the prize was not stored with the use");

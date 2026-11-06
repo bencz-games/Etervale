@@ -73,6 +73,44 @@
   <data name="Friends.Friends" xml:space="preserve"><value>[Friends] {0}/{1}</value></data>
   <data name="Friends.Ignored" xml:space="preserve"><value>[Ignored] {0}/{1}</value></data>
   <data name="Friends.Recent" xml:space="preserve"><value>[Recent]</value></data>
+  <data name="Game.ActionPending" xml:space="preserve"><value>Another action is pending; try again</value></data>
+  <data name="Game.AgedItemMatured" xml:space="preserve"><value>The aged item has matured</value></data>
+  <data name="Game.AlreadyApplied" xml:space="preserve"><value>Already done</value></data>
+  <data name="Game.CannotDrop" xml:space="preserve"><value>This item cannot be dropped</value></data>
+  <data name="Game.CannotUseYet" xml:space="preserve"><value>Item cannot be used yet</value></data>
+  <data name="Game.ClanOnly" xml:space="preserve"><value>Only members of a regular clan can use this item</value></data>
+  <data name="Game.CrystalRefused" xml:space="preserve"><value>You cannot use this crystal</value></data>
+  <data name="Game.DeadCannotUse" xml:space="preserve"><value>Cannot use items while dead</value></data>
+  <data name="Game.FemaleCannotUse" xml:space="preserve"><value>The female character cannot use</value></data>
+  <data name="Game.GoldLimit" xml:space="preserve"><value>Exceeds maximum amount of gold in possession</value></data>
+  <data name="Game.GravityStoneUsed" xml:space="preserve"><value>You used a Gravity Stone</value></data>
+  <data name="Game.InventoryChanged" xml:space="preserve"><value>The inventory changed; try again</value></data>
+  <data name="Game.ItemAlreadyRunning" xml:space="preserve"><value>This item is already in use</value></data>
+  <data name="Game.ItemNamedUsed" xml:space="preserve"><value>{0} used</value></data>
+  <data name="Game.ItemNotHere" xml:space="preserve"><value>This item cannot be used here</value></data>
+  <data name="Game.ItemNotUsable" xml:space="preserve"><value>This item cannot be used</value></data>
+  <data name="Game.ItemNotUsed" xml:space="preserve"><value>The item could not be used</value></data>
+  <data name="Game.ItemReceived" xml:space="preserve"><value>You received {0}</value></data>
+  <data name="Game.ItemUsed" xml:space="preserve"><value>Item used</value></data>
+  <data name="Game.ItemsReceived" xml:space="preserve"><value>You received {0} x{1}</value></data>
+  <data name="Game.LevelTooLow" xml:space="preserve"><value>Your level is too low</value></data>
+  <data name="Game.LuckyBagHeld" xml:space="preserve"><value>The lucky bag held {0}</value></data>
+  <data name="Game.MaleCannotUse" xml:space="preserve"><value>The male character cannot use</value></data>
+  <data name="Game.NoSpace" xml:space="preserve"><value>Not enough space in inventory</value></data>
+  <data name="Game.NotEnoughGold" xml:space="preserve"><value>Not enough gold</value></data>
+  <data name="Game.NothingToChange" xml:space="preserve"><value>There is nothing for this item to change</value></data>
+  <data name="Game.OperationConflict" xml:space="preserve"><value>Operation identity conflict</value></data>
+  <data name="Game.OverWeight" xml:space="preserve"><value>You have exceeded the inventory weight limit</value></data>
+  <data name="Game.PotionNotStored" xml:space="preserve"><value>Potions cannot be stored</value></data>
+  <data name="Game.SameAttributeRunning" xml:space="preserve"><value>An item with the same attribute is already in use</value></data>
+  <data name="Game.SkillsMastered" xml:space="preserve"><value>Skill training is complete</value></data>
+  <data name="Game.SkillsReset" xml:space="preserve"><value>Your skill points can be distributed again</value></data>
+  <data name="Game.StaleInventory" xml:space="preserve"><value>Invalid operation or the inventory changed; try again</value></data>
+  <data name="Game.StatsReset" xml:space="preserve"><value>Your stat points can be distributed again</value></data>
+  <data name="Game.StorageRejected" xml:space="preserve"><value>Storage rejected the operation; nothing changed</value></data>
+  <data name="Game.SummonLimit" xml:space="preserve"><value>You can only have {0} crystal summons at a time</value></data>
+  <data name="Game.UseDelay" xml:space="preserve"><value>Wait a moment before using another one</value></data>
+  <data name="Game.UseStorageFailed" xml:space="preserve"><value>Storage rejected the operation; character unchanged</value></data>
   <data name="Guide.More" xml:space="preserve"><value>&gt;&gt;more...</value></data>
   <data name="Hud.AttackAuto" xml:space="preserve"><value>Attack type: Auto</value></data>
   <data name="Hud.AttackManual" xml:space="preserve"><value>Attack type: Manual</value></data>
