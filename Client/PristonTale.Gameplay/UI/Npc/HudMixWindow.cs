@@ -28,7 +28,7 @@ public sealed class HudMixWindow : HudWorkbench
 
     public override string ResultText(int result) => (MixResult)result switch
     {
-        MixResult.Mixed => ClientText.Format("Mix.Result", string.Join(", ", _startedFormula?.Description ?? [])),
+        MixResult.Mixed => ClientText.Format("Mix.Result", string.Join(", ", (_startedFormula?.Bonuses ?? []).Select(ClientText.MixBonus))),
         MixResult.Reconstructed => ClientText.Get("Mix.Reconstructed"),
         MixResult.Refined => ClientText.Get("Mix.Refined"),
         _ => ClientText.Get("Mix.Failed")

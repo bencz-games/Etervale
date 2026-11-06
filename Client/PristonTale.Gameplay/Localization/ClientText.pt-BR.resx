@@ -357,6 +357,26 @@
   <data name="Login.Subtitle" xml:space="preserve"><value>Sua aventura começa aqui</value></data>
   <data name="Login.Unreachable" xml:space="preserve"><value>Não foi possível alcançar o servidor do jogo.</value></data>
   <data name="Loot.Gold" xml:space="preserve"><value>{0} de ouro</value></data>
+  <data name="Mix.Bonus.Absorb" xml:space="preserve"><value>Taxa de absorção +{0}</value></data>
+  <data name="Mix.Bonus.AttackRating" xml:space="preserve"><value>Taxa de ataque +{0}</value></data>
+  <data name="Mix.Bonus.AttackSpeed" xml:space="preserve"><value>Velocidade de ataque +{0}</value></data>
+  <data name="Mix.Bonus.Block" xml:space="preserve"><value>Taxa de bloqueio +{0}%</value></data>
+  <data name="Mix.Bonus.Critical" xml:space="preserve"><value>Crítico +{0}%</value></data>
+  <data name="Mix.Bonus.DamageMax" xml:space="preserve"><value>Poder de ataque máximo +{0}</value></data>
+  <data name="Mix.Bonus.DamageMin" xml:space="preserve"><value>Poder de ataque mínimo +{0}</value></data>
+  <data name="Mix.Bonus.Defence" xml:space="preserve"><value>Taxa de defesa +{0}</value></data>
+  <data name="Mix.Bonus.Fire" xml:space="preserve"><value>Propriedade de chama +{0}</value></data>
+  <data name="Mix.Bonus.Ice" xml:space="preserve"><value>Propriedade de gelo +{0}</value></data>
+  <data name="Mix.Bonus.Life" xml:space="preserve"><value>HP +{0}</value></data>
+  <data name="Mix.Bonus.LifeRegen" xml:space="preserve"><value>Regeneração de HP +{0}</value></data>
+  <data name="Mix.Bonus.Lightning" xml:space="preserve"><value>Propriedade de raio +{0}</value></data>
+  <data name="Mix.Bonus.Mana" xml:space="preserve"><value>MP +{0}</value></data>
+  <data name="Mix.Bonus.ManaRegen" xml:space="preserve"><value>Regeneração de mana +{0}</value></data>
+  <data name="Mix.Bonus.MoveSpeed" xml:space="preserve"><value>Velocidade de movimento +{0}</value></data>
+  <data name="Mix.Bonus.Organic" xml:space="preserve"><value>Propriedade orgânica +{0}</value></data>
+  <data name="Mix.Bonus.Poison" xml:space="preserve"><value>Propriedade de veneno +{0}</value></data>
+  <data name="Mix.Bonus.Stamina" xml:space="preserve"><value>STM +{0}</value></data>
+  <data name="Mix.Bonus.StaminaRegen" xml:space="preserve"><value>Regeneração de STM +{0}</value></data>
   <data name="Mix.CannotMix" xml:space="preserve"><value>O item não pode ser misturado</value></data>
   <data name="Mix.Failed" xml:space="preserve"><value>A mistura do item falhou</value></data>
   <data name="Mix.Reconstructed" xml:space="preserve"><value>O item foi reconstruído.</value></data>

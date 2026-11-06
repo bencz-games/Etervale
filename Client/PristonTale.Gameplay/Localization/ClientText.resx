@@ -357,6 +357,26 @@
   <data name="Login.Subtitle" xml:space="preserve"><value>Your adventure begins here</value></data>
   <data name="Login.Unreachable" xml:space="preserve"><value>Could not reach the game server.</value></data>
   <data name="Loot.Gold" xml:space="preserve"><value>{0} Gold</value></data>
+  <data name="Mix.Bonus.Absorb" xml:space="preserve"><value>Absorption Rating +{0}</value></data>
+  <data name="Mix.Bonus.AttackRating" xml:space="preserve"><value>Attack Rating +{0}</value></data>
+  <data name="Mix.Bonus.AttackSpeed" xml:space="preserve"><value>Attack Speed +{0}</value></data>
+  <data name="Mix.Bonus.Block" xml:space="preserve"><value>Block Rating +{0}%</value></data>
+  <data name="Mix.Bonus.Critical" xml:space="preserve"><value>Critical +{0}%</value></data>
+  <data name="Mix.Bonus.DamageMax" xml:space="preserve"><value>Maximum Attack Power +{0}</value></data>
+  <data name="Mix.Bonus.DamageMin" xml:space="preserve"><value>Minimum Attack Power +{0}</value></data>
+  <data name="Mix.Bonus.Defence" xml:space="preserve"><value>Defense Rating +{0}</value></data>
+  <data name="Mix.Bonus.Fire" xml:space="preserve"><value>Flame Property +{0}</value></data>
+  <data name="Mix.Bonus.Ice" xml:space="preserve"><value>Frost Property +{0}</value></data>
+  <data name="Mix.Bonus.Life" xml:space="preserve"><value>HP +{0}</value></data>
+  <data name="Mix.Bonus.LifeRegen" xml:space="preserve"><value>HP Regen +{0}</value></data>
+  <data name="Mix.Bonus.Lightning" xml:space="preserve"><value>Lightning Property +{0}</value></data>
+  <data name="Mix.Bonus.Mana" xml:space="preserve"><value>MP +{0}</value></data>
+  <data name="Mix.Bonus.ManaRegen" xml:space="preserve"><value>Mana Regen +{0}</value></data>
+  <data name="Mix.Bonus.MoveSpeed" xml:space="preserve"><value>Move Speed +{0}</value></data>
+  <data name="Mix.Bonus.Organic" xml:space="preserve"><value>Organic Property +{0}</value></data>
+  <data name="Mix.Bonus.Poison" xml:space="preserve"><value>Poison Property +{0}</value></data>
+  <data name="Mix.Bonus.Stamina" xml:space="preserve"><value>STM +{0}</value></data>
+  <data name="Mix.Bonus.StaminaRegen" xml:space="preserve"><value>STM Regen +{0}</value></data>
   <data name="Mix.CannotMix" xml:space="preserve"><value>Item can't be mixed</value></data>
   <data name="Mix.Failed" xml:space="preserve"><value>Item Mixture has failed</value></data>
   <data name="Mix.Reconstructed" xml:space="preserve"><value>The item was re-constructed.</value></data>

@@ -29,7 +29,7 @@ public enum MixStat : uint
 public readonly record struct MixBonus(MixStat Stat, float Value, bool Percent);
 
 // Families of the item, how many of each of the nine sheltoms (Lucidy .. Celesto) the mix takes, and its bonuses.
-public sealed record MixFormula(string[] Families, int[] Sheltoms, MixBonus[] Bonuses, string[] Description);
+public sealed record MixFormula(string[] Families, int[] Sheltoms, MixBonus[] Bonuses);
 
 public static partial class MixFormulas
 {

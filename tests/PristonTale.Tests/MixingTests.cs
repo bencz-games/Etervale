@@ -61,7 +61,7 @@ internal static class MixingTests
         MixFormulas.Apply(axe, organic!, [5, 0, 0, 0, 0, 0, 0, 0, 0]);
         Assert.True(axe.Roll.Resistances.Bionic == 5 && axe.MixSheltom == 1 && axe.MixStats == MixStat.Organic && axe.Mixed, "the bonus was not added");
 
-        var percent = new MixFormula(["WA1"], new int[9], [new(MixStat.DamageMax, 10f, true), new(MixStat.Critical, 2f, false)], []);
+        var percent = new MixFormula(["WA1"], new int[9], [new(MixStat.DamageMax, 10f, true), new(MixStat.Critical, 2f, false)]);
         var other = new ItemInstance(AxeDef);
         MixFormulas.Apply(other, percent, [0, 0, 0, 0, 0, 0, 1, 0, 0]);
         Assert.True(other.Roll.DamageMax == 22 && other.Critical == 2 && other.MixSheltom == 7, "percent and whole bonuses differ");

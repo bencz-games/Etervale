@@ -4,6 +4,7 @@ using PristonTale.Engine3D.Rendering;
 using PristonTale.Contracts.Texts;
 using System.Collections.Concurrent;
 using PristonTale.Contracts.Characters;
+using PristonTale.Simulation.Items.Mixing;
 
 namespace PristonTale.Gameplay.Localization;
 
@@ -56,5 +57,14 @@ public static class ClientText
             : "";
 
     // Built once per id: the HUD words some game texts every frame.
+    // A mix's bonus by its stat ("Mix.Bonus.<MixStat>"): the regeneration and absorption values keep one decimal.
+    public static string MixBonus(MixBonus bonus)
+    {
+        var decimals = bonus.Stat is Simulation.Items.Mixing.MixStat.Absorb or Simulation.Items.Mixing.MixStat.LifeRegen
+            or Simulation.Items.Mixing.MixStat.ManaRegen or Simulation.Items.Mixing.MixStat.StaminaRegen;
+        var value = bonus.Value.ToString(decimals ? "0.0" : "0.##", CultureInfo.InvariantCulture) + (bonus.Percent ? "%" : "");
+        return Format("Mix.Bonus." + bonus.Stat, value);
+    }
+
     public static string GameKey(GameTextId id) => GameKeys.GetOrAdd(id, static key => "Game." + key);
 }

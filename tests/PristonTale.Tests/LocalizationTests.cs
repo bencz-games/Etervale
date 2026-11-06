@@ -12,6 +12,7 @@ using PristonTale.Simulation.Skills;
 using PristonTale.Simulation.Characters;
 using PristonTale.Contracts.Characters;
 using PristonTale.Simulation.Quests;
+using PristonTale.Simulation.Items.Mixing;
 
 namespace PristonTale.Tests;
 
@@ -98,7 +99,8 @@ internal static partial class LocalizationTests
             .Concat(Enum.GetNames<LoginFailure>().Select(static name => "Login.Failure." + name))
             .Concat(Enum.GetNames<EnterWorldFailure>().Select(static name => "CharSelect.EnterFailure." + name))
             .Concat(Enum.GetNames<CreateCharacterFailure>().Select(static name => "CharSelect.CreateFailure." + name))
-            .Concat(Enum.GetValues<GameTextId>().Where(static id => id is not (GameTextId.None or GameTextId.ClassTitle)).Select(ClientText.GameKey));
+            .Concat(Enum.GetValues<GameTextId>().Where(static id => id is not (GameTextId.None or GameTextId.ClassTitle)).Select(ClientText.GameKey))
+            .Concat(Enum.GetValues<MixStat>().Where(static stat => stat != MixStat.None).Select(static stat => "Mix.Bonus." + stat));
 
     private static Task BuiltKeysAsync()
     {
@@ -131,10 +133,14 @@ internal static partial class LocalizationTests
         {
             ClientText.Use(ClientSettings.BrazilianPortugueseLanguage);
             Assert.True(ClientText.Format(QuestTexts.ClassTitle(PlayerClass.Knight, 1)) == "Paladino", "a class title of the server is not worded from the data");
+            Assert.True(ClientText.MixBonus(new MixBonus(MixStat.AttackRating, 20f, true)) == "Taxa de ataque +20%", "a mix bonus is not worded in Brazilian Portuguese");
             Assert.True(DataText.SkillName(mastery) == "Maestria Corpo a Corpo" && DataText.ClassTitle(PlayerClass.Fighter, 0) == "Lutador"
                 && DataText.ClassTitle(PlayerClass.Fighter, 9) == "Senhor da Guerra" && DataText.QuestTitle("The Cave(completed)") == "A caverna(Concluída)",
                 "the data texts are not shown in Brazilian Portuguese");
             ClientText.Use(ClientSettings.EnglishLanguage);
+            Assert.True(ClientText.MixBonus(new MixBonus(MixStat.Absorb, 1f, false)) == "Absorption Rating +1.0"
+                && ClientText.MixBonus(new MixBonus(MixStat.Critical, 4f, false)) == "Critical +4%" && ClientText.MixBonus(new MixBonus(MixStat.Mana, 30f, false)) == "MP +30",
+                "a mix bonus is not worded from its stat and value");
             Assert.True(DataText.SkillName(mastery) == mastery.Name && DataText.SkillDescription(mastery.Code, mastery.Description) == mastery.Description
                 && DataText.ClassTitle(PlayerClass.Fighter, 0) == "Fighter", "the data texts are not the data in English");
         }
