@@ -69,11 +69,16 @@ public static class EquipmentVisuals
             body = "char/tmABCD/" + EquipmentVisualTables.Armors[defaults.ArmorTableIndex][index];
         }
 
+        string visualWeapon = !string.IsNullOrEmpty(weapon) && HasModel(weapon) ? weapon : "";
+        string visualOffHand = offHand?.StartsWith("OM1", StringComparison.OrdinalIgnoreCase) == true
+            ? ""
+            : !string.IsNullOrEmpty(offHand) && HasModel(offHand) ? offHand : "";
+
         return defaults with
         {
             Body = new CharacterAssetRef(body),
-            WeaponKey = weapon ?? "",
-            OffHandKey = offHand?.StartsWith("OM1", StringComparison.OrdinalIgnoreCase) == true ? "" : offHand ?? "",
+            WeaponKey = visualWeapon,
+            OffHandKey = visualOffHand,
             InVillage = village,
             JobMask = jobMask
         };

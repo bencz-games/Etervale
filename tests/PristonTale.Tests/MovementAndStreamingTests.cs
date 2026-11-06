@@ -99,6 +99,10 @@ internal static class MovementAndStreamingTests
 
     private static Task PrefetchAsync()
     {
+        Assert.True(FieldStreamingPolicy.MaximumPendingFields == 2,
+            "streaming must reserve one priority destination and one neighbour");
+        Assert.True(FieldStreamingPolicy.MaximumUploadSteps == 32 && FieldStreamingPolicy.UploadBudgetMilliseconds == 2d,
+            "teleport streaming must not raise the per-frame GPU upload budget");
         var forest = Forest1Field.Definition;
         var spawn = forest.StartPoints[0];
         var gate = forest.Gates.Single(value => value.DestinationFieldId == "village-2");

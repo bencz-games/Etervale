@@ -79,6 +79,8 @@ internal static class EquipmentTests
         Assert.True(EquipmentVisuals.MotionIndex("WA126") == EquipmentVisuals.MotionIndex("WA105")
             && EquipmentVisuals.MeshPath("WA126").EndsWith("itWA126.smd", StringComparison.Ordinal) && EquipmentVisuals.HeldInLeftHand("DS125"),
             "an item newer than the motion files has no model, motion or hand");
+        var missingVisual = EquipmentVisuals.Apply(definition.DefaultVisuals, "", "WV137", "DS999", false, definition.MotionJobMask);
+        Assert.True(missingVisual.WeaponKey == "" && missingVisual.OffHandKey == "", "an item without a client model stopped the player appearance");
         Assert.True(EquipmentVisuals.WeaponBone("WA101", true) == "Bip in01", "city weapon not sheathed");
         Assert.True(EquipmentVisuals.WeaponBone("WC101", true) == "Bip weapon01", "claw should remain in hand");
         Assert.True(EquipmentVisuals.WeaponBone("WS104", true) == "Bip in-cro", "crossbow back attachment differs from BackObjBip[1]");
@@ -131,6 +133,12 @@ internal static class EquipmentTests
         var info = new PristonModelInfo("", "", "", "", group, group, group, slots, (uint)slots.Count, "", "", "", [], 0);
         Assert.True(PristonMotionSelection.Select(info, MotionCode.Stand, new(15, 1, 2)) == armed, "job/item mask ignored");
         Assert.True(PristonMotionSelection.Select(info, MotionCode.Stand, new(15, 1, 1)) == city, "village must select the unarmed sentinel");
+        var skillSlot = slots.Count;
+        slots.Add(new PristonMotionInfo((uint)MotionCode.Skill, 1, 20, [], 0, 0, 0, 1, 0, 0));
+        slots.AddRange(Enumerable.Repeat(empty, 79));
+        info = info with { Motions = slots, MotionCount = 91 };
+        Assert.True(PristonMotionSelection.SkillVariant(info, 92, new(15, 1, 2)) == skillSlot,
+            "an out-of-range skill motion did not fall back to a valid skill clip");
         return Task.CompletedTask;
     }
 

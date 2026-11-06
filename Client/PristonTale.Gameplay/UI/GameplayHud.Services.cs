@@ -21,6 +21,32 @@ namespace PristonTale.Gameplay.UI;
 // NPC services: opening their windows, the shop, warehouse and workbench actions, item drops from the bag and the icons they need.
 public sealed partial class GameplayHud
 {
+    private const double TeleportPrefetchDelaySeconds = 0.25;
+
+    private void UpdateTeleportPrefetch(Point pointer)
+    {
+        var destination = _npcOpen ? _npc.DestinationAt(pointer) : null;
+        if (destination is null)
+        {
+            _hoveredTeleportFieldCode = -1;
+            _teleportFieldPrepared = false;
+            return;
+        }
+
+        if (destination.FieldCode != _hoveredTeleportFieldCode)
+        {
+            _hoveredTeleportFieldCode = destination.FieldCode;
+            _hoveredTeleportSince = _clock.Elapsed.TotalSeconds;
+            _teleportFieldPrepared = false;
+        }
+
+        if (!_teleportFieldPrepared && _clock.Elapsed.TotalSeconds - _hoveredTeleportSince >= TeleportPrefetchDelaySeconds)
+        {
+            _prepareField?.Invoke(destination.FieldCode);
+            _teleportFieldPrepared = true;
+        }
+    }
+
     // A service the server opened shows its window; the NPC dialog gives way to it, as the original opens services directly.
     private void ApplyServices(OwnerState state)
     {

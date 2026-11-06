@@ -469,7 +469,8 @@ Add or change a skill with an existing mechanic:
    unique across files) and run `ptvfx import <assetRoot>`. Format: [effects.md](effects.md).
 3. Sounds: `wav/...` asset paths that exist in the game data (`SkillPresentationTests` checks when assets are found).
 4. Motion: `motionIndex`/`motionFrames`/`motionEvents` must match the class motion table; check with
-   `--verify-skill-motions <assets>` and preview with `--capture-skills` ([testing.md](testing.md)).
+   `--verify-skill-motions <assets>` and preview with `--capture-skills` ([testing.md](testing.md)). If a shipped model
+   lacks an authored skill index, the client selects a valid skill clip from that model instead of terminating.
 5. Tests: a case in the matching `tests/PristonTale.Tests/Skill<Mechanic>Tests.cs` using `SkillScenario`.
 
 Add a new mechanic or rule field:

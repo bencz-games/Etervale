@@ -328,10 +328,10 @@ The client owns its own locomotion; the server validates and corrects.
   difference above 200 units snaps the body and camera and stands it on the floor nearest the warp's height (within 64
   units, else the highest floor). A warp to another field code activates that field if loaded; otherwise it requests the
   field and holds the warp (`_pendingFieldWarp`, stopping movement and attack) until the field is in the world, then
-  applies it. Teleporter destination selection starts that field preparation before the service request completes, and
-  presence from the old field is ignored while the destination is loading. The held warp can be replaced by the
-  unforced warp that confirms the field (which keeps the force of the held one), and a restart can move the player across
-  before the field loads, so activating the field always places the height. A body
+  applies it. A teleporter destination hovered for 250 ms starts preparation for that one field; selecting it also
+  requests preparation immediately. Presence from the old field is ignored while the destination is loading. The held warp
+  can be replaced by the unforced warp that confirms the field (which keeps the force of the held one), and a restart can
+  move the player across before the field loads, so activating the field always places the height. A body
   left with no floor under it (placed before its field's ground was there) is put on the floor nearest the server's
   height each frame (`KeepOnFloor`). A warp gate's authored destination height is a hint: the body stands on the floor
   nearest it.
@@ -370,9 +370,13 @@ The client owns its own locomotion; the server validates and corrects.
 
 The active field is the loaded field with the highest floor under the player. Every 8 frames `ScanStreaming` requests
 neighbours whose gate seam, or warp-gate destinations whose gate, is within 1024 units, or ahead of a move target
-within `PrefetchDistance(speed)` (1400 to 4500 units); fields beyond `RetentionDistance` (prefetch + 1200) unload. At
-most 2 fields prepare at once; a field that failed once is not retried. `Warp` unloads every field but the destination.
-Renderer side of stage publication: [rendering.md](rendering.md).
+within `PrefetchDistance(speed)` (1400 to 4500 units); fields beyond `RetentionDistance` (prefetch + 1200) unload. The
+streamer keeps at most one secondary neighbour in preparation. A teleport destination requested by `PrepareField` or a
+warp is promoted above that neighbour, cancels obsolete secondary preparation, and abandons obsolete GPU publication;
+the destination and at most one neighbour can remain in flight. Hovering a teleporter destination for 250 ms starts
+that priority preparation. Shared prepared and uploaded textures remain in `PristonTextureLoader`'s cache, including
+when a field preparation is cancelled. A field that failed once is not retried. `Warp` unloads every field but the
+destination. Renderer side of stage publication: [rendering.md](rendering.md).
 
 ## Input
 
@@ -758,6 +762,8 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
 - Equipment looks (`EquipmentVisuals`, `EquipmentVisualTables`): every item with a model has its motion index (the
   weapon index the character motion files list; items newer than those files take the first item of their family and
   hand class), model (`image/sinimage/Items/DropItem/it<model>.smd`, also its ground model), hand and village bone. An
+  equipment item without an imported client model is kept by the server but omitted from the rendered look, so it cannot
+  abort character entry or remote-player preparation. An
   armour or robe wears the body of its catalog ordinal (`ArmorSlots`: ordinals from 26 sit sixteen slots further, so
   DA126-129 wear the 25th-28th bodies, DA301/401 the 29th, DA302-304/402-404 the 30th-32nd and DA131+ the costume
   bodies) from its class row (A, B, C, D, mA, mB, mC, mD, E, mE, f; 75 slots each); premium costumes (`CA`) keep the

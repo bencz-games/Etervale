@@ -43,7 +43,7 @@ public sealed partial class GameScene
     {
         if (_fieldStreamer is not null && _worldCatalog.TryGetFieldByCode(fieldCode, out var field))
         {
-            RequestField(field);
+            RequestField(field, priority: true);
         }
     }
 
@@ -105,11 +105,18 @@ public sealed partial class GameScene
         _lootFloor = LootFloorAt;
     }
 
-    private void RequestField(FieldDef field)
+    private void RequestField(FieldDef field, bool priority = false)
     {
         if (!IsLoaded(field.Id))
         {
-            _fieldStreamer.Request(field);
+            if (priority)
+            {
+                _fieldStreamer.Prioritize(field);
+            }
+            else
+            {
+                _fieldStreamer.Request(field);
+            }
         }
     }
 

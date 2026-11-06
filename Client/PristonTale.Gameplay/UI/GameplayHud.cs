@@ -110,6 +110,9 @@ public sealed partial class GameplayHud : IDisposable
     private int _serviceCompletions;
     private int _bindingRefusals;
     private int _serviceOpened;
+    private int _hoveredTeleportFieldCode = -1;
+    private double _hoveredTeleportSince;
+    private bool _teleportFieldPrepared;
     private double _lastUpdate;
     private readonly Action<int> _prepareField;
 
@@ -433,6 +436,7 @@ public sealed partial class GameplayHud : IDisposable
         HudMessageBox.Place(layout);
         var pointer = layout.ToLogical(mouse.Position);
         var design = new Point(pointer.X, pointer.Y - layout.BottomOffset);
+        UpdateTeleportPrefetch(pointer);
         if (_quests.Dialog is not null && HudQuestDialog.Box.Contains(pointer))
         {
             _questDialog.Scroll(mouse.ScrollWheelValue - _previousMouse.ScrollWheelValue);

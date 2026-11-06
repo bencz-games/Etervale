@@ -142,7 +142,7 @@ public sealed partial class GameScene
         _reports.Request();
         _warpSparkle = PlayReturn(_playerBody.Position);
         _fieldAudio?.PlayPortalWarp();
-        RequestField(_worldCatalog.GetField(warp.DestinationFieldId));
+        RequestField(_worldCatalog.GetField(warp.DestinationFieldId), priority: true);
     }
 
     private void HoldAtSpecialWarp(FieldWarpGate warp)
@@ -158,7 +158,7 @@ public sealed partial class GameScene
         var dest = FindLoaded(destDef.Id);
         if (dest is null)
         {
-            RequestField(destDef);
+            RequestField(destDef, priority: true);
             return false;
         }
 
@@ -224,7 +224,7 @@ public sealed partial class GameScene
                 _pendingFieldWarp = warp;
                 _hasMoveTarget = false;
                 _followCursor = false;
-                RequestField(field);
+                RequestField(field, priority: true);
                 return;
             }
 
