@@ -13,6 +13,11 @@ public static class DestinationMovement
         return Vector2.DistanceSquared(position, destination) <= ArrivalDistanceSquared;
     }
 
+    public static bool WithinDistance(Vector2 position, Vector2 destination, float distance)
+    {
+        return float.IsFinite(distance) && distance >= 0f && Vector2.DistanceSquared(position, destination) <= distance * distance;
+    }
+
     public static DestinationStep Advance(Vector2 position, Vector2 destination, float speed, float dt)
     {
         var offset = destination - position;

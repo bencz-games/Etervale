@@ -59,6 +59,8 @@ internal static class MovementAndStreamingTests
 
         var unchanged = DestinationMovement.Advance(Vector2.One, new Vector2(20), 100, float.NaN);
         Assert.True(unchanged.Position == Vector2.One && !unchanged.Arrived, "invalid delta time moved prediction");
+        Assert.True(DestinationMovement.WithinDistance(Vector2.Zero, new Vector2(23, 0), 24)
+            && !DestinationMovement.WithinDistance(Vector2.Zero, new Vector2(25, 0), 24), "cursor body-radius stop is incorrect");
         return Task.CompletedTask;
     }
 
