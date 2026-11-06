@@ -5,6 +5,7 @@ using PristonTale.Gameplay.UI.Trades;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Trades;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -107,7 +108,7 @@ public sealed partial class GameplayHud
                 Trades?.LockTradeAsync();
                 break;
             case HudTradeAction.Money when _state is not null:
-                _countBox.Open(TradeGold.First, TradeGold.Second, _state.Money, count =>
+                _countBox.Open(ClientText.Get("Count.HowMuchGold"), ClientText.Get("Trade.Gold"), _state.Money, count =>
                 {
                     _trade.SetMoney(count);
                     SendOffer();
@@ -123,5 +124,4 @@ public sealed partial class GameplayHud
     }
 
     // The original's question for the gold a trade offers.
-    private static readonly (string First, string Second) TradeGold = ("How many gold", "do you wanna trade?");
 }

@@ -4,6 +4,7 @@ using PristonTale.Gameplay.Screens.Framework;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Items.Usable;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
@@ -694,7 +695,7 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
         catch (Exception exception)
         {
             _context.Log.Error("inventory operation failed", exception);
-            _completedOperation = new InventoryOutcome(false, 0, "Operation failed; reconnect to verify saved state.");
+            _completedOperation = new InventoryOutcome(false, 0, ClientText.Get("Inventory.OperationFailed"));
         }
     }
 

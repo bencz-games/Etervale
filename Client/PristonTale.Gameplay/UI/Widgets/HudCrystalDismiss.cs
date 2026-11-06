@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Items.Usable;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -8,7 +9,7 @@ namespace PristonTale.Gameplay.UI.Widgets;
 // to dismiss the pet of that status (each pet has its own), and the icon goes with it.
 public sealed class HudCrystalDismiss
 {
-    public const string Title = "Monster Crystal";
+    public static string Title => ClientText.Get("Crystal.Title");
 
     private uint _statusCode;
 
@@ -75,6 +76,6 @@ public sealed class HudCrystalDismiss
         }
 
         painter.Flush();
-        HudMessageBox.Draw(painter, Title, "Do you want to", pointer, "dismiss this pet?");
+        HudMessageBox.Draw(painter, Title, ClientText.Get("ItemUse.Confirm"), pointer, ClientText.Get("Crystal.Dismiss"));
     }
 }

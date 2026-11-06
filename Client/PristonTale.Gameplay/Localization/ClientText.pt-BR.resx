@@ -4,6 +4,12 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Aging.CannotAge" xml:space="preserve"><value>O item não pode passar por aging</value></data>
+  <data name="Aging.DownOne" xml:space="preserve"><value>O nível de aging diminuiu em 1</value></data>
+  <data name="Aging.DownTwo" xml:space="preserve"><value>O nível de aging diminuiu em 2</value></data>
+  <data name="Aging.Failed" xml:space="preserve"><value>O aging do item falhou</value></data>
+  <data name="Aging.UpOne" xml:space="preserve"><value>O nível de aging aumentou em 1</value></data>
+  <data name="Aging.UpTwo" xml:space="preserve"><value>O nível de aging aumentou em 2</value></data>
   <data name="Attribute.Agility" xml:space="preserve"><value>Agilidade</value></data>
   <data name="Attribute.Health" xml:space="preserve"><value>Vitalidade</value></data>
   <data name="Attribute.Spirit" xml:space="preserve"><value>Espírito</value></data>
@@ -39,6 +45,23 @@
   <data name="CharSelect.LoadFailed" xml:space="preserve"><value>Não foi possível carregar os personagens.</value></data>
   <data name="CharSelect.ModelsFailed" xml:space="preserve"><value>Não foi possível carregar os modelos dos personagens.</value></data>
   <data name="CharSelect.Unreachable" xml:space="preserve"><value>Não foi possível alcançar o servidor.</value></data>
+  <data name="Chat.Frozen" xml:space="preserve"><value>{0} : Falei demais, minha língua congelou! WOW -_-;</value></data>
+  <data name="Combat.Evade" xml:space="preserve"><value>Esquivou</value></data>
+  <data name="Combat.Miss" xml:space="preserve"><value>Errou</value></data>
+  <data name="Count.DoYouWant" xml:space="preserve"><value>Você quer</value></data>
+  <data name="Count.HowManyItems" xml:space="preserve"><value>Quantos itens</value></data>
+  <data name="Count.HowMuchGold" xml:space="preserve"><value>Quanto ouro</value></data>
+  <data name="Count.ToBuy" xml:space="preserve"><value>você quer comprar?</value></data>
+  <data name="Count.ToDrop" xml:space="preserve"><value>jogar fora?</value></data>
+  <data name="Count.ToSell" xml:space="preserve"><value>você quer vender?</value></data>
+  <data name="Count.ToStore" xml:space="preserve"><value>guardar?</value></data>
+  <data name="Count.ToTakeOut" xml:space="preserve"><value>retirar?</value></data>
+  <data name="Crystal.Dismiss" xml:space="preserve"><value>dispensar este mascote?</value></data>
+  <data name="Crystal.Title" xml:space="preserve"><value>Cristal de monstro</value></data>
+  <data name="Display.Keep" xml:space="preserve"><value>Manter estas configurações de tela?</value></data>
+  <data name="Display.KeepButton" xml:space="preserve"><value>Manter (Enter)</value></data>
+  <data name="Display.RevertButton" xml:space="preserve"><value>Reverter (Esc)</value></data>
+  <data name="Display.Reverting" xml:space="preserve"><value>Revertendo em {0} segundos</value></data>
   <data name="Element.Bionic" xml:space="preserve"><value>orgânico</value></data>
   <data name="Element.Earth" xml:space="preserve"><value>terra</value></data>
   <data name="Element.Fire" xml:space="preserve"><value>fogo</value></data>
@@ -47,14 +70,31 @@
   <data name="Element.Poison" xml:space="preserve"><value>veneno</value></data>
   <data name="Element.Water" xml:space="preserve"><value>água</value></data>
   <data name="Element.Wind" xml:space="preserve"><value>vento</value></data>
+  <data name="Friends.Friends" xml:space="preserve"><value>[Amigos] {0}/{1}</value></data>
+  <data name="Friends.Ignored" xml:space="preserve"><value>[Ignorados] {0}/{1}</value></data>
+  <data name="Friends.Recent" xml:space="preserve"><value>[Recentes]</value></data>
+  <data name="Guide.More" xml:space="preserve"><value>&gt;&gt;mais...</value></data>
   <data name="Hud.AttackAuto" xml:space="preserve"><value>Tipo de ataque: automático</value></data>
   <data name="Hud.AttackManual" xml:space="preserve"><value>Tipo de ataque: manual</value></data>
   <data name="Hud.DoubleClickSwitch" xml:space="preserve"><value>Clique duplo para alternar</value></data>
   <data name="Hud.Effect" xml:space="preserve"><value>Efeito {0}</value></data>
+  <data name="Hud.Life" xml:space="preserve"><value>HP : {0}/{1}</value></data>
+  <data name="Hud.Mana" xml:space="preserve"><value>MP : {0}/{1}</value></data>
+  <data name="Hud.Monster" xml:space="preserve"><value>Monstro</value></data>
+  <data name="Hud.Npc" xml:space="preserve"><value>NPC</value></data>
   <data name="Hud.Quest" xml:space="preserve"><value>Quest</value></data>
   <data name="Hud.RightClickDismiss" xml:space="preserve"><value>Clique direito para dispensar</value></data>
+  <data name="Hud.Stamina" xml:space="preserve"><value>STM : {0}/{1}</value></data>
+  <data name="Hud.Target" xml:space="preserve"><value>Alvo</value></data>
+  <data name="Hud.TargetLevel" xml:space="preserve"><value>Nv. {0}</value></data>
   <data name="Hud.TimeLeft" xml:space="preserve"><value>Tempo restante: {0}</value></data>
   <data name="Hud.TimeLeftSeconds" xml:space="preserve"><value>Tempo restante: {0} s</value></data>
+  <data name="Inventory.HintCarry" xml:space="preserve"><value>Clique: pegar</value></data>
+  <data name="Inventory.HintDrink" xml:space="preserve"><value>Clique direito: beber uma</value></data>
+  <data name="Inventory.HintEquip" xml:space="preserve"><value>Clique: pegar  Shift+clique: dividir  Clique direito: equipar</value></data>
+  <data name="Inventory.HintUnequip" xml:space="preserve"><value>Clique direito: desequipar</value></data>
+  <data name="Inventory.HintUse" xml:space="preserve"><value>Clique direito: usar</value></data>
+  <data name="Inventory.OperationFailed" xml:space="preserve"><value>A operação falhou; reconecte para conferir o estado salvo.</value></data>
   <data name="Item.Absorb" xml:space="preserve"><value>Absorção:  </value></data>
   <data name="Item.AddLife" xml:space="preserve"><value>HP adicional: </value></data>
   <data name="Item.AddMana" xml:space="preserve"><value>MP adicional:  </value></data>
@@ -128,6 +168,10 @@
   <data name="ItemKind.Sword" xml:space="preserve"><value>Espada</value></data>
   <data name="ItemKind.ThrowingWeapon" xml:space="preserve"><value>Arma de arremesso</value></data>
   <data name="ItemKind.Vambrace" xml:space="preserve"><value>Vambrace</value></data>
+  <data name="ItemUse.Confirm" xml:space="preserve"><value>Você quer</value></data>
+  <data name="ItemUse.Confirm2" xml:space="preserve"><value>usar este item?</value></data>
+  <data name="ItemUse.ConnectionError" xml:space="preserve"><value>Erro de conexão. Confira o inventário antes de tentar de novo.</value></data>
+  <data name="ItemUse.Teleport" xml:space="preserve"><value>teleportar?</value></data>
   <data name="Language.en" xml:space="preserve"><value>English</value></data>
   <data name="Language.pt-BR" xml:space="preserve"><value>Português (Brasil)</value></data>
   <data name="Login.Account" xml:space="preserve"><value>Conta</value></data>
@@ -142,6 +186,57 @@
   <data name="Login.Password" xml:space="preserve"><value>Senha</value></data>
   <data name="Login.Subtitle" xml:space="preserve"><value>Sua aventura começa aqui</value></data>
   <data name="Login.Unreachable" xml:space="preserve"><value>Não foi possível alcançar o servidor do jogo.</value></data>
+  <data name="Loot.Gold" xml:space="preserve"><value>{0} de ouro</value></data>
+  <data name="Mix.CannotMix" xml:space="preserve"><value>O item não pode ser misturado</value></data>
+  <data name="Mix.Failed" xml:space="preserve"><value>A mistura do item falhou</value></data>
+  <data name="Mix.Reconstructed" xml:space="preserve"><value>O item foi reconstruído.</value></data>
+  <data name="Mix.Refined" xml:space="preserve"><value>Os sheltoms foram refinados em force orbs.</value></data>
+  <data name="Mix.Result" xml:space="preserve"><value>Resultado da mistura: {0}</value></data>
+  <data name="Npc.Bought" xml:space="preserve"><value>Comprado.</value></data>
+  <data name="Npc.Destination" xml:space="preserve"><value>{0}  {1} de ouro</value></data>
+  <data name="Npc.DestinationLevel" xml:space="preserve"><value>{0}  {1} de ouro  (Nv {2})</value></data>
+  <data name="Npc.Repaired" xml:space="preserve"><value>Consertado.</value></data>
+  <data name="Npc.Sold" xml:space="preserve"><value>Vendido.</value></data>
+  <data name="Npc.Teleporting" xml:space="preserve"><value>Teleportando...</value></data>
+  <data name="Npc.WhereTo" xml:space="preserve"><value>Para onde você quer ir?</value></data>
+  <data name="NpcService.Aging" xml:space="preserve"><value>Aging</value></data>
+  <data name="NpcService.Alchemy" xml:space="preserve"><value>Alquimia</value></data>
+  <data name="NpcService.BlessCastle" xml:space="preserve"><value>Bless Castle</value></data>
+  <data name="NpcService.Broadcast" xml:space="preserve"><value>Transmissão</value></data>
+  <data name="NpcService.Clan" xml:space="preserve"><value>Clã</value></data>
+  <data name="NpcService.Crafting" xml:space="preserve"><value>Fabricação</value></data>
+  <data name="NpcService.DonationBox" xml:space="preserve"><value>Caixa de doações</value></data>
+  <data name="NpcService.Donations" xml:space="preserve"><value>Doações</value></data>
+  <data name="NpcService.Event" xml:space="preserve"><value>Evento</value></data>
+  <data name="NpcService.EventQuest" xml:space="preserve"><value>Quest de evento</value></data>
+  <data name="NpcService.ItemDelivery" xml:space="preserve"><value>Entrega de itens</value></data>
+  <data name="NpcService.Mixing" xml:space="preserve"><value>Mistura</value></data>
+  <data name="NpcService.MixtureReset" xml:space="preserve"><value>Reset de mistura</value></data>
+  <data name="NpcService.PrizeDraw" xml:space="preserve"><value>Sorteio</value></data>
+  <data name="NpcService.PuzzleExchange" xml:space="preserve"><value>Troca de quebra-cabeça</value></data>
+  <data name="NpcService.Quest" xml:space="preserve"><value>Quest</value></data>
+  <data name="NpcService.Service" xml:space="preserve"><value>Serviço</value></data>
+  <data name="NpcService.Shop" xml:space="preserve"><value>Loja</value></data>
+  <data name="NpcService.SkillMaster" xml:space="preserve"><value>Treino de habilidades</value></data>
+  <data name="NpcService.Smelting" xml:space="preserve"><value>Fundição</value></data>
+  <data name="NpcService.StarPoints" xml:space="preserve"><value>Pontos de estrela</value></data>
+  <data name="NpcService.Survey" xml:space="preserve"><value>Pesquisa</value></data>
+  <data name="NpcService.Teleport" xml:space="preserve"><value>Teleporte</value></data>
+  <data name="NpcService.Warehouse" xml:space="preserve"><value>Armazém</value></data>
+  <data name="NpcService.WarpGate" xml:space="preserve"><value>Portal</value></data>
+  <data name="PersonalShop.BuyItem" xml:space="preserve"><value>comprar o item?</value></data>
+  <data name="PersonalShop.CancelRegister" xml:space="preserve"><value>cancelar o registro?</value></data>
+  <data name="PersonalShop.NoRoom" xml:space="preserve"><value>A loja não tem espaço para este item</value></data>
+  <data name="PersonalShop.NothingToSell" xml:space="preserve"><value>Não há mais itens para vender</value></data>
+  <data name="PersonalShop.OnSale" xml:space="preserve"><value>À venda</value></data>
+  <data name="PersonalShop.PriceValue" xml:space="preserve"><value>Preço: {0}</value></data>
+  <data name="PersonalShop.Register" xml:space="preserve"><value>Você quer registrar</value></data>
+  <data name="PersonalShop.Register2" xml:space="preserve"><value>o preço do item?</value></data>
+  <data name="PersonalShop.SignTitle" xml:space="preserve"><value>Informações da loja</value></data>
+  <data name="PersonalShop.TakeBack" xml:space="preserve"><value>Clique: retirar</value></data>
+  <data name="PersonalShop.UnitPrice" xml:space="preserve"><value>Preço de venda por unidade</value></data>
+  <data name="PersonalShop.UnitPrice2" xml:space="preserve"><value>do item?</value></data>
+  <data name="PersonalShop.UnitPriceValue" xml:space="preserve"><value>Preço por unidade: {0}</value></data>
   <data name="Pet.Dismissed" xml:space="preserve"><value>Mascote dispensado</value></data>
   <data name="Premium.ExperienceUp" xml:space="preserve"><value>{0}% de bônus de EXP</value></data>
   <data name="Premium.FightsBeside" xml:space="preserve"><value>Luta ao seu lado</value></data>
@@ -153,9 +248,22 @@
   <data name="Premium.StaminaReduce" xml:space="preserve"><value>Reduz o gasto de STM em {0}%</value></data>
   <data name="Premium.ThirdEyes" xml:space="preserve"><value>{0}% de chance de drop adicional</value></data>
   <data name="Premium.Vampiric" xml:space="preserve"><value>Recupera HP a cada golpe</value></data>
+  <data name="Progression.ConnectionError" xml:space="preserve"><value>Erro de conexão. Confira o estado do personagem antes de tentar de novo.</value></data>
+  <data name="Progression.Saved" xml:space="preserve"><value>Salvo</value></data>
+  <data name="Progression.Saving" xml:space="preserve"><value>Salvando...</value></data>
+  <data name="Puzzle.Exchange" xml:space="preserve"><value>trocar pelo item?</value></data>
+  <data name="Puzzle.Help" xml:space="preserve"><value>Monte as oito peças de um quebra-cabeça no tabuleiro do seu inventário e traga para mim.</value></data>
+  <data name="Puzzle.Title" xml:space="preserve"><value>Quebra-cabeça completo</value></data>
+  <data name="Request.ConnectionError" xml:space="preserve"><value>Erro de conexão. Tente de novo.</value></data>
   <data name="Resource.Life" xml:space="preserve"><value>vida</value></data>
   <data name="Resource.Mana" xml:space="preserve"><value>mana</value></data>
   <data name="Resource.Stamina" xml:space="preserve"><value>stamina</value></data>
+  <data name="Restart.Field" xml:space="preserve"><value> Recomeçar no mapa?</value></data>
+  <data name="Restart.NoExperience" xml:space="preserve"><value> XP insuficiente</value></data>
+  <data name="Restart.NoExperience2" xml:space="preserve"><value> para ficar no mapa</value></data>
+  <data name="Restart.Penalty" xml:space="preserve"><value> Penalidade (ouro/XP) 1%</value></data>
+  <data name="Restart.Quit" xml:space="preserve"><value> Sair do jogo?</value></data>
+  <data name="Restart.Town" xml:space="preserve"><value> Recomeçar na cidade?</value></data>
   <data name="Settings.AntiAliasing" xml:space="preserve"><value>Antisserrilhamento: {0}</value></data>
   <data name="Settings.AntiAliasingMsaa" xml:space="preserve"><value>Antisserrilhamento: MSAA {0}x</value></data>
   <data name="Settings.AntiAliasingOff" xml:space="preserve"><value>Antisserrilhamento: desligado</value></data>
@@ -207,6 +315,13 @@
   <data name="Settings.WindowMode.Borderless" xml:space="preserve"><value>sem bordas</value></data>
   <data name="Settings.WindowMode.Fullscreen" xml:space="preserve"><value>tela cheia</value></data>
   <data name="Settings.WindowMode.Windowed" xml:space="preserve"><value>em janela</value></data>
+  <data name="Shop.ClickBuy" xml:space="preserve"><value>Clique: comprar</value></data>
+  <data name="Shop.DoesNotBuy" xml:space="preserve"><value>A loja não compra isto</value></data>
+  <data name="Shop.Mobile" xml:space="preserve"><value>Loja móvel</value></data>
+  <data name="Shop.NotDamaged" xml:space="preserve"><value>Sem danos</value></data>
+  <data name="Shop.Price" xml:space="preserve"><value>Preço: {0} de ouro</value></data>
+  <data name="Shop.RepairCost" xml:space="preserve"><value>Conserto: {0} de ouro</value></data>
+  <data name="Shop.SellsFor" xml:space="preserve"><value>Vende por {0} de ouro</value></data>
   <data name="Skill.AlreadyActive" xml:space="preserve"><value>Esse efeito ainda está ativo.</value></data>
   <data name="Skill.CannotUse" xml:space="preserve"><value>A habilidade não pode ser usada agora.</value></data>
   <data name="Skill.InVillage" xml:space="preserve"><value>Habilidades não podem ser usadas na cidade.</value></data>
@@ -267,6 +382,8 @@
   <data name="SkillWindow.NoCost" xml:space="preserve"><value>Sem custo de ativação</value></data>
   <data name="SkillWindow.NoPoints" xml:space="preserve"><value>Pontos de habilidade insuficientes</value></data>
   <data name="SkillWindow.NoPoints2" xml:space="preserve"><value>para aprender ou praticar</value></data>
+  <data name="SkillWindow.OnlyLeft" xml:space="preserve"><value>{0} só pode ser usada com o botão esquerdo do mouse.</value></data>
+  <data name="SkillWindow.OnlyRight" xml:space="preserve"><value>{0} só pode ser usada com o botão direito do mouse.</value></data>
   <data name="SkillWindow.Passive" xml:space="preserve"><value> | Passiva</value></data>
   <data name="SkillWindow.PassiveSkill" xml:space="preserve"><value>Habilidade passiva</value></data>
   <data name="SkillWindow.PlaceHint" xml:space="preserve"><value> | Clique para pôr num botão do mouse, F1-F8 segurando para vincular</value></data>
@@ -336,11 +453,15 @@
   <data name="Status.Loading" xml:space="preserve"><value>Carregando…</value></data>
   <data name="Status.Opening" xml:space="preserve"><value>Abertura: {0}</value></data>
   <data name="Status.SavingAndDisconnecting" xml:space="preserve"><value>Salvando e desconectando…</value></data>
+  <data name="TeleportCore.Page" xml:space="preserve"><value>[Teleport Core - Página {0}]</value></data>
+  <data name="TeleportCore.Row" xml:space="preserve"><value>{0}. {1} (Nv {2})</value></data>
+  <data name="TeleportCore.Title" xml:space="preserve"><value>TELEPORTE</value></data>
   <data name="Time.Days" xml:space="preserve"><value>{0} dias</value></data>
   <data name="Time.Hours" xml:space="preserve"><value>{0} horas</value></data>
   <data name="Time.OneDay" xml:space="preserve"><value>1 dia</value></data>
   <data name="Time.OneHour" xml:space="preserve"><value>1 hora</value></data>
   <data name="Time.Seconds" xml:space="preserve"><value>{0}s</value></data>
+  <data name="Trade.Gold" xml:space="preserve"><value>você quer trocar?</value></data>
   <data name="Usable.AgingArmlet" xml:space="preserve"><value>o bracelete</value></data>
   <data name="Usable.AgingArmor" xml:space="preserve"><value>a armadura ou manto</value></data>
   <data name="Usable.AgingBoots" xml:space="preserve"><value>as botas</value></data>
@@ -394,4 +515,6 @@
   <data name="Usable.TeleportCore" xml:space="preserve"><value>Teleporta você para o mapa que escolher.</value></data>
   <data name="Usable.TrainTier" xml:space="preserve"><value>Treina por completo as habilidades do tier {0} da classe.</value></data>
   <data name="Usable.VirtualLife" xml:space="preserve"><value>Vida virtual nv. {0}</value></data>
+  <data name="WingGate.MoveThere" xml:space="preserve"><value>ir para lá?</value></data>
+  <data name="WingGate.Title" xml:space="preserve"><value>Portal</value></data>
 </root>

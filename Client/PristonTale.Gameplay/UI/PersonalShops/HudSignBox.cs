@@ -4,6 +4,7 @@ using Microsoft.Xna.Framework.Input;
 using PristonTale.Contracts.Social;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI.Widgets;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.PersonalShops;
 
@@ -12,7 +13,7 @@ namespace PristonTale.Gameplay.UI.PersonalShops;
 // or Escape (GameplayHud.ClosePanel) closes the box.
 public sealed class HudSignBox
 {
-    private const string Question = "Shop Information";
+    private static string Question => ClientText.Get("PersonalShop.SignTitle");
     private readonly StringBuilder _text = new();
     private Action<string> _accepted;
     private string _shown = "_";

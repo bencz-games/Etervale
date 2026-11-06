@@ -4,6 +4,7 @@ using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items.Aging;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Npc;
 
@@ -19,11 +20,11 @@ public sealed class HudAgingWindow : HudWorkbench
 
     public override string ResultText(int result) => (AgingResult)result switch
     {
-        AgingResult.Destroyed => "Item aging has failed",
-        AgingResult.DownOne => "Aging level has been decreased by -1",
-        AgingResult.DownTwo => "Aging level has been decreased by -2",
-        AgingResult.Double => "Aging level has been increased by +2",
-        _ => "Aging level has been increased by +1"
+        AgingResult.Destroyed => ClientText.Get("Aging.Failed"),
+        AgingResult.DownOne => ClientText.Get("Aging.DownOne"),
+        AgingResult.DownTwo => ClientText.Get("Aging.DownTwo"),
+        AgingResult.Double => ClientText.Get("Aging.UpTwo"),
+        _ => ClientText.Get("Aging.UpOne")
     };
 
     public override bool Succeeded(int result) => (AgingResult)result >= AgingResult.Success;
@@ -66,12 +67,12 @@ public sealed class HudAgingWindow : HudWorkbench
         var ordinal = AgingRules.SheltomOrdinal(key);
         if (ordinal > 0)
         {
-            return PlaceSheltom(item.InstanceId, ordinal, HudCraftLayout.SheltomAt(origin, pointer), state) ? "" : "Item can't be aged";
+            return PlaceSheltom(item.InstanceId, ordinal, HudCraftLayout.SheltomAt(origin, pointer), state) ? "" : ClientText.Get("Aging.CannotAge");
         }
 
         if (!Ageable(item))
         {
-            return "Item can't be aged";
+            return ClientText.Get("Aging.CannotAge");
         }
 
         Clear();

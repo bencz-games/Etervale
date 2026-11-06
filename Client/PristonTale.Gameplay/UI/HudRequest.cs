@@ -1,4 +1,5 @@
 using PristonTale.Engine3D.Diagnostics;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -7,7 +8,7 @@ namespace PristonTale.Gameplay.UI;
 public static class HudRequest
 {
     // What a controller shows when its send failed.
-    public const string ConnectionError = "Connection error. Please try again.";
+    public static string ConnectionError => ClientText.Get("Request.ConnectionError");
 }
 
 public sealed class HudRequest<TOutcome>(IClientLog log, string what)

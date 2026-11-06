@@ -6,6 +6,7 @@ using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Items.Aging;
 using PristonTale.Simulation.Items.Mixing;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Npc;
 
@@ -27,10 +28,10 @@ public sealed class HudMixWindow : HudWorkbench
 
     public override string ResultText(int result) => (MixResult)result switch
     {
-        MixResult.Mixed => "Item Mixture Result: " + string.Join(", ", _startedFormula?.Description ?? []),
-        MixResult.Reconstructed => "The item was re-constructed.",
-        MixResult.Refined => "The sheltoms were refined into force orbs.",
-        _ => "Item Mixture has failed"
+        MixResult.Mixed => ClientText.Format("Mix.Result", string.Join(", ", _startedFormula?.Description ?? [])),
+        MixResult.Reconstructed => ClientText.Get("Mix.Reconstructed"),
+        MixResult.Refined => ClientText.Get("Mix.Refined"),
+        _ => ClientText.Get("Mix.Failed")
     };
 
     public override bool Succeeded(int result) => (MixResult)result != MixResult.Failed;
@@ -115,7 +116,7 @@ public sealed class HudMixWindow : HudWorkbench
 
             if (slot < 0)
             {
-                return "Item can't be mixed";
+                return ClientText.Get("Mix.CannotMix");
             }
 
             Slots[slot] = item.InstanceId;
@@ -124,7 +125,7 @@ public sealed class HudMixWindow : HudWorkbench
 
         if (Alchemy)
         {
-            return "Item can't be mixed";
+            return ClientText.Get("Mix.CannotMix");
         }
 
         if (key.Equals(MixingWork.RespecStone, StringComparison.OrdinalIgnoreCase))
@@ -135,7 +136,7 @@ public sealed class HudMixWindow : HudWorkbench
 
         if (!Mixable(item))
         {
-            return "Item can't be mixed";
+            return ClientText.Get("Mix.CannotMix");
         }
 
         ItemId = item.InstanceId;

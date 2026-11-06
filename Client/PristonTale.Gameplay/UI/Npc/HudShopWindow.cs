@@ -4,6 +4,7 @@ using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Npc;
 
@@ -200,10 +201,10 @@ public sealed class HudShopWindow : IHudServiceWindow
         var offer = _hovered;
         if (!ReferenceEquals(offer, _pricedOffer))
         {
-            (_pricedOffer, _priceText) = (offer, $"Price: {offer.Price:N0} gold");
+            (_pricedOffer, _priceText) = (offer, ClientText.Format("Shop.Price", offer.Price.ToString("N0", System.Globalization.CultureInfo.InvariantCulture)));
         }
 
-        const string action = "Click: buy";
+        var action = ClientText.Get("Shop.ClickBuy");
         HudItemTooltip.Draw(painter, layout, pointer, offer.Name, _priceText, action);
     }
 

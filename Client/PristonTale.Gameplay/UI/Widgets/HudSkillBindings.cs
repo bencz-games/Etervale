@@ -1,5 +1,6 @@
 using PristonTale.Simulation.Skills;
 using Microsoft.Xna.Framework.Input;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -142,8 +143,7 @@ public sealed class HudSkillBindings
             if (!_boundDuringPress && hoveredSkill == _pressedSkill && !Select(_pressedSkill, _pressedSide)
                 && _choices.TryGetValue(_pressedSkill, out var refused))
             {
-                var allowed = refused.MouseUse == SkillMouseUse.Left ? "left" : "right";
-                Refusal = $"{refused.Name} can only be used with the {allowed} mouse button.";
+                Refusal = ClientText.Format(refused.MouseUse == SkillMouseUse.Left ? "SkillWindow.OnlyLeft" : "SkillWindow.OnlyRight", refused.Name);
                 Refusals++;
             }
 

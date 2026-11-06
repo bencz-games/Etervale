@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Items.Usable;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
@@ -121,15 +122,15 @@ public sealed class HudTeleportCore
         painter.HelpBox(BoxX, BoxY, SizeW, SizeH);
         var title = Title;
         painter.Sprite(HudArt.HelpTitle, title.X, title.Y);
-        painter.TextCentered("TELEPORT", title.Left, title.Right, title.Y + 7, HudTextColors.HelpText);
-        painter.TextCentered(Headers[Page], BoxX, Box.Right, TextY);
+        painter.TextCentered(ClientText.Get("TeleportCore.Title"), title.Left, title.Right, title.Y + 7, HudTextColors.HelpText);
+        painter.TextCentered(ClientText.Format("TeleportCore.Page", Page + 1), BoxX, Box.Right, TextY);
         _rule ??= Rule(painter);
         painter.TextCentered(_rule, BoxX, Box.Right, TextY + LineStep);
         var hovered = At(pointer);
         var entries = Entries();
         for (var index = 0; index < entries.Count; index++)
         {
-            painter.Text(RowTexts[Page][index], TextX, TextY + (HeaderLines + index) * LineStep, ReferenceEquals(entries[index], hovered) ? Hovered : Line);
+            painter.Text(RowText(entries[index]), TextX, TextY + (HeaderLines + index) * LineStep, ReferenceEquals(entries[index], hovered) ? Hovered : Line);
         }
 
         var ok = OkButton;
@@ -141,18 +142,16 @@ public sealed class HudTeleportCore
 
     public static string ConfirmText(TeleportCoreDestination destination) => destination?.Name ?? "";
 
-    // The pages, their headers and row texts never change, so they are built once; the rule of '=' once per font.
+    // The pages never change, so they are built once; the rule of '=' once per font.
     private static readonly TeleportCoreDestination[][] Pages = Enumerable.Range(0, TeleportCoreDestinations.PageCount)
         .Select(static page => TeleportCoreDestinations.All.Skip(page * TeleportCoreDestinations.PageSize).Take(TeleportCoreDestinations.PageSize).ToArray())
         .ToArray();
 
-    private static readonly string[] Headers = Enumerable.Range(1, Pages.Length).Select(static page => $"[Teleport Core - Page {page}]").ToArray();
-
-    private static readonly string[][] RowTexts = Pages
-        .Select(static page => page.Select(static entry => $"{entry.Index:00}. {entry.Name} (Lvl {Math.Max(1, entry.RequiredLevel)})").ToArray())
-        .ToArray();
 
     private string _rule;
+
+    private static string RowText(TeleportCoreDestination entry) =>
+        ClientText.Format("TeleportCore.Row", entry.Index.ToString("00", System.Globalization.CultureInfo.InvariantCulture), entry.Name, Math.Max(1, entry.RequiredLevel));
 
     private IReadOnlyList<TeleportCoreDestination> Entries() => Pages[Page];
 

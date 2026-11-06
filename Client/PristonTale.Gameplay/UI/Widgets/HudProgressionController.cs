@@ -1,5 +1,6 @@
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Simulation.Progression;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -19,9 +20,9 @@ public sealed class HudProgressionController(Func<ProgressionCommand, Task<Progr
             return;
         }
 
-        Message = "Saving...";
+        Message = ClientText.Get("Progression.Saving");
         _request.Start(() => apply(command),
-            _ => new ProgressionOutcome(false, command.ExpectedRevision, "Connection error. Check your character state before retrying."));
+            _ => new ProgressionOutcome(false, command.ExpectedRevision, ClientText.Get("Progression.ConnectionError")));
     }
 
     public void Update()
@@ -31,7 +32,7 @@ public sealed class HudProgressionController(Func<ProgressionCommand, Task<Progr
             return;
         }
 
-        Message = outcome.Ok ? "Saved" : outcome.Message;
+        Message = outcome.Ok ? ClientText.Get("Progression.Saved") : outcome.Message;
         LastOk = outcome.Ok;
         Completions++;
     }

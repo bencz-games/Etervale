@@ -3,6 +3,7 @@ using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Units;
 using PristonTale.Engine3D.Diagnostics;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -22,10 +23,14 @@ public sealed class HudRestartPanel(IClientLog log)
     private static readonly string[] Art = [HudArt.RestartField, HudArt.RestartTown, HudArt.RestartExit];
     private static readonly (string First, string Second)[] Help =
     [
-        (" Restart from field?", " Penalty(Gold/XP) 1%"),
-        (" Restart from town?", ""),
-        (" Quit Game?", "")
+        ("Restart.Field", "Restart.Penalty"),
+        ("Restart.Town", ""),
+        ("Restart.Quit", "")
     ];
+
+    // The two lines of a choice's help, by their phrase keys (an empty key is an empty line).
+    private static (string First, string Second) Words((string First, string Second) keys) =>
+        (ClientText.Get(keys.First), keys.Second.Length == 0 ? "" : ClientText.Get(keys.Second));
 
     private double _deadSinceMs = -1;
     // When the window last opened; the town is chosen twenty seconds after, as the original counted while it showed.
@@ -124,7 +129,7 @@ public sealed class HudRestartPanel(IClientLog log)
                 painter.Sprite(Art[(int)choice - 1], button.X, button.Y);
             }
 
-            var (first, second) = refused ? (" Not enough XP", " to stay in field") : Help[(int)choice - 1];
+            var (first, second) = refused ? (ClientText.Get("Restart.NoExperience"), ClientText.Get("Restart.NoExperience2")) : Words(Help[(int)choice - 1]);
             var color = refused ? Refused : Color.White;
             painter.Text(first, origin.X + 23, origin.Y + 75, color);
             if (second.Length > 0)

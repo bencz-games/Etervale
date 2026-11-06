@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using PristonTale.Client.Net.Presence;
 using PristonTale.Contracts.Social;
 using PristonTale.Gameplay.UI.Rendering;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Contacts;
 
@@ -231,9 +232,9 @@ public sealed class HudFriendsPage
             _titleKey = key;
             _title = View switch
             {
-                HudFriendsView.Recent => "[Recent]",
-                HudFriendsView.Friends => $"[Friends] {key.Item2}/{key.Item3}",
-                _ => $"[Ignored] {key.Item2}/{key.Item3}"
+                HudFriendsView.Recent => ClientText.Get("Friends.Recent"),
+                HudFriendsView.Friends => ClientText.Format("Friends.Friends", key.Item2, key.Item3),
+                _ => ClientText.Format("Friends.Ignored", key.Item2, key.Item3)
             };
         }
 

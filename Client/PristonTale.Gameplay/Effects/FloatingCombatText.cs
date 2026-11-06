@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.Effects;
 
@@ -43,8 +44,8 @@ public sealed class FloatingCombatText
         var text = kind switch
         {
             FloatingTextKind.Heal => "+" + amount,
-            FloatingTextKind.Miss => "Miss",
-            FloatingTextKind.Evade => "Evade",
+            FloatingTextKind.Miss => ClientText.Get("Combat.Miss"),
+            FloatingTextKind.Evade => ClientText.Get("Combat.Evade"),
             FloatingTextKind.Critical => amount + "!",
             _ => amount.ToString(System.Globalization.CultureInfo.InvariantCulture)
         };

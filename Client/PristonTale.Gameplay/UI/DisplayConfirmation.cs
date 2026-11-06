@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Input;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Gameplay.Screens.Framework;
 using PristonTale.Gameplay.UI.Rendering;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -41,7 +42,7 @@ internal sealed class DisplayConfirmation
         if (_seconds != settings.ConfirmationSeconds)
         {
             _seconds = settings.ConfirmationSeconds;
-            _countdown = $"Reverting in {_seconds} seconds";
+            _countdown = ClientText.Format("Display.Reverting", _seconds);
         }
 
         _previousMouse = mouse;
@@ -59,13 +60,13 @@ internal sealed class DisplayConfirmation
         var panel = Panel(layout);
         _canvas.Begin(layout.Scale);
         _canvas.Frame(panel);
-        _canvas.Text("Keep these display settings?", new Rectangle(panel.X + 20, panel.Y + 14, panel.Width - 40, 32), centered: true);
+        _canvas.Text(ClientText.Get("Display.Keep"), new Rectangle(panel.X + 20, panel.Y + 14, panel.Width - 40, 32), centered: true);
         _canvas.Text(_context.Presentation.EffectiveDisplay, new Rectangle(panel.X + 20, panel.Y + 50, panel.Width - 40, 28), pixels: 16f, centered: true);
         _canvas.Text(_countdown, new Rectangle(panel.X + 20, panel.Y + 82, panel.Width - 40, 25), centered: true);
         _canvas.Frame(Confirm(panel), "Button", 6);
         _canvas.Frame(Revert(panel), "Button", 6);
-        _canvas.Text("Keep (Enter)", Confirm(panel), centered: true);
-        _canvas.Text("Revert (Esc)", Revert(panel), centered: true);
+        _canvas.Text(ClientText.Get("Display.KeepButton"), Confirm(panel), centered: true);
+        _canvas.Text(ClientText.Get("Display.RevertButton"), Revert(panel), centered: true);
         _canvas.End();
     }
 

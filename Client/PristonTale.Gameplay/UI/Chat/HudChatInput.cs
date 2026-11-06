@@ -1,5 +1,6 @@
 using System.Text;
 using PristonTale.Simulation.Social;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Chat;
 
@@ -131,7 +132,7 @@ public sealed class HudChatInput
         switch (_flood.Check(typed, command, whisper, nowMs))
         {
             case ChatFloodVerdict.Froze:
-                complaint = playerName + " : I talk too much, my tongue has got frozen! WOW -_-;";
+                complaint = ClientText.Format("Chat.Frozen", playerName);
                 return null;
             case ChatFloodVerdict.Frozen or ChatFloodVerdict.Repeated:
                 return null;

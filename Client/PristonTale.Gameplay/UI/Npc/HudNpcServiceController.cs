@@ -1,6 +1,7 @@
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Npc;
 
@@ -125,10 +126,10 @@ public sealed class HudNpcServiceController(Func<NpcServiceCommand, Task<NpcServ
 
     private static string Describe(NpcServiceCommand command, NpcServiceOutcome outcome) => command.Action switch
     {
-        NpcServiceAction.Buy => "Bought.",
-        NpcServiceAction.Sell => "Sold.",
-        NpcServiceAction.Repair or NpcServiceAction.RepairAll => "Repaired.",
-        NpcServiceAction.Teleport => "Teleporting...",
+        NpcServiceAction.Buy => ClientText.Get("Npc.Bought"),
+        NpcServiceAction.Sell => ClientText.Get("Npc.Sold"),
+        NpcServiceAction.Repair or NpcServiceAction.RepairAll => ClientText.Get("Npc.Repaired"),
+        NpcServiceAction.Teleport => ClientText.Get("Npc.Teleporting"),
         _ => outcome.Message
     };
 

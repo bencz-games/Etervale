@@ -5,6 +5,7 @@ using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items.Usable;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
@@ -12,8 +13,8 @@ namespace PristonTale.Gameplay.UI.Inventory;
 // explains the puzzle. The server checks the board again, takes the pieces and hands out the reward.
 public sealed class HudPuzzleExchange
 {
-    public const string Title = "Completed Puzzle";
-    public const string Help = "Lay the eight pieces of one puzzle on the board of your inventory, then bring it to me.";
+    public static string Title => ClientText.Get("Puzzle.Title");
+    public static string Help => ClientText.Get("Puzzle.Help");
 
     private ulong _npcId;
     private string _npcName = "";
@@ -66,6 +67,6 @@ public sealed class HudPuzzleExchange
         }
 
         painter.Flush();
-        HudMessageBox.Draw(painter, Title, "Do you wanna", pointer, "exchange to the item?");
+        HudMessageBox.Draw(painter, Title, ClientText.Get("Count.DoYouWant"), pointer, ClientText.Get("Puzzle.Exchange"));
     }
 }

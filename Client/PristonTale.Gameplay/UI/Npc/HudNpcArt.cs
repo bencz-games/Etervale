@@ -1,4 +1,5 @@
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Npc;
 
@@ -45,29 +46,29 @@ public static class HudNpcArt
 
     public static string Label(NpcServiceKind kind, int value) => kind switch
     {
-        NpcServiceKind.Shop => "Shop",
-        NpcServiceKind.SkillMaster => "Skill training",
-        NpcServiceKind.Warehouse => "Warehouse",
-        NpcServiceKind.QuestGiver or NpcServiceKind.QuestScript => "Quest",
-        NpcServiceKind.QuestEvent => value == Simulation.Items.Usable.Puzzles.CollectorEvent ? "Puzzle exchange" : "Event quest",
-        NpcServiceKind.WarpGate => "Warp gate",
-        NpcServiceKind.Teleporter => "Teleport",
-        NpcServiceKind.ItemAging => "Aging",
-        NpcServiceKind.ItemMix => value == Simulation.Items.Mixing.MixingWork.AlchemyMode ? "Alchemy" : "Mixing",
-        NpcServiceKind.Smelting => "Smelting",
-        NpcServiceKind.Manufacture => "Crafting",
-        NpcServiceKind.MixtureReset => "Mixture reset",
-        NpcServiceKind.Clan => "Clan",
-        NpcServiceKind.BlessCastle => "Bless Castle",
-        NpcServiceKind.EventBooth => "Event",
-        NpcServiceKind.EventGift => "Prize draw",
-        NpcServiceKind.GiftExpress => "Item delivery",
-        NpcServiceKind.StarPoint => "Star points",
-        NpcServiceKind.CollectMoney => "Donations",
-        NpcServiceKind.GiveMoney => "Donation box",
-        NpcServiceKind.Polling => "Survey",
-        NpcServiceKind.Media => "Broadcast",
-        NpcServiceKind.EventMonster => "Event",
-        _ => "Service"
+        NpcServiceKind.Shop => ClientText.Get("NpcService.Shop"),
+        NpcServiceKind.SkillMaster => ClientText.Get("NpcService.SkillMaster"),
+        NpcServiceKind.Warehouse => ClientText.Get("NpcService.Warehouse"),
+        NpcServiceKind.QuestGiver or NpcServiceKind.QuestScript => ClientText.Get("NpcService.Quest"),
+        NpcServiceKind.QuestEvent => value == Simulation.Items.Usable.Puzzles.CollectorEvent ? ClientText.Get("NpcService.PuzzleExchange") : ClientText.Get("NpcService.EventQuest"),
+        NpcServiceKind.WarpGate => ClientText.Get("NpcService.WarpGate"),
+        NpcServiceKind.Teleporter => ClientText.Get("NpcService.Teleport"),
+        NpcServiceKind.ItemAging => ClientText.Get("NpcService.Aging"),
+        NpcServiceKind.ItemMix => value == Simulation.Items.Mixing.MixingWork.AlchemyMode ? ClientText.Get("NpcService.Alchemy") : ClientText.Get("NpcService.Mixing"),
+        NpcServiceKind.Smelting => ClientText.Get("NpcService.Smelting"),
+        NpcServiceKind.Manufacture => ClientText.Get("NpcService.Crafting"),
+        NpcServiceKind.MixtureReset => ClientText.Get("NpcService.MixtureReset"),
+        NpcServiceKind.Clan => ClientText.Get("NpcService.Clan"),
+        NpcServiceKind.BlessCastle => ClientText.Get("NpcService.BlessCastle"),
+        NpcServiceKind.EventBooth => ClientText.Get("NpcService.Event"),
+        NpcServiceKind.EventGift => ClientText.Get("NpcService.PrizeDraw"),
+        NpcServiceKind.GiftExpress => ClientText.Get("NpcService.ItemDelivery"),
+        NpcServiceKind.StarPoint => ClientText.Get("NpcService.StarPoints"),
+        NpcServiceKind.CollectMoney => ClientText.Get("NpcService.Donations"),
+        NpcServiceKind.GiveMoney => ClientText.Get("NpcService.DonationBox"),
+        NpcServiceKind.Polling => ClientText.Get("NpcService.Survey"),
+        NpcServiceKind.Media => ClientText.Get("NpcService.Broadcast"),
+        NpcServiceKind.EventMonster => ClientText.Get("NpcService.Event"),
+        _ => ClientText.Get("NpcService.Service")
     };
 }

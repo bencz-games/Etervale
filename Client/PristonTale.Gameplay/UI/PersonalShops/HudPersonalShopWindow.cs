@@ -7,6 +7,7 @@ using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.PersonalShops;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.PersonalShops;
 
@@ -271,8 +272,8 @@ public sealed class HudPersonalShopWindow : IHudServiceWindow
 
         if (!ReferenceEquals(offer, _described))
         {
-            var price = offer.Item.Count > 1 ? $"Selling price per unit: {offer.UnitPrice:N0}" : $"The Price: {offer.UnitPrice:N0}";
-            var hint = Buying ? "Click: buy" : Selling ? "On Sale" : "Click: take back";
+            var price = ClientText.Format(offer.Item.Count > 1 ? "PersonalShop.UnitPriceValue" : "PersonalShop.PriceValue", offer.UnitPrice.ToString("N0", System.Globalization.CultureInfo.InvariantCulture));
+            var hint = ClientText.Get(Buying ? "Shop.ClickBuy" : Selling ? "PersonalShop.OnSale" : "PersonalShop.TakeBack");
             (_described, _description) = (offer, HudItemDetailTooltip.Lines(_counts.Named(offer.Item), state, price, hint));
         }
 

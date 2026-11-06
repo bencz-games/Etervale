@@ -6,6 +6,7 @@ using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Npc;
 
@@ -254,7 +255,7 @@ public sealed class HudWarehouseWindow : IHudServiceWindow
         }
         else if (_hovered is not null)
         {
-            HudItemTooltip.Draw(painter, layout, pointer, _counts.Named(_hovered).Name, "Click: carry");
+            HudItemTooltip.Draw(painter, layout, pointer, _counts.Named(_hovered).Name, ClientText.Get("Inventory.HintCarry"));
         }
     }
 

@@ -4,6 +4,7 @@ using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items.Usable;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
@@ -151,12 +152,12 @@ public sealed class HudItemUseController(Func<ItemUseCommand, Task<ItemUseOutcom
         if (_confirmItem is not null)
         {
             painter.Flush();
-            HudMessageBox.Draw(painter, _confirmItem.Name, "Do you want to", pointer, "use this item?");
+            HudMessageBox.Draw(painter, _confirmItem.Name, ClientText.Get("ItemUse.Confirm"), pointer, ClientText.Get("ItemUse.Confirm2"));
         }
         else if (_confirmDestination is not null)
         {
             painter.Flush();
-            HudMessageBox.Draw(painter, HudTeleportCore.ConfirmText(_confirmDestination), "Do you want to", pointer, "Teleport?");
+            HudMessageBox.Draw(painter, HudTeleportCore.ConfirmText(_confirmDestination), ClientText.Get("ItemUse.Confirm"), pointer, ClientText.Get("ItemUse.Teleport"));
         }
     }
 
@@ -176,7 +177,7 @@ public sealed class HudItemUseController(Func<ItemUseCommand, Task<ItemUseOutcom
 
         _request.Start(() => use(command), _ => ItemUseOutcome.Refused(command.ExpectedRevision, ItemUseStatus.StorageFailed) with
         {
-            Message = "Connection error. Check your inventory before retrying."
+            Message = ClientText.Get("ItemUse.ConnectionError")
         });
     }
 

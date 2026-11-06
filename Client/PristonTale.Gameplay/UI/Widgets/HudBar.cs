@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Characters;
 using PristonTale.Contracts.World;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -182,9 +183,9 @@ public sealed class HudBar
         if (!ReferenceEquals(state, _state))
         {
             _state = state;
-            _life = $"HP : {state.Life}/{state.MaxLife}";
-            _mana = $"MP : {state.Mana}/{state.MaxMana}";
-            _stamina = $"STM : {state.Stamina}/{state.MaxStamina}";
+            _life = ClientText.Format("Hud.Life", state.Life, state.MaxLife);
+            _mana = ClientText.Format("Hud.Mana", state.Mana, state.MaxMana);
+            _stamina = ClientText.Format("Hud.Stamina", state.Stamina, state.MaxStamina);
             _experience = ExperienceText(state);
         }
 

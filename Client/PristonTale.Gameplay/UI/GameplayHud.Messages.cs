@@ -15,6 +15,7 @@ using PristonTale.Simulation.Progression;
 using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Contracts.Characters;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -59,7 +60,7 @@ public sealed partial class GameplayHud
         {
             _shopsOpened = _itemUse.ShopsOpened;
             CloseServices();
-            _services.Request(0, "Mobile Shop", NpcServiceKind.Shop, NpcServiceAction.Open);
+            _services.Request(0, ClientText.Get("Shop.Mobile"), NpcServiceKind.Shop, NpcServiceAction.Open);
         }
 
         if (_quests.Completions != _questCompletions)

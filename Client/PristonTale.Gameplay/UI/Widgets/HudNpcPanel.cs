@@ -4,6 +4,7 @@ using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Gameplay.UI.Npc;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -199,7 +200,7 @@ public sealed class HudNpcPanel(
         painter.Sprite(HudArt.HelpTitle, title.X, title.Y);
         painter.TextCentered(painter.Fit(Current.Name, title.Width - 20), title.Left, title.Right, title.Y + 7, HudTextColors.BoxTitle);
         var capacity = LineCapacity;
-        string[] lines = Destinations.Count > 0 ? ["Where do you want to go?"] : _dialog;
+        string[] lines = Destinations.Count > 0 ? [ClientText.Get("Npc.WhereTo")] : _dialog;
         for (var line = 0; line < capacity && _firstLine + line < lines.Length; line++)
         {
             painter.Text(lines[_firstLine + line], BoxX + 30, BoxY + 66 + 15 * line);
@@ -230,8 +231,8 @@ public sealed class HudNpcPanel(
             {
                 var destination = Destinations[index];
                 label = destination.MinimumLevel > 0
-                    ? $"{destination.Name}  {destination.Price:N0} gold  (Lv {destination.MinimumLevel})"
-                    : $"{destination.Name}  {destination.Price:N0} gold";
+                    ? ClientText.Format("Npc.DestinationLevel", destination.Name, destination.Price.ToString("N0", System.Globalization.CultureInfo.InvariantCulture), destination.MinimumLevel)
+                    : ClientText.Format("Npc.Destination", destination.Name, destination.Price.ToString("N0", System.Globalization.CultureInfo.InvariantCulture));
             }
             else
             {

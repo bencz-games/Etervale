@@ -4,6 +4,7 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Items.Usable;
 using PristonTale.Contracts.Units;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
@@ -305,11 +306,11 @@ public sealed class HudInventoryPanel
         var usable = item.InBag && UsableItemCatalog.IsUsable(item.CatalogKey);
         // A click with an item carried sets it down, so no action is offered for the item under it.
         var action = _carrying ? ""
-            : item.Equipped ? "Right-click: unequip"
-            : item.QuestBox >= 0 ? "Click: carry"
-            : item.Kind == ItemKind.Potion ? "Right-click: drink one"
-            : usable ? "Right-click: use"
-            : "Click: carry  Shift-click: split  Right-click: equip";
+            : item.Equipped ? ClientText.Get("Inventory.HintUnequip")
+            : item.QuestBox >= 0 ? ClientText.Get("Inventory.HintCarry")
+            : item.Kind == ItemKind.Potion ? ClientText.Get("Inventory.HintDrink")
+            : usable ? ClientText.Get("Inventory.HintUse")
+            : ClientText.Get("Inventory.HintEquip");
         var named = _counts.Named(item);
         var note = Note?.Invoke(item) ?? "";
         // The box's lines are made again only when the item, the owner state or the texts around them change, as the trade
