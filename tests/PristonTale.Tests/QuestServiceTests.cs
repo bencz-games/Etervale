@@ -19,6 +19,7 @@ using static PristonTale.Tests.QuestFixture;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -87,10 +88,10 @@ internal static class QuestServiceTests
         Assert.True(request.Write(buffer) == QuestRequestPacket.Size && QuestRequestPacket.Read(buffer.AsSpan(0, QuestRequestPacket.Size)) == request,
             "the quest request differs");
 
-        var prompt = new QuestPromptEntry(0x28, 13, (byte)QuestFollowup.ConfirmChoice, 2, "haQuestFuryItem2", " Q U E S T ", "Do you want to",
-            "receive the item?", "Extreme Talon", ["Minotaur Axe", "Extreme Talon"], ["haQuestFuryItem1", "haQuestFuryItem2"]);
-        QuestNoticeEntry[] notices = [new((byte)QuestNoticeKind.Chat, "Quest> Bargon 3 number of monster needed"), new((byte)QuestNoticeKind.Fanfare, "")];
-        var result = new QuestResultPacket(request.OperationId, (byte)QuestStatus.Ok, true, true, false, 41, "", prompt, notices);
+        var prompt = new QuestPromptEntry(0x28, 13, (byte)QuestFollowup.ConfirmChoice, 2, "haQuestFuryItem2", QuestTexts.QuestTitle,
+            QuestTexts.ReceiveItem.Item1, QuestTexts.ReceiveItem.Item2, QuestTexts.Name("Extreme Talon"), ["Minotaur Axe", "Extreme Talon"], ["haQuestFuryItem1", "haQuestFuryItem2"]);
+        QuestNoticeEntry[] notices = [new((byte)QuestNoticeKind.Chat, QuestTexts.Count("Bargon", 3)), new((byte)QuestNoticeKind.Fanfare, GameText.None)];
+        var result = new QuestResultPacket(request.OperationId, (byte)QuestStatus.Ok, true, true, false, 41, GameText.None, prompt, notices);
         var length = result.Write(buffer);
         Assert.True(length <= result.Capacity, "the result capacity is too small");
         var readResult = QuestResultPacket.Read(buffer.AsSpan(0, length));
@@ -134,8 +135,8 @@ internal static class QuestServiceTests
         };
         var view = new QuestView(5, QuestCode.RankUpMasterTrial, 7, "", 0, 0, QuestTimerKind.None, 0,
             [new QuestBoardEntry("Job Quest 3th[4]", "Quest4\\ChangeJob4_4.msg")], []);
-        var prompt = new QuestPrompt(QuestCode.RankUpMasterTrial, 8, "ChangeJob4_4End", QuestFollowup.Confirm) { ConfirmLine1 = "Do you wanna" };
-        var update = new QuestUpdate(view, [new QuestNotice(QuestNoticeKind.Event, "<Quest> Hunt 50 of Muffin")], prompt);
+        var prompt = new QuestPrompt(QuestCode.RankUpMasterTrial, 8, "ChangeJob4_4End", QuestFollowup.Confirm) { ConfirmLine1 = QuestTexts.RankUp.Item1 };
+        var update = new QuestUpdate(view, [new QuestNotice(QuestNoticeKind.Event, QuestTexts.Hunt(50, "Muffin"))], prompt);
         var snapshot = new WorldSnapshot(1, [self, other, mine, theirs], fieldId: QuestArena.FieldCode) { Quest = update };
         var updates = new WireRoundTrip(1).Push(snapshot);
         var spawned = updates.SelectMany(entry => entry.Spawns).Select(spawn => spawn.EntityId).ToHashSet();
@@ -176,7 +177,7 @@ internal static class QuestServiceTests
         Assert.True(accepted.Ok && character.Quests.Active is { Code: QuestCode.Level30, State: 1 }
             && QuestStateCodec.Read(world.Characters.Record.Quests).Active.Code == QuestCode.Level30, "the accepted quest was not stored");
         writes = world.Characters.UpdateCount;
-        Assert.True((await world.Advance(quests.RequestAsync(token, accept))).Message == "already committed" && world.Characters.UpdateCount == writes,
+        Assert.True((await world.Advance(quests.RequestAsync(token, accept))).Message == GameText.Of(GameTextId.AlreadyApplied) && world.Characters.UpdateCount == writes,
             "a replayed accept wrote again");
         Assert.True((await world.Advance(quests.RequestAsync(token, accept with { State = 1 }))).Status == QuestStatus.Conflict,
             "a reused operation id was accepted for another step");

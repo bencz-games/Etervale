@@ -1,6 +1,7 @@
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Quests;
 
@@ -159,7 +160,7 @@ public static class RankUpByQuestWeapon
             || !context.Items.TryCreateQuestVariant(weaponCode, 0, out var weapon))
         {
             journal.Active = active with { State = Collecting };
-            return context.Fail(QuestStatus.Rejected, "the master cannot forge a quest weapon for this class");
+            return context.Fail(QuestStatus.Rejected, GameText.Of(GameTextId.NoQuestWeapon));
         }
 
         QuestInventory.Remove(character, QuestItems.Vamp, VampsNeeded);
@@ -244,7 +245,7 @@ public static class RankUpByQuestWeapon
         };
         character.RefreshQuestEffects();
         context.Notice(QuestNoticeKind.Message, QuestTexts.QuestItemLevelUp);
-        context.Notice(QuestNoticeKind.Fanfare, "");
+        context.Notice(QuestNoticeKind.Fanfare, GameText.None);
         return true;
     }
 

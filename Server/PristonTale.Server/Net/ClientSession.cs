@@ -718,12 +718,12 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         {
             AdmitStoredOperation();
             outcome = session is null || _player is null
-                ? QuestOutcome.Failed(QuestStatus.Rejected, "enter the world first")
+                ? QuestOutcome.Failed(QuestStatus.Rejected, GameText.Of(GameTextId.EnterWorldFirst))
                 : await _services.Quests.RequestAsync(RequireToken(), QuestWireMapping.ToCommand(request));
         }
         catch (Exception ex) when (ex is InvalidSessionException or InvalidOperationException)
         {
-            outcome = QuestOutcome.Failed(ex is WorldBusyException ? QuestStatus.Busy : QuestStatus.StorageFailed, ex.Message);
+            outcome = QuestOutcome.Failed(ex is WorldBusyException ? QuestStatus.Busy : QuestStatus.StorageFailed, Refusal(ex));
         }
 
         var result = QuestWireMapping.ToResult(request.OperationId, outcome);

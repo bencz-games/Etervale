@@ -19,6 +19,7 @@ using PristonTale.Simulation.Progression;
 using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Contracts.Characters;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -787,7 +788,8 @@ public sealed partial class GameplayHud : IDisposable
         else if (_quests.SkillResetBox)
         {
             _painter.Flush();
-            HudQuestDialog.DrawBox(_painter, QuestTexts.SkillPointName, QuestTexts.Redistribute.Item1, QuestTexts.Redistribute.Item2, pointer);
+            HudQuestDialog.DrawBox(_painter, ClientText.Format(QuestTexts.SkillPointName), ClientText.Format(QuestTexts.Redistribute.Item1),
+                ClientText.Format(QuestTexts.Redistribute.Item2), pointer);
         }
 
         _painter.Flush();

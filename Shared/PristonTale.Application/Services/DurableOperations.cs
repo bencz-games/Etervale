@@ -18,16 +18,7 @@ public enum DurableFailure
 
 public static class DurableFailures
 {
-    // The text a refused durable operation answers with.
-    public static string Message(DurableFailure failure) => failure switch
-    {
-        DurableFailure.NoSession => "invalid session",
-        DurableFailure.Busy => "save or character operation pending; retry",
-        DurableFailure.StorageFailed => "storage rejected operation; character unchanged",
-        DurableFailure.Conflict => "the warehouse changed elsewhere; open it again",
-        _ => "character is not playing"
-    };
-
+    // The line a refused durable operation answers with.
     public static GameText Text(DurableFailure failure) => GameText.Of(failure switch
     {
         DurableFailure.NoSession => GameTextId.NoSession,

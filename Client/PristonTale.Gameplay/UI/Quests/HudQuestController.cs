@@ -1,6 +1,8 @@
 using PristonTale.Client.Net.Presence;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Simulation.Quests;
+using PristonTale.Contracts.Texts;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Quests;
 
@@ -139,7 +141,7 @@ public sealed class HudQuestController(Func<QuestCommand, Task<QuestOutcome>> re
 
     public string ConfirmDetail => Dialog is not { } dialog ? ""
         : dialog.Followup == QuestFollowup.ConfirmChoice && Browse >= 1 && Browse <= dialog.Choices.Count ? dialog.Choices[Browse - 1]
-        : dialog.ConfirmDetail;
+        : ClientText.Format(dialog.ConfirmDetail);
 
     public void Answer(bool yes)
     {
@@ -196,7 +198,7 @@ public sealed class HudQuestController(Func<QuestCommand, Task<QuestOutcome>> re
         _pendingAction = command.Action;
         _pendingNpc = command.NpcEntityId;
         _request.Start(() => request(command),
-            cancelled => QuestOutcome.Failed(QuestStatus.Rejected, cancelled ? "" : HudRequest.ConnectionError));
+            cancelled => QuestOutcome.Failed(QuestStatus.Rejected, cancelled ? GameText.None : GameText.Of(GameTextId.ConnectionError)));
     }
 
     private void Apply(QuestOutcome outcome, QuestAction action, ulong npc)
@@ -218,9 +220,9 @@ public sealed class HudQuestController(Func<QuestCommand, Task<QuestOutcome>> re
 
         // A talk that found nothing to say, or met a busy save, stays silent like a plain NPC click.
         var silent = action == QuestAction.Talk && outcome.Status is QuestStatus.Busy or QuestStatus.OutOfReach;
-        if (!outcome.Ok && outcome.Prompt is null && !silent && !string.IsNullOrWhiteSpace(outcome.Message))
+        if (!outcome.Ok && outcome.Prompt is null && !silent && !outcome.Message.IsNone)
         {
-            Message = outcome.Message;
+            Message = ClientText.Format(outcome.Message);
             Completions++;
         }
     }

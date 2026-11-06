@@ -21,7 +21,7 @@ public sealed class QuestAppService(ISessionRegistry sessions, ICharacterSaves s
             session => world.PrepareQuestAsync(session, command),
             world.CommitQuestAsync,
             prepared => prepared.Outcome,
-            failure => QuestOutcome.Failed(failure == DurableFailure.Busy ? QuestStatus.Busy : QuestStatus.Rejected, DurableFailures.Message(failure)));
+            failure => QuestOutcome.Failed(failure == DurableFailure.Busy ? QuestStatus.Busy : QuestStatus.Rejected, DurableFailures.Text(failure)));
     }
 
     // Applies the quest work the tick queued for a player (quest drops, weapon growth, expired items) and queues the

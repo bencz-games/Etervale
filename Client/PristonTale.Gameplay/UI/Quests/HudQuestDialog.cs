@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Quests;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Quests;
 
@@ -75,10 +76,11 @@ public sealed class HudQuestDialog
         painter.HelpBox(HudNpcPanel.BoxX, HudNpcPanel.BoxY, HudNpcPanel.SizeW, HudNpcPanel.SizeH);
         // A title wider than the plate widens it around its centre.
         var title = HudNpcPanel.Title;
-        var titleWidth = Math.Min(HudNpcPanel.SizeW * 32, Math.Max(title.Width, painter.Measure(dialog.Title) + 40));
+        var heading = ClientText.Format(dialog.Title);
+        var titleWidth = Math.Min(HudNpcPanel.SizeW * 32, Math.Max(title.Width, painter.Measure(heading) + 40));
         title = new Rectangle(title.Center.X - titleWidth / 2, title.Y, titleWidth, title.Height);
         HudNpcPanel.DrawPlate(painter, title, Color.White);
-        painter.TextCentered(painter.Fit(dialog.Title, title.Width - 20), title.Left, title.Right, title.Y + 7, TitleColor);
+        painter.TextCentered(painter.Fit(heading, title.Width - 20), title.Left, title.Right, title.Y + 7, TitleColor);
         var lines = documents.Wrapped(HudQuestDocuments.DialogPath(document), font, TextWidth) ?? [];
         _lineCount = lines.Length;
         var capacity = LineCapacity(dialog);
@@ -127,7 +129,7 @@ public sealed class HudQuestDialog
             return;
         }
 
-        DrawBox(painter, quests.ConfirmDetail, dialog.ConfirmLine1, dialog.ConfirmLine2, pointer);
+        DrawBox(painter, quests.ConfirmDetail, ClientText.Format(dialog.ConfirmLine1), ClientText.Format(dialog.ConfirmLine2), pointer);
     }
 
     // The two question lines of the classic texts are one sentence; it wraps to the box under the yellow detail line.

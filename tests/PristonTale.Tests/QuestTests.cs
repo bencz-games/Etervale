@@ -5,6 +5,7 @@ using PristonTale.Simulation.World.Npcs;
 using static PristonTale.Tests.QuestFixture;
 using PristonTale.Contracts.Characters;
 using PristonTale.Simulation.World;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -110,7 +111,7 @@ internal static class QuestTests
         loaded.Quests.LevelLog = LevelQuestLog.Level30 | LevelQuestLog.Level55 | LevelQuestLog.Level70 | LevelQuestLog.Level80;
         Assert.True(Items.TryGet(Code("WA197"), out var anvil) && loaded.Inventory.TryAdd(new ItemInstance(anvil)), "fixture anvil did not fit");
         var refused = Run(loaded, npc, QuestAction.Accept, QuestCode.Level85, 0);
-        Assert.True(refused.Status == QuestStatus.OverWeight && refused.Message == ItemRuleMessages.OverWeight && loaded.Quests.Active.IsIdle
+        Assert.True(refused.Status == QuestStatus.OverWeight && refused.Message == GameText.Of(GameTextId.OverWeight) && loaded.Quests.Active.IsIdle
             && !QuestInventory.Has(loaded, QuestItems.KhaliaTear), "an overweight character received a quest item");
         Assert.True(QuestInventory.Check(loaded, [new ItemInstance(anvil)]) == QuestGrantCheck.OverWeight, "the weight check differs");
         return Task.CompletedTask;
@@ -183,7 +184,7 @@ internal static class QuestTests
         Drop(fighter, QuestItems.GoldenWolverineTrophy);
         Assert.True(QuestInventory.Count(fighter, QuestItems.SilverWolverineTrophy) == 1, "a second trophy of one kind reached the pack");
         var ready = Talk(fighter, HomeMaster).Prompt;
-        Assert.True(ready is { Code: QuestCode.RankUpTrophies, State: 1, Followup: QuestFollowup.Confirm } && ready.ConfirmDetail.Length > 0,
+        Assert.True(ready is { Code: QuestCode.RankUpTrophies, State: 1, Followup: QuestFollowup.Confirm } && !ready.ConfirmDetail.IsNone,
             "the rank-up dialog does not name the new job");
         var promoted = Expect(fighter, HomeMaster, QuestAction.Accept, QuestCode.RankUpTrophies, 1, "the rank-up failed");
         Assert.True(fighter.Tier == 1 && fighter.Quests.Active.IsIdle && fighter.Quests.HasFinished(QuestCode.RankUpTrophies)
@@ -232,7 +233,7 @@ internal static class QuestTests
         Assert.True(QuestInventory.Count(priestess, QuestItems.Honey) == QuestItems.HoneyForJelly, "more honey than the brew needs reached the pack");
         var aging = new QuestNpc(ItemAging: true);
         var brew = Talk(priestess, aging).Prompt;
-        Assert.True(brew is { Code: QuestCode.RankUpHoney, State: 2, Followup: QuestFollowup.Confirm, ConfirmDetail: "Royal Jelly" }, "the brew offer differs");
+        Assert.True(brew is { Code: QuestCode.RankUpHoney, State: 2, Followup: QuestFollowup.Confirm, ConfirmDetail.Args: ["Royal Jelly"] }, "the brew offer differs");
         Expect(priestess, aging, QuestAction.Accept, QuestCode.RankUpHoney, 2, "the brew failed");
         Assert.True(QuestInventory.Has(priestess, QuestItems.RoyalJelly) && !QuestInventory.Has(priestess, QuestItems.Honey)
             && !QuestInventory.Has(priestess, QuestItems.GlassBottle), "the brew did not use its ingredients");
@@ -546,7 +547,7 @@ internal static class QuestTests
         Give(flyer, Code("GP101"));
         Give(flyer, Code("GP102"));
         var offer = Talk(flyer, npc).Prompt;
-        Assert.True(offer is { Followup: QuestFollowup.Confirm, Document: "M_Wing_b", ConfirmDetail: "Metal Wing", State: 0 }, "the exchange offer differs");
+        Assert.True(offer is { Followup: QuestFollowup.Confirm, Document: "M_Wing_b", ConfirmDetail.Args: ["Metal Wing"], State: 0 }, "the exchange offer differs");
         Expect(flyer, npc, QuestAction.Accept, QuestCode.None, 0, "the exchange failed");
         Assert.True(flyer.Money == 1000 && QuestInventory.Has(flyer, Code("QW101")) && !QuestInventory.Has(flyer, Code("GP101")), "the metal wing differs");
         Assert.True(Run(flyer, npc, QuestAction.Accept, QuestCode.None, 0).Status == QuestStatus.Stale, "the first recipe ran twice");

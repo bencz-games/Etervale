@@ -28,6 +28,12 @@ public enum GameTextId : ushort
     TooManyRequests = 15,
     RequestRefused = 16,
 
+    // The client could not reach the server.
+    ConnectionError = 17,
+
+    // {0} a name the server words (an item, a class title, a destination).
+    Name = 18,
+
     // Item use.
     ItemUsed = 100,
     ItemNotUsable = 101,
@@ -105,5 +111,58 @@ public enum GameTextId : ushort
     ShopPriceChanged = 405,
     ShopTradePending = 406,
     SellerNotFound = 407,
-    PersonalShopRefused = 408
+    PersonalShopRefused = 408,
+
+    // Quests: notices, dialog titles, confirmation lines and refusals. QuestKillCount: {0} the monster, {1} the kills
+    // left; QuestHunt and QuestHuntFinished: {0} the count, {1} the monster; QuestItemFrom: {0} the monster;
+    // QuestItemGone: {0} the item.
+    QuestInProgress = 500,
+    StatPointsFive = 501,
+    SkillPointOne = 502,
+    StatFiveSkillOne = 503,
+    StatFiveSkillTwo = 504,
+    DeathPenaltyReduced = 505,
+    VitalityForty = 506,
+    SevenStatPoints = 507,
+    TenStatPoints = 508,
+    TrainingReset = 509,
+    MissionTimedOut = 510,
+    LifeFifteen = 511,
+    QuestItemLevelUp = 512,
+    QuestItemSlowed = 513,
+    FuryWon = 514,
+    FuryLost = 515,
+    HestianWon = 516,
+    HestianLost = 517,
+    RewardReceived = 518,
+    TwentyBargons = 519,
+    SkillsRedistributed = 520,
+    QuestTitle = 521,
+    FuryTitle = 522,
+    ConfirmDoYouWanna = 523,
+    ConfirmDoYouWantTo = 524,
+    ConfirmCarryOut = 525,
+    ConfirmRankUp = 526,
+    ConfirmRankUpFifth = 527,
+    ConfirmWantToDo = 528,
+    ConfirmProcessQuest = 529,
+    ConfirmTheQuest = 530,
+    ConfirmSearchQuest = 531,
+    ConfirmGetQuest = 532,
+    ConfirmReceiveItem = 533,
+    ConfirmBattleZone = 534,
+    ConfirmRedistribute = 535,
+    SkillPointName = 536,
+    QuestKillCount = 537,
+    QuestHunt = 538,
+    QuestItemFrom = 539,
+    QuestHuntFinished = 540,
+    QuestItemGone = 541,
+    InvalidQuestRequest = 542,
+    TalkToNpcFirst = 543,
+    QuestMovedOn = 544,
+    NoQuestWeapon = 545,
+    NoClassChange = 546,
+    NoSkillRedistribution = 547,
+    ConfirmExchangeItem = 548
 }

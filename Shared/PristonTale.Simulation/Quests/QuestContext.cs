@@ -1,6 +1,7 @@
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.World.Ai;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Quests;
 
@@ -87,12 +88,12 @@ public sealed class QuestContext(PlayerCharacter character, QuestNpc npc, IQuest
     // The player leaves the arena for the home town and the duel ends (a fight won or lost on the world tick).
     public bool Retreat { get; set; }
     public QuestStatus Status { get; private set; } = QuestStatus.Ok;
-    public string Message { get; private set; } = "";
+    public GameText Message { get; private set; }
     public IReadOnlyList<QuestNotice> Notices => _notices;
 
     public bool Tempskron => QuestClasses.IsTempskron(Character);
 
-    public void Notice(QuestNoticeKind kind, string text) => _notices.Add(new QuestNotice(kind, text));
+    public void Notice(QuestNoticeKind kind, GameText text) => _notices.Add(new QuestNotice(kind, text));
 
     // Shows a dialog unless one is already shown for this request; the first quest an NPC answers with wins.
     public void Show(QuestPrompt prompt)
@@ -100,7 +101,7 @@ public sealed class QuestContext(PlayerCharacter character, QuestNpc npc, IQuest
         Prompt ??= prompt;
     }
 
-    public bool Fail(QuestStatus status, string message)
+    public bool Fail(QuestStatus status, GameText message)
     {
         Status = status;
         Message = message;

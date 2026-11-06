@@ -15,6 +15,7 @@ using PristonTale.Simulation.Progression;
 using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Contracts.Characters;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -30,13 +31,13 @@ public sealed partial class GameplayHud
             switch (notice.Kind)
             {
                 case QuestNoticeKind.Chat:
-                    _chat.Assist(notice.Text);
+                    _chat.Assist(ClientText.Format(notice.Text));
                     break;
                 case QuestNoticeKind.Fanfare:
                     QuestFanfare?.Invoke();
                     break;
                 default:
-                    _notice.Show(notice.Text);
+                    _notice.Show(ClientText.Format(notice.Text));
                     break;
             }
         }

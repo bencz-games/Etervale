@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Resources;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Contracts.Texts;
+using System.Collections.Concurrent;
 
 namespace PristonTale.Gameplay.Localization;
 
@@ -11,6 +12,7 @@ namespace PristonTale.Gameplay.Localization;
 public static class ClientText
 {
     private static readonly ResourceManager Resources = new(typeof(ClientText));
+    private static readonly ConcurrentDictionary<GameTextId, string> GameKeys = new();
     private static CultureInfo _culture = CultureInfo.GetCultureInfo(ClientSettings.EnglishLanguage);
 
     public static string Language { get; private set; } = ClientSettings.EnglishLanguage;
@@ -43,5 +45,6 @@ public static class ClientText
 
     public static string Get(GameTextId id) => Get(GameKey(id));
 
-    public static string GameKey(GameTextId id) => "Game." + id;
+    // Built once per id: the HUD words some game texts every frame.
+    public static string GameKey(GameTextId id) => GameKeys.GetOrAdd(id, static key => "Game." + key);
 }

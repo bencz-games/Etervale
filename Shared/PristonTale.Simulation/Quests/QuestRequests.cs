@@ -1,3 +1,5 @@
+using PristonTale.Contracts.Texts;
+
 namespace PristonTale.Simulation.Quests;
 
 // Persisted with the applied-operation history and carried on the wire: append values, never renumber.
@@ -77,18 +79,18 @@ public enum QuestNoticeKind : byte
 
 public sealed record QuestCommand(Guid OperationId, ulong NpcEntityId, QuestAction Action, QuestCode Code, int State, int Choice);
 
-public sealed record QuestNotice(QuestNoticeKind Kind, string Text);
+public sealed record QuestNotice(QuestNoticeKind Kind, GameText Text);
 
 // A quest dialog: Document names the dialog text in the client's quest folder; Code and State identify the step the
 // follow-up answers.
 public sealed record QuestPrompt(QuestCode Code, int State, string Document, QuestFollowup Followup)
 {
-    public string Title { get; init; } = "";
-    public string ConfirmLine1 { get; init; } = "";
-    public string ConfirmLine2 { get; init; } = "";
+    public GameText Title { get; init; }
+    public GameText ConfirmLine1 { get; init; }
+    public GameText ConfirmLine2 { get; init; }
 
     // Shown under the confirmation lines: a job title, a destination or an item name.
-    public string ConfirmDetail { get; init; } = "";
+    public GameText ConfirmDetail { get; init; }
     public IReadOnlyList<string> Choices { get; init; } = [];
     public IReadOnlyList<string> ChoiceDocuments { get; init; } = [];
     public int Choice { get; init; }
@@ -108,12 +110,12 @@ public sealed record QuestTravel(QuestTravelKind Kind, int FieldCode, int X, int
 // The duel a quest opens in the arena: the opponent is picked by its sound family and, for Fury, its level.
 public sealed record QuestArenaDuel(QuestCode Quest, int SoundCode, int Level);
 
-public sealed record QuestOutcome(bool Ok, QuestStatus Status, string Message, long Revision, QuestPrompt Prompt, IReadOnlyList<QuestNotice> Notices)
+public sealed record QuestOutcome(bool Ok, QuestStatus Status, GameText Message, long Revision, QuestPrompt Prompt, IReadOnlyList<QuestNotice> Notices)
 {
     public bool ClassChangeOffered { get; init; }
     public bool SkillResetOffered { get; init; }
     public QuestTravel Travel { get; init; }
     public QuestArenaDuel Duel { get; init; }
 
-    public static QuestOutcome Failed(QuestStatus status, string message, long revision = 0) => new(false, status, message, revision, null, []);
+    public static QuestOutcome Failed(QuestStatus status, GameText message, long revision = 0) => new(false, status, message, revision, null, []);
 }

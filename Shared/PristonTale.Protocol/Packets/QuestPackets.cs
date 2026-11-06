@@ -1,4 +1,5 @@
 using PristonTale.Protocol.Binary;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Protocol.Packets;
 
@@ -7,7 +8,6 @@ namespace PristonTale.Protocol.Packets;
 public static class QuestWire
 {
     public const int MaxTextBytes = 64;
-    public const int MaxNoticeBytes = 128;
     public const int MaxChoices = 16;
     public const int MaxNotices = 32;
     public const int MaxProgress = 16;
@@ -26,10 +26,10 @@ public static class QuestWire
         writer.Int32(prompt.State);
         writer.Int32(prompt.Choice);
         NpcWire.Text(ref writer, prompt.Document, MaxTextBytes);
-        NpcWire.Text(ref writer, prompt.Title, MaxTextBytes);
-        NpcWire.Text(ref writer, prompt.ConfirmLine1, MaxTextBytes);
-        NpcWire.Text(ref writer, prompt.ConfirmLine2, MaxTextBytes);
-        NpcWire.Text(ref writer, prompt.ConfirmDetail, MaxTextBytes);
+        GameTextWire.Write(ref writer, prompt.Title);
+        GameTextWire.Write(ref writer, prompt.ConfirmLine1);
+        GameTextWire.Write(ref writer, prompt.ConfirmLine2);
+        GameTextWire.Write(ref writer, prompt.ConfirmDetail);
         writer.Int32(prompt.Choices.Count);
         for (var index = 0; index < prompt.Choices.Count; index++)
         {
@@ -46,10 +46,10 @@ public static class QuestWire
         var state = reader.Int32();
         var choice = reader.Int32();
         var document = NpcWire.Text(ref reader, MaxTextBytes);
-        var title = NpcWire.Text(ref reader, MaxTextBytes);
-        var first = NpcWire.Text(ref reader, MaxTextBytes);
-        var second = NpcWire.Text(ref reader, MaxTextBytes);
-        var detail = NpcWire.Text(ref reader, MaxTextBytes);
+        var title = GameTextWire.Read(ref reader);
+        var first = GameTextWire.Read(ref reader);
+        var second = GameTextWire.Read(ref reader);
+        var detail = GameTextWire.Read(ref reader);
         var count = reader.Int32();
         if (count < 0 || count > MaxChoices)
         {
@@ -69,9 +69,9 @@ public static class QuestWire
 
     internal static int PromptSize(QuestPromptEntry prompt)
     {
-        var size = 12 + NpcWire.TextSize(prompt.Document, MaxTextBytes) + NpcWire.TextSize(prompt.Title, MaxTextBytes)
-            + NpcWire.TextSize(prompt.ConfirmLine1, MaxTextBytes) + NpcWire.TextSize(prompt.ConfirmLine2, MaxTextBytes)
-            + NpcWire.TextSize(prompt.ConfirmDetail, MaxTextBytes) + 4;
+        var size = 12 + NpcWire.TextSize(prompt.Document, MaxTextBytes) + GameTextWire.Size(prompt.Title)
+            + GameTextWire.Size(prompt.ConfirmLine1) + GameTextWire.Size(prompt.ConfirmLine2)
+            + GameTextWire.Size(prompt.ConfirmDetail) + 4;
         for (var index = 0; index < prompt.Choices.Count; index++)
         {
             size += NpcWire.TextSize(prompt.Choices[index], MaxTextBytes) + NpcWire.TextSize(prompt.ChoiceDocuments[index], MaxTextBytes);
@@ -92,7 +92,7 @@ public static class QuestWire
         {
             writer.Byte(notice.Kind);
             writer.Byte(0);
-            NpcWire.Text(ref writer, notice.Text, MaxNoticeBytes);
+            GameTextWire.Write(ref writer, notice.Text);
         }
     }
 
@@ -109,7 +109,7 @@ public static class QuestWire
         {
             var kind = reader.Byte();
             reader.Skip(1);
-            notices[index] = new QuestNoticeEntry(kind, NpcWire.Text(ref reader, MaxNoticeBytes));
+            notices[index] = new QuestNoticeEntry(kind, GameTextWire.Read(ref reader));
         }
 
         return notices;
@@ -120,7 +120,7 @@ public static class QuestWire
         var size = 4;
         foreach (var notice in notices)
         {
-            size += 2 + NpcWire.TextSize(notice.Text, MaxNoticeBytes);
+            size += 2 + GameTextWire.Size(notice.Text);
         }
 
         return size;
@@ -134,14 +134,14 @@ public sealed record QuestPromptEntry(
     byte Followup,
     int Choice,
     string Document,
-    string Title,
-    string ConfirmLine1,
-    string ConfirmLine2,
-    string ConfirmDetail,
+    GameText Title,
+    GameText ConfirmLine1,
+    GameText ConfirmLine2,
+    GameText ConfirmDetail,
     IReadOnlyList<string> Choices,
     IReadOnlyList<string> ChoiceDocuments);
 
-public readonly record struct QuestNoticeEntry(byte Kind, string Text);
+public readonly record struct QuestNoticeEntry(byte Kind, GameText Text);
 
 public readonly record struct QuestBoardLine(string Title, string Description);
 
@@ -178,13 +178,13 @@ public sealed record QuestRequestPacket(Guid OperationId, ulong NpcId, byte Acti
 }
 
 // S->C answer to a request: {header, Guid OperationId, uint8 Status, uint8 Flags (1 ok, 2 class change offered, 4 skill
-// redistribution offered, 8 dialog follows), uint16 0, int64 Revision, text Message, [dialog], notices}.
+// redistribution offered, 8 dialog follows), uint16 0, int64 Revision, game text Message, [dialog], notices}.
 public sealed record QuestResultPacket(Guid OperationId, byte Status, bool Ok, bool ClassChangeOffered, bool SkillResetOffered, long Revision,
-    string Message, QuestPromptEntry? Prompt, IReadOnlyList<QuestNoticeEntry> Notices)
+    GameText Message, QuestPromptEntry? Prompt, IReadOnlyList<QuestNoticeEntry> Notices)
 {
-    private const int MinimumSize = 8 + 4 + 16 + 4 + 8 + 2 + 4;
+    private const int MinimumSize = 8 + 4 + 16 + 4 + 8 + GameTextWire.MinimumSize + 4;
 
-    public int Capacity => MinimumSize + NpcWire.TextSize(Message, QuestWire.MaxNoticeBytes) + (Prompt is null ? 0 : QuestWire.PromptSize(Prompt))
+    public int Capacity => MinimumSize - GameTextWire.MinimumSize + GameTextWire.Size(Message) + (Prompt is null ? 0 : QuestWire.PromptSize(Prompt))
         + QuestWire.NoticesSize(Notices);
 
     public int Write(Span<byte> destination)
@@ -196,7 +196,7 @@ public sealed record QuestResultPacket(Guid OperationId, byte Status, bool Ok, b
         writer.Byte((byte)((Ok ? 1 : 0) | (ClassChangeOffered ? 2 : 0) | (SkillResetOffered ? 4 : 0) | (Prompt is null ? 0 : 8)));
         writer.UInt16(0);
         writer.Int64(Revision);
-        NpcWire.Text(ref writer, Message, QuestWire.MaxNoticeBytes);
+        GameTextWire.Write(ref writer, Message);
         if (Prompt is not null)
         {
             QuestWire.WritePrompt(ref writer, Prompt);
@@ -215,7 +215,7 @@ public sealed record QuestResultPacket(Guid OperationId, byte Status, bool Ok, b
         var flags = reader.Byte();
         reader.Skip(2);
         var revision = reader.Int64();
-        var message = NpcWire.Text(ref reader, QuestWire.MaxNoticeBytes);
+        var message = GameTextWire.Read(ref reader);
         var prompt = (flags & 8) != 0 ? QuestWire.ReadPrompt(ref reader) : null;
         var notices = QuestWire.ReadNotices(ref reader);
         return new QuestResultPacket(operation, status, (flags & 1) != 0, (flags & 2) != 0, (flags & 4) != 0, revision, message, prompt, notices);

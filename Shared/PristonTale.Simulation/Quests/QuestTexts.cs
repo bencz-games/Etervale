@@ -1,65 +1,68 @@
 using System.Globalization;
-using PristonTale.Simulation.Items;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Quests;
 
-// The English quest texts of the classic client: confirmation boxes, messages and the quest lines of the chat window.
+// The quest texts of the classic client: confirmation boxes, messages and the quest lines of the chat window, as game
+// texts the client words in its language.
 public static class QuestTexts
 {
-    public const string QuestInProgress = "You have undergoing Quest";
-    public const string NotEnoughSpace = ItemRuleMessages.NoSpace;
-    public const string NotEnoughGold = ItemRuleMessages.NotEnoughGold;
+    public static readonly GameText QuestInProgress = GameText.Of(GameTextId.QuestInProgress);
+    public static readonly GameText NotEnoughSpace = GameText.Of(GameTextId.NoSpace);
+    public static readonly GameText NotEnoughGold = GameText.Of(GameTextId.NotEnoughGold);
 
-    public const string StatPointsFive = "stat point increased by 5";
-    public const string SkillPointOne = "skill point increased by 1";
-    public const string StatFiveSkillOne = "stat & skill point increased by 5 and 1";
-    public const string StatFiveSkillTwo = "stat & skill point increased by 5 and 2";
-    public const string DeathPenaltyReduced = "Death penalty Exp decreased by 1";
-    public const string VitalityForty = "Vitality increased by 40";
-    public const string SevenStatPoints = "Over 80lev, you will get 7 stat-point at each level.";
-    public const string TenStatPoints = "Over 90lev, you will get 10 stat-point at each level.";
-    public const string TrainingReset = "Reset your numbers for training.";
-    public const string MissionTimedOut = "The mission failed by over time.";
-    public const string LifeFifteen = "Increased HP +15";
-    public const string QuestItemLevelUp = "Level up The quest item";
-    public const string QuestItemSlowed = "Decreased ATK speed of quest item";
-    public const string FuryWon = "Win in the confrontation with Fury.";
-    public const string FuryLost = "Lose in the confrontation with Fury.";
-    public const string HestianWon = "You won over Hestian.";
-    public const string HestianLost = "You lost to Hestian.";
-    public const string RewardReceived = "Acquierd items in compensation.";
-    public const string TwentyBargons = "You have killed 20 Bargons.";
-    public const string SkillsRedistributed = "Statistics has been reset";
+    public static readonly GameText StatPointsFive = GameText.Of(GameTextId.StatPointsFive);
+    public static readonly GameText SkillPointOne = GameText.Of(GameTextId.SkillPointOne);
+    public static readonly GameText StatFiveSkillOne = GameText.Of(GameTextId.StatFiveSkillOne);
+    public static readonly GameText StatFiveSkillTwo = GameText.Of(GameTextId.StatFiveSkillTwo);
+    public static readonly GameText DeathPenaltyReduced = GameText.Of(GameTextId.DeathPenaltyReduced);
+    public static readonly GameText VitalityForty = GameText.Of(GameTextId.VitalityForty);
+    public static readonly GameText SevenStatPoints = GameText.Of(GameTextId.SevenStatPoints);
+    public static readonly GameText TenStatPoints = GameText.Of(GameTextId.TenStatPoints);
+    public static readonly GameText TrainingReset = GameText.Of(GameTextId.TrainingReset);
+    public static readonly GameText MissionTimedOut = GameText.Of(GameTextId.MissionTimedOut);
+    public static readonly GameText LifeFifteen = GameText.Of(GameTextId.LifeFifteen);
+    public static readonly GameText QuestItemLevelUp = GameText.Of(GameTextId.QuestItemLevelUp);
+    public static readonly GameText QuestItemSlowed = GameText.Of(GameTextId.QuestItemSlowed);
+    public static readonly GameText FuryWon = GameText.Of(GameTextId.FuryWon);
+    public static readonly GameText FuryLost = GameText.Of(GameTextId.FuryLost);
+    public static readonly GameText HestianWon = GameText.Of(GameTextId.HestianWon);
+    public static readonly GameText HestianLost = GameText.Of(GameTextId.HestianLost);
+    public static readonly GameText RewardReceived = GameText.Of(GameTextId.RewardReceived);
+    public static readonly GameText TwentyBargons = GameText.Of(GameTextId.TwentyBargons);
+    public static readonly GameText SkillsRedistributed = GameText.Of(GameTextId.SkillsRedistributed);
 
-    public const string QuestTitle = " Q U E S T ";
-    public const string FuryTitle = "Fury's phantasma";
+    public static readonly GameText QuestTitle = GameText.Of(GameTextId.QuestTitle);
+    public static readonly GameText FuryTitle = GameText.Of(GameTextId.FuryTitle);
 
-    public static readonly (string, string) CarryOut = ("Do you wanna", "carry out the quest?");
-    public static readonly (string, string) RankUp = ("Do you wanna", "rank up?");
-    public static readonly (string, string) RankUpFifth = ("Rank-Up", "want to do?");
-    public static readonly (string, string) ProcessQuest = ("Process quest", "want to do?");
-    public static readonly (string, string) TheQuest = ("Do you wanna", "the quest?");
-    public static readonly (string, string) SearchQuest = ("Do you wanna", "search for the quest?");
-    public static readonly (string, string) GetQuest = ("Do you want to", "get the Quest?");
-    public static readonly (string, string) ReceiveItem = ("Do you want to", "receive the item?");
-    public static readonly (string, string) BattleZone = ("Do you want to", "move to the Battle Zone?");
-    public static readonly (string, string) Redistribute = ("Do you wanna", "redistribute?");
-    public static readonly (string, string) ReceiveWing = ("Do you wanna", "receive the item?");
+    public static readonly (GameText, GameText) CarryOut = Lines(GameTextId.ConfirmDoYouWanna, GameTextId.ConfirmCarryOut);
+    public static readonly (GameText, GameText) RankUp = Lines(GameTextId.ConfirmDoYouWanna, GameTextId.ConfirmRankUp);
+    public static readonly (GameText, GameText) RankUpFifth = Lines(GameTextId.ConfirmRankUpFifth, GameTextId.ConfirmWantToDo);
+    public static readonly (GameText, GameText) ProcessQuest = Lines(GameTextId.ConfirmProcessQuest, GameTextId.ConfirmWantToDo);
+    public static readonly (GameText, GameText) TheQuest = Lines(GameTextId.ConfirmDoYouWanna, GameTextId.ConfirmTheQuest);
+    public static readonly (GameText, GameText) SearchQuest = Lines(GameTextId.ConfirmDoYouWanna, GameTextId.ConfirmSearchQuest);
+    public static readonly (GameText, GameText) GetQuest = Lines(GameTextId.ConfirmDoYouWantTo, GameTextId.ConfirmGetQuest);
+    public static readonly (GameText, GameText) ReceiveItem = Lines(GameTextId.ConfirmDoYouWantTo, GameTextId.ConfirmReceiveItem);
+    public static readonly (GameText, GameText) BattleZone = Lines(GameTextId.ConfirmDoYouWantTo, GameTextId.ConfirmBattleZone);
+    public static readonly (GameText, GameText) Redistribute = Lines(GameTextId.ConfirmDoYouWanna, GameTextId.ConfirmRedistribute);
+    public static readonly (GameText, GameText) ReceiveWing = Lines(GameTextId.ConfirmDoYouWanna, GameTextId.ConfirmReceiveItem);
+    public static readonly (GameText, GameText) Exchange = Lines(GameTextId.ConfirmDoYouWanna, GameTextId.ConfirmExchangeItem);
 
-    public const string SkillPointName = "Skill Point";
+    public static readonly GameText SkillPointName = GameText.Of(GameTextId.SkillPointName);
 
     // "Quest> name count number of monster needed": the running count of a hunt.
-    public static string Count(string monster, int kills) =>
-        string.Create(CultureInfo.InvariantCulture, $"Quest> {monster} {kills} number of monster needed");
+    public static GameText Count(string monster, int kills) => GameText.Of(GameTextId.QuestKillCount, monster, Number(kills));
 
-    public static string Hunt(int count, string monster) => string.Create(CultureInfo.InvariantCulture, $"<Quest> Hunt {count} of {monster}");
+    public static GameText Hunt(int count, string monster) => GameText.Of(GameTextId.QuestHunt, Number(count), monster);
 
-    public static string GetItemFrom(string monster) => $"<Quest> Get the item from {monster}";
+    public static GameText GetItemFrom(string monster) => GameText.Of(GameTextId.QuestItemFrom, monster);
 
-    public static string HuntFinished(int count, string monster) =>
-        string.Create(CultureInfo.InvariantCulture, $"<Quest>  Finished hunting {count} of the {monster}");
+    public static GameText HuntFinished(int count, string monster) => GameText.Of(GameTextId.QuestHuntFinished, Number(count), monster);
 
-    public static string QuestItemGone(string item) => $"The quest item {item} is gone";
+    public static GameText QuestItemGone(string item) => GameText.Of(GameTextId.QuestItemGone, item);
+
+    // A data name shown as it is: an item, a class title, a destination.
+    public static GameText Name(string name) => GameText.Of(GameTextId.Name, name);
 
     public static readonly string[] FuryRewardNames =
     [
@@ -67,4 +70,7 @@ public static class QuestTexts
         "Gothic Staff"
     ];
 
+    private static (GameText, GameText) Lines(GameTextId first, GameTextId second) => (GameText.Of(first), GameText.Of(second));
+
+    private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);
 }

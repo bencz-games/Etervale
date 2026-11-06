@@ -1,3 +1,5 @@
+using PristonTale.Contracts.Texts;
+
 namespace PristonTale.Simulation.Quests;
 
 // Entry point of quest requests: dispatches a command to the quest families and returns whether it succeeded. The
@@ -19,7 +21,7 @@ public static class QuestEngine
                 : QuestSteps.Stale(context),
             QuestAction.ResetSkills => RankUpRules.ResetSkills(context),
             QuestAction.DeclineSkillReset => RankUpRules.DeclineSkillReset(context),
-            _ => context.Fail(QuestStatus.Rejected, "unknown quest action")
+            _ => context.Fail(QuestStatus.Rejected, GameText.Of(GameTextId.InvalidQuestRequest))
         };
     }
 

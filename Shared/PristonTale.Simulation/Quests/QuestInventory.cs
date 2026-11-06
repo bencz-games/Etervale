@@ -1,5 +1,6 @@
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Quests;
 
@@ -158,7 +159,7 @@ public static class QuestInventory
 
     // Fails the request with the reason the last grant did not fit.
     public static bool Refused(QuestContext context) => context.GrantRefusal == QuestGrantCheck.OverWeight
-        ? context.Fail(QuestStatus.OverWeight, ItemRuleMessages.OverWeight)
+        ? context.Fail(QuestStatus.OverWeight, GameText.Of(GameTextId.OverWeight))
         : context.Fail(QuestStatus.NoSpace, QuestTexts.NotEnoughSpace);
 
     // Creates and places the items of a reward list; the codes missing from the catalog are skipped.

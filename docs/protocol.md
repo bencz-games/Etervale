@@ -93,7 +93,7 @@ Bodies start with `uint16 Version = 1`; text is UTF-8 with a `uint16` byte lengt
 | Step | Packet | Notes |
 | --- | --- | --- |
 | Connect | S→C `ServerHello` (`0x45540F00`) | `{uint16 Version, uint16 0, uint32 Protocol, MinimumProtocol, int32 FullPlayers, text ServerName (32 B)}`: `FullPlayers` = players in the world when the player limit (`server.max_users` or `/user_limit`) is reached, else 0 (then only game masters may log in); `ServerName` is `server.name`. |
-| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (8); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
+| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (9); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
 | Result | S→C `CharacterList` (`0x45540F03`), then `LoginResult` (`0x45540F02`) | `LoginResult` = `{uint16 Version, uint8 Status, uint8 0}`: 0 ok, 1 bad credentials (also unknown accounts), 2 account blocked, 3 already logged in on this connection, 4 busy (throttled, full or storage failure), 5 client protocol older than the server's minimum. A failed login sends no list. |
 | Character list | S→C `CharacterList` | `{uint16 Version, uint16 0, int32 Count (at most 6)}`, then `{text Name, uint32 Class (PlayerClass), int32 Level, uint8 Tier, Face, Hair, Flags (1 in a village), uint32 WeaponCode, ArmorCode, OffHandCode, uint32 0}`. |
 | Create, delete | C→S `CharacterCommand` (`0x45540F04`), S→C `CharacterResult` (`0x45540F05`) | Command `{uint16 Version, uint8 Action (1 create, 2 delete), uint8 0, int32 Class (PlayerClass), FaceIndex, text Name}`; result `{uint16 Version, uint8 Action, uint8 Ok, int32 Failure (CreateCharacterFailure), text Name}`. |
@@ -516,17 +516,17 @@ Bodies start with `{uint16 Version = 1, uint16 Flags = 0}`.
 
 ### Quests
 
-Quest bodies start with the NPC header `{uint16 Version = 3, uint16 Flags = 0}` (`NpcWire`); text is UTF-8 with a `uint16` byte length (64 bytes,
-notices 128). A dialog is `{uint16 Code, uint8 Followup, uint8 0, int32 State, int32 Choice, text Document, Title,
+Quest bodies start with the NPC header `{uint16 Version = 3, uint16 Flags = 0}` (`NpcWire`); text is UTF-8 with a `uint16` byte length (64 bytes).
+A dialog is `{uint16 Code, uint8 Followup, uint8 0, int32 State, int32 Choice, text Document, game text Title,
 ConfirmLine1, ConfirmLine2, ConfirmDetail, int32 ChoiceCount, (text Choice, text ChoiceDocument)...}` (at most 16
-choices); a notice list is `{int32 Count, (uint8 Kind, uint8 0, text)...}` (at most 32). Codes and enums are
+choices); a notice list is `{int32 Count, (uint8 Kind, uint8 0, game text)...}` (at most 32). Codes and enums are
 `QuestCode`, `QuestAction`, `QuestStatus`, `QuestFollowup`, `QuestNoticeKind`, `QuestTimerKind` (see
 [quests.md](quests.md)).
 
 - `QuestRequest` (48 bytes): `{Guid OperationId, uint64 NpcId, uint8 Action, uint8 0, uint16 Code, int32 State,
   int32 Choice}`. `NpcId` is 0 only for the redistribution offer and the victory dialog of a duel.
 - `QuestResult`: `{Guid OperationId, uint8 Status, uint8 Flags (1 ok, 2 class change offered, 4 redistribution
-  offered, 8 dialog follows), uint16 0, int64 Revision, text Message, [dialog], notices}`.
+  offered, 8 dialog follows), uint16 0, int64 Revision, game text Message, [dialog], notices}`.
 - `QuestJournal`: `{int64 Revision, uint16 Code, uint8 Timer, uint8 RedistributionOffered, int32 State, text
   TargetName, int32 Kills, KillsNeeded, int64 TimerMs, int32 WeaponStage, WeaponKillsLeft, int32 ProgressCount,
   (text Title, text Description)..., int32 FinishedCount, lines}` (at most 16 running and 32 finished lines; a

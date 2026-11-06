@@ -1,5 +1,6 @@
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.World;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Quests;
 
@@ -60,7 +61,7 @@ public static class WingQuest
 
         var recipe = Recipes[index];
         context.Show(CanExchange(context, recipe)
-            ? QuestSteps.Confirm(QuestCode.None, index, recipe.Documents + "_b", QuestTexts.ReceiveWing, WingGates.Wings[index].Name)
+            ? QuestSteps.Confirm(QuestCode.None, index, recipe.Documents + "_b", QuestTexts.ReceiveWing, QuestTexts.Name(WingGates.Wings[index].Name))
             : QuestSteps.Close(QuestCode.None, index, recipe.Documents + "_a"));
     }
 
@@ -88,7 +89,7 @@ public static class WingQuest
             return QuestInventory.Refused(context);
         }
 
-        context.Notice(QuestNoticeKind.Fanfare, "");
+        context.Notice(QuestNoticeKind.Fanfare, GameText.None);
         return true;
     }
 }

@@ -258,9 +258,6 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     private float PlayerYaw => InActionField ? ActionFieldView.Facing(WorldSpace.RenderYaw(_playerForward)) : WorldSpace.RenderYaw(_playerForward);
     public event Action<PresenceUpdate> PresenceObserved;
 
-    // What a request answers when the scene has no world connection.
-    private const string NoConnection = "world connection unavailable";
-
     public Task<PristonTale.Simulation.Items.InventoryOutcome> ApplyInventoryAsync(PristonTale.Simulation.Items.InventoryCommand command)
     {
         return _playChannel is not null ? _playChannel.ApplyInventoryAsync(command, _presenceCts.Token)
@@ -305,7 +302,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     {
         return _playChannel is not null ? _playChannel.RequestQuestAsync(command, _presenceCts.Token)
             : Task.FromResult(PristonTale.Simulation.Quests.QuestOutcome.Failed(PristonTale.Simulation.Quests.QuestStatus.Rejected,
-                NoConnection));
+                PristonTale.Contracts.Texts.GameText.Of(PristonTale.Contracts.Texts.GameTextId.ConnectionError)));
     }
 
     public void PlayItemSound(string catalogKey) => _fieldAudio?.PlayItem(catalogKey);

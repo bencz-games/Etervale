@@ -7,6 +7,8 @@ using PristonTale.Gameplay.UI.Parties;
 using PristonTale.Gameplay.UI.Quests;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Quests;
+using PristonTale.Contracts.Texts;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Tests;
 
@@ -26,11 +28,11 @@ internal static class QuestHudTests
         var quests = new HudQuestController(command =>
         {
             sent.Add(command);
-            return Task.FromResult(next ?? new QuestOutcome(true, QuestStatus.Ok, "", 1, null, []));
+            return Task.FromResult(next ?? new QuestOutcome(true, QuestStatus.Ok, GameText.None, 1, null, []));
         }, ConsoleClientLog.Instance);
 
-        next = new QuestOutcome(true, QuestStatus.Ok, "", 1, QuestSteps.Confirm(QuestCode.Level30, 0, "LevelQuest30start", QuestTexts.SearchQuest),
-            [new QuestNotice(QuestNoticeKind.Fanfare, "")]) { ClassChangeOffered = true };
+        next = new QuestOutcome(true, QuestStatus.Ok, GameText.None, 1, QuestSteps.Confirm(QuestCode.Level30, 0, "LevelQuest30start", QuestTexts.SearchQuest),
+            [new QuestNotice(QuestNoticeKind.Fanfare, GameText.None)]) { ClassChangeOffered = true };
         quests.Talk(9);
         await Settle(quests);
         Assert.True(quests.Dialog is { Code: QuestCode.Level30 } && quests.DialogNpc == 9 && quests.ClassChangeNpc == 9 && quests.DialogsOpened == 1,
@@ -44,7 +46,7 @@ internal static class QuestHudTests
         Assert.True(sent[^1] is { Action: QuestAction.Accept, Code: QuestCode.Level30, State: 0, NpcEntityId: 9 } && quests.Dialog is null,
             "the yes answer did not accept the step");
 
-        next = new QuestOutcome(true, QuestStatus.Ok, "", 2, QuestSteps.Proceed(QuestCode.Level30, 2, "LevelQuest30end"), []);
+        next = new QuestOutcome(true, QuestStatus.Ok, GameText.None, 2, QuestSteps.Proceed(QuestCode.Level30, 2, "LevelQuest30end"), []);
         quests.Talk(9);
         await Settle(quests);
         next = null;
@@ -57,10 +59,10 @@ internal static class QuestHudTests
             Choices = ["A", "B", "C"],
             ChoiceDocuments = ["d1", "d2", "d3"]
         };
-        next = new QuestOutcome(true, QuestStatus.Ok, "", 3, list, []);
+        next = new QuestOutcome(true, QuestStatus.Ok, GameText.None, 3, list, []);
         quests.Talk(4);
         await Settle(quests);
-        next = new QuestOutcome(true, QuestStatus.Ok, "", 4, list with { State = 13, Followup = QuestFollowup.ConfirmChoice, Choice = 3 }, []);
+        next = new QuestOutcome(true, QuestStatus.Ok, GameText.None, 4, list with { State = 13, Followup = QuestFollowup.ConfirmChoice, Choice = 3 }, []);
         quests.Choose(2);
         await Settle(quests);
         Assert.True(sent[^1] is { Action: QuestAction.ChooseReward, Choice: 3 } && quests.Browse == 3 && quests.DialogDocument == "d3", "the reward list differs");
@@ -87,11 +89,11 @@ internal static class QuestHudTests
         Assert.True(sent[^1] is { Action: QuestAction.ResetSkills, NpcEntityId: 0 }, "a new offer could not be taken");
 
         var victory = new QuestPrompt(QuestCode.RankUpMasterTrial, 8, "ChangeJob4_4End", QuestFollowup.Confirm);
-        quests.Observe(new PresenceUpdate(5, [], [], [], []) { QuestPrompt = victory, QuestNotices = [new QuestNotice(QuestNoticeKind.Message, "won")] });
-        Assert.True(quests.Dialog == victory && quests.DialogNpc == 0 && quests.TryTakeNotice(out var won) && won.Text == "won",
+        quests.Observe(new PresenceUpdate(5, [], [], [], []) { QuestPrompt = victory, QuestNotices = [new QuestNotice(QuestNoticeKind.Message, QuestTexts.FuryWon)] });
+        Assert.True(quests.Dialog == victory && quests.DialogNpc == 0 && quests.TryTakeNotice(out var won) && won.Text == QuestTexts.FuryWon,
             "the world's dialog did not open");
 
-        next = QuestOutcome.Failed(QuestStatus.Busy, "busy");
+        next = QuestOutcome.Failed(QuestStatus.Busy, GameText.Of(GameTextId.CharacterBusy));
         quests.CloseDialog();
         var messages = quests.Completions;
         quests.Talk(3);
@@ -101,7 +103,7 @@ internal static class QuestHudTests
         quests.ChangeClass(3);
         quests.Talk(3);
         await Settle(quests);
-        Assert.True(quests.Completions == messages + 1 && quests.Message == QuestTexts.QuestInProgress, "a refused talk stayed silent");
+        Assert.True(quests.Completions == messages + 1 && quests.Message == ClientText.Format(QuestTexts.QuestInProgress), "a refused talk stayed silent");
     }
 
     private static async Task Settle(HudQuestController quests)

@@ -23,6 +23,18 @@ public static class GameTextWire
         }
     }
 
+    public static int Size(GameText text)
+    {
+        var size = MinimumSize;
+        var args = text.Args;
+        for (var index = 0; index < Math.Min(args.Length, MaxArgs); index++)
+        {
+            size += Utf8Text.Size(args[index], MaxArgBytes);
+        }
+
+        return size;
+    }
+
     public static GameText Read(ref PacketReader reader)
     {
         var id = (GameTextId)reader.UInt16();

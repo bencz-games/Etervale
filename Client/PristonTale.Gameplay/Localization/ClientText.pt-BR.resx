@@ -84,13 +84,35 @@
   <data name="Game.ClanOnly" xml:space="preserve"><value>Só membros de um clã regular podem usar este item</value></data>
   <data name="Game.CloseShopFirst" xml:space="preserve"><value>Feche sua loja pessoal primeiro</value></data>
   <data name="Game.CloseTradeFirst" xml:space="preserve"><value>Feche a janela de troca primeiro</value></data>
+  <data name="Game.ConfirmBattleZone" xml:space="preserve"><value>ir para a zona de batalha?</value></data>
+  <data name="Game.ConfirmCarryOut" xml:space="preserve"><value>cumprir a quest?</value></data>
+  <data name="Game.ConfirmDoYouWanna" xml:space="preserve"><value>Você quer</value></data>
+  <data name="Game.ConfirmDoYouWantTo" xml:space="preserve"><value>Você quer</value></data>
+  <data name="Game.ConfirmExchangeItem" xml:space="preserve"><value>trocar pelo item?</value></data>
+  <data name="Game.ConfirmGetQuest" xml:space="preserve"><value>pegar a quest?</value></data>
+  <data name="Game.ConfirmProcessQuest" xml:space="preserve"><value>Seguir a quest,</value></data>
+  <data name="Game.ConfirmRankUp" xml:space="preserve"><value>subir de rank?</value></data>
+  <data name="Game.ConfirmRankUpFifth" xml:space="preserve"><value>Subir de rank,</value></data>
+  <data name="Game.ConfirmReceiveItem" xml:space="preserve"><value>receber o item?</value></data>
+  <data name="Game.ConfirmRedistribute" xml:space="preserve"><value>redistribuir?</value></data>
+  <data name="Game.ConfirmSearchQuest" xml:space="preserve"><value>procurar a quest?</value></data>
+  <data name="Game.ConfirmTheQuest" xml:space="preserve"><value>a quest?</value></data>
+  <data name="Game.ConfirmWantToDo" xml:space="preserve"><value>quer fazer?</value></data>
+  <data name="Game.ConnectionError" xml:space="preserve"><value>Erro de conexão. Tente de novo.</value></data>
   <data name="Game.CrystalRefused" xml:space="preserve"><value>Você não pode usar este cristal</value></data>
   <data name="Game.DeadCannotUse" xml:space="preserve"><value>Não é possível usar itens enquanto está morto</value></data>
+  <data name="Game.DeathPenaltyReduced" xml:space="preserve"><value>Penalidade de EXP por morte reduzida em 1</value></data>
   <data name="Game.DropOutOfReach" xml:space="preserve"><value>O item sumiu ou está fora de alcance</value></data>
   <data name="Game.EnterWorldFirst" xml:space="preserve"><value>Entre no mundo primeiro</value></data>
   <data name="Game.FemaleCannotUse" xml:space="preserve"><value>A personagem feminina não pode usar</value></data>
+  <data name="Game.FuryLost" xml:space="preserve"><value>Derrota no confronto com Fury.</value></data>
+  <data name="Game.FuryTitle" xml:space="preserve"><value>O fantasma de Fury</value></data>
+  <data name="Game.FuryWon" xml:space="preserve"><value>Vitória no confronto com Fury.</value></data>
   <data name="Game.GoldLimit" xml:space="preserve"><value>Excede a quantidade máxima de ouro que você pode carregar</value></data>
   <data name="Game.GravityStoneUsed" xml:space="preserve"><value>Você usou uma Gravity Stone</value></data>
+  <data name="Game.HestianLost" xml:space="preserve"><value>Você perdeu para Hestian.</value></data>
+  <data name="Game.HestianWon" xml:space="preserve"><value>Você venceu Hestian.</value></data>
+  <data name="Game.InvalidQuestRequest" xml:space="preserve"><value>Pedido de quest inválido</value></data>
   <data name="Game.InventoryChanged" xml:space="preserve"><value>O inventário mudou; tente de novo</value></data>
   <data name="Game.ItemAlreadyRunning" xml:space="preserve"><value>Este item já está em uso</value></data>
   <data name="Game.ItemInTrade" xml:space="preserve"><value>O item está na janela de troca</value></data>
@@ -102,11 +124,17 @@
   <data name="Game.ItemUsed" xml:space="preserve"><value>Item usado</value></data>
   <data name="Game.ItemsReceived" xml:space="preserve"><value>Você recebeu {0} x{1}</value></data>
   <data name="Game.LevelTooLow" xml:space="preserve"><value>Seu nível é baixo demais</value></data>
+  <data name="Game.LifeFifteen" xml:space="preserve"><value>HP aumentado em +15</value></data>
   <data name="Game.LuckyBagHeld" xml:space="preserve"><value>A lucky bag continha {0}</value></data>
   <data name="Game.MaleCannotUse" xml:space="preserve"><value>O personagem masculino não pode usar</value></data>
+  <data name="Game.MissionTimedOut" xml:space="preserve"><value>A missão falhou por tempo esgotado.</value></data>
+  <data name="Game.Name" xml:space="preserve"><value>{0}</value></data>
+  <data name="Game.NoClassChange" xml:space="preserve"><value>O mestre não tem mudança de classe para você agora</value></data>
+  <data name="Game.NoQuestWeapon" xml:space="preserve"><value>O mestre não pode forjar uma arma de quest para esta classe</value></data>
   <data name="Game.NoRoomOnGround" xml:space="preserve"><value>Não há espaço no chão</value></data>
   <data name="Game.NoSession" xml:space="preserve"><value>Sessão inválida</value></data>
   <data name="Game.NoShopHere" xml:space="preserve"><value>Não há loja aberta aqui</value></data>
+  <data name="Game.NoSkillRedistribution" xml:space="preserve"><value>Nenhuma redistribuição de habilidades é oferecida</value></data>
   <data name="Game.NoSpace" xml:space="preserve"><value>Não há espaço suficiente no inventário</value></data>
   <data name="Game.NotEnoughGold" xml:space="preserve"><value>Ouro insuficiente</value></data>
   <data name="Game.NotPlaying" xml:space="preserve"><value>O personagem não está jogando</value></data>
@@ -122,12 +150,24 @@
   <data name="Game.PotionNotNow" xml:space="preserve"><value>Você não pode usar outra poção agora</value></data>
   <data name="Game.PotionNotStored" xml:space="preserve"><value>Poções não podem ser guardadas</value></data>
   <data name="Game.ProgressionRefused" xml:space="preserve"><value>Requisitos não atendidos ou o personagem mudou; tente de novo</value></data>
+  <data name="Game.QuestHunt" xml:space="preserve"><value>&lt;Quest&gt; Cace {0} {1}</value></data>
+  <data name="Game.QuestHuntFinished" xml:space="preserve"><value>&lt;Quest&gt;  Caça de {0} {1} concluída</value></data>
+  <data name="Game.QuestInProgress" xml:space="preserve"><value>Você já tem uma quest em andamento</value></data>
+  <data name="Game.QuestItemFrom" xml:space="preserve"><value>&lt;Quest&gt; Pegue o item de {0}</value></data>
+  <data name="Game.QuestItemGone" xml:space="preserve"><value>O item da quest {0} sumiu</value></data>
+  <data name="Game.QuestItemLevelUp" xml:space="preserve"><value>O item da quest subiu de nível</value></data>
+  <data name="Game.QuestItemSlowed" xml:space="preserve"><value>A velocidade de ataque do item da quest diminuiu</value></data>
+  <data name="Game.QuestKillCount" xml:space="preserve"><value>Quest&gt; {0}: faltam {1} monstros</value></data>
+  <data name="Game.QuestMovedOn" xml:space="preserve"><value>A quest avançou; fale com o NPC de novo</value></data>
+  <data name="Game.QuestTitle" xml:space="preserve"><value> Q U E S T </value></data>
   <data name="Game.RequestRefused" xml:space="preserve"><value>O pedido foi recusado</value></data>
+  <data name="Game.RewardReceived" xml:space="preserve"><value>Itens recebidos como recompensa.</value></data>
   <data name="Game.SameAttributeRunning" xml:space="preserve"><value>Um item com o mesmo atributo já está em uso</value></data>
   <data name="Game.SellerNotFound" xml:space="preserve"><value>O vendedor não foi encontrado</value></data>
   <data name="Game.SellerShopClosed" xml:space="preserve"><value>A loja do vendedor está fechada</value></data>
   <data name="Game.ServiceNotAvailable" xml:space="preserve"><value>Este serviço ainda não está disponível</value></data>
   <data name="Game.ServiceStale" xml:space="preserve"><value>O inventário ou o armazém mudou; tente de novo</value></data>
+  <data name="Game.SevenStatPoints" xml:space="preserve"><value>Acima do nível 80, você ganha 7 pontos de atributo por nível.</value></data>
   <data name="Game.ShopBuysAndRepairs" xml:space="preserve"><value>Esta loja só compra e conserta</value></data>
   <data name="Game.ShopCountChanged" xml:space="preserve"><value>A quantidade de itens está errada</value></data>
   <data name="Game.ShopNotInTown" xml:space="preserve"><value>Uma loja pessoal só abre em uma cidade</value></data>
@@ -137,14 +177,25 @@
   <data name="Game.ShopSoldOut" xml:space="preserve"><value>O item já foi vendido</value></data>
   <data name="Game.ShopTradePending" xml:space="preserve"><value>Uma troca ainda está pendente; tente de novo</value></data>
   <data name="Game.SkillMasterAway" xml:space="preserve"><value>Aproxime-se, vivo, do mestre de habilidades da sua cidade</value></data>
+  <data name="Game.SkillPointName" xml:space="preserve"><value>Pontos de habilidade</value></data>
+  <data name="Game.SkillPointOne" xml:space="preserve"><value>pontos de habilidade aumentados em 1</value></data>
   <data name="Game.SkillsMastered" xml:space="preserve"><value>O treino das habilidades está completo</value></data>
+  <data name="Game.SkillsRedistributed" xml:space="preserve"><value>Os pontos foram redistribuídos</value></data>
   <data name="Game.SkillsReset" xml:space="preserve"><value>Seus pontos de habilidade podem ser distribuídos de novo</value></data>
   <data name="Game.StaleInventory" xml:space="preserve"><value>Operação inválida ou o inventário mudou; tente de novo</value></data>
+  <data name="Game.StatFiveSkillOne" xml:space="preserve"><value>pontos de atributo e de habilidade aumentados em 5 e 1</value></data>
+  <data name="Game.StatFiveSkillTwo" xml:space="preserve"><value>pontos de atributo e de habilidade aumentados em 5 e 2</value></data>
+  <data name="Game.StatPointsFive" xml:space="preserve"><value>pontos de atributo aumentados em 5</value></data>
   <data name="Game.StatsReset" xml:space="preserve"><value>Seus pontos de atributo podem ser distribuídos de novo</value></data>
   <data name="Game.StorageRejected" xml:space="preserve"><value>O armazenamento recusou a operação; nada mudou</value></data>
   <data name="Game.SummonLimit" xml:space="preserve"><value>Você só pode ter {0} invocações de cristal ao mesmo tempo</value></data>
+  <data name="Game.TalkToNpcFirst" xml:space="preserve"><value>Fale com o NPC primeiro</value></data>
+  <data name="Game.TenStatPoints" xml:space="preserve"><value>Acima do nível 90, você ganha 10 pontos de atributo por nível.</value></data>
   <data name="Game.TooManyRequests" xml:space="preserve"><value>Pedidos demais; espere um momento</value></data>
+  <data name="Game.TrainingReset" xml:space="preserve"><value>Sua contagem de treino foi reiniciada.</value></data>
+  <data name="Game.TwentyBargons" xml:space="preserve"><value>Você matou 20 Bargons.</value></data>
   <data name="Game.UseDelay" xml:space="preserve"><value>Espere um momento antes de usar outro</value></data>
+  <data name="Game.VitalityForty" xml:space="preserve"><value>Vitalidade aumentada em 40</value></data>
   <data name="Game.WarehouseChanged" xml:space="preserve"><value>O armazém mudou em outro lugar; abra de novo</value></data>
   <data name="Game.WarehouseNotOpen" xml:space="preserve"><value>Abra o armazém primeiro</value></data>
   <data name="Game.WarehouseUnreadable" xml:space="preserve"><value>O armazém salvo não pode ser lido</value></data>

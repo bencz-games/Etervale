@@ -96,8 +96,8 @@ public static class RankUpByPotion
         var active = context.Journal.Active;
         if (IsBranch(active.Code) && CanBrew(context, active.Code))
         {
-            context.Show(QuestSteps.Confirm(active.Code, active.State, "", ("Do you wanna", "exchange to the item?"),
-                active.Code == QuestCode.RankUpHoney ? "Royal Jelly" : "Hair Tonic"));
+            context.Show(QuestSteps.Confirm(active.Code, active.State, "", QuestTexts.Exchange,
+                QuestTexts.Name(active.Code == QuestCode.RankUpHoney ? "Royal Jelly" : "Hair Tonic")));
         }
     }
 

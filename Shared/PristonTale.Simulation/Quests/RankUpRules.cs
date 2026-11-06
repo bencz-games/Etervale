@@ -1,5 +1,6 @@
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Progression;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Quests;
 
@@ -78,7 +79,7 @@ public static class RankUpRules
         var code = Offer(context);
         if (code == QuestCode.None)
         {
-            return context.Fail(QuestStatus.Rejected, "the master has no class change for you now");
+            return context.Fail(QuestStatus.Rejected, GameText.Of(GameTextId.NoClassChange));
         }
 
         if (!context.Journal.Active.IsIdle)
@@ -116,7 +117,8 @@ public static class RankUpRules
     }
 
     public static QuestPrompt RankUpPrompt(QuestContext context, QuestCode code, int state, string document) =>
-        QuestSteps.Confirm(code, state, document, QuestTexts.RankUp, ClassProfiles.Of(QuestClasses.ClassOf(context.Character)).TitleAt(context.Character.Tier + 1));
+        QuestSteps.Confirm(code, state, document, QuestTexts.RankUp,
+            QuestTexts.Name(ClassProfiles.Of(QuestClasses.ClassOf(context.Character)).TitleAt(context.Character.Tier + 1)));
 
     // Moves the class one tier up; the master then offers one free redistribution of the learned skills.
     public static void RankUp(QuestContext context)
@@ -124,7 +126,7 @@ public static class RankUpRules
         var character = context.Character;
         character.ApplyQuestProgress((short)(character.Tier + 1), 0, 0, 0);
         context.Journal.SkillResetOffered = true;
-        context.Notice(QuestNoticeKind.Fanfare, "");
+        context.Notice(QuestNoticeKind.Fanfare, GameText.None);
     }
 
     // The original asks once, right after the rank-up: No ends the offer.
@@ -153,5 +155,5 @@ public static class RankUpRules
     }
 
     private static bool ResetOffered(QuestContext context) =>
-        context.Journal.SkillResetOffered || context.Fail(QuestStatus.Rejected, "no skill redistribution is offered");
+        context.Journal.SkillResetOffered || context.Fail(QuestStatus.Rejected, GameText.Of(GameTextId.NoSkillRedistribution));
 }

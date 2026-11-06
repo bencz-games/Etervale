@@ -7,6 +7,7 @@ using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Ai;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -39,14 +40,14 @@ internal static class QuestTransactions
         var journal = original.Quests;
         if (command.OperationId == Guid.Empty || !Enum.IsDefined(command.Action))
         {
-            return Final(original, QuestOutcome.Failed(QuestStatus.Rejected, "invalid quest request", journal.Revision));
+            return Final(original, QuestOutcome.Failed(QuestStatus.Rejected, GameText.Of(GameTextId.InvalidQuestRequest), journal.Revision));
         }
 
         if (journal.Find(command.OperationId) is { } applied)
         {
             return Final(original, applied.Command == command
-                ? new QuestOutcome(true, QuestStatus.Ok, "already committed", journal.Revision, null, [])
-                : QuestOutcome.Failed(QuestStatus.Conflict, "operation identity conflict", journal.Revision));
+                ? new QuestOutcome(true, QuestStatus.Ok, GameText.Of(GameTextId.AlreadyApplied), journal.Revision, null, [])
+                : QuestOutcome.Failed(QuestStatus.Conflict, GameText.Of(GameTextId.OperationConflict), journal.Revision));
         }
 
         var npc = QuestNpc.None;
@@ -54,7 +55,7 @@ internal static class QuestTransactions
         {
             if (!field.TryGetNpc(command.NpcEntityId, out var worldNpc) || !NpcServiceTransactions.CanReach(player, worldNpc))
             {
-                return Final(original, QuestOutcome.Failed(QuestStatus.OutOfReach, "approach this NPC while alive", journal.Revision));
+                return Final(original, QuestOutcome.Failed(QuestStatus.OutOfReach, GameText.Of(GameTextId.NpcOutOfReach), journal.Revision));
             }
 
             npc = DescribeNpc(worldNpc, original, field.FieldId);
@@ -62,14 +63,14 @@ internal static class QuestTransactions
         else if (command.Action is QuestAction.Talk or QuestAction.ChangeClass || player.IsDead
             || command.Action is QuestAction.Proceed or QuestAction.Accept or QuestAction.ChooseReward && !OpenedByWorld(journal.Active, command))
         {
-            return Final(original, QuestOutcome.Failed(QuestStatus.OutOfReach, "talk to the NPC first", journal.Revision));
+            return Final(original, QuestOutcome.Failed(QuestStatus.OutOfReach, GameText.Of(GameTextId.TalkToNpcFirst), journal.Revision));
         }
 
         var source = new CatalogQuestItemSource(items);
         if (command.NpcEntityId != 0 && command.Action is QuestAction.Proceed or QuestAction.Accept or QuestAction.ChooseReward
             && !Offered(original, npc, source, nowUnixMs, field.FieldId, command))
         {
-            return Final(original, QuestOutcome.Failed(QuestStatus.Stale, "the quest has moved on; talk to the NPC again", journal.Revision));
+            return Final(original, QuestOutcome.Failed(QuestStatus.Stale, GameText.Of(GameTextId.QuestMovedOn), journal.Revision));
         }
 
         var candidate = original.CloneForInventoryOperation();
@@ -86,7 +87,7 @@ internal static class QuestTransactions
         var changed = candidate.Quests.Revision != journal.Revision || candidate.InventoryRevision != original.InventoryRevision
             || candidate.Tier != original.Tier || candidate.StatPoints != original.StatPoints || candidate.SkillPoints != original.SkillPoints
             || candidate.EliteSkillPoints != original.EliteSkillPoints || candidate.Money != original.Money;
-        var outcome = new QuestOutcome(true, QuestStatus.Ok, "", candidate.Quests.Revision, context.Prompt, context.Notices)
+        var outcome = new QuestOutcome(true, QuestStatus.Ok, GameText.None, candidate.Quests.Revision, context.Prompt, context.Notices)
         {
             ClassChangeOffered = context.ClassChangeOffered,
             SkillResetOffered = candidate.Quests.SkillResetOffered && !journal.SkillResetOffered,
@@ -123,7 +124,7 @@ internal static class QuestTransactions
         var context = new QuestContext(candidate, QuestNpc.None, new CatalogQuestItemSource(items), rng, nowUnixMs, field.FieldId);
         QuestDrops.Upkeep(context, drops);
         candidate.MatureAgedItems();
-        var outcome = new QuestOutcome(true, QuestStatus.Ok, "", candidate.Quests.Revision, null, context.Notices);
+        var outcome = new QuestOutcome(true, QuestStatus.Ok, GameText.None, candidate.Quests.Revision, null, context.Notices);
         if (candidate.Quests.Revision == original.Quests.Revision && candidate.InventoryRevision == original.InventoryRevision)
         {
             return new PreparedQuestOperation(original, null, null, outcome) { Upkeep = true };

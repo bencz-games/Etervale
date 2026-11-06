@@ -630,7 +630,7 @@ internal sealed class HudCaptureProbe : Game
             },
             _ => null
         };
-        return new QuestOutcome(true, QuestStatus.Ok, "", 1, prompt, []) { ClassChangeOffered = _quest == ProbeQuest.ClassChange };
+        return new QuestOutcome(true, QuestStatus.Ok, GameText.None, 1, prompt, []) { ClassChangeOffered = _quest == ProbeQuest.ClassChange };
     }
 
     private static QuestView QuestJournal(ProbeQuest quest) => quest switch
