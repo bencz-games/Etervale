@@ -190,6 +190,39 @@ public sealed partial class PlayerCharacter
     }
 
     public CharacterAttributes Attributes { get; private set; }
+
+    private CharacterAttributes _effectiveAttributes;
+    private CharacterAttributes _effectiveBase;
+    private long _effectiveRevision = -1;
+
+    // The attributes the formulas read: Strength, Spirit and Agility raised by their percent modifiers, each truncated once;
+    // kept until the effects or the allocated attributes change.
+    public CharacterAttributes EffectiveAttributes
+    {
+        get
+        {
+            if (_effectiveRevision != Effects.Revision || !ReferenceEquals(_effectiveBase, Attributes))
+            {
+                var totals = Effects.Totals;
+                var (strength, spirit, agility) = (totals.Percent(StatKind.Strength), totals.Percent(StatKind.Spirit), totals.Percent(StatKind.Agility));
+                _effectiveAttributes = strength == 0 && spirit == 0 && agility == 0
+                    ? Attributes
+                    : Attributes with
+                    {
+                        Strength = Raised(Attributes.Strength, strength),
+                        Spirit = Raised(Attributes.Spirit, spirit),
+                        Agility = Raised(Attributes.Agility, agility)
+                    };
+                _effectiveBase = Attributes;
+                _effectiveRevision = Effects.Revision;
+            }
+
+            return _effectiveAttributes;
+        }
+    }
+
+    private static int Raised(int value, int percent) => percent == 0 ? value : (int)(value * (1f + percent / 100f));
+
     public Inventory Inventory { get; private set; } = new();
     public long InventoryRevision { get; private set; }
     public OperationHistory<AppliedInventoryOperation> InventoryOperations { get; } = new();
@@ -508,7 +541,7 @@ public sealed partial class PlayerCharacter
         }
 
         _equipmentTotals = equipped;
-        var stats = DerivedStats.Compute(Attributes, Level, Definition.FunctionProfile, equipped, Items.CarriedWeight.Of(this));
+        var stats = DerivedStats.Compute(EffectiveAttributes, Level, Definition.FunctionProfile, equipped, Items.CarriedWeight.Of(this));
         _derivedEffectsRevision = Effects.Revision;
         _derived = ModifierRules.Apply(PassiveSkills.Apply(stats, this), Effects.Totals);
         _derived = _derived with { MaxWeight = _derived.MaxWeight + PremiumRules.WeightBonus(Premium) };

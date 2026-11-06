@@ -435,6 +435,23 @@ Every cast draws `vfx.magician.castcircle` (the Magician's circle textures) unle
 | Press Of Deity | One meteor falling onto the target, bursting there | `vfx.shaman.pressofdeity.*` |
 | Ghostly Nail | The casting circle and the nails at the caster; their burst at the target | `vfx.shaman.ghostlynail.*` |
 
+### Martial Artist
+
+Every effect is the class's own converted particle script, at the target for strikes (`Target`) and at the caster for
+the others; the kept auras follow their holder.
+
+| Skill | Original | Effects |
+|---|---|---|
+| Low Kick, Double Backspin Blow, Hyper Punch | Their kick or punch at the target on each hit | `vfx.martial.lowkick.hit`, `backspinblow.hit`, `hyperpunch.hit` |
+| Rage, Deep Breath, Hard Training | The start at the caster, the end burst (Rage), the aura kept while it lasts | `vfx.martial.rage.*`, `deepbreath.*`, `hardtraining.*` |
+| Twister Kick | The leap at the caster, the hit at the target | `vfx.martial.twisterkick.*` |
+| Elbow Rush | The wave at the caster | `vfx.martial.elbowrush.wave` |
+| Tiger Cannon | The start at the caster; a ray (`Ray03`) from before the caster to the target and its hit there | `vfx.martial.tigercannon.*` |
+| War Cry | The shout at the caster, the hit at the target, the mark on every weakened monster | `vfx.martial.warcry.*` |
+| Leap Smash | The leap at the target as the cast starts, the landing there | `vfx.martial.leapsmash.*`; `impactEffects` |
+| Barrage, Shoulder Charge, Typhoon Kick, Hunting Hawk, Line Break | A particle per hit (jab, jab, uppercut, straight; the two, three or two strikes) | `vfx.martial.*`; `impactEffects` |
+| Nerves of Steel | The aura, from the start of the clip | `vfx.martial.nervesofsteel.aura` |
+
 ### Actor looks and per-hit sounds
 
 Rule fields beside the effect names (docs/skills.md) draw what the original does to the actors themselves:

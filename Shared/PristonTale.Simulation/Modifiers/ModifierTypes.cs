@@ -79,7 +79,12 @@ public enum StatKind : byte
     SpellDamage = 49,
     // Any positive value lifts the step limit of the move speed (Locomotion.StepLevel).
     MoveSpeedUnbound = 50,
-    Count = 51
+    // Percent of the attribute in every formula that reads it (PlayerCharacter.EffectiveAttributes); item requirements
+    // and the status window keep the allocated value.
+    Strength = 51,
+    Spirit = 52,
+    Agility = 53,
+    Count = 54
 }
 
 public enum ModifierOp : byte

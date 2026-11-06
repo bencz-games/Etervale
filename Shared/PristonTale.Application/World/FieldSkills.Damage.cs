@@ -48,7 +48,7 @@ internal sealed partial class FieldSkills
             attack = attack with { SkillFlatAdd = attack.SkillFlatAdd + elemental };
         }
 
-        var result = CombatResolver.Resolve(_rng, attack, defence, alwaysHit: damageRule.NeverMiss || rule.NoAccuracy);
+        var result = CombatResolver.Resolve(_rng, attack, defence, alwaysHit: damageRule.NeverMiss || rule.NoAccuracy || rule.NoAccuracyHits.Contains(hit + 1));
         if (result.Damage <= 0)
         {
             cast.Missed = true;

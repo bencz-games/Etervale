@@ -1,0 +1,569 @@
+[
+  {
+    "name": "vfx.martial.lowkick.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill1_MartialArtist_LowKick",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.backspinblow.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill1_MartialArtist_D_Backspin_Blow",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.hyperpunch.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill1_MartialArtist_HyperStraight",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.rage.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill2_MartialArtist_RageUp_Start",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.rage.burst",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill2_MartialArtist_RageUp_End",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.rage.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.Skill2_MartialArtist_RageUp_Keep",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.twisterkick.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill2_MartialArtist_Patriot_Start",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.twisterkick.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill2_MartialArtist_Patriot_Hit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.elbowrush.wave",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill2_MartialArtist_RushElbow_Hit",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.deepbreath.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill3_MartialArtist_I_Bulk_Up_Start",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.deepbreath.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.Skill3_MartialArtist_I_Bulk_Up_Keep",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.tigercannon.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill3_MartialArtist_TigerCannon_Start",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.tigercannon.hit",
+    "duration": 2.0,
+    "parts": [
+      {
+        "shape": "Beam",
+        "texture": "Effect/AssaEffect/DeadLay/Ray03.bmp",
+        "color": [
+          200,
+          200,
+          200,
+          255
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          24,
+          -24
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          32,
+          0
+        ],
+        "width": [
+          5.8594,
+          5.8594
+        ],
+        "lifetime": [
+          0.8571,
+          0.8571
+        ],
+        "fade": "InOut",
+        "fadeOut": 0.6429
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.Skill3_MartialArtist_TigerCannon_Hit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          32,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.warcry.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill3_MartialArtist_WarCry_Start",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.warcry.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill3_MartialArtist_WarCry_Hit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.warcry.mark",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.Skill3_MartialArtist_WarCry_Keep",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.leapsmash.leap",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill3_MartialArtist_Jumping_HeelKick1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.leapsmash.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill3_MartialArtist_Jumping_HeelKick2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.barrage.jab",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill4_MartialArtist_Combination_Jab",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.barrage.uppercut",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill4_MartialArtist_Combination_Uppercut",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.barrage.straight",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill4_MartialArtist_Combination_Straight",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.nervesofsteel.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.Skill4_MartialArtist_Steelers",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.shouldercharge.first",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill4_MartialArtist_BodyCheckHit1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.shouldercharge.second",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill4_MartialArtist_BodyCheckHit2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.typhoonkick.first",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill4_MartialArtist_TyphoonHit1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.typhoonkick.next",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill4_MartialArtist_TyphoonHit2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.huntinghawk.first",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill5_MartialArtist_HuntingHawkHit1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.huntinghawk.second",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill5_MartialArtist_HuntingHawkHit2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.huntinghawk.third",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill5_MartialArtist_HuntingHawkHit3",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.linebreak.first",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill5_MartialArtist_LineBreakingHit1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.linebreak.second",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill5_MartialArtist_LineBreakingHit2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.hardtraining.cast",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "particle.Skill5_MartialArtist_HardTrainingStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.martial.hardtraining.aura",
+    "duration": 600,
+    "children": [
+      {
+        "effect": "particle.Skill5_MartialArtist_HardTrainingKeep",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true,
+        "follow": true
+      }
+    ]
+  }
+]

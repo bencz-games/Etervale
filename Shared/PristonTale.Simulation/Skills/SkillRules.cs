@@ -342,6 +342,8 @@ public sealed partial record SkillRule
     // makes every hit able to flinch the target.
     public bool StopAfterMiss { get; init; }
     public int[] NoCriticalHits { get; init; } = [];
+    // Listed hits (1-based) skip the accuracy roll.
+    public int[] NoAccuracyHits { get; init; } = [];
     public bool ForceFlinch { get; init; }
     // Relative critical chance increase: critical + critical x percent / 100.
     public int[] CriticalPercent { get; init; } = [];
@@ -354,6 +356,10 @@ public sealed partial record SkillRule
     public SkillDamageRule MainHit { get; init; }
     // The clicked target always joins the area list, without an accuracy roll and beyond the target limit.
     public bool MainInArea { get; init; }
+    // Weapon skills: an area (its own rule; the skill's effect) that strikes with every hit from FollowAreaFromHit (1-based)
+    // on, after the weapon hit on the target.
+    public SkillRule FollowArea { get; init; }
+    public int FollowAreaFromHit { get; init; } = 1;
     public bool AreaAccuracy { get; init; }
     public bool AreaCritical { get; init; }
     // Area targets are knocked this far away from the caster (bosses excepted) and flinch.
@@ -416,7 +422,9 @@ public static partial class SkillRuleCatalog
         var ok = rule.Code != 0 && rule.Name.Length > 0 && rule.MasteryBase >= 0 && rule.MasteryPerRank >= 0 && WellFormed(rule)
             && (rule.HitFramesByRank.Length == 0 || rule.HitFramesByRank.Length == SkillLearning.MaxRank && rule.HitFramesByRank.All(row => row.Length > 0
                 && row.All(frame => frame > 0 && (rule.MotionFrames == 0 || frame <= rule.MotionFrames))))
-            && rule.Modes.All(WellFormed) && (rule.Charge is null || ValidCharge(rule));
+            && rule.Modes.All(WellFormed) && (rule.Charge is null || ValidCharge(rule))
+            && (rule.FollowArea is null || rule.Kind == SkillKind.WeaponAttack && rule.FollowAreaFromHit >= 1 && rule.FollowArea.Kind == SkillKind.Area
+                && WellFormed(rule.FollowArea) && Complete(rule.FollowArea));
         if (!ok || !MechanicsValid(rule) || !PresentationValid(rule))
         {
             throw new InvalidDataException($"Skill rule {rule.Code:X8} ({rule.Name}) is malformed.");
@@ -428,7 +436,8 @@ public static partial class SkillRuleCatalog
             || rule.Kind == SkillKind.Summon && !ValidSummon(rule.Summon)
             || rule.Kind == SkillKind.Charm && (rule.Charm is null || rule.Buff is null) || rule.Kind == SkillKind.Resurrect && rule.Resurrect is null
             || rule.Kind == SkillKind.Heal && (rule.HealMin.Length != SkillLearning.MaxRank || rule.HealMax.Length != SkillLearning.MaxRank)
-            || castable && rule.Motion == SkillMotion.Skill && (rule.MotionFrames == 0 || rule.MotionEvents.Length == 0))
+            || castable && rule.Motion == SkillMotion.Skill
+                && (rule.MotionFrames == 0 || rule.MotionEvents.Length == 0 && rule.ExtraEvents.Length == 0 && rule.HitFramesByRank.Length == 0))
         {
             throw new InvalidDataException($"Skill rule {rule.Code:X8} ({rule.Name}) lacks the data its kind needs.");
         }

@@ -17,7 +17,7 @@ public static class WeaponDamage
             return (character.Derived.AttackDamageMin, character.Derived.AttackDamageMax);
         }
 
-        var attributes = character.Attributes;
+        var attributes = character.EffectiveAttributes;
         var function = character.Definition.FunctionProfile;
         // Every usable worn item adds its damage range; a held weapon the character cannot use adds nothing.
         var items = character.EquipmentTotals;

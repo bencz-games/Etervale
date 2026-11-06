@@ -149,6 +149,7 @@ a transaction candidate) is the only writer.
 | `Level`, `Experience`, `Money`, point counters, `Tier` | Loaded by `RestoreProgress` (non-negative, tier 0..4) |
 | `Life`, `Mana`, `Stamina` | Plain settable pools; clamped to maxima by every recompute and by `Equip` |
 | `Attributes` | Base plus allocated points; equipment never changes them |
+| `EffectiveAttributes` | `Attributes` with Strength, Spirit and Agility raised by their percent modifiers (`StatKind.Strength`, `Spirit`, `Agility`; Hard Training), each truncated once; the derived stats, the weapon damage and the skill formulas read them, item requirements and the status window the allocated ones |
 | `Derived` | Cached `DerivedStats`; reading it recomputes when `Effects.Revision` changed |
 | `Equipment`, `Inventory` | 10 equipment slots and the 12x6 carried grid |
 | `Effects` | `EffectContainer` with every timed and permanent modifier |
@@ -179,7 +180,7 @@ a transaction candidate) is the only writer.
    their own.
 4. `ArmorDefence` percent: if non-zero and the worn armor is specialized for the class, the armor's own defence
    (specialization included) grows by that percent before it feeds defence and absorption.
-5. `DerivedStats.Compute(attributes, level, functionProfile, totals, carriedWeight)` (formulas below).
+5. `DerivedStats.Compute(EffectiveAttributes, level, functionProfile, totals, carriedWeight)` (formulas below).
 6. `PassiveSkills.Apply` (table-driven passives, see [skills.md](skills.md)), then `ModifierRules.Apply` with
    `Effects.Totals`; `MaxWeight` gains the premium weight bonus (Might of Awell, Gravity Scrolls). `PremiumEffects.Sync`
    runs with `PassiveSkillEffects.Sync` and keeps Mana Reduce, Terry and Mute as permanent system modifiers.

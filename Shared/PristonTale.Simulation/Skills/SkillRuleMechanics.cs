@@ -140,6 +140,8 @@ public sealed partial record SkillBuffRule
     public bool RequiresWeapon { get; init; }
     // Boss monsters never take the effect.
     public bool SparesBosses { get; init; }
+    // Only a full resistance (100) turns the effect away; a lower one does not shorten it.
+    public bool FullResistanceOnly { get; init; }
     // Percent of a monster's maximum life the effect takes while it lasts, the monster drawn smaller (FieldSkills.Shrink).
     public int[] LifeCut { get; init; } = [];
     public SkillEnchantRule Enchant { get; init; }
@@ -150,8 +152,11 @@ public sealed partial record SkillBuffRule
 
     // The resistance that shortens the effect on its target: the rule's element, else bionic for a bionic-resisted one,
     // else none.
-    public int ResistanceFrom(in ResistanceBlock resistances) =>
-        ResistedBy is { } element ? (int)resistances[element] : ResistedByBionic ? (int)resistances.Bionic : 0;
+    public int ResistanceFrom(in ResistanceBlock resistances)
+    {
+        var resistance = ResistedBy is { } element ? (int)resistances[element] : ResistedByBionic ? (int)resistances.Bionic : 0;
+        return FullResistanceOnly && resistance < 100 ? 0 : resistance;
+    }
 }
 
 public sealed partial record SkillDamageRule
@@ -279,7 +284,7 @@ public static partial class SkillRuleCatalog
         var buff = rule.Buff;
         return Ranked(rule.Volley) && Ranked(rule.TauntTenths) && rule.RequiresEffect.All(code => code != 0)
             && (!rule.PartyEcho || rule.Allies is not null && rule.RequiresEffect.Length > 0) && rule.MotionSpeedPercent is > 0 and <= 400 && rule.MotionSpeedSteps is >= 0 and <= 6
-            && rule.MaxHits >= 0 && rule.ExtraEvents.All(frame => frame > 0) && rule.Exclusive.All(code => code != 0) && rule.Replaces.All(code => code != 0)
+            && rule.MaxHits >= 0 && rule.ExtraEvents.All(frame => frame > 0) && rule.NoAccuracyHits.All(hit => hit > 0) && rule.Exclusive.All(code => code != 0) && rule.Replaces.All(code => code != 0)
             && rule.MotionVariants.All(variant => variant.FromRank is >= 1 and <= SkillLearning.MaxRank
                 && (variant.Motion == SkillMotion.Attack || variant.MotionFrames > 0 && variant.MotionEvents.Length > 0)
                 && variant.MotionEvents.All(frame => frame > 0 && (variant.MotionFrames == 0 || frame <= variant.MotionFrames))

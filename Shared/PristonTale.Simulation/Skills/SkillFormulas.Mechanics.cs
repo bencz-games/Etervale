@@ -126,7 +126,7 @@ public static partial class SkillFormulas
             high += weapon.Max / companion.WeaponDivisor;
         }
 
-        var spirit = caster.Attributes.Spirit;
+        var spirit = caster.EffectiveAttributes.Spirit;
         low += companion.SpiritMinDivisor > 0 ? spirit / companion.SpiritMinDivisor : 0;
         high += companion.SpiritMaxDivisor > 0 ? spirit / companion.SpiritMaxDivisor : 0;
         return (low, Math.Max(low, high));

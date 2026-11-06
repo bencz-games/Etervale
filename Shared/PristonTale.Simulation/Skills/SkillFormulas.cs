@@ -382,10 +382,10 @@ public static partial class SkillFormulas
         high += levelPart;
         if (damage.StrengthMaxDivisor > 0)
         {
-            high += caster.Attributes.Strength / damage.StrengthMaxDivisor;
+            high += caster.EffectiveAttributes.Strength / damage.StrengthMaxDivisor;
         }
 
-        var spirit = caster.Attributes.Spirit;
+        var spirit = caster.EffectiveAttributes.Spirit;
         var spiritMin = At(damage.SpiritMinDivisorByRank, rank, damage.SpiritMinDivisor);
         var spiritMax = At(damage.SpiritMaxDivisorByRank, rank, damage.SpiritMaxDivisor);
         if (spiritMin > 0)
@@ -449,7 +449,7 @@ public static partial class SkillFormulas
     public static int RollHeal(PlayerCharacter caster, SkillRule rule, int rank, CombatRng rng)
     {
         var weapon = WeaponItemDamage(caster);
-        var spirit = caster.Attributes.Spirit;
+        var spirit = caster.EffectiveAttributes.Spirit;
         var low = rule.At(rule.HealMin, rank) + weapon.Min / 3 + spirit / 8;
         var high = rule.At(rule.HealMax, rank) + weapon.Max / 3 + spirit / 6;
         return rng.Range(low, Math.Max(low, high));

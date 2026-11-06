@@ -313,6 +313,11 @@ internal sealed partial class FieldSkills
         {
             case SkillKind.WeaponAttack:
                 targetCount = WeaponHit(caster, cast, rule, hit, nowMs) ? 1 : 0;
+                if (rule.FollowArea is { } follow && hit + 1 >= rule.FollowAreaFromHit)
+                {
+                    targetCount += AreaHit(caster, cast, follow, aim);
+                }
+
                 break;
             case SkillKind.MagicBolt:
                 targetCount = MagicHit(caster, cast, rule) ? 1 : 0;
