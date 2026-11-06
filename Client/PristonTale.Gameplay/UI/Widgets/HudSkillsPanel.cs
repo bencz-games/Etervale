@@ -97,7 +97,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             };
             var cost = CostLine(skill, 1);
             _entries[index] = new Entry(skill, ClientText.Format("SkillWindow.Level", skill.RequiredLevel),
-                HudTextLayout.Wrap(font, skill.Description, TooltipWidth - 20, HudPainter.TextScale),
+                HudTextLayout.Wrap(font, DataText.SkillDescription(skill.Code, skill.Description), TooltipWidth - 20, HudPainter.TextScale),
                 HudTextLayout.Wrap(font, ClientText.Format("SkillWindow.Equipment", weapons), TooltipWidth - 20, HudPainter.TextScale), cost, mouse)
             {
                 Button = button,
@@ -169,7 +169,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             }
 
             _trainingIndex = index;
-            _trainingName = entry.Skill.Name;
+            _trainingName = DataText.SkillName(entry.Skill);
             _trainingPrice = ClientText.Format("SkillWindow.TrainPrice", rank + 1, SkillLearning.Price(index, rank).ToString("N0", System.Globalization.CultureInfo.InvariantCulture));
         }
     }
@@ -443,7 +443,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     {
         if (entry.Skill.Code == 0)
         {
-            DrawLines(painter, layout, pointer, entry.Skill.Name, [entry.Status]);
+            DrawLines(painter, layout, pointer, DataText.SkillName(entry.Skill), [entry.Status]);
             return;
         }
 
@@ -455,7 +455,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         lines.AddRange(entry.Details ?? []);
         lines.AddRange(entry.Weapons);
         lines.Add(entry.Status);
-        DrawLines(painter, layout, pointer, entry.Skill.Name, lines.ToArray());
+        DrawLines(painter, layout, pointer, DataText.SkillName(entry.Skill), lines.ToArray());
     }
 
     // Ranks drive both the hover test of Update and the drawing, so the HUD refreshes them before either.

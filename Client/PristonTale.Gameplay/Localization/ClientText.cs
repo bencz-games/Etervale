@@ -17,6 +17,8 @@ public static class ClientText
 
     public static string Language { get; private set; } = ClientSettings.EnglishLanguage;
 
+    public static CultureInfo Culture => _culture;
+
     public static void Use(string language)
     {
         var normalized = ClientSettings.NormalizeLanguage(language);

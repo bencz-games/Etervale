@@ -8,6 +8,9 @@ using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Contracts.Texts;
+using PristonTale.Simulation.Skills;
+using PristonTale.Simulation.Characters;
+using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Tests;
 
@@ -26,6 +29,8 @@ internal static partial class LocalizationTests
         yield return ("every phrase key the client builds from a value exists", BuiltKeysAsync);
         yield return ("the client shows the chosen language and English for an unknown one", LanguageAsync);
         yield return ("a line of the server is worded by its phrase with its arguments in the shown language", GameTextAsync);
+        yield return ("every skill name and description and class title has its Brazilian Portuguese text, and each names game data", DataTextsAsync);
+        yield return ("data texts show the data in English and its translation in Brazilian Portuguese", DataLanguageAsync);
     }
 
     private static string RepositoryRoot()
@@ -99,6 +104,41 @@ internal static partial class LocalizationTests
         var english = Load("ClientText.resx");
         var unknown = BuiltKeys().Where(key => !english.ContainsKey(key)).ToArray();
         Assert.True(unknown.Length == 0, "built keys without a phrase: " + string.Join(", ", unknown));
+        return Task.CompletedTask;
+    }
+
+    private static Task DataTextsAsync()
+    {
+        var portuguese = XDocument.Load(Path.Combine(Texts, "DataText.pt-BR.resx")).Root!.Elements("data")
+            .ToDictionary(data => (string)data.Attribute("name")!, data => (string)data.Element("value")!);
+        var expected = ClassSkillCatalog.All.SelectMany(static skill => new[] { DataText.SkillKey(skill.Code, "Name"), DataText.SkillKey(skill.Code, "Description") })
+            .Concat(Enum.GetValues<PlayerClass>().SelectMany(static playerClass =>
+                Enumerable.Range(0, ClassProfiles.Of(playerClass).Titles.Count).Select(tier => DataText.ClassKey(playerClass, tier))))
+            .ToHashSet(StringComparer.Ordinal);
+        var missing = expected.Where(key => !portuguese.TryGetValue(key, out var text) || string.IsNullOrWhiteSpace(text)).ToArray();
+        var unknown = portuguese.Keys.Where(key => !expected.Contains(key)).ToArray();
+        Assert.True(missing.Length == 0, "data texts without a translation: " + string.Join(", ", missing));
+        Assert.True(unknown.Length == 0, "translations of no game data: " + string.Join(", ", unknown));
+        return Task.CompletedTask;
+    }
+
+    private static Task DataLanguageAsync()
+    {
+        Assert.True(ClassSkillCatalog.TryGet(0x02010001, out var mastery), "the Fighter's first skill is missing");
+        try
+        {
+            ClientText.Use(ClientSettings.BrazilianPortugueseLanguage);
+            Assert.True(DataText.SkillName(mastery) == "Maestria Corpo a Corpo" && DataText.ClassTitle(PlayerClass.Fighter, 0) == "Lutador"
+                && DataText.ClassTitle(PlayerClass.Fighter, 9) == "Senhor da Guerra", "the data texts are not shown in Brazilian Portuguese");
+            ClientText.Use(ClientSettings.EnglishLanguage);
+            Assert.True(DataText.SkillName(mastery) == mastery.Name && DataText.SkillDescription(mastery.Code, mastery.Description) == mastery.Description
+                && DataText.ClassTitle(PlayerClass.Fighter, 0) == "Fighter", "the data texts are not the data in English");
+        }
+        finally
+        {
+            ClientText.Use(ClientSettings.EnglishLanguage);
+        }
+
         return Task.CompletedTask;
     }
 

@@ -340,7 +340,7 @@ public sealed partial class GameScene : ISkillSceneHost
         _summonAggressive[skillCode] = aggressive;
         var command = aggressive ? SkillCastCommand.SummonAggressive : SkillCastCommand.SummonPassive;
         SendUpstream(_playChannel.SendSkillCommandAsync(++_castSequence, skillCode, command, _presenceCts.Token), "summon mode");
-        SkillNotice?.Invoke(ClientText.Format(aggressive ? "Skill.TargetAggressive" : "Skill.TargetFocused", rule.Name));
+        SkillNotice?.Invoke(ClientText.Format(aggressive ? "Skill.TargetAggressive" : "Skill.TargetFocused", DataText.SkillName(rule.Code, rule.Name)));
     }
 
     // A confirmed right click on a crystal pet's icon dismisses the pet of that status.

@@ -366,7 +366,7 @@ public sealed class HudSkillHud : IDisposable
         status.Permanent || status.DurationMs <= 0 ? double.MaxValue : Math.Max(0d, status.DurationMs - status.RemainingMs(nowMs));
 
     private static string Name(uint code) =>
-        SkillRuleCatalog.TryGet(code, out var rule) ? rule.Name : ClassSkillCatalog.TryGet(code, out var skill) ? skill.Name
+        SkillRuleCatalog.TryGet(code, out var rule) ? DataText.SkillName(code, rule.Name) : ClassSkillCatalog.TryGet(code, out var skill) ? DataText.SkillName(skill)
             : ItemStatuses.Name(code) ?? ClientText.Format("Hud.Effect", code.ToString("X8", System.Globalization.CultureInfo.InvariantCulture));
 
     // The gauge frames: a white fan of k of the 72 steps (k = 0..72), antialiased, with premultiplied alpha.

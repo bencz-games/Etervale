@@ -47,7 +47,7 @@ public sealed class HudSkillBindings
             {
                 if (skill.Code == owned.Code && owned.Rank > 0 && skill.MouseUse != SkillMouseUse.None)
                 {
-                    _choices[skill.Code] = new HudSkillChoice(skill.Code, skill.Name, owned.Rank, skill.MouseUse);
+                    _choices[skill.Code] = new HudSkillChoice(skill.Code, DataText.SkillName(skill), owned.Rank, skill.MouseUse);
                 }
             }
         }

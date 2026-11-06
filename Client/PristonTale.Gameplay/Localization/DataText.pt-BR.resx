@@ -1,0 +1,502 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Class.Archer.0" xml:space="preserve"><value>Arqueira</value></data>
+  <data name="Class.Archer.1" xml:space="preserve"><value>Mestra Caçadora</value></data>
+  <data name="Class.Archer.2" xml:space="preserve"><value>Discípula de Dion</value></data>
+  <data name="Class.Archer.3" xml:space="preserve"><value>Sagittarion</value></data>
+  <data name="Class.Archer.4" xml:space="preserve"><value>Iskar</value></data>
+  <data name="Class.Assassin.0" xml:space="preserve"><value>Assassina</value></data>
+  <data name="Class.Assassin.1" xml:space="preserve"><value>Ladina</value></data>
+  <data name="Class.Assassin.2" xml:space="preserve"><value>Sombra</value></data>
+  <data name="Class.Assassin.3" xml:space="preserve"><value>Andarilha das Sombras</value></data>
+  <data name="Class.Assassin.4" xml:space="preserve"><value>Mestra das Sombras</value></data>
+  <data name="Class.Atalanta.0" xml:space="preserve"><value>Atalanta</value></data>
+  <data name="Class.Atalanta.1" xml:space="preserve"><value>Valquíria</value></data>
+  <data name="Class.Atalanta.2" xml:space="preserve"><value>Brunhild</value></data>
+  <data name="Class.Atalanta.3" xml:space="preserve"><value>Valhalla</value></data>
+  <data name="Class.Atalanta.4" xml:space="preserve"><value>Rainha de Valhalla</value></data>
+  <data name="Class.Fighter.0" xml:space="preserve"><value>Lutador</value></data>
+  <data name="Class.Fighter.1" xml:space="preserve"><value>Guerreiro</value></data>
+  <data name="Class.Fighter.2" xml:space="preserve"><value>Campeão</value></data>
+  <data name="Class.Fighter.3" xml:space="preserve"><value>Guerreiro Imortal</value></data>
+  <data name="Class.Fighter.4" xml:space="preserve"><value>Senhor da Guerra</value></data>
+  <data name="Class.Knight.0" xml:space="preserve"><value>Cavaleiro</value></data>
+  <data name="Class.Knight.1" xml:space="preserve"><value>Paladino</value></data>
+  <data name="Class.Knight.2" xml:space="preserve"><value>Cavaleiro Sagrado</value></data>
+  <data name="Class.Knight.3" xml:space="preserve"><value>Cavaleiro Santo</value></data>
+  <data name="Class.Knight.4" xml:space="preserve"><value>Valente</value></data>
+  <data name="Class.Magician.0" xml:space="preserve"><value>Mago</value></data>
+  <data name="Class.Magician.1" xml:space="preserve"><value>Feiticeiro</value></data>
+  <data name="Class.Magician.2" xml:space="preserve"><value>Feiticeiro Real</value></data>
+  <data name="Class.Magician.3" xml:space="preserve"><value>Arquimago</value></data>
+  <data name="Class.Magician.4" xml:space="preserve"><value>Mestre Elemental</value></data>
+  <data name="Class.MartialArtist.0" xml:space="preserve"><value>Artista Marcial</value></data>
+  <data name="Class.MartialArtist.1" xml:space="preserve"><value>Golpeadora</value></data>
+  <data name="Class.MartialArtist.2" xml:space="preserve"><value>Artista de Truques</value></data>
+  <data name="Class.MartialArtist.3" xml:space="preserve"><value>Mestra</value></data>
+  <data name="Class.MartialArtist.4" xml:space="preserve"><value>Grã-Mestra</value></data>
+  <data name="Class.Mechanician.0" xml:space="preserve"><value>Mecânico</value></data>
+  <data name="Class.Mechanician.1" xml:space="preserve"><value>Mestre Mecânico</value></data>
+  <data name="Class.Mechanician.2" xml:space="preserve"><value>Líder do Metal</value></data>
+  <data name="Class.Mechanician.3" xml:space="preserve"><value>Metallion</value></data>
+  <data name="Class.Mechanician.4" xml:space="preserve"><value>Fúria do Metal</value></data>
+  <data name="Class.Pikeman.0" xml:space="preserve"><value>Piqueiro</value></data>
+  <data name="Class.Pikeman.1" xml:space="preserve"><value>Combatente</value></data>
+  <data name="Class.Pikeman.2" xml:space="preserve"><value>Lanceiro</value></data>
+  <data name="Class.Pikeman.3" xml:space="preserve"><value>Lancelot</value></data>
+  <data name="Class.Pikeman.4" xml:space="preserve"><value>Bayiolunt</value></data>
+  <data name="Class.Priestess.0" xml:space="preserve"><value>Sacerdotisa</value></data>
+  <data name="Class.Priestess.1" xml:space="preserve"><value>Santa</value></data>
+  <data name="Class.Priestess.2" xml:space="preserve"><value>Bispa</value></data>
+  <data name="Class.Priestess.3" xml:space="preserve"><value>Celestial</value></data>
+  <data name="Class.Priestess.4" xml:space="preserve"><value>Arcanjo</value></data>
+  <data name="Class.Shaman.0" xml:space="preserve"><value>Xamã</value></data>
+  <data name="Class.Shaman.1" xml:space="preserve"><value>Invocador</value></data>
+  <data name="Class.Shaman.2" xml:space="preserve"><value>Grande Invocador</value></data>
+  <data name="Class.Shaman.3" xml:space="preserve"><value>Coletor de Almas</value></data>
+  <data name="Class.Shaman.4" xml:space="preserve"><value>Mestre das Almas</value></data>
+  <data name="Skill.01010001.Description" xml:space="preserve"><value>Aumenta temporariamente a taxa de bloqueio do escudo atual</value></data>
+  <data name="Skill.01010001.Name" xml:space="preserve"><value>Escudo Extremo</value></data>
+  <data name="Skill.01010002.Description" xml:space="preserve"><value>Arremessa uma bomba nos inimigos dentro do raio da explosão</value></data>
+  <data name="Skill.01010002.Name" xml:space="preserve"><value>Bomba Mecânica</value></data>
+  <data name="Skill.01010003.Description" xml:space="preserve"><value>Aumenta temporariamente a capacidade do corpo de absorver dano</value></data>
+  <data name="Skill.01010003.Name" xml:space="preserve"><value>Absorção Física</value></data>
+  <data name="Skill.01010004.Description" xml:space="preserve"><value>Aumenta permanentemente a resistência ao veneno</value></data>
+  <data name="Skill.01010004.Name" xml:space="preserve"><value>Atributo do Veneno</value></data>
+  <data name="Skill.01020001.Description" xml:space="preserve"><value>Canaliza a força em um único golpe poderoso</value></data>
+  <data name="Skill.01020001.Name" xml:space="preserve"><value>Grande Golpe</value></data>
+  <data name="Skill.01020002.Description" xml:space="preserve"><value>Otimiza as armas para aumentar o poder de ataque permanentemente</value></data>
+  <data name="Skill.01020002.Name" xml:space="preserve"><value>Maximizar</value></data>
+  <data name="Skill.01020003.Description" xml:space="preserve"><value>Automatiza as armas de projéteis para aumentar temporariamente a velocidade e o poder de ataque</value></data>
+  <data name="Skill.01020003.Name" xml:space="preserve"><value>Automação</value></data>
+  <data name="Skill.01020004.Description" xml:space="preserve"><value>Ataca os inimigos próximos com poderosos relâmpagos</value></data>
+  <data name="Skill.01020004.Name" xml:space="preserve"><value>Faísca</value></data>
+  <data name="Skill.01040001.Description" xml:space="preserve"><value>Aumenta a defesa da armadura do mecânico por um tempo limitado.</value></data>
+  <data name="Skill.01040001.Name" xml:space="preserve"><value>Armadura de Metal</value></data>
+  <data name="Skill.01040002.Description" xml:space="preserve"><value>Ataque preciso e contínuo aos oponentes. Aumenta a taxa de ataque</value></data>
+  <data name="Skill.01040002.Name" xml:space="preserve"><value>Golpe Grandioso</value></data>
+  <data name="Skill.01040003.Description" xml:space="preserve"><value>Otimiza os itens com especialização de mecânico.</value></data>
+  <data name="Skill.01040003.Name" xml:space="preserve"><value>Maestria em Armas Mecânicas</value></data>
+  <data name="Skill.01040004.Description" xml:space="preserve"><value>Forma uma guarda elétrica invisível.</value></data>
+  <data name="Skill.01040004.Name" xml:space="preserve"><value>Escudo de Faíscas</value></data>
+  <data name="Skill.01080001.Description" xml:space="preserve"><value>Ataca os monstros próximos com a eletricidade de um golpe poderoso.</value></data>
+  <data name="Skill.01080001.Name" xml:space="preserve"><value>Impulsão</value></data>
+  <data name="Skill.01080002.Description" xml:space="preserve"><value>Reúne os monstros próximos com um grito poderoso.</value></data>
+  <data name="Skill.01080002.Name" xml:space="preserve"><value>Compulsão</value></data>
+  <data name="Skill.01080003.Description" xml:space="preserve"><value>Cria uma poderosa esfera magnética no usuário escolhido.</value></data>
+  <data name="Skill.01080003.Name" xml:space="preserve"><value>Esfera Magnética</value></data>
+  <data name="Skill.01080004.Description" xml:space="preserve"><value>Aumenta sua defesa e taxa de ataque com o forte ferro da veste do Golem.</value></data>
+  <data name="Skill.01080004.Name" xml:space="preserve"><value>Golem de Metal</value></data>
+  <data name="Skill.01100001.Description" xml:space="preserve"><value>Planta minas rapidamente por perto para atingir os inimigos ao alcance.</value></data>
+  <data name="Skill.01100001.Name" xml:space="preserve"><value>Campo Minado</value></data>
+  <data name="Skill.01100002.Description" xml:space="preserve"><value>Aumenta a velocidade de ataque temporariamente.</value></data>
+  <data name="Skill.01100002.Name" xml:space="preserve"><value>Hipersônico</value></data>
+  <data name="Skill.01100003.Description" xml:space="preserve"><value>4 ataques fortes que causam dano fatal.</value></data>
+  <data name="Skill.01100003.Name" xml:space="preserve"><value>Golpe Rolante</value></data>
+  <data name="Skill.01100004.Description" xml:space="preserve"><value>Aumenta o poder de ataque mínimo e máximo de você e o ataque máximo do grupo.</value></data>
+  <data name="Skill.01100004.Name" xml:space="preserve"><value>Aprimoramento de Poder</value></data>
+  <data name="Skill.02010001.Description" xml:space="preserve"><value>Aumenta a eficiência com armas corpo a corpo, aumentando o poder de ataque permanentemente</value></data>
+  <data name="Skill.02010001.Name" xml:space="preserve"><value>Maestria Corpo a Corpo</value></data>
+  <data name="Skill.02010002.Description" xml:space="preserve"><value>Aumenta permanentemente a resistência ao fogo</value></data>
+  <data name="Skill.02010002.Name" xml:space="preserve"><value>Atributo do Fogo</value></data>
+  <data name="Skill.02010003.Description" xml:space="preserve"><value>Entra em fúria por um curto período, mas perde HP a cada ataque</value></data>
+  <data name="Skill.02010003.Name" xml:space="preserve"><value>Frenesi</value></data>
+  <data name="Skill.02010004.Description" xml:space="preserve"><value>Aumenta a taxa de ataque para golpear o inimigo com precisão</value></data>
+  <data name="Skill.02010004.Name" xml:space="preserve"><value>Impacto</value></data>
+  <data name="Skill.02020001.Description" xml:space="preserve"><value>Uma versão mais poderosa do Impacto</value></data>
+  <data name="Skill.02020001.Name" xml:space="preserve"><value>Impacto Triplo</value></data>
+  <data name="Skill.02020002.Description" xml:space="preserve"><value>Desfere um golpe poderoso e fatal no inimigo</value></data>
+  <data name="Skill.02020002.Name" xml:space="preserve"><value>Golpe Brutal</value></data>
+  <data name="Skill.02020003.Description" xml:space="preserve"><value>Solta um rugido ensurdecedor que atordoa e confunde os inimigos por um momento</value></data>
+  <data name="Skill.02020003.Name" xml:space="preserve"><value>Rugido</value></data>
+  <data name="Skill.02020004.Description" xml:space="preserve"><value>Toma emprestadas as habilidades do lendário herói Zechram</value></data>
+  <data name="Skill.02020004.Name" xml:space="preserve"><value>Fúria de Zechram</value></data>
+  <data name="Skill.02040001.Description" xml:space="preserve"><value>Aumenta a taxa de ataque por um tempo.</value></data>
+  <data name="Skill.02040001.Name" xml:space="preserve"><value>Concentração</value></data>
+  <data name="Skill.02040002.Description" xml:space="preserve"><value>Ataques esmagadores e poderosos aos oponentes.</value></data>
+  <data name="Skill.02040002.Name" xml:space="preserve"><value>Golpe Vingador</value></data>
+  <data name="Skill.02040003.Description" xml:space="preserve"><value>Aumenta a velocidade de ataque do machado por um tempo limitado.</value></data>
+  <data name="Skill.02040003.Name" xml:space="preserve"><value>Machado Veloz</value></data>
+  <data name="Skill.02040004.Description" xml:space="preserve"><value>Usado pelos ancestrais para derrotar demônios. Ataque poderoso que atinge o oponente duas vezes.</value></data>
+  <data name="Skill.02040004.Name" xml:space="preserve"><value>Quebra-Ossos</value></data>
+  <data name="Skill.02080001.Description" xml:space="preserve"><value>O golpe duplo mais forte contra um monstro.</value></data>
+  <data name="Skill.02080001.Name" xml:space="preserve"><value>Destruidor</value></data>
+  <data name="Skill.02080002.Description" xml:space="preserve"><value>Entra em um estado descontrolado, mas a absorção diminui drasticamente</value></data>
+  <data name="Skill.02080002.Name" xml:space="preserve"><value>Berserker</value></data>
+  <data name="Skill.02080003.Description" xml:space="preserve"><value>Ataca os monstros com um forte giro.</value></data>
+  <data name="Skill.02080003.Name" xml:space="preserve"><value>Golpe Ciclone</value></data>
+  <data name="Skill.02080004.Description" xml:space="preserve"><value>Aumenta o HP permanentemente.</value></data>
+  <data name="Skill.02080004.Name" xml:space="preserve"><value>Vigor Ampliado</value></data>
+  <data name="Skill.02100001.Description" xml:space="preserve"><value>Lança o inimigo ao ar, atacando 3 vezes.</value></data>
+  <data name="Skill.02100001.Name" xml:space="preserve"><value>Golpe Descendente</value></data>
+  <data name="Skill.02100002.Description" xml:space="preserve"><value>Corre até o oponente e o deixa atordoado.</value></data>
+  <data name="Skill.02100002.Name" xml:space="preserve"><value>Investida Poderosa</value></data>
+  <data name="Skill.02100003.Description" xml:space="preserve"><value>Gira sua arma em movimentos lentos e poderosos.</value></data>
+  <data name="Skill.02100003.Name" xml:space="preserve"><value>Golpe Mortal</value></data>
+  <data name="Skill.02100004.Description" xml:space="preserve"><value>Reduz a absorção para aumentar o dano de ataque.</value></data>
+  <data name="Skill.02100004.Name" xml:space="preserve"><value>Berserker Sangrento</value></data>
+  <data name="Skill.03010001.Description" xml:space="preserve"><value>Cria um redemoinho que empurra e fere os inimigos</value></data>
+  <data name="Skill.03010001.Name" xml:space="preserve"><value>Vento da Lança</value></data>
+  <data name="Skill.03010002.Description" xml:space="preserve"><value>Aumenta permanentemente a resistência ao gelo</value></data>
+  <data name="Skill.03010002.Name" xml:space="preserve"><value>Atributo do Gelo</value></data>
+  <data name="Skill.03010003.Description" xml:space="preserve"><value>Mira os pontos fracos dos inimigos para aumentar a chance de golpe crítico</value></data>
+  <data name="Skill.03010003.Name" xml:space="preserve"><value>Golpe Crítico</value></data>
+  <data name="Skill.03010004.Description" xml:space="preserve"><value>Salta no ar para descer com um golpe poderoso</value></data>
+  <data name="Skill.03010004.Name" xml:space="preserve"><value>Salto Esmagador</value></data>
+  <data name="Skill.03020001.Description" xml:space="preserve"><value>Imbui a arma com a propriedade do gelo para desferir um ataque poderoso</value></data>
+  <data name="Skill.03020001.Name" xml:space="preserve"><value>Lança no Chão</value></data>
+  <data name="Skill.03020002.Description" xml:space="preserve"><value>Invoca um tornado para atacar os inimigos próximos</value></data>
+  <data name="Skill.03020002.Name" xml:space="preserve"><value>Tornado</value></data>
+  <data name="Skill.03020003.Description" xml:space="preserve"><value>Aumenta permanentemente a defesa com armas de haste</value></data>
+  <data name="Skill.03020003.Name" xml:space="preserve"><value>Maestria em Defesa com Arma</value></data>
+  <data name="Skill.03020004.Description" xml:space="preserve"><value>Imbui a arma com vigor para desferir um ataque devastador</value></data>
+  <data name="Skill.03020004.Name" xml:space="preserve"><value>Expansão</value></data>
+  <data name="Skill.03040001.Description" xml:space="preserve"><value>Crava uma lança no chão para atacar os oponentes.</value></data>
+  <data name="Skill.03040001.Name" xml:space="preserve"><value>Lança Venenosa</value></data>
+  <data name="Skill.03040002.Description" xml:space="preserve"><value>Torna você invisível por um tempo limitado.</value></data>
+  <data name="Skill.03040002.Name" xml:space="preserve"><value>Desaparecer</value></data>
+  <data name="Skill.03040003.Description" xml:space="preserve"><value>Aumenta permanentemente a chance de ataque crítico (%)</value></data>
+  <data name="Skill.03040003.Name" xml:space="preserve"><value>Maestria Crítica</value></data>
+  <data name="Skill.03040004.Description" xml:space="preserve"><value>Ataque giratório crítico de 3 golpes</value></data>
+  <data name="Skill.03040004.Name" xml:space="preserve"><value>Lança em Corrente</value></data>
+  <data name="Skill.03080001.Description" xml:space="preserve"><value>Encontra o ponto fraco de um monstro e aumenta a concentração.</value></data>
+  <data name="Skill.03080001.Name" xml:space="preserve"><value>Olho do Assassino</value></data>
+  <data name="Skill.03080002.Description" xml:space="preserve"><value>Reúne força para um ataque contínuo.</value></data>
+  <data name="Skill.03080002.Name" xml:space="preserve"><value>Golpe Carregado</value></data>
+  <data name="Skill.03080003.Description" xml:space="preserve"><value>Deixa seu corpo pouco nítido.</value></data>
+  <data name="Skill.03080003.Name" xml:space="preserve"><value>Vago</value></data>
+  <data name="Skill.03080004.Description" xml:space="preserve"><value>Imagens residuais causam dano poderoso a um monstro, uma após a outra.</value></data>
+  <data name="Skill.03080004.Name" xml:space="preserve"><value>Mestre das Sombras</value></data>
+  <data name="Skill.03100001.Description" xml:space="preserve"><value>Gira no ar verticalmente e aterrissa com um ataque poderoso.</value></data>
+  <data name="Skill.03100001.Name" xml:space="preserve"><value>Ceifador Dançante</value></data>
+  <data name="Skill.03100002.Description" xml:space="preserve"><value>Grandes lanças saem do chão para atacar os inimigos.</value></data>
+  <data name="Skill.03100002.Name" xml:space="preserve"><value>Lança Final</value></data>
+  <data name="Skill.03100003.Description" xml:space="preserve"><value>Diminui a absorção para aumentar o dano e a precisão.</value></data>
+  <data name="Skill.03100003.Name" xml:space="preserve"><value>Amplificado</value></data>
+  <data name="Skill.03100004.Description" xml:space="preserve"><value>Gira ao seu redor para atacar, roubando a vida dos inimigos.</value></data>
+  <data name="Skill.03100004.Name" xml:space="preserve"><value>Ataque Giratório Lateral</value></data>
+  <data name="Skill.04010001.Description" xml:space="preserve"><value>Invoca um falcão para vigiar a área ao redor, aumentando a taxa de ataque</value></data>
+  <data name="Skill.04010001.Name" xml:space="preserve"><value>Falcão Batedor</value></data>
+  <data name="Skill.04010002.Description" xml:space="preserve"><value>Aumenta permanentemente o poder de ataque com arcos e bestas</value></data>
+  <data name="Skill.04010002.Name" xml:space="preserve"><value>Maestria em Tiro</value></data>
+  <data name="Skill.04010003.Description" xml:space="preserve"><value>Imbui uma flecha com a propriedade do vento para aumentar o poder de ataque</value></data>
+  <data name="Skill.04010003.Name" xml:space="preserve"><value>Flecha do Vento</value></data>
+  <data name="Skill.04010004.Description" xml:space="preserve"><value>Faz um disparo mirado com taxa e poder de ataque maiores</value></data>
+  <data name="Skill.04010004.Name" xml:space="preserve"><value>Mira Perfeita</value></data>
+  <data name="Skill.04020001.Description" xml:space="preserve"><value>Treina a visão como o lendário arqueiro Dion para aumentar permanentemente a taxa de ataque</value></data>
+  <data name="Skill.04020001.Name" xml:space="preserve"><value>Olho de Dion</value></data>
+  <data name="Skill.04020002.Description" xml:space="preserve"><value>Invoca um falcão feroz para atacar os inimigos próximos</value></data>
+  <data name="Skill.04020002.Name" xml:space="preserve"><value>Falcão</value></data>
+  <data name="Skill.04020003.Description" xml:space="preserve"><value>Dispara uma flecha sobre a área escolhida, que explode e faz chover fogo sobre os inimigos</value></data>
+  <data name="Skill.04020003.Name" xml:space="preserve"><value>Flecha da Fúria</value></data>
+  <data name="Skill.04020004.Description" xml:space="preserve"><value>Desfere uma rajada de flechas perfurantes em um único alvo</value></data>
+  <data name="Skill.04020004.Name" xml:space="preserve"><value>Avalanche</value></data>
+  <data name="Skill.04040001.Description" xml:space="preserve"><value>Ataque elemental contínuo aos oponentes</value></data>
+  <data name="Skill.04040001.Name" xml:space="preserve"><value>Tiro Elemental</value></data>
+  <data name="Skill.04040002.Description" xml:space="preserve"><value>Invoca um falcão para atacar os oponentes</value></data>
+  <data name="Skill.04040002.Name" xml:space="preserve"><value>Falcão Dourado</value></data>
+  <data name="Skill.04040003.Description" xml:space="preserve"><value>Dispara flechas explosivas duas vezes. Causa dano em área aos oponentes.</value></data>
+  <data name="Skill.04040003.Name" xml:space="preserve"><value>Tiro Explosivo</value></data>
+  <data name="Skill.04040004.Description" xml:space="preserve"><value>Ataque preciso e contínuo que perfura os oponentes.</value></data>
+  <data name="Skill.04040004.Name" xml:space="preserve"><value>Perfuração</value></data>
+  <data name="Skill.04080001.Description" xml:space="preserve"><value>Invoca o Wolverine.</value></data>
+  <data name="Skill.04080001.Name" xml:space="preserve"><value>Chamar Wolverine</value></data>
+  <data name="Skill.04080002.Description" xml:space="preserve"><value>Esquiva com eficiência dos ataques inimigos.</value></data>
+  <data name="Skill.04080002.Name" xml:space="preserve"><value>Maestria em Esquiva</value></data>
+  <data name="Skill.04080003.Description" xml:space="preserve"><value>Ataque amplo com a energia da Fênix.</value></data>
+  <data name="Skill.04080003.Name" xml:space="preserve"><value>Tiro da Fênix</value></data>
+  <data name="Skill.04080004.Description" xml:space="preserve"><value>Melhora suas habilidades pela perfeita assimilação da natureza.</value></data>
+  <data name="Skill.04080004.Name" xml:space="preserve"><value>Força da Natureza</value></data>
+  <data name="Skill.04100001.Description" xml:space="preserve"><value>Salta e chuta o inimigo, deixando-o atordoado.</value></data>
+  <data name="Skill.04100001.Name" xml:space="preserve"><value>Tiro de Esquiva</value></data>
+  <data name="Skill.04100002.Description" xml:space="preserve"><value>Dispara duas flechas elétricas em um ataque poderoso.</value></data>
+  <data name="Skill.04100002.Name" xml:space="preserve"><value>Thunder Roop</value></data>
+  <data name="Skill.04100003.Description" xml:space="preserve"><value>Imbui sua flecha com a energia da natureza, criando um vórtice.</value></data>
+  <data name="Skill.04100003.Name" xml:space="preserve"><value>Explosão da Natureza</value></data>
+  <data name="Skill.04100004.Description" xml:space="preserve"><value>Mira o ponto fraco do inimigo, deixando-o mais lento.</value></data>
+  <data name="Skill.04100004.Name" xml:space="preserve"><value>Armadilha Circular</value></data>
+  <data name="Skill.05010001.Description" xml:space="preserve"><value>Arremessa uma espada devastadora para atacar os inimigos</value></data>
+  <data name="Skill.05010001.Name" xml:space="preserve"><value>Explosão da Espada</value></data>
+  <data name="Skill.05010002.Description" xml:space="preserve"><value>Torna-se sagrado para aumentar a absorção contra mortos-vivos.</value></data>
+  <data name="Skill.05010002.Name" xml:space="preserve"><value>Corpo Sagrado</value></data>
+  <data name="Skill.05010003.Description" xml:space="preserve"><value>O treino físico aumenta a stamina permanentemente</value></data>
+  <data name="Skill.05010003.Name" xml:space="preserve"><value>Treino Físico</value></data>
+  <data name="Skill.05010004.Description" xml:space="preserve"><value>Faz 2 ataques consecutivos aos inimigos.</value></data>
+  <data name="Skill.05010004.Name" xml:space="preserve"><value>Golpe Duplo</value></data>
+  <data name="Skill.05020001.Description" xml:space="preserve"><value>Aumenta o ataque contra mortos-vivos com força corajosa.</value></data>
+  <data name="Skill.05020001.Name" xml:space="preserve"><value>Valor Sagrado</value></data>
+  <data name="Skill.05020002.Description" xml:space="preserve"><value>Ataca todos os inimigos ao alcance.</value></data>
+  <data name="Skill.05020002.Name" xml:space="preserve"><value>Brandir</value></data>
+  <data name="Skill.05020003.Description" xml:space="preserve"><value>Corta muitos inimigos com grande força e espírito.</value></data>
+  <data name="Skill.05020003.Name" xml:space="preserve"><value>Perfuração</value></data>
+  <data name="Skill.05020004.Description" xml:space="preserve"><value>Aumenta a defesa por um tempo.</value></data>
+  <data name="Skill.05020004.Name" xml:space="preserve"><value>Espírito Drástico</value></data>
+  <data name="Skill.05040001.Description" xml:space="preserve"><value>Melhora permanentemente o ataque com o uso de espadas.</value></data>
+  <data name="Skill.05040001.Name" xml:space="preserve"><value>Maestria com Espadas</value></data>
+  <data name="Skill.05040002.Description" xml:space="preserve"><value>Absorve o poder de ataque de um monstro morto-vivo e recupera o HP.</value></data>
+  <data name="Skill.05040002.Name" xml:space="preserve"><value>Inalação Divina</value></data>
+  <data name="Skill.05040003.Description" xml:space="preserve"><value>Encantamento sagrado que atrai os monstros.</value></data>
+  <data name="Skill.05040003.Name" xml:space="preserve"><value>Encantamento Sagrado</value></data>
+  <data name="Skill.05040004.Description" xml:space="preserve"><value>Ataques mortais em cruz aos oponentes.</value></data>
+  <data name="Skill.05040004.Name" xml:space="preserve"><value>Grande Cruz</value></data>
+  <data name="Skill.05080001.Description" xml:space="preserve"><value>Golpeia para baixo com grande força, curvando o corpo para trás.</value></data>
+  <data name="Skill.05080001.Name" xml:space="preserve"><value>Espada da Justiça</value></data>
+  <data name="Skill.05080002.Description" xml:space="preserve"><value>Cria um escudo sagrado abençoado por Deus</value></data>
+  <data name="Skill.05080002.Name" xml:space="preserve"><value>Escudo Divino</value></data>
+  <data name="Skill.05080003.Description" xml:space="preserve"><value>Concede o grande poder do Cavaleiro Santo em nome de Deus.</value></data>
+  <data name="Skill.05080003.Name" xml:space="preserve"><value>Bênção de Deus</value></data>
+  <data name="Skill.05080004.Description" xml:space="preserve"><value>Ataca um monstro com o poder de Deus, em uma dança de espada invencível.</value></data>
+  <data name="Skill.05080004.Name" xml:space="preserve"><value>Perfuração Divina</value></data>
+  <data name="Skill.05100001.Description" xml:space="preserve"><value>Ataque poderoso à alma do inimigo.</value></data>
+  <data name="Skill.05100001.Name" xml:space="preserve"><value>Quebra-Almas</value></data>
+  <data name="Skill.05100002.Description" xml:space="preserve"><value>Avança sobre os inimigos próximos e faz um corte em meia-lua.</value></data>
+  <data name="Skill.05100002.Name" xml:space="preserve"><value>Lua Crescente</value></data>
+  <data name="Skill.05100003.Description" xml:space="preserve"><value>Invoca o poder divino na sua espada para atacar o oponente.</value></data>
+  <data name="Skill.05100003.Name" xml:space="preserve"><value>Lâmina Santa</value></data>
+  <data name="Skill.05100004.Description" xml:space="preserve"><value>Concede a habilidade de causar dano adicional aos monstros mortos-vivos.</value></data>
+  <data name="Skill.05100004.Name" xml:space="preserve"><value>Holy Benedic</value></data>
+  <data name="Skill.06010001.Description" xml:space="preserve"><value>Arremessa um escudo para atacar os inimigos.</value></data>
+  <data name="Skill.06010001.Name" xml:space="preserve"><value>Golpe de Escudo</value></data>
+  <data name="Skill.06010002.Description" xml:space="preserve"><value>Arremessa uma lança que cria ilusões</value></data>
+  <data name="Skill.06010002.Name" xml:space="preserve"><value>Farina</value></data>
+  <data name="Skill.06010003.Description" xml:space="preserve"><value>Treina os ataques de dardo para aumentar o dano permanentemente.</value></data>
+  <data name="Skill.06010003.Name" xml:space="preserve"><value>Maestria em Arremesso</value></data>
+  <data name="Skill.06010004.Description" xml:space="preserve"><value>Ataca um inimigo com um dardo sagrado.</value></data>
+  <data name="Skill.06010004.Name" xml:space="preserve"><value>Lança Maior</value></data>
+  <data name="Skill.06020001.Description" xml:space="preserve"><value>Aumenta o alcance e a taxa de ataque do dardo.</value></data>
+  <data name="Skill.06020001.Name" xml:space="preserve"><value>Windy</value></data>
+  <data name="Skill.06020002.Description" xml:space="preserve"><value>Aumenta a taxa e o poder de ataque com uma torção.</value></data>
+  <data name="Skill.06020002.Name" xml:space="preserve"><value>Dardo Torcido</value></data>
+  <data name="Skill.06020003.Description" xml:space="preserve"><value>Absorve a vida do inimigo.</value></data>
+  <data name="Skill.06020003.Name" xml:space="preserve"><value>Sugador de Almas</value></data>
+  <data name="Skill.06020004.Description" xml:space="preserve"><value>Ataca o inimigo com o poder do fogo.</value></data>
+  <data name="Skill.06020004.Name" xml:space="preserve"><value>Dardo de Fogo</value></data>
+  <data name="Skill.06040001.Description" xml:space="preserve"><value>Ataque contínuo aos oponentes em altíssima velocidade.</value></data>
+  <data name="Skill.06040001.Name" xml:space="preserve"><value>Dardo Dividido</value></data>
+  <data name="Skill.06040002.Description" xml:space="preserve"><value>Aumenta o dano de ataque dos membros do grupo.</value></data>
+  <data name="Skill.06040002.Name" xml:space="preserve"><value>Triunfo de Valhalla</value></data>
+  <data name="Skill.06040003.Description" xml:space="preserve"><value>Aumenta o dano elemental de raio do dardo.</value></data>
+  <data name="Skill.06040003.Name" xml:space="preserve"><value>Dardo Relâmpago</value></data>
+  <data name="Skill.06040004.Description" xml:space="preserve"><value>Ataque de tornado poderoso contra os inimigos.</value></data>
+  <data name="Skill.06040004.Name" xml:space="preserve"><value>Dardo Tempestade</value></data>
+  <data name="Skill.06080001.Description" xml:space="preserve"><value>Cria um espaço com o poder de Valhalla.</value></data>
+  <data name="Skill.06080001.Name" xml:space="preserve"><value>Salão de Valhalla</value></data>
+  <data name="Skill.06080002.Description" xml:space="preserve"><value>Ataca um inimigo com um salto alto, com o poder da fúria.</value></data>
+  <data name="Skill.06080002.Name" xml:space="preserve"><value>X-Rage</value></data>
+  <data name="Skill.06080003.Description" xml:space="preserve"><value>Enquanto ativo, aumenta sua habilidade de gelo por um tempo.</value></data>
+  <data name="Skill.06080003.Name" xml:space="preserve"><value>Dardo Gélido</value></data>
+  <data name="Skill.06080004.Description" xml:space="preserve"><value>Ataque rápido e contínuo.</value></data>
+  <data name="Skill.06080004.Name" xml:space="preserve"><value>Vingança</value></data>
+  <data name="Skill.06100001.Description" xml:space="preserve"><value>Deixa seu corpo leve e rápido.</value></data>
+  <data name="Skill.06100001.Name" xml:space="preserve"><value>Talaria</value></data>
+  <data name="Skill.06100002.Description" xml:space="preserve"><value>Invoca o dardo que mira o coração do inimigo com a energia de Valhalla e o crava no chão.</value></data>
+  <data name="Skill.06100002.Name" xml:space="preserve"><value>Golpe da Galáxia</value></data>
+  <data name="Skill.06100003.Description" xml:space="preserve"><value>Invoca a Arcuda.</value></data>
+  <data name="Skill.06100003.Name" xml:space="preserve"><value>Invocar Arcuda</value></data>
+  <data name="Skill.06100004.Description" xml:space="preserve"><value>Arremessa 2 dardos em sequência, desferindo golpes críticos.</value></data>
+  <data name="Skill.06100004.Name" xml:space="preserve"><value>Medo Cortante</value></data>
+  <data name="Skill.07010001.Description" xml:space="preserve"><value>Cura a vida com magia sagrada.</value></data>
+  <data name="Skill.07010001.Name" xml:space="preserve"><value>Cura</value></data>
+  <data name="Skill.07010002.Description" xml:space="preserve"><value>Arremessa um raio sagrado nos inimigos.</value></data>
+  <data name="Skill.07010002.Name" xml:space="preserve"><value>Raio Sagrado</value></data>
+  <data name="Skill.07010003.Description" xml:space="preserve"><value>Libera faíscas mágicas para atacar os inimigos.</value></data>
+  <data name="Skill.07010003.Name" xml:space="preserve"><value>Multifaísca</value></data>
+  <data name="Skill.07010004.Description" xml:space="preserve"><value>Enfraquece o ataque do inimigo por um tempo.</value></data>
+  <data name="Skill.07010004.Name" xml:space="preserve"><value>Mente Sagrada</value></data>
+  <data name="Skill.07020001.Description" xml:space="preserve"><value>Aumenta a recuperação de mana permanentemente.</value></data>
+  <data name="Skill.07020001.Name" xml:space="preserve"><value>Meditação</value></data>
+  <data name="Skill.07020002.Description" xml:space="preserve"><value>Ataca os inimigos com relâmpagos sagrados.</value></data>
+  <data name="Skill.07020002.Name" xml:space="preserve"><value>Relâmpago Divino</value></data>
+  <data name="Skill.07020003.Description" xml:space="preserve"><value>Reflete os ataques de mortos-vivos criando um escudo mágico sagrado.</value></data>
+  <data name="Skill.07020003.Name" xml:space="preserve"><value>Reflexo Sagrado</value></data>
+  <data name="Skill.07020004.Description" xml:space="preserve"><value>Cura a vida de um membro do grupo.</value></data>
+  <data name="Skill.07020004.Name" xml:space="preserve"><value>Grande Cura</value></data>
+  <data name="Skill.07040001.Description" xml:space="preserve"><value>Dispara uma bola de vigor duas vezes nos oponentes.</value></data>
+  <data name="Skill.07040001.Name" xml:space="preserve"><value>Bola de Vigor</value></data>
+  <data name="Skill.07040002.Description" xml:space="preserve"><value>Revive um membro do grupo morto.</value></data>
+  <data name="Skill.07040002.Name" xml:space="preserve"><value>Ressurreição</value></data>
+  <data name="Skill.07040003.Description" xml:space="preserve"><value>Encantamento letal contra monstros mortos-vivos. Dano permanente aos mortos-vivos.</value></data>
+  <data name="Skill.07040003.Name" xml:space="preserve"><value>Extinção</value></data>
+  <data name="Skill.07040004.Description" xml:space="preserve"><value>Aumenta a vida dos membros do grupo por um tempo.</value></data>
+  <data name="Skill.07040004.Name" xml:space="preserve"><value>Vida Virtual</value></data>
+  <data name="Skill.07080001.Description" xml:space="preserve"><value>Um enorme bloco de gelo é lançado para atacar os inimigos.</value></data>
+  <data name="Skill.07080001.Name" xml:space="preserve"><value>Espinho Glacial</value></data>
+  <data name="Skill.07080002.Description" xml:space="preserve"><value>Após o seu sacrifício, recupera seus companheiros continuamente.</value></data>
+  <data name="Skill.07080002.Name" xml:space="preserve"><value>Campo de Regeneração</value></data>
+  <data name="Skill.07080003.Description" xml:space="preserve"><value>Ataca os monstros com trovões poderosos.</value></data>
+  <data name="Skill.07080003.Name" xml:space="preserve"><value>Relâmpago em Cadeia</value></data>
+  <data name="Skill.07080004.Description" xml:space="preserve"><value>Absorve o ataque de monstros mortos-vivos, recupera o HP e tem a habilidade do invocador.</value></data>
+  <data name="Skill.07080004.Name" xml:space="preserve"><value>Invocar Muspell</value></data>
+  <data name="Skill.07100001.Description" xml:space="preserve"><value>Libera uma poderosa onda de choque nos inimigos próximos.</value></data>
+  <data name="Skill.07100001.Name" xml:space="preserve"><value>Impacto Espiritual</value></data>
+  <data name="Skill.07100002.Description" xml:space="preserve"><value>Invoca uma lança de gelo afiada para atacar o inimigo.</value></data>
+  <data name="Skill.07100002.Name" xml:space="preserve"><value>Gelo Perfurante</value></data>
+  <data name="Skill.07100003.Description" xml:space="preserve"><value>Invoca um anjo com propensão a ataques de raio.</value></data>
+  <data name="Skill.07100003.Name" xml:space="preserve"><value>Invocar Ramiel</value></data>
+  <data name="Skill.07100004.Description" xml:space="preserve"><value>Aumenta sua defesa e sua absorção com a graça de Deus.</value></data>
+  <data name="Skill.07100004.Name" xml:space="preserve"><value>Bênção de Krishna</value></data>
+  <data name="Skill.08010001.Description" xml:space="preserve"><value>Sacrifica a si mesmo para aumentar o espírito.</value></data>
+  <data name="Skill.08010001.Name" xml:space="preserve"><value>Agonia</value></data>
+  <data name="Skill.08010002.Description" xml:space="preserve"><value>Faz cair pequenas bolas de fogo para atacar os inimigos</value></data>
+  <data name="Skill.08010002.Name" xml:space="preserve"><value>Dardo de Fogo</value></data>
+  <data name="Skill.08010003.Description" xml:space="preserve"><value>Aumenta as características elementais com espírito forte por um tempo.</value></data>
+  <data name="Skill.08010003.Name" xml:space="preserve"><value>Zênite</value></data>
+  <data name="Skill.08010004.Description" xml:space="preserve"><value>Faz cair enormes bolas de fogo para atacar os inimigos</value></data>
+  <data name="Skill.08010004.Name" xml:space="preserve"><value>Bola de Fogo</value></data>
+  <data name="Skill.08020001.Description" xml:space="preserve"><value>Aumenta a mana máxima</value></data>
+  <data name="Skill.08020001.Name" xml:space="preserve"><value>Maestria Mental</value></data>
+  <data name="Skill.08020002.Description" xml:space="preserve"><value>Um pilar de água atinge os inimigos</value></data>
+  <data name="Skill.08020002.Name" xml:space="preserve"><value>Watornado</value></data>
+  <data name="Skill.08020003.Description" xml:space="preserve"><value>Fortalece o elemento de ataque na arma de um membro do grupo</value></data>
+  <data name="Skill.08020003.Name" xml:space="preserve"><value>Encantar Arma</value></data>
+  <data name="Skill.08020004.Description" xml:space="preserve"><value>Dispara um raio poderoso das palmas das mãos</value></data>
+  <data name="Skill.08020004.Name" xml:space="preserve"><value>Raio Mortal</value></data>
+  <data name="Skill.08040001.Description" xml:space="preserve"><value>Forma um escudo mágico ao redor do corpo</value></data>
+  <data name="Skill.08040001.Name" xml:space="preserve"><value>Escudo de Energia</value></data>
+  <data name="Skill.08040002.Description" xml:space="preserve"><value>Forte ataque da terra aos oponentes ao alcance.</value></data>
+  <data name="Skill.08040002.Name" xml:space="preserve"><value>Diastrofismo</value></data>
+  <data name="Skill.08040003.Description" xml:space="preserve"><value>Invoca um fantasma para aumentar o dano mágico</value></data>
+  <data name="Skill.08040003.Name" xml:space="preserve"><value>Elemental Espiritual</value></data>
+  <data name="Skill.08040004.Description" xml:space="preserve"><value>Um fantasma de espada surge e usa o poder do elemento para atacar os inimigos.</value></data>
+  <data name="Skill.08040004.Name" xml:space="preserve"><value>Espada Dançante</value></data>
+  <data name="Skill.08080001.Description" xml:space="preserve"><value>Invoca um elemental poderoso feito de fogo.</value></data>
+  <data name="Skill.08080001.Name" xml:space="preserve"><value>Elemental de Fogo</value></data>
+  <data name="Skill.08080002.Description" xml:space="preserve"><value>Ataca os monstros à frente com poderosas chamas.</value></data>
+  <data name="Skill.08080002.Name" xml:space="preserve"><value>Onda de Chamas</value></data>
+  <data name="Skill.08080003.Description" xml:space="preserve"><value>Reduz as habilidades de um monstro com a distorção do espaço.</value></data>
+  <data name="Skill.08080003.Name" xml:space="preserve"><value>Distorção</value></data>
+  <data name="Skill.08080004.Description" xml:space="preserve"><value>Ataca os monstros próximos com meteoritos invocados.</value></data>
+  <data name="Skill.08080004.Name" xml:space="preserve"><value>Meteoro</value></data>
+  <data name="Skill.08100001.Description" xml:space="preserve"><value>Usa o poder de Silraphim para atacar os inimigos próximos.</value></data>
+  <data name="Skill.08100001.Name" xml:space="preserve"><value>Silraphim</value></data>
+  <data name="Skill.08100002.Description" xml:space="preserve"><value>Encolhe o inimigo, reduzindo seu HP e seu dano.</value></data>
+  <data name="Skill.08100002.Name" xml:space="preserve"><value>Vis Tenus</value></data>
+  <data name="Skill.08100003.Description" xml:space="preserve"><value>Conjura uma bola de fogo primordial para um ataque poderoso.</value></data>
+  <data name="Skill.08100003.Name" xml:space="preserve"><value>Prima Ignis</value></data>
+  <data name="Skill.08100004.Description" xml:space="preserve"><value>Diminui seu MP máximo para aumentar o poder mágico.</value></data>
+  <data name="Skill.08100004.Name" xml:space="preserve"><value>Third Anima</value></data>
+  <data name="Skill.10010001.Description" xml:space="preserve"><value>Investe direto contra o inimigo e causa dano.</value></data>
+  <data name="Skill.10010001.Name" xml:space="preserve"><value>Ferroada</value></data>
+  <data name="Skill.10010002.Description" xml:space="preserve"><value>Causa dano contínuo ao inimigo enquanto gira</value></data>
+  <data name="Skill.10010002.Name" xml:space="preserve"><value>Golpe Giratório</value></data>
+  <data name="Skill.10010003.Description" xml:space="preserve"><value>Aumenta permanentemente o poder de ataque base das armas do tipo adaga</value></data>
+  <data name="Skill.10010003.Name" xml:space="preserve"><value>Maestria em Duas Armas</value></data>
+  <data name="Skill.10010004.Description" xml:space="preserve"><value>Reduz o dano do inimigo alvo por um tempo</value></data>
+  <data name="Skill.10010004.Name" xml:space="preserve"><value>Wisp</value></data>
+  <data name="Skill.10020001.Description" xml:space="preserve"><value>Ataca um inimigo duas vezes, rapidamente, com uma arma envenenada.</value></data>
+  <data name="Skill.10020001.Name" xml:space="preserve"><value>Espinho Venenoso</value></data>
+  <data name="Skill.10020002.Description" xml:space="preserve"><value>Compartilha a destreza da Assassina e aumenta a esquiva do grupo.</value></data>
+  <data name="Skill.10020002.Name" xml:space="preserve"><value>Alas</value></data>
+  <data name="Skill.10020003.Description" xml:space="preserve"><value>Crava as adagas no chão e atordoa os inimigos próximos.</value></data>
+  <data name="Skill.10020003.Name" xml:space="preserve"><value>Choque da Alma</value></data>
+  <data name="Skill.10020004.Description" xml:space="preserve"><value>Aumenta permanentemente a precisão e a esquiva.</value></data>
+  <data name="Skill.10020004.Name" xml:space="preserve"><value>Maestria em Ataque</value></data>
+  <data name="Skill.10040001.Description" xml:space="preserve"><value>Avança e recua, causando dano pesado a um inimigo.</value></data>
+  <data name="Skill.10040001.Name" xml:space="preserve"><value>Lâmina Dolorosa</value></data>
+  <data name="Skill.10040002.Description" xml:space="preserve"><value>Salta em direção ao inimigo, liberando uma onda de energia sobre os inimigos próximos.</value></data>
+  <data name="Skill.10040002.Name" xml:space="preserve"><value>Corte da Rajada</value></data>
+  <data name="Skill.10040003.Description" xml:space="preserve"><value>Reúne ki no corpo para aumentar a velocidade de ataque.</value></data>
+  <data name="Skill.10040003.Name" xml:space="preserve"><value>Inpes</value></data>
+  <data name="Skill.10040004.Description" xml:space="preserve"><value>Esconde-se nas sombras, causando dano pesado ao próximo inimigo atingido.</value></data>
+  <data name="Skill.10040004.Name" xml:space="preserve"><value>Cegar</value></data>
+  <data name="Skill.10080001.Description" xml:space="preserve"><value>Imbui as lâminas com o vento, golpeando o inimigo duas vezes.</value></data>
+  <data name="Skill.10080001.Name" xml:space="preserve"><value>Aleijar</value></data>
+  <data name="Skill.10080002.Description" xml:space="preserve"><value>Aumenta a chance de crítico com adagas equipadas.</value></data>
+  <data name="Skill.10080002.Name" xml:space="preserve"><value>Maestria da Assassina</value></data>
+  <data name="Skill.10080003.Description" xml:space="preserve"><value>Libera uma onda de veneno ao redor, envenenando os inimigos próximos.</value></data>
+  <data name="Skill.10080003.Name" xml:space="preserve"><value>Poluído</value></data>
+  <data name="Skill.10080004.Description" xml:space="preserve"><value>Move-se rápido e golpeia o inimigo com a própria sombra.</value></data>
+  <data name="Skill.10080004.Name" xml:space="preserve"><value>Sombra Ninja</value></data>
+  <data name="Skill.10100001.Description" xml:space="preserve"><value>Esconde-se na sombra e causa dano em área com uma chama gigante.</value></data>
+  <data name="Skill.10100001.Name" xml:space="preserve"><value>Bomba das Sombras</value></data>
+  <data name="Skill.10100002.Description" xml:space="preserve"><value>Salta no lugar e usa a energia da gravidade para cortar o inimigo.</value></data>
+  <data name="Skill.10100002.Name" xml:space="preserve"><value>Corte Ascendente</value></data>
+  <data name="Skill.10100003.Description" xml:space="preserve"><value>Causa dano chutando o inimigo repetidas vezes.</value></data>
+  <data name="Skill.10100003.Name" xml:space="preserve"><value>Estocada Violenta</value></data>
+  <data name="Skill.10100004.Description" xml:space="preserve"><value>Voa pelos ares para causar dano massivo.</value></data>
+  <data name="Skill.10100004.Name" xml:space="preserve"><value>Tempestade</value></data>
+  <data name="Skill.20010001.Description" xml:space="preserve"><value>Chuta rapidamente com o pé direito.</value></data>
+  <data name="Skill.20010001.Name" xml:space="preserve"><value>Chute Baixo</value></data>
+  <data name="Skill.20010002.Description" xml:space="preserve"><value>Aumenta permanentemente o poder de ataque com treino rigoroso.</value></data>
+  <data name="Skill.20010002.Name" xml:space="preserve"><value>Maestria em Força</value></data>
+  <data name="Skill.20010003.Description" xml:space="preserve"><value>Soca repetidas vezes usando a força centrífuga para causar dano fatal aos inimigos.</value></data>
+  <data name="Skill.20010003.Name" xml:space="preserve"><value>Golpe Giratório Duplo</value></data>
+  <data name="Skill.20010004.Description" xml:space="preserve"><value>Concentra a força no braço direito para desferir um golpe poderoso.</value></data>
+  <data name="Skill.20010004.Name" xml:space="preserve"><value>Hipersoco</value></data>
+  <data name="Skill.20020001.Description" xml:space="preserve"><value>Tomado pela ira, sua velocidade de ataque aumenta temporariamente.</value></data>
+  <data name="Skill.20020001.Name" xml:space="preserve"><value>Ira</value></data>
+  <data name="Skill.20020002.Description" xml:space="preserve"><value>Salta no ar, girando e golpeando com força com os pés.</value></data>
+  <data name="Skill.20020002.Name" xml:space="preserve"><value>Chute Tornado</value></data>
+  <data name="Skill.20020003.Description" xml:space="preserve"><value>Avança com o cotovelo, liberando uma onda de força nos inimigos próximos.</value></data>
+  <data name="Skill.20020003.Name" xml:space="preserve"><value>Investida de Cotovelo</value></data>
+  <data name="Skill.20020004.Description" xml:space="preserve"><value>Aumenta permanentemente a stamina e a precisão com treino constante.</value></data>
+  <data name="Skill.20020004.Name" xml:space="preserve"><value>Maestria em Stamina</value></data>
+  <data name="Skill.20040001.Description" xml:space="preserve"><value>Aumenta temporariamente o HP para evitar a morte.</value></data>
+  <data name="Skill.20040001.Name" xml:space="preserve"><value>Respiração Profunda</value></data>
+  <data name="Skill.20040002.Description" xml:space="preserve"><value>Libera uma corrente de energia, causando dano fatal a um inimigo.</value></data>
+  <data name="Skill.20040002.Name" xml:space="preserve"><value>Canhão do Tigre</value></data>
+  <data name="Skill.20040003.Description" xml:space="preserve"><value>Reúne energia para soltar um grito poderoso, reduzindo as habilidades dos inimigos próximos.</value></data>
+  <data name="Skill.20040003.Name" xml:space="preserve"><value>Grito de Guerra</value></data>
+  <data name="Skill.20040004.Description" xml:space="preserve"><value>Salta rápido no ar e desce voando, causando dano contínuo e massivo ao inimigo duas vezes.</value></data>
+  <data name="Skill.20040004.Name" xml:space="preserve"><value>Salto Esmagador</value></data>
+  <data name="Skill.20080001.Description" xml:space="preserve"><value>Ataca o alvo repetidamente com os punhos 4 vezes.</value></data>
+  <data name="Skill.20080001.Name" xml:space="preserve"><value>Rajada</value></data>
+  <data name="Skill.20080002.Description" xml:space="preserve"><value>Aumenta temporariamente a defesa.</value></data>
+  <data name="Skill.20080002.Name" xml:space="preserve"><value>Nervos de Aço</value></data>
+  <data name="Skill.20080003.Description" xml:space="preserve"><value>Avança, colidindo com o ombro no inimigo duas vezes.</value></data>
+  <data name="Skill.20080003.Name" xml:space="preserve"><value>Investida de Ombro</value></data>
+  <data name="Skill.20080004.Description" xml:space="preserve"><value>Causa dano fatal ao inimigo com 3 chutes consecutivos.</value></data>
+  <data name="Skill.20080004.Name" xml:space="preserve"><value>Chute Tufão</value></data>
+  <data name="Skill.20100001.Description" xml:space="preserve"><value>Aumenta a defesa permanentemente.</value></data>
+  <data name="Skill.20100001.Name" xml:space="preserve"><value>Maestria em Defesa</value></data>
+  <data name="Skill.20100002.Description" xml:space="preserve"><value>Salta no ar, chutando o inimigo três vezes.</value></data>
+  <data name="Skill.20100002.Name" xml:space="preserve"><value>Falcão Caçador</value></data>
+  <data name="Skill.20100003.Description" xml:space="preserve"><value>Salta no ar e golpeia o chão duas vezes, causando dano aos inimigos próximos.</value></data>
+  <data name="Skill.20100003.Name" xml:space="preserve"><value>Quebra-Linha</value></data>
+  <data name="Skill.20100004.Description" xml:space="preserve"><value>Encoraja os membros do grupo, deixando-os mais fortes.</value></data>
+  <data name="Skill.20100004.Name" xml:space="preserve"><value>Treino Pesado</value></data>
+  <data name="Skill.50010001.Description" xml:space="preserve"><value>Atinge o inimigo com um raio poderoso de magia sombria criado com feitiçaria</value></data>
+  <data name="Skill.50010001.Name" xml:space="preserve"><value>Raio Sombrio</value></data>
+  <data name="Skill.50010002.Description" xml:space="preserve"><value>Faz um ataque em área consecutivo com raios poderosos de magia sombria</value></data>
+  <data name="Skill.50010002.Name" xml:space="preserve"><value>Onda Sombria</value></data>
+  <data name="Skill.50010003.Description" xml:space="preserve"><value>Lança uma maldição sobre os inimigos, deixando-os mais lentos temporariamente</value></data>
+  <data name="Skill.50010003.Name" xml:space="preserve"><value>Inércia</value></data>
+  <data name="Skill.50010004.Description" xml:space="preserve"><value>Com treino mental, aumenta permanentemente a recuperação das poções de MP e a capacidade de mana</value></data>
+  <data name="Skill.50010004.Name" xml:space="preserve"><value>Paz Interior</value></data>
+  <data name="Skill.50020001.Description" xml:space="preserve"><value>Usa feitiçaria poderosa para causar dano ao inimigo e aos alvos próximos.</value></data>
+  <data name="Skill.50020001.Name" xml:space="preserve"><value>Labareda Espiritual</value></data>
+  <data name="Skill.50020002.Description" xml:space="preserve"><value>Prende a alma do alvo com feitiçaria.</value></data>
+  <data name="Skill.50020002.Name" xml:space="preserve"><value>Algema Espiritual</value></data>
+  <data name="Skill.50020003.Description" xml:space="preserve"><value>Reúne os inimigos próximos em um só lugar.</value></data>
+  <data name="Skill.50020003.Name" xml:space="preserve"><value>Caçada</value></data>
+  <data name="Skill.50020004.Description" xml:space="preserve"><value>Invoca Migal para aumentar o dano de ataque seu e dos membros do grupo.</value></data>
+  <data name="Skill.50020004.Name" xml:space="preserve"><value>Advento de Migal</value></data>
+  <data name="Skill.50040001.Description" xml:space="preserve"><value>Aumenta a absorção ao custo da mana máxima.</value></data>
+  <data name="Skill.50040001.Name" xml:space="preserve"><value>Fazedor de Chuva</value></data>
+  <data name="Skill.50040002.Description" xml:space="preserve"><value>Faz descer fantasmas amaldiçoados para causar dano massivo aos inimigos próximos.</value></data>
+  <data name="Skill.50040002.Name" xml:space="preserve"><value>Chamado Fantasma</value></data>
+  <data name="Skill.50040003.Description" xml:space="preserve"><value>Usando a força do fantasma, causa dano ao inimigo e absorve sua vida.</value></data>
+  <data name="Skill.50040003.Name" xml:space="preserve"><value>Assombrar</value></data>
+  <data name="Skill.50040004.Description" xml:space="preserve"><value>Causa dano com as garras de um fantasma invocado.</value></data>
+  <data name="Skill.50040004.Name" xml:space="preserve"><value>Arranhão</value></data>
+  <data name="Skill.50080001.Description" xml:space="preserve"><value>Invoca um Cavaleiro Sangrento Amaldiçoado com feitiçaria.</value></data>
+  <data name="Skill.50080001.Name" xml:space="preserve"><value>Chamar Hestian</value></data>
+  <data name="Skill.50080002.Description" xml:space="preserve"><value>Causa dano disparando uma corrente de escuridão no inimigo.</value></data>
+  <data name="Skill.50080002.Name" xml:space="preserve"><value>Julgamento</value></data>
+  <data name="Skill.50080003.Description" xml:space="preserve"><value>Invoca Midranda para aumentar a velocidade de ataque sua e dos membros do grupo.</value></data>
+  <data name="Skill.50080003.Name" xml:space="preserve"><value>Advento de Midranda</value></data>
+  <data name="Skill.50080004.Description" xml:space="preserve"><value>Com o poder de Midranda e Migal, causa dano aos inimigos próximos.</value></data>
+  <data name="Skill.50080004.Name" xml:space="preserve"><value>Prece de Luto</value></data>
+  <data name="Skill.50100001.Description" xml:space="preserve"><value>Com feitiçaria poderosa, concede mana extra ao usuário.</value></data>
+  <data name="Skill.50100001.Name" xml:space="preserve"><value>Credo</value></data>
+  <data name="Skill.50100002.Description" xml:space="preserve"><value>Causa dano amaldiçoado aos inimigos próximos.</value></data>
+  <data name="Skill.50100002.Name" xml:space="preserve"><value>Pressão da Divindade</value></data>
+  <data name="Skill.50100003.Description" xml:space="preserve"><value>Chama os espíritos da terra para atacar o inimigo.</value></data>
+  <data name="Skill.50100003.Name" xml:space="preserve"><value>Prego Fantasmagórico</value></data>
+  <data name="Skill.50100004.Description" xml:space="preserve"><value>Aumenta a vida permanentemente com o poder da feitiçaria.</value></data>
+  <data name="Skill.50100004.Name" xml:space="preserve"><value>Alta Regeneração</value></data>
+</root>
