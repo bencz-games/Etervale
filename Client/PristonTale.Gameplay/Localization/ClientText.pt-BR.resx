@@ -4,7 +4,155 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Attribute.Agility" xml:space="preserve"><value>Agilidade</value></data>
+  <data name="Attribute.Health" xml:space="preserve"><value>Vitalidade</value></data>
+  <data name="Attribute.Spirit" xml:space="preserve"><value>Espírito</value></data>
+  <data name="Attribute.Strength" xml:space="preserve"><value>Força</value></data>
+  <data name="Attribute.Talent" xml:space="preserve"><value>Talento</value></data>
+  <data name="Brood.Demon" xml:space="preserve"><value>Demônio</value></data>
+  <data name="Brood.Mechanic" xml:space="preserve"><value>Mecânico</value></data>
+  <data name="Brood.Mutant" xml:space="preserve"><value>Mutante</value></data>
+  <data name="Brood.Normal" xml:space="preserve"><value>Normal</value></data>
+  <data name="Brood.Undead" xml:space="preserve"><value>Morto-vivo</value></data>
+  <data name="Brood.User" xml:space="preserve"><value>Jogador</value></data>
+  <data name="Element.Bionic" xml:space="preserve"><value>orgânico</value></data>
+  <data name="Element.Earth" xml:space="preserve"><value>terra</value></data>
+  <data name="Element.Fire" xml:space="preserve"><value>fogo</value></data>
+  <data name="Element.Ice" xml:space="preserve"><value>gelo</value></data>
+  <data name="Element.Lighting" xml:space="preserve"><value>raio</value></data>
+  <data name="Element.Poison" xml:space="preserve"><value>veneno</value></data>
+  <data name="Element.Water" xml:space="preserve"><value>água</value></data>
+  <data name="Element.Wind" xml:space="preserve"><value>vento</value></data>
+  <data name="Item.Absorb" xml:space="preserve"><value>Absorção:  </value></data>
+  <data name="Item.AddLife" xml:space="preserve"><value>HP adicional: </value></data>
+  <data name="Item.AddMana" xml:space="preserve"><value>MP adicional:  </value></data>
+  <data name="Item.AddStamina" xml:space="preserve"><value>STM adicional:  </value></data>
+  <data name="Item.AnyClass" xml:space="preserve"><value>Classe</value></data>
+  <data name="Item.AttackPower" xml:space="preserve"><value>Poder de ataque:  </value></data>
+  <data name="Item.AttackRating" xml:space="preserve"><value>Taxa de ataque:  </value></data>
+  <data name="Item.Block" xml:space="preserve"><value>Bloqueio:  </value></data>
+  <data name="Item.Critical" xml:space="preserve"><value>Crítico:  </value></data>
+  <data name="Item.Defence" xml:space="preserve"><value>Defesa:  </value></data>
+  <data name="Item.Integrity" xml:space="preserve"><value>Integridade:  </value></data>
+  <data name="Item.LifeRegen" xml:space="preserve"><value>Regen. de HP:  </value></data>
+  <data name="Item.MagicMastery" xml:space="preserve"><value>Aptidão mágica:  </value></data>
+  <data name="Item.ManaRegen" xml:space="preserve"><value>Regen. de MP: </value></data>
+  <data name="Item.PotionSpace" xml:space="preserve"><value>Espaço de poções:  </value></data>
+  <data name="Item.Range" xml:space="preserve"><value>Alcance:  </value></data>
+  <data name="Item.RequiredAgility" xml:space="preserve"><value>Agilidade req.:  </value></data>
+  <data name="Item.RequiredHealth" xml:space="preserve"><value>Vitalidade req.:  </value></data>
+  <data name="Item.RequiredLevel" xml:space="preserve"><value>Nível req.:  </value></data>
+  <data name="Item.RequiredSpirit" xml:space="preserve"><value>Espírito req.:  </value></data>
+  <data name="Item.RequiredStrength" xml:space="preserve"><value>Força req.:  </value></data>
+  <data name="Item.RequiredTalent" xml:space="preserve"><value>Talento req.:  </value></data>
+  <data name="Item.ResistFlame" xml:space="preserve"><value>Fogo:  </value></data>
+  <data name="Item.ResistFrost" xml:space="preserve"><value>Gelo:  </value></data>
+  <data name="Item.ResistLightning" xml:space="preserve"><value>Raio:  </value></data>
+  <data name="Item.ResistNature" xml:space="preserve"><value>Natureza:  </value></data>
+  <data name="Item.ResistOrganic" xml:space="preserve"><value>Orgânico:  </value></data>
+  <data name="Item.ResistPoison" xml:space="preserve"><value>Veneno: </value></data>
+  <data name="Item.ResistWater" xml:space="preserve"><value>Água:  </value></data>
+  <data name="Item.ResistWind" xml:space="preserve"><value>Vento:  </value></data>
+  <data name="Item.SpecAbsorb" xml:space="preserve"><value>Espec. absorção:  </value></data>
+  <data name="Item.SpecAttackPower" xml:space="preserve"><value>Espec. poder de ataque:  </value></data>
+  <data name="Item.SpecAttackRating" xml:space="preserve"><value>Espec. taxa de ataque:  </value></data>
+  <data name="Item.SpecAttackSpeed" xml:space="preserve"><value>Espec. vel. de ataque:  </value></data>
+  <data name="Item.SpecBlock" xml:space="preserve"><value>Espec. bloqueio:  </value></data>
+  <data name="Item.SpecCritical" xml:space="preserve"><value>Espec. crítico:  </value></data>
+  <data name="Item.SpecDefence" xml:space="preserve"><value>Espec. defesa:  </value></data>
+  <data name="Item.SpecHeader" xml:space="preserve"><value>Espec. {0} </value></data>
+  <data name="Item.SpecLevelLife" xml:space="preserve"><value>Bônus de HP máx.:  </value></data>
+  <data name="Item.SpecLevelMana" xml:space="preserve"><value>Bônus de MP máx.:  </value></data>
+  <data name="Item.SpecLifeRegen" xml:space="preserve"><value>Recuperação de HP:  </value></data>
+  <data name="Item.SpecManaRegen" xml:space="preserve"><value>Recuperação de MP:  </value></data>
+  <data name="Item.SpecRange" xml:space="preserve"><value>Espec. alcance:  </value></data>
+  <data name="Item.SpecSpeed" xml:space="preserve"><value>Espec. velocidade:  </value></data>
+  <data name="Item.SpecStaminaRegen" xml:space="preserve"><value>Recuperação de STM:  </value></data>
+  <data name="Item.Speed" xml:space="preserve"><value>Velocidade:  </value></data>
+  <data name="Item.StaminaRegen" xml:space="preserve"><value>Regen. de STM: </value></data>
+  <data name="Item.WeaponSpeed" xml:space="preserve"><value>Velocidade da arma:  </value></data>
+  <data name="ItemKind.Amulet" xml:space="preserve"><value>Amuleto</value></data>
+  <data name="ItemKind.Armor" xml:space="preserve"><value>Armadura</value></data>
+  <data name="ItemKind.Axe" xml:space="preserve"><value>Machado</value></data>
+  <data name="ItemKind.Boots" xml:space="preserve"><value>Botas</value></data>
+  <data name="ItemKind.Bow" xml:space="preserve"><value>Arco</value></data>
+  <data name="ItemKind.Bracelet" xml:space="preserve"><value>Bracelete</value></data>
+  <data name="ItemKind.Claw" xml:space="preserve"><value>Garra</value></data>
+  <data name="ItemKind.Dagger" xml:space="preserve"><value>Adaga</value></data>
+  <data name="ItemKind.ForceOrb" xml:space="preserve"><value>Force Orb</value></data>
+  <data name="ItemKind.Gloves" xml:space="preserve"><value>Luvas</value></data>
+  <data name="ItemKind.Hammer" xml:space="preserve"><value>Martelo</value></data>
+  <data name="ItemKind.Material" xml:space="preserve"><value>Material</value></data>
+  <data name="ItemKind.Misc" xml:space="preserve"><value>Diversos</value></data>
+  <data name="ItemKind.Orb" xml:space="preserve"><value>Orbe</value></data>
+  <data name="ItemKind.Phantom" xml:space="preserve"><value>Phantom</value></data>
+  <data name="ItemKind.Pole" xml:space="preserve"><value>Lança</value></data>
+  <data name="ItemKind.Potion" xml:space="preserve"><value>Poção</value></data>
+  <data name="ItemKind.Quest" xml:space="preserve"><value>Item de quest</value></data>
+  <data name="ItemKind.Ring" xml:space="preserve"><value>Anel</value></data>
+  <data name="ItemKind.Sheltom" xml:space="preserve"><value>Sheltom</value></data>
+  <data name="ItemKind.Shield" xml:space="preserve"><value>Escudo</value></data>
+  <data name="ItemKind.Staff" xml:space="preserve"><value>Cajado</value></data>
+  <data name="ItemKind.Sword" xml:space="preserve"><value>Espada</value></data>
+  <data name="ItemKind.ThrowingWeapon" xml:space="preserve"><value>Arma de arremesso</value></data>
+  <data name="ItemKind.Vambrace" xml:space="preserve"><value>Vambrace</value></data>
+  <data name="Language.en" xml:space="preserve"><value>English</value></data>
+  <data name="Language.pt-BR" xml:space="preserve"><value>Português (Brasil)</value></data>
   <data name="Pet.Dismissed" xml:space="preserve"><value>Mascote dispensado</value></data>
+  <data name="Resource.Life" xml:space="preserve"><value>vida</value></data>
+  <data name="Resource.Mana" xml:space="preserve"><value>mana</value></data>
+  <data name="Resource.Stamina" xml:space="preserve"><value>stamina</value></data>
+  <data name="Settings.AntiAliasing" xml:space="preserve"><value>Antisserrilhamento: {0}</value></data>
+  <data name="Settings.AntiAliasingMsaa" xml:space="preserve"><value>Antisserrilhamento: MSAA {0}x</value></data>
+  <data name="Settings.AntiAliasingOff" xml:space="preserve"><value>Antisserrilhamento: desligado</value></data>
+  <data name="Settings.BackgroundFps" xml:space="preserve"><value>FPS em segundo plano: {0}</value></data>
+  <data name="Settings.BackgroundFpsForeground" xml:space="preserve"><value>FPS em segundo plano: limite do primeiro plano</value></data>
+  <data name="Settings.Clouds" xml:space="preserve"><value>Nuvens: {0}</value></data>
+  <data name="Settings.Clouds.High" xml:space="preserve"><value>altas</value></data>
+  <data name="Settings.Clouds.Low" xml:space="preserve"><value>baixas</value></data>
+  <data name="Settings.Clouds.Medium" xml:space="preserve"><value>médias</value></data>
+  <data name="Settings.Clouds.Off" xml:space="preserve"><value>desligadas</value></data>
+  <data name="Settings.Frequency" xml:space="preserve"><value>Frequência: {0} Hz (0 = automática)</value></data>
+  <data name="Settings.FrequencyDesktop" xml:space="preserve"><value>Frequência: área de trabalho</value></data>
+  <data name="Settings.Hint" xml:space="preserve"><value>Clique: próximo   Shift+clique: anterior</value></data>
+  <data name="Settings.Language" xml:space="preserve"><value>Idioma: {0}</value></data>
+  <data name="Settings.MaxFps" xml:space="preserve"><value>FPS máximo: {0}</value></data>
+  <data name="Settings.MaxFpsUnlimited" xml:space="preserve"><value>FPS máximo: ilimitado</value></data>
+  <data name="Settings.Monitor" xml:space="preserve"><value>Monitor: {0}</value></data>
+  <data name="Settings.MonitorCurrent" xml:space="preserve"><value>Monitor: atual</value></data>
+  <data name="Settings.MusicOff" xml:space="preserve"><value>Música: desligada</value></data>
+  <data name="Settings.MusicOn" xml:space="preserve"><value>Música: ligada</value></data>
+  <data name="Settings.NamePlatesClassic" xml:space="preserve"><value>Nomes: clássicos</value></data>
+  <data name="Settings.NamePlatesCompact" xml:space="preserve"><value>Nomes: compactos</value></data>
+  <data name="Settings.NeedsAttention" xml:space="preserve"><value>As configurações precisam de atenção; veja o log do cliente.</value></data>
+  <data name="Settings.Quality" xml:space="preserve"><value>Qualidade gráfica: {0}</value></data>
+  <data name="Settings.Quality.Custom" xml:space="preserve"><value>personalizada</value></data>
+  <data name="Settings.Quality.High" xml:space="preserve"><value>alta</value></data>
+  <data name="Settings.Quality.Low" xml:space="preserve"><value>baixa</value></data>
+  <data name="Settings.Quality.Medium" xml:space="preserve"><value>média</value></data>
+  <data name="Settings.Quality.Ultra" xml:space="preserve"><value>ultra</value></data>
+  <data name="Settings.Resolution" xml:space="preserve"><value>Resolução: {0} x {1}</value></data>
+  <data name="Settings.ResolutionDesktop" xml:space="preserve"><value>Resolução: área de trabalho</value></data>
+  <data name="Settings.ShadowAnimation" xml:space="preserve"><value>Animação das sombras: {0} Hz</value></data>
+  <data name="Settings.ShadowAnimationEveryFrame" xml:space="preserve"><value>Animação das sombras: todo quadro</value></data>
+  <data name="Settings.ShadowsOff" xml:space="preserve"><value>Sombras: desligadas</value></data>
+  <data name="Settings.ShadowsOn" xml:space="preserve"><value>Sombras: ligadas</value></data>
+  <data name="Settings.SkyClassic" xml:space="preserve"><value>Céu: clássico</value></data>
+  <data name="Settings.SkyRealistic" xml:space="preserve"><value>Céu: realista</value></data>
+  <data name="Settings.SoundOff" xml:space="preserve"><value>Áudio: desligado</value></data>
+  <data name="Settings.SoundOn" xml:space="preserve"><value>Áudio: ligado</value></data>
+  <data name="Settings.SunShadow" xml:space="preserve"><value>Sombra do sol: {0}</value></data>
+  <data name="Settings.TargetHealthAlways" xml:space="preserve"><value>HP do alvo: sempre, com porcentagem</value></data>
+  <data name="Settings.TargetHealthClassic" xml:space="preserve"><value>HP do alvo: clássico (após o primeiro golpe)</value></data>
+  <data name="Settings.Title" xml:space="preserve"><value>Configurações</value></data>
+  <data name="Settings.VSyncOff" xml:space="preserve"><value>VSync: desligado</value></data>
+  <data name="Settings.VSyncOn" xml:space="preserve"><value>VSync: ligado</value></data>
+  <data name="Settings.WeatherOff" xml:space="preserve"><value>Clima: desligado</value></data>
+  <data name="Settings.WeatherOn" xml:space="preserve"><value>Clima: ligado</value></data>
+  <data name="Settings.Window" xml:space="preserve"><value>Janela: {0}</value></data>
+  <data name="Settings.WindowMode.Borderless" xml:space="preserve"><value>sem bordas</value></data>
+  <data name="Settings.WindowMode.Fullscreen" xml:space="preserve"><value>tela cheia</value></data>
+  <data name="Settings.WindowMode.Windowed" xml:space="preserve"><value>em janela</value></data>
   <data name="Skill.AlreadyActive" xml:space="preserve"><value>Esse efeito ainda está ativo.</value></data>
   <data name="Skill.CannotUse" xml:space="preserve"><value>A habilidade não pode ser usada agora.</value></data>
   <data name="Skill.InVillage" xml:space="preserve"><value>Habilidades não podem ser usadas na cidade.</value></data>
@@ -17,8 +165,179 @@
   <data name="Skill.TargetAggressive" xml:space="preserve"><value>{0}: ataca qualquer inimigo próximo.</value></data>
   <data name="Skill.TargetFocused" xml:space="preserve"><value>{0}: ataca apenas o seu alvo.</value></data>
   <data name="Skill.WeaponNotAllowed" xml:space="preserve"><value>Esta habilidade precisa de outra arma.</value></data>
+  <data name="SkillInfo.Absorbs" xml:space="preserve"><value>Absorve {0}% do dano com {1}</value></data>
+  <data name="SkillInfo.AddingRate" xml:space="preserve"><value>Taxa adicional {0}%</value></data>
+  <data name="SkillInfo.Allies" xml:space="preserve"><value>Aliados a até {0}</value></data>
+  <data name="SkillInfo.AlliesShare" xml:space="preserve"><value>Aliados a até {0} ({1}%)</value></data>
+  <data name="SkillInfo.Area" xml:space="preserve"><value>Área {0}{1}</value></data>
+  <data name="SkillInfo.AreaBox" xml:space="preserve"><value>Área {0} x {1}{2}</value></data>
+  <data name="SkillInfo.AttackRating" xml:space="preserve"><value>Taxa de ataque {0}</value></data>
+  <data name="SkillInfo.AttackRatingPercent" xml:space="preserve"><value>Taxa de ataque {0}%</value></data>
+  <data name="SkillInfo.BroodBonus" xml:space="preserve"><value>{0} {1}%</value></data>
+  <data name="SkillInfo.ByRelatedRank" xml:space="preserve"><value>{0} conforme o rank de uma habilidade relacionada</value></data>
+  <data name="SkillInfo.Chain" xml:space="preserve"><value>Corrente de {0}, elo {1}</value></data>
+  <data name="SkillInfo.Charm" xml:space="preserve"><value>Sucesso {0}%, vida {1}%</value></data>
+  <data name="SkillInfo.Critical" xml:space="preserve"><value>Crítico {0}%</value></data>
+  <data name="SkillInfo.Damage" xml:space="preserve"><value>Dano {0}-{1}</value></data>
+  <data name="SkillInfo.DamageElement" xml:space="preserve"><value>Dano {0}-{1} de {2}</value></data>
+  <data name="SkillInfo.DamagePercent" xml:space="preserve"><value>Dano {0}%</value></data>
+  <data name="SkillInfo.Drains" xml:space="preserve"><value>Drena {0}% da vida máxima</value></data>
+  <data name="SkillInfo.Duration" xml:space="preserve"><value>Duração {0} s</value></data>
+  <data name="SkillInfo.Enchant" xml:space="preserve"><value>{0} +{1}-{2}</value></data>
+  <data name="SkillInfo.Guard" xml:space="preserve"><value>{0}% do dano de {1} vira vida</value></data>
+  <data name="SkillInfo.GuardBlocked" xml:space="preserve"><value>{0}% do dano bloqueado de {1} vira vida</value></data>
+  <data name="SkillInfo.Heals" xml:space="preserve"><value>Cura {0}-{1} (+ arma / 3, espírito)</value></data>
+  <data name="SkillInfo.Hits" xml:space="preserve"><value>{0} golpes</value></data>
+  <data name="SkillInfo.PlusLevel" xml:space="preserve"><value>{0} + nível/{1}</value></data>
+  <data name="SkillInfo.Range" xml:space="preserve"><value>Alcance {0}</value></data>
+  <data name="SkillInfo.RangeAdded" xml:space="preserve"><value>Alcance +{0}</value></data>
+  <data name="SkillInfo.Reflects" xml:space="preserve"><value>Reflete {0}% dos ataques de {1}</value></data>
+  <data name="SkillInfo.Revive" xml:space="preserve"><value>Chance de reviver {0}%, vida {1}%</value></data>
+  <data name="SkillInfo.ShareChance" xml:space="preserve"><value>Chance de {0}%: {1}% da vida</value></data>
+  <data name="SkillInfo.Shots" xml:space="preserve"><value>{0} disparos</value></data>
+  <data name="SkillInfo.Sparks" xml:space="preserve"><value>Até {0} faíscas</value></data>
+  <data name="SkillInfo.StrikesEvery" xml:space="preserve"><value>Ataca a cada {0} s</value></data>
+  <data name="SkillInfo.Summon" xml:space="preserve"><value>{0}: dano {1}-{2}, vida {3}</value></data>
+  <data name="SkillInfo.Targets" xml:space="preserve"><value>, {0} alvos</value></data>
+  <data name="SkillWindow.AnyWeapon" xml:space="preserve"><value>Qualquer arma</value></data>
+  <data name="SkillWindow.BasicAttack" xml:space="preserve"><value>Ataque básico</value></data>
+  <data name="SkillWindow.BasicAttackBind" xml:space="preserve"><value>Segure o botão + F1-F8 para vincular.</value></data>
+  <data name="SkillWindow.BasicAttackSelect" xml:space="preserve"><value>Solte o botão esquerdo ou direito para selecionar.</value></data>
+  <data name="SkillWindow.Cost" xml:space="preserve"><value>Rank {0}: MP {1} | SP {2}</value></data>
+  <data name="SkillWindow.EitherMouse" xml:space="preserve"><value>Botão esquerdo ou direito</value></data>
+  <data name="SkillWindow.ElitePoints" xml:space="preserve"><value>Pontos de elite : {0}</value></data>
+  <data name="SkillWindow.Equipment" xml:space="preserve"><value>Equipamento: {0}</value></data>
+  <data name="SkillWindow.Learned" xml:space="preserve"><value>Rank aprendido {0} / {1}</value></data>
+  <data name="SkillWindow.LeftMouse" xml:space="preserve"><value>Botão esquerdo</value></data>
+  <data name="SkillWindow.Level" xml:space="preserve"><value>Nv {0}</value></data>
+  <data name="SkillWindow.NoCost" xml:space="preserve"><value>Sem custo de ativação</value></data>
+  <data name="SkillWindow.NoPoints" xml:space="preserve"><value>Pontos de habilidade insuficientes</value></data>
+  <data name="SkillWindow.NoPoints2" xml:space="preserve"><value>para aprender ou praticar</value></data>
+  <data name="SkillWindow.Passive" xml:space="preserve"><value> | Passiva</value></data>
+  <data name="SkillWindow.PassiveSkill" xml:space="preserve"><value>Habilidade passiva</value></data>
+  <data name="SkillWindow.PlaceHint" xml:space="preserve"><value> | Clique para pôr num botão do mouse, F1-F8 segurando para vincular</value></data>
+  <data name="SkillWindow.Recharge" xml:space="preserve"><value> | Recarga {0} s</value></data>
+  <data name="SkillWindow.RightMouse" xml:space="preserve"><value>Botão direito</value></data>
+  <data name="SkillWindow.SelectSkill" xml:space="preserve"><value>Selecione uma habilidade ou magia</value></data>
+  <data name="SkillWindow.SkillPoints" xml:space="preserve"><value>Pontos de habilidade : {0}</value></data>
+  <data name="SkillWindow.ToLearn" xml:space="preserve"><value>para aprender ou treinar</value></data>
+  <data name="SkillWindow.TrainPrice" xml:space="preserve"><value>Rank {0}: {1} de ouro</value></data>
+  <data name="SkillWindow.TrainTitle" xml:space="preserve"><value>Treinar habilidade/magia</value></data>
+  <data name="SkillWindow.Unavailable" xml:space="preserve"><value>Indisponível nesta versão</value></data>
+  <data name="SkillWindow.Unlearned" xml:space="preserve"><value>Não aprendida | Prévia do rank 1</value></data>
+  <data name="Stat.Absorption" xml:space="preserve"><value>Absorção</value></data>
+  <data name="Stat.AbsorptionVsUndead" xml:space="preserve"><value>Absorção contra mortos-vivos</value></data>
+  <data name="Stat.Agility" xml:space="preserve"><value>Agilidade</value></data>
+  <data name="Stat.ArmorDefence" xml:space="preserve"><value>Defesa da armadura</value></data>
+  <data name="Stat.AttackMotionSpeed" xml:space="preserve"><value>Velocidade do movimento de ataque</value></data>
+  <data name="Stat.AttackRange" xml:space="preserve"><value>Alcance</value></data>
+  <data name="Stat.AttackRating" xml:space="preserve"><value>Taxa de ataque</value></data>
+  <data name="Stat.AttackSpeed" xml:space="preserve"><value>Velocidade de ataque</value></data>
+  <data name="Stat.BlockChance" xml:space="preserve"><value>Chance de bloqueio</value></data>
+  <data name="Stat.CompanionDamage" xml:space="preserve"><value>Dano do companheiro</value></data>
+  <data name="Stat.CriticalChance" xml:space="preserve"><value>Chance de crítico</value></data>
+  <data name="Stat.CriticalChanceTaken" xml:space="preserve"><value>Chance de crítico sofrida</value></data>
+  <data name="Stat.CriticalDamage" xml:space="preserve"><value>Dano crítico</value></data>
+  <data name="Stat.DamageDealt" xml:space="preserve"><value>Dano causado</value></data>
+  <data name="Stat.DamageMax" xml:space="preserve"><value>Dano máximo</value></data>
+  <data name="Stat.DamageMin" xml:space="preserve"><value>Dano mínimo</value></data>
+  <data name="Stat.DamageTaken" xml:space="preserve"><value>Dano recebido</value></data>
+  <data name="Stat.DamageVsUndead" xml:space="preserve"><value>Dano contra mortos-vivos</value></data>
+  <data name="Stat.Defence" xml:space="preserve"><value>Defesa</value></data>
+  <data name="Stat.Evasion" xml:space="preserve"><value>Esquiva</value></data>
+  <data name="Stat.HealingTaken" xml:space="preserve"><value>Cura recebida</value></data>
+  <data name="Stat.HitDamage" xml:space="preserve"><value>Dano por golpe</value></data>
+  <data name="Stat.LifeCostPerAttack" xml:space="preserve"><value>Custo de vida por ataque</value></data>
+  <data name="Stat.LifeLeech" xml:space="preserve"><value>Roubo de vida</value></data>
+  <data name="Stat.LifeRegen" xml:space="preserve"><value>Regeneração de vida (décimos/s)</value></data>
+  <data name="Stat.ManaLeech" xml:space="preserve"><value>Roubo de mana</value></data>
+  <data name="Stat.ManaRegen" xml:space="preserve"><value>Regeneração de mana (décimos/s)</value></data>
+  <data name="Stat.MaxLife" xml:space="preserve"><value>Vida máxima</value></data>
+  <data name="Stat.MaxMana" xml:space="preserve"><value>Mana máxima</value></data>
+  <data name="Stat.MaxStamina" xml:space="preserve"><value>Stamina máxima</value></data>
+  <data name="Stat.MonsterSight" xml:space="preserve"><value>Visão dos monstros</value></data>
+  <data name="Stat.MoveSpeed" xml:space="preserve"><value>Velocidade</value></data>
+  <data name="Stat.MoveSpeedUnbound" xml:space="preserve"><value>Velocidade sem limite</value></data>
+  <data name="Stat.NextHitDamage" xml:space="preserve"><value>Dano do próximo golpe</value></data>
+  <data name="Stat.NormalAttackWeaponDamage" xml:space="preserve"><value>Dano da arma no ataque normal</value></data>
+  <data name="Stat.NormalAttackWeaponMax" xml:space="preserve"><value>Máximo da arma no ataque normal</value></data>
+  <data name="Stat.ResistAll" xml:space="preserve"><value>Todas as resistências</value></data>
+  <data name="Stat.ResistBionic" xml:space="preserve"><value>Resistência orgânica</value></data>
+  <data name="Stat.ResistEarth" xml:space="preserve"><value>Resistência à terra</value></data>
+  <data name="Stat.ResistFire" xml:space="preserve"><value>Resistência ao fogo</value></data>
+  <data name="Stat.ResistIce" xml:space="preserve"><value>Resistência ao gelo</value></data>
+  <data name="Stat.ResistLightning" xml:space="preserve"><value>Resistência a raio</value></data>
+  <data name="Stat.ResistPoison" xml:space="preserve"><value>Resistência a veneno</value></data>
+  <data name="Stat.ResistWater" xml:space="preserve"><value>Resistência à água</value></data>
+  <data name="Stat.ResistWind" xml:space="preserve"><value>Resistência ao vento</value></data>
+  <data name="Stat.SkillDamageTaken" xml:space="preserve"><value>Dano de habilidades recebido</value></data>
+  <data name="Stat.SkillManaCost" xml:space="preserve"><value>Custo de mana das habilidades</value></data>
+  <data name="Stat.SpellDamage" xml:space="preserve"><value>Poder mágico</value></data>
+  <data name="Stat.SpellPower" xml:space="preserve"><value>Dano mágico</value></data>
+  <data name="Stat.Spirit" xml:space="preserve"><value>Espírito</value></data>
+  <data name="Stat.StaminaRegen" xml:space="preserve"><value>Regeneração de stamina</value></data>
+  <data name="Stat.Strength" xml:space="preserve"><value>Força</value></data>
+  <data name="Stat.WeaponDamagePercent" xml:space="preserve"><value>Dano da arma</value></data>
   <data name="Status.CharacterSelect" xml:space="preserve"><value>Seleção de personagem</value></data>
   <data name="Status.Loading" xml:space="preserve"><value>Carregando…</value></data>
   <data name="Status.Opening" xml:space="preserve"><value>Abertura: {0}</value></data>
   <data name="Status.SavingAndDisconnecting" xml:space="preserve"><value>Salvando e desconectando…</value></data>
+  <data name="Time.Days" xml:space="preserve"><value>{0} dias</value></data>
+  <data name="Time.Hours" xml:space="preserve"><value>{0} horas</value></data>
+  <data name="Time.OneDay" xml:space="preserve"><value>1 dia</value></data>
+  <data name="Time.OneHour" xml:space="preserve"><value>1 hora</value></data>
+  <data name="Time.Seconds" xml:space="preserve"><value>{0}s</value></data>
+  <data name="Usable.AgingArmlet" xml:space="preserve"><value>o bracelete</value></data>
+  <data name="Usable.AgingArmor" xml:space="preserve"><value>a armadura ou manto</value></data>
+  <data name="Usable.AgingBoots" xml:space="preserve"><value>as botas</value></data>
+  <data name="Usable.AgingGloves" xml:space="preserve"><value>as luvas</value></data>
+  <data name="Usable.AgingShield" xml:space="preserve"><value>o escudo ou orbe</value></data>
+  <data name="Usable.AgingWeapon" xml:space="preserve"><value>a arma</value></data>
+  <data name="Usable.BigHead" xml:space="preserve"><value>Deixa sua cabeça grande por {0} minutos.</value></data>
+  <data name="Usable.CastleOnly" xml:space="preserve"><value>Somente no Bless Castle</value></data>
+  <data name="Usable.ClanOnly" xml:space="preserve"><value>Somente membros do clã</value></data>
+  <data name="Usable.ClanPet" xml:space="preserve"><value>Invoca {0} para o seu clã.</value></data>
+  <data name="Usable.ClanTeleport" xml:space="preserve"><value>Teleporta até um membro do clã</value></data>
+  <data name="Usable.CriticalScroll" xml:space="preserve"><value>Aumento de {0}%</value></data>
+  <data name="Usable.CriticalScroll2" xml:space="preserve"><value>no ataque crítico.</value></data>
+  <data name="Usable.Duration" xml:space="preserve"><value>Duração: {0}</value></data>
+  <data name="Usable.EvasionScroll" xml:space="preserve"><value>Aumento de {0}% na</value></data>
+  <data name="Usable.EvasionScroll2" xml:space="preserve"><value>chance de esquiva.</value></data>
+  <data name="Usable.FemaleOnly" xml:space="preserve"><value>Somente personagens femininas</value></data>
+  <data name="Usable.Fireworks" xml:space="preserve"><value>Fogos de artifício iluminam o céu ao seu redor.</value></data>
+  <data name="Usable.Gift" xml:space="preserve"><value>Abra para receber um presente.</value></data>
+  <data name="Usable.Gravity" xml:space="preserve"><value>Capacidade de carga +{0}</value></data>
+  <data name="Usable.GravityUses" xml:space="preserve"><value>(até {0} usos)</value></data>
+  <data name="Usable.Hair" xml:space="preserve"><value>Muda seu cabelo para o tipo {0}.</value></data>
+  <data name="Usable.Invulnerability" xml:space="preserve"><value>Fica invencível pelo tempo definido.</value></data>
+  <data name="Usable.Invulnerability2" xml:space="preserve"><value>O poder de ataque cai pela metade.</value></data>
+  <data name="Usable.LevelFrom" xml:space="preserve"><value>Nível req.: {0}+</value></data>
+  <data name="Usable.LevelRange" xml:space="preserve"><value>Nível req.: {0}-{1}</value></data>
+  <data name="Usable.MaleOnly" xml:space="preserve"><value>Somente personagens masculinos</value></data>
+  <data name="Usable.Mature" xml:space="preserve"><value>Amadurece {0} envelhecido(a) que você usa.</value></data>
+  <data name="Usable.Mercenary" xml:space="preserve"><value>Invoca {0} para guardar</value></data>
+  <data name="Usable.Mercenary2" xml:space="preserve"><value>o castelo durante um cerco.</value></data>
+  <data name="Usable.Merchant" xml:space="preserve"><value>Abre uma loja que compra e conserta.</value></data>
+  <data name="Usable.OrbDamage" xml:space="preserve"><value>Poder de ataque adicional: {0}</value></data>
+  <data name="Usable.OrbPercent" xml:space="preserve"><value>Poder de ataque adicional: {0}%</value></data>
+  <data name="Usable.Pet" xml:space="preserve"><value>Invoca {0} para lutar por você</value></data>
+  <data name="Usable.Pet2" xml:space="preserve"><value>por {0} minutos, mais tempo em níveis maiores.</value></data>
+  <data name="Usable.PuzzleBag" xml:space="preserve"><value>Revele a peça de quebra-cabeça por {0} de ouro.</value></data>
+  <data name="Usable.PuzzleBoard" xml:space="preserve"><value>Monte o conjunto no tabuleiro do quebra-cabeça.</value></data>
+  <data name="Usable.PuzzlePiece" xml:space="preserve"><value>Peça {0} de {1} do quebra-cabeça</value></data>
+  <data name="Usable.Recall" xml:space="preserve"><value>Retorna para {0}</value></data>
+  <data name="Usable.Redistributed" xml:space="preserve"><value>sejam redistribuídos.</value></data>
+  <data name="Usable.ResetAttribute" xml:space="preserve"><value>Retorna {0} ao valor inicial</value></data>
+  <data name="Usable.ResetAttribute2" xml:space="preserve"><value>e devolve seus pontos de atributo.</value></data>
+  <data name="Usable.ResetBoth" xml:space="preserve"><value>Permite que os pontos de atributo/habilidade</value></data>
+  <data name="Usable.ResetSkills" xml:space="preserve"><value>Permite que os pontos de habilidade</value></data>
+  <data name="Usable.ResetStats" xml:space="preserve"><value>Permite que os pontos de atributo</value></data>
+  <data name="Usable.Restoration" xml:space="preserve"><value>Revive você onde caiu</value></data>
+  <data name="Usable.Restoration2" xml:space="preserve"><value>{0} segundos após morrer no castelo.</value></data>
+  <data name="Usable.Restores" xml:space="preserve"><value>Restaura vida, mana e stamina.</value></data>
+  <data name="Usable.SoccerHead" xml:space="preserve"><value>Dá a você uma cabeça de bola de futebol por {0}.</value></data>
+  <data name="Usable.SoulStone" xml:space="preserve"><value>Liberta uma alma hostil por {0} minutos.</value></data>
+  <data name="Usable.TeleportCore" xml:space="preserve"><value>Teleporta você para o mapa que escolher.</value></data>
+  <data name="Usable.TrainTier" xml:space="preserve"><value>Treina por completo as habilidades do tier {0} da classe.</value></data>
+  <data name="Usable.VirtualLife" xml:space="preserve"><value>Vida virtual nv. {0}</value></data>
 </root>

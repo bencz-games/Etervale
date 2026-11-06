@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Gameplay.UI.Rendering;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -83,7 +84,7 @@ internal sealed class HudSettingsPanel
         painter.HelpBox(BoxX, BoxY, SizeW, SizeH);
         var title = Title;
         painter.Sprite(HudArt.HelpTitle, title.X, title.Y);
-        painter.TextCentered("Settings", title.Left, title.Right, title.Y + 7, HudTextColors.BoxTitle);
+        painter.TextCentered(ClientText.Get("Settings.Title"), title.Left, title.Right, title.Y + 7, HudTextColors.BoxTitle);
         for (var index = 0; index < _labels.Length; index++)
         {
             var row = Row(index);
@@ -97,7 +98,7 @@ internal sealed class HudSettingsPanel
 
         var notes = Row(_labels.Length);
         painter.Text(painter.Fit(_settings.EffectiveDisplay, notes.Width - 8), notes.X + 6, notes.Y + 6, HudTextColors.Hint);
-        var hint = _settings.Message.Length > 0 ? "Settings need attention; see the client log." : "Click: next   Shift+click: previous";
+        var hint = ClientText.Get(_settings.Message.Length > 0 ? "Settings.NeedsAttention" : "Settings.Hint");
         painter.Text(hint, notes.X + 6, notes.Y + 6 + RowHeight, _settings.Message.Length > 0 ? Color.Orange : HudTextColors.Hint);
         var ok = OkButton;
         painter.Sprite(HudArt.HelpButton, ok.X - 9, ok.Y - 4);
@@ -197,28 +198,36 @@ internal sealed class HudSettingsPanel
         }
 
         _labelSettings = settings;
-        _labels[0] = $"Window: {settings.WindowMode}";
-        _labels[1] = settings.Monitor < 0 ? "Monitor: current" : $"Monitor: {settings.Monitor}";
-        _labels[2] = settings.WindowMode == WindowMode.Borderless ? "Resolution: desktop" : $"Resolution: {settings.WindowWidth} x {settings.WindowHeight}";
-        _labels[3] = settings.WindowMode != WindowMode.Fullscreen ? "Frequency: desktop" : $"Frequency: {settings.RefreshRate} Hz (0 = automatic)";
-        _labels[4] = settings.VerticalSync ? "VSync: on" : "VSync: off";
-        _labels[5] = settings.MusicEnabled ? "BGM: on" : "BGM: off";
-        _labels[6] = settings.SoundEnabled ? "Audio: on" : "Audio: off";
-        _labels[7] = settings.MaxFps == 0 ? "Maximum FPS: unlimited" : $"Maximum FPS: {settings.MaxFps}";
-        _labels[8] = settings.BackgroundMaxFps == 0 ? "Background FPS: foreground limit" : $"Background FPS: {settings.BackgroundMaxFps}";
+        _labels[0] = ClientText.Format("Settings.Window", ClientText.Get("Settings.WindowMode." + settings.WindowMode));
+        _labels[1] = settings.Monitor < 0 ? ClientText.Get("Settings.MonitorCurrent") : ClientText.Format("Settings.Monitor", settings.Monitor);
+        _labels[2] = settings.WindowMode == WindowMode.Borderless
+            ? ClientText.Get("Settings.ResolutionDesktop")
+            : ClientText.Format("Settings.Resolution", settings.WindowWidth, settings.WindowHeight);
+        _labels[3] = settings.WindowMode != WindowMode.Fullscreen ? ClientText.Get("Settings.FrequencyDesktop") : ClientText.Format("Settings.Frequency", settings.RefreshRate);
+        _labels[4] = ClientText.Get(settings.VerticalSync ? "Settings.VSyncOn" : "Settings.VSyncOff");
+        _labels[5] = ClientText.Get(settings.MusicEnabled ? "Settings.MusicOn" : "Settings.MusicOff");
+        _labels[6] = ClientText.Get(settings.SoundEnabled ? "Settings.SoundOn" : "Settings.SoundOff");
+        _labels[7] = settings.MaxFps == 0 ? ClientText.Get("Settings.MaxFpsUnlimited") : ClientText.Format("Settings.MaxFps", settings.MaxFps);
+        _labels[8] = settings.BackgroundMaxFps == 0
+            ? ClientText.Get("Settings.BackgroundFpsForeground")
+            : ClientText.Format("Settings.BackgroundFps", settings.BackgroundMaxFps);
         _labels[9] = settings.AntiAliasing == AntiAliasingMode.Msaa
-            ? $"Anti-aliasing: MSAA {Math.Max(settings.MultiSampleCount, 2)}x"
-            : $"Anti-aliasing: {settings.AntiAliasing.ToString().ToUpperInvariant()}";
-        _labels[10] = $"Sun shadow: {settings.ShadowMapSize}";
-        _labels[11] = $"Graphics quality: {settings.Quality}";
-        _labels[12] = settings.ShadowUpdateRate == 0 ? "Shadow animation: every frame" : $"Shadow animation: {settings.ShadowUpdateRate} Hz";
-        _labels[13] = settings.ShadowsEnabled ? "Shadows: on" : "Shadows: off";
-        _labels[14] = settings.ClassicTargetHealthBar ? "Target HP: classic (after first hit)" : "Target HP: always, with percentage";
-        _labels[15] = settings.ClassicNamePlates ? "Name plates: classic" : "Name plates: compact";
-        _labels[16] = settings.WeatherEnabled ? "Weather: on" : "Weather: off";
-        _labels[17] = settings.RealisticSky ? "Sky: realistic" : "Sky: classic";
-        _labels[18] = $"Clouds: {settings.CloudQuality}";
-        _labels[19] = $"Language: {settings.Language}";
+            ? ClientText.Format("Settings.AntiAliasingMsaa", Math.Max(settings.MultiSampleCount, 2))
+            : settings.AntiAliasing == AntiAliasingMode.Off
+                ? ClientText.Get("Settings.AntiAliasingOff")
+                : ClientText.Format("Settings.AntiAliasing", settings.AntiAliasing.ToString().ToUpperInvariant());
+        _labels[10] = ClientText.Format("Settings.SunShadow", settings.ShadowMapSize);
+        _labels[11] = ClientText.Format("Settings.Quality", ClientText.Get("Settings.Quality." + settings.Quality));
+        _labels[12] = settings.ShadowUpdateRate == 0
+            ? ClientText.Get("Settings.ShadowAnimationEveryFrame")
+            : ClientText.Format("Settings.ShadowAnimation", settings.ShadowUpdateRate);
+        _labels[13] = ClientText.Get(settings.ShadowsEnabled ? "Settings.ShadowsOn" : "Settings.ShadowsOff");
+        _labels[14] = ClientText.Get(settings.ClassicTargetHealthBar ? "Settings.TargetHealthClassic" : "Settings.TargetHealthAlways");
+        _labels[15] = ClientText.Get(settings.ClassicNamePlates ? "Settings.NamePlatesClassic" : "Settings.NamePlatesCompact");
+        _labels[16] = ClientText.Get(settings.WeatherEnabled ? "Settings.WeatherOn" : "Settings.WeatherOff");
+        _labels[17] = ClientText.Get(settings.RealisticSky ? "Settings.SkyRealistic" : "Settings.SkyClassic");
+        _labels[18] = ClientText.Format("Settings.Clouds", ClientText.Get("Settings.Clouds." + settings.CloudQuality));
+        _labels[19] = ClientText.Format("Settings.Language", ClientText.Get("Language." + settings.Language));
     }
 
     private static string NextLanguage(string language, int direction)

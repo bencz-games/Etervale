@@ -1,6 +1,7 @@
 using System.Globalization;
 using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.Skills;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -21,17 +22,17 @@ public static class HudSkillDetails
         var ratingPercent = rule.At(rule.AttackRatingPercent, rank);
         if (rating != 0 || ratingPercent != 0)
         {
-            lines.Add(ratingPercent != 0 ? $"Attack rating {Signed(ratingPercent)}%" : $"Attack rating {Signed(rating)}");
+            lines.Add(ratingPercent != 0 ? ClientText.Format("SkillInfo.AttackRatingPercent", Signed(ratingPercent)) : ClientText.Format("SkillInfo.AttackRating", Signed(rating)));
         }
 
         if (rule.At(rule.CriticalAdd, rank) is var critical and > 0)
         {
-            lines.Add($"Critical {Signed(critical)}%");
+            lines.Add(ClientText.Format("SkillInfo.Critical", Signed(critical)));
         }
 
         if (rule.HealMin.Length == 10)
         {
-            lines.Add($"Heals {rule.At(rule.HealMin, rank)}-{rule.At(rule.HealMax, rank)} (+ weapon / 3, spirit)");
+            lines.Add(ClientText.Format("SkillInfo.Heals", rule.At(rule.HealMin, rank), rule.At(rule.HealMax, rank)));
         }
 
         Area(lines, rule, rank);
@@ -50,17 +51,17 @@ public static class HudSkillDetails
 
         if (rule.Charm is { } charm)
         {
-            lines.Add($"Success {SkillFormulas.RankValue(charm.Chance, rank)}%, life {SkillFormulas.RankValue(charm.LifePercent, rank)}%");
+            lines.Add(ClientText.Format("SkillInfo.Charm", SkillFormulas.RankValue(charm.Chance, rank), SkillFormulas.RankValue(charm.LifePercent, rank)));
         }
 
         if (rule.Resurrect is { } resurrect)
         {
-            lines.Add($"Revive chance {SkillFormulas.RankValue(resurrect.Chance, rank)}%, life {resurrect.LifePercent}%");
+            lines.Add(ClientText.Format("SkillInfo.Revive", SkillFormulas.RankValue(resurrect.Chance, rank), resurrect.LifePercent));
         }
 
         if (rule.Summon is { } summon)
         {
-            lines.Add($"{summon.Monster}: damage {rule.At(summon.DamageMin, rank)}-{rule.At(summon.DamageMax, rank)}, life {rule.At(summon.Life, rank)}");
+            lines.Add(ClientText.Format("SkillInfo.Summon", summon.Monster, rule.At(summon.DamageMin, rank), rule.At(summon.DamageMax, rank), rule.At(summon.Life, rank)));
         }
 
         return lines;
@@ -71,50 +72,52 @@ public static class HudSkillDetails
         switch (damage.Mode)
         {
             case SkillDamageMode.MaxLifeShare:
-                lines.Add($"Drains {rule.At(damage.Share, rank)}% of maximum life");
+                lines.Add(ClientText.Format("SkillInfo.Drains", rule.At(damage.Share, rank)));
                 return;
             case SkillDamageMode.CurrentLifeShare:
-                lines.Add($"{rule.At(damage.Chance, rank)}% chance: {rule.At(damage.Share, rank)}% of life");
+                lines.Add(ClientText.Format("SkillInfo.ShareChance", rule.At(damage.Chance, rank), rule.At(damage.Share, rank)));
                 return;
         }
 
         var percent = rule.At(damage.Percent, rank);
         if (damage.Min.Length == 10)
         {
-            lines.Add($"Damage {rule.At(damage.Min, rank)}-{rule.At(damage.Max, rank)}{(damage.Element == Simulation.Combat.Element.Bionic ? "" : " " + damage.Element)}");
+            lines.Add(damage.Element == Simulation.Combat.Element.Bionic
+                ? ClientText.Format("SkillInfo.Damage", rule.At(damage.Min, rank), rule.At(damage.Max, rank))
+                : ClientText.Format("SkillInfo.DamageElement", rule.At(damage.Min, rank), rule.At(damage.Max, rank), ClientText.Get("Element." + damage.Element)));
             var tablePercent = SkillFormulas.RankValue(damage.TablePercent, rank);
             if (tablePercent != 0)
             {
-                lines.Add($"Adding rate {Signed(tablePercent)}%");
+                lines.Add(ClientText.Format("SkillInfo.AddingRate", Signed(tablePercent)));
             }
         }
 
         if (percent != 0)
         {
-            lines.Add($"Damage {Signed(percent)}%");
+            lines.Add(ClientText.Format("SkillInfo.DamagePercent", Signed(percent)));
         }
 
         if (damage.RandomHits.Length == 10)
         {
-            lines.Add($"Up to {rule.At(damage.RandomHits, rank)} sparks");
+            lines.Add(ClientText.Format("SkillInfo.Sparks", rule.At(damage.RandomHits, rank)));
         }
 
         if (rule.Volley.Length == 10)
         {
-            lines.Add($"{rule.At(rule.Volley, rank)} shots");
+            lines.Add(ClientText.Format("SkillInfo.Shots", rule.At(rule.Volley, rank)));
         }
 
         var bonus = SkillFormulas.RankValue(damage.BonusPercentByRank, rank);
         bonus = bonus != 0 ? bonus : damage.BonusPercent;
         if (bonus != 0 && damage.BonusBroods.Length > 0)
         {
-            lines.Add($"{string.Join("/", damage.BonusBroods)} {Signed(bonus)}%");
+            lines.Add(ClientText.Format("SkillInfo.BroodBonus", Broods(damage.BonusBroods), Signed(bonus)));
         }
 
         var hits = SkillFormulas.HitCount(rule, rank);
         if (SkillFormulas.Plan(rule, rank).Motion == SkillMotion.Skill && hits > 1)
         {
-            lines.Add($"{hits} hits");
+            lines.Add(ClientText.Format("SkillInfo.Hits", hits));
         }
     }
 
@@ -123,7 +126,7 @@ public static class HudSkillDetails
         var range = rule.At(rule.Range, rank);
         if (range > 0)
         {
-            lines.Add(rule.RangeMode == SkillRangeMode.AddWeapon ? $"Range +{range}" : $"Range {range}");
+            lines.Add(ClientText.Format(rule.RangeMode == SkillRangeMode.AddWeapon ? "SkillInfo.RangeAdded" : "SkillInfo.Range", range));
         }
 
         if (rule.Kind != SkillKind.Area)
@@ -132,56 +135,60 @@ public static class HudSkillDetails
         }
 
         var radius = rule.At(rule.Radius, rank);
-        var targets = rule.MaxTargetsByRank.Length > 0 ? $", {rule.At(rule.MaxTargetsByRank, rank)} targets" : "";
+        var targets = rule.MaxTargetsByRank.Length > 0 ? ClientText.Format("SkillInfo.Targets", rule.At(rule.MaxTargetsByRank, rank)) : "";
         lines.Add(rule.AreaShape switch
         {
-            SkillAreaShape.Box => $"Area {rule.BoxWidth} x {radius}{targets}",
-            SkillAreaShape.Chain => $"Chain of {rule.At(rule.MaxTargetsByRank, rank)}, link {radius}",
-            _ => $"Area {radius}{targets}"
+            SkillAreaShape.Box => ClientText.Format("SkillInfo.AreaBox", rule.BoxWidth, radius, targets),
+            SkillAreaShape.Chain => ClientText.Format("SkillInfo.Chain", rule.At(rule.MaxTargetsByRank, rank), radius),
+            _ => ClientText.Format("SkillInfo.Area", radius, targets)
         });
     }
 
     private static void Buff(List<string> lines, SkillRule rule, SkillBuffRule buff, int rank)
     {
-        lines.Add($"Duration {rule.At(buff.DurationTenths, rank) / 10f:0.#} s");
+        lines.Add(ClientText.Format("SkillInfo.Duration", (rule.At(buff.DurationTenths, rank) / 10f).ToString("0.#", CultureInfo.InvariantCulture)));
         foreach (var modifier in buff.Modifiers)
         {
-            var value = modifier.RankOf != 0 ? "rank of a related skill" : null;
-            lines.Add(value is null ? Modifier(modifier.Stat, modifier.Op, rule.At(modifier.Values, rank)) + (modifier.LevelDivisor > 0 ? $" + level/{modifier.LevelDivisor}" : "")
-                : $"{Label(modifier.Stat)} by the {value}");
+            lines.Add(modifier.RankOf != 0
+                ? ClientText.Format("SkillInfo.ByRelatedRank", Label(modifier.Stat))
+                : modifier.LevelDivisor > 0
+                    ? ClientText.Format("SkillInfo.PlusLevel", Modifier(modifier.Stat, modifier.Op, rule.At(modifier.Values, rank)), modifier.LevelDivisor)
+                    : Modifier(modifier.Stat, modifier.Op, rule.At(modifier.Values, rank)));
         }
 
         if (buff.Absorb is { } absorb)
         {
-            lines.Add($"Absorbs {SkillFormulas.RankValue(absorb.Percent, rank)}% of damage with {absorb.Resource}");
+            lines.Add(ClientText.Format("SkillInfo.Absorbs", SkillFormulas.RankValue(absorb.Percent, rank), ClientText.Get("Resource." + absorb.Resource)));
         }
 
         if (buff.Reflect is { } reflect)
         {
-            lines.Add($"Reflects {SkillFormulas.RankValue(reflect.Percent, rank)}% of {string.Join("/", reflect.Broods)} attacks");
+            lines.Add(ClientText.Format("SkillInfo.Reflects", SkillFormulas.RankValue(reflect.Percent, rank), Broods(reflect.Broods)));
         }
 
         if (buff.Guard is { } guard)
         {
-            lines.Add($"{SkillFormulas.RankValue(guard.HealPercent, rank)}% of {string.Join("/", guard.Broods)} {(guard.OnBlock ? "blocked" : "")} damage to life");
+            lines.Add(ClientText.Format(guard.OnBlock ? "SkillInfo.GuardBlocked" : "SkillInfo.Guard", SkillFormulas.RankValue(guard.HealPercent, rank), Broods(guard.Broods)));
         }
 
         if (buff.Enchant is { } enchant)
         {
             foreach (var choice in enchant.Choices)
             {
-                lines.Add($"{choice.Element} +{SkillFormulas.RankValue(choice.Min, rank)}-{SkillFormulas.RankValue(choice.Max, rank)}");
+                lines.Add(ClientText.Format("SkillInfo.Enchant", ClientText.Get("Element." + choice.Element), SkillFormulas.RankValue(choice.Min, rank), SkillFormulas.RankValue(choice.Max, rank)));
             }
         }
 
         if (buff.Companion is { } companion)
         {
-            lines.Add($"Strikes every {rule.At(companion.IntervalMs, rank) / 1000f:0.#} s");
+            lines.Add(ClientText.Format("SkillInfo.StrikesEvery", (rule.At(companion.IntervalMs, rank) / 1000f).ToString("0.#", CultureInfo.InvariantCulture)));
         }
 
         if (rule.Allies is { Radius.Length: 10 } allies)
         {
-            lines.Add($"Allies within {rule.At(allies.Radius, rank)}{(allies.OthersPercent < 100 ? $" ({allies.OthersPercent}%)" : "")}");
+            lines.Add(allies.OthersPercent < 100
+                ? ClientText.Format("SkillInfo.AlliesShare", rule.At(allies.Radius, rank), allies.OthersPercent)
+                : ClientText.Format("SkillInfo.Allies", rule.At(allies.Radius, rank)));
         }
     }
 
@@ -191,26 +198,10 @@ public static class HudSkillDetails
     private static bool PercentStat(StatKind stat) => stat is StatKind.BlockChance or StatKind.CriticalChance or StatKind.DamageVsUndead or StatKind.Evasion
         or StatKind.SpellPower or StatKind.WeaponDamagePercent or StatKind.AbsorptionVsUndead;
 
-    private static string Label(StatKind stat) => stat switch
-    {
-        StatKind.DamageMin => "Minimum damage",
-        StatKind.DamageMax => "Maximum damage",
-        StatKind.DamageVsUndead => "Damage vs undead",
-        StatKind.AbsorptionVsUndead => "Absorption vs undead",
-        StatKind.WeaponDamagePercent => "Weapon damage",
-        StatKind.SpellPower => "Spell damage",
-        StatKind.ManaRegen => "Mana regeneration (tenths/s)",
-        StatKind.LifeRegen => "Life regeneration (tenths/s)",
-        StatKind.MoveSpeed => "Speed",
-        StatKind.DamageTaken => "Damage taken",
-        StatKind.SkillDamageTaken => "Skill damage taken",
-        StatKind.HealingTaken => "Healing taken",
-        StatKind.AttackRange => "Range",
-        _ => SplitWords(stat.ToString())
-    };
+    private static string Label(StatKind stat) => ClientText.Get("Stat." + stat);
 
-    private static string SplitWords(string text) => string.Concat(text.Select((character, index) =>
-        index > 0 && char.IsUpper(character) ? " " + char.ToLowerInvariant(character) : character.ToString()));
+    private static string Broods(IEnumerable<Simulation.World.Monsters.MonsterBrood> broods) =>
+        string.Join("/", broods.Select(static brood => ClientText.Get("Brood." + brood)));
 
     private static string Signed(int value) => value > 0 ? "+" + value.ToString(CultureInfo.InvariantCulture) : value.ToString(CultureInfo.InvariantCulture);
 }

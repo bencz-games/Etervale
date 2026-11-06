@@ -7,6 +7,7 @@ using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Items.Aging;
 using PristonTale.Simulation.Items.Mixing;
 using PristonTale.Contracts.Characters;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
@@ -36,7 +37,8 @@ public static class HudItemDetailTooltip
     private const int GaugeFill = 125;
 
     private static readonly string[] ResistanceLabels =
-        ["Organic Type:  ", "Nature Type:  ", "Flame Type:  ", "Frost Type:  ", "Lightning Type:  ", "Poison Type: ", "Water Type:  ", "Wind Type:  "];
+        ["Item.ResistOrganic", "Item.ResistNature", "Item.ResistFlame", "Item.ResistFrost", "Item.ResistLightning", "Item.ResistPoison", "Item.ResistWater",
+            "Item.ResistWind"];
 
     // hunt: a growing quest weapon's hunt line (RankUpByQuestWeapon.HuntLine), set off by a blank line on each side under
     // the name, as the original's box shows it.
@@ -70,52 +72,52 @@ public static class HudItemDetailTooltip
         }
 
         var raised = aged && details.UpgradeLevel > 0 ? AgingRules.RaisedBy(item.CatalogKey) : AgedStats.None;
-        Add(lines, roll.DamageMin != 0 || roll.DamageMax != 0, "Attack Power:  ", $"{roll.DamageMin}-{roll.DamageMax}",
+        Add(lines, roll.DamageMin != 0 || roll.DamageMax != 0, ClientText.Get("Item.AttackPower"), $"{roll.DamageMin}-{roll.DamageMax}",
             Raised(raised, AgedStats.Damage) ?? Mixed(mixed, MixStat.DamageMin | MixStat.DamageMax));
-        Add(lines, details.AttackSpeed != 0, "Weapon Speed:  ", Whole(details.AttackSpeed), Mixed(mixed, MixStat.AttackSpeed));
-        Add(lines, details.ShootingRange != 0, "Range:  ", Whole(details.ShootingRange));
-        Add(lines, details.Critical != 0, "Critical:  ", details.Critical + "%",
+        Add(lines, details.AttackSpeed != 0, ClientText.Get("Item.WeaponSpeed"), Whole(details.AttackSpeed), Mixed(mixed, MixStat.AttackSpeed));
+        Add(lines, details.ShootingRange != 0, ClientText.Get("Item.Range"), Whole(details.ShootingRange));
+        Add(lines, details.Critical != 0, ClientText.Get("Item.Critical"), details.Critical + "%",
             Raised(raised, AgedStats.Critical) ?? Mixed(mixed, MixStat.Critical));
-        Add(lines, roll.Defence != 0, "Defense Rating:  ", Whole(roll.Defence),
+        Add(lines, roll.Defence != 0, ClientText.Get("Item.Defence"), Whole(roll.Defence),
             Raised(raised, AgedStats.Defence) ?? Mixed(mixed, MixStat.Defence));
-        Add(lines, roll.AttackRating != 0, "Attack Rating:  ", Whole(roll.AttackRating),
+        Add(lines, roll.AttackRating != 0, ClientText.Get("Item.AttackRating"), Whole(roll.AttackRating),
             Raised(raised, AgedStats.AttackRating) ?? Mixed(mixed, MixStat.AttackRating));
-        Add(lines, roll.Absorb != 0, "Absorb Rating:  ", Tenths(roll.Absorb + ItemAbsorbCorrection.For(item.CatalogKey)),
+        Add(lines, roll.Absorb != 0, ClientText.Get("Item.Absorb"), Tenths(roll.Absorb + ItemAbsorbCorrection.For(item.CatalogKey)),
             Raised(raised, AgedStats.Absorb) ?? Mixed(mixed, MixStat.Absorb));
-        Add(lines, roll.Block != 0, "Block Rating:  ", (int)roll.Block + "%", Raised(raised, AgedStats.Block) ?? Mixed(mixed, MixStat.Block));
-        Add(lines, roll.MoveSpeed != 0, "Speed:  ", Tenths(roll.MoveSpeed), Mixed(mixed, MixStat.MoveSpeed));
-        Add(lines, details.DurabilityCurrent != 0 || details.DurabilityMax != 0, "Integrity:  ", $"{details.DurabilityCurrent}/{details.DurabilityMax}",
+        Add(lines, roll.Block != 0, ClientText.Get("Item.Block"), (int)roll.Block + "%", Raised(raised, AgedStats.Block) ?? Mixed(mixed, MixStat.Block));
+        Add(lines, roll.MoveSpeed != 0, ClientText.Get("Item.Speed"), Tenths(roll.MoveSpeed), Mixed(mixed, MixStat.MoveSpeed));
+        Add(lines, details.DurabilityCurrent != 0 || details.DurabilityMax != 0, ClientText.Get("Item.Integrity"), $"{details.DurabilityCurrent}/{details.DurabilityMax}",
             Raised(raised, AgedStats.Integrity));
         var resistances = roll.Resistances;
         short[] elements = [resistances.Bionic, resistances.Earth, resistances.Fire, resistances.Ice, resistances.Lighting, resistances.Poison,
             resistances.Water, resistances.Wind];
         for (var element = 0; element < elements.Length; element++)
         {
-            Add(lines, elements[element] != 0, ResistanceLabels[element], Whole(elements[element]), Mixed(mixed, ElementStats[element]));
+            Add(lines, elements[element] != 0, ClientText.Get(ResistanceLabels[element]), Whole(elements[element]), Mixed(mixed, ElementStats[element]));
         }
 
         var forceOrb = item.Kind == ItemKind.ForceOrb;
-        Add(lines, roll.LifeRegen != 0 && !forceOrb, "HP Regen:  ", Tenths(roll.LifeRegen), Mixed(mixed, MixStat.LifeRegen));
-        Add(lines, roll.ManaRegen != 0 && !forceOrb, "MP Regen: ", Tenths(roll.ManaRegen), Mixed(mixed, MixStat.ManaRegen));
-        Add(lines, roll.StaminaRegen != 0 && !forceOrb, "STM Regen: ", Tenths(roll.StaminaRegen), Mixed(mixed, MixStat.StaminaRegen));
-        Add(lines, roll.AddLife != 0, "Add. HP: ", Whole(roll.AddLife), Mixed(mixed, MixStat.Life));
-        Add(lines, roll.AddMana != 0, "Add. MP:  ", Whole(roll.AddMana), Raised(raised, AgedStats.Mana) ?? Mixed(mixed, MixStat.Mana));
-        Add(lines, roll.AddStamina != 0, "Add. STM:  ", Whole(roll.AddStamina), Mixed(mixed, MixStat.Stamina));
-        Add(lines, details.MagicMastery != 0, "Magic APT:  ", Whole((int)details.MagicMastery));
-        Add(lines, details.PotionSpace != 0, "Potion Storage:  ", Whole(details.PotionSpace));
+        Add(lines, roll.LifeRegen != 0 && !forceOrb, ClientText.Get("Item.LifeRegen"), Tenths(roll.LifeRegen), Mixed(mixed, MixStat.LifeRegen));
+        Add(lines, roll.ManaRegen != 0 && !forceOrb, ClientText.Get("Item.ManaRegen"), Tenths(roll.ManaRegen), Mixed(mixed, MixStat.ManaRegen));
+        Add(lines, roll.StaminaRegen != 0 && !forceOrb, ClientText.Get("Item.StaminaRegen"), Tenths(roll.StaminaRegen), Mixed(mixed, MixStat.StaminaRegen));
+        Add(lines, roll.AddLife != 0, ClientText.Get("Item.AddLife"), Whole(roll.AddLife), Mixed(mixed, MixStat.Life));
+        Add(lines, roll.AddMana != 0, ClientText.Get("Item.AddMana"), Whole(roll.AddMana), Raised(raised, AgedStats.Mana) ?? Mixed(mixed, MixStat.Mana));
+        Add(lines, roll.AddStamina != 0, ClientText.Get("Item.AddStamina"), Whole(roll.AddStamina), Mixed(mixed, MixStat.Stamina));
+        Add(lines, details.MagicMastery != 0, ClientText.Get("Item.MagicMastery"), Whole((int)details.MagicMastery));
+        Add(lines, details.PotionSpace != 0, ClientText.Get("Item.PotionSpace"), Whole(details.PotionSpace));
 
         var level = owner?.Level ?? 0;
         var required = roll.Requirements;
-        Requirement(lines, roll.RequiredLevel, level, "Req. Level:  ");
-        Requirement(lines, required.Strength, owner?.Strength ?? 0, "Req. Strength:  ");
+        Requirement(lines, roll.RequiredLevel, level, ClientText.Get("Item.RequiredLevel"));
+        Requirement(lines, required.Strength, owner?.Strength ?? 0, ClientText.Get("Item.RequiredStrength"));
         if (!forceOrb)
         {
-            Requirement(lines, required.Spirit, owner?.Spirit ?? 0, "Req. Spirit:  ");
+            Requirement(lines, required.Spirit, owner?.Spirit ?? 0, ClientText.Get("Item.RequiredSpirit"));
         }
 
-        Requirement(lines, required.Talent, owner?.Talent ?? 0, "Req. Talent:  ");
-        Requirement(lines, required.Agility, owner?.Agility ?? 0, "Req. Agility:  ");
-        Requirement(lines, required.Health, owner?.Health ?? 0, "Req. Health:  ");
+        Requirement(lines, required.Talent, owner?.Talent ?? 0, ClientText.Get("Item.RequiredTalent"));
+        Requirement(lines, required.Agility, owner?.Agility ?? 0, ClientText.Get("Item.RequiredAgility"));
+        Requirement(lines, required.Health, owner?.Health ?? 0, ClientText.Get("Item.RequiredHealth"));
         if (roll.SpecJob != 0 && !forceOrb)
         {
             AddSpecialization(lines, roll, forceOrb);
@@ -202,22 +204,22 @@ public static class HudItemDetailTooltip
     private static void AddSpecialization(List<(string, Color)> lines, ItemRoll roll, bool forceOrb)
     {
         var spec = roll.Spec;
-        lines.Add((SpecClassName(roll.SpecJob) + " Spec. ", SpecHeaderColor));
-        AddSpec(lines, spec.AttackSpeed != 0, "Spec. ATK SPD:  ", Whole(spec.AttackSpeed));
-        AddSpec(lines, spec.Critical != 0, "Spec. CRIT:  ", spec.Critical + "%");
-        AddSpec(lines, spec.Defence != 0, "Spec. DEF RTG:  ", Whole(spec.Defence));
-        AddSpec(lines, spec.Absorb != 0, "Spec. ABS RTG:  ", Tenths(spec.Absorb));
-        AddSpec(lines, spec.Block != 0, "Spec. BLK RTG:  ", (int)spec.Block + "%");
-        AddSpec(lines, spec.MagicMastery != 0, "Magic APT:  ", Whole((int)spec.MagicMastery));
-        AddSpec(lines, spec.MoveSpeed != 0, "Spec. SPD:  ", Tenths(spec.MoveSpeed));
-        AddSpec(lines, spec.LevelDamage != 0, "Spec. ATK POW:  ", "LV/" + spec.LevelDamage);
-        AddSpec(lines, spec.LevelAttackRating != 0, "Spec. ATK RTG:  ", "LV/" + spec.LevelAttackRating);
-        AddSpec(lines, spec.ShootingRange != 0, "Spec. RNG:  ", Whole(spec.ShootingRange));
-        AddSpec(lines, spec.LevelLife != 0, "Max HP Boost:  ", "LV/" + spec.LevelLife);
-        AddSpec(lines, spec.LevelMana != 0, "Max MP Boost:  ", "LV/" + spec.LevelMana);
-        AddSpec(lines, spec.LifeRegen != 0 && !forceOrb, "HP Recovery:  ", Tenths(spec.LifeRegen));
-        AddSpec(lines, spec.ManaRegen != 0, "MP Recovery:  ", Tenths(spec.ManaRegen));
-        AddSpec(lines, spec.StaminaRegen != 0, "STM Recovery:  ", Tenths(spec.StaminaRegen));
+        lines.Add((ClientText.Format("Item.SpecHeader", SpecClassName(roll.SpecJob)), SpecHeaderColor));
+        AddSpec(lines, spec.AttackSpeed != 0, ClientText.Get("Item.SpecAttackSpeed"), Whole(spec.AttackSpeed));
+        AddSpec(lines, spec.Critical != 0, ClientText.Get("Item.SpecCritical"), spec.Critical + "%");
+        AddSpec(lines, spec.Defence != 0, ClientText.Get("Item.SpecDefence"), Whole(spec.Defence));
+        AddSpec(lines, spec.Absorb != 0, ClientText.Get("Item.SpecAbsorb"), Tenths(spec.Absorb));
+        AddSpec(lines, spec.Block != 0, ClientText.Get("Item.SpecBlock"), (int)spec.Block + "%");
+        AddSpec(lines, spec.MagicMastery != 0, ClientText.Get("Item.MagicMastery"), Whole((int)spec.MagicMastery));
+        AddSpec(lines, spec.MoveSpeed != 0, ClientText.Get("Item.SpecSpeed"), Tenths(spec.MoveSpeed));
+        AddSpec(lines, spec.LevelDamage != 0, ClientText.Get("Item.SpecAttackPower"), "LV/" + spec.LevelDamage);
+        AddSpec(lines, spec.LevelAttackRating != 0, ClientText.Get("Item.SpecAttackRating"), "LV/" + spec.LevelAttackRating);
+        AddSpec(lines, spec.ShootingRange != 0, ClientText.Get("Item.SpecRange"), Whole(spec.ShootingRange));
+        AddSpec(lines, spec.LevelLife != 0, ClientText.Get("Item.SpecLevelLife"), "LV/" + spec.LevelLife);
+        AddSpec(lines, spec.LevelMana != 0, ClientText.Get("Item.SpecLevelMana"), "LV/" + spec.LevelMana);
+        AddSpec(lines, spec.LifeRegen != 0 && !forceOrb, ClientText.Get("Item.SpecLifeRegen"), Tenths(spec.LifeRegen));
+        AddSpec(lines, spec.ManaRegen != 0, ClientText.Get("Item.SpecManaRegen"), Tenths(spec.ManaRegen));
+        AddSpec(lines, spec.StaminaRegen != 0, ClientText.Get("Item.SpecStaminaRegen"), Tenths(spec.StaminaRegen));
     }
 
     private static void AddTail(List<(string, Color)> lines, string price, string hint)
@@ -270,6 +272,6 @@ public static class HudItemDetailTooltip
     private static string SpecClassName(uint job)
     {
         var characterClass = JobBits.ClassOf((JobBitCode)job);
-        return characterClass.HasValue ? ClassProfiles.Of(characterClass.Value).Titles[0] : "Class";
+        return characterClass.HasValue ? ClassProfiles.Of(characterClass.Value).Titles[0] : ClientText.Get("Item.AnyClass");
     }
 }

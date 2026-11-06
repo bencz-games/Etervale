@@ -2,6 +2,10 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Simulation.Combat;
+using PristonTale.Simulation.Items;
+using PristonTale.Simulation.Modifiers;
+using PristonTale.Simulation.World.Monsters;
 
 namespace PristonTale.Tests;
 
@@ -17,6 +21,7 @@ internal static partial class LocalizationTests
     {
         yield return ("every client phrase is in every language with the same placeholders", CompleteAsync);
         yield return ("every phrase key the client code asks for exists", KeysAsync);
+        yield return ("every phrase key the client builds from a value exists", BuiltKeysAsync);
         yield return ("the client shows the chosen language and English for an unknown one", LanguageAsync);
     }
 
@@ -67,6 +72,26 @@ internal static partial class LocalizationTests
 
         var unknown = asked.Where(key => !english.ContainsKey(key)).ToArray();
         Assert.True(asked.Count > 0 && unknown.Length == 0, "keys without a phrase: " + string.Join(", ", unknown));
+        return Task.CompletedTask;
+    }
+
+    // Keys the client builds from a prefix and a value it shows.
+    private static IEnumerable<string> BuiltKeys() =>
+        Enum.GetNames<WindowMode>().Select(static name => "Settings.WindowMode." + name)
+            .Concat(Enum.GetNames<GraphicsQuality>().Select(static name => "Settings.Quality." + name))
+            .Concat(Enum.GetNames<CloudQuality>().Select(static name => "Settings.Clouds." + name))
+            .Concat(ClientSettings.SupportedLanguages.Select(static language => "Language." + language))
+            .Concat(Enum.GetValues<StatKind>().Where(static stat => stat is not StatKind.None and not StatKind.Count).Select(static stat => "Stat." + stat))
+            .Concat(Enum.GetNames<Element>().Select(static name => "Element." + name))
+            .Concat(Enum.GetNames<MonsterBrood>().Select(static name => "Brood." + name))
+            .Concat(Enum.GetNames<ResourceKind>().Select(static name => "Resource." + name))
+            .Concat(Enum.GetNames<ItemKind>().Select(static name => "ItemKind." + name));
+
+    private static Task BuiltKeysAsync()
+    {
+        var english = Load("ClientText.resx");
+        var unknown = BuiltKeys().Where(key => !english.ContainsKey(key)).ToArray();
+        Assert.True(unknown.Length == 0, "built keys without a phrase: " + string.Join(", ", unknown));
         return Task.CompletedTask;
     }
 
