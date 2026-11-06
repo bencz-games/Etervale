@@ -63,7 +63,7 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | `World/FieldStatusBook.cs` | The statuses running on the field's entities, for viewers that start seeing an entity later |
 | `World/WorldServer.Movement.cs` | Movement reports queued as values (`TryReportMovement`) with an `IMovementVerdictSink` |
 | `World/PlayerSkillCooldowns.cs` | Cooldowns on the field clock, rebased on field change, revisioned for snapshots |
-| `World/WorldData*.cs`, `FieldTerrainCatalog.cs` | Catalogs loaded at startup (`WorldDataAppService.BuildAsync`), held in volatile holders |
+| `World/WorldData*.cs`, `FieldTerrainCatalog.cs` | Authoritative and localized catalogs loaded at startup (`WorldDataAppService.BuildAsync`), held in immutable volatile holders |
 | `World/EntityIdAllocator.cs` | Thread-safe, monotonic 64-bit monster/NPC/summon ids from `2^32` |
 
 The project references only `PristonTale.Simulation` and `PristonTale.Persistence.Abstractions`, and exposes internals

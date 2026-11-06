@@ -4,15 +4,19 @@ using PristonTale.Persistence.Abstractions.WorldData;
 
 namespace PristonTale.Persistence.Repositories;
 
-// The runtime reads the catalog in English (CatalogLanguages.English); a name is null when the entity has no English
-// text (WorldDataFactory shows its code or key).
+// A requested translation falls back to English; a name is null when neither language has text
+// (WorldDataFactory shows its code or key).
 public sealed class DapperWorldDataRepository(IDbConnectionFactory connectionFactory) : IWorldDataRepository
 {
-    private static readonly object English = new { Language = CatalogLanguages.English };
+    private sealed record CatalogTextRecord(long Id, string? Name);
+    private sealed record LanguageParameters(string Language, string Fallback);
 
-    public async Task<IReadOnlyList<ItemTemplateRecord>> GetAllItemTemplatesAsync(CancellationToken ct = default)
+    private static LanguageParameters Languages(string language) => new(CatalogLanguages.Normalize(language), CatalogLanguages.English);
+
+    public async Task<IReadOnlyList<ItemTemplateRecord>> GetAllItemTemplatesAsync(string language = CatalogLanguages.English, CancellationToken ct = default)
     {
         await using var connection = await connectionFactory.OpenAsync(ct);
+        var languages = Languages(language);
         var items = (await connection.QueryAsync<ItemTemplateRecord>(new CommandDefinition(
             """
             SELECT
@@ -32,11 +36,16 @@ public sealed class DapperWorldDataRepository(IDbConnectionFactory connectionFac
                 d.display_effect, d.daily_drop_limit, d.set_code, d.set_pieces
             FROM item_definitions d
             JOIN items i ON i.code = d.item_code
-            LEFT JOIN item_texts t ON t.definition_id = d.id AND t.language = @Language
+                LEFT JOIN item_texts t ON t.definition_id = d.id AND t.language = @Language
             ORDER BY i.code, d.variant, d.variant_ordinal
-            """, English, cancellationToken: ct))).ToList();
+            """, languages, cancellationToken: ct))).ToList();
         if (items.Count == 0)
             return items;
+        if (languages.Language != CatalogLanguages.English)
+        {
+            var fallback = await CatalogTextsAsync(connection, "item_texts", "definition_id", languages.Fallback, ct);
+            items = items.Select(item => item with { Name = item.Name ?? fallback.GetValueOrDefault(item.Id) }).ToList();
+        }
 
         var bonuses = (await connection.QueryAsync<ItemSpecBonusRecord>(new CommandDefinition(
                 "SELECT definition_id, bonus, min_value, max_value FROM item_spec_bonuses ORDER BY definition_id, bonus", cancellationToken: ct)))
@@ -62,9 +71,10 @@ public sealed class DapperWorldDataRepository(IDbConnectionFactory connectionFac
             cancellationToken: ct))).ToList();
     }
 
-    public async Task<IReadOnlyList<MonsterRecord>> GetAllMonstersAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<MonsterRecord>> GetAllMonstersAsync(string language = CatalogLanguages.English, CancellationToken ct = default)
     {
         await using var connection = await connectionFactory.OpenAsync(ct);
+        var languages = Languages(language);
         var monsters = (await connection.QueryAsync<MonsterRecord>(new CommandDefinition(
             """
             SELECT
@@ -79,9 +89,14 @@ public sealed class DapperWorldDataRepository(IDbConnectionFactory connectionFac
             FROM monsters m
             LEFT JOIN monster_texts t ON t.monster_id = m.id AND t.language = @Language
             ORDER BY m.id
-            """, English, cancellationToken: ct))).ToList();
+            """, languages, cancellationToken: ct))).ToList();
         if (monsters.Count == 0)
             return monsters;
+        if (languages.Language != CatalogLanguages.English)
+        {
+            var fallback = await CatalogTextsAsync(connection, "monster_texts", "monster_id", languages.Fallback, ct);
+            monsters = monsters.Select(monster => monster with { Name = monster.Name ?? fallback.GetValueOrDefault(monster.Id) }).ToList();
+        }
 
         var lineItems = (await connection.QueryAsync<MonsterDropLineItemRecord>(new CommandDefinition(
                 "SELECT monster_id, line, ordinal, item_code FROM monster_drop_line_items ORDER BY monster_id, line, ordinal", cancellationToken: ct)))
@@ -99,9 +114,10 @@ public sealed class DapperWorldDataRepository(IDbConnectionFactory connectionFac
             .ToList();
     }
 
-    public async Task<IReadOnlyList<NpcRecord>> GetAllNpcsAsync(CancellationToken ct = default)
+    public async Task<IReadOnlyList<NpcRecord>> GetAllNpcsAsync(string language = CatalogLanguages.English, CancellationToken ct = default)
     {
         await using var connection = await connectionFactory.OpenAsync(ct);
+        var languages = Languages(language);
         var npcs = (await connection.QueryAsync<NpcRecord>(new CommandDefinition(
             """
             SELECT n.id, n.key, t.name, n.model, n.level, n.hostile, n.size_level, n.move_range,
@@ -109,9 +125,14 @@ public sealed class DapperWorldDataRepository(IDbConnectionFactory connectionFac
             FROM npcs n
             LEFT JOIN npc_texts t ON t.npc_id = n.id AND t.language = @Language
             ORDER BY n.id
-            """, English, cancellationToken: ct))).ToList();
+            """, languages, cancellationToken: ct))).ToList();
         if (npcs.Count == 0)
             return npcs;
+        if (languages.Language != CatalogLanguages.English)
+        {
+            var fallback = await CatalogTextsAsync(connection, "npc_texts", "npc_id", languages.Fallback, ct);
+            npcs = npcs.Select(npc => npc with { Name = npc.Name ?? fallback.GetValueOrDefault(npc.Id) }).ToList();
+        }
 
         var stock = (await connection.QueryAsync<NpcShopItemRecord>(new CommandDefinition(
                 "SELECT npc_id, tab, ordinal, item_code FROM npc_shop_items ORDER BY npc_id, tab, ordinal", cancellationToken: ct)))
@@ -119,9 +140,24 @@ public sealed class DapperWorldDataRepository(IDbConnectionFactory connectionFac
         var services = (await connection.QueryAsync<NpcServiceRecord>(new CommandDefinition(
                 "SELECT npc_id, ordinal, kind, value, value2, text FROM npc_services ORDER BY npc_id, ordinal", cancellationToken: ct)))
             .ToLookup(static s => s.NpcId);
-        var dialog = (await connection.QueryAsync<NpcDialogLineRecord>(new CommandDefinition(
-                "SELECT npc_id, ordinal, text FROM npc_dialog_lines WHERE language = @Language ORDER BY npc_id, ordinal", English, cancellationToken: ct)))
-            .ToLookup(static line => line.NpcId);
+        var dialogRows = (await connection.QueryAsync<NpcDialogLineRecord>(new CommandDefinition(
+                "SELECT npc_id, ordinal, text FROM npc_dialog_lines WHERE language = @Language ORDER BY npc_id, ordinal",
+                languages, cancellationToken: ct))).ToList();
+        if (languages.Language != CatalogLanguages.English)
+        {
+            var fallbackRows = await connection.QueryAsync<NpcDialogLineRecord>(new CommandDefinition(
+                "SELECT npc_id, ordinal, text FROM npc_dialog_lines WHERE language = @Language ORDER BY npc_id, ordinal",
+                new { Language = languages.Fallback }, cancellationToken: ct));
+            var selected = fallbackRows.ToDictionary(static line => (line.NpcId, line.Ordinal));
+            foreach (var line in dialogRows)
+            {
+                selected[(line.NpcId, line.Ordinal)] = line;
+            }
+
+            dialogRows = selected.Values.OrderBy(static line => line.NpcId).ThenBy(static line => line.Ordinal).ToList();
+        }
+
+        var dialog = dialogRows.ToLookup(static line => line.NpcId);
 
         return npcs
             .Select(n => n with
@@ -191,5 +227,13 @@ public sealed class DapperWorldDataRepository(IDbConnectionFactory connectionFac
                    event_frame0, event_frame1, event_frame2, event_frame3, repeat, key_code
             FROM motion_slots ORDER BY motion_table_key, slot
             """, cancellationToken: ct))).ToList();
+    }
+
+    private static async Task<IReadOnlyDictionary<long, string?>> CatalogTextsAsync(
+        System.Data.Common.DbConnection connection, string table, string ownerColumn, string language, CancellationToken ct)
+    {
+        var query = $"SELECT {ownerColumn} AS id, name FROM {table} WHERE language = @Language";
+        return (await connection.QueryAsync<CatalogTextRecord>(new CommandDefinition(query, new { Language = language }, cancellationToken: ct)))
+            .ToDictionary(static text => text.Id, static text => text.Name);
     }
 }

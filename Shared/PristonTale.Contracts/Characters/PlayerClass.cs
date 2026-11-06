@@ -13,5 +13,6 @@ public enum PlayerClass
     Magician = 7,
     Priestess = 8,
     Assassin = 9,
-    Shaman = 10
+    Shaman = 10,
+    MartialArtist = 11
 }

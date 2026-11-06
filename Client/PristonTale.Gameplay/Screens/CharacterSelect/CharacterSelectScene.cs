@@ -36,15 +36,16 @@ internal sealed class CharacterSelectScene
 
     private static readonly (float X, float Z)[] JobCharacterPos =
     [
-        (-90f, -320f),
-        (-45f, -330f),
-        (0f, -330f),
-        (45f, -330f),
-        (90f, -320f),
+        (-112f, -310f),
+        (-67f, -330f),
+        (-22f, -340f),
+        (23f, -340f),
+        (68f, -330f),
+        (113f, -310f),
     ];
 
     private static readonly PlayerClass[] TempscronJobs =
-        [PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Assassin];
+        [PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Assassin, PlayerClass.MartialArtist];
     private static readonly PlayerClass[] MorionJobs =
         [PlayerClass.Knight, PlayerClass.Atalanta, PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Shaman];
 

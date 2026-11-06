@@ -352,7 +352,7 @@ totals.
   | --- | --- | --- |
   | `WA1 WC1 WH1 WM1 WP1 WS1 WS2 WT1` | axe, claw, hammer, staff, pole, bow, sword, javelin | Weapon |
   | `WD1 WN1 WV1` | dagger, phantom, vambrace | Weapon (one-handed) |
-  | `DA1 DA2` | armor (robes are `DA2`) | Armor |
+  | `DA1 DA2 DA3 DA4` | armor (robes are `DA2`) | Armor |
   | `DB1`, `DG1` | boots, gloves | Boots, Gloves |
   | `DS1`, `OM1` | shield, orb | OffHand |
   | `OA1`, `OA2` | amulet, bracelet | Amulet, Bracelet |
@@ -595,3 +595,6 @@ server steps it per player in `FieldSkills.StepEffects` and resets it on death. 
 - [persistence.md](persistence.md), [world-import.md](world-import.md) - item and character data sources
 - [protocol.md](protocol.md) - how owner state, items and effects travel on the wire
 - [glossary.md](glossary.md)
+- Martial Artist is a female Tempskron melee class using Vambrace weapons. Its class profile uses the `f001` body and
+  `tfh-f` head families; its `f` armour row, starter weapon, item restrictions and five-tier skill catalog are defined
+  alongside the other playable classes.

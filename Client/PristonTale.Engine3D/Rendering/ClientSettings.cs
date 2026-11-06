@@ -18,10 +18,27 @@ public sealed record ClientSettings
     public const int MostMultiSamples = 4;
 
     public const int CurrentVersion = 1;
+    public const string EnglishLanguage = "en";
+    public const string BrazilianPortugueseLanguage = "pt-BR";
+    public static IReadOnlyList<string> SupportedLanguages { get; } = [EnglishLanguage, BrazilianPortugueseLanguage];
+
+    public static string NormalizeLanguage(string language)
+    {
+        foreach (var supported in SupportedLanguages)
+        {
+            if (string.Equals(language, supported, StringComparison.OrdinalIgnoreCase))
+            {
+                return supported;
+            }
+        }
+
+        return EnglishLanguage;
+    }
 
     public int Version { get; init; } = CurrentVersion;
     // The game server: host, host:port or tcp://host:port, optionally with ?cert=<sha-256 hex> (TlsTransport.ParseAddress).
     public string ServerAddress { get; init; } = "localhost";
+    public string Language { get; init; } = EnglishLanguage;
     public int Monitor { get; init; } = -1;
     public int WindowWidth { get; init; } = 1280;
     public int WindowHeight { get; init; } = 720;
@@ -100,6 +117,7 @@ public sealed record ClientSettings
         var valid = this with
         {
             ServerAddress = string.IsNullOrWhiteSpace(ServerAddress) ? defaults.ServerAddress : ServerAddress,
+            Language = NormalizeLanguage(Language),
             Monitor = Monitor >= -1 ? Monitor : defaults.Monitor,
             WindowWidth = WindowWidth is >= 800 and <= 16384 ? WindowWidth : defaults.WindowWidth,
             WindowHeight = WindowHeight is >= 600 and <= 16384 ? WindowHeight : defaults.WindowHeight,

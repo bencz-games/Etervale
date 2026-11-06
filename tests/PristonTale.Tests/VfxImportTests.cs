@@ -81,6 +81,12 @@ internal static class VfxImportTests
             }
         }
 
+        var martialArtistCasts = definitions.Where(static definition => definition.Name is "vfx.fighter.zecram.cast"
+            or "vfx.fighter.concentration.cast" or "vfx.fighter.swiftaxe.cast").ToArray();
+        Assert.True(martialArtistCasts.Length == 3 && martialArtistCasts.All(static definition =>
+            definition.Parts.Length > 0 && definition.Parts.All(static part => part.Anchor == VfxAnchor.Caster && part.Follow)),
+            "Martial Artist's self-cast effects stopped following its caster");
+
         static bool Converted(string name) => name.StartsWith("script.", StringComparison.Ordinal) || name.StartsWith("particle.", StringComparison.Ordinal);
         var started = definitions
             .SelectMany(static definition => definition.Children.Select(static child => child.Effect)

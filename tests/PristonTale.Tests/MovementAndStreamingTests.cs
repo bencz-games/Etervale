@@ -59,6 +59,8 @@ internal static class MovementAndStreamingTests
 
         var unchanged = DestinationMovement.Advance(Vector2.One, new Vector2(20), 100, float.NaN);
         Assert.True(unchanged.Position == Vector2.One && !unchanged.Arrived, "invalid delta time moved prediction");
+        Assert.True(DestinationMovement.WithinDistance(Vector2.Zero, new Vector2(23, 0), 24)
+            && !DestinationMovement.WithinDistance(Vector2.Zero, new Vector2(25, 0), 24), "cursor body-radius stop is incorrect");
         return Task.CompletedTask;
     }
 
@@ -97,6 +99,10 @@ internal static class MovementAndStreamingTests
 
     private static Task PrefetchAsync()
     {
+        Assert.True(FieldStreamingPolicy.MaximumPendingFields == 2,
+            "streaming must reserve one priority destination and one neighbour");
+        Assert.True(FieldStreamingPolicy.MaximumUploadSteps == 32 && FieldStreamingPolicy.UploadBudgetMilliseconds == 2d,
+            "teleport streaming must not raise the per-frame GPU upload budget");
         var forest = Forest1Field.Definition;
         var spawn = forest.StartPoints[0];
         var gate = forest.Gates.Single(value => value.DestinationFieldId == "village-2");

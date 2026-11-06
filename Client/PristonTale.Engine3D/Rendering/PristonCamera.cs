@@ -83,12 +83,17 @@ public sealed class PristonCamera
     public void Update(GameTime gameTime, GraphicsDevice graphicsDevice, Vector3 target, Vector3 forward,
         IPristonCollisionQuery collisionWorld, bool pointerCaptured = false, bool inputEnabled = true)
     {
-        UpdateOrbit(Mouse.GetState(), pointerCaptured, graphicsDevice.Viewport.Bounds, (float)gameTime.ElapsedGameTime.TotalSeconds, inputEnabled);
+        UpdateOrbit(Mouse.GetState(), Keyboard.GetState(), pointerCaptured, graphicsDevice.Viewport.Bounds,
+            (float)gameTime.ElapsedGameTime.TotalSeconds, inputEnabled);
         EnsureProjection(graphicsDevice, _fieldOfViewRadians);
         UpdateFollow(target, (float)gameTime.ElapsedGameTime.TotalSeconds, collisionWorld);
     }
 
     public void UpdateOrbit(MouseState mouse, bool pointerCaptured = false, Rectangle viewport = default, float deltaSeconds = 0f, bool inputEnabled = true)
+        => UpdateOrbit(mouse, default, pointerCaptured, viewport, deltaSeconds, inputEnabled);
+
+    public void UpdateOrbit(MouseState mouse, KeyboardState keyboard, bool pointerCaptured = false, Rectangle viewport = default,
+        float deltaSeconds = 0f, bool inputEnabled = true)
     {
         if (!inputEnabled)
         {
@@ -122,6 +127,21 @@ public sealed class PristonCamera
             {
                 _yaw += _settings.EdgeOrbitRadiansPerSecond * deltaSeconds;
             }
+        }
+
+        if (float.IsFinite(deltaSeconds) && deltaSeconds > 0f)
+        {
+            var orbit = _settings.EdgeOrbitRadiansPerSecond * deltaSeconds;
+            if (keyboard.IsKeyDown(Keys.Left))
+                _yaw -= orbit;
+            else if (keyboard.IsKeyDown(Keys.Right))
+                _yaw += orbit;
+
+            var zoom = _settings.KeyboardZoomUnitsPerSecond * deltaSeconds;
+            if (keyboard.IsKeyDown(Keys.Up))
+                _distance = MathHelper.Clamp(_distance - zoom, _settings.MinDistance, _settings.MaxDistance);
+            else if (keyboard.IsKeyDown(Keys.Down))
+                _distance = MathHelper.Clamp(_distance + zoom, _settings.MinDistance, _settings.MaxDistance);
         }
 
         var scroll = mouse.ScrollWheelValue - _lastMouse.ScrollWheelValue;

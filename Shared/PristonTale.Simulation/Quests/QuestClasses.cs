@@ -13,7 +13,7 @@ public static class QuestClasses
 
     // The quests split the classes by class number, not by tribe: the first four take the Tempskron side (Ricarten, its
     // NPCs and monsters), every later class the Morion side, the assassin included.
-    public static bool IsTempskron(PlayerCharacter character) => ClassOf(character) < PlayerClass.Atalanta;
+    public static bool IsTempskron(PlayerCharacter character) => ClassOf(character) <= PlayerClass.Archer || ClassOf(character) == PlayerClass.MartialArtist;
 
     // The first rank-up gathers trophies on the Tempskron side and for the assassin; the other classes brew a potion.
     public static bool RanksUpByTrophies(PlayerCharacter character) => IsTempskron(character) || ClassOf(character) == PlayerClass.Assassin;

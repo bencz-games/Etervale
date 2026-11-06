@@ -5,4 +5,19 @@ namespace PristonTale.Persistence.Abstractions.WorldData;
 public static class CatalogLanguages
 {
     public const string English = "en";
+    public const string BrazilianPortuguese = "pt-BR";
+    public static IReadOnlyList<string> Supported { get; } = [English, BrazilianPortuguese];
+
+    public static string Normalize(string? language)
+    {
+        foreach (var supported in Supported)
+        {
+            if (string.Equals(language, supported, StringComparison.OrdinalIgnoreCase))
+            {
+                return supported;
+            }
+        }
+
+        return English;
+    }
 }

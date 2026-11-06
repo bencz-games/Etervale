@@ -1,7 +1,7 @@
 namespace PristonTale.Persistence.Abstractions.WorldData;
 
 // One NPC definition file. Id: the importer's stable NPC id, also the runtime NPC code; Key: its unique English key;
-// Name: its English name (npc_texts), null without one; Dialog: its English lines (npc_dialog_lines).
+// Name and Dialog are from the selected language, with English fallback.
 public sealed record NpcRecord(
     int Id,
     string Key,

@@ -299,6 +299,7 @@ public sealed class ItemTxtParser
         "priestess" or "priest" or "사제" => (uint)JobBitCode.Priestess,
         "assassin" => (uint)JobBitCode.Assassin,
         "shaman" => (uint)JobBitCode.Shaman,
+        "martialartist" or "martial artist" or "martial" => (uint)JobBitCode.MartialArtist,
         _ => 0u,
     };
 }

@@ -136,6 +136,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     private bool _runFlag = true;
     // After a double click on the ground the player keeps walking toward the cursor until it is blocked or clicks again.
     private bool _followCursor;
+    private bool _holdCursorMovement;
 
     private readonly AttackInputController _attackInput = new();
     private readonly TargetSelection _targetSelection = new();
@@ -190,6 +191,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     }
 
     public string Status { get; private set; } = "Not loaded";
+    public string Language { get; set; } = ClientSettings.EnglishLanguage;
 
     public PlayerCharacter Player => _player;
     public OwnerState Owner { get; private set; }
@@ -408,6 +410,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     private float _warpCooldown;
     private FieldWarpGate _pendingWarp;
     private WarpInfo _pendingFieldWarp;
+    private bool _awaitingFieldPresence;
     // The server settles teleports within twice the drop tolerance of their height.
     private const float WarpFloorTolerance = 64f;
     // A warp landing farther than this from the server's place is corrected to it.
@@ -474,7 +477,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
     private void UpdateMovementReport(float dt)
     {
         _reports.Advance(dt);
-        if (_playChannel == null || _activeField == null || _playerBody == null)
+        if (_pendingFieldWarp is not null || _playChannel == null || _activeField == null || _playerBody == null)
         {
             return;
         }

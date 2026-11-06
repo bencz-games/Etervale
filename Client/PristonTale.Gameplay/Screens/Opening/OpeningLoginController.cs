@@ -56,7 +56,8 @@ internal sealed class OpeningLoginController : IDisposable
             _context.RenewBackend();
         }
 
-        _loginTask = _context.Backend.LoginAsync(_login.Account.Text, _login.Password.Text, _loginCts.Token);
+        _loginTask = _context.Backend.LoginAsync(_login.Account.Text, _login.Password.Text, _loginCts.Token,
+            _context.Presentation.Requested.Language);
     }
 
     private LoginResult PollLogin()

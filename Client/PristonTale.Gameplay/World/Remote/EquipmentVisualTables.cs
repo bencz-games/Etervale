@@ -1128,6 +1128,39 @@ internal static class EquipmentVisualTables
         ("WD152", 323, "WD122", false, "Bip in01"),
         ("WD153", 324, "WD123", false, "Bip in01"),
         ("WD157", 293, "WD157", false, "Bip in01"),
+        ("WV101", 325, "WV101", false, "Bip in01"),
+        ("WV102", 326, "WV102", false, "Bip in01"),
+        ("WV103", 327, "WV103", false, "Bip in01"),
+        ("WV104", 328, "WV104", false, "Bip in01"),
+        ("WV105", 329, "WV105", false, "Bip in01"),
+        ("WV106", 330, "WV106", false, "Bip in01"),
+        ("WV107", 331, "WV107", false, "Bip in01"),
+        ("WV108", 332, "WV108", false, "Bip in01"),
+        ("WV109", 333, "WV109", false, "Bip in01"),
+        ("WV110", 334, "WV110", false, "Bip in01"),
+        ("WV111", 335, "WV111", false, "Bip in01"),
+        ("WV112", 336, "WV112", false, "Bip in01"),
+        ("WV113", 337, "WV113", false, "Bip in01"),
+        ("WV114", 338, "WV114", false, "Bip in01"),
+        ("WV115", 339, "WV115", false, "Bip in01"),
+        ("WV116", 340, "WV116", false, "Bip in01"),
+        ("WV117", 341, "WV117", false, "Bip in01"),
+        ("WV118", 342, "WV118", false, "Bip in01"),
+        ("WV119", 343, "WV119", false, "Bip in01"),
+        ("WV120", 344, "WV120", false, "Bip in01"),
+        ("WV121", 345, "WV121", false, "Bip in01"),
+        ("WV122", 346, "WV122", false, "Bip in01"),
+        ("WV123", 347, "WV123", false, "Bip in01"),
+        ("WV124", 348, "WV124", false, "Bip in01"),
+        ("WV125", 349, "WV125", false, "Bip in01"),
+        ("WV126", 350, "WV126", false, "Bip in01"),
+        ("WV127", 351, "WV127", false, "Bip in01"),
+        ("WV128", 352, "WV128", false, "Bip in01"),
+        ("WV129", 353, "WV129", false, "Bip in01"),
+        ("WV130", 325, "WV130", false, "Bip in01"),
+        ("WV131", 325, "WV131", false, "Bip in01"),
+        ("WV154", 356, "WV154", false, "Bip in01"),
+        ("WV157", 325, "WV157", false, "Bip in01"),
         ("DA127", -1, "da127", false, "Bip in01"),
         ("DA128", -1, "da128", false, "Bip in01"),
         ("DA129", -1, "da129", false, "Bip in01"),
@@ -1310,7 +1343,7 @@ internal static class EquipmentVisualTables
         ["DA255"] = 71,
     };
 
-    // The bodies by class row (CharacterVisualSet.ArmorTableIndex) and body slot: A, B, C, D, mA, mB, mC, mD, E, mE.
+    // The bodies by class row (CharacterVisualSet.ArmorTableIndex) and body slot: A, B, C, D, mA, mB, mC, mD, E, mE, f.
     internal static readonly string[][] Armors =
     [
         [
@@ -1432,6 +1465,18 @@ internal static class EquipmentVisualTables
             "Cme003.inx", "Cme003.inx", "Cme003.inx", "Cme004.inx", "Cme004.inx", "Cme004.inx", "Cme004.inx", "Cme005.inx",
             "Cme006.inx", "Cme007.inx", "Cme008.inx", "Cme009.inx", "Cme010.inx", "Cme011.inx", "Cme012.inx", "Cme012.inx",
             "mE030.inx", "mE031.inx", "mE032.inx",
+        ],
+        [
+            "f001.inx", "f001.inx", "f002.inx", "f003.inx", "f004.inx", "f005.inx", "f006.inx", "f007.inx",
+            "f008.inx", "f009.inx", "f010.inx", "f011.inx", "f012.inx", "f013.inx", "f014.inx", "f015.inx",
+            "f016.inx", "f017.inx", "f018.inx", "f019.inx", "f020.inx", "f021.inx", "f001.inx", "f022.inx",
+            "f023.inx", "f024.inx", "f001.inx", "f001.inx", "f001.inx", "f001.inx", "f001.inx", "f001.inx",
+            "f001.inx", "f001.inx", "f001.inx", "f001.inx", "f001.inx", "f001.inx", "f001.inx", "f001.inx",
+            "f001.inx", "f001.inx", "f025.inx", "f026.inx", "f027.inx", "f028.inx", "f029.inx", "Cf001.inx",
+            "Cf001.inx", "Cf001.inx", "Cf001.inx", "Cf002.inx", "Cf002.inx", "Cf002.inx", "Cf002.inx", "Cf003.inx",
+            "Cf003.inx", "Cf003.inx", "Cf003.inx", "Cf004.inx", "Cf004.inx", "Cf004.inx", "Cf004.inx", "Cf005.inx",
+            "Cf006.inx", "Cf007.inx", "Cf008.inx", "Cf009.inx", "Cf010.inx", "Cf011.inx", "Cf012.inx", "Cf012.inx",
+            "f030.inx", "f031.inx", "f032.inx",
         ],
     ];
 }

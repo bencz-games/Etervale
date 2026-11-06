@@ -19,6 +19,7 @@ public sealed class GameTcpServer(
     ISessionRegistry sessions,
     WorldServer world,
     WorldDataHolder worldData,
+    WorldDataLanguagesHolder localizedWorldData,
     NpcAppService npc,
     ItemUseAppService itemUse,
     RestartAppService restart,
@@ -61,7 +62,7 @@ public sealed class GameTcpServer(
         _handshakesPerAddress = new ConnectionLimiter(_limits.MaxHandshakesPerIp);
         _loginThrottle = new LoginThrottle(_limits.LoginFailuresPerAccount, _limits.LoginFailuresPerIp, _limits.LoginFailureWindowMs);
         control.Attach(() => _clients.Count, _loginThrottle);
-        var services = new SessionServices(auth, characters, sessionsApp, sessions, world, worldData, logger, _limits, _loginThrottle, npc, itemUse,
+        var services = new SessionServices(auth, characters, sessionsApp, sessions, world, worldData, localizedWorldData, logger, _limits, _loginThrottle, npc, itemUse,
             restart, wingGates, quests, personalShops, parties, trades, contacts, chat, control);
         using var certificate = ServerCertificate.Load(configuration, logger);
         var certificateContext = SslStreamCertificateContext.Create(certificate, additionalCertificates: null);

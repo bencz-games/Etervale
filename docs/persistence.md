@@ -63,18 +63,18 @@ Consumers: `Server/PristonTale.Server/Hosting/HostingExtensions.cs` (provider se
   older capture never replaces a newer one (writing the same capture again is harmless). `UpdateAsync` returns false when no row
   took the record.
 - Child collections are loaded with one query per child table and joined in memory with `ToLookup` on the parent key
-  (`definition_id`, `monster_id`, `npc_id`, `stage`). Names and dialog lines are read in English (`CatalogLanguages.English`)
-  by a `LEFT JOIN` on the `*_texts` table; a record's `Name` is null when the entity has no text in that language.
+  (`definition_id`, `monster_id`, `npc_id`, `stage`). Names and dialog lines are read in the requested catalog language,
+  with English (`CatalogLanguages.English`) as fallback; a record's `Name` is null when the entity has no text in either.
 
 ### Runtime catalog build
 
-`WorldDataAppService.BuildAsync` reads all six catalog sets and converts them with `WorldDataFactory`:
+`WorldDataAppService.BuildAsync` reads all six catalog sets for one language and converts them with `WorldDataFactory`:
 
 | Factory method | Contract |
 | --- | --- |
-| `ToItemDefinitions`, `ToQuestVariantDefinitions`, `ToNamedUniqueDefinitions` | The regular, quest and named-unique definitions (`variant`); a code `ItemCodes` cannot parse is skipped. Runtime item code = `ItemCodes.Parse(code)`; `CatalogKey` = `code`; `Name` = the English name, else the code. The shop form takes the low end of every range; a named unique's `UniqueVariant` is its `variant_ordinal` |
-| `ToMonsterDefinitions` | Runtime code = the record's `id`; event forms take the codes after the highest id. `Key` = `key`, `Name` = the English name, else the key. The stored model path keeps its authored extension; the definition uses the `.inx` sibling (also for NPCs). A drop line of items splits its weight among them with integer division; an item the runtime catalog lacks keeps its share as an empty slot. Bonus drops whose item is missing are dropped |
-| `ToNpcDefinitions` | Runtime code = the record's `id`; `Name` = `key`, `DisplayName` = the English name (empty without one). Services from `npc_services` ordered by `ordinal`; unknown kinds skipped; `Shop` removed when no stock code maps to a runtime item; `Dialog` = the English `npc_dialog_lines` |
+| `ToItemDefinitions`, `ToQuestVariantDefinitions`, `ToNamedUniqueDefinitions` | The regular, quest and named-unique definitions (`variant`); a code `ItemCodes` cannot parse is skipped. Runtime item code = `ItemCodes.Parse(code)`; `CatalogKey` = `code`; `Name` = the selected-language name, else the code. The shop form takes the low end of every range; a named unique's `UniqueVariant` is its `variant_ordinal` |
+| `ToMonsterDefinitions` | Runtime code = the record's `id`; event forms take the codes after the highest id. `Key` = `key`, `Name` = the selected-language name, else the key. The stored model path keeps its authored extension; the definition uses the `.inx` sibling (also for NPCs). A drop line of items splits its weight among them with integer division; an item the runtime catalog lacks keeps its share as an empty slot. Bonus drops whose item is missing are dropped |
+| `ToNpcDefinitions` | Runtime code = the record's `id`; `Name` = `key`, `DisplayName` = the selected-language name (empty without one). Services from `npc_services` ordered by `ordinal`; unknown kinds skipped; `Shop` removed when no stock code maps to a runtime item; `Dialog` = the selected-language `npc_dialog_lines` |
 | `ToFieldSpawnData` | Only stages with a field code. Spawns, bosses, escorts and placements carry the monster and NPC ids, which are the runtime codes; boss hours from `field_boss_hours` |
 | `ToMotionTimings` | Groups `motion_slots` by table in row order, then maps each `motion_models.model_key` to its table |
 
@@ -158,7 +158,7 @@ FluentMigrator scans `PristonTale.Persistence` for `[Migration(n)]` classes. Ver
 | 25 | `M025ServerSettings` | `server_settings` table (`name` PK, `value`, `description`, `updated_at`); the server fills it at start |
 | 26 | `M026Contacts` | `character_contacts` table and its unique index |
 | 27 | `M027CatalogIdentities` | Drops and recreates `monsters`, `npcs` and every table that references them, keyed by id; adds `monster_labels`, `npc_labels`, `npc_dialog_lines`, `item_labels`; empties `world_entity_variants` and `world_import_unresolved_refs`; drops the `svc_*` columns and `npcs.dialog`. Import again afterwards. `Down` throws: restore a backup instead |
-| 28 | `M028WorldCatalog` | Drops every world catalog table of the earlier migrations and `mailboxes`; drops `warehouses.buy_area_count` and `characters.derived_stats`, which nothing read; creates `languages` (seeded with `en`) and the catalog [below](#world-catalog); empties `world_entity_variants` and `world_import_unresolved_refs`. Import again afterwards. `Down` throws: restore a backup instead |
+| 28 | `M028WorldCatalog` | Drops every world catalog table of the earlier migrations and `mailboxes`; drops `warehouses.buy_area_count` and `characters.derived_stats`, which nothing read; creates `languages` (seeded with `en` and `pt-BR`) and the catalog [below](#world-catalog); empties `world_entity_variants` and `world_import_unresolved_refs`. Import again afterwards. `Down` throws: restore a backup instead |
 | 29 | `M029NpcPlacementFacts` | Drops `field_npcs.quest_trigger` and `size_level`: the class and size a placement record carries belong to the NPC file that lacks them, and the importer gives them to it. Import again afterwards |
 | 30 | `M030CharacterSaveSequence` | `characters.save_seq` (int64, default 0): the save sequence of the stored capture |
 | 31 | `M031GameLogs` | The game log tables (`item_transfers`, `currency_sinks`, `server_events`) and their indexes |
@@ -213,7 +213,8 @@ them holds the id. No Korean text is stored.
 
 Player-facing text lives in `*_texts` tables, one row per entity and language (`languages`, BCP-47 codes). Every
 entity has its English name (`en`, `CatalogLanguages.English`); another language is an optional translation added as
-`languages` and `*_texts` rows. The runtime reads English, and an entity without a name shows its code or key.
+`languages` and `*_texts` rows. The server loads supported languages once and selects the session's language, falling back
+to English; an entity without a name in either language shows its code or key.
 
 | Table | Columns and constraints |
 | --- | --- |

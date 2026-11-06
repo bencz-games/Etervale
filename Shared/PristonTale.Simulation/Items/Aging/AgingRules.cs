@@ -149,7 +149,9 @@ public static class AgingRules
             ["DG1"] = robe,
             ["DA1"] = armor,
             ["DA2"] = armor,
-            ["OA2"] = new(AgingCounter.Hit, HitGoal, Wears: true, AttackRating: 5, DefencePercent: 10, GameMasterAging: false)
+            ["OA2"] = new(AgingCounter.Hit, HitGoal, Wears: true, AttackRating: 5, DefencePercent: 10, GameMasterAging: false),
+            ["DA3"] = armor,
+            ["DA4"] = armor,
         };
     }
 

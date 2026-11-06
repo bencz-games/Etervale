@@ -110,7 +110,11 @@ public sealed partial class GameplayHud : IDisposable
     private int _serviceCompletions;
     private int _bindingRefusals;
     private int _serviceOpened;
+    private int _hoveredTeleportFieldCode = -1;
+    private double _hoveredTeleportSince;
+    private bool _teleportFieldPrepared;
     private double _lastUpdate;
+    private readonly Action<int> _prepareField;
 
     public GameplayHud(ScreenContext context, Func<InventoryCommand, Task<InventoryOutcome>> applyInventory,
         Func<ProgressionCommand, Task<ProgressionOutcome>> applyProgression = null,
@@ -118,6 +122,7 @@ public sealed partial class GameplayHud : IDisposable
         Action<NpcInteraction> npcOpened = null,
         Action npcClosed = null,
         Func<NpcServiceCommand, Task<NpcServiceReply>> requestNpcService = null,
+        Action<int> prepareField = null,
         Func<QuestCommand, Task<QuestOutcome>> requestQuest = null)
     {
         _context = context;
@@ -140,6 +145,7 @@ public sealed partial class GameplayHud : IDisposable
         _npc = new HudNpcPanel(interactNpc, context.Log, npcOpened, npcClosed);
         _portrait = new HudTargetPortrait(context.GraphicsDevice);
         _services = new HudNpcServiceController(requestNpcService, context.Log);
+        _prepareField = prepareField;
         _itemUse = new HudItemUseController(UseItemAsync, context.Log);
         _restart = new HudRestartPanel(context.Log);
         _premium = new HudPremiumTimers(_sprites);
@@ -430,6 +436,7 @@ public sealed partial class GameplayHud : IDisposable
         HudMessageBox.Place(layout);
         var pointer = layout.ToLogical(mouse.Position);
         var design = new Point(pointer.X, pointer.Y - layout.BottomOffset);
+        UpdateTeleportPrefetch(pointer);
         if (_quests.Dialog is not null && HudQuestDialog.Box.Contains(pointer))
         {
             _questDialog.Scroll(mouse.ScrollWheelValue - _previousMouse.ScrollWheelValue);

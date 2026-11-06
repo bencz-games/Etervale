@@ -289,8 +289,12 @@ public sealed partial class GameplayHud
         var current = _npc.Current;
         if (_npc.DestinationAt(pointer) is { } destination && state is not null)
         {
-            _services.Request(current.EntityId, current.Name, NpcServiceKind.Teleporter, NpcServiceAction.Teleport, state.InventoryRevision,
-                anchor: destination.Index);
+            if (_services.Request(current.EntityId, current.Name, NpcServiceKind.Teleporter, NpcServiceAction.Teleport, state.InventoryRevision,
+                    anchor: destination.Index))
+            {
+                _prepareField?.Invoke(destination.FieldCode);
+            }
+
             return true;
         }
 

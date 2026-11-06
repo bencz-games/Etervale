@@ -9,7 +9,7 @@ public enum ItemVariant : short
     Quest = 2
 }
 
-// One item definition (item_definitions joined with its item and English name). Ranges are min/max as authored; a
+// One item definition (item_definitions joined with its item and selected-language name). Ranges are min/max as authored; a
 // range whose upper value is 0 is a fixed value.
 public sealed record ItemTemplateRecord(
     long Id,

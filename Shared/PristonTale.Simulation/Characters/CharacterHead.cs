@@ -83,6 +83,7 @@ public static class CharacterHead
         PlayerClass.Priestess => "MfhC-18t.inx",
         PlayerClass.Magician => "MmhD-18t.inx",
         PlayerClass.Assassin => "Tfh-E18t.inx",
+        PlayerClass.MartialArtist => "Tfh-F18t.inx",
         _ => "Mmh-E18t.inx"
     };
 

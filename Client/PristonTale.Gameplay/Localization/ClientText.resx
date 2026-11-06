@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Loading" xml:space="preserve"><value>Loading…</value></data>
+  <data name="SavingAndDisconnecting" xml:space="preserve"><value>Saving and disconnecting…</value></data>
+  <data name="CharacterSelect" xml:space="preserve"><value>Character select</value></data>
+  <data name="Opening" xml:space="preserve"><value>Opening</value></data>
+  <data name="SkillNotReady" xml:space="preserve"><value>The skill is not ready yet.</value></data>
+  <data name="NotEnoughMana" xml:space="preserve"><value>Not enough mana.</value></data>
+  <data name="NotEnoughStamina" xml:space="preserve"><value>Not enough stamina.</value></data>
+  <data name="LearnSkillFirst" xml:space="preserve"><value>Learn this skill at a skill master first.</value></data>
+  <data name="PetDismissed" xml:space="preserve"><value>Pet has been dismissed</value></data>
+  <data name="SkillTargetAggressive" xml:space="preserve"><value>{0}: attacks any enemy nearby.</value></data>
+  <data name="SkillTargetFocused" xml:space="preserve"><value>{0}: attacks only your target.</value></data>
+</root>

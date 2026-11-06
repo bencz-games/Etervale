@@ -25,6 +25,7 @@ using PristonTale.Contracts.Combat;
 using PristonTale.Engine3D;
 using PristonTale.Assets;
 using PristonTale.Contracts.Characters;
+using NumVector2 = System.Numerics.Vector2;
 
 namespace PristonTale.Gameplay.World;
 
@@ -54,8 +55,14 @@ public sealed partial class GameScene
         if (MovementLocked && (_hasMoveTarget || _followCursor))
         {
             _followCursor = false;
+            _holdCursorMovement = false;
             StopPredictedMovement();
             _reports.Request();
+        }
+
+        if (mouse.LeftButton == ButtonState.Released)
+        {
+            _holdCursorMovement = false;
         }
 
         if (!WorldClicksBlocked && RightAttackEnabled && mouse.RightButton == ButtonState.Pressed
@@ -77,6 +84,7 @@ public sealed partial class GameScene
             var doubleClick = (nowMs - _lastLeftClickMs) <= DoubleClickMs;
             _lastLeftClickMs = nowMs;
             _followCursor = false;
+            _holdCursorMovement = false;
             if (TryPickLoot(mouse))
             {
             }
@@ -94,6 +102,7 @@ public sealed partial class GameScene
                 ClearAttackTarget();
                 _lootInteraction.Cancel();
                 _followCursor = doubleClick;
+                _holdCursorMovement = true;
                 _reports.Request();
             }
         }
@@ -110,7 +119,7 @@ public sealed partial class GameScene
         UpdateReachedPlayer();
         _lootInteraction?.Update(_groundLoot, _playerBody.Position, _serverPlanarPosition, Owner);
         UpdateAttackPresentation(gameTime);
-        if (_followCursor && !WorldClicksBlocked && !SelfCasting)
+        if ((_holdCursorMovement || _followCursor) && !WorldClicksBlocked && !SelfCasting)
         {
             SetMoveTarget(mouse);
         }
@@ -206,7 +215,43 @@ public sealed partial class GameScene
             return false;
         }
 
-        _moveTarget = new Vector2(point.X, point.Z);
+        var destination = new Vector2(point.X, point.Z);
+        var current = _playerBody.PlanarPosition;
+        if (DestinationMovement.WithinDistance(new NumVector2(current.X, current.Y), new NumVector2(destination.X, destination.Y), PlayerRadius))
+        {
+            if (mouse.LeftButton == ButtonState.Pressed)
+            {
+                var direction = _moveTarget - current;
+                if (direction.LengthSquared() <= 0.0001f)
+                {
+                    direction = new Vector2(_playerForward.X, _playerForward.Z);
+                }
+
+                if (direction.LengthSquared() > 0.0001f)
+                {
+                    _moveTarget = current + Vector2.Normalize(direction) * (PlayerRadius * 3f);
+                    _hasMoveTarget = true;
+                    return true;
+                }
+            }
+
+            var wasMoving = _hasMoveTarget;
+            _moveTarget = current;
+            _hasMoveTarget = false;
+            if (!_playerController.LocomotionFrozen && !_selfAttacking && !SelfCasting && !SelfStunned)
+            {
+                ApplyPlayerCommand(_playerController.ApplyLocomotion(MotionCode.Stand));
+            }
+
+            if (wasMoving)
+            {
+                _reports.Request();
+            }
+
+            return true;
+        }
+
+        _moveTarget = destination;
         _hasMoveTarget = true;
         return true;
     }

@@ -39,6 +39,14 @@ public sealed partial class GameScene
         LoadField(assetRoot, field, entered);
     }
 
+    public void PrepareField(int fieldCode)
+    {
+        if (_fieldStreamer is not null && _worldCatalog.TryGetFieldByCode(fieldCode, out var field))
+        {
+            RequestField(field, priority: true);
+        }
+    }
+
     public void LoadField(string assetRoot, FieldDef field, EnteredCharacter entered = null)
     {
         _assetRoot = assetRoot;
@@ -97,11 +105,18 @@ public sealed partial class GameScene
         _lootFloor = LootFloorAt;
     }
 
-    private void RequestField(FieldDef field)
+    private void RequestField(FieldDef field, bool priority = false)
     {
         if (!IsLoaded(field.Id))
         {
-            _fieldStreamer.Request(field);
+            if (priority)
+            {
+                _fieldStreamer.Prioritize(field);
+            }
+            else
+            {
+                _fieldStreamer.Request(field);
+            }
         }
     }
 

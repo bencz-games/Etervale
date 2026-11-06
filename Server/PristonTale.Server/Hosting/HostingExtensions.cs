@@ -71,6 +71,7 @@ public static class HostingExtensions
 
         builder.Services.AddSingleton<WorldDataAppService>();
         builder.Services.AddSingleton<WorldDataHolder>();
+        builder.Services.AddSingleton<WorldDataLanguagesHolder>();
         builder.Services.AddHostedService<WorldDataLoadService>();
         builder.Services.AddSingleton<FieldTerrainCatalog>();
         builder.Services.AddHostedService<FieldTerrainLoadService>();
@@ -88,7 +89,8 @@ public static class HostingExtensions
             terrain: services.GetRequiredService<FieldTerrainCatalog>(),
             options: worldOptions,
             saves: services.GetRequiredService<ICharacterSaves>(),
-            log: services.GetRequiredService<IGameLog>()));
+            log: services.GetRequiredService<IGameLog>(),
+            localizedData: services.GetRequiredService<WorldDataLanguagesHolder>()));
         builder.Services.AddHostedService<WorldTickService>();
         AddChat(builder);
         builder.Services.AddSingleton(services =>

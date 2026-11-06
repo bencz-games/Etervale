@@ -157,11 +157,23 @@ public sealed partial class GameScene
             Owner = update.Owner;
         }
 
-        _remote.ApplyServer(update);
         if (update.Warp is { } warp)
         {
             ApplyWarp(warp with { Position = WorldSpace.Mirror(warp.Position) });
+            if (_pendingFieldWarp is not null)
+            {
+                return;
+            }
         }
+
+        // Do not replay combat or movement from the old field while its replacement is loading or before its presence
+        // stream confirms the new field.
+        if (_pendingFieldWarp is not null || _awaitingFieldPresence && update.Warp is null)
+        {
+            return;
+        }
+
+        _remote.ApplyServer(update);
 
         _groundLoot.Apply(update);
         ObserveEffects(update);

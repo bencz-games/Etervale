@@ -16,15 +16,20 @@ namespace PristonTale.Engine3D.Rendering;
 // Stage loading and streaming: textures, batches uploaded in budgeted steps, static shadow aggregates, removal.
 public sealed partial class PristonRenderer
 {
-    public Task PrepareStageTexturesAsync(PristonStage stage, IReadOnlyList<PristonModel> models)
+    public Task PrepareStageTexturesAsync(
+        PristonStage stage,
+        IReadOnlyList<PristonModel> models,
+        CancellationToken cancellationToken = default)
     {
         var pending = new List<Task>
         {
             _textureLoader.PrepareTexturesAsync(Path.GetDirectoryName(stage.Path) ?? ".", PristonMaterialUsage.ForStage(stage))
+                .WaitAsync(cancellationToken)
         };
         foreach (var model in models)
         {
-            pending.Add(_textureLoader.PrepareTexturesAsync(Path.GetDirectoryName(model.Path) ?? ".", PristonMaterialUsage.ForModel(model)));
+            pending.Add(_textureLoader.PrepareTexturesAsync(Path.GetDirectoryName(model.Path) ?? ".", PristonMaterialUsage.ForModel(model))
+                .WaitAsync(cancellationToken));
         }
 
         return Task.WhenAll(pending);

@@ -18,6 +18,7 @@ public static class JobBits
         PlayerClass.Priestess => JobBitCode.Priestess,
         PlayerClass.Assassin => JobBitCode.Assassin,
         PlayerClass.Shaman => JobBitCode.Shaman,
+        PlayerClass.MartialArtist => JobBitCode.MartialArtist,
         _ => 0
     };
 

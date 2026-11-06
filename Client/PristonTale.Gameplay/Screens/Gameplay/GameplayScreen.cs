@@ -29,6 +29,7 @@ public sealed class GameplayScreen : GameScreen
     public override void Enter()
     {
         _scene = new GameScene(Context.GraphicsDevice, Context.Content, Context.Log, Context.Sky, Context.Effects, Context.Presentation, Context.Audio);
+        _scene.Language = Context.Presentation.Requested.Language;
         _scene.LoadEntered(Context.AssetRoot, _entered);
         _hud = new GameplayHud(
             Context,
@@ -38,6 +39,7 @@ public sealed class GameplayScreen : GameScreen
             _scene.PlayNpcInteractionAudio,
             _scene.StopNpcTalk,
             _scene.RequestNpcServiceAsync,
+            _scene.PrepareField,
             _scene.RequestQuestAsync);
         _hud.CharacterName = _scene.Player.Name;
         _hud.CharacterClass = _scene.Player.Class.Class;
@@ -127,6 +129,7 @@ public sealed class GameplayScreen : GameScreen
 
     public override void Update(GameTime gameTime)
     {
+        _scene.Language = Context.Presentation.Requested.Language;
         var catalog = _pendingHudCatalog;
         if (catalog is not null)
         {
@@ -152,7 +155,7 @@ public sealed class GameplayScreen : GameScreen
         _scene.MovementLocked = _hud.HoldsPlayer;
         _scene.KeyboardCaptured = _hud.KeyboardCaptured;
         _hud.Chat.SelfId = _scene.SelfEntityId;
-        _scene.CameraInputEnabled = Context.IsWindowActive && !Context.Presentation.AwaitingConfirmation;
+        _scene.CameraInputEnabled = Context.IsWindowActive && !Context.Presentation.AwaitingConfirmation && !_hud.KeyboardCaptured;
         _scene.RightAttackEnabled = _hud.RightAttackEnabled;
         _scene.LeftSkill = _hud.Bindings.LeftSkillId;
         _scene.RightSkill = _hud.Bindings.RightSkillId;

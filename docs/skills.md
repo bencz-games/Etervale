@@ -54,12 +54,14 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 - Code: `group << 24 | tierBit << 16 | slot`, written as a hex string (`"0x01020001"`). `tierBit` is the `JobTier`
   value (`Job1` 0x1, `Job2` 0x2, `Job3` 0x4, `Job4` 0x8, `Job5` 0x10) and must match `tier`; `slot` is 1..4.
 - Class groups: Mechanician 0x01, Fighter 0x02, Pikeman 0x03, Archer 0x04, Knight 0x05, Atalanta 0x06,
-  Priestess 0x07, Magician 0x08, Assassin 0x10, Shaman 0x50.
+  Priestess 0x07, Magician 0x08, Assassin 0x10, Martial Artist 0x20, Shaman 0x50.
 - The file name is the `PlayerClass` enum name. The array order is the skill-window order (window index 0..19): it
   drives learning order, price, tier gates, proficiency streaks and HUD placement. It is not always the slot order:
   Mechanician lists `0x01010004` before `0x01010003`.
 - `CharacterClass` takes its skill list from `ClassSkillCatalog.For`, so `character.Class.Skills[index]` is the window
   entry at `index`. A code is unique across all files (load fails otherwise).
+- Martial Artist skill entries use the `TMA` button-art family under the `Martial` HUD directory, so the skill window
+  resolves their icons independently of the Fighter button family.
 - The eight original classes, the Assassin and the Shaman have a rule for all 20 skills of their five tiers (the fifth
   at levels 80, 83, 86, 90). The Assassin's and the Shaman's skill clips are those of their motion tables tagged from 163 and 183 (the class motion table numbers tags per
   class: first tag + 4 x tier + slot - 1, tier 0 to 4); the Assassin Mastery grants its critical chance with daggers,
@@ -467,7 +469,8 @@ Add or change a skill with an existing mechanic:
    unique across files) and run `ptvfx import <assetRoot>`. Format: [effects.md](effects.md).
 3. Sounds: `wav/...` asset paths that exist in the game data (`SkillPresentationTests` checks when assets are found).
 4. Motion: `motionIndex`/`motionFrames`/`motionEvents` must match the class motion table; check with
-   `--verify-skill-motions <assets>` and preview with `--capture-skills` ([testing.md](testing.md)).
+   `--verify-skill-motions <assets>` and preview with `--capture-skills` ([testing.md](testing.md)). If a shipped model
+   lacks an authored skill index, the client selects a valid skill clip from that model instead of terminating.
 5. Tests: a case in the matching `tests/PristonTale.Tests/Skill<Mechanic>Tests.cs` using `SkillScenario`.
 
 Add a new mechanic or rule field:

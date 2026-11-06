@@ -142,7 +142,7 @@ public sealed partial class GameScene
         _reports.Request();
         _warpSparkle = PlayReturn(_playerBody.Position);
         _fieldAudio?.PlayPortalWarp();
-        RequestField(_worldCatalog.GetField(warp.DestinationFieldId));
+        RequestField(_worldCatalog.GetField(warp.DestinationFieldId), priority: true);
     }
 
     private void HoldAtSpecialWarp(FieldWarpGate warp)
@@ -158,7 +158,7 @@ public sealed partial class GameScene
         var dest = FindLoaded(destDef.Id);
         if (dest is null)
         {
-            RequestField(destDef);
+            RequestField(destDef, priority: true);
             return false;
         }
 
@@ -187,6 +187,20 @@ public sealed partial class GameScene
 
     private void ApplyWarp(WarpInfo warp)
     {
+        var changedField = _activeField?.Definition.FieldCode != warp.FieldId;
+        var confirmsField = !warp.Forced && (changedField || _awaitingFieldPresence);
+        if (changedField)
+        {
+            _awaitingFieldPresence = !confirmsField;
+            ClearAttackTarget();
+            StopPredictedMovement();
+            _selfAttacking = false;
+        }
+        else if (confirmsField)
+        {
+            _awaitingFieldPresence = false;
+        }
+
         // The unforced warp that confirms a field change can arrive while a forced one is held; it keeps the force.
         if (_pendingFieldWarp is { Forced: true } held && held.FieldId == warp.FieldId)
         {
@@ -200,7 +214,7 @@ public sealed partial class GameScene
             return;
         }
 
-        var changedField = false;
+        var fieldActivated = false;
         if (_activeField?.Definition.FieldCode != warp.FieldId && _worldCatalog.TryGetFieldByCode(warp.FieldId, out var field))
         {
             var loaded = FindLoaded(field.Id);
@@ -210,19 +224,19 @@ public sealed partial class GameScene
                 _pendingFieldWarp = warp;
                 _hasMoveTarget = false;
                 _followCursor = false;
-                RequestField(field);
+                RequestField(field, priority: true);
                 return;
             }
 
             SetActiveField(loaded);
             _reports.SetField(field.FieldCode);
             _hasMoveTarget = false;
-            changedField = true;
+            fieldActivated = true;
         }
 
         var authoritative = new Vector2(warp.Position.X, warp.Position.Z);
         var difference = authoritative - _playerBody.PlanarPosition;
-        if (!warp.Forced && changedField && difference.LengthSquared() <= WarpCorrection * WarpCorrection)
+        if (!warp.Forced && fieldActivated && difference.LengthSquared() <= WarpCorrection * WarpCorrection)
         {
             // The unforced warp confirming a field the player is already at (a restart moved it across, a seamless border):
             // only the height, which may still be the old field's; snapping the place would pull back a player who has
