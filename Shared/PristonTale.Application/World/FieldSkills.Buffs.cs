@@ -19,7 +19,7 @@ internal sealed partial class FieldSkills
     private bool ApplyEffect(EffectContainer effects, ulong entity, ulong source, uint code, SkillBuffRule buff, int rank, int resistance, PlayerCharacter caster,
         bool onOther = false, int othersPercent = 100, float durationMs = 0f)
     {
-        if (buff is null)
+        if (buff is null || buff.KeptWhileRunning && effects.TryGet(code, out _))
         {
             return false;
         }

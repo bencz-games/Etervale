@@ -73,8 +73,9 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
   monsters); Leap Smash strikes as it leaps, without an accuracy roll, and again on landing (30% more on demons);
   Elbow Rush raises the attack in a 100-wide box 120 ahead; Line Break strikes its target twice and, with the second
   strike, up to its rank's count of enemies around the target with its table raised by its rate plus the attack (a
-  `followArea`). War Cry weakens the monsters around its target for 15 s (their damage down, the critical chance of
-  their attackers up), turned away only by a full bionic resistance. Rage raises the vambrace's attack speed, Deep
+  `followArea`). War Cry weakens up to 32 monsters around its target for 15 s (their damage down, the critical chance
+  of their attackers up), without an accuracy roll or damage, turned away only by a full bionic resistance; a monster
+  already weakened keeps its running War Cry, whoever casts it again. Rage raises the vambrace's attack speed, Deep
   Breath maximum life, Nerves of Steel defence and absorption (the buff starts with the clip, which has no event), and
   Hard Training the strength, agility and spirit the formulas read for the caster and the party within its range,
   kept on a member who already has it. Strength, Stamina and Defense Mastery are passives (Defense Mastery with a
@@ -281,6 +282,7 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
 | `weaponBound`, `requiresWeapon` | Modifiers count only with a listed main-hand weapon; effect ends when none is wielded |
 | `sparesBosses` | Boss monsters never take the effect |
 | `fullResistanceOnly` | Only a full resistance (100) turns the effect away; a lower one does not shorten it |
+| `keptWhileRunning` | A running copy, from any caster, is kept: a new cast neither refreshes nor stacks it |
 | `lifeCut[10]` | A monster loses this percent of its maximum life while the effect lasts and draws smaller; one with no more life dies |
 | `companion` | Familiar, see below |
 | `counter` {`borrowSkill`, `percent[10]`, `element`, `bonusBroods`, `bonusPercent`} | Strike back when the shield blocks a monster's normal attack |

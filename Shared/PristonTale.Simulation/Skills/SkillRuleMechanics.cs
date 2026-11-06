@@ -142,6 +142,8 @@ public sealed partial record SkillBuffRule
     public bool SparesBosses { get; init; }
     // Only a full resistance (100) turns the effect away; a lower one does not shorten it.
     public bool FullResistanceOnly { get; init; }
+    // A running copy, from any caster, is kept: a new cast neither refreshes nor stacks it.
+    public bool KeptWhileRunning { get; init; }
     // Percent of a monster's maximum life the effect takes while it lasts, the monster drawn smaller (FieldSkills.Shrink).
     public int[] LifeCut { get; init; } = [];
     public SkillEnchantRule Enchant { get; init; }

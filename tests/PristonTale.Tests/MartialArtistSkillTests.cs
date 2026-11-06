@@ -28,7 +28,7 @@ internal static class MartialArtistSkillTests
         yield return ("low kick adds its table to the kick, 30% more against mutant and mechanic monsters", LowKickAsync);
         yield return ("leap smash strikes as it leaps without an accuracy roll, then on landing", LeapSmashAsync);
         yield return ("line break strikes its target twice and the enemies around it with the second strike only", LineBreakAsync);
-        yield return ("war cry weakens the monsters around its target for 15 s, turned away only by a full bionic resistance", WarCryAsync);
+        yield return ("war cry weakens the monsters around its target for 15 s, turned away only by a full bionic resistance, never stacked or restarted", WarCryAsync);
         yield return ("nerves of steel raises defence and absorption", NervesOfSteelAsync);
         yield return ("hard training raises the strength, agility and spirit the formulas read, for the caster and its party in range", HardTrainingAsync);
     }
@@ -125,8 +125,17 @@ internal static class MartialArtistSkillTests
         Assert.True(half.Effects.Totals.Percent(StatKind.DamageDealt) == -34, "a partial bionic resistance turned war cry away");
         SkillFixtures.Wait(field, 10f);
         Assert.True(half.Effects.Totals.Percent(StatKind.DamageDealt) == -34, "a partial bionic resistance shortened war cry");
+
+        // Another Martial Artist's War Cry on the weakened monster neither stacks nor restarts the running one.
+        var other = SkillFixtures.Player(field, 2, PlayerClass.MartialArtist, 90, Vector3.Zero, SkillFixtures.Weapon(ItemKind.Vambrace));
+        other.Character.Effects.SetPermanent(0xFFFF0001, EffectSourceKind.System, false, [StatModifier.Flat(StatKind.MaxMana, 500)]);
+        other.Character.Skills.Restore(WarCry, 10);
+        target.Position = new Vector3(30, 0, 0);
+        SkillFixtures.Accept("a second War Cry", field, other, WarCry, target.EntityId);
+        SkillFixtures.Finish(field, other);
+        Assert.True(target.Effects.Totals.Percent(StatKind.DamageDealt) == -34, "a second war cry stacked on the weakened monster");
         SkillFixtures.Wait(field, 6f);
-        Assert.True(target.Effects.Totals.Percent(StatKind.DamageDealt) == 0, "war cry outlasted its 15 s");
+        Assert.True(target.Effects.Totals.Percent(StatKind.DamageDealt) == 0, "war cry outlasted its 15 s, or a second cast restarted it");
         return Task.CompletedTask;
     }
 
