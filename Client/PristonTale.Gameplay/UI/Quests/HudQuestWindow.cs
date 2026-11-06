@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Quests;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Quests;
 
@@ -137,7 +138,7 @@ public sealed class HudQuestWindow
                 _selected = _selected == index ? -1 : index;
                 _firstLine = 0;
                 _description = _selected < 0 ? "" : HudQuestDocuments.BoardPath(entries[index].Description);
-                _descriptionTitle = _selected < 0 ? "" : entries[index].Title;
+                _descriptionTitle = _selected < 0 ? "" : DataText.QuestTitle(entries[index].Title);
                 return true;
             }
         }
@@ -221,7 +222,7 @@ public sealed class HudQuestWindow
             var hovered = bounds.Contains(pointer);
             painter.Sprite(hovered ? HudQuestArt.Hovered : HudQuestArt.Running, bounds.X - 15, bounds.Y);
             var color = index == _selected ? Selected : Color.White;
-            painter.Text(painter.Fit(entries[index].Title, 130), bounds.X + 6, bounds.Y, color);
+            painter.Text(painter.Fit(DataText.QuestTitle(entries[index].Title), 130), bounds.X + 6, bounds.Y, color);
         }
     }
 

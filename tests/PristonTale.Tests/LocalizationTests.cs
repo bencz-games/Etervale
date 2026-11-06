@@ -30,7 +30,7 @@ internal static partial class LocalizationTests
         yield return ("every phrase key the client builds from a value exists", BuiltKeysAsync);
         yield return ("the client shows the chosen language and English for an unknown one", LanguageAsync);
         yield return ("a line of the server is worded by its phrase with its arguments in the shown language", GameTextAsync);
-        yield return ("every skill name and description and class title has its Brazilian Portuguese text, and each names game data", DataTextsAsync);
+        yield return ("every skill name and description, class title and quest window title has its Brazilian Portuguese text, and each names game data", DataTextsAsync);
         yield return ("data texts show the data in English and its translation in Brazilian Portuguese", DataLanguageAsync);
     }
 
@@ -115,6 +115,7 @@ internal static partial class LocalizationTests
         var expected = ClassSkillCatalog.All.SelectMany(static skill => new[] { DataText.SkillKey(skill.Code, "Name"), DataText.SkillKey(skill.Code, "Description") })
             .Concat(Enum.GetValues<PlayerClass>().SelectMany(static playerClass =>
                 Enumerable.Range(0, ClassProfiles.Of(playerClass).Titles.Count).Select(tier => DataText.ClassKey(playerClass, tier))))
+            .Concat(QuestBoard.Titles.Select(DataText.QuestKey))
             .ToHashSet(StringComparer.Ordinal);
         var missing = expected.Where(key => !portuguese.TryGetValue(key, out var text) || string.IsNullOrWhiteSpace(text)).ToArray();
         var unknown = portuguese.Keys.Where(key => !expected.Contains(key)).ToArray();
@@ -131,7 +132,8 @@ internal static partial class LocalizationTests
             ClientText.Use(ClientSettings.BrazilianPortugueseLanguage);
             Assert.True(ClientText.Format(QuestTexts.ClassTitle(PlayerClass.Knight, 1)) == "Paladino", "a class title of the server is not worded from the data");
             Assert.True(DataText.SkillName(mastery) == "Maestria Corpo a Corpo" && DataText.ClassTitle(PlayerClass.Fighter, 0) == "Lutador"
-                && DataText.ClassTitle(PlayerClass.Fighter, 9) == "Senhor da Guerra", "the data texts are not shown in Brazilian Portuguese");
+                && DataText.ClassTitle(PlayerClass.Fighter, 9) == "Senhor da Guerra" && DataText.QuestTitle("The Cave(completed)") == "A caverna(Concluída)",
+                "the data texts are not shown in Brazilian Portuguese");
             ClientText.Use(ClientSettings.EnglishLanguage);
             Assert.True(DataText.SkillName(mastery) == mastery.Name && DataText.SkillDescription(mastery.Code, mastery.Description) == mastery.Description
                 && DataText.ClassTitle(PlayerClass.Fighter, 0) == "Fighter", "the data texts are not the data in English");

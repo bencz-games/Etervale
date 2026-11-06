@@ -73,6 +73,9 @@ public static class QuestBoard
         ["Fury's phantasma[5]", "Fury's phantasma(Complete)", "HaQuest\\Quest_100State_5.msg", "HaQuest\\Quest_100State_6.msg"]
     ];
 
+    // Every title the window can show, open and finished.
+    public static IEnumerable<string> Titles => Rows.Concat(BeginnerRows).SelectMany(static row => row.Take(2)).Distinct(StringComparer.Ordinal);
+
     private static QuestBoardEntry Open(string[] row) => new(row[0], row[2]);
 
     private static QuestBoardEntry Done(string[] row) => new(row[1], row[3]);

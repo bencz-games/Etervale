@@ -59,6 +59,65 @@
   <data name="Class.Shaman.2" xml:space="preserve"><value>Grande Invocador</value></data>
   <data name="Class.Shaman.3" xml:space="preserve"><value>Coletor de Almas</value></data>
   <data name="Class.Shaman.4" xml:space="preserve"><value>Mestre das Almas</value></data>
+  <data name="Quest.4th Rank-Up Test(Finished)" xml:space="preserve"><value>Teste do 4º Rank(Concluído)</value></data>
+  <data name="Quest.4th Rank-Up Test[1]" xml:space="preserve"><value>Teste do 4º Rank[1]</value></data>
+  <data name="Quest.4th Rank-Up Test[2]" xml:space="preserve"><value>Teste do 4º Rank[2]</value></data>
+  <data name="Quest.4th Rank-Up Test[3]" xml:space="preserve"><value>Teste do 4º Rank[3]</value></data>
+  <data name="Quest.4th Rank-Up Test[4]" xml:space="preserve"><value>Teste do 4º Rank[4]</value></data>
+  <data name="Quest.4th Rank-Up Test[5]" xml:space="preserve"><value>Teste do 4º Rank[5]</value></data>
+  <data name="Quest.4th Rank-Up Test[6]" xml:space="preserve"><value>Teste do 4º Rank[6]</value></data>
+  <data name="Quest.A lost Hammer" xml:space="preserve"><value>Um martelo perdido</value></data>
+  <data name="Quest.A lost Hammer(Complete)" xml:space="preserve"><value>Um martelo perdido(Concluída)</value></data>
+  <data name="Quest.A tired warehouse keeper" xml:space="preserve"><value>Um guarda do armazém cansado</value></data>
+  <data name="Quest.A tired warehouse keeper(Complete)" xml:space="preserve"><value>Um guarda do armazém cansado(Concluída)</value></data>
+  <data name="Quest.Bitter ordeal" xml:space="preserve"><value>Provação amarga</value></data>
+  <data name="Quest.Bitter ordeal(Complete)" xml:space="preserve"><value>Provação amarga(Concluída)</value></data>
+  <data name="Quest.Candy Delivery" xml:space="preserve"><value>Entrega de doces</value></data>
+  <data name="Quest.Candy Delivery(Complete)" xml:space="preserve"><value>Entrega de doces(Concluída)</value></data>
+  <data name="Quest.Enclosed Fury" xml:space="preserve"><value>Fury aprisionado</value></data>
+  <data name="Quest.Enclosed Fury(completed)" xml:space="preserve"><value>Fury aprisionado(Concluída)</value></data>
+  <data name="Quest.For her" xml:space="preserve"><value>Por ela</value></data>
+  <data name="Quest.For her(completed)" xml:space="preserve"><value>Por ela(Concluída)</value></data>
+  <data name="Quest.Fury's phantasma(Complete)" xml:space="preserve"><value>O fantasma de Fury(Concluída)</value></data>
+  <data name="Quest.Fury's phantasma[1]" xml:space="preserve"><value>O fantasma de Fury[1]</value></data>
+  <data name="Quest.Fury's phantasma[2]" xml:space="preserve"><value>O fantasma de Fury[2]</value></data>
+  <data name="Quest.Fury's phantasma[3]" xml:space="preserve"><value>O fantasma de Fury[3]</value></data>
+  <data name="Quest.Fury's phantasma[4]" xml:space="preserve"><value>O fantasma de Fury[4]</value></data>
+  <data name="Quest.Fury's phantasma[5]" xml:space="preserve"><value>O fantasma de Fury[5]</value></data>
+  <data name="Quest.Goblin Hill" xml:space="preserve"><value>Colina dos Goblins</value></data>
+  <data name="Quest.Goblin Hill(Complete)" xml:space="preserve"><value>Colina dos Goblins(Concluída)</value></data>
+  <data name="Quest.Helping Michelle" xml:space="preserve"><value>Ajudando Michelle</value></data>
+  <data name="Quest.Helping Michelle(completed)" xml:space="preserve"><value>Ajudando Michelle(Concluída)</value></data>
+  <data name="Quest.Job Quest 3th(Complete)" xml:space="preserve"><value>Quest do 3º Rank(Concluída)</value></data>
+  <data name="Quest.Job Quest 3th[1]" xml:space="preserve"><value>Quest do 3º Rank[1]</value></data>
+  <data name="Quest.Job Quest 3th[2]" xml:space="preserve"><value>Quest do 3º Rank[2]</value></data>
+  <data name="Quest.Job Quest 3th[3]" xml:space="preserve"><value>Quest do 3º Rank[3]</value></data>
+  <data name="Quest.Job Quest 3th[4]" xml:space="preserve"><value>Quest do 3º Rank[4]</value></data>
+  <data name="Quest.One-eyed Monsters" xml:space="preserve"><value>Monstros de um olho só</value></data>
+  <data name="Quest.One-eyed Monsters(Complete)" xml:space="preserve"><value>Monstros de um olho só(Concluída)</value></data>
+  <data name="Quest.Rank up quest" xml:space="preserve"><value>Quest de rank</value></data>
+  <data name="Quest.Rank up quest (Completed)" xml:space="preserve"><value>Quest de rank (Concluída)</value></data>
+  <data name="Quest.Rank up quest [Second]" xml:space="preserve"><value>Quest de rank [Segunda]</value></data>
+  <data name="Quest.Rank up quest second[1]" xml:space="preserve"><value>Segunda quest de rank[1]</value></data>
+  <data name="Quest.Rank up quest second[2]" xml:space="preserve"><value>Segunda quest de rank[2]</value></data>
+  <data name="Quest.Rank up quest second[3]" xml:space="preserve"><value>Segunda quest de rank[3]</value></data>
+  <data name="Quest.Rank up quest second[4]" xml:space="preserve"><value>Segunda quest de rank[4]</value></data>
+  <data name="Quest.Rank up quest second[5]" xml:space="preserve"><value>Segunda quest de rank[5]</value></data>
+  <data name="Quest.Rank up quest second[Completed]" xml:space="preserve"><value>Segunda quest de rank[Concluída]</value></data>
+  <data name="Quest.Rank up quest(Completed)" xml:space="preserve"><value>Quest de rank(Concluída)</value></data>
+  <data name="Quest.Rank-up Exam (Done)" xml:space="preserve"><value>Exame de rank (Feito)</value></data>
+  <data name="Quest.Signs of fear" xml:space="preserve"><value>Sinais de medo</value></data>
+  <data name="Quest.Signs of fear(Complete)" xml:space="preserve"><value>Sinais de medo(Concluída)</value></data>
+  <data name="Quest.Tears of Khalia" xml:space="preserve"><value>Lágrimas de Khalia</value></data>
+  <data name="Quest.Tears of Khalia(completed)" xml:space="preserve"><value>Lágrimas de Khalia(Concluída)</value></data>
+  <data name="Quest.Test of Kingdom" xml:space="preserve"><value>Prova do Reino</value></data>
+  <data name="Quest.Test of Kingdom(Complete)" xml:space="preserve"><value>Prova do Reino(Concluída)</value></data>
+  <data name="Quest.The Cave" xml:space="preserve"><value>A caverna</value></data>
+  <data name="Quest.The Cave(completed)" xml:space="preserve"><value>A caverna(Concluída)</value></data>
+  <data name="Quest.Threats of the Undead" xml:space="preserve"><value>Ameaças dos mortos-vivos</value></data>
+  <data name="Quest.Threats of the Undead(Complete)" xml:space="preserve"><value>Ameaças dos mortos-vivos(Concluída)</value></data>
+  <data name="Quest.Village of eura" xml:space="preserve"><value>Vila de Eura</value></data>
+  <data name="Quest.Village of Eura(completed)" xml:space="preserve"><value>Vila de Eura(Concluída)</value></data>
   <data name="Skill.01010001.Description" xml:space="preserve"><value>Aumenta temporariamente a taxa de bloqueio do escudo atual</value></data>
   <data name="Skill.01010001.Name" xml:space="preserve"><value>Escudo Extremo</value></data>
   <data name="Skill.01010002.Description" xml:space="preserve"><value>Arremessa uma bomba nos inimigos dentro do raio da explosão</value></data>

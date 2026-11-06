@@ -122,9 +122,9 @@ Lines the server or the simulation has for the player travel as a `GameText` (a 
 [protocol](protocol.md#conventions)); the client words each by its `Game.<id>` phrase. `LocalizationTests` checks that
 both files hold the same phrases with the same placeholders, and that every phrase the client asks for or builds from a
 value (`GameTextId` included) exists.
-The game data's texts (skill names and descriptions, class titles) are the data itself in English; `DataText.<language>.resx`
-translates them by key (`Skill.<code>.Name`, `Skill.<code>.Description`, `Class.<PlayerClass>.<tier>`), and a text a
-language lacks shows as the data words it. `LocalizationTests` checks that every skill and title has its translation
+The game data's texts (skill names and descriptions, class titles, quest window titles) are the data itself in English; `DataText.<language>.resx`
+translates them by key (`Skill.<code>.Name`, `Skill.<code>.Description`, `Class.<PlayerClass>.<tier>`, `Quest.<title>`), and a text a
+language lacks shows as the data words it. `LocalizationTests` checks that every skill, class title and quest title has its translation
 and that every translation names game data.
 
 ## In-game Settings panel

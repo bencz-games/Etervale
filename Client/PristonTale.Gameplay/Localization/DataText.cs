@@ -8,13 +8,15 @@ using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Gameplay.Localization;
 
-// The game data's texts in the shown language (ClientText.Use): skill names and descriptions and class titles. English
+// The game data's texts in the shown language (ClientText.Use): skill names and descriptions, class titles and quest
+// window titles. English
 // is the data itself; DataText.<language>.resx holds a translation per key, and a text a language lacks shows as the
-// data words it. Keys: Skill.<code as 8 hex digits>.Name and .Description, Class.<PlayerClass>.<tier>.
+// data words it. Keys: Skill.<code as 8 hex digits>.Name and .Description, Class.<PlayerClass>.<tier>, Quest.<board title>.
 public static class DataText
 {
     private static readonly ResourceManager Resources = new(typeof(DataText));
     private static readonly ConcurrentDictionary<uint, (string Name, string Description)> SkillKeys = new();
+    private static readonly ConcurrentDictionary<string, string> QuestKeys = new(StringComparer.Ordinal);
 
     public static string SkillName(uint code, string english) => Get(Keys(code).Name, english);
 
@@ -28,6 +30,11 @@ public static class DataText
         var index = Math.Clamp(tier, 0, titles.Count - 1);
         return Get(ClassKey(playerClass, index), titles[index]);
     }
+
+    // A title of the quest window, as the server sends it (QuestBoard).
+    public static string QuestTitle(string english) => english.Length == 0 ? english : Get(QuestKeys.GetOrAdd(english, QuestKey), english);
+
+    public static string QuestKey(string title) => "Quest." + title;
 
     public static string SkillKey(uint code, string part) => "Skill." + code.ToString("X8", CultureInfo.InvariantCulture) + "." + part;
 
