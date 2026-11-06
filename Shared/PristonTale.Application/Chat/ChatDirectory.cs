@@ -157,7 +157,7 @@ public sealed class ChatDirectory
         {
             if (TryGet(notice.To, out var member))
             {
-                member.Link.Deliver(new ChatLine(notice.Kind, 0, notice.Text));
+                member.Link.Deliver(new ChatLine(notice.Kind, 0, "", notice.Text));
             }
         }
     }

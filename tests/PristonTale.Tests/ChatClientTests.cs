@@ -8,6 +8,7 @@ using PristonTale.Protocol.Packets;
 using PristonTale.Simulation.Social;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Social;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Tests;
 
@@ -46,6 +47,9 @@ internal static class ChatClientTests
         var spoken = new ChatLinePacket(ChatKind.Player, 42, "Ann: olá");
         Assert.True(decoder.TryHandle(buffer.AsSpan(0, spoken.Write(buffer)), out update)
             && update!.Chat.Single() == new ChatLineInfo(ChatKind.Player, 42, "Ann: olá"), "a spoken line lost its speaker or text");
+        var worded = new ChatLinePacket(ChatKind.Server, 0, "", GameText.Of(GameTextId.PlayerOnline, "Bob"));
+        Assert.True(decoder.TryHandle(buffer.AsSpan(0, worded.Write(buffer)), out update)
+            && update!.Chat.Single() == new ChatLineInfo(ChatKind.Server, 0, "", GameText.Of(GameTextId.PlayerOnline, "Bob")), "a server line to word lost its game text");
         var wide = new ChatLinePacket(ChatKind.Player, 1UL << 40, "far");
         Assert.True(ChatLinePacket.Read(buffer.AsSpan(0, wide.Write(buffer))).Speaker == 1UL << 40, "64-bit speakers round trip");
         Assert.True(decoder.TryHandle(buffer.AsSpan(0, CloseRequestPacket.Write(buffer)), out update) && update!.CloseRequested, "the close request did not decode");
@@ -187,6 +191,9 @@ internal static class ChatClientTests
         Assert.True(whispers == 1, "the sound must play only when the window was closed");
         chat.Receive(new ChatLineInfo(ChatKind.Server, 0, "server"), 1000);
         Assert.True(chat.Window.Log.Newest(HudChatTab.All, 0).First() == new HudChatEntry("server", ChatKind.Server), "a server line");
+        chat.Receive(new ChatLineInfo(ChatKind.Server, 0, "", GameText.Of(GameTextId.PlayerOnline, "Bob")), 1000);
+        Assert.True(chat.Window.Log.Newest(HudChatTab.All, 0).First() == new HudChatEntry("Bob is currently online", ChatKind.Server),
+            "a server line was not worded by its game text");
         Assert.True(chat.NameColor(4, 0) == new Microsoft.Xna.Framework.Color(220, 255, 160) && chat.NameColor(3, 0) == new Microsoft.Xna.Framework.Color(180, 180, 255)
             && chat.NameColor(2, 2) == Microsoft.Xna.Framework.Color.White, "bubble name colours changed");
         Assert.True(HudChatWindow.WhisperPartner(new HudChatEntry("From> Bob: psst", ChatKind.Whisper)) == "Bob" && HudChatWindow.WhisperPartner(new HudChatEntry("To> Cid: x", ChatKind.Whisper)) == "Cid"

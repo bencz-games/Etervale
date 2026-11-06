@@ -104,8 +104,8 @@ internal static class StarterGiftTests
             + string.Join(", ", worn.Select(entry => $"{character.GetEquipped(entry.Slot)?.Definition.Name} {character.GetEquipped(entry.Slot)?.Roll.SpecJob}")));
         Assert.True(character.Inventory.Occupied().Count(entry => entry.Item.Definition == Crystal) == 3 && character.StarterGiftsReceived == StarterGifts.Count
             && fixture.Characters.Records["Fresh"].StarterGiftsReceived == StarterGifts.Count, "the crystals or the stored count are wrong");
-        Assert.True(fresh.Link.Lines.Count(line => line.Text == StarterGifts.Message("Claw")) == 1
-            && fresh.Link.Lines.Count(line => line.Text == StarterGifts.Message("Hopy Crystal")) == 3, "each gift was not told in the chat");
+        Assert.True(fresh.Link.Lines.Count(line => line.Line == StarterGifts.Message("Claw")) == 1
+            && fresh.Link.Lines.Count(line => line.Line == StarterGifts.Message("Hopy Crystal")) == 3, "each gift was not told in the chat");
 
         fixture.Tick(2);
         while (fresh.Outbox.Reader.TryRead(out var snapshot))

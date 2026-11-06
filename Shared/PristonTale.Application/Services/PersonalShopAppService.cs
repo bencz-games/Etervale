@@ -80,7 +80,7 @@ public sealed class PersonalShopAppService(ISessionRegistry sessions, ICharacter
 
     private void Announce(PlayerSession buyer, PlayerSession seller, PreparedShopPurchase prepared, int count)
     {
-        var line = new ChatLine(ChatKind.Trade, 0, PersonalShopMessages.Sold(prepared.Original.Name, count, prepared.ItemName, prepared.Price));
+        var line = new ChatLine(ChatKind.Trade, 0, "", PersonalShopMessages.Sold(prepared.Original.Name, count, prepared.ItemName, prepared.Price));
         foreach (var id in (ReadOnlySpan<ulong>)[buyer.EntityId, seller.EntityId])
         {
             if (chat is not null && chat.TryGet(id, out var member))

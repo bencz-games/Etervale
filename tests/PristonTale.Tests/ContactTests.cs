@@ -69,7 +69,7 @@ internal static class ContactTests
         Assert.True(lists?.Friends is [{ Name: "Bob" }] && store.Rows.Count == 1, "a name was not removed");
         store.Refuse = true;
         lists = await service.ChangeAsync(ann.Id, ContactList.Friends, true, "Cid");
-        Assert.True(lists?.Friends is [{ Name: "Bob" }] && ann.Link.Last == ContactMessages.Of(ContactStatus.Unavailable, "Cid"),
+        Assert.True(lists?.Friends is [{ Name: "Bob" }] && ann.Link.LastLine == ContactMessages.Of(ContactStatus.Unavailable, "Cid"),
             "a change storage refused was not answered with the lists as they were");
         store.Refuse = false;
 
@@ -77,7 +77,7 @@ internal static class ContactTests
         bob.Link.Clear();
         ann.Link.Clear();
         await fixture.SayAsync(bob, "/:Ann hello");
-        Assert.True(bob.Link.Last == ContactMessages.WhisperRefused && ann.Link.Lines.Count == 0, "an ignored player's whisper reached Ann");
+        Assert.True(bob.Link.LastLine == ContactMessages.WhisperRefused && ann.Link.Lines.Count == 0, "an ignored player's whisper reached Ann");
     }
 
     private static async Task StorageAsync()

@@ -164,5 +164,54 @@ public enum GameTextId : ushort
     NoQuestWeapon = 545,
     NoClassChange = 546,
     NoSkillRedistribution = 547,
-    ConfirmExchangeItem = 548
+    ConfirmExchangeItem = 548,
+
+    // Trades: TradeRequested and TradeTooFar take {0} the player.
+    TradeRequested = 600,
+    TradeTooFar = 601,
+    TradeOutOfReach = 602,
+    TradeBusy = 603,
+    TradeNotTradable = 604,
+    TradeTooMany = 605,
+    TradeChanged = 606,
+    TradeCancelled = 607,
+    TradeRefused = 608,
+
+    // Parties: {0} a player; PartyRecommended {0} the leader, {1} the player.
+    PartyRecommended = 620,
+    PartyRequested = 621,
+    PartyAlreadyMember = 622,
+    PartyInOther = 623,
+    PartyLevelGap = 624,
+    PlayerNotFound = 625,
+    PartyYouLeft = 626,
+    PartyExpelled = 627,
+    PartyDisbanded = 628,
+    PartyDelegated = 629,
+    PartyLeaderNow = 630,
+    PartyReleased = 631,
+    PartyEntered = 632,
+    PartyCannotEnter = 633,
+    PartyLeft = 634,
+    PartyRequest = 635,
+    PartyRecommends = 636,
+
+    // Contacts: ContactListed and ContactNotListed take {0} the name.
+    WhisperRefused = 650,
+    ContactListFull = 651,
+    ContactListed = 652,
+    ContactNotListed = 653,
+    ContactsUnavailable = 654,
+    ContactRefused = 655,
+
+    // Chat: PlayerOnline {0} the player; BossTime {0} the minute.
+    PlayerOnline = 670,
+    BossTime = 671,
+    WhispersDenied = 672,
+    WhispersAccepted = 673,
+    WhisperUnable = 674,
+
+    // StarterGift {0} the item; ShopSold {0} the buyer, {1} the count, {2} the item, {3} the price.
+    StarterGift = 680,
+    ShopSold = 681
 }

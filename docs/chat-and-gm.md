@@ -48,7 +48,7 @@ character).
 | Direction | Message | Body |
 | --- | --- | --- |
 | Client to server | `ChatSay` `0x45540C01` | `uint8 Party (0 spoken line or command, 1 party), uint8 0, text` |
-| Server to client | `ChatLine` `0x45540C00` | `uint8 Kind, uint8 0, uint64 Speaker (0 for server lines), text`: over the speaker when the receiver sees it, else in the log |
+| Server to client | `ChatLine` `0x45540C00` | `uint8 Kind, uint8 0, uint64 Speaker (0 for server lines), text, game text Line`: over the speaker when the receiver sees it, else in the log. A server line of the game (party, trade, contacts, whisper answers, gifts, sales) is `Line`, which the client words in its language; what players say and game-master lines are `text`, shown as they are |
 | Server to client | `CloseRequest` `0x45540D03` | The client saves nothing more and quits (the shutdown) |
 
 Kinds: 0 server, 1 whisper, 2 system, 3 notice, 4 party, 5 clan, 6 trade, 9 assistant; a player's spoken line carries

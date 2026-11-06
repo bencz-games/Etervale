@@ -2,6 +2,7 @@ using PristonTale.Contracts.Social;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Trades;
 
@@ -182,27 +183,23 @@ public static class TradeRules
 // The texts a player sees, as the original words them.
 public static class TradeMessages
 {
-    public const string Requested = "Sent a trade request to {0}";
-    public const string TooFar = "{0} is too far away to request a trade";
-    public const string InTrade = "The item is in the trade window";
-    public const string Trading = "Close the trade window first";
+    public static GameText Requested(string player) => GameText.Of(GameTextId.TradeRequested, player);
 
-    public static string Of(TradeStatus status) => status switch
+    public static GameText TooFar(string player) => GameText.Of(GameTextId.TradeTooFar, player);
+
+    public static GameText Of(TradeStatus status) => status == TradeStatus.Ok ? GameText.None : GameText.Of(status switch
     {
-        TradeStatus.Ok => "",
-        TradeStatus.OutOfReach => "The player is too far away",
-        TradeStatus.Busy => "The player is busy",
-        TradeStatus.NotTradable => "This item cannot be traded",
-        TradeStatus.TooMany => "Exceeds maximum number of transaction items",
-        TradeStatus.NotEnoughGold => ItemRuleMessages.NotEnoughGold,
-        TradeStatus.OverWeight => ItemRuleMessages.OverWeight,
-        TradeStatus.NoSpace => ItemRuleMessages.NoSpace,
-        TradeStatus.GoldLimit => ItemRuleMessages.GoldLimit,
-        TradeStatus.Changed => "Item has been changed. Please check",
-        TradeStatus.Cancelled => "Transaction cancelled",
-        TradeStatus.StorageFailed => ItemRuleMessages.TradeStorageFailed,
-        _ => "The trade was refused"
-    };
-
-    public static string Format(string message, string name) => string.Format(System.Globalization.CultureInfo.InvariantCulture, message, name);
+        TradeStatus.OutOfReach => GameTextId.TradeOutOfReach,
+        TradeStatus.Busy => GameTextId.TradeBusy,
+        TradeStatus.NotTradable => GameTextId.TradeNotTradable,
+        TradeStatus.TooMany => GameTextId.TradeTooMany,
+        TradeStatus.NotEnoughGold => GameTextId.NotEnoughGold,
+        TradeStatus.OverWeight => GameTextId.OverWeight,
+        TradeStatus.NoSpace => GameTextId.NoSpace,
+        TradeStatus.GoldLimit => GameTextId.GoldLimit,
+        TradeStatus.Changed => GameTextId.TradeChanged,
+        TradeStatus.Cancelled => GameTextId.TradeCancelled,
+        TradeStatus.StorageFailed => GameTextId.StorageRejected,
+        _ => GameTextId.TradeRefused
+    });
 }

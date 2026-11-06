@@ -74,7 +74,7 @@ public sealed partial class GameplayHud
 
         if (!TradeRules.IsTradable(item.Kind, item.CatalogKey))
         {
-            _notice.Show(TradeMessages.Of(TradeStatus.NotTradable));
+            _notice.Show(ClientText.Format(TradeMessages.Of(TradeStatus.NotTradable)));
         }
         else if (_trade.TryOffer(item, _state?.Items))
         {
@@ -82,7 +82,7 @@ public sealed partial class GameplayHud
         }
         else
         {
-            _notice.Show(TradeMessages.Of(TradeStatus.TooMany));
+            _notice.Show(ClientText.Format(TradeMessages.Of(TradeStatus.TooMany)));
         }
 
         return true;

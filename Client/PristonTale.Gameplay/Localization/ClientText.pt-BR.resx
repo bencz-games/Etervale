@@ -77,6 +77,7 @@
   <data name="Game.AgedItemMatured" xml:space="preserve"><value>O item em aging amadureceu</value></data>
   <data name="Game.AlreadyApplied" xml:space="preserve"><value>Já foi feito</value></data>
   <data name="Game.AlreadyTalking" xml:space="preserve"><value>Já está falando com este NPC</value></data>
+  <data name="Game.BossTime" xml:space="preserve"><value>Hora do chefe: XX:{0}</value></data>
   <data name="Game.CannotDrop" xml:space="preserve"><value>Este item não pode ser jogado fora</value></data>
   <data name="Game.CannotUseYet" xml:space="preserve"><value>O item ainda não pode ser usado</value></data>
   <data name="Game.CharacterBusy" xml:space="preserve"><value>Um salvamento ou outra operação do personagem está pendente; tente de novo</value></data>
@@ -99,6 +100,11 @@
   <data name="Game.ConfirmTheQuest" xml:space="preserve"><value>a quest?</value></data>
   <data name="Game.ConfirmWantToDo" xml:space="preserve"><value>quer fazer?</value></data>
   <data name="Game.ConnectionError" xml:space="preserve"><value>Erro de conexão. Tente de novo.</value></data>
+  <data name="Game.ContactListFull" xml:space="preserve"><value>A lista está cheia</value></data>
+  <data name="Game.ContactListed" xml:space="preserve"><value>{0} já está na lista</value></data>
+  <data name="Game.ContactNotListed" xml:space="preserve"><value>{0} não está na lista</value></data>
+  <data name="Game.ContactRefused" xml:space="preserve"><value>O nome não pode ser listado</value></data>
+  <data name="Game.ContactsUnavailable" xml:space="preserve"><value>As listas não podem ser alteradas agora</value></data>
   <data name="Game.CrystalRefused" xml:space="preserve"><value>Você não pode usar este cristal</value></data>
   <data name="Game.DeadCannotUse" xml:space="preserve"><value>Não é possível usar itens enquanto está morto</value></data>
   <data name="Game.DeathPenaltyReduced" xml:space="preserve"><value>Penalidade de EXP por morte reduzida em 1</value></data>
@@ -145,8 +151,26 @@
   <data name="Game.OperationConflict" xml:space="preserve"><value>Conflito de identidade da operação</value></data>
   <data name="Game.OtherTownMaster" xml:space="preserve"><value>Este mestre treina as classes de outra cidade</value></data>
   <data name="Game.OverWeight" xml:space="preserve"><value>Você excedeu o limite de peso do inventário</value></data>
+  <data name="Game.PartyAlreadyMember" xml:space="preserve"><value>{0} já é membro do grupo</value></data>
+  <data name="Game.PartyCannotEnter" xml:space="preserve"><value>Não foi possível entrar no grupo</value></data>
+  <data name="Game.PartyDelegated" xml:space="preserve"><value>{0} é o novo líder do grupo</value></data>
+  <data name="Game.PartyDisbanded" xml:space="preserve"><value>O grupo foi desfeito</value></data>
+  <data name="Game.PartyEntered" xml:space="preserve"><value>{0} entrou no grupo</value></data>
+  <data name="Game.PartyExpelled" xml:space="preserve"><value>{0} foi expulso do grupo</value></data>
+  <data name="Game.PartyInOther" xml:space="preserve"><value>{0} já é membro de outro grupo</value></data>
+  <data name="Game.PartyLeaderNow" xml:space="preserve"><value>o líder do grupo agora é {0}</value></data>
+  <data name="Game.PartyLeft" xml:space="preserve"><value>{0} saiu do grupo</value></data>
+  <data name="Game.PartyLevelGap" xml:space="preserve"><value>A diferença de nível é grande demais</value></data>
+  <data name="Game.PartyRecommended" xml:space="preserve"><value>O líder do grupo {0} recomendou {1} para entrar no grupo</value></data>
+  <data name="Game.PartyRecommends" xml:space="preserve"><value>recomenda {0}</value></data>
+  <data name="Game.PartyReleased" xml:space="preserve"><value>o grupo foi desfeito</value></data>
+  <data name="Game.PartyRequest" xml:space="preserve"><value>enviou um pedido de grupo</value></data>
+  <data name="Game.PartyRequested" xml:space="preserve"><value>pedido de grupo enviado para {0}</value></data>
+  <data name="Game.PartyYouLeft" xml:space="preserve"><value>Você saiu do grupo</value></data>
   <data name="Game.PersonalShopRefused" xml:space="preserve"><value>A loja pessoal recusou</value></data>
   <data name="Game.PickupNoRoom" xml:space="preserve"><value>Inventário cheio ou limite de ouro atingido</value></data>
+  <data name="Game.PlayerNotFound" xml:space="preserve"><value>{0} está offline ou não foi encontrado</value></data>
+  <data name="Game.PlayerOnline" xml:space="preserve"><value>{0} está online</value></data>
   <data name="Game.PotionNotNow" xml:space="preserve"><value>Você não pode usar outra poção agora</value></data>
   <data name="Game.PotionNotStored" xml:space="preserve"><value>Poções não podem ser guardadas</value></data>
   <data name="Game.ProgressionRefused" xml:space="preserve"><value>Requisitos não atendidos ou o personagem mudou; tente de novo</value></data>
@@ -174,6 +198,7 @@
   <data name="Game.ShopNotListable" xml:space="preserve"><value>O item não pode ser vendido na loja pessoal.</value></data>
   <data name="Game.ShopPriceChanged" xml:space="preserve"><value>O preço do item mudou</value></data>
   <data name="Game.ShopRefused" xml:space="preserve"><value>A loja recusou</value></data>
+  <data name="Game.ShopSold" xml:space="preserve"><value>{0} comprou {1} de {2} por {3} de ouro</value></data>
   <data name="Game.ShopSoldOut" xml:space="preserve"><value>O item já foi vendido</value></data>
   <data name="Game.ShopTradePending" xml:space="preserve"><value>Uma troca ainda está pendente; tente de novo</value></data>
   <data name="Game.SkillMasterAway" xml:space="preserve"><value>Aproxime-se, vivo, do mestre de habilidades da sua cidade</value></data>
@@ -183,6 +208,7 @@
   <data name="Game.SkillsRedistributed" xml:space="preserve"><value>Os pontos foram redistribuídos</value></data>
   <data name="Game.SkillsReset" xml:space="preserve"><value>Seus pontos de habilidade podem ser distribuídos de novo</value></data>
   <data name="Game.StaleInventory" xml:space="preserve"><value>Operação inválida ou o inventário mudou; tente de novo</value></data>
+  <data name="Game.StarterGift" xml:space="preserve"><value>Você recebeu {0} de presente.</value></data>
   <data name="Game.StatFiveSkillOne" xml:space="preserve"><value>pontos de atributo e de habilidade aumentados em 5 e 1</value></data>
   <data name="Game.StatFiveSkillTwo" xml:space="preserve"><value>pontos de atributo e de habilidade aumentados em 5 e 2</value></data>
   <data name="Game.StatPointsFive" xml:space="preserve"><value>pontos de atributo aumentados em 5</value></data>
@@ -192,6 +218,15 @@
   <data name="Game.TalkToNpcFirst" xml:space="preserve"><value>Fale com o NPC primeiro</value></data>
   <data name="Game.TenStatPoints" xml:space="preserve"><value>Acima do nível 90, você ganha 10 pontos de atributo por nível.</value></data>
   <data name="Game.TooManyRequests" xml:space="preserve"><value>Pedidos demais; espere um momento</value></data>
+  <data name="Game.TradeBusy" xml:space="preserve"><value>O jogador está ocupado</value></data>
+  <data name="Game.TradeCancelled" xml:space="preserve"><value>Troca cancelada</value></data>
+  <data name="Game.TradeChanged" xml:space="preserve"><value>O item foi alterado. Confira</value></data>
+  <data name="Game.TradeNotTradable" xml:space="preserve"><value>Este item não pode ser trocado</value></data>
+  <data name="Game.TradeOutOfReach" xml:space="preserve"><value>O jogador está longe demais</value></data>
+  <data name="Game.TradeRefused" xml:space="preserve"><value>A troca foi recusada</value></data>
+  <data name="Game.TradeRequested" xml:space="preserve"><value>Pedido de troca enviado para {0}</value></data>
+  <data name="Game.TradeTooFar" xml:space="preserve"><value>{0} está longe demais para pedir uma troca</value></data>
+  <data name="Game.TradeTooMany" xml:space="preserve"><value>Excede o número máximo de itens da troca</value></data>
   <data name="Game.TrainingReset" xml:space="preserve"><value>Sua contagem de treino foi reiniciada.</value></data>
   <data name="Game.TwentyBargons" xml:space="preserve"><value>Você matou 20 Bargons.</value></data>
   <data name="Game.UseDelay" xml:space="preserve"><value>Espere um momento antes de usar outro</value></data>
@@ -199,6 +234,10 @@
   <data name="Game.WarehouseChanged" xml:space="preserve"><value>O armazém mudou em outro lugar; abra de novo</value></data>
   <data name="Game.WarehouseNotOpen" xml:space="preserve"><value>Abra o armazém primeiro</value></data>
   <data name="Game.WarehouseUnreadable" xml:space="preserve"><value>O armazém salvo não pode ser lido</value></data>
+  <data name="Game.WhisperRefused" xml:space="preserve"><value>A mensagem privada foi recusada</value></data>
+  <data name="Game.WhisperUnable" xml:space="preserve"><value>Não é possível enviar mensagens privadas</value></data>
+  <data name="Game.WhispersAccepted" xml:space="preserve"><value>Mensagens privadas aceitas</value></data>
+  <data name="Game.WhispersDenied" xml:space="preserve"><value>Mensagens privadas recusadas</value></data>
   <data name="Game.WrongMaterials" xml:space="preserve"><value>Estes materiais não servem para este trabalho</value></data>
   <data name="Game.WrongPuzzle" xml:space="preserve"><value>O quebra-cabeça está errado</value></data>
   <data name="Guide.More" xml:space="preserve"><value>&gt;&gt;mais...</value></data>

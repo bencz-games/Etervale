@@ -225,7 +225,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
         new PresenceUpdate(_tick, [], [], [], [], FieldId) { PartyRequest = new PartyRequestInfo(packet.FromId, packet.FromName, packet.Recommended) };
 
     private PresenceUpdate OnChat(ChatLinePacket packet) =>
-        new PresenceUpdate(_tick, [], [], [], [], FieldId) { Chat = [new ChatLineInfo(packet.Kind, packet.Speaker, packet.Text)] };
+        new PresenceUpdate(_tick, [], [], [], [], FieldId) { Chat = [new ChatLineInfo(packet.Kind, packet.Speaker, packet.Text, packet.Line)] };
 
     private PresenceUpdate OnQuestNotices(QuestNoticesPacket packet) =>
         new PresenceUpdate(_tick, [], [], [], [], FieldId) { QuestNotices = QuestWireReader.ToNotices(packet.Notices), QuestPrompt = QuestWireReader.ToPrompt(packet.Prompt) };

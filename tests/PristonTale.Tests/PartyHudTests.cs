@@ -5,6 +5,7 @@ using PristonTale.Gameplay.UI;
 using PristonTale.Gameplay.UI.Parties;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Parties;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Tests;
 
@@ -69,12 +70,12 @@ internal static class PartyHudTests
     private static Task RequestAsync()
     {
         var box = new HudRequestBox(HudPartyArt.Request, PartyRules.InviteMs);
-        box.Show(7, "Ann", PartyMessages.Request, 1000);
+        box.Show(7, "Ann", ClientText.Format(PartyMessages.Request), 1000);
         Assert.True(box.IsOpen && box.Click(new Point(0, 300)) is null && box.IsOpen, "a click elsewhere answered");
         Assert.True(box.Click(box.Ok.Center) == true && !box.IsOpen, "OK accepts and closes");
-        box.Show(7, "Ann", PartyMessages.Request, 1000);
+        box.Show(7, "Ann", ClientText.Format(PartyMessages.Request), 1000);
         Assert.True(box.Click(box.Cancel.Center) == false && !box.IsOpen && box.FromId == 7, "cancel refuses and closes");
-        box.Show(7, "Ann", PartyMessages.Request, 1000);
+        box.Show(7, "Ann", ClientText.Format(PartyMessages.Request), 1000);
         box.Update(1000 + PartyRules.InviteMs - 1);
         Assert.True(box.IsOpen, "the box closed early");
         box.Update(1000 + PartyRules.InviteMs);

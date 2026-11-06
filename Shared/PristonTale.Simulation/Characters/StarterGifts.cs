@@ -1,5 +1,6 @@
 using PristonTale.Contracts.Characters;
 using PristonTale.Simulation.Items;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Characters;
 
@@ -69,7 +70,7 @@ public static class StarterGifts
         return ItemRoller.CreatePerfect(definition, 1, ItemRoller.CanTakeSpec(definition, spec) ? spec : 0);
     }
 
-    public static string Message(string itemName) => $"You received {itemName} as a gift.";
+    public static GameText Message(string itemName) => GameText.Of(GameTextId.StarterGift, itemName);
 
     private static string OffHandKey(ItemCatalog items, PlayerClass playerClass)
     {

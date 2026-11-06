@@ -3,6 +3,7 @@ using PristonTale.Application.GameMasters;
 using PristonTale.Application.World;
 using PristonTale.Simulation.Social;
 using PristonTale.Contracts.Social;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.Chat;
 
@@ -11,7 +12,7 @@ namespace PristonTale.Application.Chat;
 // request by name, then the game-master commands. A slash line is never spoken, nor is a yahoo word, which cheers instead. Runs on the caller's thread; positions come from the tick.
 public sealed class ChatAppService
 {
-    private const string WhisperRefused = "Unable to send private messages";
+    private static readonly GameText WhisperRefused = GameText.Of(GameTextId.WhisperUnable);
     private readonly IPartyRoster _parties;
     private readonly IClanRoster _clans;
 
@@ -154,7 +155,7 @@ public sealed class ChatAppService
     {
         if (ChatCommandText.Match("/bosstime", text) > 0)
         {
-            member.Link.Deliver(ChatLine.Reply(string.Format(CultureInfo.InvariantCulture, "Boss Time: XX:{0:00}", World.BossMinute)));
+            member.Link.Deliver(ChatLine.Reply(GameText.Of(GameTextId.BossTime, World.BossMinute.ToString("00", CultureInfo.InvariantCulture))));
             return Task.FromResult(true);
         }
 
@@ -178,14 +179,14 @@ public sealed class ChatAppService
         if (ChatCommandText.Match("/disable_whisper", text) > 0)
         {
             member.WhisperRefused = true;
-            member.Link.Deliver(ChatLine.Reply("Deny private messages"));
+            member.Link.Deliver(ChatLine.Reply(GameText.Of(GameTextId.WhispersDenied)));
             return Task.FromResult(true);
         }
 
         if (ChatCommandText.Match("/enable_whisper", text) > 0)
         {
             member.WhisperRefused = false;
-            member.Link.Deliver(ChatLine.Reply("Accept private messages"));
+            member.Link.Deliver(ChatLine.Reply(GameText.Of(GameTextId.WhispersAccepted)));
             return Task.FromResult(true);
         }
 
@@ -250,7 +251,7 @@ public sealed class ChatAppService
         {
             if (name.Length > 0)
             {
-                sender.Link.Deliver(ChatLine.Reply(string.Format(System.Globalization.CultureInfo.InvariantCulture, Simulation.Parties.PartyMessages.NotFound, name)));
+                sender.Link.Deliver(ChatLine.Reply(Simulation.Parties.PartyMessages.NotFound(name)));
             }
 
             return;
@@ -271,7 +272,7 @@ public sealed class ChatAppService
         var probe = 0;
         if (ChatCommandText.ReadWord(message, ref probe).Length == 0)
         {
-            sender.Link.Deliver(ChatLine.Reply(name + " is currently online"));
+            sender.Link.Deliver(ChatLine.Reply(GameText.Of(GameTextId.PlayerOnline, name)));
             return;
         }
 

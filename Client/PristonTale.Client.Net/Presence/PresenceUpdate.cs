@@ -1,6 +1,7 @@
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Quests;
 using PristonTale.Contracts.Social;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Client.Net.Presence;
 
@@ -100,6 +101,7 @@ public sealed record PartyRequestInfo(ulong FromId, string FromName, string Reco
 
 // One chat line: Kind is the server's colour and tab code, SpeakerId the entity that said it (0 for server lines).
 // Direct lines (the plain chat message) go to the log as they are; the others show over a speaker the client sees.
-public sealed record ChatLineInfo(ChatKind Kind, ulong SpeakerId, string Text);
+// Line is a server line the client words in its language; Text is shown as it is when Line is none.
+public sealed record ChatLineInfo(ChatKind Kind, ulong SpeakerId, string Text, GameText Line = default);
 
 public sealed record WarpInfo(int FieldId, System.Numerics.Vector3 Position, bool Forced);

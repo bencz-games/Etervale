@@ -95,7 +95,7 @@ internal static class TradeTests
 
         var dan = await fixture.World.JoinAsync("Dan", 0, 100);
         await Request(fixture, dan, ann);
-        Assert.True(dan.Link.Last == TradeMessages.Of(TradeStatus.Busy), "a trading player was asked");
+        Assert.True(dan.Link.LastLine == TradeMessages.Of(TradeStatus.Busy), "a trading player was asked");
     }
 
     private static async Task ExchangeAsync()
@@ -167,9 +167,9 @@ internal static class TradeTests
         var theirs = Give(bob, ChatFixture.Axe);
         await Open(fixture, ann, bob);
         await Offer(fixture, ann, 1);
-        Assert.True(ann.Link.Last == TradeMessages.Of(TradeStatus.NotEnoughGold), "gold Ann does not hold was offered");
+        Assert.True(ann.Link.LastLine == TradeMessages.Of(TradeStatus.NotEnoughGold), "gold Ann does not hold was offered");
         await Offer(fixture, ann, 0, theirs);
-        Assert.True(ann.Link.Last == TradeMessages.Of(TradeStatus.Changed), "Bob's item was offered by Ann");
+        Assert.True(ann.Link.LastLine == TradeMessages.Of(TradeStatus.Changed), "Bob's item was offered by Ann");
         await Offer(fixture, ann, 0, axe);
         Assert.True(View(fixture, ann)?.Own.Holds(axe.InstanceId) == true, "Ann's own item was refused");
 
@@ -190,7 +190,7 @@ internal static class TradeTests
         await Offer(fixture, ann, 100);
         fixture.Clock.Now += TimeSpan.FromSeconds(3);
         await Lock(fixture, bob);
-        Assert.True(bob.Link.Last == TradeMessages.Of(TradeStatus.GoldLimit) && View(fixture, bob) is { OwnLocked: false },
+        Assert.True(bob.Link.LastLine == TradeMessages.Of(TradeStatus.GoldLimit) && View(fixture, bob) is { OwnLocked: false },
             "Bob locked gold it may not carry");
 
         await Offer(fixture, ann, 5);
@@ -206,13 +206,13 @@ internal static class TradeTests
         await ann.Session.SaveGate.WaitAsync();
         await Lock(fixture, bob);
         ann.Session.SaveGate.Release();
-        Assert.True(View(fixture, bob) is { OwnLocked: false, PartnerLocked: false } && bob.Link.Last == TradeMessages.Of(TradeStatus.Busy)
+        Assert.True(View(fixture, bob) is { OwnLocked: false, PartnerLocked: false } && bob.Link.LastLine == TradeMessages.Of(TradeStatus.Busy)
             && ann.Session.Character.Money == 1000, "a busy partner did not unlock the trade");
 
         fixture.World.Characters.BeforeUpdateAll = static _ => Task.FromResult(false);
         await Lock(fixture, ann);
         await Lock(fixture, bob);
-        Assert.True(View(fixture, ann) is { OwnLocked: false } && ann.Link.Last == TradeMessages.Of(TradeStatus.StorageFailed)
+        Assert.True(View(fixture, ann) is { OwnLocked: false } && ann.Link.LastLine == TradeMessages.Of(TradeStatus.StorageFailed)
             && ann.Session.Character.Money == 1000, "refused storage changed the characters or kept the trade locked");
     }
 
@@ -271,7 +271,7 @@ internal static class TradeTests
         };
         await Lock(fixture, ann);
         await Lock(fixture, cid);
-        Assert.True(View(fixture, ann) is null && View(fixture, cid) is null && cid.Link.Lines.Any(line => line.Text == TradeMessages.Of(TradeStatus.Cancelled)),
+        Assert.True(View(fixture, ann) is null && View(fixture, cid) is null && cid.Link.Lines.Any(line => line.Line == TradeMessages.Of(TradeStatus.Cancelled)),
             "a cancel while the exchange was stored was lost when storage refused it");
     }
 
@@ -289,7 +289,7 @@ internal static class TradeTests
         var bag = ann.Session.Character!.Inventory;
         Assert.True(bag.ConsumeAt(bag.Find(potions.InstanceId)), "fixture use");
         await Lock(fixture, bob);
-        Assert.True(bob.Link.Last == TradeMessages.Of(TradeStatus.Changed) && ann.Link.Last == TradeMessages.Of(TradeStatus.Changed)
+        Assert.True(bob.Link.LastLine == TradeMessages.Of(TradeStatus.Changed) && ann.Link.LastLine == TradeMessages.Of(TradeStatus.Changed)
             && bob.Session.Character!.Inventory.Find(potions.InstanceId) < 0, "an exchange took a stack another path had used");
         Assert.True(View(fixture, bob) is { OwnLocked: false, PartnerLocked: false, PartnerItems: [{ Count: 9 }] },
             "the refused exchange did not reopen the trade with the stack as it is");
@@ -308,7 +308,7 @@ internal static class TradeTests
         var cid = await fixture.World.JoinAsync("Cid", 0, 100);
         await Request(fixture, ann, bob);
         await Request(fixture, cid, bob);
-        Assert.True(cid.Link.Last == TradeMessages.Of(TradeStatus.Busy), "a pending request was replaced");
+        Assert.True(cid.Link.LastLine == TradeMessages.Of(TradeStatus.Busy), "a pending request was replaced");
         await Answer(fixture, bob, ann);
 
         var axe = Give(ann, ChatFixture.Axe);

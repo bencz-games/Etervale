@@ -71,6 +71,6 @@ public static class PersonalShopMessages
     });
 
     // The line the seller and the buyer read when a sale goes through.
-    public static string Sold(string buyer, int count, string item, long price) =>
-        string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{buyer} player has bought {count} number of {item} by {price} Gold");
+    public static GameText Sold(string buyer, int count, string item, long price) => GameText.Of(GameTextId.ShopSold, buyer,
+        count.ToString(System.Globalization.CultureInfo.InvariantCulture), item, price.ToString(System.Globalization.CultureInfo.InvariantCulture));
 }

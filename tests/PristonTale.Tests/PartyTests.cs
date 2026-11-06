@@ -125,7 +125,7 @@ internal static class PartyTests
         await Invite(fixture, parties, gus, hal);
         hal.Session.Character!.AwardExperience(ExperienceTable.ForLevel(40) - hal.Session.Character.Experience);
         await Answer(fixture, parties, hal, gus);
-        Assert.True(Members(fixture, gus).Length == 0 && hal.Link.Last == PartyMessages.LevelGap, "a request joined levels that grew apart");
+        Assert.True(Members(fixture, gus).Length == 0 && hal.Link.LastLine == PartyMessages.LevelGap, "a request joined levels that grew apart");
     }
 
     private static async Task RequestsAsync()
@@ -151,7 +151,7 @@ internal static class PartyTests
 
         var dan = await fixture.JoinAsync("Dan", 0, -100, level: 40);
         await Invite(fixture, parties, ann, dan);
-        Assert.True(ann.Link.Last == PartyMessages.LevelGap, "a 39-level gap was asked");
+        Assert.True(ann.Link.LastLine == PartyMessages.LevelGap, "a 39-level gap was asked");
         await Invite(fixture, parties, ann, bob);
         Assert.True(ann.Link.Last == "Bob is already a party member", "a member was asked again");
         var eve = await fixture.JoinAsync("Eve", -100, 0);
@@ -176,7 +176,7 @@ internal static class PartyTests
 
         var late = await fixture.JoinAsync("Late", 20, 20);
         await Group(fixture, parties, ann, late);
-        Assert.True(Members(fixture, ann).Length == PartyLimits.MaxMembers && late.Link.Last == PartyMessages.CannotEnter, "a full party took a seventh");
+        Assert.True(Members(fixture, ann).Length == PartyLimits.MaxMembers && late.Link.LastLine == PartyMessages.CannotEnter, "a full party took a seventh");
     }
 
     private static async Task CommandsAsync()
@@ -201,12 +201,12 @@ internal static class PartyTests
             && ann.Link.Texts().Contains("Cid has left the party") && ann.Link.Last == "Cid has been expelled from the party", "kicking failed");
 
         await Command(fixture, parties, ann, PartyCommand.Leave);
-        Assert.True(Members(fixture, bob).Length == 0 && bob.Link.Last == "party has been disbanded" && ann.Link.Last == PartyMessages.YouLeft,
+        Assert.True(Members(fixture, bob).Length == 0 && bob.Link.Last == "party has been disbanded" && ann.Link.LastLine == PartyMessages.YouLeft,
             "a party of two must be released when one leaves");
 
         await Group(fixture, parties, ann, bob);
         await Command(fixture, parties, ann, PartyCommand.Disband);
-        Assert.True(Members(fixture, bob).Length == 0 && Members(fixture, ann).Length == 0 && ann.Link.Last == PartyMessages.Disbanded, "disbanding failed");
+        Assert.True(Members(fixture, bob).Length == 0 && Members(fixture, ann).Length == 0 && ann.Link.LastLine == PartyMessages.Disbanded, "disbanding failed");
         Assert.True(fixture.World.Parties.MembersOf(ann.Id).Count == 0, "the chat roster kept a released party");
     }
 

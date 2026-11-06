@@ -15,6 +15,8 @@ using PristonTale.Simulation.World.Fields;
 using PristonTale.Simulation.World.Loot;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Tests;
 
@@ -186,11 +188,23 @@ internal sealed class FakeLink : IChatLink
     {
         lock (Lines)
         {
-            return Lines.Select(line => line.Text).ToArray();
+            return Lines.Select(static line => line.Line.IsNone ? line.Text : ClientText.Format(line.Line)).ToArray();
         }
     }
 
+    // The last line as the client words it in English.
     public string Last => Texts().LastOrDefault() ?? "";
+
+    public GameText LastLine
+    {
+        get
+        {
+            lock (Lines)
+            {
+                return Lines.Count == 0 ? GameText.None : Lines[^1].Line;
+            }
+        }
+    }
 
     public void Clear()
     {

@@ -1,5 +1,6 @@
 using PristonTale.Application.Sessions;
 using PristonTale.Contracts.Social;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -8,10 +9,10 @@ public sealed partial class WorldServer
 {
     private readonly List<WorldNotice> _notices = new();
 
-    private void Notify(ulong to, ChatKind kind, string text) => _notices.Add(new WorldNotice(to, kind, text));
+    private void Notify(ulong to, ChatKind kind, GameText text) => _notices.Add(new WorldNotice(to, kind, text));
 
     // A reply to the player who acted.
-    private void Reply(WorldPlayer player, string text) => Notify(player.EntityId, ChatKind.Server, text);
+    private void Reply(WorldPlayer player, GameText text) => Notify(player.EntityId, ChatKind.Server, text);
 
     // A request that answers only lines: the action runs for a player still playing.
     private WorldNotice[] NoticeAction(PlayerSession session, Action<Connection> action)

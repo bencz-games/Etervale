@@ -1,5 +1,6 @@
 using PristonTale.Contracts.Characters;
 using PristonTale.Contracts.Social;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.Social;
 
@@ -100,15 +101,15 @@ public sealed class ContactBook
 // The texts a player sees.
 public static class ContactMessages
 {
-    public const string WhisperRefused = "Private Message has been refused";
+    public static readonly GameText WhisperRefused = GameText.Of(GameTextId.WhisperRefused);
 
-    public static string Of(ContactStatus status, string name) => status switch
+    public static GameText Of(ContactStatus status, string name) => status switch
     {
-        ContactStatus.Ok => "",
-        ContactStatus.Full => "The list is full",
-        ContactStatus.Listed => $"{name} is already on the list",
-        ContactStatus.NotListed => $"{name} is not on the list",
-        ContactStatus.Unavailable => "The lists cannot be changed now",
-        _ => "The name cannot be listed"
+        ContactStatus.Ok => GameText.None,
+        ContactStatus.Full => GameText.Of(GameTextId.ContactListFull),
+        ContactStatus.Listed => GameText.Of(GameTextId.ContactListed, name),
+        ContactStatus.NotListed => GameText.Of(GameTextId.ContactNotListed, name),
+        ContactStatus.Unavailable => GameText.Of(GameTextId.ContactsUnavailable),
+        _ => GameText.Of(GameTextId.ContactRefused)
     };
 }

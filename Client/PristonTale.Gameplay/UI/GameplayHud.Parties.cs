@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using PristonTale.Client.Net.Presence;
 using PristonTale.Gameplay.UI.Parties;
 using PristonTale.Gameplay.UI.Widgets;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -48,8 +49,8 @@ public sealed partial class GameplayHud
         if (update.PartyRequest is { } request && !_warehouse.IsOpen)
         {
             var line = request.Recommended.Length > 0
-                ? Simulation.Parties.PartyMessages.Format(Simulation.Parties.PartyMessages.Recommends, request.Recommended)
-                : Simulation.Parties.PartyMessages.Request;
+                ? ClientText.Format(Simulation.Parties.PartyMessages.Recommends(request.Recommended))
+                : ClientText.Format(Simulation.Parties.PartyMessages.Request);
             _partyRequest.Show(request.FromId, request.FromName, line, _clock.Elapsed.TotalMilliseconds);
         }
     }

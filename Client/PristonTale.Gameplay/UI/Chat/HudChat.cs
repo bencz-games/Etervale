@@ -5,6 +5,7 @@ using PristonTale.Simulation.Social;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Social;
 using PristonTale.Gameplay.UI.Rendering;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Chat;
 
@@ -53,20 +54,21 @@ public sealed class HudChat
 
     public void Receive(ChatLineInfo line, double nowMs)
     {
+        var text = line.Line.IsNone ? line.Text : ClientText.Format(line.Line);
         var (kind, _) = line.SpeakerId == 0 ? (EntityKind.None, 0u) : Lookup(line.SpeakerId);
         if (kind != EntityKind.None && line.Kind != ChatKind.Party)
         {
-            Bubbles.Say(line.SpeakerId, line.Text, nowMs, ChatRules.OtherBubbleMs);
+            Bubbles.Say(line.SpeakerId, text, nowMs, ChatRules.OtherBubbleMs);
             if (kind == EntityKind.Player)
             {
-                Window.Log.Add(line.Text, ChatKind.Player);
+                Window.Log.Add(text, ChatKind.Player);
             }
 
             return;
         }
 
-        Window.Log.Add(line.Text, line.Kind);
-        if (HudChatWindow.WhisperPartnerOf(line.Kind, line.Text) is { } partner)
+        Window.Log.Add(text, line.Kind);
+        if (HudChatWindow.WhisperPartnerOf(line.Kind, text) is { } partner)
         {
             WhisperPartner?.Invoke(partner);
         }

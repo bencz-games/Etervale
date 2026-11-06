@@ -3,6 +3,7 @@ using PristonTale.Application.Chat;
 using PristonTale.Application.Sessions;
 using PristonTale.Contracts.Social;
 using PristonTale.Simulation.Parties;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -37,7 +38,7 @@ public sealed partial class WorldServer
             }
             else
             {
-                Reply(player, PartyMessages.Format(PartyMessages.NotFound, name));
+                Reply(player, PartyMessages.NotFound(name));
             }
         }));
 
@@ -82,18 +83,18 @@ public sealed partial class WorldServer
         {
             if (inviter.Party is { } own && own.LeaderId != inviter.EntityId && _connections.TryGetValue(own.LeaderId, out var leader))
             {
-                Reply(inviter, PartyMessages.Format(PartyMessages.Recommended, leader.Player.Character.Name, target.Character.Name));
+                Reply(inviter, PartyMessages.Recommended(leader.Player.Character.Name, target.Character.Name));
                 leader.Player.PartyRequest = new PartyRequest(inviter.EntityId, inviter.Character.Name, target.EntityId, target.Character.Name, expires);
                 return;
             }
 
-            Reply(inviter, PartyMessages.Format(PartyMessages.Requested, target.Character.Name));
+            Reply(inviter, PartyMessages.Requested(target.Character.Name));
             target.PartyRequest = new PartyRequest(inviter.EntityId, inviter.Character.Name, inviter.EntityId, "", expires);
             return;
         }
 
-        Reply(inviter, PartyMessages.Format(inviter.SharesPartyWith(target) ? PartyMessages.AlreadyMember : PartyMessages.InOtherParty,
-            target.Character.Name));
+        var name = target.Character.Name;
+        Reply(inviter, inviter.SharesPartyWith(target) ? PartyMessages.AlreadyMember(name) : PartyMessages.InOtherParty(name));
     }
 
     // A leader who accepts a member's recommendation asks the recommended player in the party's name.
@@ -173,7 +174,7 @@ public sealed partial class WorldServer
         party.Add(player.EntityId);
         player.Party = party;
         PartyChanged(party);
-        Tell(party, PartyMessages.Format(PartyMessages.Entered, player.Character.Name));
+        Tell(party, PartyMessages.Entered(player.Character.Name));
     }
 
     private void Command(WorldPlayer player, PartyCommand command, ulong memberId)
@@ -189,7 +190,7 @@ public sealed partial class WorldServer
             case PartyCommand.Delegate when leads && memberId != player.EntityId && party.Contains(memberId)
                 && _connections.TryGetValue(memberId, out var heir):
                 HandOver(party, heir.Player);
-                Reply(player, PartyMessages.Format(PartyMessages.Delegated, heir.Player.Character.Name));
+                Reply(player, PartyMessages.Delegated(heir.Player.Character.Name));
                 break;
             case PartyCommand.Disband when leads:
                 Release(party);
@@ -197,7 +198,7 @@ public sealed partial class WorldServer
                 break;
             case PartyCommand.Kick when leads && memberId != player.EntityId && party.Contains(memberId) && _connections.TryGetValue(memberId, out var kicked):
                 LeaveParty(kicked.Player);
-                var expelled = PartyMessages.Format(PartyMessages.Expelled, kicked.Player.Character.Name);
+                var expelled = PartyMessages.Expelled(kicked.Player.Character.Name);
                 if (player.Party is { } remaining)
                 {
                     Tell(remaining, expelled);
@@ -235,7 +236,7 @@ public sealed partial class WorldServer
             }
         }
 
-        Tell(party, PartyMessages.Format(PartyMessages.Left, player.Character.Name));
+        Tell(party, PartyMessages.Left(player.Character.Name));
         if (party.Count <= 2)
         {
             Release(party);
@@ -252,7 +253,7 @@ public sealed partial class WorldServer
     {
         party.Lead(heir.EntityId);
         PartyChanged(party);
-        Tell(party, PartyMessages.Format(PartyMessages.LeaderNow, heir.Character.Name));
+        Tell(party, PartyMessages.LeaderNow(heir.Character.Name));
     }
 
     private void Release(Party party)
@@ -277,7 +278,7 @@ public sealed partial class WorldServer
         RefreshParty(party);
     }
 
-    private void Tell(Party party, string text)
+    private void Tell(Party party, GameText text)
     {
         foreach (var id in party.Members)
         {
