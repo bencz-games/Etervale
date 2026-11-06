@@ -293,7 +293,7 @@ public sealed class HudSkillHud : IDisposable
             _tipKey = key;
             _tipLines.Clear();
             _tipLines.Add(Name(code));
-            if (ItemStatuses.Effect(code) is { } effect)
+            if (DataText.StatusEffect(code) is { } effect)
             {
                 _tipLines.Add(effect);
             }

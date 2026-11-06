@@ -640,9 +640,14 @@
   <data name="Stat.Strength" xml:space="preserve"><value>Força</value></data>
   <data name="Stat.WeaponDamagePercent" xml:space="preserve"><value>Dano da arma</value></data>
   <data name="Status.CharacterSelect" xml:space="preserve"><value>Seleção de personagem</value></data>
+  <data name="Status.CrystalPet" xml:space="preserve"><value>Mascote invocado que ajuda você na batalha</value></data>
+  <data name="Status.LifeBooster" xml:space="preserve"><value>Aumenta a vida em {0}%</value></data>
   <data name="Status.Loading" xml:space="preserve"><value>Carregando…</value></data>
+  <data name="Status.ManaBooster" xml:space="preserve"><value>Aumenta a mana em {0}%</value></data>
   <data name="Status.Opening" xml:space="preserve"><value>Abertura: {0}</value></data>
   <data name="Status.SavingAndDisconnecting" xml:space="preserve"><value>Salvando e desconectando…</value></data>
+  <data name="Status.SkillDelay" xml:space="preserve"><value>As habilidades recarregam em meio segundo</value></data>
+  <data name="Status.StaminaBooster" xml:space="preserve"><value>Aumenta a stamina em {0}%</value></data>
   <data name="TeleportCore.Page" xml:space="preserve"><value>[Teleport Core - Página {0}]</value></data>
   <data name="TeleportCore.Row" xml:space="preserve"><value>{0}. {1} (Nv {2})</value></data>
   <data name="TeleportCore.Title" xml:space="preserve"><value>TELEPORTE</value></data>

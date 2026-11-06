@@ -157,7 +157,7 @@ internal static class MonsterCrystalTests
         Assert.True(code == 0xF0000565 && scenario.Character.Effects.TryGet(code, out _)
             && scenario.Statuses.Any(value => value.StatusCode == code && value.Op == StatusEffectOp.Add), "the owner did not get the crystal's status");
         Assert.True(ItemStatuses.Name(code) == "Hopy Crystal" && ItemStatuses.Icon(code) == "image/Sinimage/Items/Event/itGP101.bmp"
-            && ItemStatuses.Effect(code) == "Summoned Pet that supports you in Battle" && !MonsterCrystals.TryGetByPetStatus(MonsterCrystals.PetStatusBase + 201, out _),
+            && Gameplay.Localization.DataText.StatusEffect(code) == "Summoned Pet that supports you in Battle" && !MonsterCrystals.TryGetByPetStatus(MonsterCrystals.PetStatusBase + 201, out _),
             "the crystal status shows the wrong name, icon or effect, or a soul stone has one");
 
         // The icon's right click asks first; Yes sends the dismissal, which names the crystal's status on the wire.

@@ -4,6 +4,20 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Castle.BC101.Effect" xml:space="preserve"><value>Invencível por um tempo; poder de ataque reduzido à metade</value></data>
+  <data name="Castle.BC102.Effect" xml:space="preserve"><value>Chance de crítico +5%</value></data>
+  <data name="Castle.BC103.Effect" xml:space="preserve"><value>Chance de esquiva +5%</value></data>
+  <data name="Castle.BC106.Effect" xml:space="preserve"><value>Anula 50% do ataque da Torre de Cristal de Fogo</value></data>
+  <data name="Castle.BC107.Effect" xml:space="preserve"><value>Anula 50% do ataque da Torre de Cristal de Gelo</value></data>
+  <data name="Castle.BC108.Effect" xml:space="preserve"><value>Anula 50% do ataque da Torre de Cristal de Raio</value></data>
+  <data name="Castle.BC109.Effect" xml:space="preserve"><value>+20% de dano ao golpear um Lutador</value></data>
+  <data name="Castle.BC110.Effect" xml:space="preserve"><value>+20% de dano ao golpear um Mecânico</value></data>
+  <data name="Castle.BC111.Effect" xml:space="preserve"><value>+20% de dano ao golpear um Piqueiro</value></data>
+  <data name="Castle.BC112.Effect" xml:space="preserve"><value>+20% de dano ao golpear uma Arqueira</value></data>
+  <data name="Castle.BC113.Effect" xml:space="preserve"><value>+20% de dano ao golpear um Cavaleiro</value></data>
+  <data name="Castle.BC114.Effect" xml:space="preserve"><value>+20% de dano ao golpear uma Atalanta</value></data>
+  <data name="Castle.BC115.Effect" xml:space="preserve"><value>+20% de dano ao golpear um Mago</value></data>
+  <data name="Castle.BC116.Effect" xml:space="preserve"><value>+20% de dano ao golpear uma Sacerdotisa</value></data>
   <data name="Class.Archer.0" xml:space="preserve"><value>Arqueira</value></data>
   <data name="Class.Archer.1" xml:space="preserve"><value>Mestra Caçadora</value></data>
   <data name="Class.Archer.2" xml:space="preserve"><value>Discípula de Dion</value></data>

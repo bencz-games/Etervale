@@ -1,6 +1,6 @@
 namespace PristonTale.Simulation.Items.Usable;
 
-// The keep icons, names and effect lines of item effects in the running-effects bar: scrolls, force orbs, castle items,
+// The keep icons and names of item effects in the running-effects bar (the client words their effect lines): scrolls, force orbs, castle items,
 // crystal pets, and the boosters and skill-delay item, which are premium timers drawn in that bar under their own codes.
 public static class ItemStatuses
 {
@@ -100,25 +100,4 @@ public static class ItemStatuses
         } : null;
     }
 
-    // The effect line under the name, or null.
-    public static string Effect(uint code)
-    {
-        if (CastleItems.TryGetByStatus(code, out var castle))
-        {
-            return castle.Effect;
-        }
-
-        if (MonsterCrystals.TryGetByPetStatus(code, out _))
-        {
-            return "Summoned Pet that supports you in Battle";
-        }
-
-        return TryGetPremiumKeep(code, out var kind) ? kind switch
-        {
-            PremiumEffectKind.LifeBooster => $"Raises life by {PremiumRules.BoosterPercent}%",
-            PremiumEffectKind.ManaBooster => $"Raises mana by {PremiumRules.BoosterPercent}%",
-            PremiumEffectKind.StaminaBooster => $"Raises stamina by {PremiumRules.BoosterPercent}%",
-            _ => "Skills recharge in half a second"
-        } : null;
-    }
 }

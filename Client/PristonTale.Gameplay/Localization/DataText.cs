@@ -5,13 +5,15 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Skills;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Contracts.Characters;
+using PristonTale.Simulation.Items.Usable;
 
 namespace PristonTale.Gameplay.Localization;
 
 // The game data's texts in the shown language (ClientText.Use): skill names and descriptions, class titles and quest
 // window titles. English
 // is the data itself; DataText.<language>.resx holds a translation per key, and a text a language lacks shows as the
-// data words it. Keys: Skill.<code as 8 hex digits>.Name and .Description, Class.<PlayerClass>.<tier>, Quest.<board title>.
+// data words it. Keys: Skill.<code as 8 hex digits>.Name and .Description, Class.<PlayerClass>.<tier>, Quest.<board title>,
+// Castle.<catalog key>.Effect.
 public static class DataText
 {
     private static readonly ResourceManager Resources = new(typeof(DataText));
@@ -29,6 +31,33 @@ public static class DataText
         var titles = ClassProfiles.Of(playerClass).Titles;
         var index = Math.Clamp(tier, 0, titles.Count - 1);
         return Get(ClassKey(playerClass, index), titles[index]);
+    }
+
+    // The effect line of a castle item.
+    public static string CastleEffect(CastleItemDefinition castle) => Get(CastleKey(castle.CatalogKey), castle.Effect);
+
+    public static string CastleKey(string catalogKey) => "Castle." + catalogKey + ".Effect";
+
+    // The effect line under an item effect's name in the running-effects bar, or null.
+    public static string StatusEffect(uint code)
+    {
+        if (CastleItems.TryGetByStatus(code, out var castle))
+        {
+            return CastleEffect(castle);
+        }
+
+        if (MonsterCrystals.TryGetByPetStatus(code, out _))
+        {
+            return ClientText.Get("Status.CrystalPet");
+        }
+
+        return ItemStatuses.TryGetPremiumKeep(code, out var kind) ? kind switch
+        {
+            PremiumEffectKind.LifeBooster => ClientText.Format("Status.LifeBooster", PremiumRules.BoosterPercent),
+            PremiumEffectKind.ManaBooster => ClientText.Format("Status.ManaBooster", PremiumRules.BoosterPercent),
+            PremiumEffectKind.StaminaBooster => ClientText.Format("Status.StaminaBooster", PremiumRules.BoosterPercent),
+            _ => ClientText.Get("Status.SkillDelay")
+        } : null;
     }
 
     // A title of the quest window, as the server sends it (QuestBoard).

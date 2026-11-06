@@ -640,9 +640,14 @@
   <data name="Stat.Strength" xml:space="preserve"><value>Strength</value></data>
   <data name="Stat.WeaponDamagePercent" xml:space="preserve"><value>Weapon damage</value></data>
   <data name="Status.CharacterSelect" xml:space="preserve"><value>Character select</value></data>
+  <data name="Status.CrystalPet" xml:space="preserve"><value>Summoned Pet that supports you in Battle</value></data>
+  <data name="Status.LifeBooster" xml:space="preserve"><value>Raises life by {0}%</value></data>
   <data name="Status.Loading" xml:space="preserve"><value>Loading…</value></data>
+  <data name="Status.ManaBooster" xml:space="preserve"><value>Raises mana by {0}%</value></data>
   <data name="Status.Opening" xml:space="preserve"><value>Opening: {0}</value></data>
   <data name="Status.SavingAndDisconnecting" xml:space="preserve"><value>Saving and disconnecting…</value></data>
+  <data name="Status.SkillDelay" xml:space="preserve"><value>Skills recharge in half a second</value></data>
+  <data name="Status.StaminaBooster" xml:space="preserve"><value>Raises stamina by {0}%</value></data>
   <data name="TeleportCore.Page" xml:space="preserve"><value>[Teleport Core - Page {0}]</value></data>
   <data name="TeleportCore.Row" xml:space="preserve"><value>{0}. {1} (Lvl {2})</value></data>
   <data name="TeleportCore.Title" xml:space="preserve"><value>TELEPORT</value></data>

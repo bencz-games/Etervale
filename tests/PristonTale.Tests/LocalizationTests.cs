@@ -13,6 +13,7 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Contracts.Characters;
 using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.Items.Mixing;
+using PristonTale.Simulation.Items.Usable;
 
 namespace PristonTale.Tests;
 
@@ -118,6 +119,7 @@ internal static partial class LocalizationTests
             .Concat(Enum.GetValues<PlayerClass>().SelectMany(static playerClass =>
                 Enumerable.Range(0, ClassProfiles.Of(playerClass).Titles.Count).Select(tier => DataText.ClassKey(playerClass, tier))))
             .Concat(QuestBoard.Titles.Select(DataText.QuestKey))
+            .Concat(CastleItems.All.Select(static castle => DataText.CastleKey(castle.CatalogKey)))
             .ToHashSet(StringComparer.Ordinal);
         var missing = expected.Where(key => !portuguese.TryGetValue(key, out var text) || string.IsNullOrWhiteSpace(text)).ToArray();
         var unknown = portuguese.Keys.Where(key => !expected.Contains(key)).ToArray();
@@ -134,6 +136,9 @@ internal static partial class LocalizationTests
             ClientText.Use(ClientSettings.BrazilianPortugueseLanguage);
             Assert.True(ClientText.Format(QuestTexts.ClassTitle(PlayerClass.Knight, 1)) == "Paladino", "a class title of the server is not worded from the data");
             Assert.True(ClientText.MixBonus(new MixBonus(MixStat.AttackRating, 20f, true)) == "Taxa de ataque +20%", "a mix bonus is not worded in Brazilian Portuguese");
+            Assert.True(CastleItems.TryGet("BC102", out var edge) && DataText.CastleEffect(edge) == "Chance de crítico +5%"
+                && DataText.StatusEffect(ItemStatuses.PremiumKeepCode(PremiumEffectKind.LifeBooster)) == $"Aumenta a vida em {PremiumRules.BoosterPercent}%",
+                "the effect lines are not worded in Brazilian Portuguese");
             Assert.True(DataText.SkillName(mastery) == "Maestria Corpo a Corpo" && DataText.ClassTitle(PlayerClass.Fighter, 0) == "Lutador"
                 && DataText.ClassTitle(PlayerClass.Fighter, 9) == "Senhor da Guerra" && DataText.QuestTitle("The Cave(completed)") == "A caverna(Concluída)",
                 "the data texts are not shown in Brazilian Portuguese");

@@ -176,7 +176,7 @@ public sealed class HudPremiumTimers
         PremiumEffectKind.HelpPetMute => ClientText.Get("Premium.Mute"),
         PremiumEffectKind.HelpPetNepsys or PremiumEffectKind.HelpPetIo => ClientText.Get("Premium.FightsBeside"),
         PremiumEffectKind.StaminaReduce => ClientText.Format("Premium.StaminaReduce", value),
-        _ => ItemStatuses.Effect(ItemStatuses.PremiumKeepCode(kind)) ?? ""
+        _ => DataText.StatusEffect(ItemStatuses.PremiumKeepCode(kind)) ?? ""
     };
 
     public static string IconPath(PremiumEffectKind kind) => Folder + kind switch

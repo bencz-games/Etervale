@@ -97,7 +97,7 @@ public static class HudUsableTooltip
                 lines.AddRange(CrystalLines(crystal));
                 break;
             case UsableItemAction.CastleItem when CastleItems.TryGetByIndex(rule.Argument, out var castle):
-                lines.Add(castle.Effect);
+                lines.Add(DataText.CastleEffect(castle));
                 lines.Add(ClientText.Format("Usable.Duration", Duration(castle.DurationSeconds)));
                 lines.Add(ClientText.Get("Usable.CastleOnly"));
                 break;
