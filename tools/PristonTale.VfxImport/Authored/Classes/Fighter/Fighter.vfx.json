@@ -164,7 +164,6 @@
           120
         ],
         "anchor": "Caster",
-        "follow": true,
         "offset": [
           0,
           24,
@@ -185,7 +184,6 @@
       {
         "animation": "CriticalHit1.ini",
         "anchor": "Caster",
-        "follow": true,
         "offset": [
           0,
           24,
@@ -208,7 +206,6 @@
         "count": 4,
         "delayStep": 0.0286,
         "anchor": "Caster",
-        "follow": true,
         "offset": [
           0,
           24,
