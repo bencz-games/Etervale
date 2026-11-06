@@ -171,7 +171,7 @@ public sealed class HudWingGate(IClientLog log)
         }
 
         LastOutcome = outcome;
-        Message = WingGates.Message(outcome.Status);
+        Message = ClientText.Format(WingGates.Message(outcome.Status));
         Completions++;
     }
 
@@ -295,7 +295,7 @@ public sealed class HudWingGate(IClientLog log)
     private void Report(WingGateStatus status)
     {
         LastOutcome = new WingGateOutcome(status, -1);
-        Message = WingGates.Message(status);
+        Message = ClientText.Format(WingGates.Message(status));
         Completions++;
     }
 

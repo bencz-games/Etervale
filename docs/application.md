@@ -337,7 +337,7 @@ summon status ends. Charmed wild monsters become summons for the charm duration.
   removes it on commit (a pickup has no store, so nothing releases it before). Inventory-delivered drops (`ToInventory`)
   throw `NotSupportedException`.
 - The reserved copy keeps the rolled values of the drop under the drop's id. A pickup that would carry the character
-  over the weight limit is refused with `ItemRuleMessages.OverWeight`.
+  over the weight limit is refused with the `OverWeight` game text.
 
 ## Durable operations
 

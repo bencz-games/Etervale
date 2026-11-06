@@ -41,7 +41,7 @@ progression, regeneration and movement rates. `World/`, `Physics/` and `Skills/`
 | `Items/EquipmentTotals.cs` | What the usable worn items and their specializations add (`EquipmentTotals.Sum`) |
 | `Items/ItemUsability.cs`, `CarriedWeight.cs` | Requirement and class checks; carried weight and the weight limit checks |
 | `Items/ItemAbsorbCorrection.cs` | Absorb added to armor, robes, boots, gloves and shields by catalog number |
-| `Items/ItemDetailView.cs`, `ItemRuleMessages.cs` | Owner view of one copy; the texts of item refusals |
+| `Items/ItemDetailView.cs` | Owner view of one copy |
 | `Items/Inventory.cs` | Bitmask grid with anchors, stacking, move/split/merge/exchange; an item added without a place goes to the first free space down each column from the left |
 | `Items/StoreGrid.cs` | The 9x9 store grid of the warehouse and the shops |
 | `Items/InventoryCommand.cs` | `InventoryCommand` and `InventoryCommands.Apply` |
@@ -418,13 +418,13 @@ totals.
 - `TryEquipFromInventory(anchor, slot)`: the copy must pass `CanWear`. A two-handed weapon first sends the off-hand item
   to the bag (first free place); an off-hand item first sends a held two-handed weapon there; then the item in the
   slot takes the bag cell. Without room nothing changes. `InventoryCommands.Refusal` names an unusable item
-  (`ItemRuleMessages.CannotUse`).
+  (the `CannotUseYet` game text).
 - An item the character receives (`TryReceive`: a pickup, a starter or game master's gift, a quest grant, a prize)
   goes on the first empty slot that `CanEquip` allows (`TryWearReceived`), as the original's client wears what it
   receives: an armour on an empty armour slot, rings on either free ring slot, never a two-handed weapon beside an
   off-hand item or an item whose requirements are not met. A full bag does not keep it off an empty slot; otherwise
   it goes to the bag.
-- `TryUnequip` needs inventory space and is refused while the character is overweight (`ItemRuleMessages.OverWeight`).
+- `TryUnequip` needs inventory space and is refused while the character is overweight (the `OverWeight` game text).
 - `ReceiveGroundLoot` refuses an item that would carry the character over the weight limit. With `intoBag` (a pickup
   with the inventory open, `InventoryCommand.PickupToBag`) the item goes into the page shown's first free cells as a
   stack of its own, for the client to carry, or with no room there to the hand (`PlayerCharacter.Held`), as the

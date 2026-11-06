@@ -114,6 +114,9 @@
   <data name="Game.FuryLost" xml:space="preserve"><value>Derrota no confronto com Fury.</value></data>
   <data name="Game.FuryTitle" xml:space="preserve"><value>O fantasma de Fury</value></data>
   <data name="Game.FuryWon" xml:space="preserve"><value>Vitória no confronto com Fury.</value></data>
+  <data name="Game.GateNotAtStone" xml:space="preserve"><value>Fique sobre o portal primeiro</value></data>
+  <data name="Game.GateNotReached" xml:space="preserve"><value>Sua asa não alcança este portal</value></data>
+  <data name="Game.GateRefused" xml:space="preserve"><value>O portal recusou</value></data>
   <data name="Game.GoldLimit" xml:space="preserve"><value>Excede a quantidade máxima de ouro que você pode carregar</value></data>
   <data name="Game.GravityStoneUsed" xml:space="preserve"><value>Você usou uma Gravity Stone</value></data>
   <data name="Game.HestianLost" xml:space="preserve"><value>Você perdeu para Hestian.</value></data>

@@ -49,7 +49,7 @@ public sealed class WarehouseStorage
     public static bool CanStore(ItemKind kind, string key) => BoundItems.CanHandOver(kind, key) && !RefusedOnSetDown(kind);
 
     // The original places a potion over the grid as any item and refuses it only when it is set down, with
-    // ItemRuleMessages.PotionNotStored; the other items CanStore refuses show red where they would land.
+    // GameTextId.PotionNotStored; the other items CanStore refuses show red where they would land.
     public static bool RefusedOnSetDown(ItemKind kind) => kind == ItemKind.Potion;
 
     public WarehouseStorage Clone()

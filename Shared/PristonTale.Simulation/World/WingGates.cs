@@ -1,6 +1,7 @@
 using System.Numerics;
 using PristonTale.Simulation.Items;
 using PristonTale.Contracts.World;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.World;
 
@@ -99,17 +100,16 @@ public static class WingGates
     public static bool IsStone(FieldWarpGate warp) => warp.SpecialEffect == StoneEffect;
 
     // The line the player reads for a trip that did not warp.
-    public static string Message(WingGateStatus status) => status switch
+    public static GameText Message(WingGateStatus status) => status == WingGateStatus.Warped ? GameText.None : GameText.Of(status switch
     {
-        WingGateStatus.Warped => "",
-        WingGateStatus.NotAtStone => "Stand on the warp gate first",
-        WingGateStatus.NotReached => "Your wing does not reach this gate",
-        WingGateStatus.LevelTooLow => "Your level is too low",
-        WingGateStatus.NotEnoughGold => ItemRuleMessages.NotEnoughGold,
-        WingGateStatus.Busy => "Another action is pending; try again",
-        WingGateStatus.StorageFailed => "Storage rejected the operation; character unchanged",
-        _ => "The warp gate refused"
-    };
+        WingGateStatus.NotAtStone => GameTextId.GateNotAtStone,
+        WingGateStatus.NotReached => GameTextId.GateNotReached,
+        WingGateStatus.LevelTooLow => GameTextId.LevelTooLow,
+        WingGateStatus.NotEnoughGold => GameTextId.NotEnoughGold,
+        WingGateStatus.Busy => GameTextId.ActionPending,
+        WingGateStatus.StorageFailed => GameTextId.CharacterUnchanged,
+        _ => GameTextId.GateRefused
+    });
 
     // True when the position (original X and Z) stands on a stone of the field.
     public static bool AtStone(FieldDef field, Vector3 position)

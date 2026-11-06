@@ -114,6 +114,9 @@
   <data name="Game.FuryLost" xml:space="preserve"><value>Lose in the confrontation with Fury.</value></data>
   <data name="Game.FuryTitle" xml:space="preserve"><value>Fury's phantasma</value></data>
   <data name="Game.FuryWon" xml:space="preserve"><value>Win in the confrontation with Fury.</value></data>
+  <data name="Game.GateNotAtStone" xml:space="preserve"><value>Stand on the warp gate first</value></data>
+  <data name="Game.GateNotReached" xml:space="preserve"><value>Your wing does not reach this gate</value></data>
+  <data name="Game.GateRefused" xml:space="preserve"><value>The warp gate refused</value></data>
   <data name="Game.GoldLimit" xml:space="preserve"><value>Exceeds maximum amount of gold in possession</value></data>
   <data name="Game.GravityStoneUsed" xml:space="preserve"><value>You used a Gravity Stone</value></data>
   <data name="Game.HestianLost" xml:space="preserve"><value>You lost to Hestian.</value></data>

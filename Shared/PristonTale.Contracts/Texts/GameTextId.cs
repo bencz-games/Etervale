@@ -213,5 +213,10 @@ public enum GameTextId : ushort
 
     // StarterGift {0} the item; ShopSold {0} the buyer, {1} the count, {2} the item, {3} the price.
     StarterGift = 680,
-    ShopSold = 681
+    ShopSold = 681,
+
+    // Wing gates.
+    GateNotAtStone = 700,
+    GateNotReached = 701,
+    GateRefused = 702
 }
