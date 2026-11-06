@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using PristonTale.Gameplay.UI.Rendering;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -105,12 +106,12 @@ public sealed class LoginPanel
         _canvas.Begin(layout.Scale);
         _canvas.Image("LoginPanel", layout.Panel);
         _canvas.Text("ETERVALE", layout.Title, pixels: 30f, centered: true);
-        _canvas.Text("Your adventure begins here", layout.Subtitle, HudCanvas.Muted, 17f, centered: true);
-        DrawField("Account", Account, layout.Account, tint);
-        DrawField("Password", Password, layout.Password, tint);
-        DrawButton("Log in", layout.Login, _focus == FocusTarget.Login, layout, tint);
+        _canvas.Text(ClientText.Get("Login.Subtitle"), layout.Subtitle, HudCanvas.Muted, 17f, centered: true);
+        DrawField(ClientText.Get("Login.Account"), Account, layout.Account, tint);
+        DrawField(ClientText.Get("Login.Password"), Password, layout.Password, tint);
+        DrawButton(ClientText.Get("Login.LogIn"), layout.Login, _focus == FocusTarget.Login, layout, tint);
         _canvas.Text(Status, layout.Status, HudCanvas.Gold, 16f, centered: true);
-        _canvas.Text("Connect to the game server", layout.Hint, HudCanvas.Muted, 13f, centered: true);
+        _canvas.Text(ClientText.Get("Login.Hint"), layout.Hint, HudCanvas.Muted, 13f, centered: true);
         _canvas.End();
     }
 

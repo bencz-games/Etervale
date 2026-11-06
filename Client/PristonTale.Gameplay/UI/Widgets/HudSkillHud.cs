@@ -10,6 +10,7 @@ using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.Skills;
 using PristonTale.Contracts.Characters;
 using PristonTale.Contracts.Units;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -228,7 +229,7 @@ public sealed class HudSkillHud : IDisposable
         {
             _tipKey = key;
             _tipLines.Clear();
-            _tipLines.Add(quest.Progress.Count > 0 ? quest.Progress[0].Title : "Quest");
+            _tipLines.Add(quest.Progress.Count > 0 ? quest.Progress[0].Title : ClientText.Get("Hud.Quest"));
             if (quest.KillsNeeded > 0)
             {
                 _tipLines.Add($"{quest.TargetName}  {Math.Min(quest.Kills, quest.KillsNeeded)}/{quest.KillsNeeded}");
@@ -237,7 +238,7 @@ public sealed class HudSkillHud : IDisposable
             if (quest.Timer == QuestTimerKind.Expiring)
             {
                 var left = TimeSpan.FromMilliseconds(Math.Max(0, remainingMs));
-                _tipLines.Add($"Time left: {(int)left.TotalHours}:{left.Minutes:00}:{left.Seconds:00}");
+                _tipLines.Add(ClientText.Format("Hud.TimeLeft", string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{(int)left.TotalHours}:{left.Minutes:00}:{left.Seconds:00}")));
             }
         }
 
@@ -299,18 +300,20 @@ public sealed class HudSkillHud : IDisposable
 
             if (seconds >= 0)
             {
-                _tipLines.Add(crystalPet ? $"Time Left: {seconds / 60}:{seconds % 60:D2}" : $"Time left: {seconds} s");
+                _tipLines.Add(crystalPet
+                    ? ClientText.Format("Hud.TimeLeft", string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{seconds / 60}:{seconds % 60:D2}"))
+                    : ClientText.Format("Hud.TimeLeftSeconds", seconds));
             }
 
             if (crystalPet)
             {
-                _tipLines.Add("Right-click to dismiss");
+                _tipLines.Add(ClientText.Get("Hud.RightClickDismiss"));
             }
 
             if (automatic is { } auto)
             {
-                _tipLines.Add(auto ? "Attack type: Auto" : "Attack type: Manual");
-                _tipLines.Add("Double-click to switch");
+                _tipLines.Add(ClientText.Get(auto ? "Hud.AttackAuto" : "Hud.AttackManual"));
+                _tipLines.Add(ClientText.Get("Hud.DoubleClickSwitch"));
             }
         }
 
@@ -364,7 +367,7 @@ public sealed class HudSkillHud : IDisposable
 
     private static string Name(uint code) =>
         SkillRuleCatalog.TryGet(code, out var rule) ? rule.Name : ClassSkillCatalog.TryGet(code, out var skill) ? skill.Name
-            : ItemStatuses.Name(code) ?? $"Effect {code:X8}";
+            : ItemStatuses.Name(code) ?? ClientText.Format("Hud.Effect", code.ToString("X8", System.Globalization.CultureInfo.InvariantCulture));
 
     // The gauge frames: a white fan of k of the 72 steps (k = 0..72), antialiased, with premultiplied alpha.
     private static Texture2D[] BuildGauge(GraphicsDevice device)

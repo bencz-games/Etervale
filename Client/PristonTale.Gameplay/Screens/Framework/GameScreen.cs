@@ -28,7 +28,5 @@ public abstract class GameScreen : IDisposable
     // Work Dispose started that still needs the connection (leaving the world); shutdown waits for it.
     public virtual Task Closing => Task.CompletedTask;
 
-    protected static string Fallback(string value, string ifEmpty) => string.IsNullOrWhiteSpace(value) ? ifEmpty : value;
-
     protected string AssetPath(string relativePath) => AssetFiles.Combine(Context.AssetRoot, relativePath);
 }

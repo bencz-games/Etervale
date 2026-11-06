@@ -15,6 +15,30 @@
   <data name="Brood.Normal" xml:space="preserve"><value>Normal</value></data>
   <data name="Brood.Undead" xml:space="preserve"><value>Undead</value></data>
   <data name="Brood.User" xml:space="preserve"><value>Player</value></data>
+  <data name="CharSelect.ChooseClass" xml:space="preserve"><value>Choose a class.</value></data>
+  <data name="CharSelect.ChooseTribe" xml:space="preserve"><value>Choose a tribe.</value></data>
+  <data name="CharSelect.ClassModelsFailed" xml:space="preserve"><value>Could not load class models.</value></data>
+  <data name="CharSelect.CreateFailure.InvalidFace" xml:space="preserve"><value>Invalid face.</value></data>
+  <data name="CharSelect.CreateFailure.NameLength" xml:space="preserve"><value>The name must have 3 to 16 characters.</value></data>
+  <data name="CharSelect.CreateFailure.NameTaken" xml:space="preserve"><value>That name is taken.</value></data>
+  <data name="CharSelect.CreateFailure.NoFreeSlot" xml:space="preserve"><value>No free character slots.</value></data>
+  <data name="CharSelect.CreateFailure.None" xml:space="preserve"><value>Could not create the character.</value></data>
+  <data name="CharSelect.CreateFailure.Rejected" xml:space="preserve"><value>Character creation was rejected.</value></data>
+  <data name="CharSelect.CreateFailure.UnknownClass" xml:space="preserve"><value>Unknown class.</value></data>
+  <data name="CharSelect.DeleteFailed" xml:space="preserve"><value>Could not delete the character.</value></data>
+  <data name="CharSelect.EnterFailure.AlreadyActive" xml:space="preserve"><value>The character is already active.</value></data>
+  <data name="CharSelect.EnterFailure.AlreadyEntering" xml:space="preserve"><value>The session is already entering or playing.</value></data>
+  <data name="CharSelect.EnterFailure.InvalidSavedClassOrField" xml:space="preserve"><value>The saved character has an invalid class or field.</value></data>
+  <data name="CharSelect.EnterFailure.InvalidSession" xml:space="preserve"><value>Invalid session.</value></data>
+  <data name="CharSelect.EnterFailure.None" xml:space="preserve"><value>Could not enter the world.</value></data>
+  <data name="CharSelect.EnterFailure.NotFound" xml:space="preserve"><value>Character not found.</value></data>
+  <data name="CharSelect.EnterFailure.Rejected" xml:space="preserve"><value>World entry was rejected.</value></data>
+  <data name="CharSelect.EnterFailure.SessionClosed" xml:space="preserve"><value>The session closed while entering.</value></data>
+  <data name="CharSelect.EnterFailure.UnsupportedSavedState" xml:space="preserve"><value>The saved character state is invalid or unsupported; the saved data was kept.</value></data>
+  <data name="CharSelect.EnterName" xml:space="preserve"><value>Enter a name.</value></data>
+  <data name="CharSelect.LoadFailed" xml:space="preserve"><value>Could not load characters.</value></data>
+  <data name="CharSelect.ModelsFailed" xml:space="preserve"><value>Could not load character models.</value></data>
+  <data name="CharSelect.Unreachable" xml:space="preserve"><value>Could not reach server.</value></data>
   <data name="Element.Bionic" xml:space="preserve"><value>organic</value></data>
   <data name="Element.Earth" xml:space="preserve"><value>earth</value></data>
   <data name="Element.Fire" xml:space="preserve"><value>fire</value></data>
@@ -23,6 +47,14 @@
   <data name="Element.Poison" xml:space="preserve"><value>poison</value></data>
   <data name="Element.Water" xml:space="preserve"><value>water</value></data>
   <data name="Element.Wind" xml:space="preserve"><value>wind</value></data>
+  <data name="Hud.AttackAuto" xml:space="preserve"><value>Attack type: Auto</value></data>
+  <data name="Hud.AttackManual" xml:space="preserve"><value>Attack type: Manual</value></data>
+  <data name="Hud.DoubleClickSwitch" xml:space="preserve"><value>Double-click to switch</value></data>
+  <data name="Hud.Effect" xml:space="preserve"><value>Effect {0}</value></data>
+  <data name="Hud.Quest" xml:space="preserve"><value>Quest</value></data>
+  <data name="Hud.RightClickDismiss" xml:space="preserve"><value>Right-click to dismiss</value></data>
+  <data name="Hud.TimeLeft" xml:space="preserve"><value>Time left: {0}</value></data>
+  <data name="Hud.TimeLeftSeconds" xml:space="preserve"><value>Time left: {0} s</value></data>
   <data name="Item.Absorb" xml:space="preserve"><value>Absorb Rating:  </value></data>
   <data name="Item.AddLife" xml:space="preserve"><value>Add. HP: </value></data>
   <data name="Item.AddMana" xml:space="preserve"><value>Add. MP:  </value></data>
@@ -98,7 +130,29 @@
   <data name="ItemKind.Vambrace" xml:space="preserve"><value>Vambrace</value></data>
   <data name="Language.en" xml:space="preserve"><value>English</value></data>
   <data name="Language.pt-BR" xml:space="preserve"><value>Português (Brasil)</value></data>
+  <data name="Login.Account" xml:space="preserve"><value>Account</value></data>
+  <data name="Login.Failure.AlreadyLoggedIn" xml:space="preserve"><value>Already logged in on this connection.</value></data>
+  <data name="Login.Failure.BadCredentials" xml:space="preserve"><value>Invalid account or password.</value></data>
+  <data name="Login.Failure.Busy" xml:space="preserve"><value>The server is busy, try again later.</value></data>
+  <data name="Login.Failure.LoginDenied" xml:space="preserve"><value>The account is blocked.</value></data>
+  <data name="Login.Failure.None" xml:space="preserve"><value>Login failed.</value></data>
+  <data name="Login.Failure.OutdatedClient" xml:space="preserve"><value>This client is older than the server requires.</value></data>
+  <data name="Login.Hint" xml:space="preserve"><value>Connect to the game server</value></data>
+  <data name="Login.LogIn" xml:space="preserve"><value>Log in</value></data>
+  <data name="Login.Password" xml:space="preserve"><value>Password</value></data>
+  <data name="Login.Subtitle" xml:space="preserve"><value>Your adventure begins here</value></data>
+  <data name="Login.Unreachable" xml:space="preserve"><value>Could not reach the game server.</value></data>
   <data name="Pet.Dismissed" xml:space="preserve"><value>Pet has been dismissed</value></data>
+  <data name="Premium.ExperienceUp" xml:space="preserve"><value>{0}% EXP Boost</value></data>
+  <data name="Premium.FightsBeside" xml:space="preserve"><value>Fights at your side</value></data>
+  <data name="Premium.ManaRecharging" xml:space="preserve"><value>MP Recharge per hit</value></data>
+  <data name="Premium.ManaReduce" xml:space="preserve"><value>Reduce on usage of MP by {0}%</value></data>
+  <data name="Premium.MightOfAwell" xml:space="preserve"><value>Increase capacity by {0}</value></data>
+  <data name="Premium.Mute" xml:space="preserve"><value>Attack power +10%</value></data>
+  <data name="Premium.Phoenix" xml:space="preserve"><value>EXP +20%, drop chance +50%</value></data>
+  <data name="Premium.StaminaReduce" xml:space="preserve"><value>Reduce on usage of STM by {0}%</value></data>
+  <data name="Premium.ThirdEyes" xml:space="preserve"><value>{0}% Chance of Additional Drop</value></data>
+  <data name="Premium.Vampiric" xml:space="preserve"><value>HP Recharge per hit</value></data>
   <data name="Resource.Life" xml:space="preserve"><value>life</value></data>
   <data name="Resource.Mana" xml:space="preserve"><value>mana</value></data>
   <data name="Resource.Stamina" xml:space="preserve"><value>stamina</value></data>

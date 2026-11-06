@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using PristonTale.Contracts.Sessions;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Gameplay.Localization;
 using PristonTale.Simulation.Combat;
@@ -85,7 +86,10 @@ internal static partial class LocalizationTests
             .Concat(Enum.GetNames<Element>().Select(static name => "Element." + name))
             .Concat(Enum.GetNames<MonsterBrood>().Select(static name => "Brood." + name))
             .Concat(Enum.GetNames<ResourceKind>().Select(static name => "Resource." + name))
-            .Concat(Enum.GetNames<ItemKind>().Select(static name => "ItemKind." + name));
+            .Concat(Enum.GetNames<ItemKind>().Select(static name => "ItemKind." + name))
+            .Concat(Enum.GetNames<LoginFailure>().Select(static name => "Login.Failure." + name))
+            .Concat(Enum.GetNames<EnterWorldFailure>().Select(static name => "CharSelect.EnterFailure." + name))
+            .Concat(Enum.GetNames<CreateCharacterFailure>().Select(static name => "CharSelect.CreateFailure." + name));
 
     private static Task BuiltKeysAsync()
     {

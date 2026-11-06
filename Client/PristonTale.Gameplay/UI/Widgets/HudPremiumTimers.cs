@@ -4,6 +4,7 @@ using PristonTale.Client.Net.Presence;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Items.Usable;
 using PristonTale.Contracts.Units;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -141,7 +142,7 @@ public sealed class HudPremiumTimers
     }
 
     public static string TimeLeft(long seconds) =>
-        string.Create(CultureInfo.InvariantCulture, $"Time left: {seconds / 3600:00}:{seconds / 60 % 60:00}:{seconds % 60:00}");
+        ClientText.Format("Hud.TimeLeft", string.Create(CultureInfo.InvariantCulture, $"{seconds / 3600:00}:{seconds / 60 % 60:00}:{seconds % 60:00}"));
 
     // Rows of the grey cover: 32 minus the time left in 32nds of the smallest standard tier above it.
     public static int Cover(PremiumEffectKind kind, long remainingSeconds)
@@ -164,17 +165,17 @@ public sealed class HudPremiumTimers
 
     public static string Describe(PremiumEffectKind kind, int value) => kind switch
     {
-        PremiumEffectKind.ThirdEyes => $"{value}% Chance of Additional Drop",
-        PremiumEffectKind.ExperienceUp => $"{value}% EXP Boost",
-        PremiumEffectKind.VampiricCuspid or PremiumEffectKind.VampiricCuspidEx => "HP Recharge per hit",
-        PremiumEffectKind.ManaRecharging => "MP Recharge per hit",
-        PremiumEffectKind.MightOfAwell => $"Increase capacity by {value}",
-        PremiumEffectKind.ManaReduce => $"Reduce on usage of MP by {value}%",
-        PremiumEffectKind.PhoenixPet => "EXP +20%, drop chance +50%",
-        PremiumEffectKind.HelpPetTerry => "Reduce on usage of MP by 20%",
-        PremiumEffectKind.HelpPetMute => "Attack power +10%",
-        PremiumEffectKind.HelpPetNepsys or PremiumEffectKind.HelpPetIo => "Fights at your side",
-        PremiumEffectKind.StaminaReduce => $"Reduce on usage of STM by {value}%",
+        PremiumEffectKind.ThirdEyes => ClientText.Format("Premium.ThirdEyes", value),
+        PremiumEffectKind.ExperienceUp => ClientText.Format("Premium.ExperienceUp", value),
+        PremiumEffectKind.VampiricCuspid or PremiumEffectKind.VampiricCuspidEx => ClientText.Get("Premium.Vampiric"),
+        PremiumEffectKind.ManaRecharging => ClientText.Get("Premium.ManaRecharging"),
+        PremiumEffectKind.MightOfAwell => ClientText.Format("Premium.MightOfAwell", value),
+        PremiumEffectKind.ManaReduce => ClientText.Format("Premium.ManaReduce", value),
+        PremiumEffectKind.PhoenixPet => ClientText.Get("Premium.Phoenix"),
+        PremiumEffectKind.HelpPetTerry => ClientText.Format("Premium.ManaReduce", 20),
+        PremiumEffectKind.HelpPetMute => ClientText.Get("Premium.Mute"),
+        PremiumEffectKind.HelpPetNepsys or PremiumEffectKind.HelpPetIo => ClientText.Get("Premium.FightsBeside"),
+        PremiumEffectKind.StaminaReduce => ClientText.Format("Premium.StaminaReduce", value),
         _ => ItemStatuses.Effect(ItemStatuses.PremiumKeepCode(kind)) ?? ""
     };
 

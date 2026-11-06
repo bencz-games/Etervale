@@ -4,6 +4,7 @@ using PristonTale.Gameplay.Audio;
 using PristonTale.Gameplay.Screens.Framework;
 using PristonTale.Gameplay.UI;
 using PristonTale.Contracts.Sessions;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.Screens.Opening;
 
@@ -71,8 +72,8 @@ internal sealed class OpeningLoginController : IDisposable
         if (!succeeded)
         {
             _login.Status = _loginTask.IsCompletedSuccessfully
-                ? _loginTask.Result.Message
-                : "Could not reach the game server.";
+                ? ClientText.Get("Login.Failure." + _loginTask.Result.Failure)
+                : ClientText.Get("Login.Unreachable");
             _login.InputEnabled = true;
             _phase = Phase.Login;
         }
