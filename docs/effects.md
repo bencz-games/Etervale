@@ -417,7 +417,7 @@ Every cast draws `vfx.magician.castcircle` (the Magician's circle textures) unle
 | Dancing Sword | The floating sword by element; strikes by element | `dancingsword.blade[.fire/.ice]`, `dancingsword.strike[.fire/.ice]` |
 | Fire Elemental, Distortion | The cast circle; distorted targets glow red-yellow and wobble | `castcircle`; `statusLook` Distortion |
 | Flame Wave | Five fire streams fanning ahead | `flamewave.wave` |
-| Meteo | Four burning meteors falling around the target, a burst where each lands (once per cast) | `meteo.fall`, `meteo.hit`; `impactEffects` |
+| Meteo | Four burning meteors falling around the target, a burst where each lands, on each of the clip's two events | `meteo.fall`, `meteo.hit` |
 | Silraphim | Casting circle; the Silraphim flash at the target | `vfx.magician.castcircle`, `vfx.magician.silraphim.hit` |
 | Vis Tenus | The shrinking flash at the target, which draws at half its size while shrunk | `vfx.magician.vistenus.beam` |
 | Prima Ignis | Casting circle; the primal fire rolling ahead of the caster | `vfx.magician.primaignis.shot` |

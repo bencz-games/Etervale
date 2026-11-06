@@ -12,7 +12,7 @@
     "areaShape": "Box", "areaCenter": "Caster", "boxWidth": 80, "radius": [130, 134, 138, 142, 146, 150, 154, 158, 162, 166],
     "damage": { "min": [12, 15, 18, 21, 24, 27, 30, 33, 36, 39], "max": [16, 20, 24, 28, 32, 36, 40, 44, 48, 52], "levelDivisor": 2, "levelOnMax": true,
       "noCritical": true, "bonusBroods": ["Normal", "Mutant"], "bonusPercent": 30 },
-    "motionIndex": 102, "motionFrames": 50, "motionEvents": [35], "projectile": true,
+    "motionIndex": 100, "motionFrames": 50, "motionEvents": [35], "projectile": true,
     "castEffect": "vfx.knight.swordblast.blade", "projectileEffect": "vfx.knight.swordblast.projectile",
     "castSound": "wav/Effects/Skill/Morion/SwordBlast 1.wav"
   },
@@ -40,7 +40,7 @@
     "mana": [18, 20, 22, 24, 27, 30, 33, 36, 39, 42], "stamina": [35, 2], "weapons": ["Axe", "Claw", "Sword"],
     "kind": "WeaponAttack", "target": "Enemy", "masteryBase": 82, "masteryPerRank": 2,
     "criticalAdd": [3, 3, 4, 4, 5, 5, 6, 6, 7, 7], "damage": { "percent": [10, 14, 18, 22, 25, 28, 31, 34, 37, 40] },
-    "motionIndex": 104, "motionFrames": 65, "motionEvents": [19, 34],
+    "motionIndex": 102, "motionFrames": 65, "motionEvents": [19, 34],
     "castEffect": "vfx.knight.doublecrash.blade", "impactEffect": "vfx.knight.doublecrash.hit"
   },
   {
@@ -63,7 +63,7 @@
     "kind": "Area", "target": "Enemy", "masteryBase": 82, "masteryPerRank": 2,
     "areaCenter": "Target", "radius": [70, 72, 74, 76, 78, 80, 82, 84, 86, 88],
     "damage": { "attackPower": true, "percent": [10, 16, 22, 28, 34, 40, 46, 52, 58, 64], "noCritical": true },
-    "motionIndex": 108, "motionFrames": 55, "motionEvents": [35],
+    "motionIndex": 105, "motionFrames": 55, "motionEvents": [35],
     "castEffect": "vfx.knight.brandish.blade", "impactEffect": "vfx.knight.brandish.hit",
     "castSound": "wav/Effects/Skill/Morion/Brandish 1.wav", "impactSound": "wav/Effects/Skill/Morion/Brandish 2.wav"
   },
@@ -76,7 +76,7 @@
     "rollsAccuracy": true, "attackRating": [40, 50, 60, 70, 80, 90, 100, 110, 120, 130],
     "damage": { "attackPower": true, "percent": [10, 17, 24, 31, 38, 45, 52, 59, 66, 73], "noCritical": true,
       "bonusBroods": ["Mutant"], "bonusPercent": 30 },
-    "motionIndex": 111, "motionFrames": 50, "motionEvents": [23],
+    "motionIndex": 108, "motionFrames": 50, "motionEvents": [23],
     "castEffect": "vfx.knight.piercing.cast", "impactEffect": "vfx.knight.piercing.thrust", "castSound": "wav/Effects/Skill/Morion/Piercing 2.wav"
   },
   {
@@ -120,7 +120,7 @@
     "range": [120, 120, 120, 120, 120, 120, 120, 120, 120, 120],
     "charm": { "chance": [45, 54, 62, 69, 75, 80, 84, 88, 92, 96], "lifePercent": [100, 120, 140, 160, 180, 200, 220, 240, 260, 280], "broods": ["Undead"] },
     "buff": { "durationTenths": [900, 1100, 1300, 1500, 1700, 1900, 2100, 2300, 2500, 2700], "control": "Charmed", "harmful": true },
-    "motionIndex": 167, "motionFrames": 117, "motionEvents": [90],
+    "motionIndex": 162, "motionFrames": 117, "motionEvents": [90],
     "castEffect": "vfx.knight.incantation.cast", "impactEffect": "vfx.knight.incantation.hit", "buffEffect": "vfx.knight.incantation.charm",
     "impactSound": "wav/Effects/Skill/Morion/Holy Incantation 1.wav"
   },
@@ -132,7 +132,7 @@
     "attackRatingPercent": [35, 40, 45, 50, 55, 60, 65, 70, 75, 80],
     "damage": { "percent": [35, 40, 45, 50, 55, 60, 65, 70, 75, 80], "bonusBroods": ["Undead"],
       "bonusPercentByRank": [5, 10, 15, 20, 25, 30, 35, 40, 45, 50] },
-    "motionIndex": 169, "motionFrames": 65, "motionEvents": [17, 49], "motionSpeedSteps": 1,
+    "motionIndex": 164, "motionFrames": 65, "motionEvents": [17, 49], "motionSpeedSteps": 1,
     "castEffect": "vfx.knight.grandcross.blade", "impactEffect": "vfx.knight.grandcross.hit",
       "impactEffects": ["vfx.knight.grandcross.hit", "vfx.knight.grandcross.hit2"], "impactSounds": ["wav/Effects/Skill/Skill_Swing 02.wav", "wav/Effects/Skill/Morion/GrandCross 2.wav"] },
   {
@@ -143,7 +143,7 @@
     "areaShape": "Box", "areaCenter": "Caster", "boxWidth": 140, "radius": [170, 175, 180, 185, 190, 195, 200, 205, 210, 215],
     "rollsAccuracy": true, "areaIncludesTarget": true,
     "damage": { "attackPower": true, "percent": [100, 110, 120, 130, 140, 150, 160, 170, 180, 190], "noCritical": true },
-    "motionIndex": 175, "motionFrames": 70, "motionEvents": [53],
+    "motionIndex": 170, "motionFrames": 70, "motionEvents": [53],
     "castEffect": "vfx.knight.justice.blade", "impactEffect": "vfx.knight.justice.hit",
     "castSound": "wav/Effects/Skill/Morion/SwordofJustice 01.wav"
   },
@@ -181,10 +181,10 @@
     "mana": [45, 47, 49, 51, 53, 55, 57, 59, 61, 63], "stamina": [51, 2], "weapons": ["Sword"],
     "kind": "WeaponAttack", "target": "Enemy", "masteryBase": 160, "masteryPerRank": 0,
     "damage": { "percent": [10, 14, 18, 22, 20, 25, 30, 35, 30, 35] },
-    "motionIndex": 172, "motionFrames": 65, "motionEvents": [6, 27, 45], "motionSpeed": 90,
+    "motionIndex": 167, "motionFrames": 65, "motionEvents": [6, 27, 45], "motionSpeed": 90,
     "motionVariants": [
-      { "fromRank": 5, "motionIndex": 173, "motionFrames": 97, "motionEvents": [6, 28, 43, 59], "extraEvents": [77] },
-      { "fromRank": 9, "motionIndex": 174, "motionFrames": 130, "motionEvents": [6, 28, 43, 57], "extraEvents": [71, 92, 110] }],
+      { "fromRank": 5, "motionIndex": 168, "motionFrames": 97, "motionEvents": [6, 28, 43, 59], "extraEvents": [77] },
+      { "fromRank": 9, "motionIndex": 169, "motionFrames": 130, "motionEvents": [6, 28, 43, 57], "extraEvents": [71, 92, 110] }],
     "castEffect": "vfx.knight.divinepiercing.blade", "impactEffect": "vfx.knight.divinepiercing.hit",
       "impactSoundOrder": "Final", "impactSounds": ["wav/Effects/Skill/Morion/DIvinePiercing 07.wav"] },
     { "code": "0x05100001", "name": "Soul Breaker", "tier": "Job5", "category": "ActiveAttack", "icon": "MN80 S_Breaker", "description": "Powerful attack into the enemy's soul.", "requiredLevel": 80, "mouse": "Right", "mana": [58, 61, 64, 67, 70, 73, 76, 79, 82, 85], "stamina": [69, 2], "weapons": ["Sword"],

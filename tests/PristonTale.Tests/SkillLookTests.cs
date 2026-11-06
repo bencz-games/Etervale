@@ -216,11 +216,11 @@ internal static class SkillLookTests
         Assert.True(SkillPresentation.ImpactEffectOf(cross, start, 0) == "vfx.knight.grandcross.hit"
             && SkillPresentation.ImpactEffectOf(cross, start, 1) == "vfx.knight.grandcross.hit2"
             && SkillPresentation.ImpactEffectOf(cross, start, 5) == "vfx.knight.grandcross.hit2", "grand cross per-hit effects");
-        // Meteo's closing impact at the end of the motion shows and sounds nothing.
+        // Meteo's meteors fall, and sound, on both of its clip's events.
         var meteo = Rule(Meteo);
-        Assert.True(SkillPresentation.ImpactEffectOf(meteo, start, 0).Length > 0 && SkillPresentation.ImpactEffectOf(meteo, start, 1).Length == 0
-            && SkillPresentation.ImpactSoundFor(meteo, 0, 1, 5, random).Length > 0 && SkillPresentation.ImpactSoundFor(meteo, 1, 1, 5, random).Length == 0,
-            "meteo's closing impact was not silent");
+        Assert.True(SkillPresentation.ImpactEffectOf(meteo, start, 0) == "vfx.magician.meteo.fall" && SkillPresentation.ImpactEffectOf(meteo, start, 1) == "vfx.magician.meteo.fall"
+            && SkillPresentation.ImpactSoundFor(meteo, 0, 1, 5, random).Length > 0 && SkillPresentation.ImpactSoundFor(meteo, 1, 1, 5, random).Length > 0,
+            "meteo's meteors or sound are missing on one of its two strikes");
         return Task.CompletedTask;
     }
 

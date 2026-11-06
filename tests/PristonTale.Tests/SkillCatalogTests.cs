@@ -158,7 +158,8 @@ internal static class SkillCatalogTests
         Assert.True(elemental.Kind == SkillKind.Summon && elemental.At(elemental.Summon.Life, 10) == 3800 && elemental.Summon.Monster == "Fire Elemental",
             "Fire Elemental");
         Rule(0x08080004, out var meteo);
-        Assert.True(meteo.EndHit && meteo.Damage.ResistanceDivisor == 2 && meteo.Damage.SpellPower && meteo.At(meteo.Damage.Min, 10) == 224, "Meteo");
+        Assert.True(meteo.MotionEvents.SequenceEqual([17, 83]) && !meteo.EndHit && meteo.Damage.ResistanceDivisor == 2 && meteo.Damage.SpellPower
+            && meteo.At(meteo.Damage.Min, 10) == 224, "Meteo does not strike on its clip's two events");
         Rule(0x07080004, out var muspell);
         Assert.True(muspell.Buff.Companion is { } companion && muspell.At(companion.IntervalMs, 10) == 4000
             && SkillFormulas.RankValue(companion.Choices[0].Max, 10) == 140 && muspell.Buff.Guard is { OnBlock: false }, "Summon Muspell");
@@ -170,7 +171,7 @@ internal static class SkillCatalogTests
         Rule(0x05080004, out var piercing);
         Assert.True(SkillFormulas.Timing(piercing, 1, 1f, default).HitsAtMs.Length == 3 && SkillFormulas.Timing(piercing, 5, 1f, default).HitsAtMs.Length == 5
             && SkillFormulas.Timing(piercing, 9, 1f, default).HitsAtMs.Length == 7, "Divine Piercing hits do not follow its rank's motion");
-        Assert.True(piercing.ForRank(10).MotionIndex == 174 && piercing.ForRank(4).MotionIndex == 172, "Divine Piercing motion variant");
+        Assert.True(piercing.ForRank(10).MotionIndex == 169 && piercing.ForRank(4).MotionIndex == 167, "Divine Piercing motion variant");
         Rule(0x06040004, out var storm);
         var stormTiming = SkillFormulas.Timing(storm, 1, 1f, default);
         Assert.True(stormTiming.HitsAtMs.Length == 2 && stormTiming.HitsAtMs[1] > stormTiming.DurationMs / 2, "Storm Javelin does not strike once per loop");
