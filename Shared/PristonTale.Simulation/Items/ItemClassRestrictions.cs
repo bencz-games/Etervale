@@ -13,8 +13,25 @@ public static class ItemClassRestrictions
         .Aggregate((JobBitCode)0, static (mask, c) => mask | JobBits.Of(c));
     private const JobBitCode All = Casters | Fighters;
 
+    // The daggers, phantoms and vambraces belong to the Assassin, the Shaman and the Martial Artist, who uses no other weapon.
+    private static readonly (string Family, JobBitCode Owner)[] ClassWeapons =
+        [("WD1", JobBitCode.Assassin), ("WN1", JobBitCode.Shaman), ("WV1", JobBitCode.MartialArtist)];
+
     public static uint AllowedJobs(string key)
     {
+        if (ItemEquipmentMetadata.TryGet(key, out _, out var slot) && slot == EquipmentSlot.Weapon)
+        {
+            foreach (var (family, owner) in ClassWeapons)
+            {
+                if (key.StartsWith(family, StringComparison.OrdinalIgnoreCase))
+                {
+                    return (uint)owner;
+                }
+            }
+
+            return (uint)(All & ~JobBitCode.MartialArtist);
+        }
+
         bool armor = key.StartsWith("DA1", StringComparison.OrdinalIgnoreCase);
         bool robe = key.StartsWith("DA2", StringComparison.OrdinalIgnoreCase);
         if (key.StartsWith("OM1", StringComparison.OrdinalIgnoreCase))

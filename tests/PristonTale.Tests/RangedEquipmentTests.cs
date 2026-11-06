@@ -61,12 +61,18 @@ internal static class RangedEquipmentTests
         Assert.True(EquipmentVisuals.WeaponBone("WV101", false) == "Bip weapon01", "generic vambrace lookup changed");
         var martialArtist = new CharacterClassRegistry().Get(PlayerClass.MartialArtist).Definition;
         var visuals = EquipmentVisuals.Apply(martialArtist.DefaultVisuals, "", "WV101", "", false, martialArtist.MotionJobMask);
-        Assert.True(EquipmentVisuals.WeaponBone(visuals, false) == "Bip01 R Hand"
-            && EquipmentVisuals.WeaponBone(visuals, true) == "Bip01 R Hand"
-            && EquipmentVisuals.TwinBone(visuals, false) == "Bip01 L Hand"
-            && EquipmentVisuals.TwinBone(visuals, true) == "Bip01 L Hand", "Martial Artist's vambraces use the wrong attachment bones");
-        Assert.True(EquipmentVisuals.TwinAttachmentOffset(visuals) is { } offset
-            && offset == Matrix.CreateRotationX(MathHelper.Pi), "Martial Artist's left vambrace is not turned for the left hand");
+        Assert.True(EquipmentVisuals.WeaponBone(visuals, false) == "Bip01 R Forearm"
+            && EquipmentVisuals.WeaponBone(visuals, true) == "Bip01 R Forearm"
+            && EquipmentVisuals.TwinBone(visuals, false) == "Bip01 L Forearm"
+            && EquipmentVisuals.TwinBone(visuals, true) == "Bip01 L Forearm", "Martial Artist's vambraces are not on its forearms");
+        Assert.True(EquipmentVisuals.TwinMeshPath(visuals).EndsWith("LitWV101.smd", StringComparison.Ordinal)
+            && EquipmentVisuals.TwinMeshPath(EquipmentVisuals.Apply(martialArtist.DefaultVisuals, "", "WV151", "", false, martialArtist.MotionJobMask))
+                .EndsWith("LitWV120.smd", StringComparison.Ordinal)
+            && EquipmentVisuals.MotionIndex("WV137") == 361 && EquipmentVisuals.MotionIndex("WV151") == EquipmentVisuals.MotionIndex("WV120"),
+            "the left vambrace is not its own model, or a vambrace lost its motion index");
+        var assassin = new CharacterClassRegistry().Get(PlayerClass.Assassin).Definition;
+        Assert.True(EquipmentVisuals.TwinMeshPath(EquipmentVisuals.Apply(assassin.DefaultVisuals, "", "WD101", "", false, assassin.MotionJobMask))
+            .EndsWith("itWD101.smd", StringComparison.Ordinal), "the Assassin's left dagger is not the dagger's own model");
         return Task.CompletedTask;
     }
 
@@ -92,6 +98,11 @@ internal static class RangedEquipmentTests
         Assert.True(mage.CanEquip(EquipmentSlot.Armor, robe) && !mechanic.CanEquip(EquipmentSlot.Armor, robe), "robe class restriction differs from original");
         Assert.True((ItemClassRestrictions.AllowedJobs("DA131") & (uint)JobBitCode.Archer) == 0, "male costume accepted a female class");
         Assert.True((ItemClassRestrictions.AllowedJobs("DA133") & (uint)JobBitCode.Mechanician) == 0, "female costume accepted a male class");
+        Assert.True(ItemClassRestrictions.AllowedJobs("WD101") == (uint)JobBitCode.Assassin && ItemClassRestrictions.AllowedJobs("WN101") == (uint)JobBitCode.Shaman
+            && ItemClassRestrictions.AllowedJobs("WV101") == (uint)JobBitCode.MartialArtist
+            && (ItemClassRestrictions.AllowedJobs("WA101") & (uint)JobBitCode.MartialArtist) == 0 && (ItemClassRestrictions.AllowedJobs("WA101") & (uint)JobBitCode.Fighter) != 0
+            && ItemClassRestrictions.AllowedJobs("WR101") == 0 && ItemClassRestrictions.AllowedJobs("DS101") == 0,
+            "a class weapon is not its class's alone, the Martial Artist takes another weapon, or a recipe or shield gained a class");
         var specialized = new ItemInstance(new ItemDefinition(3, "Fighter spec", ItemKind.Axe, EquipmentSlot.Weapon)
         {
             SpecializationJobs = (uint)JobBitCode.Fighter,

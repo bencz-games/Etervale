@@ -6,6 +6,7 @@ using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.World.Remote;
 using PristonTale.Persistence.Abstractions.Characters;
 using PristonTale.Simulation.Characters;
+using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.World;
 using Microsoft.Xna.Framework.Graphics;
@@ -22,7 +23,7 @@ internal static class CharacterSelectTests
         yield return ("a new or moved character takes the account's lowest free slot, none past the sixth", FreeSlotAsync);
         yield return ("character-select roster and class positions preserve the original ordering", OriginalPlacementAsync);
         yield return ("character-select face layout scales the authored canvas uniformly", FaceLayoutAsync);
-        yield return ("Assassin and Shaman use the original creation definitions", ExtendedClassDefinitionsAsync);
+        yield return ("the Assassin, the Shaman and the Martial Artist use the original creation definitions and class facts", ExtendedClassDefinitionsAsync);
         yield return ("a text box takes the window's typed text, so a held Backspace or key repeats, and only while focused", TypedTextAsync);
     }
 
@@ -171,6 +172,22 @@ internal static class CharacterSelectTests
 
         Assert.True(assassin.BaseAttributes == new CharacterAttributes(25, 10, 22, 20, 22), "Assassin creation attributes differ from the original");
         Assert.True(shaman.BaseAttributes == new CharacterAttributes(15, 27, 20, 15, 22), "Shaman creation attributes differ from the original");
+        Assert.True(martialArtist.BaseAttributes == new CharacterAttributes(26, 9, 20, 20, 24), "Martial Artist creation attributes differ from the original");
+        Assert.True(CharacterSelectScene.JobCharacterPos(0, 5) == (-90f, -320f) && CharacterSelectScene.JobCharacterPos(2, 5) == (0f, -330f)
+            && CharacterSelectScene.JobCharacterPos(1, 6) == (-54f, -330f) && CharacterSelectScene.JobCharacterPos(5, 6) == (90f, -320f),
+            "the job lineup does not keep its width with five or six classes");
+        Assert.True(assassin.FunctionProfile == new CharacterFunctionProfile(80, 3, 3, 2, 1, 2, 0)
+            && martialArtist.FunctionProfile == assassin.FunctionProfile && shaman.FunctionProfile == new CharacterFunctionProfile(200, 2, 1, 2, 3, 2, 1),
+            "a new class's sight, life, mana, stamina or damage functions differ from the original");
+        var profile = ClassProfiles.Of(PlayerClass.MartialArtist);
+        Assert.True(profile.TitleAt(1) == "Striker" && profile.TitleAt(4) == "Grand Master" && ClassProfiles.Of(PlayerClass.Shaman).TitleAt(3) == "Soul Catcher"
+            && profile.QuestWeapon == "WV109" && profile.BeginnerWeapon == "WV102" && profile.RankUpRing == QuestItems.EmperorRing
+            && ClassProfiles.Of(PlayerClass.Assassin) is { BeginnerWeapon: "WD102" } assassinProfile && assassinProfile.RankUpRing == QuestItems.ArcaneRing
+            && ClassProfiles.Of(PlayerClass.Shaman).BeginnerWeapon == "WN101"
+            && profile.Shift == new RequirementShift(new(10, 15), new(-20, -15), default, new(-20, -15))
+            && assassinProfile.Shift == new RequirementShift(new(5, 15), new(-20, -10), default, new(-20, -15))
+            && ClassProfiles.Of(PlayerClass.Shaman).Shift == new RequirementShift(new(-25, -20), new(15, 25), new(-15, -10), new(-20, -15)),
+            "a new class's titles, quest items or specialization shift differ from the original");
         Assert.True(assassin.DefaultVisuals.Body.InxExtensionPath.EndsWith("e001.inx", StringComparison.OrdinalIgnoreCase), "Assassin body differs from the original");
         Assert.True(shaman.DefaultVisuals.Body.InxExtensionPath.EndsWith("me001.inx", StringComparison.OrdinalIgnoreCase), "Shaman body differs from the original");
         var armoredAssassin = EquipmentVisuals.Apply(assassin.DefaultVisuals, "DA108", "", "", true, assassin.MotionJobMask);

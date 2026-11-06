@@ -20,7 +20,7 @@ internal static class SkillMotionProbe
         foreach (var playerClass in new[]
         {
             PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Knight, PlayerClass.Atalanta,
-            PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin, PlayerClass.Shaman
+            PlayerClass.Priestess, PlayerClass.Magician, PlayerClass.Assassin, PlayerClass.Shaman, PlayerClass.MartialArtist
         })
         {
             var path = classes.Get(playerClass).Definition.DefaultVisuals.Body.InxPath;
@@ -78,7 +78,7 @@ internal static class SkillMotionProbe
     // tags of the eight class groups, as the shipped tables number them.
     private static readonly Dictionary<uint, int> FirstTags = new()
     {
-        [1] = 1, [2] = 21, [3] = 41, [4] = 61, [5] = 81, [6] = 103, [7] = 123, [8] = 143, [0x10] = 163, [0x50] = 183
+        [1] = 1, [2] = 21, [3] = 41, [4] = 61, [5] = 81, [6] = 103, [7] = 123, [8] = 143, [0x10] = 163, [0x20] = 203, [0x50] = 183
     };
 
     public static byte Tag(uint code)

@@ -34,15 +34,14 @@ internal sealed class CharacterSelectScene
         (88f, -55f),
     ];
 
-    private static readonly (float X, float Z)[] JobCharacterPos =
-    [
-        (-112f, -310f),
-        (-67f, -330f),
-        (-22f, -340f),
-        (23f, -340f),
-        (68f, -330f),
-        (113f, -310f),
-    ];
+    // The job lineup stands from -90 to 90: five classes 45 apart, six 36 apart; the two at the ends stand 10 nearer.
+    internal static (float X, float Z) JobCharacterPos(int index, int count)
+    {
+        var spacing = count > 5 ? 36 : 45;
+        return ((2 * index - (count - 1)) * spacing / 2, index == 0 || index == count - 1 ? -320f : -330f);
+    }
+
+    private (float X, float Z) JobSlot(int jobIndex) => JobCharacterPos(_jobActors[jobIndex].SlotIndex, _jobActors.Count);
 
     private static readonly PlayerClass[] TempscronJobs =
         [PlayerClass.Mechanician, PlayerClass.Fighter, PlayerClass.Pikeman, PlayerClass.Archer, PlayerClass.Assassin, PlayerClass.MartialArtist];
@@ -195,7 +194,7 @@ internal sealed class CharacterSelectScene
                 _assetRoot,
                 visuals,
                 0,
-                SlotWorld(JobCharacterPos[i]),
+                SlotWorld(JobCharacterPos(i, jobs.Length)),
                 MotionCode.Stand);
             ApplySelectPose(handles);
             _jobActors.Add(new JobActor(jobs[i], i, visuals, handles));
@@ -253,7 +252,7 @@ internal sealed class CharacterSelectScene
 
         CompleteActiveSlide();
         _forwardSubject = jobIndex;
-        var slot = JobCharacterPos[_jobActors[jobIndex].SlotIndex];
+        var slot = JobSlot(jobIndex);
         StartSlide(
             jobIndex,
             slot.X,
@@ -277,7 +276,7 @@ internal sealed class CharacterSelectScene
             CompleteActiveSlide();
         }
 
-        var slot = JobCharacterPos[_jobActors[jobIndex].SlotIndex];
+        var slot = JobSlot(jobIndex);
         var active = _jobMoverIndex >= 0;
         var startX = active ? _jobMoveX : 0f;
         var startZ = active ? _jobMoveZ : JobRestZ;
@@ -447,13 +446,13 @@ internal sealed class CharacterSelectScene
             var active = _jobMoverIndex >= 0;
             return SlotWorld((active ? _jobMoveX : 0f, active ? _jobMoveZ : JobRestZ), active ? _jobMoveYaw : 0f);
         }
-        return SlotWorld(JobCharacterPos[_jobActors[jobIndex].SlotIndex]);
+        return SlotWorld(JobSlot(jobIndex));
     }
 
     public int PickRoster(Vector2 cursor, Viewport viewport) =>
         PickCharacter(cursor, viewport, _placed.Count, index => _placed[index].Slot);
     public int PickJob(Vector2 cursor, Viewport viewport) =>
-        PickCharacter(cursor, viewport, _jobActors.Count, index => JobCharacterPos[_jobActors[index].SlotIndex]);
+        PickCharacter(cursor, viewport, _jobActors.Count, JobSlot);
 
     public void SetRosterHighlight(int hoveredIndex, int selectedIndex)
     {
@@ -624,7 +623,7 @@ internal sealed class CharacterSelectScene
 
     private Vector3 JobFootWorld(int i)
     {
-        var slot = JobCharacterPos[_jobActors[i].SlotIndex];
+        var slot = JobSlot(i);
         return SlotToWorld(slot, ResolveFloorY(slot));
     }
 

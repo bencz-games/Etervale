@@ -79,7 +79,7 @@ internal static class EquipmentTests
         Assert.True(EquipmentVisuals.MotionIndex("WA126") == EquipmentVisuals.MotionIndex("WA105")
             && EquipmentVisuals.MeshPath("WA126").EndsWith("itWA126.smd", StringComparison.Ordinal) && EquipmentVisuals.HeldInLeftHand("DS125"),
             "an item newer than the motion files has no model, motion or hand");
-        var missingVisual = EquipmentVisuals.Apply(definition.DefaultVisuals, "", "WV137", "DS999", false, definition.MotionJobMask);
+        var missingVisual = EquipmentVisuals.Apply(definition.DefaultVisuals, "", "WV199", "DS999", false, definition.MotionJobMask);
         Assert.True(missingVisual.WeaponKey == "" && missingVisual.OffHandKey == "", "an item without a client model stopped the player appearance");
         Assert.True(EquipmentVisuals.WeaponBone("WA101", true) == "Bip in01", "city weapon not sheathed");
         Assert.True(EquipmentVisuals.WeaponBone("WC101", true) == "Bip weapon01", "claw should remain in hand");

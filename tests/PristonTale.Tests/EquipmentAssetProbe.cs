@@ -14,7 +14,7 @@ internal static class EquipmentAssetProbe
         var registry = new CharacterClassRegistry();
         var loader = new PristonActorLoader();
         var lines = new List<string>();
-        for (int job = 1; job <= (int)PlayerClass.Shaman; job++)
+        for (int job = 1; job <= (int)PlayerClass.MartialArtist; job++)
         {
             var definition = registry.Get((PlayerClass)job).Definition;
             var actor = loader.Load(root, Path.Combine(root, definition.DefaultVisuals.Body.InxExtensionPath.Replace('\\', '/')));
@@ -52,7 +52,7 @@ internal static class EquipmentAssetProbe
     {
         var registry = new CharacterClassRegistry();
         var loader = new PristonActorLoader();
-        string[] weapons = ["WA101", "WC101", "WS101", "WP101", "WT101", "WS201", "WM101", "WM101", "WD101", "WN101"];
+        string[] weapons = ["WA101", "WC101", "WS101", "WP101", "WT101", "WS201", "WM101", "WM101", "WD101", "WN101", "WV101"];
         for (int index = 0; index < weapons.Length; index++)
         {
             var definition = registry.Get((PlayerClass)(index + 1)).Definition;

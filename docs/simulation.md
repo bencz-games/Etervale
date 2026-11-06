@@ -123,8 +123,9 @@ The class also loads its skill window from `ClassSkillCatalog.For(class)` (see [
 | Knight | 6 | 0x10000 | Morion | 26/13/17/19/24 | 190 | 2/2/2/1/2/0 |
 | Magician | 7 | 0x80000 | Morion | 16/29/19/14/21 | 190 | 5/1/3/3/2/1 |
 | Priestess | 8 | 0x40000 | Morion | 15/28/21/15/20 | 200 | 4/1/3/3/2/2 |
-| Assassin | 9 | 0x10 | Tempskron | 25/10/22/20/22 | 80 | 3/3/2/3/1/0 |
-| Shaman | 10 | 0x100000 | Morion | 15/27/20/15/22 | 190 | 5/1/3/3/2/1 |
+| Assassin | 9 | 0x10 | Tempskron | 25/10/22/20/22 | 80 | 3/3/2/1/2/0 |
+| Shaman | 10 | 0x100000 | Morion | 15/27/20/15/22 | 200 | 2/1/2/3/2/1 |
+| Martial Artist | 11 | 0x20 | Tempskron | 26/9/20/20/24 | 80 | 3/3/2/1/2/0 |
 
 - Two job masks exist: `JobBitCode` (non-sequential bits) is used for item class restrictions and item specialization;
   `CharacterClassDef.MotionJobMask = 1 << (Class - 1)` is used for animation tables. Do not mix them. A class's
@@ -135,7 +136,7 @@ The class also loads its skill window from `ClassSkillCatalog.For(class)` (see [
   quests (see [quests.md](quests.md)).
 - Head models: `CharacterHead.Resolve` builds `char/tmABCD/<prefix><variant 01..13><suffix>.inx` from the per-class,
   per-tier pattern in `CharacterHeadModels` (the fifth tier's heads end in `d`; the Priestess's 6 to 9 are spelled
-  `006`..`009`). Assassin and Shaman tiers 1-4 have only the three creation faces;
+  `006`..`009`). Assassin, Shaman and Martial Artist tiers 1-4 have only the three creation faces;
   `Apply` falls back to the face index instead of inventing a file name.
 
 ## Character aggregate
@@ -233,7 +234,8 @@ nothing):
 - `min = 2 + wMin*(primary+divisor)/divisor + secondary + job + (wMin+wMax)/16`
 - `max = 4 + wMax*(primary+divisor)/divisor + secondary + job + items.LevelDamage`
 - `job = Level / 6` when the weapon is the class's favoured kind (Fighter axe, Archer bow, Pikeman pole, Knight sword,
-  Atalanta javelin, Assassin dagger, Magician/Priestess staff, Shaman phantom; Mechanician: weapon specialized for
+  Atalanta javelin, Assassin dagger, Magician/Priestess staff, Shaman phantom, Martial Artist vambrace; Mechanician:
+  weapon specialized for
   Mechanician).
 - Adds the passive weapon mastery bonuses (`PassiveSkills.WeaponBonus`, `PassiveSkillEffects.WeaponBonus`), then
   `ModifierRules.ApplyDamage` (DamageMin/DamageMax totals; max is never below min).
@@ -362,7 +364,8 @@ totals.
   Two-handed weapons are the listed keys of the item table (axes, hammers, staves, poles, bows and swords; claws,
   javelins, daggers, phantoms and vambraces have none). Force orbs (`FO1`) and other families are not wearable.
 - `AllowedJobs` (0 = any class): `DA1` armor for non-casters, `DA2` robes and `OM1` for casters, with fixed key
-  numbers restricted to male-only or female-only classes. A specialization never restricts who may wear an item.
+  numbers restricted to male-only or female-only classes; daggers for the Assassin, phantoms for the Shaman and
+  vambraces for the Martial Artist alone, who wields no other weapon. A specialization never restricts who may wear an item.
 - `ItemInstance`: `InstanceId` (Guid, preserved across moves and copies with `preserveId`), `Count`, `UpgradeLevel`,
   durability, and `Roll` (`ItemRoll`): damage range, attack rating, defence, absorb (one decimal), block (two
   decimals), move speed, life/mana/stamina regeneration, added life/mana/stamina, resistances, requirements, price,
@@ -595,6 +598,3 @@ server steps it per player in `FieldSkills.StepEffects` and resets it on death. 
 - [persistence.md](persistence.md), [world-import.md](world-import.md) - item and character data sources
 - [protocol.md](protocol.md) - how owner state, items and effects travel on the wire
 - [glossary.md](glossary.md)
-- Martial Artist is a female Tempskron melee class using Vambrace weapons. Its class profile uses the `f001` body and
-  `tfh-f` head families; its `f` armour row, starter weapon, item restrictions and five-tier skill catalog are defined
-  alongside the other playable classes.

@@ -11,11 +11,11 @@ public sealed class AssassinClass : CharacterClass
         new MotionFallback(3200, 24, 2400),
         static weapon => weapon.Definition.Kind == ItemKind.Dagger,
         CastingWeapon: null,
-        Shift: null,
+        Shift: new RequirementShift(new(5, 15), new(-20, -10), default, new(-20, -15)),
         QuestWeapon: "WD109",
-        BeginnerWeapon: "",
+        BeginnerWeapon: "WD102",
         QuestWeaponHunt.Melee,
-        QuestItems.EmperorRing,
+        QuestItems.ArcaneRing,
         CharacterBrood.Tempskron,
         Female: true);
 
@@ -28,7 +28,7 @@ public sealed class AssassinClass : CharacterClass
             headInx: "char\\tmABCD\\tfh-e01.inx",
             armorTableIndex: 8,
             new CharacterAttributes(25, 10, 22, 20, 22),
-            new CharacterFunctionProfile(80, 3, 3, 2, 3, 1, 0)))
+            new CharacterFunctionProfile(80, 3, 3, 2, 1, 2, 0)))
     {
     }
 }

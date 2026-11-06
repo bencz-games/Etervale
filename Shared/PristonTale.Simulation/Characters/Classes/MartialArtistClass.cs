@@ -7,12 +7,12 @@ namespace PristonTale.Simulation.Characters.Classes;
 public sealed class MartialArtistClass : CharacterClass
 {
     public static readonly ClassProfile Profile = new(
-        ["Martial Artist", "Combatant", "Master", "Grand Master", "Iron Fist"],
-        new MotionFallback(3520, 22, 2880),
+        ["Martial Artist", "Striker", "Trick Artist", "Master", "Grand Master"],
+        new MotionFallback(3200, 24, 2400),
         static weapon => weapon.Definition.Kind == ItemKind.Vambrace,
         CastingWeapon: null,
-        Shift: new RequirementShift(new(5, 15), new(-20, -10), default, new(-25, -15)),
-        QuestWeapon: "WV108",
+        Shift: new RequirementShift(new(10, 15), new(-20, -15), default, new(-20, -15)),
+        QuestWeapon: "WV109",
         BeginnerWeapon: "WV102",
         QuestWeaponHunt.Melee,
         QuestItems.EmperorRing,
@@ -27,8 +27,8 @@ public sealed class MartialArtistClass : CharacterClass
             bodyInx: "char\\tmABCD\\f001.inx",
             headInx: "char\\tmABCD\\tfh-f01.inx",
             armorTableIndex: 10,
-            new CharacterAttributes(24, 8, 25, 18, 24),
-            new CharacterFunctionProfile(65, 2, 2, 2, 2, 2, 0)))
+            new CharacterAttributes(26, 9, 20, 20, 24),
+            new CharacterFunctionProfile(80, 3, 3, 2, 1, 2, 0)))
     {
     }
 }

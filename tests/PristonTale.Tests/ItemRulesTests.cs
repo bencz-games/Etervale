@@ -93,14 +93,24 @@ internal static class ItemRulesTests
             ("OR101", EquipmentSlot.RingLeft, ItemKind.Ring), ("OR201", EquipmentSlot.RingRight, ItemKind.Ring),
             ("OS101", EquipmentSlot.Sheltom, ItemKind.Sheltom)
         ];
-        var character = Fighter();
+        var fighter = Fighter();
         foreach (var (code, slot, kind) in families)
         {
             var definition = Def(code);
             Assert.True(definition.Kind == kind && definition.IsEquippable, $"{code} is not a wearable {kind}");
             var item = new ItemInstance(definition) { UpgradeLevel = code == "OA101" ? 3 : 0 };
+            // A class weapon is worn by its own class.
+            var character = kind switch
+            {
+                ItemKind.Dagger => new CharacterClassRegistry().CreatePlayer(PlayerClass.Assassin, "Items", 50),
+                ItemKind.Phantom => new CharacterClassRegistry().CreatePlayer(PlayerClass.Shaman, "Items", 50),
+                ItemKind.Vambrace => new CharacterClassRegistry().CreatePlayer(PlayerClass.MartialArtist, "Items", 50),
+                _ => fighter
+            };
             Assert.True(Equip(character, item, slot) && character.GetEquipped(slot)?.InstanceId == item.InstanceId, $"{code} did not equip in {slot}");
         }
+
+        Assert.True(!Equip(fighter, new ItemInstance(Def("WV102")), EquipmentSlot.Weapon), "a Fighter equipped a vambrace");
 
         var orb = Def("OM101");
         Assert.True(orb.Kind == ItemKind.Orb && orb.EquipSlot == EquipmentSlot.OffHand && orb.AllowedJobs != 0, "orbs are not off-hand caster items");

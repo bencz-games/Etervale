@@ -210,6 +210,9 @@ internal static class QuestTests
             "the name branch differs");
         var priestess = Character(PlayerClass.Priestess, "Mira", 20);
         Assert.True(!QuestClasses.IsTempskron(priestess), "the priestess is not Morion");
+        var martialArtist = Character(PlayerClass.MartialArtist, "Mart", 20);
+        Assert.True(QuestClasses.IsTempskron(martialArtist) && QuestClasses.HomeField(martialArtist) == FieldCodes.Ricarten
+            && QuestClasses.RanksUpByTrophies(martialArtist), "the Martial Artist does not take the Tempskron side of the quests");
         var change = Expect(priestess, HomeMaster, QuestAction.ChangeClass, QuestCode.None, 0, "class change failed");
         Assert.True(change.Prompt is { Code: QuestCode.RankUpHoney, Document: "ChangeJob2M_M0" }, "the honey branch was not offered");
         Assert.True(Run(priestess, HomeMaster, QuestAction.Accept, QuestCode.RankUpOil, 0).Status == QuestStatus.Stale, "the other branch was accepted");

@@ -7,13 +7,13 @@ namespace PristonTale.Simulation.Characters.Classes;
 public sealed class ShamanClass : CharacterClass
 {
     public static readonly ClassProfile Profile = new(
-        ["Shaman", "Clairvoyant", "Soul Mage", "Necromancer", "Soul Master"],
+        ["Shaman", "Summoner", "High Summoner", "Soul Catcher", "Soul Master"],
         new MotionFallback(3360, 22, 3040),
         static weapon => weapon.Definition.Kind == ItemKind.Phantom,
         CastingWeapon: ItemKind.Phantom,
-        Shift: null,
+        Shift: new RequirementShift(new(-25, -20), new(15, 25), new(-15, -10), new(-20, -15)),
         QuestWeapon: "WN109",
-        BeginnerWeapon: "",
+        BeginnerWeapon: "WN101",
         QuestWeaponHunt.Field,
         QuestItems.EmperorRing,
         CharacterBrood.Morion,
@@ -28,7 +28,7 @@ public sealed class ShamanClass : CharacterClass
             headInx: "char\\tmABCD\\Mmh-E01.inx",
             armorTableIndex: 9,
             new CharacterAttributes(15, 27, 20, 15, 22),
-            new CharacterFunctionProfile(190, 5, 1, 3, 3, 2, 1)))
+            new CharacterFunctionProfile(200, 2, 1, 2, 3, 2, 1)))
     {
     }
 }

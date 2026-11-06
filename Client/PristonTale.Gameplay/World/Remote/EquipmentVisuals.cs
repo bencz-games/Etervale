@@ -10,14 +10,17 @@ public static class EquipmentVisuals
     private static readonly Dictionary<string, (int Index, string Mesh, bool LeftHand, string VillageBone)> Items = BuildItems();
 
     // A class that carries a family otherwise than the catalog's hand and village bone: the Assassin holds a dagger in
-    // each hand, the left one on its fifth weapon bone, and hangs the two on its back in a village; the Shaman's phantom
-    // floats at its back, drawn or not (Hovers). A null twin bone holds the weapon once.
-    private static readonly (PlayerClass Class, string Family, string Held, string Back, string TwinHeld, string TwinBack, bool Hovers)[] Carries =
+    // each hand, the left one on its fifth weapon bone, and hangs the two on its back in a village; the Martial Artist
+    // wears a vambrace on each forearm, in a village too, the left one its own model (TwinPrefix + the item's model); the
+    // Shaman's phantom floats at its back, drawn or not (Hovers). A null twin bone holds the weapon once.
+    private static readonly Carriage[] Carries =
     [
-        (PlayerClass.Assassin, "WD1", "Bip weapon01", "Bip in07", "Bip weapon05", "Bip in08", false),
-        (PlayerClass.Shaman, "WN1", "Bip in01", "Bip in01", null, null, true),
-        (PlayerClass.MartialArtist, "WV1", "Bip01 R Hand", "Bip01 R Hand", "Bip01 L Hand", "Bip01 L Hand", false)
+        new(PlayerClass.Assassin, "WD1", "Bip weapon01", "Bip in07", "Bip weapon05", "Bip in08", "it", false),
+        new(PlayerClass.Shaman, "WN1", "Bip in01", "Bip in01", null, null, null, true),
+        new(PlayerClass.MartialArtist, "WV1", "Bip01 R Forearm", "Bip01 R Forearm", "Bip01 L Forearm", "Bip01 L Forearm", "Lit", false)
     ];
+
+    private sealed record Carriage(PlayerClass Class, string Family, string Held, string Back, string TwinHeld, string TwinBack, string TwinPrefix, bool Hovers);
 
     // A hovering weapon turns 2250 angle units about its bone's Y axis and moves 10 back along it, then rises 1000 fixed
     // units (the bone frames are mirrored in Z, so the turn runs the other way).
@@ -43,14 +46,16 @@ public static class EquipmentVisuals
 
     public static int MotionIndex(string key) => Items.TryGetValue(key, out var item) ? item.Index : -1;
 
-    public static string MeshPath(string key)
+    public static string MeshPath(string key) => MeshPath(key, "it");
+
+    private static string MeshPath(string key, string prefix)
     {
         if (!Items.TryGetValue(key, out var item))
         {
             throw new InvalidDataException($"No original equipment resource for '{key}'.");
         }
 
-        return $"image/sinimage/Items/DropItem/it{item.Mesh}.smd";
+        return $"image/sinimage/Items/DropItem/{prefix}{item.Mesh}.smd";
     }
 
     public static CharacterVisualSet Apply(CharacterVisualSet defaults, string armor, string weapon, string offHand, bool village, uint jobMask)
@@ -94,14 +99,15 @@ public static class EquipmentVisuals
     public static (Matrix Offset, float Lift)? WeaponHover(CharacterVisualSet visuals) =>
         Carry(visuals) is { Hovers: true } ? (HoverOffset, HoverLift) : null;
 
-    public static Matrix? TwinAttachmentOffset(CharacterVisualSet visuals) =>
-        Carry(visuals) is { Class: PlayerClass.MartialArtist } ? Matrix.CreateRotationX(MathHelper.Pi) : null;
-
     // The bone of the weapon's second copy, or null when the wearer holds it once.
     public static string TwinBone(CharacterVisualSet visuals, bool village) =>
         Carry(visuals) is { TwinHeld: not null } carry ? village ? carry.TwinBack : carry.TwinHeld : null;
 
-    private static (PlayerClass Class, string Family, string Held, string Back, string TwinHeld, string TwinBack, bool Hovers)? Carry(CharacterVisualSet visuals)
+    // The model of the weapon's second copy, or null when the wearer holds it once.
+    public static string TwinMeshPath(CharacterVisualSet visuals) =>
+        Carry(visuals) is { TwinHeld: not null } carry ? MeshPath(visuals.WeaponKey, carry.TwinPrefix) : null;
+
+    private static Carriage Carry(CharacterVisualSet visuals)
     {
         if (!Items.ContainsKey(visuals.WeaponKey))
         {

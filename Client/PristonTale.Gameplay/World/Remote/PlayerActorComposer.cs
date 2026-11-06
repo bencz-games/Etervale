@@ -129,11 +129,13 @@ public sealed class PlayerActorComposer(IActorScene scene, PristonActorLoader ac
         return preparation;
     }
 
+    // The off-hand part is the off-hand item, or the weapon's second copy of a class that holds it twice.
     private static (string Body, string Head, string Weapon, string OffHand) PartPaths(string root, CharacterVisualSet visuals, int face) => (
         Path.Combine(root, visuals.Body.InxExtensionPath),
         Path.Combine(root, CharacterFace.ResolveHeadPath(visuals, face)),
         string.IsNullOrEmpty(visuals.WeaponKey) ? null : Path.Combine(root, EquipmentVisuals.MeshPath(visuals.WeaponKey)),
-        string.IsNullOrEmpty(visuals.OffHandKey) ? null : Path.Combine(root, EquipmentVisuals.MeshPath(visuals.OffHandKey)));
+        !string.IsNullOrEmpty(visuals.OffHandKey) ? Path.Combine(root, EquipmentVisuals.MeshPath(visuals.OffHandKey))
+            : EquipmentVisuals.TwinMeshPath(visuals) is { } twin ? Path.Combine(root, twin) : null);
 
     private Task<PristonActor> Part(string root, string path, bool rigid)
     {
@@ -224,11 +226,12 @@ public sealed class PlayerActorComposer(IActorScene scene, PristonActorLoader ac
                     _scene.SetActorAttachOffset(handles.Weapon, hover.Offset, hover.Lift);
                 }
 
-                if (prepared.OffHand is null && EquipmentVisuals.TwinBone(visuals, visuals.InVillage) is { } twinHeld)
+                if (string.IsNullOrEmpty(visuals.OffHandKey) && prepared.OffHand is not null
+                    && EquipmentVisuals.TwinBone(visuals, visuals.InVillage) is { } twinHeld)
                 {
                     handles = handles with
                     {
-                        OffHand = _scene.AddActor(new PristonActorInstance(prepared.Weapon, world, MotionCode.Stand)
+                        OffHand = _scene.AddActor(new PristonActorInstance(prepared.OffHand, world, MotionCode.Stand)
                         {
                             VisibleInMainPass = visibleInMainPass
                         }),
@@ -236,14 +239,10 @@ public sealed class PlayerActorComposer(IActorScene scene, PristonActorLoader ac
                     };
                     var twinBack = EquipmentVisuals.TwinBone(visuals, village: true);
                     _scene.AttachActor(handles.OffHand, handles.Body, twinHeld, twinBack == twinHeld ? null : twinBack);
-                    if (EquipmentVisuals.TwinAttachmentOffset(visuals) is { } twinOffset)
-                    {
-                        _scene.SetActorAttachOffset(handles.OffHand, twinOffset, 0f);
-                    }
                 }
             }
 
-            if (prepared.OffHand is not null)
+            if (!string.IsNullOrEmpty(visuals.OffHandKey) && prepared.OffHand is not null)
             {
                 handles = handles with
                 {
