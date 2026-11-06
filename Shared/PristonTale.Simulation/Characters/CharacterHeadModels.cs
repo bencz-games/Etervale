@@ -102,7 +102,7 @@ internal static class CharacterHeadModels
             new("tfh-f", "a"),
             new("tfh_f", "b"),
             new("tfh-f", "c"),
-            new("Tfh-f", "d")
+            new("Tfh-f", "d", CharacterFace.FaceCount)
         ]
     };
 
