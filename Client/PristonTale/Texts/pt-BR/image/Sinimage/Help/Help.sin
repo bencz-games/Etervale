@@ -1,0 +1,71 @@
+*Teclado
+1, 2, 3 : Usam os itens colocados no inventário de atalhos.
+   W    : Alterna entre os modos de equipamento.
+   E    : Alterna entre os modos de inventário.
+   R    : Alterna entre correr e andar.
+   S    : Abre ou fecha a janela de habilidades.
+   C    : Abre ou fecha a janela de informações do personagem.
+   V    : Abre ou fecha a janela de inventário.
+   D    : Abre ou fecha a janela de grupo.
+   X    : Abre ou fecha a janela do sistema.
+   Z    : Alterna entre os modos de câmera.
+  Tab   : Mostra ou esconde o minimapa.
+ F1~F8  : Selecionam habilidades.
+ [←] [→] [↓] [↑]  : Aproximam/afastam e giram a câmera.
+Ctrl+[↓] [↑] : Inclinam a câmera para cima/baixo.
+ Enter  : Entra no modo de conversa. Aperte de novo para fechar.
+Barra de espaço: Fecha a janela atual.
+Ctrl+Home: Captura a tela atual.
+           (Salva como .jpg na pasta de capturas do jogo)
+Ctrl+End : Captura a tela atual.
+           (Salva como .bmp na pasta de capturas do jogo)
+Page Up  : Muda a câmera para a visão de cima.
+Page Down: Muda a câmera para a visão de baixo.
+  ESC    : Cancela a ação atual.
+
+
+*Mouse
+Clique esquerdo : .Movimenta o personagem
+                  .Pega itens
+                  .Fala com NPCs
+                  .Move itens
+                  .Botões de menu
+                  .Seleciona a habilidade do botão esquerdo
+Clique direito  : .Seleciona a habilidade do botão direito
+                  .Usa a habilidade selecionada
+Mover o mouse   : Move o ponteiro pela tela.
+Roda para cima/baixo: Inclina a câmera para cima/baixo.
+Arrastar a roda : Para frente/trás aproxima ou afasta.
+                  Para os lados gira a câmera.
+
+
+* Comandos
+ /:nome do personagem <Procurar personagem>
+ /:(digite o nome do personagem procurado)
+
+ /:nome do personagem mensagem <cochicho>
+ /:(nome do personagem) mensagem
+
+ <responder cochicho> Aperte as setas para cima/baixo
+    para cochichar de novo.
+ //nome do personagem <Grupo> //personagem
+    (digite o nome do personagem com quem quer formar grupo)
+
+
+* Troca
+1: Clique no personagem com quem quer trocar.
+2: Aperte o botão de troca para pedir a troca.
+3: Aceita a troca, coloque os itens (ou o ouro) desejados.
+4: Depois de confirmar, aperte o botão de troca para concluir.
+
+* Grupo
+1: Clique no personagem com quem quer formar grupo.
+2: Aperte o botão no canto superior direito para
+ pedir o grupo.
+
+* Adicionar à lista de amigos
+1: Clique no personagem de quem quer ser amigo.
+2: Aperte o botão no canto superior direito para
+  registrá-lo como amigo.
+3: Depois de registrado, clique duas vezes no nome para cochichar.
+   (o nome aparecerá na caixa de conversa)

@@ -23,6 +23,10 @@
         <None Remove="Icon.bmp"/>
     </ItemGroup>
     <ItemGroup>
+        <!-- Translations of the data's texts, read beside the executable (HudTextFiles). -->
+        <None Update="Texts\**\*" CopyToOutputDirectory="PreserveNewest" />
+    </ItemGroup>
+    <ItemGroup>
         <EmbeddedResource Include="Icon.ico">
             <LogicalName>Icon.ico</LogicalName>
         </EmbeddedResource>

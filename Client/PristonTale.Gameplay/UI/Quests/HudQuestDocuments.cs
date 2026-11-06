@@ -15,7 +15,7 @@ public sealed partial class HudQuestDocuments(string assetRoot, IClientLog log)
 
     private static readonly Encoding Latin = CreateEncoding();
     private readonly HudTextFiles _files = new(assetRoot, Latin, log, "Quest");
-    private readonly Dictionary<(string Path, int Width), string[]> _wrapped = new();
+    private readonly Dictionary<(string Language, string Path, int Width), string[]> _wrapped = new();
 
     public static string DialogPath(string document) => $"{DialogFolder}/{document}.sin";
 
@@ -27,7 +27,7 @@ public sealed partial class HudQuestDocuments(string assetRoot, IClientLog log)
     // The lines of a file wrapped to a width in design pixels, or null while it loads.
     public string[] Wrapped(string relativePath, SpriteFont font, int width)
     {
-        if (_wrapped.TryGetValue((relativePath, width), out var wrapped))
+        if (_wrapped.TryGetValue((Localization.ClientText.Language, relativePath, width), out var wrapped))
         {
             return wrapped;
         }
@@ -61,7 +61,7 @@ public sealed partial class HudQuestDocuments(string assetRoot, IClientLog log)
         }
 
         wrapped = result.ToArray();
-        _wrapped[(relativePath, width)] = wrapped;
+        _wrapped[(Localization.ClientText.Language, relativePath, width)] = wrapped;
         return wrapped;
     }
 

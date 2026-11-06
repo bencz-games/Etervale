@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Gameplay.UI.Rendering;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Help;
 
@@ -70,6 +71,7 @@ public sealed class HudHelpWindow(HudTextFiles texts, Action<string> requestArt)
     private static readonly (char Arrow, char Plain)[] Arrows = [('←', '<'), ('→', '>'), ('↓', 'v'), ('↑', '^')];
 
     private LevelGuideBook _book;
+    private string _language = ClientText.Language;
     // The subjects reached, the latest first, for the level and book they were taken for.
     private readonly List<(int Level, string Subject)> _subjects = new();
     private (int Level, LevelGuideBook Book) _subjectsFor;
@@ -89,11 +91,28 @@ public sealed class HudHelpWindow(HudTextFiles texts, Action<string> requestArt)
     public int Level { get; set; }
     public bool Tempskron { get; set; }
 
+    // The texts read in another language are read again in the shown one.
+    private void FollowLanguage()
+    {
+        if (_language == ClientText.Language)
+        {
+            return;
+        }
+
+        _language = ClientText.Language;
+        _book = null;
+        _subjects.Clear();
+        _subjectsFor = default;
+        _helpLines = null;
+        _pageLines = null;
+    }
+
     // The guide's data, empty until both its files are read.
     public LevelGuideBook Book
     {
         get
         {
+            FollowLanguage();
             if (_book is null && texts.Lines(LevelGuideBook.SubjectsFile) is { } subjects && texts.Lines(LevelGuideBook.ContentFile) is { } content)
             {
                 _book = LevelGuideBook.Parse(string.Join('\n', subjects), string.Join('\n', content));
@@ -270,6 +289,7 @@ public sealed class HudHelpWindow(HudTextFiles texts, Action<string> requestArt)
 
     private void DrawHelp(HudPainter painter)
     {
+        FollowLanguage();
         if (_helpLines is null && texts.Lines(HelpFile) is { } lines)
         {
             _helpLines = [.. lines.SelectMany(line => line.Length == 0 ? [""] : HudTextLayout.Wrap(Drawable(painter, line), TextRight - HelpTextX, text => painter.Measure(text)))];
@@ -308,6 +328,7 @@ public sealed class HudHelpWindow(HudTextFiles texts, Action<string> requestArt)
         }
 
         // A page that needs the scroll bar starts further left, so it wraps again from there.
+        FollowLanguage();
         if (_pageLines is null && texts.Lines(_page.TextPath) is { } lines)
         {
             _pageLines = WrapAround(painter, lines, PageTextXWithoutBar, _page.ImagePath is not null);

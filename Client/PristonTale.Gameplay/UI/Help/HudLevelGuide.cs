@@ -37,6 +37,7 @@ public sealed class HudLevelGuide(HudTextFiles texts, Action<string> requestArt)
     private LevelGuidePage _page;
     private bool _summary;
     private string[] _lines;
+    private string _language = ClientText.Language;
 
     public bool Showing => _page is not null;
 
@@ -105,6 +106,12 @@ public sealed class HudLevelGuide(HudTextFiles texts, Action<string> requestArt)
             painter.Sprite(HudHelpArt.Notice[(int)(nowMs / BlinkMs) % 2], Icon.X, Icon.Y);
             painter.Sprite(HudHelpArt.GuideLabel, LabelAt.X, LabelAt.Y);
             return;
+        }
+
+        if (_language != ClientText.Language)
+        {
+            _language = ClientText.Language;
+            _lines = null;
         }
 
         _lines ??= Wrap(painter);

@@ -3,20 +3,25 @@ using System.Text;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Assets;
 using PristonTale.Engine3D.IO;
+using PristonTale.Gameplay.Localization;
+using PristonTale.Engine3D.Rendering;
 
 namespace PristonTale.Gameplay.UI.Rendering;
 
 // Text files of the client's data in one encoding, read on the thread pool and kept: until a file is read its lines are
 // null, and a missing or unreadable file reads as no lines. Tabs become spaces, lines lose their trailing spaces and the
-// text its blank lines before and after.
-public sealed class HudTextFiles(string assetRoot, Encoding encoding, IClientLog log, string tag)
+// text its blank lines before and after. In another language than English a translation beside the executable,
+// Texts/<language>/<the file's path> in UTF-8, is read instead when there is one; each language keeps its own copies.
+public sealed class HudTextFiles(string assetRoot, Encoding encoding, IClientLog log, string tag, string translationRoot = null)
 {
-    private readonly ConcurrentDictionary<string, string[]> _texts = new(StringComparer.OrdinalIgnoreCase);
-    private readonly ConcurrentDictionary<string, byte> _loading = new(StringComparer.OrdinalIgnoreCase);
+    private readonly string _translationRoot = translationRoot ?? DefaultTranslationRoot;
+    private readonly ConcurrentDictionary<string, LanguageTexts> _languages = new(StringComparer.Ordinal);
 
-    public bool IsLoading => !_loading.IsEmpty;
+    public static string DefaultTranslationRoot => Path.Combine(AppContext.BaseDirectory, "Texts");
 
-    // The lines of a file, or null while it loads.
+    public bool IsLoading => _languages.Values.Any(static texts => !texts.Loading.IsEmpty);
+
+    // The lines of a file in the shown language, or null while it loads.
     public string[] Lines(string relativePath)
     {
         if (string.IsNullOrEmpty(relativePath))
@@ -24,14 +29,16 @@ public sealed class HudTextFiles(string assetRoot, Encoding encoding, IClientLog
             return [];
         }
 
-        if (_texts.TryGetValue(relativePath, out var lines))
+        var language = ClientText.Language;
+        var texts = _languages.GetOrAdd(language, static _ => new LanguageTexts());
+        if (texts.Lines.TryGetValue(relativePath, out var lines))
         {
             return lines;
         }
 
-        if (_loading.TryAdd(relativePath, 0))
+        if (texts.Loading.TryAdd(relativePath, 0))
         {
-            _ = Task.Run(() => Load(relativePath));
+            _ = Task.Run(() => Load(texts, language, relativePath));
         }
 
         return null;
@@ -56,13 +63,18 @@ public sealed class HudTextFiles(string assetRoot, Encoding encoding, IClientLog
         return lines[first..last].Select(static line => line.TrimEnd()).ToArray();
     }
 
-    private void Load(string relativePath)
+    private void Load(LanguageTexts texts, string language, string relativePath)
     {
         string[] lines = [];
         try
         {
+            var translated = language == ClientSettings.EnglishLanguage ? null : Path.Combine(_translationRoot, language, relativePath);
             var path = Path.Combine(assetRoot, relativePath);
-            if (AssetFiles.Exists(path))
+            if (translated is not null && File.Exists(translated))
+            {
+                lines = Decode(File.ReadAllBytes(translated), Encoding.UTF8);
+            }
+            else if (AssetFiles.Exists(path))
             {
                 lines = Decode(AssetFiles.ReadAllBytes(path), encoding);
             }
@@ -76,7 +88,14 @@ public sealed class HudTextFiles(string assetRoot, Encoding encoding, IClientLog
             log.Error($"[{tag}] cannot read {relativePath}", exception);
         }
 
-        _texts[relativePath] = lines;
-        _loading.TryRemove(relativePath, out _);
+        texts.Lines[relativePath] = lines;
+        texts.Loading.TryRemove(relativePath, out _);
+    }
+
+    private sealed class LanguageTexts
+    {
+        public ConcurrentDictionary<string, string[]> Lines { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+        public ConcurrentDictionary<string, byte> Loading { get; } = new(StringComparer.OrdinalIgnoreCase);
     }
 }

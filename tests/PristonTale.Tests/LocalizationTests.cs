@@ -34,7 +34,7 @@ internal static partial class LocalizationTests
         yield return ("data texts show the data in English and its translation in Brazilian Portuguese", DataLanguageAsync);
     }
 
-    private static string RepositoryRoot()
+    internal static string RepositoryRoot()
     {
         for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
         {

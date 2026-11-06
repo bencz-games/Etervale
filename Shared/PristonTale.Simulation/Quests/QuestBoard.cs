@@ -73,6 +73,9 @@ public static class QuestBoard
         ["Fury's phantasma[5]", "Fury's phantasma(Complete)", "HaQuest\\Quest_100State_5.msg", "HaQuest\\Quest_100State_6.msg"]
     ];
 
+    // Every description file the window can open, under the client's quest board folder.
+    public static IEnumerable<string> Documents => Rows.Concat(BeginnerRows).SelectMany(static row => row.Skip(2)).Distinct(StringComparer.Ordinal);
+
     // Every title the window can show, open and finished.
     public static IEnumerable<string> Titles => Rows.Concat(BeginnerRows).SelectMany(static row => row.Take(2)).Distinct(StringComparer.Ordinal);
 
