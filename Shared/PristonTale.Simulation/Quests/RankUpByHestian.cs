@@ -89,7 +89,7 @@ public static class RankUpByHestian
                 break;
             case GemHeld when QuestInventory.Count(context.Character, QuestItems.GemOfHestian) == 1:
                 context.Show(QuestSteps.Confirm(Code, GemHeld, "ChangeJob5_5End", QuestTexts.RankUpFifth,
-                    QuestTexts.Name(ClassProfiles.Of(QuestClasses.ClassOf(context.Character)).TitleAt(context.Character.Tier + 1))));
+                    QuestTexts.ClassTitle(QuestClasses.ClassOf(context.Character), context.Character.Tier + 1)));
                 break;
             default:
                 return false;

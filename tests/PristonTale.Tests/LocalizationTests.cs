@@ -11,6 +11,7 @@ using PristonTale.Contracts.Texts;
 using PristonTale.Simulation.Skills;
 using PristonTale.Simulation.Characters;
 using PristonTale.Contracts.Characters;
+using PristonTale.Simulation.Quests;
 
 namespace PristonTale.Tests;
 
@@ -97,7 +98,7 @@ internal static partial class LocalizationTests
             .Concat(Enum.GetNames<LoginFailure>().Select(static name => "Login.Failure." + name))
             .Concat(Enum.GetNames<EnterWorldFailure>().Select(static name => "CharSelect.EnterFailure." + name))
             .Concat(Enum.GetNames<CreateCharacterFailure>().Select(static name => "CharSelect.CreateFailure." + name))
-            .Concat(Enum.GetValues<GameTextId>().Where(static id => id != GameTextId.None).Select(ClientText.GameKey));
+            .Concat(Enum.GetValues<GameTextId>().Where(static id => id is not (GameTextId.None or GameTextId.ClassTitle)).Select(ClientText.GameKey));
 
     private static Task BuiltKeysAsync()
     {
@@ -128,6 +129,7 @@ internal static partial class LocalizationTests
         try
         {
             ClientText.Use(ClientSettings.BrazilianPortugueseLanguage);
+            Assert.True(ClientText.Format(QuestTexts.ClassTitle(PlayerClass.Knight, 1)) == "Paladino", "a class title of the server is not worded from the data");
             Assert.True(DataText.SkillName(mastery) == "Maestria Corpo a Corpo" && DataText.ClassTitle(PlayerClass.Fighter, 0) == "Lutador"
                 && DataText.ClassTitle(PlayerClass.Fighter, 9) == "Senhor da Guerra", "the data texts are not shown in Brazilian Portuguese");
             ClientText.Use(ClientSettings.EnglishLanguage);

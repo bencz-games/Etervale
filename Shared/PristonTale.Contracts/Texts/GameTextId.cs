@@ -31,8 +31,11 @@ public enum GameTextId : ushort
     // The client could not reach the server.
     ConnectionError = 17,
 
-    // {0} a name the server words (an item, a class title, a destination).
+    // {0} a name the server words (an item, a destination).
     Name = 18,
+
+    // A class title the client words from its data: {0} the PlayerClass number, {1} the tier.
+    ClassTitle = 19,
 
     // Item use.
     ItemUsed = 100,

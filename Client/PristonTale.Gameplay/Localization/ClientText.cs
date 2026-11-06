@@ -3,6 +3,7 @@ using System.Resources;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Contracts.Texts;
 using System.Collections.Concurrent;
+using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Gameplay.Localization;
 
@@ -42,10 +43,17 @@ public static class ClientText
 
     // A line of the server or the simulation, worded by the phrase GameKey names.
     public static string Format(GameText text) => text.IsNone ? ""
+        : text.Id == GameTextId.ClassTitle ? ClassTitle(text)
         : text.Args.IsEmpty ? Get(GameKey(text.Id))
         : string.Format(CultureInfo.InvariantCulture, Get(GameKey(text.Id)), [.. text.Args]);
 
     public static string Get(GameTextId id) => Get(GameKey(id));
+
+    private static string ClassTitle(GameText text) =>
+        text.Args is [var playerClass, var tier] && int.TryParse(playerClass, CultureInfo.InvariantCulture, out var number)
+            && Enum.IsDefined((PlayerClass)number) && int.TryParse(tier, CultureInfo.InvariantCulture, out var index)
+            ? DataText.ClassTitle((PlayerClass)number, index)
+            : "";
 
     // Built once per id: the HUD words some game texts every frame.
     public static string GameKey(GameTextId id) => GameKeys.GetOrAdd(id, static key => "Game." + key);

@@ -118,7 +118,7 @@ public static class RankUpRules
 
     public static QuestPrompt RankUpPrompt(QuestContext context, QuestCode code, int state, string document) =>
         QuestSteps.Confirm(code, state, document, QuestTexts.RankUp,
-            QuestTexts.Name(ClassProfiles.Of(QuestClasses.ClassOf(context.Character)).TitleAt(context.Character.Tier + 1)));
+            QuestTexts.ClassTitle(QuestClasses.ClassOf(context.Character), context.Character.Tier + 1));
 
     // Moves the class one tier up; the master then offers one free redistribution of the learned skills.
     public static void RankUp(QuestContext context)

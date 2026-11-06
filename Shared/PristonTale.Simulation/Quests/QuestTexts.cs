@@ -1,5 +1,6 @@
 using System.Globalization;
 using PristonTale.Contracts.Texts;
+using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Simulation.Quests;
 
@@ -61,8 +62,10 @@ public static class QuestTexts
 
     public static GameText QuestItemGone(string item) => GameText.Of(GameTextId.QuestItemGone, item);
 
-    // A data name shown as it is: an item, a class title, a destination.
+    // A data name shown as it is: an item, a destination.
     public static GameText Name(string name) => GameText.Of(GameTextId.Name, name);
+
+    public static GameText ClassTitle(PlayerClass playerClass, int tier) => GameText.Of(GameTextId.ClassTitle, Number((int)playerClass), Number(tier));
 
     public static readonly string[] FuryRewardNames =
     [
