@@ -95,7 +95,7 @@ internal static class PersonalShopTests
             "both read the sale");
 
         var replay = await fixture.RunAsync(shops.BuyAsync(buyer.Session.SessionToken, purchase));
-        Assert.True(replay.Outcome is { Ok: true, Message: "already committed" } && buyer.Session.Character.Money == 4000, "a retried purchase pays once");
+        Assert.True(replay.Outcome is { Ok: true, Message.Id: GameTextId.AlreadyApplied } && buyer.Session.Character.Money == 4000, "a retried purchase pays once");
         var conflict = await fixture.RunAsync(shops.BuyAsync(buyer.Session.SessionToken, purchase with { Count = 2 }));
         Assert.True(conflict.Outcome.Status == PersonalShopStatus.Conflict, "the same operation id with another purchase is a conflict");
     }
@@ -226,7 +226,7 @@ internal static class PersonalShopTests
 
         Assert.True(await seller.Session.SaveGate.WaitAsync(0), "the seller's gate is taken again");
         var replay = await fixture.RunAsync(shops.BuyAsync(buyer.Session.SessionToken, purchase));
-        Assert.True(replay.Outcome is { Ok: true, Message: "already committed" }, "a retried purchase answers its first outcome while the seller is busy");
+        Assert.True(replay.Outcome is { Ok: true, Message.Id: GameTextId.AlreadyApplied }, "a retried purchase answers its first outcome while the seller is busy");
         seller.Session.SaveGate.Release();
     }
 
@@ -262,7 +262,8 @@ internal static class PersonalShopTests
         var view = new PersonalShopViewPacket(id, 9);
         Assert.True(RoundTrip(view.Write, PersonalShopViewPacket.Read) == view && RoundTrip(new PersonalShopClosePacket(id).Write, PersonalShopClosePacket.Read).OperationId == id,
             "the view and close requests round-trip");
-        var result = new PersonalShopResultPacket(id, (byte)PersonalShopAction.Buy, (ushort)PersonalShopStatus.CountChanged, 6, 18, 50, "The number of items are wrong");
+        var result = new PersonalShopResultPacket(id, (byte)PersonalShopAction.Buy, (ushort)PersonalShopStatus.CountChanged, 6, 18, 50,
+            PersonalShopMessages.Of(PersonalShopStatus.CountChanged));
         Assert.True(RoundTrip(result.Write, PersonalShopResultPacket.Read) == result, "the result round-trips");
 
         PersonalShopOfferWire[] offers = [new(new StoreItemEntry(item, 0x0101_0100, (byte)ItemKind.Axe, 1, 0, 2, 3, "Stone Axe"), 1000)];

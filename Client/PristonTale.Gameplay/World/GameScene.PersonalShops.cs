@@ -20,5 +20,5 @@ public sealed partial class GameScene : IPersonalShopClient
         _playChannel?.BuyFromPersonalShopAsync(purchase, _presenceCts.Token) ?? Unavailable();
 
     private static Task<PersonalShopReply> Unavailable() =>
-        Task.FromResult(new PersonalShopReply(new PersonalShopOutcome(false, PersonalShopStatus.Rejected, 0, NoConnection)));
+        Task.FromResult(new PersonalShopReply(new PersonalShopOutcome(false, PersonalShopStatus.Rejected, 0, PristonTale.Contracts.Texts.GameText.None)));
 }

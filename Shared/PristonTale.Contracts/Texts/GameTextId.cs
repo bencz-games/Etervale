@@ -94,5 +94,16 @@ public enum GameTextId : ushort
     WarehouseUnreadable = 312,
     EnterWorldFirst = 313,
     CloseTradeFirst = 314,
-    AlreadyTalking = 315
+    AlreadyTalking = 315,
+
+    // Personal shops.
+    ShopNotInTown = 400,
+    ShopNotListable = 401,
+    SellerShopClosed = 402,
+    ShopSoldOut = 403,
+    ShopCountChanged = 404,
+    ShopPriceChanged = 405,
+    ShopTradePending = 406,
+    SellerNotFound = 407,
+    PersonalShopRefused = 408
 }

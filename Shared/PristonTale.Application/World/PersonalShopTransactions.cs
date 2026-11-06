@@ -3,6 +3,7 @@ using PristonTale.Persistence.Abstractions.Characters;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.PersonalShops;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -64,7 +65,7 @@ internal static class PersonalShopTransactions
         if (original.ShopPurchases.Find(purchase.OperationId) is { } applied)
         {
             return applied.Purchase == purchase
-                ? Final(original, new PersonalShopOutcome(true, PersonalShopStatus.Ok, applied.Revision, "already committed"))
+                ? Final(original, new PersonalShopOutcome(true, PersonalShopStatus.Ok, applied.Revision, GameText.Of(GameTextId.AlreadyApplied)))
                 : Final(original, PersonalShopOutcome.Failed(PersonalShopStatus.Conflict, revision));
         }
 
@@ -105,7 +106,7 @@ internal static class PersonalShopTransactions
             price, item!.DisplayName);
     }
 
-    private static PersonalShopOutcome Done(long revision) => new(true, PersonalShopStatus.Ok, revision, "");
+    private static PersonalShopOutcome Done(long revision) => new(true, PersonalShopStatus.Ok, revision, GameText.None);
 
     private static PreparedShopPurchase Final(PlayerCharacter original, PersonalShopOutcome outcome) => new(original, null, null, outcome);
 }

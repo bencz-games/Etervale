@@ -7,6 +7,7 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.PersonalShops;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Gameplay.UI.PersonalShops;
 
@@ -58,7 +59,7 @@ public sealed class HudPersonalShopController(IClientLog log)
     {
         if (!inTown && !Selling)
         {
-            Notify(PersonalShopMessages.Of(PersonalShopStatus.NotInTown));
+            Notify(ClientText.Format(PersonalShopMessages.Of(PersonalShopStatus.NotInTown)));
             return;
         }
 
@@ -119,7 +120,7 @@ public sealed class HudPersonalShopController(IClientLog log)
 
         if (!PersonalShopRules.IsListable(item.Kind, item.CatalogKey))
         {
-            Notify(PersonalShopMessages.Of(PersonalShopStatus.NotListable));
+            Notify(ClientText.Format(PersonalShopMessages.Of(PersonalShopStatus.NotListable)));
             return true;
         }
 
@@ -127,7 +128,7 @@ public sealed class HudPersonalShopController(IClientLog log)
         var highest = Math.Min(PersonalShopRules.MaxPrice, room / Math.Max(1, item.Count));
         if (highest < 1)
         {
-            Notify(PersonalShopMessages.Of(PersonalShopStatus.GoldLimit));
+            Notify(ClientText.Format(PersonalShopMessages.Of(PersonalShopStatus.GoldLimit)));
             return true;
         }
 
@@ -267,7 +268,7 @@ public sealed class HudPersonalShopController(IClientLog log)
         var affordable = offer.UnitPrice > 0 ? (_state?.Money ?? 0) / offer.UnitPrice : 0;
         if (affordable < 1)
         {
-            Notify(PersonalShopMessages.Of(PersonalShopStatus.NotEnoughGold));
+            Notify(ClientText.Format(PersonalShopMessages.Of(PersonalShopStatus.NotEnoughGold)));
             return;
         }
 
@@ -293,12 +294,12 @@ public sealed class HudPersonalShopController(IClientLog log)
     {
         if (_request.Pending)
         {
-            Notify(PersonalShopMessages.Of(PersonalShopStatus.Busy));
+            Notify(ClientText.Format(PersonalShopMessages.Of(PersonalShopStatus.Busy)));
             return;
         }
 
         (_sent, _sentTo) = (action, sellerId);
-        _request.Start(send, _ => new PersonalShopReply(new PersonalShopOutcome(false, PersonalShopStatus.Rejected, 0, HudRequest.ConnectionError)));
+        _request.Start(send, _ => new PersonalShopReply(new PersonalShopOutcome(false, PersonalShopStatus.Rejected, 0, GameText.None)));
     }
 
     // A view shows the shop unless the player's own listing took the window meanwhile; a purchase refreshes the shop it was
@@ -332,7 +333,8 @@ public sealed class HudPersonalShopController(IClientLog log)
 
         if (!reply.Outcome.Ok)
         {
-            Notify(reply.Outcome.Message);
+            // A refusal without a line is the client's own: the server was not reached.
+            Notify(reply.Outcome.Message.IsNone ? HudRequest.ConnectionError : ClientText.Format(reply.Outcome.Message));
         }
     }
 }

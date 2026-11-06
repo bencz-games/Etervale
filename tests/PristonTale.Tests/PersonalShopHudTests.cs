@@ -7,6 +7,8 @@ using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.PersonalShops;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Texts;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Tests;
 
@@ -55,7 +57,7 @@ internal static class PersonalShopHudTests
         shop.Update(state, 0);
 
         shop.OpenOwn(inTown: false);
-        Assert.True(!shop.Window.IsOpen && notes[^1] == PersonalShopMessages.Of(PersonalShopStatus.NotInTown), "a shop opens in a town only");
+        Assert.True(!shop.Window.IsOpen && notes[^1] == ClientText.Format(PersonalShopMessages.Of(PersonalShopStatus.NotInTown)), "a shop opens in a town only");
         shop.OpenOwn(inTown: true);
         shop.Window.Advance(1);
         Assert.True(shop.InterceptBagClick(Potions) && asked is { First: "Selling price per unit", Highest: 19_900 },
@@ -134,7 +136,7 @@ internal static class PersonalShopHudTests
         public (string Sign, IReadOnlyList<PersonalShopEntry> Entries)? Opened { get; private set; }
         public PersonalShopPurchase? Bought { get; private set; }
 
-        private static Task<PersonalShopReply> Done() => Task.FromResult(new PersonalShopReply(new PersonalShopOutcome(true, PersonalShopStatus.Ok, 8, "")));
+        private static Task<PersonalShopReply> Done() => Task.FromResult(new PersonalShopReply(new PersonalShopOutcome(true, PersonalShopStatus.Ok, 8, GameText.None)));
 
         public Task<PersonalShopReply> OpenPersonalShopAsync(string sign, IReadOnlyList<PersonalShopEntry> entries)
         {

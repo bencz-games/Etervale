@@ -1,5 +1,6 @@
 using PristonTale.Application.Sessions;
 using PristonTale.Simulation.PersonalShops;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Application.World;
 
@@ -36,7 +37,7 @@ public sealed partial class WorldServer
             }
 
             return PersonalShopTransactions.CanReach(viewer, seller.Player)
-                ? new PersonalShopReply(new PersonalShopOutcome(true, PersonalShopStatus.Ok, revision, ""), Listing(seller, viewer))
+                ? new PersonalShopReply(new PersonalShopOutcome(true, PersonalShopStatus.Ok, revision, GameText.None), Listing(seller, viewer))
                 : new PersonalShopReply(PersonalShopOutcome.Failed(PersonalShopStatus.OutOfReach, revision));
         });
     }

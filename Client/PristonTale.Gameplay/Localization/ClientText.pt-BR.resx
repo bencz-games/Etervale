@@ -117,16 +117,25 @@
   <data name="Game.OperationConflict" xml:space="preserve"><value>Conflito de identidade da operação</value></data>
   <data name="Game.OtherTownMaster" xml:space="preserve"><value>Este mestre treina as classes de outra cidade</value></data>
   <data name="Game.OverWeight" xml:space="preserve"><value>Você excedeu o limite de peso do inventário</value></data>
+  <data name="Game.PersonalShopRefused" xml:space="preserve"><value>A loja pessoal recusou</value></data>
   <data name="Game.PickupNoRoom" xml:space="preserve"><value>Inventário cheio ou limite de ouro atingido</value></data>
   <data name="Game.PotionNotNow" xml:space="preserve"><value>Você não pode usar outra poção agora</value></data>
   <data name="Game.PotionNotStored" xml:space="preserve"><value>Poções não podem ser guardadas</value></data>
   <data name="Game.ProgressionRefused" xml:space="preserve"><value>Requisitos não atendidos ou o personagem mudou; tente de novo</value></data>
   <data name="Game.RequestRefused" xml:space="preserve"><value>O pedido foi recusado</value></data>
   <data name="Game.SameAttributeRunning" xml:space="preserve"><value>Um item com o mesmo atributo já está em uso</value></data>
+  <data name="Game.SellerNotFound" xml:space="preserve"><value>O vendedor não foi encontrado</value></data>
+  <data name="Game.SellerShopClosed" xml:space="preserve"><value>A loja do vendedor está fechada</value></data>
   <data name="Game.ServiceNotAvailable" xml:space="preserve"><value>Este serviço ainda não está disponível</value></data>
   <data name="Game.ServiceStale" xml:space="preserve"><value>O inventário ou o armazém mudou; tente de novo</value></data>
   <data name="Game.ShopBuysAndRepairs" xml:space="preserve"><value>Esta loja só compra e conserta</value></data>
+  <data name="Game.ShopCountChanged" xml:space="preserve"><value>A quantidade de itens está errada</value></data>
+  <data name="Game.ShopNotInTown" xml:space="preserve"><value>Uma loja pessoal só abre em uma cidade</value></data>
+  <data name="Game.ShopNotListable" xml:space="preserve"><value>O item não pode ser vendido na loja pessoal.</value></data>
+  <data name="Game.ShopPriceChanged" xml:space="preserve"><value>O preço do item mudou</value></data>
   <data name="Game.ShopRefused" xml:space="preserve"><value>A loja recusou</value></data>
+  <data name="Game.ShopSoldOut" xml:space="preserve"><value>O item já foi vendido</value></data>
+  <data name="Game.ShopTradePending" xml:space="preserve"><value>Uma troca ainda está pendente; tente de novo</value></data>
   <data name="Game.SkillMasterAway" xml:space="preserve"><value>Aproxime-se, vivo, do mestre de habilidades da sua cidade</value></data>
   <data name="Game.SkillsMastered" xml:space="preserve"><value>O treino das habilidades está completo</value></data>
   <data name="Game.SkillsReset" xml:space="preserve"><value>Seus pontos de habilidade podem ser distribuídos de novo</value></data>

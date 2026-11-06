@@ -1,6 +1,7 @@
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Simulation.PersonalShops;
 
@@ -15,7 +16,7 @@ public enum PersonalShopAction : byte
 
 // What a request came to. Revision is the requester's inventory revision; UnitPrice and Count name what the shop offers
 // now when a purchase met another price or fewer units.
-public sealed record PersonalShopOutcome(bool Ok, PersonalShopStatus Status, long Revision, string Message, long UnitPrice = 0, int Count = 0)
+public sealed record PersonalShopOutcome(bool Ok, PersonalShopStatus Status, long Revision, GameText Message, long UnitPrice = 0, int Count = 0)
 {
     public static PersonalShopOutcome Failed(PersonalShopStatus status, long revision, long unitPrice = 0, int count = 0) =>
         new(false, status, revision, PersonalShopMessages.Of(status), unitPrice, count);
@@ -48,27 +49,26 @@ public sealed record PersonalShopReply(PersonalShopOutcome Outcome, PersonalShop
 // The texts a player sees, as the original words them.
 public static class PersonalShopMessages
 {
-    public static string Of(PersonalShopStatus status) => status switch
+    public static GameText Of(PersonalShopStatus status) => status == PersonalShopStatus.Ok ? GameText.None : GameText.Of(status switch
     {
-        PersonalShopStatus.Ok => "",
-        PersonalShopStatus.NotInTown => "A personal shop opens only in a town",
-        PersonalShopStatus.NotListable => "The item can not be sold to personal shop.",
-        PersonalShopStatus.GoldLimit => ItemRuleMessages.GoldLimit,
-        PersonalShopStatus.Closed => "The seller's private store is closed",
-        PersonalShopStatus.SoldOut => "The item was sold already",
-        PersonalShopStatus.CountChanged => "The number of items are wrong",
-        PersonalShopStatus.PriceChanged => "Item price was changed",
-        PersonalShopStatus.NotEnoughGold => ItemRuleMessages.NotEnoughGold,
-        PersonalShopStatus.NoSpace => ItemRuleMessages.NoSpace,
-        PersonalShopStatus.OverWeight => ItemRuleMessages.OverWeight,
-        PersonalShopStatus.Busy => "A trade is still pending; try again",
-        PersonalShopStatus.StorageFailed => ItemRuleMessages.TradeStorageFailed,
-        PersonalShopStatus.Stale => ItemRuleMessages.StaleInventory,
-        PersonalShopStatus.OutOfReach => "The seller is not found",
-        PersonalShopStatus.Conflict => "operation identity conflict",
-        PersonalShopStatus.Selling => "Close your personal shop first",
-        _ => "The personal shop refused"
-    };
+        PersonalShopStatus.NotInTown => GameTextId.ShopNotInTown,
+        PersonalShopStatus.NotListable => GameTextId.ShopNotListable,
+        PersonalShopStatus.GoldLimit => GameTextId.GoldLimit,
+        PersonalShopStatus.Closed => GameTextId.SellerShopClosed,
+        PersonalShopStatus.SoldOut => GameTextId.ShopSoldOut,
+        PersonalShopStatus.CountChanged => GameTextId.ShopCountChanged,
+        PersonalShopStatus.PriceChanged => GameTextId.ShopPriceChanged,
+        PersonalShopStatus.NotEnoughGold => GameTextId.NotEnoughGold,
+        PersonalShopStatus.NoSpace => GameTextId.NoSpace,
+        PersonalShopStatus.OverWeight => GameTextId.OverWeight,
+        PersonalShopStatus.Busy => GameTextId.ShopTradePending,
+        PersonalShopStatus.StorageFailed => GameTextId.StorageRejected,
+        PersonalShopStatus.Stale => GameTextId.StaleInventory,
+        PersonalShopStatus.OutOfReach => GameTextId.SellerNotFound,
+        PersonalShopStatus.Conflict => GameTextId.OperationConflict,
+        PersonalShopStatus.Selling => GameTextId.CloseShopFirst,
+        _ => GameTextId.PersonalShopRefused
+    });
 
     // The line the seller and the buyer read when a sale goes through.
     public static string Sold(string buyer, int count, string item, long price) =>

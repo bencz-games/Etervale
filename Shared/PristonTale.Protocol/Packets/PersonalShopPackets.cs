@@ -1,5 +1,6 @@
 using PristonTale.Contracts.Social;
 using PristonTale.Protocol.Binary;
+using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Protocol.Packets;
 
@@ -144,11 +145,11 @@ public sealed record PersonalShopBuyPacket(Guid OperationId, ulong SellerId, Gui
 }
 
 // S->C: what a request came to. {header, Guid OperationId, uint8 Action, uint8 0, uint16 Status, int32 Count, int64 Revision,
-// int64 UnitPrice, text Message}. Count and UnitPrice name what the shop offers now after a changed count or price.
-public sealed record PersonalShopResultPacket(Guid OperationId, byte Action, ushort Status, int Count, long Revision, long UnitPrice, string Message)
+// int64 UnitPrice, game text Message}. Count and UnitPrice name what the shop offers now after a changed count or price.
+public sealed record PersonalShopResultPacket(Guid OperationId, byte Action, ushort Status, int Count, long Revision, long UnitPrice, GameText Message)
 {
-    private const int MinimumSize = 8 + WireHeader.Size + 16 + 4 + 4 + 8 + 8 + 2;
-    public const int MaxSize = MinimumSize + NpcWire.MaxMessageBytes;
+    private const int MinimumSize = 8 + WireHeader.Size + 16 + 4 + 4 + 8 + 8 + GameTextWire.MinimumSize;
+    public const int MaxSize = MinimumSize - GameTextWire.MinimumSize + GameTextWire.MaximumSize;
 
     public bool Ok => Status == 0;
 
@@ -163,7 +164,7 @@ public sealed record PersonalShopResultPacket(Guid OperationId, byte Action, ush
         writer.Int32(Count);
         writer.Int64(Revision);
         writer.Int64(UnitPrice);
-        Utf8Text.Write(ref writer, Message, NpcWire.MaxMessageBytes);
+        GameTextWire.Write(ref writer, Message);
         return writer.Finish();
     }
 
@@ -178,7 +179,7 @@ public sealed record PersonalShopResultPacket(Guid OperationId, byte Action, ush
         var count = reader.Int32();
         var revision = reader.Int64();
         var price = reader.Int64();
-        return new PersonalShopResultPacket(operation, action, status, count, revision, price, PersonalShopWire.Text(ref reader, NpcWire.MaxMessageBytes));
+        return new PersonalShopResultPacket(operation, action, status, count, revision, price, GameTextWire.Read(ref reader));
     }
 }
 
