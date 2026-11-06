@@ -110,7 +110,9 @@ internal static class FieldAudioTests
         Assert.True(codes.Contains(0x1600) && codes.Contains(CharacterSoundCodes.Wolverine) && codes.Contains(CharacterSoundCodes.Morif)
             && Enumerable.Range(1, 11).All(codes.Contains), "a monster, NPC or class bank is missing");
         Assert.True(CharacterSoundCodes.Resolve("Furia") == CharacterSoundCodes.Fury, "the red gladiator lost the Fury's sounds");
-        foreach (var keyword in (string[])["Greedy", "Hestian", "ISoldier", "Lizard_Papa", "UndeadStalker", "Yagditha", "Soldier_D"])
+        foreach (var keyword in (string[])["Greedy", "Hestian", "ISoldier", "Lizard_Papa", "UndeadStalker", "Yagditha", "Soldier_D",
+            "Adevayo", "Amesyst", "Amonk", "Aragonian", "CrystalWrath", "Deius", "Grangium", "Korpion", "Oblanko", "QuartzBat",
+            "QuartzSaurus", "Raeda", "Rakoo", "Roblanko", "Sylers", "Tees", "Toos", "UndeadSlave", "Ziddane"])
         {
             var code = CharacterSoundCodes.Resolve(keyword);
             Assert.True(code >= 0x6000 && codes.Contains(code), $"the newer monster sound {keyword} has no code or bank");

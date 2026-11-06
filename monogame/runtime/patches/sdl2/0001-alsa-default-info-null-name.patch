@@ -5,11 +5,10 @@ it creates the mastering voice, so the first sound on the ALSA backend segfaults
 snd_card_get_name allocates for the caller. Applied by build.sh to the pinned SDL2 (externals.txt).
 --- a/src/audio/alsa/SDL_alsa_audio.c
 +++ b/src/audio/alsa/SDL_alsa_audio.c
-@@ -510,9 +510,14 @@
+@@ -510,10 +510,15 @@
      card_index = ALSA_snd_pcm_info_get_card(pcm_info);
      dev_name = ALSA_snd_pcm_info_get_name(pcm_info);
--
-+
+
 +    /* Etervale fork (monogame/issues/010): `name` may be NULL (SDL_GetDefaultAudioInfo's contract; FAudio passes NULL),
 +       and the card name from snd_card_get_name is the caller's to free. */
      if (card_index >= 0 && ALSA_snd_card_get_name(card_index, &card_name) >= 0) {
@@ -24,3 +23,4 @@ snd_card_get_name allocates for the caller. Applied by build.sh to the pinned SD
 +    } else if (name) {
          *name = SDL_strdup(dev_name ? dev_name : "Unknown ALSA Device");
      }
+ 
