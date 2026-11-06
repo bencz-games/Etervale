@@ -126,10 +126,10 @@ The game data's texts (skill names and descriptions, class titles, quest window 
 translates them by key (`Skill.<code>.Name`, `Skill.<code>.Description`, `Class.<PlayerClass>.<tier>`, `Quest.<title>`), and a text a
 language lacks shows as the data words it. `LocalizationTests` checks that every skill, class title and quest title has its translation
 and that every translation names game data.
-The data's text files (help, level guide, quest dialogs and quest window descriptions) are read from a translation
+The data's text files (help, level guide, helper pet, quest dialogs and quest window descriptions) are read from a translation
 beside the executable when the shown language has one: `Texts/<language>/<the file's path under the assets>`, in UTF-8
 (`HudTextFiles`; the repository keeps them in `Client/PristonTale/Texts`). A file without a translation reads the
-asset. `HelpGuideTests` checks that the Brazilian Portuguese texts translate the help, the level guide's subjects and
+asset. `HelpGuideTests` checks that the Brazilian Portuguese texts translate the help, the level guide's subjects, the helper pet and
 every quest window description, and translate nothing else.
 
 ## In-game Settings panel

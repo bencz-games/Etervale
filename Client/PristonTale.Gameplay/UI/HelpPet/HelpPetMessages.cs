@@ -1,10 +1,13 @@
 using PristonTale.Assets;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.IO;
+using PristonTale.Engine3D.Rendering;
+using PristonTale.Gameplay.UI.Rendering;
 
 namespace PristonTale.Gameplay.UI.HelpPet;
 
-// The helper pet's texts, read from the client's data (code page 949): a section opens with a "*Topic" line, holds one
+// The helper pet's texts, read from the client's data (code page 949), or in another language than English from its
+// translation beside the executable (Texts/<language>/<FilePath>, UTF-8) when there is one: a section opens with a "*Topic" line, holds one
 // quoted line per message and closes with "end". A message runs from its first quote to the next one, or to the end of
 // the line when the closing quote is missing or is an apostrophe (the file has both); a line of two quoted parts keeps
 // the first. Lines outside a section are ignored.
@@ -63,12 +66,19 @@ public sealed class HelpPetMessages
         return new HelpPetMessages(topics);
     }
 
-    // Reads the file on the thread pool; a missing or unreadable file gives no messages.
-    public static Task<HelpPetMessages> LoadAsync(string assetRoot, IClientLog log) => Task.Run(() =>
+    // Reads the file in a language on the thread pool; a missing or unreadable file gives no messages.
+    public static Task<HelpPetMessages> LoadAsync(string assetRoot, IClientLog log, string language = ClientSettings.EnglishLanguage,
+        string translationRoot = null) => Task.Run(() =>
     {
         var path = Path.Combine(assetRoot, FilePath);
+        var translated = language == ClientSettings.EnglishLanguage ? null : Path.Combine(translationRoot ?? HudTextFiles.DefaultTranslationRoot, language, FilePath);
         try
         {
+            if (translated is not null && File.Exists(translated))
+            {
+                return Parse(System.Text.Encoding.UTF8.GetString(File.ReadAllBytes(translated)));
+            }
+
             if (AssetFiles.Exists(path))
             {
                 return Parse(Cp949.Encoding.GetString(AssetFiles.ReadAllBytes(path)));

@@ -183,7 +183,8 @@ public sealed partial class GameplayHud : IDisposable
         _sprites.Request(HudChatWindow.Art);
         _sprites.Request(HudChatBubbles.Art);
         _chat.Lookup = id => (Combat.KindOf(id, out var owner), owner);
-        _helpPet = new HudHelpPet(HelpPetMessages.LoadAsync(context.AssetRoot, context.Log), new Random(), context.Log);
+        _helpPet = new HudHelpPet(HelpPetMessages.LoadAsync(context.AssetRoot, context.Log, ClientText.Language), new Random(), context.Log,
+            language => HelpPetMessages.LoadAsync(context.AssetRoot, context.Log, language));
         _sprites.Request(HudHelpPet.Art);
         SetUpParty();
         SetUpTrade();

@@ -1,0 +1,411 @@
+*PetKind
+"Dragão de Fogo   ASTERYAN"
+"Dragão da Água   KRONAPSYS"
+"Dragão do Vento  RINDBEOR"
+"Dragão da Terra  BAHAMUT"
+end
+
+*PetName
+"Terry"
+"Napsys"
+"EOR"
+"Mut"
+end
+
+*Welcom_ALL
+"Prazer em conhecer! Sou descendente do( %s )."
+"Ainda não tenho nome, mas pode me chamar de( %s )."
+"Ouvi dizer que você é um dos guerreiros escolhidos, mas parece fraquinho."
+"Tudo bem~ Humanos e dragões crescem juntos"
+"Não se preocupe, eu posso ajudar. Vamos aprender juntos"
+end
+
+*Welcom_Tems
+"Bem-vindo a PristonTale."
+"Esta é a cidade de Ricarten, no sul da terra de Priston."
+"Aqui você compra qualquer equipamento de caça."
+"Os jogadores de nível baixo devem passar nas lojas com frequência."
+"Primeiro, dê uma volta por Ricarten e converse com os moradores."
+end
+
+*Welcom_Mora
+"Bem-vindo a PristonTale."
+"Esta é a cidade de Pillai, no norte da terra de Priston."
+"Aqui você compra qualquer equipamento de caça."
+"Os jogadores de nível baixo devem passar nas lojas com frequência."
+"Primeiro, dê uma volta por esta cidade e converse com os moradores."
+end
+
+
+*ChatBox
+"Aqui você vê a nossa conversa"
+"O que você quer perguntar?"
+"Podemos conversar agora?"
+"É só digitar o que quer dizer."
+end
+
+
+*ChatTab_All
+"Quer falar com todo mundo?"
+"Todo mundo escuta você"
+"Quer mais informações?"
+end
+
+
+*ChatTab_Clan
+"Quer falar com o seu clã?"
+"Só os jogadores do clã escutam você."
+"Quer mais informações?"
+end
+
+
+*ChatTab_Party
+"Quer falar com os jogadores do seu grupo?"
+"Só os membros do grupo escutam você."
+"Eu também sou do seu grupo^^"
+end
+
+
+*ChatTab_Trade
+"É muito prático para vender ou comprar alguma coisa."
+"Escreva o que você quer trocar."
+"Quer vender seus equipamentos?"
+end
+
+
+*ChatTab_Whisper
+"Quer falar com uma pessoa em particular?"
+"Só essa pessoa escuta você."
+"cochichando, cochichando..."
+end
+
+*Bar_Stamina
+"Aqui você vê a sua stamina."
+"A stamina diminui quando você corre ou se move."
+"Corre comigo?"
+end
+*Bar_Life
+"Aqui você vê o seu HP."
+"O HP diminui quando um monstro ataca você."
+"Sem HP suficiente, você cai.-_-"
+end
+*LeftSkill
+"Use a habilidade clicando com o botão esquerdo do mouse."
+"A imagem do ‘Soco’ é o ataque normal."
+"Opa! Não me ataque!"
+end
+*RightSkill
+"Use a habilidade clicando com o botão direito do mouse."
+"Depois de aprender a habilidade, registre-a aqui para usá-la com facilidade."
+"A partir do nível 10 você pode aprender uma habilidade."
+end
+*Bar_Mana
+"Aqui você vê a sua mana."
+"A mana diminui quando você usa habilidades ou magia."
+"Não dá para comprar mana em nenhuma loja."
+end
+*DayandNight
+"Esta barra mostra a hora real da terra de Priston."
+"Se você vê o Sol, é dia.."
+"Se você vê a Lua, é noite-_-"
+end
+*Bar_Exp
+"Aqui você vê a sua EXP."
+"Quando a barra enche, você sobe de nível!!"
+"Quanto tempo falta para o próximo nível?"
+end
+*Exp_Num
+"Aqui você vê a EXP do seu nível (%)."
+"Quando a EXP chega a 100%, você sobe de nível!"
+"Falta muito para subir de nível?"
+end
+*Potion_ShortKey
+"É muito útil na caça."
+"A quantidade de poções depende do bracelete."
+"Glub glub…"
+"Você usou a poção do primeiro espaço."
+"Você usou a poção do segundo espaço."
+"Você usou a poção do terceiro espaço."
+end
+*RunAndWalk
+"Você pode escolher correr ou andar."
+"CORRER? ANDAR?"
+"Corre! Temos muito o que fazer!"
+"Este atalho alterna entre correr e andar."
+end
+*Camera_Hand
+"Você está vendo a tela no modo manual."
+"Você pode escolher outra visão."
+"Gostou desta?"
+end
+*Camera_Auto
+"Você está vendo a tela no modo automático."
+"Você pode escolher outra visão."
+"Não gire demais. Que tontura…"
+end
+*Camera_Fix
+"Você está vendo a tela no modo travado."
+"Você pode escolher outra visão."
+"Está me vendo bem?"
+end
+*Mini_Map
+"Este mapa mostra onde você está, de forma simples."
+"Você vê amigos, lojas, armazém e portais num relance."
+"Você não me encontra no mapa. Estou sempre com você..^^"
+"Você pode abrir e fechar."
+end
+*CarStatus
+"Quer saber a sua EXP e o seu nível?"
+"Veja! Aqui você confere o poder de ataque, a defesa etc..."
+"Está curioso para saber o meu nível?"
+"Este atalho abre e fecha as informações do personagem."
+end
+*InvenTory
+"Posso ver os seus itens?"
+"Você não pega um item se o inventário estiver cheio ou sem espaço."
+"Me dá um pouquinho-_-;;;"
+"Este atalho abre e fecha o inventário de itens."
+end
+*Skill
+"Posso ver as suas habilidades?"
+"Todas as habilidades podem ser registradas aqui para depois."
+"Nossa! Você ainda não tem nenhuma habilidade."
+"Este atalho abre e fecha a janela de habilidades."
+end
+*Party
+"Aqui você vê os jogadores do seu grupo."
+"O grupo pode ter no máximo 6 pessoas."
+"Você pode formar grupo com até 6 pessoas."
+"Este atalho abre e fecha a janela de grupo."
+end
+*Quest
+"Aqui você confere a quest em andamento."
+"Confira sua quest na janela de quests."
+"Quer que eu faça por você-_-? Faça você mesmo!"
+"Este atalho abre e fecha a janela de quests."
+end
+*System
+"Aqui você vê o guia ou fecha o jogo."
+"Precisa de um guia? Quer sair?"
+"Vai me deixar sozinho? Odeio você..ㅠ_ㅠ"
+"Este atalho abre o menu do sistema."
+end
+*InvenTory_Item
+"Este é o seu item."
+"Para onde você quer mover?"
+"Que item você usou?"
+end
+*Drop_Item
+"Você pode pegar o item!"
+"Pegue todos os itens. Tudo ajuda!"
+"Pegou alguma coisa? Me dá um pouco~"
+end
+*Monster
+"Um monstro!! Vamos atacar~!!!"
+"Ânimo! Você consegue vencer!"
+"Você ainda não tem nenhuma habilidade...-_-;"
+end
+*Message
+"Precisa da minha ajuda?"
+"Ainda sou um dragão filhote, não tenho força suficiente. Vamos ficar fortes!"
+"Minha arma mais poderosa é a minha fofura. Ho Ho"
+end
+*Battle_Message
+"Muito bem! Use o ataque automático segurando Shift e clicando com o botão direito do mouse."
+"Ânimo~"
+"Ânimo! Parece que você está quase subindo de nível~"
+"Só mais um pouco~ mais~ Força!"
+"PARECE CANSADO~ Descanse um pouco."
+"Agora você não tem penalidade por morte, mas ela pesa nos níveis altos."
+"Não precisa de uma poção?"
+"Você está ficando mais forte!!"
+"Eu vou crescer junto com você."
+"Se o inventário encher, vá à cidade vender seus itens."
+"Iá~ É o meu ataque" ou "HP~"
+"Ufa, ufa, é difícil ajudar alguém..ㅜ.ㅜ"
+"Vamos brincar juntos~"
+"Se ganhar um item ótimo, me dá metade!"
+"...Você é mais forte do que eu esperava."
+"Estou com fome! Vamos comer alguma coisa primeiro.."
+"Ganhou algum item ótimo?"
+"Ficando cansado..."
+"Ataque poderoso ou HP~ Iá!"
+"Se conseguir um cristal, use-o: um monstro vira seu amigo."
+"Vamos~ Vamos jogar PT até amanhã!"
+"Coragem~ Ânimo! Coragem~"
+"Jogar com a pessoa amada é mais divertido, você tem alguém?"
+"Que dia bom, não é?"
+"Lá lá lá~ lá lá lá~"
+"Para usar uma habilidade, você precisa do nível 10~ Ânimo~"
+"Oh! Parece que você está quase subindo de nível! Estou ajudando?"
+end
+*Normal_Message
+"Oh! Quando será que vou virar um dragão de verdade?'
+"Dia bom para ganhar um item ótimo, não é?'
+"Você se sente seguro enquanto eu estou com você, não é?"
+"Zzz. Cochilei, desculpe."
+"Não é bom jogar demais."
+"Já ouviu falar de aging e de mistura?"
+"Que dia bom, não é?"
+"Lá lá lá~ lá lá lá~"
+"Jogar com a pessoa amada é mais divertido, você tem alguém?"
+end
+*Level_Message2-1
+"Parabéns! Você subiu de nível!"
+"A cada nível você recebe 5 pontos de atributo. Distribua os pontos na janela de informações do personagem."
+"Seu personagem cresce distribuindo os pontos entre força, espírito, talento, agilidade e saúde."
+"Agora aperte C."
+end
+*Level_Message2-2
+"Força: ataque, STM, recuperação de STM, HP, absorção e peso aumentam."
+"Espírito: ataque mágico, MP e recuperação de MP aumentam."
+"Talento: taxa de ataque, poder de ataque, defesa, STM, velocidade e absorção aumentam."
+"Agilidade: dano das armas de tiro, taxa de ataque e defesa aumentam."
+"Saúde: HP, recuperação de HP, STM, peso e recuperação de MP aumentam."
+end
+*Level_Message3
+"Em Pristontale há teclas de atalho para usar poções com facilidade quando quiser recuperar o HP, a STM e o MP do personagem."
+"Coloque as poções no inventário de atalhos, no centro da parte de baixo, e use-as com as teclas 1 a 3."
+"Sabia que a quantidade de poções depende do bracelete?"
+end
+*Level_Message4
+"Há um minimapa no canto inferior direito."
+"Ele mostra onde você está agora."
+"Ele mostra em que campo você está."
+"Ele mostra os NPCs em verde e seus companheiros em amarelo."
+"Com ele você observa os arredores."
+"Ligue e desligue o minimapa com a tecla Tab."
+end
+*Level_Message5
+"Você pode equipar 2 armas e alternar entre elas."
+"Vamos trocar de arma: aperte V e depois W, ou a seta, no inventário."
+"E troque de arma conforme a situação."
+"Assim você caça monstros com mais vantagem."
+end
+*Level_Message6-1
+"Em Pristontale existe o sistema de grupos."
+"Você pode se juntar a outros jogadores para caçar.
+"Um grupo tem de 2 a 6 jogadores."
+"A EXP e o ouro são divididos entre os jogadores do grupo."
+"Você pode conversar com os jogadores do grupo."
+end
+*Level_Message6-2
+"Mas, se houver mais de 10 níveis de diferença do personagem,"
+"pode ser que você não consiga formar grupo."
+"Clique no personagem para formar grupo,"
+"aperte o botão de convite e pergunte se ele quer entrar."
+"Se ele aceitar, vocês estão em grupo!"
+end
+*Level_Message7
+"O portal é um jeito de ir de um lugar a outro num instante."
+"Com os portais você chega a lugares distantes."
+"Os portais de Pillai e Ricarten são grátis."
+"Para ir e vir de vários campos, você precisa de uma asa"
+"do inventor dos portais em Ricarten. Já o conheceu?"
+end
+*Level_Message8
+"Procure o artesão de misturas em Ricarten"
+"e misture seus equipamentos para fortalecê-los.
+"Para misturar você gasta sheltoms e ouro,"
+"mas é um jeito seguro de aumentar a capacidade dos equipamentos."
+"Cuidado! Depois de misturar, não dá para misturar de novo."
+end
+*Level_Message9-1
+"Procure o artesão de aging"
+"e faça aging nos seus itens para fortalecê-los."
+"Para fazer aging você gasta sheltoms e ouro."
+"Um item pode passar por aging 9 vezes no total."
+end
+*Level_Message9-2
+"O item com aging brilha com várias cores a cada etapa, é incrível!"
+"Mas, quanto mais etapas, maior a chance de falha."
+"Se falhar, você pode perder os sheltoms, o ouro e o item."
+"Cuidado~!"
+end
+*Level_Message10-1
+"Parabéns! Você chegou ao nível 10. Agora você segue como um guerreiro de verdade."
+"Já falei com o mestre de habilidades de Ricarten e de Pillai."
+"O mestre de habilidades vai ensinar a habilidade de que você precisa."
+"Você aprende uma habilidade com o mestre de habilidades."
+"E ganha 1 ponto de habilidade a cada 2 níveis~"
+end
+*Level_Message10-2
+"Quanto maior o nível da habilidade, mais forte ela é."
+"Agora é hora de dizer adeus."
+"Vamos nos encontrar de novo quando você for um grande guerreiro."
+"Porque é uma promessa entre o guerreiro e o dragão."
+"Prometa que vai ser um grande guerreiro^^"
+"Vou sentir muito a sua falta..."
+end
+*Special_Message8_Mecha
+"O Mecânico é um personagem talentoso"
+"que usa as armas mais variadas da terra de Priston."
+"O Mecânico usa as armas com especialização de mecânico."
+"Acima do nível 20, o mestre de habilidades de Ricarten ajuda você a subir de rank."
+end
+*Special_Message8_Fighter
+"O Lutador é o personagem mais resistente da terra de Priston."
+"O Lutador usa principalmente machados."
+"Para dano forte, use armas de duas mãos;"
+"para defesa e poder de ataque, use armas de uma mão."
+"Acima do nível 20, o mestre de habilidades de Ricarten ajuda você a subir de rank."
+end
+*Special_Message8_Pikeman
+"O Piqueiro luta em muitas batalhas com habilidades e armas esplêndidas!"
+"O Piqueiro usa principalmente lanças."
+"Ele tem as habilidades mais fortes para ferir os inimigos de perto…"
+"Mas não usa escudo, por isso é fraco na defesa."
+"Acima do nível 20, o mestre de habilidades de Ricarten ajuda você a subir de rank."
+end
+*Special_Message8_Archer
+"A Arqueira mostra aos monstros a força do seu arco à distância!"
+"Ela usa principalmente arcos."
+"Um tiro, uma morte! Sonhando em ser atiradora de elite~"
+"Acima do nível 20, o mestre de habilidades de Pillai ajuda você a subir de rank."
+end
+*Special_Message8_Assassin
+"A Assassina é a única guerreira entre os Tempskrons."
+"Ela usa duas lâminas para fazer ataques rápidos."
+"Em situações difíceis, também usa a sombra, o veneno e as armadilhas para ameaçar os inimigos."
+"Ao chegar ao nível 20, o mestre de habilidades de Ricarten ajuda você a subir de rank."
+end
+*Special_Message8_Knight
+"O Cavaleiro segue o caminho do Cavaleiro Santo desta terra."
+"O Cavaleiro usa principalmente espadas."
+"Acima do nível 20, o mestre de magia de Pillai ajuda você a subir de rank."
+end
+*Special_Message8_Atalanta
+"A Atalanta é uma guerreira que percorre a terra com seu dardo!"
+"A Atalanta usa principalmente dardos."
+"Acima do nível 20, o mestre de magia de Pillai ajuda você a subir de rank."
+end
+*Special_Message8_Priestess
+"A Sacerdotisa é uma santa que ajuda as pessoas seguindo a palavra de Deus."
+"A Sacerdotisa usa principalmente cajados ou varinhas."
+"A Sacerdotisa desta terra faz ataques à distância poderosos"
+"e também cumpre o papel de curar."
+"Acima do nível 20, o mestre de magia de Pillai ajuda você a subir de rank."
+end
+*Special_Message8_Magician
+"O Mago usa o poder da magia com a força do espírito, em vez de treinar o corpo."
+"O Mago usa principalmente cajados ou varinhas."
+"Ainda é fraco agora, mas, conforme sobe de nível, mostra todo o seu talento."
+"Acima do nível 20, o mestre de magia de Pillai ajuda você a subir de rank."
+end
+*Special_Message8_Shaman
+"O Xamã tem o poder da feitiçaria e da magia sombria."
+"Ele usa uma arma diferente de todas as outras classes, chamada fantasma."
+"Até os seus acessórios, como caveira, chifre e penas, têm uma aura demoníaca."
+"Ao chegar ao nível 20, o mestre de magia de Pillai ajuda você a subir de rank."
+end
+*Special_Message8_MartialArtist
+"Lute usando os pés e os punhos como armas!"
+"Use uma braçadeira para fazer ataques poderosos."
+"A partir do nível 20, o mestre de habilidades de Ricarten ajuda você."
+end
+*Special_Message9
+"Agora é hora de dizer adeus. Oh! Não fique triste."
+"Não é uma despedida. Com certeza vamos nos ver de novo."
+"E você já é forte o bastante sem a minha ajuda."
+"Certo, vá à luta"
+end

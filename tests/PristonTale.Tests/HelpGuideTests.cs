@@ -7,6 +7,7 @@ using PristonTale.Gameplay.Localization;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Simulation.Quests;
 using PristonTale.Gameplay.UI.Quests;
+using PristonTale.Gameplay.UI.HelpPet;
 
 namespace PristonTale.Tests;
 
@@ -20,7 +21,7 @@ internal static class HelpGuideTests
         yield return ("the level guide offers a page on reaching its level or entering fresh, and its notice opens a summary that closes", NoticeAsync);
         yield return ("the help window moves between help, the guide's list of reached subjects and a page, and switches the level guide", WindowAsync);
         yield return ("a text of the data is read from its translation in another language, and from the data in English or without one", TranslationAsync);
-        yield return ("the Brazilian Portuguese texts translate the help, the level guide's subjects and every quest window description, in UTF-8", TranslationsAsync);
+        yield return ("the Brazilian Portuguese texts translate the help, the level guide's subjects, the helper pet and every quest window description, in UTF-8", TranslationsAsync);
     }
 
     private const string Subjects = """
@@ -148,9 +149,9 @@ internal static class HelpGuideTests
             .Select(path => Path.GetRelativePath(root, path).Replace(Path.DirectorySeparatorChar, '/'))
             .ToHashSet(StringComparer.Ordinal);
         var board = QuestBoard.Documents.Select(HudQuestDocuments.BoardPath).ToArray();
-        var missing = board.Append(HudHelpWindow.HelpFile).Append(LevelGuideBook.SubjectsFile).Where(path => !files.Contains(path)).ToArray();
+        var missing = board.Append(HudHelpWindow.HelpFile).Append(LevelGuideBook.SubjectsFile).Append(HelpPetMessages.FilePath).Where(path => !files.Contains(path)).ToArray();
         Assert.True(missing.Length == 0, "texts without a translation: " + string.Join(", ", missing));
-        var strange = files.Where(path => !board.Contains(path) && path != HudHelpWindow.HelpFile
+        var strange = files.Where(path => !board.Contains(path) && path != HudHelpWindow.HelpFile && path != HelpPetMessages.FilePath
             && !path.StartsWith(LevelGuideBook.Folder, StringComparison.Ordinal)).ToArray();
         Assert.True(strange.Length == 0, "translations of no text the client reads: " + string.Join(", ", strange));
         var strict = new UTF8Encoding(false, true);

@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Contracts.Characters;
 using PristonTale.Gameplay.UI.HelpPet;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Tests;
 
@@ -12,6 +13,7 @@ internal static class HelpPetHudTests
     {
         yield return ("the pet's texts read with the file's quirks, and the shipped file holds every topic the HUD speaks of", MessagesAsync);
         yield return ("a fresh character is greeted and each level up to 10 queues its guides, which OK or fifteen seconds close in turn", BoxesAsync);
+        yield return ("the pet reads its texts again in the new language when the shown one changes", LanguageAsync);
         yield return ("the pet speaks of what is pointed at, clicked or pressed below level 10 while shown, idles in town and cheers in battle", SpeechAsync);
     }
 
@@ -100,6 +102,15 @@ internal static class HelpPetHudTests
         ];
         var missing = topics.Where(topic => shipped.Lines(topic).Length == 0).ToArray();
         Assert.True(missing.Length == 0 && shipped.Lines("Potion_ShortKey").Length == 6 && shipped.Name(4) == "Mut", $"missing topics: {string.Join(", ", missing)}");
+
+        // The Brazilian Portuguese texts hold every topic with as many lines, and the greeting's names.
+        var translations = Path.Combine(FindRoot(), "Client", "PristonTale", "Texts");
+        var portuguese = HelpPetMessages.LoadAsync(root, Engine3D.Diagnostics.ConsoleClientLog.Instance, Engine3D.Rendering.ClientSettings.BrazilianPortugueseLanguage,
+            translations).Result;
+        var uneven = topics.Append("Potion_ShortKey").Append("PetName").Append("PetKind")
+            .Where(topic => portuguese.Lines(topic).Length != shipped.Lines(topic).Length).ToArray();
+        Assert.True(uneven.Length == 0 && portuguese.Lines("Welcom_ALL").Take(2).All(static line => line.Contains("%s", StringComparison.Ordinal))
+            && portuguese.Lineage(1) == "Dragão de Fogo ASTERYAN", $"translated topics that differ: {string.Join(", ", uneven)}");
         return Task.CompletedTask;
     }
 
@@ -190,6 +201,32 @@ internal static class HelpPetHudTests
         shy.Update(State(kind: 0, level: 2), 0);
         shy.Say("System", 1, 0);
         Assert.True(veteran.Bubble is null && shy.Bubble is null, "a pet spoke at level 10 or while hidden");
+        return Task.CompletedTask;
+    }
+
+    private static Task LanguageAsync()
+    {
+        var asked = new List<string>();
+        var translated = HelpPetMessages.Parse(Text.Replace("I am a descendant of", "Sou descendente do", StringComparison.Ordinal));
+        var pet = new HudHelpPet(Task.FromResult(Book), new Random(5), Engine3D.Diagnostics.ConsoleClientLog.Instance, language =>
+        {
+            asked.Add(language);
+            return Task.FromResult(translated);
+        });
+        try
+        {
+            pet.Update(State(kind: 0, level: 1), 0);
+            Assert.True(asked.Count == 0, "the pet read its texts again without a change of language");
+            ClientText.Use(Engine3D.Rendering.ClientSettings.BrazilianPortugueseLanguage);
+            pet.Update(State(kind: 1, level: 1, fresh: true), 100);
+            Assert.True(asked.SequenceEqual([Engine3D.Rendering.ClientSettings.BrazilianPortugueseLanguage])
+                && pet.Shown?.Lines[0] == "Sou descendente do( Fire Dragon ASTERYAN ).", "the pet did not speak in the new language");
+        }
+        finally
+        {
+            ClientText.Use(Engine3D.Rendering.ClientSettings.EnglishLanguage);
+        }
+
         return Task.CompletedTask;
     }
 

@@ -6,6 +6,7 @@ using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Progression;
 using PristonTale.Simulation.World;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.HelpPet;
 
@@ -23,9 +24,13 @@ public readonly record struct HudHelperPetView(int Kind, HudOverheadPoint? Point
 // the farewell at 90% of level 9 while fighting. In town it says one of its idle lines every thirty seconds, and while
 // fighting below level 8 one of its battle lines as the level's experience passes a step (one line however many steps
 // it passed at once); neither list repeats until it is spent. The server takes the pet away at level 10 in the tick that raises the level, and the two can arrive in
-// either order: a level reached within two seconds of the pet leaving still has its guide.
-public sealed class HudHelpPet(Task<HelpPetMessages> messages, Random random, IClientLog log)
+// either order: a level reached within two seconds of the pet leaving still has its guide. Given a loader, the texts
+// are read again in a new language when the shown one changes.
+public sealed class HudHelpPet(Task<HelpPetMessages> messages, Random random, IClientLog log, Func<string, Task<HelpPetMessages>> load = null)
 {
+    private Task<HelpPetMessages> _messages = messages;
+    private string _language = ClientText.Language;
+
     public const double BubbleMs = 4000;
     public const double BoxMs = 15000;
     public const double IdleEveryMs = 30000;
@@ -85,19 +90,26 @@ public sealed class HudHelpPet(Task<HelpPetMessages> messages, Random random, IC
 
     public void Update(HelpPetState state, double nowMs)
     {
+        if (load is not null && _language != ClientText.Language)
+        {
+            _language = ClientText.Language;
+            _messages = load(_language);
+            _book = null;
+        }
+
         if (_book is null)
         {
-            if (!messages.IsCompleted)
+            if (!_messages.IsCompleted)
             {
                 return;
             }
 
-            if (!messages.IsCompletedSuccessfully)
+            if (!_messages.IsCompletedSuccessfully)
             {
-                log.Error("[HelpPet] the pet's texts did not load", messages.Exception?.GetBaseException());
+                log.Error("[HelpPet] the pet's texts did not load", _messages.Exception?.GetBaseException());
             }
 
-            _book = messages.IsCompletedSuccessfully ? messages.Result : HelpPetMessages.Empty;
+            _book = _messages.IsCompletedSuccessfully ? _messages.Result : HelpPetMessages.Empty;
             _idleSinceMs = nowMs;
         }
 
