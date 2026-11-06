@@ -328,8 +328,9 @@ The client owns its own locomotion; the server validates and corrects.
   difference above 200 units snaps the body and camera and stands it on the floor nearest the warp's height (within 64
   units, else the highest floor). A warp to another field code activates that field if loaded; otherwise it requests the
   field and holds the warp (`_pendingFieldWarp`, stopping movement and attack) until the field is in the world, then
-  applies it. A teleporter destination hovered for 250 ms starts preparation for that one field; selecting it also
-  requests preparation immediately. Presence from the old field is ignored while the destination is loading. The held warp
+  applies it; the presence updates after it wait in their queue meanwhile and apply, in order, once it landed, so the
+  new field's entities, removals and drops land on its ground and none is lost. A teleporter destination hovered for
+  250 ms starts preparation for that one field, and selecting it requests it at once (`PrepareField`). The held warp
   can be replaced by the unforced warp that confirms the field (which keeps the force of the held one), and a restart can
   move the player across before the field loads, so activating the field always places the height. A body
   left with no floor under it (placed before its field's ground was there) is put on the floor nearest the server's
@@ -370,11 +371,11 @@ The client owns its own locomotion; the server validates and corrects.
 
 The active field is the loaded field with the highest floor under the player. Every 8 frames `ScanStreaming` requests
 neighbours whose gate seam, or warp-gate destinations whose gate, is within 1024 units, or ahead of a move target
-within `PrefetchDistance(speed)` (1400 to 4500 units); fields beyond `RetentionDistance` (prefetch + 1200) unload. The
-streamer keeps at most one secondary neighbour in preparation. A teleport destination requested by `PrepareField` or a
-warp is promoted above that neighbour, cancels obsolete secondary preparation, and abandons obsolete GPU publication;
-the destination and at most one neighbour can remain in flight. Hovering a teleporter destination for 250 ms starts
-that priority preparation. Shared prepared and uploaded textures remain in `PristonTextureLoader`'s cache, including
+within `PrefetchDistance(speed)` (1400 to 4500 units); fields beyond `RetentionDistance` (prefetch + 1200) unload, except a destination `PrepareField` asked for in
+the last 10 s. The streamer keeps at most one neighbour in flight (preparing or uploading). A destination requested by
+`PrepareField` or a warp goes first: it cancels the other preparations and abandons another field's GPU upload, a
+neighbour may start beside it, and nothing else completes before it; one that failed before is not prioritized, and a
+destination no longer in flight stops holding the others back. Shared prepared and uploaded textures remain in `PristonTextureLoader`'s cache, including
 when a field preparation is cancelled. A field that failed once is not retried. `Warp` unloads every field but the
 destination. Renderer side of stage publication: [rendering.md](rendering.md).
 
@@ -389,7 +390,7 @@ destination. Renderer side of stage publication: [rendering.md](rendering.md).
 | Shift + click on a monster | same | Automatic attack (keeps attacking after release); a ground click, a cast, a loot pick or a warp leaves it and tells the server to stop chasing (`AttackInputController.Stop`: an attack on no one as the next gesture) |
 | Right click | same | Attack if the right socket holds the basic attack, otherwise cast the right socket skill |
 | Hold `A` | `GameScene.CollectGroundLabels`, `TryPickLoot` | Show and pick every ground item label |
-| Middle drag, cursor at screen edge, wheel, Up/Down/Left/Right | `PristonCamera.UpdateOrbit` (Engine3D) | Orbit and zoom; arrow keys remain active over the HUD, except while chat text input is focused |
+| Middle drag, cursor at screen edge, wheel, Left/Right, Up/Down | `PristonCamera.UpdateOrbit` (Engine3D) | Orbit (drag, edge, Left/Right at the edge orbit's speed), zoom (wheel; Up/Down at 300 units a second); the mouse is ignored while the HUD captures the pointer, the arrows while a text input has the keyboard |
 | `I` or `V`, `C`, `S`, `X`, `Q`, `D` | `GameplayHud.UpdateKeys` | Inventory, status, skills, system menu, quest window, party window (ignored with Ctrl held) |
 | `F1`-`F8` | `HudSkillBindings` | Select a skill shortcut; while pressing a skill in the tree, bind it ([skills.md](skills.md)) |
 | `Enter`, `Page Up`/`Page Down`, `Up`/`Down` | `HudChat.Update` | Open the chat input or send its line, scroll the chat, recall commands; while typing, HUD, binding, debug and motion keys and the `A` labels are suppressed |

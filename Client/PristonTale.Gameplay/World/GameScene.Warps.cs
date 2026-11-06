@@ -187,18 +187,11 @@ public sealed partial class GameScene
 
     private void ApplyWarp(WarpInfo warp)
     {
-        var changedField = _activeField?.Definition.FieldCode != warp.FieldId;
-        var confirmsField = !warp.Forced && (changedField || _awaitingFieldPresence);
-        if (changedField)
+        if (_activeField?.Definition.FieldCode != warp.FieldId)
         {
-            _awaitingFieldPresence = !confirmsField;
             ClearAttackTarget();
             StopPredictedMovement();
             _selfAttacking = false;
-        }
-        else if (confirmsField)
-        {
-            _awaitingFieldPresence = false;
         }
 
         // The unforced warp that confirms a field change can arrive while a forced one is held; it keeps the force.

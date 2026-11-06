@@ -39,10 +39,14 @@ public sealed partial class GameScene
         LoadField(assetRoot, field, entered);
     }
 
+    // A teleport destination the player points at or picks loads ahead of the warp, and stays loaded for a while so the
+    // streaming scan does not drop it before the warp arrives.
     public void PrepareField(int fieldCode)
     {
         if (_fieldStreamer is not null && _worldCatalog.TryGetFieldByCode(fieldCode, out var field))
         {
+            _preparedDestinationId = field.Id;
+            _preparedDestinationUntilMs = _skillClockMs + PreparedDestinationHoldMs;
             RequestField(field, priority: true);
         }
     }
@@ -212,7 +216,8 @@ public sealed partial class GameScene
                 continue;
             }
 
-            var keep = TryGateSeam(active, field.Definition, out var seam) && Vector2.DistanceSquared(player, seam) < disconnect * disconnect;
+            var keep = TryGateSeam(active, field.Definition, out var seam) && Vector2.DistanceSquared(player, seam) < disconnect * disconnect
+                || field.Definition.Id == _preparedDestinationId && _skillClockMs < _preparedDestinationUntilMs;
             foreach (var warp in active.WarpGates)
             {
                 if (warp.DestinationFieldId == field.Definition.Id

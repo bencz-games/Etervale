@@ -155,7 +155,7 @@ public sealed class GameplayScreen : GameScreen
         _scene.MovementLocked = _hud.HoldsPlayer;
         _scene.KeyboardCaptured = _hud.KeyboardCaptured;
         _hud.Chat.SelfId = _scene.SelfEntityId;
-        _scene.CameraInputEnabled = Context.IsWindowActive && !Context.Presentation.AwaitingConfirmation && !_hud.KeyboardCaptured;
+        _scene.CameraInputEnabled = Context.IsWindowActive && !Context.Presentation.AwaitingConfirmation;
         _scene.RightAttackEnabled = _hud.RightAttackEnabled;
         _scene.LeftSkill = _hud.Bindings.LeftSkillId;
         _scene.RightSkill = _hud.Bindings.RightSkillId;

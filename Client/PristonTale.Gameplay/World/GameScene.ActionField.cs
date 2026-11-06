@@ -61,7 +61,8 @@ public sealed partial class GameScene
                 _camera.SnapFollow(_playerBody.Position, _fieldCollision);
             }
 
-            _camera.Update(gameTime, _graphicsDevice, _playerBody.Position, _playerForward, _fieldCollision, PointerCaptured, CameraInputEnabled);
+            _camera.Update(gameTime, _graphicsDevice, _playerBody.Position, _playerForward, _fieldCollision, PointerCaptured, CameraInputEnabled,
+                keysEnabled: !KeyboardCaptured);
             return;
         }
 

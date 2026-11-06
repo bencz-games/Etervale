@@ -121,10 +121,14 @@ public sealed partial class GameScene
         }
 
         // Updates apply in arrival order until the queue is empty or the frame's budget is spent, never fewer than a few, so
-        // a burst (a crowd entering view, a field's arrival) spreads over frames instead of stalling one.
+        // a burst (a crowd entering view, a field's arrival) spreads over frames instead of stalling one. The updates after a
+        // warp held for its field wait in the queue until it lands: none is lost, and the new field's entities, removals and
+        // drops apply on its ground.
         var started = Stopwatch.GetTimestamp();
         for (var processed = 0;
-             (processed < MinPresencePerFrame || Stopwatch.GetElapsedTime(started) < PresenceBudget) && _presenceQueue.Reader.TryRead(out var update);
+             _pendingFieldWarp is null
+             && (processed < MinPresencePerFrame || Stopwatch.GetElapsedTime(started) < PresenceBudget)
+             && _presenceQueue.Reader.TryRead(out var update);
              processed++)
         {
             try
@@ -157,23 +161,11 @@ public sealed partial class GameScene
             Owner = update.Owner;
         }
 
+        _remote.ApplyServer(update);
         if (update.Warp is { } warp)
         {
             ApplyWarp(warp with { Position = WorldSpace.Mirror(warp.Position) });
-            if (_pendingFieldWarp is not null)
-            {
-                return;
-            }
         }
-
-        // Do not replay combat or movement from the old field while its replacement is loading or before its presence
-        // stream confirms the new field.
-        if (_pendingFieldWarp is not null || _awaitingFieldPresence && update.Warp is null)
-        {
-            return;
-        }
-
-        _remote.ApplyServer(update);
 
         _groundLoot.Apply(update);
         ObserveEffects(update);

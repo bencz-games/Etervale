@@ -38,41 +38,56 @@ internal sealed class FieldResourceStreamer : IDisposable
     private readonly Dictionary<string, Task<PreparedField>> _fieldLoads = new();
     private readonly Dictionary<string, CancellationTokenSource> _fieldCancellations = new();
     private readonly HashSet<string> _failedFieldLoads = new();
+    // The destination a teleport or warp waits for; it prepares and uploads ahead of the neighbours, of which at most one is
+    // in flight beside it.
     private string _priorityFieldId;
-    private string _secondaryFieldId;
 
     public void Request(FieldDef field)
     {
-        if (field.Id == _priorityFieldId
-            || _secondaryFieldId is not null && _secondaryFieldId != field.Id
-            || _fieldLoads.ContainsKey(field.Id)
+        if (InFlight(field.Id)
             || _failedFieldLoads.Contains(field.Id)
-            || _uploadingField?.Definition.Id == field.Id
+            || NeighbourInFlight()
             || _fieldLoads.Count + (_stageUpload is null ? 0 : 1) >= FieldStreamingPolicy.MaximumPendingFields)
         {
             return;
         }
 
-        _secondaryFieldId = field.Id;
         Start(field);
     }
 
     public void Prioritize(FieldDef field)
     {
-        _priorityFieldId = field.Id;
-        CancelSecondaryLoads(field.Id);
-        _secondaryFieldId = null;
-        if (_fieldLoads.ContainsKey(field.Id) || _uploadingField?.Definition.Id == field.Id)
-        {
-            return;
-        }
-
         if (_failedFieldLoads.Contains(field.Id))
         {
             return;
         }
 
-        Start(field);
+        _priorityFieldId = field.Id;
+        CancelOtherLoads(field.Id);
+        if (!InFlight(field.Id))
+        {
+            Start(field);
+        }
+    }
+
+    private bool InFlight(string fieldId) => _fieldLoads.ContainsKey(fieldId) || _uploadingField?.Definition.Id == fieldId;
+
+    private bool NeighbourInFlight()
+    {
+        if (_uploadingField is not null && _uploadingField.Definition.Id != _priorityFieldId)
+        {
+            return true;
+        }
+
+        foreach (var id in _fieldLoads.Keys)
+        {
+            if (id != _priorityFieldId)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void Start(FieldDef field)
@@ -99,7 +114,7 @@ internal sealed class FieldResourceStreamer : IDisposable
         }));
     }
 
-    private void CancelSecondaryLoads(string keepFieldId)
+    private void CancelOtherLoads(string keepFieldId)
     {
         foreach (var id in _fieldLoads.Keys.ToArray())
         {
@@ -122,11 +137,6 @@ internal sealed class FieldResourceStreamer : IDisposable
             return;
         }
 
-        if (_secondaryFieldId == fieldId)
-        {
-            _secondaryFieldId = null;
-        }
-
         var cancellation = _fieldCancellations[fieldId];
         _fieldCancellations.Remove(fieldId);
         cancellation.Cancel();
@@ -140,16 +150,23 @@ internal sealed class FieldResourceStreamer : IDisposable
 
     public LoadedField Update()
     {
+        // A destination that is no longer preparing or uploading (published, failed or cancelled) holds nothing back.
+        if (_priorityFieldId is not null && !InFlight(_priorityFieldId))
+        {
+            _priorityFieldId = null;
+        }
+
         if (_stageUpload is null)
         {
             string completed = null;
-            if (_priorityFieldId is not null
-                && _fieldLoads.TryGetValue(_priorityFieldId, out var priorityPreparation)
-                && priorityPreparation.IsCompleted)
+            if (_priorityFieldId is not null)
             {
-                completed = _priorityFieldId;
+                if (_fieldLoads.TryGetValue(_priorityFieldId, out var priorityPreparation) && priorityPreparation.IsCompleted)
+                {
+                    completed = _priorityFieldId;
+                }
             }
-            else if (_priorityFieldId is null)
+            else
             {
                 foreach (var (id, preparation) in _fieldLoads)
                 {
@@ -176,18 +193,10 @@ internal sealed class FieldResourceStreamer : IDisposable
                     _fieldUploadFrames = 0;
                     _stageUpload = _renderer.AddStageIncrementally(_uploadingField.Stage, _uploadingField.Models);
                 }
-                else
+                else if (!preparation.IsCanceled)
                 {
-                    if (preparation is not { IsCanceled: true })
-                    {
-                        _failedFieldLoads.Add(completed);
-                        _log.Error($"[Stream] field preparation failed for {completed}: {preparation.Exception}");
-                    }
-                }
-
-                if (_priorityFieldId == completed && _stageUpload is null)
-                {
-                    _priorityFieldId = null;
+                    _failedFieldLoads.Add(completed);
+                    _log.Error($"[Stream] field preparation failed for {completed}: {preparation.Exception}");
                 }
             }
         }
@@ -213,7 +222,6 @@ internal sealed class FieldResourceStreamer : IDisposable
                 if (handle is not null)
                 {
                     var loaded = new LoadedField(_uploadingField.Definition, _uploadingField.Stage, _uploadingField.Collision, handle);
-                    var uploadedId = _uploadingField.Definition.Id;
                     _maximumFieldUploadMilliseconds = Math.Max(
                         _maximumFieldUploadMilliseconds,
                         System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);
@@ -223,16 +231,6 @@ internal sealed class FieldResourceStreamer : IDisposable
                     _stageUpload.Dispose();
                     _stageUpload = null;
                     _uploadingField = null;
-                    if (_priorityFieldId == uploadedId)
-                    {
-                        _priorityFieldId = null;
-                    }
-
-                    if (_secondaryFieldId == uploadedId)
-                    {
-                        _secondaryFieldId = null;
-                    }
-
                     return loaded;
                 }
 
@@ -250,15 +248,6 @@ internal sealed class FieldResourceStreamer : IDisposable
             _stageUpload.Dispose();
             _stageUpload = null;
             _uploadingField = null;
-            if (_priorityFieldId == failedId)
-            {
-                _priorityFieldId = null;
-            }
-
-            if (_secondaryFieldId == failedId)
-            {
-                _secondaryFieldId = null;
-            }
         }
         finally
         {
@@ -272,14 +261,9 @@ internal sealed class FieldResourceStreamer : IDisposable
 
     private void AbandonUpload()
     {
-        var abandonedId = _uploadingField.Definition.Id;
         _stageUpload.Dispose();
         _stageUpload = null;
         _uploadingField = null;
-        if (_secondaryFieldId == abandonedId)
-        {
-            _secondaryFieldId = null;
-        }
     }
 
     private async Task ObservePreparationAsync(Task preparation, CancellationTokenSource cancellation)

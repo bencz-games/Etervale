@@ -81,9 +81,9 @@ public sealed class PristonCamera
     }
 
     public void Update(GameTime gameTime, GraphicsDevice graphicsDevice, Vector3 target, Vector3 forward,
-        IPristonCollisionQuery collisionWorld, bool pointerCaptured = false, bool inputEnabled = true)
+        IPristonCollisionQuery collisionWorld, bool pointerCaptured = false, bool inputEnabled = true, bool keysEnabled = true)
     {
-        UpdateOrbit(Mouse.GetState(), Keyboard.GetState(), pointerCaptured, graphicsDevice.Viewport.Bounds,
+        UpdateOrbit(Mouse.GetState(), keysEnabled ? Keyboard.GetState() : default, pointerCaptured, graphicsDevice.Viewport.Bounds,
             (float)gameTime.ElapsedGameTime.TotalSeconds, inputEnabled);
         EnsureProjection(graphicsDevice, _fieldOfViewRadians);
         UpdateFollow(target, (float)gameTime.ElapsedGameTime.TotalSeconds, collisionWorld);
