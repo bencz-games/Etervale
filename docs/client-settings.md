@@ -129,8 +129,10 @@ and that every translation names game data.
 The data's text files (help, level guide, helper pet, quest dialogs and quest window descriptions) are read from a translation
 beside the executable when the shown language has one: `Texts/<language>/<the file's path under the assets>`, in UTF-8
 (`HudTextFiles`; the repository keeps them in `Client/PristonTale/Texts`). A file without a translation reads the
-asset. `HelpGuideTests` checks that the Brazilian Portuguese texts translate the help, the level guide's subjects, the helper pet and
-every quest window description, and translate nothing else.
+asset. English has translations too, `Texts/en`, for the quest dialogs the assets hold in Portuguese (the level 130 to
+172 chains and some events). `HelpGuideTests` checks that the Brazilian Portuguese texts translate the help, the level
+guide's subjects, the helper pet, the quest dialogs and every quest window description, and translate nothing else, and
+that the English texts are only translated quest dialogs.
 
 ## In-game Settings panel
 

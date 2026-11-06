@@ -4,14 +4,14 @@ using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Assets;
 using PristonTale.Engine3D.IO;
 using PristonTale.Gameplay.Localization;
-using PristonTale.Engine3D.Rendering;
 
 namespace PristonTale.Gameplay.UI.Rendering;
 
 // Text files of the client's data in one encoding, read on the thread pool and kept: until a file is read its lines are
 // null, and a missing or unreadable file reads as no lines. Tabs become spaces, lines lose their trailing spaces and the
-// text its blank lines before and after. In another language than English a translation beside the executable,
-// Texts/<language>/<the file's path> in UTF-8, is read instead when there is one; each language keeps its own copies.
+// text its blank lines before and after. A translation beside the executable, Texts/<language>/<the file's path> in
+// UTF-8, is read instead when the shown language has one (English too, for data written in another language); each
+// language keeps its own copies.
 public sealed class HudTextFiles(string assetRoot, Encoding encoding, IClientLog log, string tag, string translationRoot = null)
 {
     private readonly string _translationRoot = translationRoot ?? DefaultTranslationRoot;
@@ -68,9 +68,9 @@ public sealed class HudTextFiles(string assetRoot, Encoding encoding, IClientLog
         string[] lines = [];
         try
         {
-            var translated = language == ClientSettings.EnglishLanguage ? null : Path.Combine(_translationRoot, language, relativePath);
+            var translated = Path.Combine(_translationRoot, language, relativePath);
             var path = Path.Combine(assetRoot, relativePath);
-            if (translated is not null && File.Exists(translated))
+            if (File.Exists(translated))
             {
                 lines = Decode(File.ReadAllBytes(translated), Encoding.UTF8);
             }
