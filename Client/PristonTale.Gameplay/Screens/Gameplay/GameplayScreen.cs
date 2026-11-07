@@ -56,9 +56,11 @@ public sealed class GameplayScreen : GameScreen
         _scene.PresenceObserved += _hud.ObserveParty;
         _scene.PresenceObserved += _hud.ObserveClan;
         _scene.PresenceObserved += _hud.ObserveCastle;
+        _scene.PresenceObserved += _hud.ObserveBellatra;
         _hud.Parties = _scene;
         _hud.SendClan = _scene.SendClan;
         _hud.SendCastleOwner = _scene.SendCastleOwner;
+        _hud.SendBellatraClan = _scene.SendBellatraClan;
         _hud.SendClanMark = _scene.SendClanMark;
         _scene.PresenceObserved += _hud.ObserveTrade;
         _hud.Trades = _scene;
@@ -285,6 +287,7 @@ public sealed class GameplayScreen : GameScreen
             _scene.PresenceObserved -= _hud.ObserveParty;
             _scene.PresenceObserved -= _hud.ObserveClan;
             _scene.PresenceObserved -= _hud.ObserveCastle;
+            _scene.PresenceObserved -= _hud.ObserveBellatra;
             _scene.PresenceObserved -= _hud.ObserveTrade;
             _scene.PresenceObserved -= _hud.ObserveContacts;
             _hud.PlayerButtonsUsed -= _scene.DismissPlayerButtons;

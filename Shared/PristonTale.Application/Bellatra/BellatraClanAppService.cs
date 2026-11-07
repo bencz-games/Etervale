@@ -5,23 +5,13 @@ using PristonTale.Application.Saves;
 using PristonTale.Application.Services;
 using PristonTale.Application.Sessions;
 using PristonTale.Application.World;
+using PristonTale.Contracts.Social;
 using PristonTale.Persistence.Abstractions.Bellatra;
 using PristonTale.Simulation.Social.Clans;
 using PristonTale.Simulation.World.Bellatra;
 using PristonTale.Simulation.World.Npcs;
 
 namespace PristonTale.Application.Bellatra;
-
-public enum BellatraClanStatus : byte
-{
-    Ok = 0,
-    NotChief = 1,
-    NotEnoughBalance = 2,
-    OutOfReach = 3,
-    TooMuchGold = 4,
-    Busy = 5,
-    Unavailable = 6
-}
 
 public sealed record BellatraClanRank(string Name, long Points);
 

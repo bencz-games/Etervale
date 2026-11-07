@@ -19,7 +19,7 @@ public static class BellatraArena
 {
     public const int Field = FieldCodes.Bellatra;
     public const int Village = FieldCodes.Navisko;
-    public const int Teams = 4;
+    public const int Teams = Contracts.Social.BellatraLimits.Teams;
 
     public static ImmutableArray<BellatraRoom> Rooms { get; } =
     [

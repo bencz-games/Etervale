@@ -13,13 +13,10 @@ namespace PristonTale.Gameplay.UI.Widgets;
 // made again when the server's state changes and when the time left reaches another second.
 public sealed class HudSiegeBoard
 {
-    private const int Width = 200;
-    private const int Margin = 8;
-    private const int LineHeight = 14;
     private const double DriftMs = 1500;
-    private static readonly Color Title = new(255, 220, 120);
-    private static readonly Color Own = new(255, 200, 40);
-    private static readonly Color Line = new(220, 220, 220);
+    private static readonly Color Title = HudSideBoard.Title;
+    private static readonly Color Own = HudSideBoard.Own;
+    private static readonly Color Line = HudSideBoard.Line;
 
     private CastleInfo _castle = CastleInfo.None;
     private readonly List<(string Text, string Right, Color Color)> _lines = new();
@@ -56,19 +53,7 @@ public sealed class HudSiegeBoard
             Compose(left, ownClan);
         }
 
-        var top = HudCombat.TargetFrame(layout).StatsY + LineHeight + Margin;
-        var bounds = new Rectangle(layout.Width - Width - Margin, top, Width, 2 * Margin + _lines.Count * LineHeight);
-        painter.InfoBox(bounds);
-        for (var index = 0; index < _lines.Count; index++)
-        {
-            var (text, right, color) = _lines[index];
-            var y = bounds.Y + Margin + index * LineHeight;
-            painter.Text(text, bounds.X + Margin + 4, y, color);
-            if (right.Length > 0)
-            {
-                painter.Text(right, bounds.Right - Margin - 4 - painter.Measure(right), y, color);
-            }
-        }
+        HudSideBoard.Draw(painter, layout, _lines);
     }
 
     private void Compose(long left, long ownClan)

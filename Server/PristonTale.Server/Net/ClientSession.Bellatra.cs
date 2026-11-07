@@ -1,6 +1,8 @@
 using PristonTale.Application.Bellatra;
 using PristonTale.Protocol.Packets;
 
+using PristonTale.Contracts.Social;
+
 namespace PristonTale.Server.Net;
 
 internal sealed partial class ClientSession

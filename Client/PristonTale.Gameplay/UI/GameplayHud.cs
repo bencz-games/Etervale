@@ -136,6 +136,7 @@ public sealed partial class GameplayHud : IDisposable
         _context = context;
         _clanWindow = new HudClanWindow(context.Log);
         _castleWindow.AskAmount = AskWithdrawal;
+        _bellatraWindow.AskAmount = AskRedemption;
         _settings = new HudSettingsPanel(context.Presentation);
         _sprites = new HudSprites(context.GraphicsDevice, context.AssetRoot, context.Log);
         _sprites.Request(HudArt.Static);
@@ -359,7 +360,7 @@ public sealed partial class GameplayHud : IDisposable
         }
 
         _npc.Dismiss();
-        var closed = _clanWindow.IsOpen || _castleWindow.IsOpen || _npcOpen || _settingsOpen || _systemMenu || _skills.TrainingPending
+        var closed = _clanWindow.IsOpen || _castleWindow.IsOpen || _bellatraWindow.IsOpen || _npcOpen || _settingsOpen || _systemMenu || _skills.TrainingPending
             || _inventorySlide.Open || _statusSlide.Open || _skillSlide.Open || ServiceWindowOpen(blockingOnly: false)
             || _questWindow.Open || _partyWindow.Open || _quests.Dialog is not null || _quests.SkillResetBox;
         closed |= _personalShop.Close();
@@ -369,6 +370,7 @@ public sealed partial class GameplayHud : IDisposable
         _helpWindow.Close();
         _clanWindow.Close();
         _castleWindow.Close();
+        _bellatraWindow.Close();
         _itemUse.Close();
         _wingGate.Close();
         _puzzle.Close();
@@ -616,7 +618,7 @@ public sealed partial class GameplayHud : IDisposable
 
     // A dialog, a message box or the warp map: it takes every click, the bag's included.
     private bool ModalOpen =>
-        _countBox.IsOpen || _personalShop.ModalOpen || _npcOpen || _clanWindow.IsOpen || _castleWindow.IsOpen || _quests.Dialog is not null || _quests.Confirming || _quests.SkillResetBox || _skills.TrainingPending
+        _countBox.IsOpen || _personalShop.ModalOpen || _npcOpen || _clanWindow.IsOpen || _castleWindow.IsOpen || _bellatraWindow.IsOpen || _quests.Dialog is not null || _quests.Confirming || _quests.SkillResetBox || _skills.TrainingPending
         || _wingGate.IsOpen || _wingGate.Confirming || _itemUse.Teleport.IsOpen || _itemUse.Confirming || _puzzle.Confirming
         || _crystalDismiss.Confirming;
 
@@ -669,6 +671,7 @@ public sealed partial class GameplayHud : IDisposable
         }
         _premium.Draw(_painter, _clock.Elapsed.TotalMilliseconds);
         _siegeBoard.Draw(_painter, layout, InCastleField, _clock.Elapsed.TotalMilliseconds, Combat.OwnClan);
+        _bellatraBoard.Draw(_painter, layout);
         _personalShop.Draw(_painter);
         _chat.Window.Draw(_painter, layout, SideWindowOpen);
 
@@ -762,6 +765,11 @@ public sealed partial class GameplayHud : IDisposable
         {
             _painter.Flush();
             _castleWindow.Draw(_painter, pointer);
+        }
+        else if (_bellatraWindow.IsOpen)
+        {
+            _painter.Flush();
+            _bellatraWindow.Draw(_painter, pointer);
         }
         else if (_npcOpen)
         {

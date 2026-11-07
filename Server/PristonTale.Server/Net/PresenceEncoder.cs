@@ -94,6 +94,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
     // The weather last sent; null until the first snapshot sends it.
     private WeatherState? _weather;
     private PartyRequest? _partyRequest;
+    private BellatraView? _bellatra;
     private TradeView? _trade;
     private TradeRequest? _tradeRequest;
     private PresenceFrame? _heldFrame;
@@ -354,10 +355,34 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
         SendWeather(snapshot.Weather, connection);
         SendParty(snapshot, connection);
         SendTrade(snapshot, connection);
+        SendBellatra(snapshot, connection);
         if (snapshot.Quest is not null)
         {
             SendQuest(snapshot.Quest, connection);
         }
+    }
+
+    // The receiver's Bellatra board whenever it changes, hidden once it leaves the arena.
+    private void SendBellatra(in WorldSnapshot snapshot, IPacketSink connection)
+    {
+        if (ReferenceEquals(snapshot.Bellatra, _bellatra))
+        {
+            return;
+        }
+
+        _bellatra = snapshot.Bellatra;
+        var packet = BellatraBoardPacket.Hidden;
+        if (_bellatra is { } board)
+        {
+            var teams = new ulong[board.TeamScores.Count];
+            for (var team = 0; team < teams.Length; team++)
+            {
+                teams[team] = (ulong)Math.Max(0, board.TeamScores[team]);
+            }
+
+            packet = new BellatraBoardPacket(true, (byte)board.Round, (byte)board.Team, (byte)board.Outcome, (ulong)Math.Max(0, board.Score), teams);
+        }
+        connection.Send(_scratch.AsSpan(0, packet.Write(_scratch)));
     }
 
     // The party's members whenever they change (none once the receiver leaves it), and each new request to join one.

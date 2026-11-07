@@ -15,6 +15,36 @@
   <data name="Attribute.Spirit" xml:space="preserve"><value>Espírito</value></data>
   <data name="Attribute.Strength" xml:space="preserve"><value>Força</value></data>
   <data name="Attribute.Talent" xml:space="preserve"><value>Talento</value></data>
+  <data name="Bellatra.Back" xml:space="preserve"><value>Voltar</value></data>
+  <data name="Bellatra.Chief" xml:space="preserve"><value>Chefe: {0}</value></data>
+  <data name="Bellatra.ChiefOnly" xml:space="preserve"><value>Só o chefe do clã resgata a renda.</value></data>
+  <data name="Bellatra.ChiefRedeems" xml:space="preserve"><value>Como chefe, você pode resgatá-la.</value></data>
+  <data name="Bellatra.HowMuch" xml:space="preserve"><value>Quanto?</value></data>
+  <data name="Bellatra.Income" xml:space="preserve"><value>Renda do seu clã: {0} de ouro</value></data>
+  <data name="Bellatra.MyScore" xml:space="preserve"><value>Sua pontuação</value></data>
+  <data name="Bellatra.NoOperator" xml:space="preserve"><value>Nenhum clã administra a Bellatra hoje.</value></data>
+  <data name="Bellatra.NoRanking" xml:space="preserve"><value>Nenhum clã jogou a Bellatra ontem.</value></data>
+  <data name="Bellatra.Operator" xml:space="preserve"><value>Clã administrador: {0}</value></data>
+  <data name="Bellatra.Outcome.Cleared" xml:space="preserve"><value>Parabéns! A Bellatra terminou.</value></data>
+  <data name="Bellatra.Outcome.GoesOn" xml:space="preserve"><value>Etapa concluída! Sua equipe segue.</value></data>
+  <data name="Bellatra.Outcome.Out" xml:space="preserve"><value>Sua equipe foi eliminada.</value></data>
+  <data name="Bellatra.Over" xml:space="preserve"><value>A partida terminou</value></data>
+  <data name="Bellatra.RankLine" xml:space="preserve"><value>{0}. {1} - {2} pontos</value></data>
+  <data name="Bellatra.Ranking" xml:space="preserve"><value>Ranking</value></data>
+  <data name="Bellatra.Redeem" xml:space="preserve"><value>Resgatar</value></data>
+  <data name="Bellatra.Round" xml:space="preserve"><value>Rodada {0}</value></data>
+  <data name="Bellatra.Secretary" xml:space="preserve"><value>Secretária da Bellatra</value></data>
+  <data name="Bellatra.Status.Busy" xml:space="preserve"><value>Você está ocupado com outra coisa.</value></data>
+  <data name="Bellatra.Status.NotChief" xml:space="preserve"><value>Só o chefe do clã resgata a renda.</value></data>
+  <data name="Bellatra.Status.NotEnoughBalance" xml:space="preserve"><value>A renda do seu clã não chega a esse valor.</value></data>
+  <data name="Bellatra.Status.OutOfReach" xml:space="preserve"><value>Você está longe demais da secretária.</value></data>
+  <data name="Bellatra.Status.TooMuchGold" xml:space="preserve"><value>Você não pode carregar tanto ouro.</value></data>
+  <data name="Bellatra.Status.Unavailable" xml:space="preserve"><value>A secretária da Bellatra não está disponível agora.</value></data>
+  <data name="Bellatra.Tax" xml:space="preserve"><value>Imposto sobre os prêmios: {0}</value></data>
+  <data name="Bellatra.Team" xml:space="preserve"><value>Equipe {0}</value></data>
+  <data name="Bellatra.Title" xml:space="preserve"><value>Bellatra</value></data>
+  <data name="Bellatra.ToRedeem" xml:space="preserve"><value>Ouro a resgatar</value></data>
+  <data name="Bellatra.Waiting" xml:space="preserve"><value>Aguardando a rodada</value></data>
   <data name="Brood.Demon" xml:space="preserve"><value>Demônio</value></data>
   <data name="Brood.Mechanic" xml:space="preserve"><value>Mecânico</value></data>
   <data name="Brood.Mutant" xml:space="preserve"><value>Mutante</value></data>

@@ -78,10 +78,16 @@ internal static class NpcServiceTransactions
         if (!NpcServiceActions.IsDurable(command.Action))
         {
             var team = Simulation.World.Bellatra.BellatraRules.TeamOfBooth(service!.Value);
+            TeleportOffer? ticket = null;
             var answer = command.Service == NpcServiceKind.EventBooth && command.Action == NpcServiceAction.Open && booth is not null && team >= 0
-                ? booth.Answer(original, team)
+                ? booth.Answer(original, team, world, out ticket)
                 : GameText.None;
             var shown = Show(command, npc!, service!, original, storage, items, world, Done(original, storage, answer), field.CastleTax);
+            if (ticket is not null)
+            {
+                shown = shown with { Destinations = [ticket] };
+            }
+
             return new PreparedNpcOperation(original, null, null, shown);
         }
 

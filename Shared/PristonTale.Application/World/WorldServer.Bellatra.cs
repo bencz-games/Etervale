@@ -108,6 +108,7 @@ public sealed partial class WorldServer
             if (InBellatra(name, out _))
             {
                 present[entrant.Team] = true;
+                entrant.Outcome = BellatraOutcome.Playing;
             }
             else
             {
@@ -143,6 +144,7 @@ public sealed partial class WorldServer
                 InBellatra(name, out var connection);
                 if (rank < BellatraArena.GoOn(round))
                 {
+                    entrant.Outcome = BellatraOutcome.GoesOn;
                     game.Moves.Add(new BellatraGame.Move(name, BellatraArena.Field, BellatraArena.Rooms[BellatraArena.AdvanceRoom(rank, round)].Centre,
                         nowMs + BellatraRules.BannerMs));
                 }
@@ -150,6 +152,8 @@ public sealed partial class WorldServer
                 {
                     PayBellatra(connection, entrant, GameText.Of(GameTextId.BellatraOut, (rank + 1).ToString(CultureInfo.InvariantCulture),
                         BellatraRules.Prize(entrant.Score, _options.Bellatra.Tax).ToString(CultureInfo.InvariantCulture)));
+                    entrant.Outcome = BellatraOutcome.Out;
+                    game.Leaving[name] = game.ViewOf(entrant) with { Outcome = BellatraOutcome.Out };
                     game.Entrants.Remove(name);
                     SendToBellatraVillage(connection, nowMs, BellatraRules.BannerMs);
                 }
@@ -157,6 +161,7 @@ public sealed partial class WorldServer
         }
 
         game.Next++;
+        game.Revision++;
         return true;
     }
 
@@ -170,8 +175,11 @@ public sealed partial class WorldServer
             {
                 PayBellatra(connection, entrant, GameText.Of(GameTextId.BellatraCleared, BellatraRules.Prize(entrant.Score, _options.Bellatra.Tax)));
             }
+
+            entrant.Outcome = BellatraOutcome.Cleared;
         }
 
+        game.Revision++;
         game.Next = 0;
         game.OutAtMs = nowMs + BellatraRules.OutSeconds * 1000L;
         game.Table = _bellatraRng.NextExclusive(0, BellatraRounds.Tables.Length);
@@ -236,6 +244,19 @@ public sealed partial class WorldServer
         }
 
         arena.BellatraBossKills.Clear();
+    }
+
+    // The board of a player in the arena: its own while it plays, its last one after it left the game until it leaves the
+    // arena; none elsewhere.
+    private BellatraView? BellatraViewOf(Connection connection)
+    {
+        if (connection.FieldId != BellatraArena.Field)
+        {
+            return null;
+        }
+
+        var name = connection.Player.Character.Name;
+        return _bellatra.Entrants.TryGetValue(name, out var entrant) ? _bellatra.ViewOf(entrant) : _bellatra.Leaving.GetValueOrDefault(name);
     }
 
     // Whether the entrant plays in the arena now.

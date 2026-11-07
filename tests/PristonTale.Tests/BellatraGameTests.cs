@@ -15,6 +15,8 @@ using PristonTale.Simulation.World.Fields;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Simulation.World.Npcs;
 
+using PristonTale.Contracts.Social;
+
 namespace PristonTale.Tests;
 
 internal static class BellatraGameTests
@@ -34,7 +36,9 @@ internal static class BellatraGameTests
     {
         var game = await Arena.CreateAsync(BellatraMode.Always, 50);
         var opened = await WorldPump.RunAsync(game.World, game.Npc.RequestAsync(game.Session.SessionToken, game.Booth(NpcServiceAction.Open)));
-        Assert.True(opened.Outcome.Ok && opened.Outcome.Message == GameText.Of(GameTextId.BellatraTicket, BellatraRules.Fee(50)), "the booth did not offer a ticket");
+        Assert.True(opened.Outcome.Ok && opened.Outcome.Message == GameText.Of(GameTextId.BellatraTicket, BellatraRules.Fee(50))
+            && opened.Destinations is [{ FieldCode: BellatraArena.Field, Price: var fee, MinimumLevel: BellatraRules.MinLevel }] && fee == BellatraRules.Fee(50),
+            "the booth did not offer a ticket as its one destination");
         var bought = await WorldPump.RunAsync(game.World, game.Npc.RequestAsync(game.Session.SessionToken, game.Booth(NpcServiceAction.EnterBellatra)));
         Assert.True(bought.Outcome.Ok && game.Session.FieldId == BellatraArena.Field && game.Session.Character!.Money == Arena.Gold - BellatraRules.Fee(50)
             && BellatraTests.Inside(BellatraArena.Rooms[0], game.Player.Position), "the ticket did not take the fee and enter the team's room");
@@ -47,6 +51,9 @@ internal static class BellatraGameTests
             && monsters.All(static monster => BellatraTests.Inside(BellatraArena.Rooms[monster.BellatraRoom], monster.Position)), "round 1 did not open monsters in its four rooms");
         var prey = monsters.First(static monster => monster.BellatraRoom == 0);
         arena.ScoreBellatra(prey, game.Player.EntityId);
+        game.Seconds(1);
+        Assert.True(game.LastBoard() is { Round: 1, Team: 0, Score: 100, Outcome: BellatraOutcome.Playing } board && board.TeamScores is [100, 0, 0, 0],
+            "the entrant's board did not show the round, its score and the teams'");
 
         foreach (var hour in new[] { 8, 10, 12 })
         {
@@ -54,6 +61,7 @@ internal static class BellatraGameTests
         }
 
         game.Seconds(10);
+        Assert.True(game.LastBoard() is { Round: 4, Outcome: BellatraOutcome.GoesOn }, "the board did not show the team going on");
         Assert.True(BellatraTests.Inside(BellatraArena.Rooms[4], game.Player.Position) && !arena.MonstersForInspection.Any(monster => monster.BellatraRoom is >= 0 and < 4 && monster.IsAlive),
             "the best team did not go on to room 5 before round 4, or round 3's monsters still stand");
         foreach (var hour in new[] { 15, 18, 21 })
@@ -69,8 +77,10 @@ internal static class BellatraGameTests
         var money = game.Session.Character!.Money;
         await WorldPump.RunAsync(game.World, new BellatraAppService(game.World, game.Saves, new Application.Chat.ChatDirectory()).PayAsync(prize!, CancellationToken.None));
         Assert.True(game.Session.Character.Money == money + prize!.Gold, "the prize was not paid into the player's gold");
+        game.Seconds(1);
+        Assert.True(game.LastBoard() is { Round: 0, Outcome: BellatraOutcome.Cleared }, "the board did not show the game over");
         game.Seconds(BellatraRules.OutSeconds + 1);
-        Assert.True(game.Session.FieldId == BellatraArena.Village, "the entrants did not go back to Navisko");
+        Assert.True(game.Session.FieldId == BellatraArena.Village && game.LastBoard() is null, "the entrants did not go back to Navisko, or kept the board");
     }
 
     private static async Task AbsentAsync()
@@ -104,7 +114,8 @@ internal static class BellatraGameTests
         game.Entrants.Clear();
         game.OutAtMs = 1;
         Assert.True(booth.Refusal(character, 1) == NpcServiceStatus.BellatraNoTickets
-            && booth.Answer(character, 1) == NpcServiceTransactions.Describe(NpcServiceStatus.BellatraNoTickets), "a booth sold while a game ended");
+            && booth.Answer(character, 1, new WorldCatalog(), out var ticket) == NpcServiceTransactions.Describe(NpcServiceStatus.BellatraNoTickets) && ticket is null,
+            "a booth sold while a game ended");
         return Task.CompletedTask;
     }
 
@@ -116,7 +127,8 @@ internal static class BellatraGameTests
 
         var young = await Arena.CreateAsync(BellatraMode.Always, 30);
         var low = await WorldPump.RunAsync(young.World, young.Npc.RequestAsync(young.Session.SessionToken, young.Booth(NpcServiceAction.Open)));
-        Assert.True(low.Outcome.Message == GameText.Of(GameTextId.BellatraLevel, BellatraRules.MinLevel), "a low level was offered a ticket");
+        Assert.True(low.Outcome.Message == GameText.Of(GameTextId.BellatraLevel, BellatraRules.MinLevel) && low.Destinations is null or [],
+            "a low level was offered a ticket");
 
         var late = await Arena.CreateAsync(BellatraMode.Always, 50);
         late.AtHour(7);
@@ -143,6 +155,20 @@ internal static class BellatraGameTests
         public required GameClock Clock { get; init; }
         public required ImmediateSaves Saves { get; init; }
         public required SessionRegistry Sessions { get; init; }
+        public required WorldOutbox Outbox { get; init; }
+
+        private BellatraView? _board;
+
+        // The board of the latest snapshot the player was sent (null once it is hidden).
+        public BellatraView? LastBoard()
+        {
+            while (Outbox.Reader.TryRead(out var snapshot))
+            {
+                _board = snapshot.Bellatra;
+            }
+
+            return _board;
+        }
 
         public NpcServiceCommand Booth(NpcServiceAction action) =>
             new(Guid.NewGuid(), BoothId, NpcServiceKind.EventBooth, action, Session.Character!.InventoryRevision);
@@ -197,7 +223,7 @@ internal static class BellatraGameTests
             var saves = new ImmediateSaves(characters);
             var entry = new SessionAppService(sessions, classes, characters, saves, catalog, world, holder, clock);
             Assert.True((await entry.EnterWorldAsync(session.SessionToken, starter.Name)).Ok && session.TryBeginPlay(), "entry failed");
-            var outbox = Channel.CreateUnbounded<WorldSnapshot>();
+            var outbox = new WorldOutbox();
             var player = WorldPlayerFactory.Create(session);
             await WorldPump.RunAsync(world, world.JoinAsync(BellatraArena.Village, player, outbox.Writer, session));
             Assert.True(outbox.Reader.TryRead(out var snapshot), "roster missing");
@@ -210,7 +236,8 @@ internal static class BellatraGameTests
                 BoothId = snapshot.Entities.Single(static entity => entity.Kind == EntityKind.Npc).EntityId,
                 Clock = clock,
                 Saves = saves,
-                Sessions = sessions
+                Sessions = sessions,
+                Outbox = outbox
             };
             arena.AtHour(BellatraRules.TicketHour);
             return arena;

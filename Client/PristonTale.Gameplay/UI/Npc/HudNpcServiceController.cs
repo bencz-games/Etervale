@@ -130,7 +130,7 @@ public sealed class HudNpcServiceController(Func<NpcServiceCommand, Task<NpcServ
 
         Quotes = reply.Quotes ?? Quotes;
         Warehouse = reply.Warehouse ?? Warehouse;
-        if (command.Action == NpcServiceAction.Teleport)
+        if (command.Action is NpcServiceAction.Teleport or NpcServiceAction.EnterBellatra)
         {
             Open = null;
         }
@@ -141,7 +141,7 @@ public sealed class HudNpcServiceController(Func<NpcServiceCommand, Task<NpcServ
         NpcServiceAction.Buy => ClientText.Get("Npc.Bought"),
         NpcServiceAction.Sell => ClientText.Get("Npc.Sold"),
         NpcServiceAction.Repair or NpcServiceAction.RepairAll => ClientText.Get("Npc.Repaired"),
-        NpcServiceAction.Teleport => ClientText.Get("Npc.Teleporting"),
+        NpcServiceAction.Teleport or NpcServiceAction.EnterBellatra => ClientText.Get("Npc.Teleporting"),
         _ => ClientText.Format(outcome.Message)
     };
 

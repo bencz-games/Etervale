@@ -158,6 +158,12 @@ internal sealed class OnlinePlayChannel : IPlayChannel
             [.. setup.Mercenaries.Select(static count => (byte)Math.Clamp(count, 0, byte.MaxValue))], (ulong)Math.Max(0, amount)));
     }
 
+    public async Task SendBellatraClanAsync(BellatraClanAction action, ulong npcId, long amount, CancellationToken ct = default)
+    {
+        await _start.WaitAsync(ct);
+        _connection.SendSocial(new BellatraClanRequestPacket(action, npcId, (ulong)Math.Max(0, amount)));
+    }
+
     public async Task SendClanMarkAsync(byte[] pixels, CancellationToken ct = default)
     {
         await _start.WaitAsync(ct);

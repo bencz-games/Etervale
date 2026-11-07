@@ -84,6 +84,7 @@ public sealed partial class FieldInstance
         var score = BellatraRules.Score((long)Math.Min(killed.Def.ExpReward, long.MaxValue), BellatraScoreDivisor, killed.BellatraBoss, game.Round);
         entrant.Score += score;
         game.TeamScores[entrant.Team] += score;
+        game.Revision++;
         if (killed.BellatraBoss)
         {
             BellatraBossKills.Add((killerId, score));

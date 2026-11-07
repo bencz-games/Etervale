@@ -62,6 +62,11 @@ public sealed record PresenceUpdate(
     public CastleOwnerInfo? CastleOwner { get; init; }
     public CastleOwnerResultInfo? CastleOwnerResult { get; init; }
 
+    // The local player's Bellatra board, the secretary's window and how a request of it ended.
+    public BellatraBoardInfo? Bellatra { get; init; }
+    public BellatraClanInfo? BellatraClan { get; init; }
+    public BellatraClanResultInfo? BellatraClanResult { get; init; }
+
     // The local player's trade window when it changed (TradeInfo.None once it ended), and a player's request to trade.
     public TradeInfo? Trade { get; init; }
     public TradeRequestInfo? TradeRequest { get; init; }

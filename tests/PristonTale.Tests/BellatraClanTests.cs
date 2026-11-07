@@ -12,6 +12,8 @@ using PristonTale.Protocol.Packets;
 using PristonTale.Simulation.Social.Clans;
 using PristonTale.Simulation.World.Bellatra;
 
+using PristonTale.Contracts.Social;
+
 namespace PristonTale.Tests;
 
 internal static class BellatraClanTests
@@ -24,7 +26,7 @@ internal static class BellatraClanTests
         yield return ("yesterday's best clan operates Bellatra and gains the tax of today's prizes; nobody operates after a day without games, and no day turns before the clans are loaded", OperatingAsync);
         yield return ("the operating clan's chief redeems its income at the secretary alone into its gold; others, a team booth and more than the balance are refused",
             RedeemAsync);
-        yield return ("the secretary's request, state and result cross the wire whole", WireAsync);
+        yield return ("the secretary's request, state and result and an entrant's board cross the wire whole", WireAsync);
     }
 
     private static Task DaysAsync()
@@ -124,7 +126,8 @@ internal static class BellatraClanTests
         var secretary = await WorldPump.RunAsync(arena.World, arena.Npc.RequestAsync(arena.Session.SessionToken, arena.Booth(Simulation.World.Npcs.NpcServiceAction.Open)));
         var ticket = await WorldPump.RunAsync(arena.World, arena.Npc.RequestAsync(arena.Session.SessionToken,
             arena.Booth(Simulation.World.Npcs.NpcServiceAction.EnterBellatra)));
-        Assert.True(secretary.Outcome.Ok && secretary.Outcome.Message == GameText.None && ticket.Outcome.Status == Simulation.World.Npcs.NpcServiceStatus.Rejected
+        Assert.True(secretary.Outcome.Ok && secretary.Outcome.Message == GameText.None && secretary.Destinations is null or []
+            && ticket.Outcome.Status == Simulation.World.Npcs.NpcServiceStatus.Rejected
             && arena.Session.FieldId == BellatraArena.Village, "the secretary answered as a team booth or sold a ticket");
         var repository = new MemoryBellatra();
         repository.Balances[7] = 1_000;
@@ -155,6 +158,11 @@ internal static class BellatraClanTests
         var full = state with { Top = [.. Enumerable.Range(0, Contracts.Social.BellatraLimits.TopClans).Select(static index => new BellatraClanRankWire(new string('W', 24), ulong.MaxValue))] };
         Assert.True(full.Write(buffer) <= BellatraClanStatePacket.MaxSize && BellatraClanStatePacket.Read(buffer.AsSpan(0, BellatraClanStatePacket.None.Write(buffer))) == BellatraClanStatePacket.None,
             "the largest state or the empty one differs");
+        var board = new BellatraBoardPacket(true, 7, 2, 1, 123_456, [1, 2, 3, ulong.MaxValue]);
+        var readBoard = BellatraBoardPacket.Read(buffer.AsSpan(0, board.Write(buffer)));
+        Assert.True(readBoard with { TeamScores = [] } == board with { TeamScores = [] } && readBoard.TeamScores.SequenceEqual(board.TeamScores)
+            && board.Write(buffer) <= BellatraBoardPacket.MaxSize && BellatraBoardPacket.Read(buffer.AsSpan(0, BellatraBoardPacket.Hidden.Write(buffer))) == BellatraBoardPacket.Hidden,
+            "the board did not cross the wire");
         var result = new BellatraClanResultPacket(BellatraClanAction.Open, 3);
         Assert.True(BellatraClanResultPacket.Read(buffer.AsSpan(0, result.Write(buffer))) == result, "the result did not cross the wire");
         return Task.CompletedTask;

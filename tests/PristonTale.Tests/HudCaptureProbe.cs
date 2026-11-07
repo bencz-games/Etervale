@@ -107,6 +107,7 @@ internal sealed class HudCaptureProbe : Game
     private const uint ResetterNpc = 15;
     private const uint ClanMasterNpc = 16;
     private const uint ButlerNpc = 17;
+    private const uint SecretaryNpc = 18;
 
     private enum ProbePlates
     {
@@ -129,7 +130,7 @@ internal sealed class HudCaptureProbe : Game
         int ServiceButton = -1, bool SellMode = false, int ServiceCount = 2, int RightSelect = -1, bool Buffs = false, bool Block = false,
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
         ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false, ProbePlates Plates = ProbePlates.None, bool ClanPage = false,
-        bool Siege = false, int CastleButton = -1, bool CastleChief = true);
+        bool Siege = false, int CastleButton = -1, bool CastleChief = true, bool Bellatra = false, int BellatraButton = -1);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -216,6 +217,10 @@ internal sealed class HudCaptureProbe : Game
         new("castle-owner-towers-800", 800, 600, Npc: true, NpcId: ButlerNpc, ServiceButton: 0, ServiceCount: 1, CastleButton: 2),
         new("castle-owner-tax-800", 800, 600, Npc: true, NpcId: ButlerNpc, ServiceButton: 0, ServiceCount: 1, CastleButton: 0),
         new("castle-owner-mercenaries-1280", 1280, 720, Npc: true, NpcId: ButlerNpc, ServiceButton: 0, ServiceCount: 1, CastleButton: 3),
+        new("bellatra-board-800", 800, 600, Bellatra: true),
+        new("bellatra-board-1280x720", 1280, 720, Bellatra: true),
+        new("bellatra-secretary-800", 800, 600, Npc: true, NpcId: SecretaryNpc, ServiceButton: 0, ServiceCount: 1),
+        new("bellatra-ranking-800", 800, 600, Npc: true, NpcId: SecretaryNpc, ServiceButton: 0, ServiceCount: 1, BellatraButton: 1),
         new("system-menu-800", 800, 600, SystemMenu: true),
         new("settings-800", 800, 600, Hover: Hover.SettingsRow, Settings: true),
         new("settings-1600x1200-scale2", 1600, 1200, Settings: true),
@@ -425,6 +430,9 @@ internal sealed class HudCaptureProbe : Game
                 });
             }
 
+            // Boards of an earlier scenario stay on the shared HUD otherwise.
+            _hud.InCastleField = false;
+            _hud.ObserveBellatra(new PresenceUpdate(1, [], [], [], []) { Bellatra = BellatraBoardInfo.Hidden });
             if (scenario.Siege)
             {
                 _hud.InCastleField = true;
@@ -435,6 +443,14 @@ internal sealed class HudCaptureProbe : Game
                         new CastleClanInfo(9, "Tigers", 52_000), new CastleClanInfo(7, "Lions", 31_000), new CastleClanInfo(11, "Wolves", 9_500),
                         new CastleClanInfo(12, "Hawks", 4_100)
                     ], 96_600)
+                });
+            }
+
+            if (scenario.Bellatra)
+            {
+                _hud.ObserveBellatra(new PresenceUpdate(1, [], [], [], [])
+                {
+                    Bellatra = new BellatraBoardInfo(true, 5, 1, 48_250, [31_200, 96_400, 12_050, 0], Contracts.Social.BellatraOutcome.GoesOn)
                 });
             }
 
@@ -468,6 +484,20 @@ internal sealed class HudCaptureProbe : Game
                 {
                     Click(state, layout, HudNpcPanel.ServiceButton(scenario.CastleButton, 5).Center);
                     Click(state, layout, new Point(HudNpcPanel.TextLeft + 30, HudNpcPanel.TextTop + 2 * HudPainter.LineHeight + 4));
+                }
+            }
+
+            if (scenario.NpcId == SecretaryNpc)
+            {
+                _hud.ObserveBellatra(new PresenceUpdate(1, [], [], [], [])
+                {
+                    BellatraClan = new BellatraClanInfo(true, 7, "Lions", "Founder", 5, 1_234_567, true,
+                        [new BellatraClanRankInfo("Lions", 412_000), new BellatraClanRankInfo("Tigers", 288_500), new BellatraClanRankInfo("Wolves", 97_300)]),
+                    BellatraClanResult = new BellatraClanResultInfo(Protocol.Packets.BellatraClanAction.Open, Contracts.Social.BellatraClanStatus.Ok)
+                });
+                if (scenario.BellatraButton >= 0)
+                {
+                    Click(state, layout, HudNpcPanel.ServiceButton(scenario.BellatraButton, 2).Center);
                 }
             }
 
@@ -704,6 +734,8 @@ internal sealed class HudCaptureProbe : Game
                 ["All matters of clans are handled by me!"], GameText.None),
             ButlerNpc => new NpcInteraction(true, id, "Butler Anders", [Offer(NpcServiceKind.BlessCastle, 0, true)],
                 ["How may I serve the lords of Bless Castle?"], GameText.None),
+            SecretaryNpc => new NpcInteraction(true, id, "Secretary Karina", [Offer(NpcServiceKind.EventBooth, Simulation.World.Bellatra.BellatraRules.SecretaryBooth, true)],
+                ["I manage Bellatra's operation."], GameText.None),
             SmelterNpc => new NpcInteraction(true, id, "Smelter Ruby", [Offer(NpcServiceKind.QuestGiver, 1019, false), Offer(NpcServiceKind.Smelting, 0, true)],
                 ["Three ores or crystals of one colour and their sheltom."], GameText.None),
             CraftsmanNpc => new NpcInteraction(true, id, "Craftsman Salon",

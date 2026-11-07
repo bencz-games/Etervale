@@ -9,4 +9,7 @@ public sealed partial class GameScene
 {
     public void SendCastleOwner(CastleOwnerAction action, ulong npcId, CastleSetup setup, long amount) =>
         SendSocial(_playChannel?.SendCastleOwnerAsync(action, npcId, setup, amount, _presenceCts.Token), "castle owner request");
+
+    public void SendBellatraClan(BellatraClanAction action, ulong npcId, long amount) =>
+        SendSocial(_playChannel?.SendBellatraClanAsync(action, npcId, amount, _presenceCts.Token), "Bellatra secretary request");
 }

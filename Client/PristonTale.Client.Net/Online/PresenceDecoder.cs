@@ -146,6 +146,12 @@ internal sealed class PresenceDecoder : IEventHandleReader
             EtervaleOpcodes.ClanState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Clan = Clan(ClanStatePacket.Read(packet)) },
             EtervaleOpcodes.CastleState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Castle = Castle(CastleStatePacket.Read(packet)) },
             EtervaleOpcodes.CastleOwnerState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { CastleOwner = CastleOwner(CastleOwnerStatePacket.Read(packet)) },
+            EtervaleOpcodes.BellatraBoard => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Bellatra = Bellatra(BellatraBoardPacket.Read(packet)) },
+            EtervaleOpcodes.BellatraClanState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { BellatraClan = BellatraClan(BellatraClanStatePacket.Read(packet)) },
+            EtervaleOpcodes.BellatraClanResult => new PresenceUpdate(_tick, [], [], [], [], FieldId)
+            {
+                BellatraClanResult = BellatraClanResultPacket.Read(packet) is var bellatra ? new BellatraClanResultInfo(bellatra.Action, (Contracts.Social.BellatraClanStatus)bellatra.Status) : null
+            },
             EtervaleOpcodes.CastleOwnerResult => new PresenceUpdate(_tick, [], [], [], [], FieldId)
             {
                 CastleOwnerResult = CastleOwnerResultPacket.Read(packet) is var result
@@ -247,6 +253,15 @@ internal sealed class PresenceDecoder : IEventHandleReader
         new((long)packet.OwnerClanId, packet.OwnerName, packet.Tax, (Simulation.Social.Castle.SiegeState)packet.Siege, packet.League, packet.SecondsLeft,
             packet.DoorDown, packet.Crystals, [.. packet.Top.Select(static clan => new CastleClanInfo((long)clan.ClanId, clan.Name, (long)clan.Damage))],
             (long)packet.TotalDamage);
+
+    private static BellatraBoardInfo Bellatra(BellatraBoardPacket packet) => !packet.Shown ? BellatraBoardInfo.Hidden
+        : new BellatraBoardInfo(true, packet.Round, packet.Team, (long)Math.Min(packet.Score, long.MaxValue),
+            [.. packet.TeamScores.Select(static score => (long)Math.Min(score, long.MaxValue))], (Contracts.Social.BellatraOutcome)packet.Outcome);
+
+    private static BellatraClanInfo BellatraClan(BellatraClanStatePacket packet) => !packet.HasView ? BellatraClanInfo.None
+        : new BellatraClanInfo(true, (long)Math.Min(packet.OperatingClanId, long.MaxValue), packet.OperatingName, packet.Chief, packet.Tax,
+            (long)Math.Min(packet.Balance, long.MaxValue), packet.CanRedeem,
+            [.. packet.Top.Select(static clan => new BellatraClanRankInfo(clan.Name, (long)Math.Min(clan.Points, long.MaxValue)))]);
 
     private static CastleOwnerInfo CastleOwner(CastleOwnerStatePacket packet) => !packet.HasView ? CastleOwnerInfo.None
         : new CastleOwnerInfo(true, (long)Math.Min(packet.Treasury, long.MaxValue), packet.Tax,

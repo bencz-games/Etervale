@@ -562,7 +562,16 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   castle, the castle door, the crystal towers standing and the best clans with their share of the damage (the player's
   own clan in gold). When a siege ends, players in the castle field see a notice that their clan holds the castle or
   that the siege is over. While the server runs the league mode, clicks on other players never attack
-  (`GameScene.CastleLeague`), as the server lets nobody fight then.
+  (`GameScene.CastleLeague`), as the server lets nobody fight then. The siege board and Bellatra's draw their lines the
+  same way (`HudSideBoard`).
+- Bellatra (`GameplayHud.Bellatra`): a team booth answers its refusal or the ticket's price in the notice strip and
+  offers the ticket as the NPC panel's one destination (a click buys it with `EnterBellatra`). While the server shows
+  the board (`BellatraBoard`, the player in the arena), `HudBellatraBoard` on the right under the target frame shows
+  the round, the player's score and the four teams' scores (the player's team in gold); a notice tells a round's start,
+  the team going on, the team out and the game over. The secretary (`EventBooth` value 5) opens `HudBellatraWindow`:
+  the operating clan, its chief, the tax, the clan's income with Redeem for its chief (the count box asks how much),
+  and the Ranking page of yesterday's best clans; a refused request shows its reason. The butler's and the secretary's
+  windows share their frame, lines and buttons (`HudPanelPage`).
 - Status window: attribute buttons send `ProgressionCommand` with `ProgressionRevision`; the organic, poison, fire,
   lightning and ice resistance boxes show the owner's resistances; the Clan box shows the owner's clan mark and name.
 - Block feedback (`HudStringEffect`): when the player blocks a blow, the original `block.tga` word shows at (354, 488)

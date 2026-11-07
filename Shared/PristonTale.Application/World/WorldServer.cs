@@ -798,7 +798,8 @@ public sealed partial class WorldServer
                     Party = connection.Player.Party?.View,
                     PartyRequest = connection.Player.PartyRequest,
                     Trade = connection.Player.Trade?.ViewFor(entityId),
-                    TradeRequest = connection.Player.TradeRequest
+                    TradeRequest = connection.Player.TradeRequest,
+                    Bellatra = BellatraViewOf(connection)
                 });
                 // Only an outbox pins and releases frames; any other writer may keep the snapshot forever.
                 frame.Retained |= connection.Outbound is not WorldOutbox.OutboxWriter;

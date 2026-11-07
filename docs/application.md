@@ -766,12 +766,12 @@ game hour lasting 48 s). The world owns the game (`BellatraGame`) and steps it o
 characters, so a relog keeps a player's place and score.
 
 - Tickets: a team booth (`NpcServiceKind.EventBooth`, value 1 to 4 = team 0 to 3; the Navisko booths) answers on
-  opening why it refuses or the ticket's price (`BellatraBooth`), and sells it (`NpcServiceAction.EnterBellatra`)
-  while Bellatra is open (`bellatra.mode`, `BellatraRules.IsOpen`), between games, at game hours 4 and 5, to a
-  character of level 40 or more not entered yet while the team's entrants' levels do not pass 549 (two tickets
-  prepared together may pass it by one), for 300 gold a level (`CurrencySink.BellatraTickets`). The ticket is a
-  durable NPC payment that arrives at the team's room centre; its commit enters the team
-  (`PreparedNpcOperation.BellatraTeam`).
+  opening why it refuses or the ticket's price (`BellatraBooth`), and sells it (`NpcServiceAction.EnterBellatra`) while
+  Bellatra is open (`bellatra.mode`, `BellatraRules.IsOpen`), between games, at game hours 4 and 5, to a character of
+  level 40 or more not entered yet while the team's entrants' levels do not pass 549 (two tickets prepared together may
+  pass it by one), for 300 gold a level (`CurrencySink.BellatraTickets`); when it would sell, its answer on opening
+  carries the ticket as its one destination (`BellatraBooth.Answer`). The ticket is a durable NPC payment that arrives
+  at the team's room centre; its commit enters the team (`PreparedNpcOperation.BellatraTeam`).
 - Rounds: eight rounds of one of three tables (`BellatraRounds`; each game after the first picks one with the world's
   seeded draw) start as the game clock reaches hours 6, 8, 10, 12, 15, 18, 21 and 0, the game ending at 3; a clock
   that jumps (a changed clock offset) starts each hour it passed in turn (`BellatraRules.HourReached`). A day whose
@@ -803,6 +803,14 @@ characters, so a relog keeps a player's place and score.
   payment of that service value), the redemption stored with the character and a `BellatraRedemption` movement
   before the gold reaches it. Storage runs off the tick under one gate; a refused storage loses a prize's points and
   income (logged).
+- Boards: a player in the arena is sent its board in its snapshot (`WorldSnapshot.Bellatra`, `BellatraView`: the
+  round, its team, its score, the teams' scores and how its last round start or the end went), made again only when
+  the game's revision changed (`BellatraGame.ViewOf`); a player who left the game keeps its last board until it leaves
+  the arena (`BellatraGame.Leaving`). Each round start sets every entrant playing, and those going on to a new room.
+- Prizes are paid off the tick (`WorldServer.BellatraPrizes`, `BellatraAppService`, `BellatraService`) through the
+  path of every character change, a fixed gold amount, tried again a few times while the player is busy with another
+  change; the player is told the prize, the gold limit that refused it or why it failed. A prize still waiting when the
+  server stops, or owed to a player who left, is lost.
 
 ## Published outcomes and events
 
@@ -816,7 +824,8 @@ characters, so a relog keeps a player's place and score.
   (only
   when changed) and its cooldowns (null when unchanged since the last send); each copy also carries the receiver's
   `QuestUpdate` (journal view when its revision moved, quest notices, a dialog the world opened), its `PartyView`, its
-  `TradeView` and its pending `PartyRequest` and `TradeRequest`.
+  `TradeView`, its pending `PartyRequest` and `TradeRequest`, and its Bellatra board in the arena (`BellatraView`); the
+  outbox keeps them all when it joins snapshots or drops a reused frame (`WorldSnapshot.WithEvents`, `WithoutFrame`).
 - `WorldOutbox` is the per-connection `Channel<WorldSnapshot>`: a write never blocks; the reader receives the latest
   entity state plus every event accumulated since its last read (state is coalesced, events are reliable, the newest
   cooldown list wins; quest notices stay in order up to 256 and the newest journal view and dialog win). A reader that

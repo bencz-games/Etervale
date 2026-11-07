@@ -91,6 +91,9 @@ public interface IPlayChannel : IAsyncDisposable
     Task SendCastleOwnerAsync(Protocol.Packets.CastleOwnerAction action, ulong npcId, Simulation.Social.Castle.CastleSetup setup, long amount,
         CancellationToken ct = default);
 
+    // A request of Bellatra's secretary (a redemption's gold), answered by a BellatraClanResult and the window's state.
+    Task SendBellatraClanAsync(Protocol.Packets.BellatraClanAction action, ulong npcId, long amount, CancellationToken ct = default);
+
     // Trade requests: ask a player to trade, answer a request (PresenceUpdate.TradeRequest), the side's whole offer, lock it,
     // cancel. None is answered: the window (PresenceUpdate.Trade) and chat lines show what changed.
     Task RequestTradeAsync(ulong targetId, CancellationToken ct = default);

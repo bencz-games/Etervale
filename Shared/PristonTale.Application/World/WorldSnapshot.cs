@@ -259,6 +259,9 @@ public readonly struct WorldSnapshot
     public PartyView? Party { get; init; }
     public PartyRequest? PartyRequest { get; init; }
 
+    // The receiver's Bellatra board while it is in the arena (null elsewhere); a new one each time it changes.
+    public BellatraView? Bellatra { get; init; }
+
     // The receiver's trade window (null when it trades with nobody) and the request to trade it has not answered.
     public TradeView? Trade { get; init; }
     public TradeRequest? TradeRequest { get; init; }
@@ -297,7 +300,25 @@ public readonly struct WorldSnapshot
         PartyRequest = PartyRequest,
         Trade = Trade,
         TradeRequest = TradeRequest,
+        Bellatra = Bellatra,
         Pinned = Pinned,
         PinKey = PinKey
+    };
+
+    // The snapshot without the field's entity state (its frame was reused), the receiver's own parts kept.
+    internal WorldSnapshot WithoutFrame() => new(ServerTick, [], Events, FieldId, Owner, GroundDrops)
+    {
+        SkillEvents = SkillEvents,
+        StatusEvents = StatusEvents,
+        ItemEffects = ItemEffects,
+        Cooldowns = Cooldowns,
+        Weather = Weather,
+        Quest = Quest,
+        Restart = Restart,
+        Party = Party,
+        PartyRequest = PartyRequest,
+        Trade = Trade,
+        TradeRequest = TradeRequest,
+        Bellatra = Bellatra
     };
 }

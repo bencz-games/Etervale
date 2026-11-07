@@ -1,5 +1,6 @@
 using PristonTale.Contracts.Texts;
 using PristonTale.Simulation.Characters;
+using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Bellatra;
 using PristonTale.Simulation.World.Npcs;
 
@@ -30,11 +31,20 @@ internal sealed class BellatraBooth(bool open, int gameHour, BellatraGame game)
         };
     }
 
-    // The booth's answer on opening: why it refuses, or the ticket's price.
-    public GameText Answer(PlayerCharacter character, int team) =>
-        Refusal(character, team) is var refusal && refusal != NpcServiceStatus.Ok
-            ? NpcServiceTransactions.Describe(refusal)
-            : GameText.Of(GameTextId.BellatraTicket, BellatraRules.Fee(character.Level));
+    // The booth's answer on opening: why it refuses, or the ticket's price with the ticket offered as the one destination
+    // its player buys (the destination's index is not read).
+    public GameText Answer(PlayerCharacter character, int team, WorldCatalog world, out TeleportOffer? ticket)
+    {
+        ticket = null;
+        if (Refusal(character, team) is var refusal && refusal != NpcServiceStatus.Ok)
+        {
+            return NpcServiceTransactions.Describe(refusal);
+        }
+
+        ticket = new TeleportOffer(0, BellatraArena.Field, world.TryGetFieldByCode(BellatraArena.Field, out var arena) ? arena.Name : "",
+            BellatraRules.Fee(character.Level), BellatraRules.MinLevel);
+        return GameText.Of(GameTextId.BellatraTicket, BellatraRules.Fee(character.Level));
+    }
 
     // The candidate pays the ticket and goes to its team's room.
     public NpcServiceStatus Admit(PlayerCharacter candidate, int team, out TeleportArrival? arrival)

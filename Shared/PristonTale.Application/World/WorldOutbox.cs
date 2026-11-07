@@ -91,7 +91,7 @@ public sealed class WorldOutbox : Channel<WorldSnapshot>
                 // no entity state any more.
                 latest = frame.TryPin(latest.FrameGeneration, _pinKey)
                     ? latest.WithPin(_pinKey)
-                    : new WorldSnapshot(latest.ServerTick, [], latest.Events, latest.FieldId, latest.Owner, latest.GroundDrops);
+                    : latest.WithoutFrame();
             }
 
             snapshot = WithBatches(latest) with

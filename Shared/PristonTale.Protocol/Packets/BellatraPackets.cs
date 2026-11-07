@@ -140,3 +140,57 @@ public readonly record struct BellatraClanResultPacket(BellatraClanAction Action
         return new BellatraClanResultPacket((BellatraClanAction)reader.Byte(), reader.Byte());
     }
 }
+
+// S->C a Bellatra entrant's board while it is in the arena: {header, uint8 Shown (0 hides it), then uint8 Round (0
+// between rounds), uint8 Team (0 to 3), uint8 Outcome (0 playing, 1 the team goes on, 2 the team is out, 3 the game is
+// over), varuint Score, varuint x BellatraLimits.Teams TeamScores}.
+public sealed record BellatraBoardPacket(bool Shown, byte Round, byte Team, byte Outcome, ulong Score, IReadOnlyList<ulong> TeamScores) : IFramePacket
+{
+    public const int MaxSize = 8 + WireHeader.Size + 4 + (1 + BellatraLimits.Teams) * VarInt.MaxBytes64;
+
+    public static readonly BellatraBoardPacket Hidden = new(false, 0, 0, 0, 0, new ulong[BellatraLimits.Teams]);
+
+    public int Write(Span<byte> destination)
+    {
+        if (TeamScores.Count != BellatraLimits.Teams)
+        {
+            throw new InvalidOperationException("Bellatra's board has four teams.");
+        }
+
+        var writer = new PacketWriter(destination, EtervaleOpcodes.BellatraBoard);
+        BellatraWire.Header(ref writer);
+        writer.Byte(Shown ? (byte)1 : (byte)0);
+        if (Shown)
+        {
+            writer.Byte(Round);
+            writer.Byte(Team);
+            writer.Byte(Outcome);
+            writer.VarUInt(Score);
+            foreach (var score in TeamScores)
+            {
+                writer.VarUInt(score);
+            }
+        }
+
+        return writer.Finish();
+    }
+
+    public static BellatraBoardPacket Read(ReadOnlySpan<byte> packet)
+    {
+        var reader = new PacketReader(packet, 8 + WireHeader.Size + 1);
+        BellatraWire.ReadHeader(ref reader);
+        if (reader.Byte() == 0)
+        {
+            return Hidden;
+        }
+
+        var (round, team, outcome, score) = (reader.Byte(), reader.Byte(), reader.Byte(), reader.VarUInt());
+        var teams = new ulong[BellatraLimits.Teams];
+        for (var index = 0; index < teams.Length; index++)
+        {
+            teams[index] = reader.VarUInt();
+        }
+
+        return new BellatraBoardPacket(true, round, team, outcome, score, teams);
+    }
+}

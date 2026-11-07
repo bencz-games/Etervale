@@ -26,10 +26,10 @@ public sealed class HudCastleWindow
         Mercenaries
     }
 
-    private const int LineStep = HudPainter.LineHeight;
+    private const int LineStep = HudPanelPage.LineStep;
     private static readonly Color Highlight = HudTextColors.Marked;
-    private static readonly Color Chosen = new(255, 200, 40);
-    private static readonly Color Muted = new(170, 170, 170);
+    private static readonly Color Chosen = HudPanelPage.Chosen;
+    private static readonly Color Muted = HudPanelPage.Muted;
     private static readonly string[] TowerNames = ["Castle.TowerOuterA", "Castle.TowerOuterB", "Castle.TowerInnerA", "Castle.TowerInnerB",
         "Castle.TowerInnerC", "Castle.TowerInnerD"];
     private static readonly string[] MercenaryNames = ["Castle.MercenaryA", "Castle.MercenaryB", "Castle.MercenaryC"];
@@ -117,13 +117,10 @@ public sealed class HudCastleWindow
             return true;
         }
 
-        for (var index = 0; index < _buttons.Length; index++)
+        if (HudPanelPage.ButtonAt(pointer, _buttons.Length) is var button && button >= 0)
         {
-            if (HudNpcPanel.ServiceButton(index, _buttons.Length).Contains(pointer))
-            {
-                Activate(_buttons[index]);
-                return true;
-            }
+            Activate(_buttons[button]);
+            return true;
         }
 
         if (LineAt(pointer) is var line && line >= 0 && _rows[line].Choice >= 0)
@@ -143,10 +140,7 @@ public sealed class HudCastleWindow
 
         _fitted ??= [.. _rows.Select(row => painter.Fit(row.Text, HudNpcPanel.TextWidth))];
         _fittedButtons ??= [.. _buttons.Select(button => painter.Fit(ClientText.Get(button), HudNpcPanel.ButtonWidth - 10))];
-        painter.HelpBox(HudNpcPanel.BoxX, HudNpcPanel.BoxY, HudNpcPanel.SizeW, HudNpcPanel.SizeH);
-        var title = HudNpcPanel.Title;
-        HudNpcPanel.DrawPlate(painter, title, Color.White);
-        painter.TextCentered(ClientText.Get("NpcService.BlessCastle"), title.Left, title.Right, title.Y + 7, HudTextColors.BoxTitle);
+        HudPanelPage.Frame(painter, ClientText.Get("NpcService.BlessCastle"));
         var hovered = LineAt(pointer);
         for (var line = 0; line < _rows.Length && line < Capacity(); line++)
         {
@@ -154,17 +148,7 @@ public sealed class HudCastleWindow
             painter.Text(_fitted[line], HudNpcPanel.TextLeft, HudNpcPanel.TextTop + LineStep * line, line == hovered && choice >= 0 && !Pending ? Highlight : color);
         }
 
-        for (var index = 0; index < _buttons.Length; index++)
-        {
-            var bounds = HudNpcPanel.ServiceButton(index, _buttons.Length);
-            painter.Sprite(HudArt.HelpTitle, bounds.X, bounds.Y);
-            var color = Pending ? Muted : bounds.Contains(pointer) ? Highlight : Color.White;
-            painter.TextCentered(_fittedButtons[index], bounds.Left, bounds.Right, bounds.Y + 7, color);
-        }
-
-        var ok = HudNpcPanel.OkButton;
-        painter.Sprite(HudArt.HelpButton, ok.X - 9, ok.Y - 4);
-        painter.Sprite(ok.Contains(pointer) ? HudArt.OkYellow : HudArt.OkGray, ok.X, ok.Y);
+        HudPanelPage.Buttons(painter, _fittedButtons, pointer, Pending);
     }
 
     private void Activate(string button)
@@ -318,20 +302,7 @@ public sealed class HudCastleWindow
 
     private static string Gold(long value) => value.ToString("N0", CultureInfo.InvariantCulture);
 
-    private int Capacity()
-    {
-        var top = _buttons.Length > 0 ? HudNpcPanel.ServiceButton(0, _buttons.Length).Y : HudNpcPanel.OkButton.Y;
-        return Math.Clamp((top - 8 - HudNpcPanel.TextTop) / LineStep, 1, HudNpcPanel.VisibleLines);
-    }
+    private int Capacity() => HudPanelPage.Capacity(_buttons.Length);
 
-    private int LineAt(Point pointer)
-    {
-        if (pointer.X < HudNpcPanel.TextLeft || pointer.X > HudNpcPanel.TextLeft + HudNpcPanel.TextWidth || pointer.Y < HudNpcPanel.TextTop)
-        {
-            return -1;
-        }
-
-        var line = (pointer.Y - HudNpcPanel.TextTop) / LineStep;
-        return line < Capacity() && line < _rows.Length ? line : -1;
-    }
+    private int LineAt(Point pointer) => HudPanelPage.LineAt(pointer, _rows.Length, _buttons.Length);
 }
