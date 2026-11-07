@@ -97,7 +97,7 @@ internal static class WireMapping
         (byte)owner.WeaponSet);
 
     public static InventoryItemEntry Item(OwnedItemView item) => new(
-        item.InstanceId, item.Code, (int)item.Kind, item.Count, item.Anchor, item.Slot, (short)item.Width, (short)item.Height, item.Name);
+        item.InstanceId, item.Code, (int)item.Kind, item.Count, item.Anchor, item.Slot, (short)item.Width, (short)item.Height, item.Name, item.Link);
 
     public static CombatEventEntry Event(in CombatEventView view)
     {

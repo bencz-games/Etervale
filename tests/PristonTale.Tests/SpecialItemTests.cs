@@ -33,6 +33,7 @@ internal static class SpecialItemTests
         yield return ("premium timers persist with their real-clock expiry and expired ones are dropped on entry", PersistenceAsync);
         yield return ("an EXP potion is consumed, starts its timer at the commit and is stored, replays once and boosts kill experience", ExperiencePotionAsync);
         yield return ("a Teleport Core checks the level, moves the player to the field and is consumed only then", TeleportCoreAsync);
+        yield return ("a Union Core binds to a registered clan's member, then takes another member of that clan to it and is spent", UnionCoreAsync);
         yield return ("stones reset stats and skills, hair tints refuse the same hair, skill masters train the tier", ProgressionItemsAsync);
         yield return ("scrolls and force orbs start item effects; Eternal Life guards and Fatal Edge excludes Avert", ScrollsAndOrbsAsync);
         yield return ("a firecracker publishes its effect to the field and cheers, and the mobile shop sells without an NPC", FirecrackerAndShopAsync);
@@ -70,6 +71,67 @@ internal static class SpecialItemTests
 
         return Task.CompletedTask;
     }
+
+    private static async Task UnionCoreAsync()
+    {
+        var harness = await Harness.CreateAsync(3, "EC105");
+        var character = harness.Session.Character!;
+        async Task<ItemUseReply> UseCore()
+        {
+            var use = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("EC105")));
+            await harness.AdvanceAsync(use);
+            return await use;
+        }
+
+        Assert.True((await UseCore()).Outcome.Status == ItemUseStatus.ClanOnly, "a core worked without a clan");
+        harness.Player.Clan = new Simulation.Social.Clans.ClanTag(7, "Lions", 0);
+        Assert.True((await UseCore()).Outcome.Status == ItemUseStatus.RegisteredClanOnly, "a core worked in a clan still registering");
+        harness.Player.Clan = new Simulation.Social.Clans.ClanTag(7, "Lions", 0, Registered: true);
+        var bound = await UseCore();
+        Assert.True(bound.Outcome is { Ok: true, Message.Id: GameTextId.UnionCoreBound } && harness.Item("EC105")?.Link == character.Name
+            && harness.Repository.Record.Inventory.Value.Contains(character.Name, StringComparison.Ordinal), "the core was not bound to its user and stored");
+        Assert.True((await UseCore()).Outcome.Status == ItemUseStatus.UnionCoreOwn && harness.Item("EC105") is not null, "the binder used its own core");
+        var reloaded = new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, character.Name);
+        CharacterStateCodec.Restore(reloaded, harness.Repository.Record, harness.Holder.Current.Items);
+        Assert.True(reloaded.OwnedItems().Single(item => item.Definition.CatalogKey == "EC105").Link == character.Name, "the bound core lost its member when reloaded");
+
+        harness.Item("EC105")!.Link = "Ally";
+        Assert.True((await UseCore()).Outcome.Status == ItemUseStatus.UnionCoreAway, "a core reached a member out of the world");
+        var castle = await harness.JoinAsync("Guard", FieldCodes.Castle, 3);
+        castle.Clan = harness.Player.Clan;
+        var office = await harness.JoinAsync("Clerk", FieldCodes.OfficeRoom, 4);
+        office.Clan = harness.Player.Clan;
+        var catalog = new WorldCatalog();
+        var deep = catalog.AllFields.First(field => field.LimitLevel > 1 && field.LimitLevel != FieldEntryLevels.Closed && field.State != FieldState.Room
+            && !TravelUsesBlocked(field.FieldCode));
+        var veteran = await harness.JoinAsync("Veteran", deep.FieldCode, 5);
+        veteran.Clan = harness.Player.Clan;
+        foreach (var (name, status) in new[] { ("Guard", ItemUseStatus.UnionCoreAway), ("Clerk", ItemUseStatus.UnionCoreAway), ("Veteran", ItemUseStatus.LevelTooLow) })
+        {
+            harness.Item("EC105")!.Link = name;
+            Assert.True((await UseCore()).Outcome.Status == status && harness.Item("EC105") is not null, $"a core reaching {name} did not answer {status}");
+        }
+
+        harness.Item("EC105")!.Link = "Ally";
+        var ally = await harness.JoinAsync("Ally", 4, 2);
+        ally.Clan = new Simulation.Social.Clans.ClanTag(8, "Tigers", 0, Registered: true);
+        Assert.True((await UseCore()).Outcome.Status == ItemUseStatus.UnionCoreWrongClan, "a core reached another clan's member");
+        ally.Clan = harness.Player.Clan;
+        var travelled = await UseCore();
+        Assert.True(travelled.Outcome.Ok && harness.Item("EC105") is null && harness.Repository.Record.FieldId == 4,
+            $"the core did not take its user to the member and get spent ({travelled.Outcome.Status}, {harness.Repository.Record.FieldId})");
+
+        var entry = new Protocol.Packets.InventoryItemEntry(Guid.NewGuid(), 1, 0, 1, 0, -1, 1, 1, "Union Core", "Ally");
+        var buffer = new byte[Protocol.Binary.FrameCodec.MaxFrameSize];
+        var part = Protocol.Packets.InventoryPartPacket.Read(buffer.AsSpan(0, new Protocol.Packets.InventoryPartPacket(1, 0, 1, [entry]).Write(buffer)));
+        Assert.True(part.Items is [{ Link: "Ally" }], "the inventory entry lost its link");
+        var full = Enumerable.Repeat(entry with { Name = new string('n', Protocol.Packets.InventoryItemEntry.MaxNameBytes),
+            Link = new string('l', Protocol.Packets.InventoryItemEntry.MaxLinkBytes) }, Protocol.Packets.InventoryPartPacket.MaxItemsPerPart).ToArray();
+        Assert.True(new Protocol.Packets.InventoryPartPacket(1, 0, 1, full).Write(buffer) <= Protocol.Binary.FrameCodec.MaxFrameSize,
+            "a full inventory part does not fit one frame");
+    }
+
+    private static bool TravelUsesBlocked(int fieldCode) => fieldCode is FieldCodes.Castle or FieldCodes.QuestArena or FieldCodes.Bellatra;
 
     private static Task ConflictsAsync()
     {
@@ -450,6 +512,19 @@ internal static class SpecialItemTests
         }
 
         public Guid Id(string key) => Item(key)?.InstanceId ?? throw new InvalidOperationException($"{key} is not carried.");
+
+        // Another player in the same world.
+        public async Task<WorldPlayer> JoinAsync(string name, int fieldId, long accountId)
+        {
+            var classes = new CharacterClassRegistry();
+            var session = Sessions.Create(accountId, name);
+            session.Character = classes.CreatePlayer(PlayerClass.Fighter, name);
+            session.Loaded = CharacterRecordFactory.NewStarter(classes, accountId, name, 0, PlayerClass.Fighter, fieldId) with { Id = accountId };
+            Assert.True(session.TryBeginEntry() && session.CompleteEntry(true) && session.TryBeginPlay(), "the other player did not begin play");
+            var player = WorldPlayerFactory.Create(session);
+            await AdvanceAsync(World.JoinAsync(fieldId, player, Channel.CreateUnbounded<WorldSnapshot>().Writer, session));
+            return player;
+        }
 
         public ItemInstance? Item(string key) => Session.Character!.OwnedItems().FirstOrDefault(item => item.Definition.CatalogKey == key);
 

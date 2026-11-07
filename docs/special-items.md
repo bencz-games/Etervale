@@ -56,13 +56,15 @@ and draws the result.
 ## Use flow
 
 1. Right click on a carried item whose catalog key has a rule (`HudInventoryController.UseRequested`). The Teleport
-   Core opens its field list first and asks to confirm the field; the mobile shop asks to confirm the use.
+   Core opens its field list first and asks to confirm the field; the mobile shop and an unbound Union Core (binding it)
+   ask to confirm the use.
 2. `ItemUseCommand {OperationId, ExpectedRevision, ItemId, Argument, Text}` goes to the server
    (`ItemUseAppService.UseAsync`). `Argument` is the Teleport Core destination index. A dead player's client sends its
    Restoration by itself ten seconds after death in a castle field.
 3. Tick (`ItemUseTransactions.Prepare`): replay check (the same id answers its recorded outcome), inventory revision,
    carried item with a rule, then the rule's checks (dead, village ban, level, conflicts, field, target). A refusal is
-   final and consumes nothing. Otherwise a candidate consumes one item (a puzzle bag stays and is unsealed), adds what
+   final and consumes nothing. Otherwise a candidate consumes one item (a puzzle bag stays and is unsealed; an unbound
+   Union Core stays and is bound), adds what
    the family adds (a box's prize, the crystal's drawn monster, the gold a reveal takes), applies the character part and
    records the use.
 4. The candidate's save snapshot is stored (hair tints also store `hair_index`), then `CommitItemUseAsync` applies the
@@ -75,8 +77,9 @@ and draws the result.
 | --- | --- |
 | `AlreadyRunning` | The same timer, scroll or force orb runs, or a package's timers run |
 | `SameAttribute` | Vampiric Cuspid and its Super version exclude each other; one helper pet at a time |
-| `NotHere` | Village for scrolls and force orbs, a room field, Bellatra or the quest arena for travel, towns and the castle for the mobile shop, Fatal Edge against a running Avert Scroll and the reverse |
-| `LevelTooLow` | Helper pets need level 10; Teleport Core destinations and force orbs have their own levels |
+| `NotHere` | Village for scrolls and force orbs, a room field, Bellatra or the quest arena for travel (the quest arena for a Union Core user), towns and the castle for the mobile shop, Fatal Edge against a running Avert Scroll and the reverse |
+| `LevelTooLow` | Helper pets need level 10; Teleport Core destinations and force orbs have their own levels; a Union Core's member stands in a field above the user's entry level |
+| `UnionCoreOwn`, `UnionCoreAway`, `UnionCoreWrongClan` | A Union Core used by its binder; its member out of the world, in a room, the castle, the quest arena or Bellatra; its member of another clan |
 | `NothingToChange` | Nothing to reset or train, the same hair, no aged item worn, five Gravity Scrolls used, a revealed piece |
 | `Delay` | A billing crystal or soul stone within three seconds of the last crystal; eating while eating; Restoration early |
 | `ClanOnly`, `RegisteredClanOnly` | Clan crystals and the Union Core without a clan, or in a clan still registering |
@@ -216,8 +219,13 @@ SP183, SP185, SP186, the SP2xx keys, BC104, BC117-120, BC136, BC137, BC141, GP12
 GP141-144, GP301-313, GP342-344, EC106, EC107, BI195-198, BI240-244, BI248-257, BI260, BI263-277, BI284-299, every
 BI5xx key, FO113-115, FO133-137 and FO151-163. GF, SD and QT items are exchange, quest or pick-up items, not used from
 the inventory. The Field Core (BI193, BI194) has no rule beyond its level-20 gate and no item data. EC103 returns to
-no town: it guards for 10 s with the return sparkle where the player stands. EC105, the Union Core, needs a regular
-clan and refuses (`ClanOnly`).
+no town: it guards for 10 s with the return sparkle where the player stands. EC105, the Union Core (`UnionCoreUse`),
+gathers a registered clan and never works in a room (`ClanOnly`, `RegisteredClanOnly`). Its first use, confirmed first,
+binds it to its user (`ItemInstance.Link`, the character's name, saved with the item and shown in its tooltip); the
+binder cannot use it (`UnionCoreOwn`). Another member using a bound core goes to the bound member's place and the core is
+spent: the member must be in the world outside a room, the castle, the quest arena and Bellatra (`UnionCoreAway`), of
+the same clan (`UnionCoreWrongClan`), in a field the user's level may enter (`LevelTooLow`), and the user outside the
+quest arena. Like the Teleport Core, the place is the one the use was checked at.
 
 ## Client presentation
 

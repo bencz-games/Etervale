@@ -33,8 +33,9 @@ public sealed record PreparedItemUseOperation(
 
 // The tick's view of one use: who, where, the catalogs, the real clock and the rolls. Pick is 0..9999 for the tables of
 // crystals, boxes and puzzles; NowMs is the real clock in milliseconds for the crystal delay.
+// PlayerNamed finds a player in the world by character name, with its field.
 internal sealed record ItemUseContext(PlayerSession Session, WorldPlayer Player, FieldInstance Field, WorldCatalog World, ItemCatalog Items,
-    long NowSeconds, long NowMs, int Roll, int Pick, ISimRng Rng, bool CrystalEvent);
+    long NowSeconds, long NowMs, int Roll, int Pick, ISimRng Rng, bool CrystalEvent, Func<string, (WorldPlayer Player, int FieldId)?> PlayerNamed);
 
 // What a use adds to its candidate beyond the character part: a refusal, the crystal's monster, the gold taken, the
 // food eaten and the line the player reads.

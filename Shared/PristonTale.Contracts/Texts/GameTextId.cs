@@ -272,5 +272,9 @@ public enum GameTextId : ushort
     ClanBusy = 762,
     ClanMarkUnavailable = 763,
     ClanMarkChanged = 764,
-    RegisteredClanOnly = 765
+    RegisteredClanOnly = 765,
+    UnionCoreOwn = 766,
+    UnionCoreAway = 767,
+    UnionCoreWrongClan = 768,
+    UnionCoreBound = 769
 }

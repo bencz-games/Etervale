@@ -32,7 +32,10 @@ public enum ItemUseStatus : ushort
     NotEnoughGold = 19,
     CrystalRefused = 20,
     SummonLimit = 21,
-    RegisteredClanOnly = 22
+    RegisteredClanOnly = 22,
+    UnionCoreOwn = 23,
+    UnionCoreAway = 24,
+    UnionCoreWrongClan = 25
 }
 
 public sealed record ItemUseOutcome(bool Ok, long Revision, ItemUseStatus Status, uint ItemCode, GameText Message)

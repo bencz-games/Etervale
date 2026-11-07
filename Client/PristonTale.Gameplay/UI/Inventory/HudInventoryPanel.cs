@@ -320,7 +320,7 @@ public sealed class HudInventoryPanel
         if (!_tipKey.Equals(key))
         {
             _tipKey = key;
-            _usableTip = usable && note.Length == 0 ? HudUsableTooltip.Lines(item.CatalogKey) : null;
+            _usableTip = usable && note.Length == 0 ? HudUsableTooltip.Lines(item.CatalogKey, item.Link) : null;
             _detailTip = _usableTip is null ? HudItemDetailTooltip.Lines(named, _state, note, action, hunt) : null;
             _gaugeTip = _usableTip is null ? HudItemDetailTooltip.Gauge(item, _state) : null;
         }

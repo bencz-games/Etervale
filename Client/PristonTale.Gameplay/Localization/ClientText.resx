@@ -318,6 +318,10 @@
   <data name="Game.TradeTooMany" xml:space="preserve"><value>Exceeds maximum number of transaction items</value></data>
   <data name="Game.TrainingReset" xml:space="preserve"><value>Reset your numbers for training.</value></data>
   <data name="Game.TwentyBargons" xml:space="preserve"><value>You have killed 20 Bargons.</value></data>
+  <data name="Game.UnionCoreAway" xml:space="preserve"><value>Cannot use the Union Core: that clan member cannot be reached now.</value></data>
+  <data name="Game.UnionCoreBound" xml:space="preserve"><value>The Union Core is registered to you: a clan member who uses it comes to you.</value></data>
+  <data name="Game.UnionCoreOwn" xml:space="preserve"><value>You cannot use your own Union Core.</value></data>
+  <data name="Game.UnionCoreWrongClan" xml:space="preserve"><value>That Union Core belongs to another clan.</value></data>
   <data name="Game.UseDelay" xml:space="preserve"><value>Wait a moment before using another one</value></data>
   <data name="Game.VitalityForty" xml:space="preserve"><value>Vitality increased by 40</value></data>
   <data name="Game.WarehouseChanged" xml:space="preserve"><value>The warehouse changed elsewhere; open it again</value></data>
@@ -424,6 +428,7 @@
   <data name="ItemKind.Sword" xml:space="preserve"><value>Sword</value></data>
   <data name="ItemKind.ThrowingWeapon" xml:space="preserve"><value>Throwing weapon</value></data>
   <data name="ItemKind.Vambrace" xml:space="preserve"><value>Vambrace</value></data>
+  <data name="ItemUse.BindUnionCore" xml:space="preserve"><value>Register the Union Core to you?</value></data>
   <data name="ItemUse.Confirm" xml:space="preserve"><value>Do you want to</value></data>
   <data name="ItemUse.Confirm2" xml:space="preserve"><value>use this item?</value></data>
   <data name="ItemUse.ConnectionError" xml:space="preserve"><value>Connection error. Check your inventory before retrying.</value></data>
@@ -807,6 +812,7 @@
   <data name="Usable.SoulStone" xml:space="preserve"><value>Releases a hostile soul for {0} minutes.</value></data>
   <data name="Usable.TeleportCore" xml:space="preserve"><value>Teleports you to a field of your choice.</value></data>
   <data name="Usable.TrainTier" xml:space="preserve"><value>Fully trains the skills of class tier {0}.</value></data>
+  <data name="Usable.UnionCoreName" xml:space="preserve"><value>Name: {0}</value></data>
   <data name="Usable.VirtualLife" xml:space="preserve"><value>Virtual Life Lv {0}</value></data>
   <data name="WingGate.MoveThere" xml:space="preserve"><value>move there?</value></data>
   <data name="WingGate.Title" xml:space="preserve"><value>Warp gate</value></data>

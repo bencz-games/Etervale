@@ -318,6 +318,10 @@
   <data name="Game.TradeTooMany" xml:space="preserve"><value>Excede o número máximo de itens da troca</value></data>
   <data name="Game.TrainingReset" xml:space="preserve"><value>Sua contagem de treino foi reiniciada.</value></data>
   <data name="Game.TwentyBargons" xml:space="preserve"><value>Você matou 20 Bargons.</value></data>
+  <data name="Game.UnionCoreAway" xml:space="preserve"><value>Não é possível usar o Union Core: esse membro do clã não pode ser alcançado agora.</value></data>
+  <data name="Game.UnionCoreBound" xml:space="preserve"><value>O Union Core foi registrado em você: o membro do clã que usá-lo virá até você.</value></data>
+  <data name="Game.UnionCoreOwn" xml:space="preserve"><value>Você não pode usar o seu próprio Union Core.</value></data>
+  <data name="Game.UnionCoreWrongClan" xml:space="preserve"><value>Esse Union Core pertence a outro clã.</value></data>
   <data name="Game.UseDelay" xml:space="preserve"><value>Espere um momento antes de usar outro</value></data>
   <data name="Game.VitalityForty" xml:space="preserve"><value>Vitalidade aumentada em 40</value></data>
   <data name="Game.WarehouseChanged" xml:space="preserve"><value>O armazém mudou em outro lugar; abra de novo</value></data>
@@ -424,6 +428,7 @@
   <data name="ItemKind.Sword" xml:space="preserve"><value>Espada</value></data>
   <data name="ItemKind.ThrowingWeapon" xml:space="preserve"><value>Arma de arremesso</value></data>
   <data name="ItemKind.Vambrace" xml:space="preserve"><value>Vambrace</value></data>
+  <data name="ItemUse.BindUnionCore" xml:space="preserve"><value>Registrar o Union Core em você?</value></data>
   <data name="ItemUse.Confirm" xml:space="preserve"><value>Você quer</value></data>
   <data name="ItemUse.Confirm2" xml:space="preserve"><value>usar este item?</value></data>
   <data name="ItemUse.ConnectionError" xml:space="preserve"><value>Erro de conexão. Confira o inventário antes de tentar de novo.</value></data>
@@ -807,6 +812,7 @@
   <data name="Usable.SoulStone" xml:space="preserve"><value>Liberta uma alma hostil por {0} minutos.</value></data>
   <data name="Usable.TeleportCore" xml:space="preserve"><value>Teleporta você para o mapa que escolher.</value></data>
   <data name="Usable.TrainTier" xml:space="preserve"><value>Treina por completo as habilidades do tier {0} da classe.</value></data>
+  <data name="Usable.UnionCoreName" xml:space="preserve"><value>Nome: {0}</value></data>
   <data name="Usable.VirtualLife" xml:space="preserve"><value>Vida virtual nv. {0}</value></data>
   <data name="WingGate.MoveThere" xml:space="preserve"><value>ir para lá?</value></data>
   <data name="WingGate.Title" xml:space="preserve"><value>Portal</value></data>

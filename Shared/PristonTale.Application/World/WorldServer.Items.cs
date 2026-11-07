@@ -29,10 +29,16 @@ public sealed partial class WorldServer
             var now = _clock.GetUtcNow();
             var context = new ItemUseContext(session, connection.Player, field, _catalog, _worldData.Current.Items, now.ToUnixTimeSeconds(),
                 now.ToUnixTimeMilliseconds(), _itemRandom.Next(0, 8192) * 2, _itemRandom.Next(0, 10000), new Simulation.Combat.CombatRng(_itemRandom.Next()),
-                MonsterCrystals.EventActive(_options.CrystalEvent, _clock.GetLocalNow().Hour));
+                MonsterCrystals.EventActive(_options.CrystalEvent, _clock.GetLocalNow().Hour), MemberLookup);
             return ItemUseTransactions.Prepare(context, command);
         });
     }
+
+    private Func<string, (WorldPlayer Player, int FieldId)?>? _memberNamedLookup;
+
+    private Func<string, (WorldPlayer Player, int FieldId)?> MemberLookup => _memberNamedLookup ??= MemberNamed;
+
+    private (WorldPlayer Player, int FieldId)? MemberNamed(string name) => ConnectionNamed(name) is { } connection ? (connection.Player, connection.FieldId) : null;
 
     // The open field of a code, for inspection outside the tick (tests and probes).
     internal bool TryGetOpenField(int fieldId, out FieldInstance field) => _fields.TryGetValue(fieldId, out field!);

@@ -14,7 +14,8 @@ public static class HudUsableTooltip
     private static readonly string[] Attributes = ["", "Attribute.Strength", "Attribute.Spirit", "Attribute.Talent", "Attribute.Agility", "Attribute.Health"];
     private static readonly string[] AgingTargets = ["Usable.AgingWeapon", "Usable.AgingShield", "Usable.AgingArmor", "Usable.AgingArmlet", "Usable.AgingGloves", "Usable.AgingBoots"];
 
-    public static IReadOnlyList<string> Lines(string catalogKey)
+    // link: a bound Union Core's clan member.
+    public static IReadOnlyList<string> Lines(string catalogKey, string link = "")
     {
         if (!UsableItemCatalog.TryGet(catalogKey, out var rule))
         {
@@ -128,6 +129,11 @@ public static class HudUsableTooltip
                 break;
             case UsableItemAction.UnionCore:
                 lines.Add(ClientText.Get("Usable.ClanTeleport"));
+                if (link.Length > 0)
+                {
+                    lines.Add(ClientText.Format("Usable.UnionCoreName", link));
+                }
+
                 break;
             case UsableItemAction.ForceOrb when ForceOrbs.TryGet(catalogKey, out var orb):
                 lines.Add(orb.MinimumLevel <= 1 && orb.MaximumLevel < 200 ? ClientText.Format("Usable.LevelRange", orb.MinimumLevel, orb.MaximumLevel) : ClientText.Format("Usable.LevelFrom", orb.MinimumLevel));

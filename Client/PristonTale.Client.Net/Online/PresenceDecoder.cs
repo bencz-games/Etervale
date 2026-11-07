@@ -692,7 +692,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
     }
 
     private static OwnedItemView Item(InventoryItemEntry entry) => new(entry.InstanceId, entry.Code, entry.Name, (ItemKind)entry.Kind, entry.Count,
-        entry.Anchor, entry.Slot, entry.Width, entry.Height, ItemCodes.KeyOf(entry.Code));
+        entry.Anchor, entry.Slot, entry.Width, entry.Height, ItemCodes.KeyOf(entry.Code)) { Link = entry.Link };
 
     private PresenceUpdate Update(IReadOnlyList<EntitySpawnInfo> spawns, IReadOnlyList<EntityStateInfo> states, IReadOnlyList<ulong>? removed = null,
         IReadOnlyList<CombatEventInfo>? events = null) =>

@@ -9,12 +9,13 @@ using PristonTale.Contracts.Texts;
 
 namespace PristonTale.Gameplay.UI.Inventory;
 
-// Right-click use of a carried item: most items are sent at once; the Teleport Core first opens its field list and the
-// mobile shop asks for confirmation. One use is in flight at a time and carries the inventory revision it was built on.
+// Right-click use of a carried item: most items are sent at once; the Teleport Core first opens its field list, and the
+// mobile shop and an unbound Union Core (bound to its user) ask for confirmation. One use is in flight at a time and carries the inventory revision it was built on.
 public sealed class HudItemUseController(Func<ItemUseCommand, Task<ItemUseOutcome>> use, IClientLog log)
 {
     private readonly HudRequest<ItemUseOutcome> _request = new(log, "Item use failed");
     private OwnedItemView _confirmItem;
+    private bool _confirmBinds;
     private TeleportCoreDestination _confirmDestination;
     private Guid _confirmTeleportItem;
     private double _deadSinceMs = -1d;
@@ -46,7 +47,9 @@ public sealed class HudItemUseController(Func<ItemUseCommand, Task<ItemUseOutcom
                 Teleport.Open(item.InstanceId);
                 break;
             case UsableItemAction.MobileShop:
+            case UsableItemAction.UnionCore when item.Link.Length == 0:
                 _confirmItem = item;
+                _confirmBinds = rule.Action == UsableItemAction.UnionCore;
                 break;
             default:
                 Send(new ItemUseCommand(Guid.NewGuid(), state.InventoryRevision, item.InstanceId));
@@ -154,7 +157,8 @@ public sealed class HudItemUseController(Func<ItemUseCommand, Task<ItemUseOutcom
         if (_confirmItem is not null)
         {
             painter.Flush();
-            HudMessageBox.Draw(painter, _confirmItem.Name, ClientText.Get("ItemUse.Confirm"), pointer, ClientText.Get("ItemUse.Confirm2"));
+            HudMessageBox.Draw(painter, _confirmItem.Name, ClientText.Get(_confirmBinds ? "ItemUse.BindUnionCore" : "ItemUse.Confirm"), pointer,
+                _confirmBinds ? null : ClientText.Get("ItemUse.Confirm2"));
         }
         else if (_confirmDestination is not null)
         {

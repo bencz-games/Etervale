@@ -50,13 +50,16 @@ public sealed partial class WorldServer
 
     private WorldNotice[] PartyAction(PlayerSession session, Action<WorldPlayer> action) => NoticeAction(session, connection => action(connection.Player));
 
-    private WorldPlayer? PlayerNamed(string name)
+    private WorldPlayer? PlayerNamed(string name) => ConnectionNamed(name)?.Player;
+
+    // A player in the world by character name; read on the tick.
+    private Connection? ConnectionNamed(string name)
     {
         foreach (var connection in _connections.Values)
         {
             if (string.Equals(connection.Player.Character.Name, name, StringComparison.OrdinalIgnoreCase))
             {
-                return connection.Player;
+                return connection;
             }
         }
 

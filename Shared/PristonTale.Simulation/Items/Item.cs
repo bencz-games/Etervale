@@ -151,7 +151,8 @@ public sealed class ItemInstance
             Sealed = Sealed,
             Maturity = Maturity,
             MixSheltom = MixSheltom,
-            MixStats = MixStats
+            MixStats = MixStats,
+            Link = Link
         };
     }
 
@@ -161,6 +162,9 @@ public sealed class ItemInstance
 
     // A dropped puzzle piece stays sealed as a lucky bag until its owner pays to reveal it.
     public bool Sealed { get; set; }
+
+    // A Union Core bound to a clan member: the member's character name (empty while unbound).
+    public string Link { get; set; } = "";
 
     public Aging.AgingMaturity Maturity { get; set; }
 

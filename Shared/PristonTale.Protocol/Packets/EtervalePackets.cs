@@ -89,18 +89,21 @@ public sealed record OwnerStatusPacket(
     }
 }
 
-public readonly record struct InventoryItemEntry(Guid InstanceId, uint Code, int Kind, int Count, int Anchor, int Slot, short Width, short Height, string Name)
+// Link: a bound Union Core's clan member, empty otherwise.
+public readonly record struct InventoryItemEntry(Guid InstanceId, uint Code, int Kind, int Count, int Anchor, int Slot, short Width, short Height, string Name,
+    string Link = "")
 {
     public const int MaxNameBytes = 64;
-    public const int MaxSize = 16 + 4 * 5 + 2 * 2 + 2 + MaxNameBytes;
+    public const int MaxLinkBytes = Contracts.Characters.CharacterNames.MaxLength * 3;
+    public const int MaxSize = 16 + 4 * 5 + 2 * 2 + 2 + MaxNameBytes + 2 + MaxLinkBytes;
 }
 
 // {size, code, Revision, Part, Parts, Count, entries {Guid, uint32 Code, int32 Kind, Count, Anchor, Slot, int16 Width,
-// Height, text Name}}. The client replaces its inventory when all parts of a revision arrive.
+// Height, text Name, text Link}}. The client replaces its inventory when all parts of a revision arrive.
 public sealed record InventoryPartPacket(long Revision, int Part, int Parts, IReadOnlyList<InventoryItemEntry> Items)
 {
     public const int HeaderSize = 8 + 8 + 4 * 3;
-    public const int MaxItemsPerPart = 64;
+    public const int MaxItemsPerPart = 48;
 
     public int Write(Span<byte> destination)
     {
@@ -120,6 +123,7 @@ public sealed record InventoryPartPacket(long Revision, int Part, int Parts, IRe
             writer.Int16(item.Width);
             writer.Int16(item.Height);
             Utf8Text.Write(ref writer, item.Name, InventoryItemEntry.MaxNameBytes);
+            Utf8Text.Write(ref writer, item.Link, InventoryItemEntry.MaxLinkBytes);
         }
 
         return writer.Finish();
@@ -141,7 +145,8 @@ public sealed record InventoryPartPacket(long Revision, int Part, int Parts, IRe
         for (var index = 0; index < count; index++)
         {
             items[index] = new InventoryItemEntry(reader.Guid(), reader.UInt32(), reader.Int32(), reader.Int32(), reader.Int32(), reader.Int32(),
-                reader.Int16(), reader.Int16(), Utf8Text.Read(ref reader, InventoryItemEntry.MaxNameBytes, "Inventory item"));
+                reader.Int16(), reader.Int16(), Utf8Text.Read(ref reader, InventoryItemEntry.MaxNameBytes, "Inventory item"),
+                Utf8Text.Read(ref reader, InventoryItemEntry.MaxLinkBytes, "Inventory item"));
         }
 
         if (reader.Remaining != 0)

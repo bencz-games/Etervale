@@ -137,6 +137,7 @@ and its account warehouse are always written together, so a gold or item move be
   whose requirements are no longer met is restored worn.
 - `[]` (inventory, skills, warehouse) and `{}` (equipment) are the blank values and restore as empty state.
 - An inventory item whose saved anchor no longer fits its footprint moves to the first free cell.
+- `SavedItem.Link` is a bound Union Core's clan member (written only when set).
 - `SavedItem.Unique` is 2 for the quest variant of a code (quest weapons, the rank-up ring, Fury rewards); such an item
   restores as the code's quest variant, or as the regular definition when the catalog has no variant.
 - Enums serialize as strings (`JsonStringEnumConverter`).
