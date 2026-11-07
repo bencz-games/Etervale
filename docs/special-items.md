@@ -130,7 +130,7 @@ from the inventory. Items without a rule keep the generic tooltip.
 | GP121 Marvel | Bargon 20, Head Cutter 20, Figon 15, King Hopy 15, Hulk 12, Web 10, Dark Specter 5, Iron Guard 3 (event: their event monsters) |
 | GP117-119 | One of four skeletons, chaos or Inferna monsters, uniformly |
 | GP120 Extreme | Omicron 35, Spider Trooper 30, Mountain 20, Omega 15 |
-| GP110, GP122 | Guardian Saint, Guardian Divine for a registered clan's member (a pet slot like the others); the pet belongs to the caller's clan (`MonsterInstance.ClanId`) |
+| GP110, GP122 | Guardian Saint, Guardian Divine for a registered clan's member: one a member (`ClanPetOwned`), refused while three of the clan's monsters stand near (`ClanPetsNearby`, `ClanRules.NearbyMonsters`), within the pet slots; the pet belongs to the caller's clan (`MonsterInstance.ClanId`) and never picks that clan's players |
 | GP114-116 | Ricarten militia, Ricarten guard, Bless royal guard as castle mercenaries; refused (`CrystalRefused`) |
 | GP201-209 | Soul stones: a hostile "soul of" monster for 4 min from seven per stone, uniformly |
 

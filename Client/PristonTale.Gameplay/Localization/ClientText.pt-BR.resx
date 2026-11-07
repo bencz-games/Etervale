@@ -151,6 +151,8 @@
   <data name="Game.ClanNotRegistered" xml:space="preserve"><value>O clã precisa estar oficialmente registrado primeiro.</value></data>
   <data name="Game.ClanNotVice" xml:space="preserve"><value>Esse membro não é o vice-líder.</value></data>
   <data name="Game.ClanOnly" xml:space="preserve"><value>Só membros de um clã podem usar este item</value></data>
+  <data name="Game.ClanPetOwned" xml:space="preserve"><value>Você só pode invocar um de cada vez.</value></data>
+  <data name="Game.ClanPetsNearby" xml:space="preserve"><value>O seu clã já tem três deles aqui.</value></data>
   <data name="Game.ClanRegistered" xml:space="preserve"><value>Parabéns! O clã [{0}] agora está oficialmente registrado.</value></data>
   <data name="Game.ClanTargetInClan" xml:space="preserve"><value>Esse jogador já está em um clã.</value></data>
   <data name="Game.ClanTargetLevelTooLow" xml:space="preserve"><value>O novo líder precisa ter o seu nível ou mais.</value></data>

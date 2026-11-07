@@ -210,7 +210,7 @@ public sealed class MonsterAiBrain
         for (int i = 0; i < candidates.Count; i++)
         {
             PreyCandidate c = candidates[i];
-            if (!c.IsAlive)
+            if (!c.IsAlive || m.ClanId != 0 && c.ClanId == m.ClanId)
             {
                 continue;
             }

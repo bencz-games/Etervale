@@ -71,7 +71,7 @@ public sealed class FieldPreyView : IPreyView
             }
 
             var sight = 100 + p.Character.Effects.Totals.Flat(Simulation.Modifiers.StatKind.MonsterSight);
-            var candidate = new PreyCandidate(p.EntityId, p.Position, p.Life > 0, Math.Max(0, sight));
+            var candidate = new PreyCandidate(p.EntityId, p.Position, p.Life > 0, Math.Max(0, sight), p.Clan?.ClanId ?? 0);
             _candidates.Add(candidate);
             _index.Put(p.EntityId, p.Position, _candidates.Count - 1);
             _byId[p.EntityId] = candidate;

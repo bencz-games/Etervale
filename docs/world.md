@@ -265,7 +265,8 @@ Behaviour, in tick order:
 2. Flinch (`Damage` motion) blocks everything until `FlinchMsLeft` drains, then chase (target alive) or idle.
 3. Attack state advances the swing (see below).
 4. Target scan: nearest live prey by 3D distance within sight (scaled by the prey's `SightPercent` for stealth unless
-   the monster is one of the four unyielding bosses), skipping prey beyond the vertical gate.
+   the monster is one of the four unyielding bosses), skipping prey beyond the vertical gate and, for a clan's monster
+   (`MonsterInstance.ClanId`), the players of its clan (`PreyCandidate.ClanId`).
 5. Clip bookkeeping for `Chase`/`Leash`: the progress probe can start a stuck manoeuvre (turn toward home ±45 degrees,
    run if able, 10 clips); a moving monster beyond the leash radius starts a leash manoeuvre (head home, 6 clips). Both
    keep the target and end in chase.

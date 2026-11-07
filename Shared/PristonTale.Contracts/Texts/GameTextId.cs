@@ -276,5 +276,7 @@ public enum GameTextId : ushort
     UnionCoreOwn = 766,
     UnionCoreAway = 767,
     UnionCoreWrongClan = 768,
-    UnionCoreBound = 769
+    UnionCoreBound = 769,
+    ClanPetOwned = 770,
+    ClanPetsNearby = 771
 }

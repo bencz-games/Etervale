@@ -55,6 +55,11 @@ public static class ClanRules
     public const int MaxCapacity = 80;
     public const long InvitationSeconds = 30;
 
+    // A clan's monsters near a member: a cheer heals at most this many within this range, and a clan crystal is refused
+    // when this many already stand there.
+    public const int NearbyMonsters = 3;
+    public const float NearbyRangeSquared = 3_276_800f;
+
     public static int Capacity(int chiefLevel) => chiefLevel < FoundingLevel ? 0 : Math.Min(MaxCapacity, BaseCapacity + chiefLevel - FoundingLevel);
 
     // Two to sixteen letters, digits, spaces, '-' or '_' (no surrogate pairs: at most 48 UTF-8 bytes), neither starting nor

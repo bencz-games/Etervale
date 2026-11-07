@@ -5,8 +5,8 @@ using PristonTale.Simulation.World;
 namespace PristonTale.Application.World.ItemUses;
 
 // Monster crystals and soul stones. Billing crystals and soul stones refuse during the three-second delay every crystal
-// use starts; the item's level, towns and the quest arena refuse any crystal, and a pet or clan pet crystal is refused to
-// a user who keeps ten pets. Clan pets need a registered clan; castle mercenaries need the castle-master clan during a
+// use starts; the item's level, towns and the quest arena refuse any crystal, and a pet crystal is refused to a user who
+// keeps ten pets. Clan pets need a registered clan, one a member, while fewer than three of the clan stand near; castle mercenaries need the castle-master clan during a
 // siege, which Etervale does not run yet, so they are refused. The monster appears beside its caller, and the effect
 // plays where it stands.
 internal sealed class MonsterCrystalUse : ItemUseAction
@@ -39,6 +39,7 @@ internal sealed class MonsterCrystalUse : ItemUseAction
         {
             CrystalKind.ClanPet when context.Player.Clan is null => ItemUseStatus.ClanOnly,
             CrystalKind.ClanPet when !context.Player.Clan.Registered => ItemUseStatus.RegisteredClanOnly,
+            CrystalKind.ClanPet when context.Field.ClanPetRoom(context.Player) is var room && room != ItemUseStatus.Used => room,
             CrystalKind.ClanPet when !context.Field.HasCrystalPetSlot(context.Player) => ItemUseStatus.SummonLimit,
             CrystalKind.CastleMercenary => ItemUseStatus.CrystalRefused,
             CrystalKind.SoulStone when MonsterCrystals.SoulStoneBlockedFields.Contains(context.Field.FieldId) => ItemUseStatus.NotHere,

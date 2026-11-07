@@ -31,6 +31,8 @@ public static class ItemUseMessages
         ItemUseStatus.UnionCoreOwn => GameTextId.UnionCoreOwn,
         ItemUseStatus.UnionCoreAway => GameTextId.UnionCoreAway,
         ItemUseStatus.UnionCoreWrongClan => GameTextId.UnionCoreWrongClan,
+        ItemUseStatus.ClanPetOwned => GameTextId.ClanPetOwned,
+        ItemUseStatus.ClanPetsNearby => GameTextId.ClanPetsNearby,
         ItemUseStatus.NoSpace => GameTextId.NoSpace,
         ItemUseStatus.OverWeight => GameTextId.OverWeight,
         ItemUseStatus.MaleCannotUse => GameTextId.MaleCannotUse,
