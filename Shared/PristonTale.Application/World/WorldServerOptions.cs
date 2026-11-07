@@ -34,6 +34,9 @@ public sealed record WorldServerOptions
     // minutes.
     public bool Weather { get; init; } = true;
 
+    // Bless Castle's league runs: players do not fight each other in the castle field.
+    public bool CastleLeague { get; init; }
+
     public int WeatherCycleMinutes { get; init; } = WeatherSchedule.DefaultCycleMinutes;
 
     public int MaxPendingCommandsPerPlayer { get; init; } = DefaultMaxPendingCommandsPerPlayer;

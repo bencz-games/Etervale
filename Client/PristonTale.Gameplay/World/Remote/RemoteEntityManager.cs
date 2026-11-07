@@ -739,6 +739,21 @@ public sealed partial class RemoteEntityManager
         return false;
     }
 
+    // A living remote player's render position and clan (0 for none).
+    public bool TryGetLivingPlayer(ulong entityId, out XnaVector3 position, out long clanId)
+    {
+        if (_entities.TryGetValue(entityId, out var entity) && !entity.IsDead && _playerAppearances.TryGetValue(entityId, out var player))
+        {
+            position = entity.RenderPosition;
+            clanId = player.ClanId;
+            return true;
+        }
+
+        position = default;
+        clanId = 0;
+        return false;
+    }
+
     public bool TryGetTarget(ulong entityId, out XnaVector3 position, out bool isDead)
     {
         if (_entities.TryGetValue(entityId, out var entity))

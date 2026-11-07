@@ -531,7 +531,7 @@ internal sealed class FieldMonsterSkills
 
         // The skill always hits, but the player may still evade or block it, as a normal blow.
         var defender = CombatProfileFactory.ForPlayerDefender(target.Character);
-        if (Combat?.SkillCombat?.Evades(attacker, target) == true)
+        if (Combat?.SkillCombat?.Evades(attacker.EntityId, target) == true)
         {
             return;
         }

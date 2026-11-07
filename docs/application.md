@@ -293,6 +293,18 @@ Player basic attack:
 7. `KillPayout` drops fall around the corpse (`FieldGroundLoot.Place`, see Ground loot); each item copy is made
    there with `ItemRoller.Create` from the field's stream (see [simulation.md](simulation.md#items)).
 
+Player against player: only in the castle field's battle zone (south of `CastleSiegeRules.BattleLineZ`, both players
+in it), between players of different clans (a player without a clan fights anyone), never during the castle league
+(`FieldInstance.PlayersFight`, from `WorldServerOptions.CastleLeague`) nor on a dead or hidden player. The target is
+taken like a monster's (`SetAttackTarget`), the swing waits for range, and when it lands with the target still in
+range the target's evasion rolls first (effects and passives, `IPlayerSkillCombat.Evades`); then the attacker's normal
+attack meets the target's defence, block and flat absorption (`CombatProfileFactory.ForPlayerDefender`,
+`CombatResolver.Resolve`: a player defender absorbs flat, a monster a percent), scaled by both sides' effects, with the
+attacker's enchant elements (`EnchantOnPlayer`) and Might Stone (`CastleItems.Strike`) and the target's absorbing
+shields (`DefendFromPlayer`; guards answer only monsters of their broods), then `WorldPlayer.ApplyDamage` (nothing
+during a revive guard or Athanasia). Skills, familiars and summons do not reach players yet; a hidden game master
+neither fights nor is fought.
+
 Monster attacks (`ResolveMonsterHit`): basic hits check reach, reflection and evasion hooks, roll with
 `CombatResolver.ResolveMonsterAttack` (the player's block chance; a block emits `Block`), scale by modifiers and undead
 absorption, pass the skill
@@ -666,8 +678,8 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
 - Off: no scheduled siege; a game master may still start one.
 - In peace with an owner, the fountain gains a potion a minute, up to 1440.
 - The siege's clock lives in memory: a restart during a siege ends it, and the owner stays.
-- Not yet: PvP in the battle zone, the owner's window, the tax on fees and the treasury's movements, the siege's
-  client state.
+- Not yet: skills on players, the owner's window, the tax on fees and the treasury's movements, the siege's client
+  state.
 
 The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner
 and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its spawns
@@ -680,7 +692,9 @@ players never hurt each other (`FieldCombat.OwnClan`, also for clan pets: no att
 skill or summon of theirs on them) and the defenders never pick its players; clan pet rules (the cheer, the pets
 nearby) leave the defenders out. Each player hit (summons' too) on a
 crystal tower, or on the tower once no crystal tower stands, adds the life it took to the player's clan on the damage
-board (`CastleDamageBoard`); while a crystal tower stands the tower is made whole every tick. The world publishes
+board (`CastleDamageBoard`); while a crystal tower stands the tower is made whole every tick. A player's blow on
+another (see Combat resolution) scores a tenth of the life it took, at least 1 (`CastleSiegeRules.PkScore`), while
+the tower stands, unless the target has no clan and neither side is the owner clan. The world publishes
 `CastleSiegeView` (door, crystal towers and mercenaries standing, the ten best clans and the total) at most once a
 second while it changes. When the tower falls, the castle goes to the board's leader (no owner when no clan dealt
 damage, and any clan may win), with a notice naming the clan; a conquest storage refuses is kept and stored on a later

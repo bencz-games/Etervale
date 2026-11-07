@@ -40,6 +40,13 @@ public static class CastleSiegeRules
     public const int MercenaryMax = 20;
     public const int TopClans = 10;
 
+    // The castle field south of this line is the battle zone; north of it lies the arrival area, where players never
+    // fight.
+    public const float BattleLineZ = -24043f;
+
+    // A player's blow on another scores a tenth of its damage (at least 1).
+    public const int PkScoreDivisor = 10;
+
     public const string DoorKey = "castledoor";
     public const string ValhallaKey = "tower of valhala";
 
@@ -104,6 +111,17 @@ public static class CastleSiegeRules
         CharacterSoundCodes.CastleSoldierC => 2,
         _ => -1
     };
+
+    public static bool InBattleZone(Vector3 position) => position.Z <= BattleLineZ;
+
+    // Two players fight each other in the battle zone unless they share a clan.
+    public static bool MayFight(Vector3 attacker, long attackerClan, Vector3 target, long targetClan) =>
+        InBattleZone(attacker) && InBattleZone(target) && (attackerClan == 0 || attackerClan != targetClan);
+
+    // What a player's blow on another adds to the attacker's clan on the board: nothing without a clan, nor when the
+    // target has no clan and neither side is the owner clan.
+    public static long PkScore(int damage, long attackerClan, long targetClan, long ownerClan) =>
+        attackerClan == 0 || damage <= 0 || targetClan == 0 && attackerClan != ownerClan ? 0 : Math.Max(1, damage / PkScoreDivisor);
 
     public static bool StandsStill(int soundCode) => ObjectOf(soundCode) is CastleObject.Door or CastleObject.Valhalla or CastleObject.Crystal;
 

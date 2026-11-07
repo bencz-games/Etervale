@@ -168,9 +168,9 @@ drawn monster the world data lacks is refused and kept; the data's soul monsters
 
 One castle scroll, one Defiance Stone and one Might Stone run at a time; a new one replaces the running one of its
 kind, and every castle item ends when its holder leaves the castle. The same code refuses while it runs. A dead player
-in a castle field may use a Restoration after 10 s down (players stay down until they restart). Crystal towers spawn
-only with a siege and Might Stones need castle player combat; neither exists in Etervale, so those stones have no
-target.
+in a castle field may use a Restoration after 10 s down (players stay down until they restart). Crystal towers stand
+during a siege, and Might Stones count on the blows players trade in the castle's battle zone
+([application.md](application.md#combat-resolution)).
 
 ### Boosters and skill delay
 

@@ -161,7 +161,8 @@ public static class CombatResolver
         else
             dmg = ApplyElement(dmg, a.Element, d.Resistances);
 
-        dmg = ApplyAbsorbMonster(dmg, d.Absorption);
+        // A monster absorbs a percent; a player (struck by another) its flat absorption, as monsters' blows meet it.
+        dmg = d.IsMonster ? ApplyAbsorbMonster(dmg, d.Absorption) : Math.Max(1, dmg - d.Absorption);
 
         return new HitResult(Hit: true, Blocked: false, Crit: crit, Damage: dmg, Element: a.Element);
     }

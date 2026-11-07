@@ -145,6 +145,7 @@ public sealed class GameplayScreen : GameScreen
             _scene.PlayerForward, _scene.TimeOfDay, _scene.RunFlag, mapHidden, neighbour, neighbourMap);
         _hud.PremiumTimers = _scene.PremiumTimers;
         _hud.InCastleField = field?.State == Simulation.World.FieldState.Castle;
+        _scene.OwnClanId = _hud.Combat.OwnClan;
         _hud.InTown = field?.State == Simulation.World.FieldState.Village;
         _hud.ShopSigns = _scene.ShopSigns;
         _hud.PlayerDead = _scene.PlayerDead;

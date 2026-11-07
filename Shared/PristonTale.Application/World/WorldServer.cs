@@ -161,6 +161,7 @@ public sealed partial class WorldServer
         field.ExperienceEventPercent = options.ExperienceEventPercent;
         field.Aging = options.Aging;
         field.Mixing = options.Mixing;
+        field.PlayersFight = field.State == FieldState.Castle && !options.CastleLeague;
     }
 
     // The game clock in game milliseconds: the Unix time plus the configured offset (World:ClockOffsetMinutes game minutes).

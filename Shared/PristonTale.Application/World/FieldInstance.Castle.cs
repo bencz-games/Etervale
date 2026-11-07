@@ -12,6 +12,15 @@ public sealed partial class FieldInstance
 {
     private CastleSiege? _siege;
 
+    // The castle field, outside the league: its battle zone lets players fight (WorldServerOptions.CastleLeague).
+    internal bool PlayersFight { get; set; }
+
+    internal bool MayFight(WorldPlayer attacker, WorldPlayer target) =>
+        PlayersFight && attacker.EntityId != target.EntityId && !attacker.IsDead && !target.IsDead && !attacker.Hidden && !target.Hidden
+        && CastleSiegeRules.MayFight(attacker.Position, attacker.Clan?.ClanId ?? 0, target.Position, target.Clan?.ClanId ?? 0);
+
+    bool IFieldCombatHost.MayFight(WorldPlayer attacker, WorldPlayer target) => MayFight(attacker, target);
+
     internal void OpenSiege(CastleSiege siege)
     {
         _siege = siege;
@@ -112,6 +121,15 @@ public sealed partial class FieldInstance
             && (monster.CastleRole == CastleObject.Crystal || monster.CastleRole == CastleObject.Valhalla && siege.Crystals == 0))
         {
             siege.Board.Record(clan.ClanId, damage);
+        }
+    }
+
+    // A player's blow on another during a siege, while the tower stands.
+    private void RecordSiegeBlow(WorldPlayer attacker, WorldPlayer target, int damage)
+    {
+        if (_siege is { ValhallaFallen: false } siege && attacker.Clan is { } clan)
+        {
+            siege.Board.Record(clan.ClanId, CastleSiegeRules.PkScore(damage, clan.ClanId, target.Clan?.ClanId ?? 0, siege.Order.OwnerClanId));
         }
     }
 

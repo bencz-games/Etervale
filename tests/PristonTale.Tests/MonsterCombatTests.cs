@@ -180,6 +180,7 @@ internal static class MonsterCombatTests
         public void DespawnMonster(ulong entityId) { }
         public MonsterAiTuning TuningFor(MonsterDefinition definition) => new(definition);
         public (float DurationMs, float HitAtMs) PlayerSwingTiming(WorldPlayer target) => (1000, 400);
+        public bool MayFight(WorldPlayer attacker, WorldPlayer target) => false;
         public void EmitCombatEvent(in CombatEventView combatEvent) => EventCount++;
         public bool TryGetPlayer(ulong entityId, [MaybeNullWhen(false)] out WorldPlayer target)
         {

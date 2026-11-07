@@ -31,6 +31,14 @@ namespace PristonTale.Gameplay.World;
 
 public sealed partial class GameScene : IDisposable, IHudPortraitScene
 {
+    // The player's clan (0 for none): players of another clan may be fought in the castle's battle zone.
+    public long OwnClanId { get; set; }
+
+    // Positions are mirrored to the server's space, where the battle line lies.
+    private bool Fights(ulong entityId) =>
+        _activeField?.Definition.State == FieldState.Castle && _remote.TryGetLivingPlayer(entityId, out var at, out var clanId)
+        && Simulation.Social.Castle.CastleSiegeRules.MayFight(WorldSpace.Mirror(_playerBody.Position.ToNumerics()), OwnClanId, WorldSpace.Mirror(at.ToNumerics()), clanId);
+
     private ActorHandle _playerBodyActor = ActorHandle.None;
     private ActorHandle _playerHeadActor = ActorHandle.None;
 

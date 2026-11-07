@@ -21,8 +21,9 @@ internal interface IPlayerSkillCombat
     // The player's basic attack landed on the monster for this damage; returns the damage with the skill effects.
     int BasicStrike(WorldPlayer player, MonsterInstance monster, int damage);
 
-    // True when a skill effect lets the player evade the monster's normal attack entirely.
-    bool Evades(MonsterInstance attacker, WorldPlayer target);
+    // True when a skill effect lets the player evade the attacker's (a monster's or another player's) normal attack
+    // entirely.
+    bool Evades(ulong attackerId, WorldPlayer target);
 
     // A matching monster attacks the player: reflection effects strike it back with a share of its own attack.
     void Reflect(MonsterInstance attacker, WorldPlayer target);
@@ -32,6 +33,14 @@ internal interface IPlayerSkillCombat
 
     // The monster's attack reaches the player for this damage; returns what the player's life still loses.
     int Defend(MonsterInstance attacker, WorldPlayer target, int damage, bool skillAttack);
+
+    // Another player's normal attack reaches the player: the absorbing shields take their share (guards answer only
+    // monsters of their broods); returns what the player's life still loses.
+    int DefendFromPlayer(WorldPlayer target, int damage);
+
+    // The element damage the player's enchants add to a normal attack on another player, resisted and absorbed like the
+    // hit.
+    int EnchantOnPlayer(WorldPlayer player, in DefenderProfile defender);
 }
 
 internal sealed partial class FieldSkills : IPlayerSkillCombat
@@ -47,7 +56,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
     }
 
     // Evasion effects roll first, then the evasion passives (value + 1).
-    bool IPlayerSkillCombat.Evades(MonsterInstance attacker, WorldPlayer target)
+    bool IPlayerSkillCombat.Evades(ulong attackerId, WorldPlayer target)
     {
         var evasion = target.Character.Effects.Totals.Flat(StatKind.Evasion);
         var passive = PassiveSkills.Evasion(target.Character);
@@ -56,7 +65,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
             return false;
         }
 
-        _host.EmitCombatEvent(new CombatEventView(attacker.EntityId, target.EntityId, CombatEventKind.Evade));
+        _host.EmitCombatEvent(new CombatEventView(attackerId, target.EntityId, CombatEventKind.Evade));
         return true;
     }
 
@@ -99,6 +108,33 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
             damage = ModifierRules.ChangedBy(damage, target.Character.Effects.Totals, StatKind.SkillDamageTaken, 1);
         }
 
+        damage = Shielded(target, damage);
+        if (!skillAttack)
+        {
+            Guard(attacker, target, damage, onBlock: false);
+        }
+
+        return Math.Max(0, damage);
+    }
+
+    int IPlayerSkillCombat.DefendFromPlayer(WorldPlayer target, int damage) => damage <= 0 ? damage : Math.Max(0, Shielded(target, damage));
+
+    int IPlayerSkillCombat.EnchantOnPlayer(WorldPlayer player, in DefenderProfile defender)
+    {
+        var added = 0;
+        foreach (var (code, rule) in SkillEffects(player, static buff => buff.Enchant is not null))
+        {
+            var part = EnchantPart(player, code, rule, out var choice, out _);
+            part = CombatResolver.ApplyResistance(part, defender.Resistances[choice.Element]);
+            added += Math.Max(0, part - defender.Absorption);
+        }
+
+        return added;
+    }
+
+    // The absorbing shields' share of a blow comes off the player's mana or stamina (a life shield takes nothing off).
+    private int Shielded(WorldPlayer target, int damage)
+    {
         var character = target.Character;
         foreach (var (code, rule) in SkillEffects(target, static buff => buff.Absorb is not null))
         {
@@ -120,12 +156,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
             }
         }
 
-        if (!skillAttack)
-        {
-            Guard(attacker, target, damage, onBlock: false);
-        }
-
-        return Math.Max(0, damage);
+        return damage;
     }
 
     private void Guard(MonsterInstance attacker, WorldPlayer target, int power, bool onBlock)
@@ -163,10 +194,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
                 continue;
             }
 
-            var key = (player.EntityId, code);
-            var choice = enchant.Choices[Math.Clamp(_choices.GetValueOrDefault(key), 0, enchant.Choices.Length - 1)];
-            var rank = RankOfEffect(player.EntityId, code);
-            var part = _rng.Range(SkillFormulas.RankValue(choice.Min, rank), Math.Max(SkillFormulas.RankValue(choice.Min, rank), SkillFormulas.RankValue(choice.Max, rank)));
+            var part = EnchantPart(player, code, rule, out var choice, out var rank);
             var resistances = ModifierRules.Resistances(monster.Effects.Totals, monster.Def.Combat.Resistances);
             part = CombatResolver.ApplyResistance(part, resistances[choice.Element]);
             added += part > 0 ? CombatResolver.ApplyAbsorbMonster(part, monster.Def.Combat.Absorption) : 0;
@@ -174,6 +202,15 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
         }
 
         return added;
+    }
+
+    // The rolled element damage of the player's chosen enchant element.
+    private int EnchantPart(WorldPlayer player, uint code, SkillRule rule, out SkillEnchantChoice choice, out int rank)
+    {
+        var enchant = rule.Buff.Enchant;
+        choice = enchant.Choices[Math.Clamp(_choices.GetValueOrDefault((player.EntityId, code)), 0, enchant.Choices.Length - 1)];
+        rank = RankOfEffect(player.EntityId, code);
+        return _rng.Range(SkillFormulas.RankValue(choice.Min, rank), Math.Max(SkillFormulas.RankValue(choice.Min, rank), SkillFormulas.RankValue(choice.Max, rank)));
     }
 
     // An ice choice slows the struck monster; ice resistance shortens the slow.

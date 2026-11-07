@@ -285,8 +285,8 @@ public sealed partial class GameScene
             return false;
         }
         // A seller is approached and its shop opened as an NPC's dialog is; another player is approached for the buttons
-        // under its portrait.
-        if (kind is EntityKind.Npc or EntityKind.Player)
+        // under its portrait, unless the castle's battle zone lets the two fight (the server decides).
+        if (kind is EntityKind.Npc || kind == EntityKind.Player && !Fights(entityId))
         {
             _lootInteraction.Cancel();
             ClearAttackTarget();
@@ -297,7 +297,7 @@ public sealed partial class GameScene
             StopPredictedMovement();
             return true;
         }
-        if (kind != EntityKind.Monster)
+        if (kind is not (EntityKind.Monster or EntityKind.Player))
         {
             return false;
         }

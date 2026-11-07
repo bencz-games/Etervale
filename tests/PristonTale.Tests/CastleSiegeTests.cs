@@ -25,6 +25,8 @@ internal static class CastleSiegeTests
             SpareAsync);
         yield return ("a standing defender strikes in its reach and lets go of a locked prey out of it", RootedAsync);
         yield return ("the easy siege leaves the tower one life it keeps while a crystal tower stands, then a blow fells it", EasyAsync);
+        yield return ("players of different clans fight in the battle zone, never north of it, of one clan or in the league; blows score in a siege",
+            PvpAsync);
         yield return ("the easy siege weakens the defenders, closing a siege removes them, ending it sends players outside the owner clan to the arrival area",
             EndAsync);
     }
@@ -181,6 +183,64 @@ internal static class CastleSiegeTests
         field.Combat.ApplyPlayerDamage(player, valhalla, 100, false, field.NowMs);
         harness.Tick(1);
         Assert.True(!valhalla.IsAlive && harness.World.Siege is { ValhallaFallen: true, Winner: 9 }, "the weakened tower did not fall");
+    }
+
+    private static async Task PvpAsync()
+    {
+        var zone = new System.Numerics.Vector3(34500, 0, -26000);
+        var north = new System.Numerics.Vector3(34500, 0, -23500);
+        Assert.True(CastleSiegeRules.InBattleZone(new System.Numerics.Vector3(0, 0, CastleSiegeRules.BattleLineZ)) && !CastleSiegeRules.InBattleZone(north)
+            && CastleSiegeRules.MayFight(zone, 0, zone, 0) && CastleSiegeRules.MayFight(zone, 7, zone, 0) && !CastleSiegeRules.MayFight(zone, 7, zone, 7)
+            && !CastleSiegeRules.MayFight(north, 7, zone, 9) && !CastleSiegeRules.MayFight(zone, 7, north, 9), "who may fight differs");
+        var blow = new AttackProfile(10_000, 100, 100, 1, Element.Bionic, 0, 0, 0);
+        var player = new DefenderProfile(0, 40, 0, 1, ResistanceBlock.Zero, 1000, 1000, IsMonster: false);
+        Assert.True(CombatResolver.Resolve(new CombatRng(1), blow, player, alwaysHit: true).Damage == 60
+            && CombatResolver.Resolve(new CombatRng(1), blow, player with { IsMonster = true }, alwaysHit: true).Damage == 60
+            && CombatResolver.Resolve(new CombatRng(1), blow, player with { Absorption = 100 }, alwaysHit: true).Damage == 1
+            && CombatResolver.Resolve(new CombatRng(1), blow with { DamageMin = 1000, DamageMax = 1000 }, player, alwaysHit: true).Damage == 960,
+            "a player's absorption is not taken flat");
+        Assert.True(CastleSiegeRules.PkScore(95, 7, 9, 0) == 9 && CastleSiegeRules.PkScore(5, 7, 9, 0) == 1 && CastleSiegeRules.PkScore(95, 7, 0, 0) == 0
+            && CastleSiegeRules.PkScore(95, 7, 0, 3) == 0 && CastleSiegeRules.PkScore(95, 7, 0, 7) == 9 && CastleSiegeRules.PkScore(95, 0, 9, 9) == 0
+            && CastleSiegeRules.PkScore(0, 7, 9, 9) == 0, "the blows' score differs");
+
+        var league = Application.Settings.ServerSettingCatalog.Read(new Dictionary<string, string> { ["castle.mode"] = "2" }, null, new List<string>());
+        var weekly = Application.Settings.ServerSettingCatalog.Read(new Dictionary<string, string> { ["castle.mode"] = "1" }, null, new List<string>());
+        Assert.True(league.World.CastleLeague && league.Castle.Mode == CastleMode.League && !weekly.World.CastleLeague, "the league setting does not reach the world");
+
+        var harness = await SpecialItemTests.Harness.CreateAsync(FieldCodes.Castle, Defenders(), []);
+        harness.World.TryGetOpenField(FieldCodes.Castle, out var field);
+        Assert.True(field.PlayersFight, "the castle field does not let players fight");
+        var attacker = harness.Player;
+        var foe = await harness.JoinAsync("Foe", FieldCodes.Castle, 2);
+        attacker.EnterField(zone, inVillage: false);
+        foe.EnterField(zone + new System.Numerics.Vector3(20, 0, 0), inVillage: false);
+        attacker.Clan = new ClanTag(9, "Tigers", 0, Registered: true);
+        foe.Clan = new ClanTag(7, "Lions", 0, Registered: true);
+        Assert.True(field.SetAttackTarget(attacker.EntityId, foe.EntityId, sustained: false), "a foe in the battle zone was not a target");
+        foe.Clan = attacker.Clan;
+        Assert.True(!field.SetAttackTarget(attacker.EntityId, foe.EntityId, sustained: false), "a clan mate was a target");
+        foe.Clan = new ClanTag(7, "Lions", 0, Registered: true);
+        field.PlayersFight = false;
+        Assert.True(!field.SetAttackTarget(attacker.EntityId, foe.EntityId, sustained: false), "players fought during the league");
+        field.PlayersFight = true;
+        foe.EnterField(north, inVillage: false);
+        Assert.True(!field.SetAttackTarget(attacker.EntityId, foe.EntityId, sustained: false), "a player north of the line was a target");
+        foe.EnterField(zone + new System.Numerics.Vector3(20, 0, 0), inVillage: false);
+
+        await harness.AdvanceAsync(harness.World.OpenSiegeAsync(new CastleSiegeOrder(7, [], [])));
+        var life = foe.Life;
+        Assert.True(field.SetAttackTarget(attacker.EntityId, foe.EntityId, sustained: true), "the foe was not taken as a target");
+        for (var second = 0; second < 30 && foe.Life == life; second++)
+        {
+            harness.Tick(20);
+        }
+
+        harness.Clock.Now += TimeSpan.FromSeconds(1);
+        harness.Tick(1);
+        Assert.True(foe.Life < life && harness.World.Siege.Top is [{ ClanId: 9 } score] && score.Damage == Math.Max(1, (life - foe.Life) / CastleSiegeRules.PkScoreDivisor),
+            "the swings on a player of the owner clan did not land and score");
+        attacker.Hidden = true;
+        Assert.True(!field.SetAttackTarget(attacker.EntityId, foe.EntityId, sustained: false), "a hidden player took a foe");
     }
 
     private static async Task EndAsync()

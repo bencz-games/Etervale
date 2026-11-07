@@ -90,6 +90,7 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         Premium = new FieldPremium(fieldId, this);
         _combat.PlayerHitLanded = Premium.RecordHit;
         _combat.DamageDealt = RecordSiegeDamage;
+        _combat.PlayerHurtPlayer = RecordSiegeBlow;
         _combat.HammerLanded = OnHammerLanded;
         foreach (var placement in spawnData.FixedNpcs)
         {
@@ -163,6 +164,18 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         if (!attacker.AcceptAttackSequence(sequence))
         {
             return false;
+        }
+
+        if (_players.TryGetValue(targetEntityId, out var foe))
+        {
+            if (!MayFight(attacker, foe))
+            {
+                attacker.ClearAttackTarget();
+                return false;
+            }
+
+            attacker.SetAttackTarget(targetEntityId, sustained);
+            return true;
         }
 
         if (!_monsters.TryGetValue(targetEntityId, out var monster) || !monster.IsAlive || monster.IsSummon
