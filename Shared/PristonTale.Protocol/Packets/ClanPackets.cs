@@ -4,7 +4,8 @@ using PristonTale.Protocol.Binary;
 namespace PristonTale.Protocol.Packets;
 
 // What a player asks of the clan service. Found and Entrust name the Clan Master (Id) they are asked at; Invite names the
-// player (Id); Expel, Appoint, Discharge and Entrust name a member (Name); Found names the new clan.
+// player (Id); Expel, Appoint, Discharge and Entrust name a member (Name); Found names the new clan. Mark is the chief's
+// upload (ClanMarkPacket), answered as the others.
 public enum ClanAction : byte
 {
     Open = 0,
@@ -17,7 +18,8 @@ public enum ClanAction : byte
     Disband = 7,
     Appoint = 8,
     Discharge = 9,
-    Entrust = 10
+    Entrust = 10,
+    Mark = 11
 }
 
 public readonly record struct ClanMemberWire(string Name, PlayerClass Class, int Level, byte Rank, bool Online);
@@ -30,6 +32,11 @@ public static class ClanWire
 
     // A clan name: 16 characters of at most three UTF-8 bytes (ClanRules).
     public const int MaxClanNameBytes = 48;
+
+    // A clan mark: MarkSize x MarkSize pixels of 8-bit red, green, blue and alpha, rows from the top.
+    public const int MarkSize = 32;
+    public const int PixelBytes = 4;
+    public const int MarkBytes = MarkSize * MarkSize * PixelBytes;
     public const int MaxIntroBytes = 256;
     public const int MaxMembers = 80;
 
@@ -195,5 +202,38 @@ public sealed record ClanResultPacket(ClanAction Action, byte Status) : IFramePa
         var reader = new PacketReader(packet, Size);
         ClanWire.ReadHeader(ref reader);
         return new ClanResultPacket((ClanAction)reader.Byte(), reader.Byte());
+    }
+}
+
+// C->S the chief's new clan mark: {header, uint16 Size (ClanWire.MarkSize), Size x Size RGBA pixels}. The client fits the
+// picture to the size before it sends it.
+public sealed record ClanMarkPacket(byte[] Pixels) : IFramePacket
+{
+    public const int Size = 8 + WireHeader.Size + 2 + ClanWire.MarkBytes;
+
+    public int Write(Span<byte> destination)
+    {
+        if (Pixels.Length != ClanWire.MarkBytes)
+        {
+            throw new ArgumentException("A clan mark is ClanWire.MarkSize square RGBA pixels.", nameof(Pixels));
+        }
+
+        var writer = new PacketWriter(destination, EtervaleOpcodes.ClanMark);
+        ClanWire.Header(ref writer);
+        writer.UInt16(ClanWire.MarkSize);
+        writer.Bytes(Pixels);
+        return writer.Finish();
+    }
+
+    public static ClanMarkPacket Read(ReadOnlySpan<byte> packet)
+    {
+        var reader = new PacketReader(packet, Size);
+        ClanWire.ReadHeader(ref reader);
+        if (reader.UInt16() != ClanWire.MarkSize || reader.Remaining != ClanWire.MarkBytes)
+        {
+            throw new InvalidDataException("Clan mark has the wrong size.");
+        }
+
+        return new ClanMarkPacket(reader.Bytes(ClanWire.MarkBytes).ToArray());
     }
 }

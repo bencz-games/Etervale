@@ -60,6 +60,7 @@
   <data name="Clan.ConfirmEntrust" xml:space="preserve"><value>Passar a liderança para {0} por 300.000 de ouro? Você passará a ser membro.</value></data>
   <data name="Clan.ConfirmExpel" xml:space="preserve"><value>Deseja expulsar {0} do clã?</value></data>
   <data name="Clan.ConfirmLeave" xml:space="preserve"><value>Deseja sair do clã {0}?</value></data>
+  <data name="Clan.ConfirmMark" xml:space="preserve"><value>Usar {0} como a marca do clã? Ela ficará assim:</value></data>
   <data name="Clan.Cost" xml:space="preserve"><value>Formar um clã custa {0} de ouro e exige nível {1}.</value></data>
   <data name="Clan.Count" xml:space="preserve"><value>Membros: {0} de {1}</value></data>
   <data name="Clan.Disband" xml:space="preserve"><value>Dissolver</value></data>
@@ -70,7 +71,13 @@
   <data name="Clan.Intro" xml:space="preserve"><value>Muitos guerreiros com os mesmos objetivos se reúnem pelo mundo e formam um grupo, chamado clã. Os clãs guardam e protegem os seus. Para formar um clã é preciso pagar uma taxa para registrá-lo oficialmente. Deseja formar um clã?</value></data>
   <data name="Clan.InviteLine" xml:space="preserve"><value>convida você para o clã {0}.</value></data>
   <data name="Clan.Leave" xml:space="preserve"><value>Sair do clã</value></data>
+  <data name="Clan.Mark" xml:space="preserve"><value>Marca do clã</value></data>
+  <data name="Clan.MarkFolder" xml:space="preserve"><value>Coloque uma imagem (PNG, JPG ou BMP) na pasta ClanMarks ao lado do jogo e escolha-a abaixo. O centro dela vira a marca de {0}x{0}.</value></data>
+  <data name="Clan.MarkLoading" xml:space="preserve"><value>Lendo a imagem...</value></data>
+  <data name="Clan.MarkLooking" xml:space="preserve"><value>Procurando imagens...</value></data>
+  <data name="Clan.MarkUnreadable" xml:space="preserve"><value>Não foi possível ler {0} como imagem.</value></data>
   <data name="Clan.No" xml:space="preserve"><value>Não</value></data>
+  <data name="Clan.NoMarkFiles" xml:space="preserve"><value>Não há nenhuma imagem na pasta ClanMarks.</value></data>
   <data name="Clan.RankChief" xml:space="preserve"><value>(líder)</value></data>
   <data name="Clan.RankVice" xml:space="preserve"><value>(vice)</value></data>
   <data name="Clan.Registered" xml:space="preserve"><value>O clã está oficialmente registrado.</value></data>
@@ -132,6 +139,8 @@
   <data name="Game.ClanJoined" xml:space="preserve"><value>{0} entrou no clã.</value></data>
   <data name="Game.ClanLeft" xml:space="preserve"><value>{0} saiu do clã.</value></data>
   <data name="Game.ClanLevelTooLow" xml:space="preserve"><value>É preciso ter nível {0} para fundar um clã.</value></data>
+  <data name="Game.ClanMarkChanged" xml:space="preserve"><value>O clã [{0}] tem uma nova marca.</value></data>
+  <data name="Game.ClanMarkUnavailable" xml:space="preserve"><value>Ainda não é possível enviar marcas de clã.</value></data>
   <data name="Game.ClanNameInvalid" xml:space="preserve"><value>O nome do clã tem de {0} a {1} letras, números, espaços, '-' ou '_'.</value></data>
   <data name="Game.ClanNameTaken" xml:space="preserve"><value>Esse nome de clã já existe. Escolha outro.</value></data>
   <data name="Game.ClanNoInvitation" xml:space="preserve"><value>O convite do clã não é mais válido.</value></data>

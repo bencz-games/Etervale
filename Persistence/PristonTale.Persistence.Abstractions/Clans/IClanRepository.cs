@@ -39,6 +39,9 @@ public interface IClanRepository
 
     Task<bool> IsMemberAsync(long characterId, CancellationToken ct = default);
 
+    // The clan's mark version once a new mark is kept.
+    Task<bool> SetMarkVersionAsync(long clanId, int version, CancellationToken ct = default);
+
     // The clan name of each of the account's characters that is in one, by character id.
     Task<IReadOnlyDictionary<long, string>> ClanNamesAsync(long accountId, CancellationToken ct = default);
 }

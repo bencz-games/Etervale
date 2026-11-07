@@ -83,6 +83,9 @@ public interface IPlayChannel : IAsyncDisposable
     // member. Answered by a ClanResult; the clan's state comes as PresenceUpdate.Clan.
     Task SendClanAsync(Protocol.Packets.ClanAction action, ulong id, string name, CancellationToken ct = default);
 
+    // The chief's new clan mark (ClanWire.MarkSize square RGBA pixels), answered by a ClanResult for ClanAction.Mark.
+    Task SendClanMarkAsync(byte[] pixels, CancellationToken ct = default);
+
     // Trade requests: ask a player to trade, answer a request (PresenceUpdate.TradeRequest), the side's whole offer, lock it,
     // cancel. None is answered: the window (PresenceUpdate.Trade) and chat lines show what changed.
     Task RequestTradeAsync(ulong targetId, CancellationToken ct = default);

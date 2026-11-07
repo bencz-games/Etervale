@@ -302,6 +302,9 @@ internal sealed partial class ClientSession : IMovementVerdictSink
                 case EtervaleOpcodes.ClanRequest:
                     await ClanRequestAsync(ClanRequestPacket.Read(memory.Span));
                     break;
+                case EtervaleOpcodes.ClanMark:
+                    await ClanMarkAsync(ClanMarkPacket.Read(memory.Span));
+                    break;
                 case EtervaleOpcodes.ContactChange:
                     await ChangeContactAsync(ContactChangePacket.Read(memory.Span));
                     break;

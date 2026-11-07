@@ -3,7 +3,8 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace PristonTale.Gameplay.UI.Clans;
 
-// A clan's 16x16 mark. Every clan shows the default crest until marks can be uploaded (its mark version stays 0).
+// A clan's mark as name boxes and windows draw it, 16x16. Every clan shows the default crest: the server keeps no
+// uploaded marks (IClanMarkStore), so mark versions stay 0.
 public static class ClanMarks
 {
     public const int Size = 16;

@@ -20,6 +20,7 @@ using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Contracts.Characters;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Gameplay.UI.Clans;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -133,6 +134,7 @@ public sealed partial class GameplayHud : IDisposable
         Func<QuestCommand, Task<QuestOutcome>> requestQuest = null)
     {
         _context = context;
+        _clanWindow = new HudClanWindow(context.Log);
         _settings = new HudSettingsPanel(context.Presentation);
         _sprites = new HudSprites(context.GraphicsDevice, context.AssetRoot, context.Log);
         _sprites.Request(HudArt.Static);
@@ -420,6 +422,7 @@ public sealed partial class GameplayHud : IDisposable
 
         _questWindow.Advance(elapsedSeconds);
         _partyWindow.Advance(elapsedSeconds);
+        _clanWindow.Update();
         _partyRequest.Update(_clock.Elapsed.TotalMilliseconds);
         _clanRequest.Update(_clock.Elapsed.TotalMilliseconds);
         _tradeRequest.Update(_clock.Elapsed.TotalMilliseconds);
@@ -853,6 +856,7 @@ public sealed partial class GameplayHud : IDisposable
         _portrait.Dispose();
         _skillHud.Dispose();
         _icons.Dispose();
+        _clanWindow.Dispose();
         _painter.Dispose();
         _sprites.Dispose();
     }

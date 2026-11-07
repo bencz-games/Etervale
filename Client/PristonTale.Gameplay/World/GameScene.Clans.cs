@@ -7,4 +7,6 @@ public sealed partial class GameScene
 {
     public void SendClan(ClanAction action, ulong id, string name) =>
         SendSocial(_playChannel?.SendClanAsync(action, id, name, _presenceCts.Token), "clan request");
+
+    public void SendClanMark(byte[] pixels) => SendSocial(_playChannel?.SendClanMarkAsync(pixels, _presenceCts.Token), "clan mark");
 }

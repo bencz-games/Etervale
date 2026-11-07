@@ -28,7 +28,8 @@ public enum ClanStatus : byte
     InviteRefused = 22,
     NotMember = 23,
     OutOfReach = 24,
-    Busy = 25
+    Busy = 25,
+    MarkUnavailable = 26
 }
 
 // The clan rules: founding at level 40 for 500,000 gold at the Clan Master; six members (the chief included) within ten

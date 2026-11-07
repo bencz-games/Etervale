@@ -150,6 +150,12 @@ internal sealed class OnlinePlayChannel : IPlayChannel
         _connection.SendSocial(new ClanRequestPacket(action, id, name ?? ""));
     }
 
+    public async Task SendClanMarkAsync(byte[] pixels, CancellationToken ct = default)
+    {
+        await _start.WaitAsync(ct);
+        _connection.SendSocial(new ClanMarkPacket(pixels));
+    }
+
     public async Task InviteToPartyAsync(ulong targetId, CancellationToken ct = default)
     {
         await _start.WaitAsync(ct);

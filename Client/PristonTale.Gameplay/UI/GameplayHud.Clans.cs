@@ -14,7 +14,7 @@ namespace PristonTale.Gameplay.UI;
 // clan button under a reached player's portrait for a chief or vice chief when that player has no clan.
 public sealed partial class GameplayHud
 {
-    private readonly HudClanWindow _clanWindow = new();
+    private readonly HudClanWindow _clanWindow;
     private readonly HudRequestBox _clanRequest = new(HudPartyArt.Request, ClanRules.InvitationSeconds * 1000);
     private Action<ClanAction, ulong, string> _sendClan;
 
@@ -26,6 +26,12 @@ public sealed partial class GameplayHud
             _sendClan = value;
             _clanWindow.Send = value;
         }
+    }
+
+    // Sends the chief's new clan mark; set by the screen.
+    public Action<byte[]> SendClanMark
+    {
+        set => _clanWindow.SendMark = value;
     }
 
     public ClanInfo Clan => _clanWindow.Clan;

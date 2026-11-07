@@ -734,7 +734,10 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
     grey offline), with Leave for members and Expel, Appoint or Discharge vice, Entrust and Disband for the chief. Expel,
     appoint and entrust pick a member from the list; every action asks yes or no first and waits for its own
     `ClanResult` (OK and Escape still close the window meanwhile); the `ClanState` that follows replaces the view.
-    Refusals come as chat lines. The founding text's numbers come from `ClanRules`; the rows are built again only when
+    Refusals come as chat lines. The chief's Clan mark button lists the PNG, JPG and BMP pictures of the `ClanMarks`
+    folder beside the game (`ClanMarkPicture`, read off the game thread through `HudRequest`, files up to 8 MiB); a
+    picked one is fitted (its centred square averaged down to 32x32 and to the 16x16 that name boxes draw), shown at both
+    sizes and sent as `ClanMark` once confirmed. The founding text's numbers come from `ClanRules`; the rows are built again only when
     the page, the typed name or the clan changes.
   - The party window has two tabs at (60, 2) and (120, 2): the party and the friends page (`HudFriendsPage`, art
     `HudContactArt`, title `title-NoClan_chatting.tga`; `GameplayHud.Contacts.cs`, `GameScene.Contacts.cs` as

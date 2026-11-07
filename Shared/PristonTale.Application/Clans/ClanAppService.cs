@@ -43,6 +43,7 @@ public sealed class ClanAppService : IClanRoster
     private readonly ISessionRegistry _sessions;
     private readonly TimeProvider _clock;
     private readonly DurableOperations _durable;
+    private readonly IClanMarkStore _marks;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private readonly Lock _state = new();
     private readonly Dictionary<long, Clan> _clans = new();
@@ -52,8 +53,9 @@ public sealed class ClanAppService : IClanRoster
     private readonly ConcurrentDictionary<ulong, Pending> _invitations = new();
 
     public ClanAppService(IClanRepository repository, WorldServer world, ChatDirectory chat, ISessionRegistry sessions, ICharacterSaves saves,
-        TimeProvider? clock = null)
+        TimeProvider? clock = null, IClanMarkStore? marks = null)
     {
+        _marks = marks ?? NoClanMarkStore.Instance;
         _repository = repository;
         _world = world;
         _chat = chat;
@@ -372,6 +374,37 @@ public sealed class ClanAppService : IClanRoster
         }
 
         Announce(clan, GameText.Of(appoint ? GameTextId.ClanViceAppointed : GameTextId.ClanViceDischarged, target!.Name));
+        Publish(clan);
+        return ClanStatus.Ok;
+    });
+
+    // The chief's new mark: kept by the mark store as the clan's next mark version, which is then stored with the clan and
+    // shown over its online members' heads.
+    public Task<ClanStatus> UploadMarkAsync(ulong entityId, ReadOnlyMemory<byte> pixels) => RunMemberAsync(entityId, async (online, clan, member) =>
+    {
+        if (member.Rank != ClanRank.Chief)
+        {
+            return ClanStatus.NotChief;
+        }
+
+        var version = clan.MarkVersion + 1;
+        if (!await StoreAsync(() => _marks.SaveAsync(clan.Id, version, pixels)))
+        {
+            return ClanStatus.MarkUnavailable;
+        }
+
+        if (!await StoreAsync(() => _repository.SetMarkVersionAsync(clan.Id, version)))
+        {
+            return ClanStatus.Unavailable;
+        }
+
+        lock (_state)
+        {
+            clan.MarkVersion = version;
+        }
+
+        await Task.WhenAll(clan.Members.Select(clanMember => Retag(clan, clanMember.CharacterId)));
+        Announce(clan, GameText.Of(GameTextId.ClanMarkChanged, clan.Name));
         Publish(clan);
         return ClanStatus.Ok;
     });

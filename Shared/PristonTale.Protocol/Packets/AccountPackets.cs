@@ -8,8 +8,8 @@ namespace PristonTale.Protocol.Packets;
 // of any message's layout raises both.
 public static class ProtocolVersion
 {
-    public const uint Current = 14;
-    public const uint Minimum = 14;
+    public const uint Current = 15;
+    public const uint Minimum = 15;
 }
 
 // Account messages: the server greets every connection, the client logs in, manages its characters and keeps the

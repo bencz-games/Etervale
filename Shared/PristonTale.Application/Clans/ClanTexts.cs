@@ -39,6 +39,7 @@ public static class ClanTexts
         ClanStatus.NotMember => GameTextId.ClanNotMember,
         ClanStatus.OutOfReach => GameTextId.NpcOutOfReach,
         ClanStatus.Busy => GameTextId.ClanBusy,
+        ClanStatus.MarkUnavailable => GameTextId.ClanMarkUnavailable,
         _ => GameTextId.ClanUnavailable
     };
 }

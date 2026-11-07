@@ -36,6 +36,8 @@ internal static class ClanTests
         yield return ("a clan short of six members past its deadline is dissolved and its members wait four days to join another", ExpiryAsync);
         yield return ("the Clan Master's window founds a clan from a typed name and asks before the chief's actions; a recruiter gets the clan button",
             WindowAsync);
+        yield return ("a clan mark upload: the client fits the picture's centre to 32x32 and sends it; the chief's is refused while no store keeps marks",
+            MarkAsync);
         yield return ("the party window's clan tab shows only in a clan; its page picks members, whispers to online ones, opens clan chat and closes",
             PageAsync);
     }
@@ -300,7 +302,10 @@ internal static class ClanTests
         window.Result(new Client.Net.Presence.ClanResultInfo((byte)ClanAction.Found, ClanStatus.Ok));
         Assert.True(!window.Pending && !window.Typing && window.Clan.Rank == ClanRank.Chief, "the founded clan was not shown");
         var count = sent.Count;
-        Click(window, 3, 4);
+        Click(window, 4, 5);
+        Click(window, 0, 1);
+        Assert.True(sent.Count == count && !window.Pending, "the chief's mark button sent something before a picture was picked");
+        Click(window, 3, 5);
         Assert.True(sent.Count == count, "disbanding did not ask first");
         Click(window, 0, 2);
         Assert.True(sent[^1] == (ClanAction.Disband, 0, "") && window.Pending, "the confirmed disband was not sent");
@@ -317,6 +322,125 @@ internal static class ClanTests
             && Gameplay.UI.Parties.HudPlayerButtons.At(frame, buttons[3].Center, clan: true) == Gameplay.UI.Parties.HudPlayerButton.Clan
             && Gameplay.UI.Parties.HudPlayerButtons.At(frame, buttons[3].Center) is null, "the clan button differs");
         return Task.CompletedTask;
+    }
+
+    private static async Task MarkAsync()
+    {
+        var buffer = new byte[ClanMarkPacket.Size];
+        var pixels = Enumerable.Range(0, ClanWire.MarkBytes).Select(static index => (byte)index).ToArray();
+        var length = new ClanMarkPacket(pixels).Write(buffer);
+        Assert.True(length == ClanMarkPacket.Size && length <= Protocol.Binary.FrameCodec.MaxFrameSize
+            && ClanMarkPacket.Read(buffer.AsSpan(0, length)).Pixels.SequenceEqual(pixels), "the clan mark did not round-trip in one frame");
+        buffer[12] = 16;
+        Assert.Throws<InvalidDataException>(() => ClanMarkPacket.Read(buffer.AsSpan(0, length).ToArray()), "a mark of another size was read");
+
+        // A 96x64 picture: its centred 64x64 square is fitted, so the 16 columns either side are left out. In that square the
+        // top-left quarter is opaque red over a transparent rest, and a transparent pixel adds no colour to its neighbours.
+        var source = new Microsoft.Xna.Framework.Color[96 * 64];
+        for (var y = 0; y < 64; y++)
+        {
+            for (var x = 0; x < 96; x++)
+            {
+                source[y * 96 + x] = x < 16 || x >= 80 ? Microsoft.Xna.Framework.Color.Blue
+                    : x < 48 && y < 32 ? new Microsoft.Xna.Framework.Color(255, 0, 0, 255) : new Microsoft.Xna.Framework.Color(0, 255, 0, 0);
+            }
+        }
+
+        var fitted = Gameplay.UI.Clans.ClanMarkPicture.Fit(96, 64, source, ClanWire.MarkSize);
+        static (byte R, byte G, byte B, byte A) At(byte[] mark, int x, int y)
+        {
+            var size = (int)Math.Sqrt(mark.Length / ClanWire.PixelBytes);
+            var at = (y * size + x) * ClanWire.PixelBytes;
+            return (mark[at], mark[at + 1], mark[at + 2], mark[at + 3]);
+        }
+        Assert.True(fitted.Length == ClanWire.MarkBytes && At(fitted, 0, 0) == (255, 0, 0, 255) && At(fitted, 15, 15) == (255, 0, 0, 255)
+            && At(fitted, 16, 0).A == 0 && At(fitted, 0, 16).A == 0 && At(fitted, 31, 31).A == 0, "the picture's centre was not fitted to the mark");
+        var small = Gameplay.UI.Clans.ClanMarkPicture.Fit(2, 2, [Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.White,
+            Microsoft.Xna.Framework.Color.White, Microsoft.Xna.Framework.Color.White], ClanWire.MarkSize);
+        Assert.True(At(small, 0, 0) == (255, 255, 255, 255) && At(small, 31, 31) == (255, 255, 255, 255), "a small picture was not enlarged");
+
+        // The folder lists pictures only; a picture loads fitted to the uploaded and the drawn size; a broken, a missing or
+        // an oversized file loads as nothing.
+        var folder = Path.Combine(Path.GetTempPath(), "etervale-clanmarks-" + Guid.NewGuid().ToString("N"));
+        Assert.True(Gameplay.UI.Clans.ClanMarkPicture.List(folder).Count == 0, "a missing folder listed pictures");
+        Directory.CreateDirectory(folder);
+        try
+        {
+            File.WriteAllBytes(Path.Combine(folder, "Lion.BMP"), Bitmap(40, 20, 200, 30, 10));
+            File.WriteAllBytes(Path.Combine(folder, "broken.png"), [1, 2, 3]);
+            File.WriteAllText(Path.Combine(folder, "notes.txt"), "not a picture");
+            Assert.True(Gameplay.UI.Clans.ClanMarkPicture.List(folder) is ["broken.png", "Lion.BMP"], "the folder's pictures were not listed alone");
+            var lion = Gameplay.UI.Clans.ClanMarkPicture.Load(folder, "Lion.BMP");
+            Assert.True(lion is { Pixels.Length: ClanWire.MarkBytes } && lion.Small.Length == Gameplay.UI.Clans.ClanMarks.Size * Gameplay.UI.Clans.ClanMarks.Size * ClanWire.PixelBytes
+                && At(lion.Pixels, 31, 31) == (200, 30, 10, 255) && At(lion.Small, 0, 0) == (200, 30, 10, 255), "a picture did not load fitted");
+            Assert.True(Gameplay.UI.Clans.ClanMarkPicture.Load(folder, "broken.png") is null && Gameplay.UI.Clans.ClanMarkPicture.Load(folder, "gone.png") is null,
+                "a broken or missing picture loaded");
+            using (var large = File.Create(Path.Combine(folder, "huge.bmp")))
+            {
+                large.SetLength(Gameplay.UI.Clans.ClanMarkPicture.MaxFileBytes + 1);
+            }
+
+            Assert.True(Gameplay.UI.Clans.ClanMarkPicture.Load(folder, "huge.bmp") is null, "an oversized file was read");
+        }
+        finally
+        {
+            Directory.Delete(folder, recursive: true);
+        }
+
+        await using var refused = await Fixture.CreateAsync(1_000_000, 40);
+        Assert.True(await refused.Service.FoundAsync(refused.Session.SessionToken, refused.NpcId, "Lions") == ClanStatus.Ok, "founding failed");
+        Assert.True(await refused.Service.UploadMarkAsync(refused.Session.EntityId, pixels) == ClanStatus.MarkUnavailable
+            && refused.Link.View?.MarkVersion == 0, "a mark was taken while no store keeps marks");
+
+        var store = new MemoryMarks();
+        await using var fixture = await Fixture.CreateAsync(1_000_000, 40, marks: store);
+        Assert.True(await fixture.Service.FoundAsync(fixture.Session.SessionToken, fixture.NpcId, "Lions") == ClanStatus.Ok, "founding failed");
+        var member = await fixture.AddMemberAsync("Ann", 20, 40);
+        Assert.True(await fixture.Service.InviteAsync(fixture.Session.EntityId, member.Session.EntityId) == ClanStatus.Ok
+            && await fixture.Service.AnswerAsync(member.Session.EntityId, true) == ClanStatus.Ok, "the member did not join");
+        Assert.True(await fixture.Service.UploadMarkAsync(member.Session.EntityId, pixels) == ClanStatus.NotChief && store.Saved.Count == 0,
+            "a member uploaded the clan's mark");
+        Assert.True(await fixture.Service.UploadMarkAsync(fixture.Session.EntityId, pixels) == ClanStatus.Ok && store.Saved is [(_, 1)]
+            && fixture.Link.View?.MarkVersion == 1 && member.Link.View?.MarkVersion == 1 && fixture.Player.Clan?.MarkVersion == 1
+            && fixture.Clans.Clans.Values.Single().MarkVersion == 1, "a kept mark did not raise the clan's mark version");
+    }
+
+    // A 24-bit bottom-up BMP of one colour.
+    private static byte[] Bitmap(int width, int height, byte red, byte green, byte blue)
+    {
+        var stride = (width * 3 + 3) & ~3;
+        var bytes = new byte[54 + stride * height];
+        bytes[0] = (byte)'B';
+        bytes[1] = (byte)'M';
+        BitConverter.GetBytes(bytes.Length).CopyTo(bytes, 2);
+        BitConverter.GetBytes(54).CopyTo(bytes, 10);
+        BitConverter.GetBytes(40).CopyTo(bytes, 14);
+        BitConverter.GetBytes(width).CopyTo(bytes, 18);
+        BitConverter.GetBytes(height).CopyTo(bytes, 22);
+        BitConverter.GetBytes((short)1).CopyTo(bytes, 26);
+        BitConverter.GetBytes((short)24).CopyTo(bytes, 28);
+        for (var y = 0; y < height; y++)
+        {
+            for (var x = 0; x < width; x++)
+            {
+                var at = 54 + y * stride + x * 3;
+                (bytes[at], bytes[at + 1], bytes[at + 2]) = (blue, green, red);
+            }
+        }
+
+        return bytes;
+    }
+
+    // Keeps every mark it is given.
+    private sealed class MemoryMarks : IClanMarkStore
+    {
+        public List<(long ClanId, int Version)> Saved { get; } = [];
+
+        public Task<bool> SaveAsync(long clanId, int version, ReadOnlyMemory<byte> pixels, CancellationToken ct = default)
+        {
+            Saved.Add((clanId, version));
+            return Task.FromResult(pixels.Length == ClanWire.MarkBytes);
+        }
     }
 
     private static Task PageAsync()
@@ -469,6 +593,13 @@ internal static class ClanTests
 
         public Task<bool> IsMemberAsync(long characterId, CancellationToken ct = default) => Task.FromResult(Members.ContainsKey(characterId));
 
+        public Task<bool> SetMarkVersionAsync(long clanId, int version, CancellationToken ct = default)
+        {
+            ThrowIfFailing();
+            Clans[clanId] = Clans[clanId] with { MarkVersion = version };
+            return Task.FromResult(true);
+        }
+
         public Task<IReadOnlyDictionary<long, string>> ClanNamesAsync(long accountId, CancellationToken ct = default) =>
             Task.FromResult<IReadOnlyDictionary<long, string>>(Members.Values.Where(member => member.AccountId == accountId)
                 .ToDictionary(member => member.CharacterId, member => Clans[member.ClanId].Name));
@@ -531,7 +662,7 @@ internal static class ClanTests
             return new Extra(name, session, link);
         }
 
-        public static async Task<Fixture> CreateAsync(long money, int level, TimeProvider? clock = null)
+        public static async Task<Fixture> CreateAsync(long money, int level, TimeProvider? clock = null, IClanMarkStore? marks = null)
         {
             var classes = new CharacterClassRegistry();
             var starter = CharacterRecordFactory.NewStarter(classes, 1, "Founder", 0, PlayerClass.Fighter, 3) with { Id = 1 };
@@ -558,7 +689,7 @@ internal static class ClanTests
             Assert.True(outbox.Reader.TryRead(out var snapshot), "roster missing");
             var placed = snapshot.Entities.Single(entity => entity.Kind == EntityKind.Npc);
             var clans = new MemoryClans(characters);
-            var service = new ClanAppService(clans, world, new ChatDirectory(), sessions, new ImmediateSaves(characters), clock);
+            var service = new ClanAppService(clans, world, new ChatDirectory(), sessions, new ImmediateSaves(characters), clock, marks);
             await service.LoadAsync();
             var link = new RecordingLink();
             await WorldPump.RunAsync(world, service.AttachAsync(session, starter.Name, PlayerClass.Fighter, level, link));

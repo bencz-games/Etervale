@@ -30,7 +30,7 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | `Services/TradeAppService.cs`, `World/WorldServer.Trades.cs`, `World/Trades/Trade.cs` | Trades between players: requests, offers, locks and the exchange that holds and stores two characters (below) |
 | `World/WorldServer.Notices.cs`, `World/WorldNotice.cs`, `Services/WorldNoticeRequests.cs` | The lines a party or trade change answers, delivered through the chat (`ChatDirectory.Deliver`) |
 | `Contacts/ContactAppService.cs` | The friends page: each character's friends and ignored players, stored, with the friends' presence (below) |
-| `Clans/ClanAppService.cs`, `Clans/ClanTexts.cs`, `World/WorldServer.Clans.cs` | The clans: founding, invitations, ranks, leaving, expelling, entrusting, dissolution and the chat roster (below) |
+| `Clans/ClanAppService.cs`, `Clans/ClanTexts.cs`, `Clans/IClanMarkStore.cs`, `World/WorldServer.Clans.cs` | The clans: founding, invitations, ranks, leaving, expelling, entrusting, the chief's mark upload, dissolution and the chat roster (below) |
 | `Chat/`, `GameMasters/` | Chat routing, whispers and notices; game-master commands, levels and audit ([chat-and-gm.md](chat-and-gm.md)) |
 | `World/WorldServer.Chat.cs`, `World/WorldServer.GameMasters.cs` | Players in hearing range; tick-side game-master reads and changes (kill, hide, move, spawn, drop, gifts) |
 | `Shared/PristonTale.Contracts/Sessions/*Outcome.cs`, `CharacterSummary.cs`; `Contracts/World/Restart.cs`, `WingGateTrip.cs` | Result records returned to the edge and read by the client (login, characters, world entry, restart, wing trips); failure enums carry stable codes |
@@ -633,7 +633,10 @@ live level (views, the chief's capacity, entrusting).
   recruiter. Six members register the clan.
 - The chief appoints or discharges the one vice chief, expels members (online or not), hands the clan to a member at a
   Clan Master (registered clans only, a member of at least his level whose capacity holds the clan and whose account
-  leads no other clan, 300,000 gold stored with the character) and disbands it; members leave (the chief cannot). Below six members a registered clan gets ten
+  leads no other clan, 300,000 gold stored with the character) and disbands it; members leave (the chief cannot). The
+  chief's new mark (`UploadMarkAsync`) goes to the mark store (`IClanMarkStore`) as the clan's next mark version, which
+  is then stored with the clan (`SetMarkVersionAsync`), shown over the members' heads and announced; the server keeps no
+  marks yet (`NoClanMarkStore` refuses every upload: "Clan marks cannot be uploaded yet"). Below six members a registered clan gets ten
   days; a passed deadline dissolves the clan, and its members cannot join one for four days.
 - Every change sends each online member the clan's view and a line in the chat (joined, left, expelled, registered,
   below six, chief changed, vice appointed or discharged, disbanded). A character in a clan cannot be deleted.

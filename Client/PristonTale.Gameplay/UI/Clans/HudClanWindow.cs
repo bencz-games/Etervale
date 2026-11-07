@@ -9,13 +9,15 @@ using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Protocol.Packets;
 using PristonTale.Simulation.Social.Clans;
+using PristonTale.Engine3D.Diagnostics;
 
 namespace PristonTale.Gameplay.UI.Clans;
 
 // The Clan Master's window, in the help box the NPC dialog uses: without a clan, the founding text and the name typed
 // for it; with one, the clan (state, deadline, members) and the actions of the player's rank, each asked again before it
-// is sent; the chief picks a member from the list to expel, appoint or entrust. A request waits for its own result (OK
-// still closes the window meanwhile); the clan that comes back replaces the view.
+// is sent; the chief picks a member from the list to expel, appoint or entrust, or a picture from the ClanMarks folder for
+// the clan's mark (ClanMarkPicture, read off the game thread; shown fitted before it is sent). A request waits for its
+// own result (OK still closes the window meanwhile); the clan that comes back replaces the view.
 public sealed class HudClanWindow
 {
     private enum Page
@@ -25,7 +27,9 @@ public sealed class HudClanWindow
         Name,
         View,
         Select,
-        Confirm
+        Confirm,
+        Marks,
+        MarkConfirm
     }
 
     private const int TextWidth = HudNpcPanel.SizeW * 32;
@@ -44,10 +48,26 @@ public sealed class HudClanWindow
     private (string Text, Color Color, string Member)[] _rows = [];
     private bool _rowsStale = true;
     private ClanAction _requested;
+    private readonly HudRequest<IReadOnlyList<string>> _listing;
+    private readonly HudRequest<ClanMarkPicture> _loading;
+    private IReadOnlyList<string> _files;
+    private ClanMarkPicture _picture;
+    private Texture2D _markPreview;
+    private Texture2D _markPreviewSmall;
+
+    public HudClanWindow(IClientLog log = null)
+    {
+        _listing = new HudRequest<IReadOnlyList<string>>(log ?? NullClientLog.Instance, "listing clan mark pictures");
+        _loading = new HudRequest<ClanMarkPicture>(log ?? NullClientLog.Instance, "reading a clan mark picture");
+    }
+
+    // Where the chief's mark pictures are listed from (ClanMarkPicture.Folder beside the game).
+    public string MarkFolder { get; set; } = ClanMarkPicture.Folder;
     private string[] _buttons = [];
 
-    // Sends a clan request (GameScene).
+    // Sends a clan request and the chief's new mark (GameScene).
     public Action<ClanAction, ulong, string> Send { get; set; }
+    public Action<byte[]> SendMark { get; set; }
 
     public ClanInfo Clan { get; private set; } = ClanInfo.None;
 
@@ -57,6 +77,26 @@ public sealed class HudClanWindow
 
     public bool Pending { get; private set; }
 
+    // A listing or a picture that finished reading shows (once per frame, from the HUD's update).
+    public void Update()
+    {
+        if (_listing.TryTake(out var files))
+        {
+            _files = files;
+            _lines = [];
+            _rowsStale = true;
+        }
+
+        if (_loading.TryTake(out var picture))
+        {
+            _picture = picture;
+            if (_page == Page.MarkConfirm)
+            {
+                Go(_page);
+            }
+        }
+    }
+
     public void Open(ulong npcId)
     {
         _npcId = npcId;
@@ -65,7 +105,11 @@ public sealed class HudClanWindow
         Send?.Invoke(ClanAction.Open, npcId, "");
     }
 
-    public void Close() => _page = Page.Closed;
+    public void Close()
+    {
+        _page = Page.Closed;
+        DropPreview();
+    }
 
     // The clan as the server last sent it (a window open on the old view shows the new one).
     public void Observe(ClanInfo clan)
@@ -159,10 +203,17 @@ public sealed class HudClanWindow
             }
         }
 
-        if (_page == Page.Select && LineAt(pointer) is var line && line >= 0 && _rows[line].Member is { Length: > 0 } member)
+        if (_page is Page.Select or Page.Marks && LineAt(pointer) is var line && line >= 0 && _rows[line].Member is { Length: > 0 } member)
         {
-            _target = member;
-            Go(Page.Confirm);
+            _target = _page == Page.Marks ? _rows[line].Text : member;
+            if (_page == Page.Marks)
+            {
+                var folder = MarkFolder;
+                _picture = null;
+                _loading.Start(() => Task.Run(() => ClanMarkPicture.Load(folder, member)), static _ => null);
+            }
+
+            Go(_page == Page.Marks ? Page.MarkConfirm : Page.Confirm);
         }
 
         return true;
@@ -186,7 +237,7 @@ public sealed class HudClanWindow
         var rows = Rows(font);
         var capacity = Capacity();
         _firstLine = Math.Clamp(_firstLine, 0, Math.Max(0, rows.Length - capacity));
-        var hovered = _page == Page.Select ? LineAt(pointer) : -1;
+        var hovered = _page is Page.Select or Page.Marks ? LineAt(pointer) : -1;
         for (var line = 0; line < capacity && _firstLine + line < rows.Length; line++)
         {
             var row = rows[_firstLine + line];
@@ -198,6 +249,17 @@ public sealed class HudClanWindow
         {
             var barX = HudNpcPanel.BoxX + (HudNpcPanel.SizeW - 1) * 32 + 80 - 6;
             painter.ScrollBar(barX, HudNpcPanel.BoxY + 53, capacity * LineStep + 16, _firstLine, rows.Length - capacity);
+        }
+
+        // The mark as uploaded and, beside it, as name boxes and windows draw it.
+        if (_page == Page.MarkConfirm && _picture is { } picture)
+        {
+            _markPreview ??= painter.CreateTexture(ClanWire.MarkSize, ClanWire.MarkSize, picture.Pixels);
+            _markPreviewSmall ??= painter.CreateTexture(ClanMarks.Size, ClanMarks.Size, picture.Small);
+            var below = TextTop + LineStep * Math.Min(capacity, rows.Length - _firstLine);
+            painter.Image(_markPreview, new Rectangle(HudNpcPanel.BoxX + 30, below, ClanWire.MarkSize, ClanWire.MarkSize));
+            painter.Image(_markPreviewSmall, new Rectangle(HudNpcPanel.BoxX + 30 + ClanWire.MarkSize + 12, below + (ClanWire.MarkSize - ClanMarks.Size) / 2,
+                ClanMarks.Size, ClanMarks.Size));
         }
 
         for (var index = 0; index < _buttons.Length; index++)
@@ -219,6 +281,11 @@ public sealed class HudClanWindow
         _firstLine = 0;
         _lines = [];
         _rowsStale = true;
+        if (page != Page.MarkConfirm)
+        {
+            DropPreview();
+        }
+
         if (page == Page.Name)
         {
             _name.Clear();
@@ -231,11 +298,13 @@ public sealed class HudClanWindow
             Page.View when Clan.Rank == ClanRank.Chief =>
             [
                 ClientText.Get("Clan.Expel"), ClientText.Get(Clan.Members.Any(static member => member.Rank == ClanRank.Vice) ? "Clan.Discharge" : "Clan.Appoint"),
-                ClientText.Get("Clan.Entrust"), ClientText.Get("Clan.Disband")
+                ClientText.Get("Clan.Entrust"), ClientText.Get("Clan.Disband"), ClientText.Get("Clan.Mark")
             ],
             Page.View => [ClientText.Get("Clan.Leave")],
-            Page.Select => [ClientText.Get("Clan.Back")],
+            Page.Select or Page.Marks => [ClientText.Get("Clan.Back")],
             Page.Confirm => [ClientText.Get("Clan.Yes"), ClientText.Get("Clan.No")],
+            Page.MarkConfirm when _picture is not null => [ClientText.Get("Clan.Yes"), ClientText.Get("Clan.No")],
+            Page.MarkConfirm => [ClientText.Get("Clan.Back")],
             _ => []
         };
     }
@@ -258,6 +327,12 @@ public sealed class HudClanWindow
             case Page.Name:
                 Go(Page.Intro);
                 break;
+            case Page.View when Clan.Rank == ClanRank.Chief && button == 4:
+                var folder = MarkFolder;
+                _files = null;
+                _listing.Start(() => Task.Run(() => ClanMarkPicture.List(folder)), static _ => []);
+                Go(Page.Marks);
+                break;
             case Page.View when Clan.Rank == ClanRank.Chief:
                 _action = button switch { 0 => ClanAction.Expel, 1 => ViceAction(), 2 => ClanAction.Entrust, _ => ClanAction.Disband };
                 if (_action == ClanAction.Discharge)
@@ -271,8 +346,15 @@ public sealed class HudClanWindow
                 _action = ClanAction.Leave;
                 Go(Page.Confirm);
                 break;
-            case Page.Select:
+            case Page.Select or Page.Marks:
                 Go(Page.View);
+                break;
+            case Page.MarkConfirm when button == 0 && _picture is { } picture:
+                Wait(ClanAction.Mark);
+                SendMark?.Invoke(picture.Pixels);
+                break;
+            case Page.MarkConfirm:
+                Go(Page.Marks);
                 break;
             case Page.Confirm when button == 0:
                 Request(_action, _action == ClanAction.Entrust ? _npcId : 0, _target);
@@ -287,9 +369,14 @@ public sealed class HudClanWindow
 
     private void Request(ClanAction action, ulong id, string name)
     {
+        Wait(action);
+        Send?.Invoke(action, id, name);
+    }
+
+    private void Wait(ClanAction action)
+    {
         Pending = true;
         _requested = action;
-        Send?.Invoke(action, id, name);
     }
 
     private int Capacity()
@@ -326,6 +413,14 @@ public sealed class HudClanWindow
         }
 
         var rows = _lines.Select(static line => (line, Color.White, "")).ToList();
+        if (_page == Page.Marks && _files is { } files)
+        {
+            foreach (var file in files)
+            {
+                rows.Add((HudTextLayout.Fit(file, TextWidth, Measure(font)), HudNameColors.Clan, file));
+            }
+        }
+
         if (_page is Page.View or Page.Select)
         {
             foreach (var member in Clan.Members)
@@ -361,6 +456,15 @@ public sealed class HudClanWindow
             ClanAction.Entrust => "Clan.ChooseEntrust",
             _ => "Clan.ChooseVice"
         }), ""],
+        Page.Marks => [ClientText.Format("Clan.MarkFolder", ClanWire.MarkSize), "", _files switch
+        {
+            null => ClientText.Get("Clan.MarkLooking"),
+            { Count: 0 } => ClientText.Get("Clan.NoMarkFiles"),
+            _ => ""
+        }],
+        Page.MarkConfirm => [_loading.Pending ? ClientText.Get("Clan.MarkLoading")
+            : _picture is null ? ClientText.Format("Clan.MarkUnreadable", _target)
+            : ClientText.Format("Clan.ConfirmMark", _target)],
         Page.Confirm => [_action switch
         {
             ClanAction.Leave => ClientText.Format("Clan.ConfirmLeave", Clan.Name),
@@ -372,6 +476,18 @@ public sealed class HudClanWindow
         }],
         _ => []
     };
+
+    private static Func<string, float> Measure(SpriteFont font) => text => font.MeasureString(text).X * HudPainter.TextScale;
+
+    private void DropPreview()
+    {
+        _markPreview?.Dispose();
+        _markPreview = null;
+        _markPreviewSmall?.Dispose();
+        _markPreviewSmall = null;
+    }
+
+    public void Dispose() => DropPreview();
 
     // Registered, or the time left to reach six members.
     private string State()

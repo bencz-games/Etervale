@@ -57,6 +57,7 @@ public sealed class GameplayScreen : GameScreen
         _scene.PresenceObserved += _hud.ObserveClan;
         _hud.Parties = _scene;
         _hud.SendClan = _scene.SendClan;
+        _hud.SendClanMark = _scene.SendClanMark;
         _scene.PresenceObserved += _hud.ObserveTrade;
         _hud.Trades = _scene;
         _scene.PresenceObserved += _hud.ObserveContacts;

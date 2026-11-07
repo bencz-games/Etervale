@@ -60,6 +60,7 @@
   <data name="Clan.ConfirmEntrust" xml:space="preserve"><value>Entrust the clan to {0} for 300,000 gold? You will become a member.</value></data>
   <data name="Clan.ConfirmExpel" xml:space="preserve"><value>Do you wish to expel {0} from the clan?</value></data>
   <data name="Clan.ConfirmLeave" xml:space="preserve"><value>Do you wish to leave the clan {0}?</value></data>
+  <data name="Clan.ConfirmMark" xml:space="preserve"><value>Use {0} as the clan's mark? It will look like this:</value></data>
   <data name="Clan.Cost" xml:space="preserve"><value>Forming a clan costs {0} gold and needs level {1}.</value></data>
   <data name="Clan.Count" xml:space="preserve"><value>Members: {0} of {1}</value></data>
   <data name="Clan.Disband" xml:space="preserve"><value>Disband</value></data>
@@ -70,7 +71,13 @@
   <data name="Clan.Intro" xml:space="preserve"><value>Many warriors with the same objectives gather and form a group around the world. It is called a clan. Clans guard and protect their own people. In order to form a clan, you must pay a fee to register it officially. Do you wish to form a clan?</value></data>
   <data name="Clan.InviteLine" xml:space="preserve"><value>invites you to the clan {0}.</value></data>
   <data name="Clan.Leave" xml:space="preserve"><value>Leave clan</value></data>
+  <data name="Clan.Mark" xml:space="preserve"><value>Clan mark</value></data>
+  <data name="Clan.MarkFolder" xml:space="preserve"><value>Put a picture (PNG, JPG or BMP) in the ClanMarks folder beside the game and pick it below. Its centre becomes the {0}x{0} mark.</value></data>
+  <data name="Clan.MarkLoading" xml:space="preserve"><value>Reading the picture...</value></data>
+  <data name="Clan.MarkLooking" xml:space="preserve"><value>Looking for pictures...</value></data>
+  <data name="Clan.MarkUnreadable" xml:space="preserve"><value>{0} could not be read as a picture.</value></data>
   <data name="Clan.No" xml:space="preserve"><value>No</value></data>
+  <data name="Clan.NoMarkFiles" xml:space="preserve"><value>There is no picture in the ClanMarks folder.</value></data>
   <data name="Clan.RankChief" xml:space="preserve"><value>(chief)</value></data>
   <data name="Clan.RankVice" xml:space="preserve"><value>(vice)</value></data>
   <data name="Clan.Registered" xml:space="preserve"><value>The clan is officially registered.</value></data>
@@ -132,6 +139,8 @@
   <data name="Game.ClanJoined" xml:space="preserve"><value>{0} has joined the clan.</value></data>
   <data name="Game.ClanLeft" xml:space="preserve"><value>{0} has left the clan.</value></data>
   <data name="Game.ClanLevelTooLow" xml:space="preserve"><value>You must be level {0} to found a clan.</value></data>
+  <data name="Game.ClanMarkChanged" xml:space="preserve"><value>The clan [{0}] has a new mark.</value></data>
+  <data name="Game.ClanMarkUnavailable" xml:space="preserve"><value>Clan marks cannot be uploaded yet.</value></data>
   <data name="Game.ClanNameInvalid" xml:space="preserve"><value>Clan names have {0} to {1} letters, digits, spaces, '-' or '_'.</value></data>
   <data name="Game.ClanNameTaken" xml:space="preserve"><value>This clan name already exists. Please try something else.</value></data>
   <data name="Game.ClanNoInvitation" xml:space="preserve"><value>The clan invitation is no longer valid.</value></data>
