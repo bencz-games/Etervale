@@ -693,7 +693,8 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
   and announcing share one lock, so that no player keeps an older castle than the last.
 - The owner clan's members see Bless Castle's stone on the wing warp map (the world told the owner, `SetOwner`), and
   route 2's teleporter takes anyone into the castle for 500 gold per level ([world.md](world.md)).
-- Not yet: the owner's window, the tax on fees and the treasury's movements, the crown over the owner clan.
+- The clients draw the crown over the owner clan's players ([client.md](client.md)).
+- Not yet: the owner's window, the tax on fees and the treasury's movements.
 
 The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner
 and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its spawns

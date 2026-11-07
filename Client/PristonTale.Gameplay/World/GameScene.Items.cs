@@ -16,6 +16,11 @@ public sealed partial class GameScene
     private Func<ulong, Vector3?> _itemAnchor;
     private Func<ulong, (Vector3 Position, float Facing)?> _petOwnerPose;
     private PremiumPetPresentation _pets;
+    private CrownPresentation _crowns;
+    private Action<ulong, PlayerActorHandles, PristonTale.Client.Net.Presence.PlayerAppearanceInfo, Vector3> _crownVisit;
+
+    // The clan holding Bless Castle (0 for none): its players wear the crown.
+    public long CastleOwnerClanId { get; set; }
     private ForceOrbPresentation _forceOrbs;
 
     // The local player's running premium timers as last sent by the server.
@@ -49,6 +54,11 @@ public sealed partial class GameScene
         if (_pets is null && _renderer is not null)
         {
             _pets = new PremiumPetPresentation(_actorScene, _actorLoader, _assetRoot ?? "", scripts, _renderer.TransientLights, _skillSounds, _log);
+        }
+
+        if (_crowns is null && _renderer is not null)
+        {
+            _crowns = new CrownPresentation(_actorScene, _actorLoader, _assetRoot ?? "", _log);
         }
     }
 
@@ -117,7 +127,39 @@ public sealed partial class GameScene
         _itemEffects?.Update(_skillClockMs, _itemAnchor, PlayerPosition);
         _pets?.Update(dt, _petOwnerPose, _itemAnchor, PlayerPosition);
         _forceOrbs?.Update(_skillClockMs, _itemAnchor);
+        ShowCrowns();
     }
+
+    private void ShowCrowns()
+    {
+        if (_crowns is null)
+        {
+            return;
+        }
+
+        if (CastleOwnerClanId != 0 && _remote is not null)
+        {
+            if (!PlayerDead && Simulation.Social.Castle.CastleSiegeRules.HoldsCastle(OwnClanId, CastleOwnerClanId))
+            {
+                _crowns.Show(_remote.SelfEntityId, CrownHead(_remote.SelfEntityId, PlayerPosition), PlayerPosition, _skillClockMs);
+            }
+
+            _remote.ForEachPlayer(_crownVisit ??= (entityId, _, appearance, feet) =>
+            {
+                if (Simulation.Social.Castle.CastleSiegeRules.HoldsCastle(appearance.ClanId, CastleOwnerClanId))
+                {
+                    _crowns.Show(entityId, CrownHead(entityId, feet), PlayerPosition, _skillClockMs);
+                }
+            });
+        }
+
+        _crowns.Finish();
+    }
+
+    private Vector3 CrownHead(ulong entityId, Vector3 feet) =>
+        ((PristonTale.Effects.Vfx.IVfxAnchors)this).TryGetBone(entityId, UI.Widgets.HudTargetPortrait.HeadBone, out var head)
+            ? head
+            : feet + Vector3.Up * CrownPresentation.HeadHeight;
 
     private (Vector3 Position, float Facing)? PetOwnerPose(ulong entityId) =>
         TryGetDrawnPosition(entityId, out var position) && TryGetDrawnFacing(entityId, out var facing) ? (position, facing) : null;

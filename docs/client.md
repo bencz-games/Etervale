@@ -455,13 +455,17 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   32 walking (8 ahead), 16 running (14 ahead), attacking or casting. Out of the water, each step in an ice field leaves a
   footprint on an ice floor (`image/mk-r.tga` 3 units right and 5 ahead, `mk-l.tga` left), 12 x 12 units, tilted with
   the ice, fading to a fifth over five seconds; at most 20 lie at a time. Local player only, as in the original.
+- Bless Castle's crown (`CrownPresentation`): every player of the clan holding the castle within 12 x 64 units of the
+  player, the player included, wears `weapons/Crown.smd` floating 20 units over its head bone (the top of the head and
+  10 more; 36 units over the feet without one), bobbing half a unit once a second and turning once every 16.4 s.
 - Held items (`GameScene.HeldItems.cs`): the weapon and off-hand glow and the class-up lights of every drawn player
   ([effects.md](effects.md#held-item-glow)).
 - Wing warp map (`HudWingGate`): `WG_map.tga` (256 x 256) at (472, 120) with the icon of each stone the carried wing
-  reaches (and Bless Castle's for a member of the clan holding it), three rings growing and fading from the hovered icon, the help box at (50, 45) with the hovered stone's name
-  and `WarpGateDoc` document (the fee table of `Default.sin`, its `%d` filled with the wings' fees, while none is
-  hovered), and the cancel button at the map's lower right. A click checks the level and the gold, then asks for
-  confirmation before `IPlayChannel.TravelWingGateAsync`; a refusal shows as a notice.
+  reaches (and Bless Castle's for a member of the clan holding it), three rings growing and fading from the hovered
+  icon, the help box at (50, 45) with the hovered stone's name and `WarpGateDoc` document (the fee table of
+  `Default.sin`, its `%d` filled with the wings' fees, while none is hovered), and the cancel button at the map's lower
+  right. A click checks the level and the gold, then asks for confirmation before `IPlayChannel.TravelWingGateAsync`; a
+  refusal shows as a notice.
 - Restart window (`HudRestartPanel`): opens 100 death-motion frames (about 1.4 s) after the local player falls, centred
   100 pixels above the middle; field, town and exit buttons light up under the pointer with their help lines; the field
   button stays dark with red help where the server's `RestartOffer` says the field restart is closed (nothing in the

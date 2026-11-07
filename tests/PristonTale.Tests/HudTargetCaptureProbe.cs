@@ -40,7 +40,7 @@ internal sealed class HudTargetCaptureProbe : Game
     // A long name over a head-bone NPC, at a window height that is not a multiple of the design height.
     private const uint CraftsmanId = 7;
 
-    private sealed record Scenario(string Name, int Width, int Height, ulong Target, bool Classic = false, bool HoverMap = false);
+    private sealed record Scenario(string Name, int Width, int Height, ulong Target, bool Classic = false, bool HoverMap = false, bool Crown = false);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -54,7 +54,9 @@ internal sealed class HudTargetCaptureProbe : Game
         new("target-npc-craftsman-1920x1009", 1920, 1009, CraftsmanId),
         new("target-monster-1920", 1920, 1080, HopyId),
         new("target-player-1600x1200-scale2", 1600, 1200, PlayerId),
-        new("minimap-hover-800", 800, 600, NpcId, HoverMap: true)
+        new("minimap-hover-800", 800, 600, NpcId, HoverMap: true),
+        new("crown-player-800", 800, 600, PlayerId, Crown: true),
+        new("crown-player-1280", 1280, 720, PlayerId, Crown: true)
     ];
 
     private sealed class PortraitScene(PristonRenderer renderer, RemoteEntityManager remote) : IHudPortraitScene
@@ -72,6 +74,7 @@ internal sealed class HudTargetCaptureProbe : Game
     private PristonSkyLibrary _sky = null!;
     private PristonCamera _camera = null!;
     private RemoteEntityManager _remote = null!;
+    private CrownPresentation _crowns = null!;
     private SpriteBatch _batch = null!;
     private GameplayHud _hud = null!;
     private OwnerState _owner = null!;
@@ -152,9 +155,10 @@ internal sealed class HudTargetCaptureProbe : Game
             new(CraftsmanId, EntityKind.Npc, false, Numeric(Floor(collision, _focus + new Vector3(-100f, 0f, 120f))), 1.5f,
                 MotionState.Stand, 0, 0, null, 3, Name: "Mixing Craftsman, Morald", Level: 1),
             new(PlayerId, EntityKind.Player, false, Numeric(Floor(collision, _focus + new Vector3(10f, 0f, 90f))), 2.6f,
-                MotionState.Stand, 900, 1000, new PlayerAppearanceInfo("Lyra", PlayerClass.Priestess, 0, 1, 0, "", "", 37), 0)
+                MotionState.Stand, 900, 1000, new PlayerAppearanceInfo("Lyra", PlayerClass.Priestess, 0, 1, 0, "", "", 37) { ClanId = 7 }, 0)
         ], [], [], []);
         _remote.Apply(_spawns);
+        _crowns = new CrownPresentation(actorScene, loader, _assetRoot, ConsoleClientLog.Instance);
 
         _batch = new SpriteBatch(GraphicsDevice);
         var font = Content.Load<SpriteFont>("Fonts/UI");
@@ -195,6 +199,12 @@ internal sealed class HudTargetCaptureProbe : Game
         var scenario = Scenarios[_scenario];
         _presentation.Requested = _presentation.Requested with { ClassicTargetHealthBar = scenario.Classic };
         _remote.Update(step);
+        if (scenario.Crown && _remote.TryGetDrawnPosition(PlayerId, out var crowned))
+        {
+            _crowns.Show(PlayerId, crowned + Vector3.Up * CrownPresentation.HeadHeight, _focus, _seconds * 1000);
+        }
+
+        _crowns.Finish();
         _renderer.Update(new GameTime(TimeSpan.FromSeconds(_seconds), TimeSpan.FromSeconds(step)));
         _hud.World = _world;
         _hud.TargetId = scenario.Target;

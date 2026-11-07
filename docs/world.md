@@ -543,12 +543,11 @@ or the client's view was stale), the covered one going to the moved item's cell 
 (`OverWeight`), and an overweight character cannot open the warehouse (`NpcServiceTransactions.Check`).
 
 Teleport routes (`TeleportRoutes`): route 0 means route 1. Route 1: index 1 field 0 "Mushroom Cave" 100 gold, 2 field 18
-"Beehive Cave" 100, 3 field 7 "Cursed Land" 500, 4 field 12 "Forbidden Land" 1000. Route 2 (the castle's
-teleporter): index 1 field 33 "Bless Castle", 500 gold per level of the traveller (`TeleportDestination.PricePerLevel`).
-The destination field's `LimitLevel` applies; arrival is its first start point (a random one in a castle, `FieldDef.ArrivalFor`; `Center`
-without one) placed on the floor. The cave destinations are the
-fields that hold the cave entrances: field 0 (`fore-3`) has the warp gate to `Tcave`, field 18 (`forever-fall-03`) the
-one to `Mcave`.
+"Beehive Cave" 100, 3 field 7 "Cursed Land" 500, 4 field 12 "Forbidden Land" 1000. Route 2 (the castle's teleporter):
+index 1 field 33 "Bless Castle", 500 gold per level of the traveller (`TeleportDestination.PricePerLevel`). The
+destination field's `LimitLevel` applies; arrival is its first start point (a random one in a castle,
+`FieldDef.ArrivalFor`; `Center` without one) placed on the floor. The cave destinations are the fields that hold the
+cave entrances: field 0 (`fore-3`) has the warp gate to `Tcave`, field 18 (`forever-fall-03`) the one to `Mcave`.
 
 ## Aging
 

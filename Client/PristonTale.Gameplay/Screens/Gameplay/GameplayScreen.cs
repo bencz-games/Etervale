@@ -148,6 +148,7 @@ public sealed class GameplayScreen : GameScreen
         _hud.InCastleField = field?.State == Simulation.World.FieldState.Castle;
         _scene.OwnClanId = _hud.Combat.OwnClan;
         _scene.CastleLeague = _hud.Castle.League;
+        _scene.CastleOwnerClanId = _hud.Castle.OwnerClanId;
         _hud.InTown = field?.State == Simulation.World.FieldState.Village;
         _hud.ShopSigns = _scene.ShopSigns;
         _hud.PlayerDead = _scene.PlayerDead;
