@@ -69,6 +69,7 @@ public sealed class CastleAppService
     private CastleBroadcast _broadcast = CastleBroadcast.None;
     private CastleSiegeView _announcedWorld = CastleSiegeView.None;
     private long _announcedEnd;
+    private (long Owner, int Skill) _toldWorld = (0, 0);
     private CastleMode _mode = CastleOptions.Default.Mode;
     private bool _storageFailed;
 
@@ -473,8 +474,9 @@ public sealed class CastleAppService
 
     private void Publish(SiegeClock siege) => Volatile.Write(ref _siege, siege);
 
-    // Every attached player is told the castle when its owner, the league mode, the siege's state or end, or the world's
-    // view of the siege changed; under one lock with Attach, so that no player keeps an older castle than the last.
+    // The world is told the owner and the clan skill in force when either changed. Every attached player is told the castle
+    // when its owner, the league mode, the siege's state or end, or the world's view of the siege changed; under one lock
+    // with Attach, so that no player keeps an older castle than the last.
     private void Announce()
     {
         var record = Volatile.Read(ref _record);
@@ -483,6 +485,12 @@ public sealed class CastleAppService
         var league = _mode == CastleMode.League;
         var running = siege.State == SiegeState.Running;
         var end = running ? siege.EndsAt.ToUnixTimeSeconds() : 0;
+        if ((record.OwnerClanId, record.SkillInForce) != _toldWorld)
+        {
+            _toldWorld = (record.OwnerClanId, record.SkillInForce);
+            _world.SetOwner(record.OwnerClanId, Enum.IsDefined((CastleClanSkill)record.SkillInForce) ? (CastleClanSkill)record.SkillInForce : CastleClanSkill.None);
+        }
+
         lock (_announce)
         {
             var last = _broadcast;
@@ -490,11 +498,6 @@ public sealed class CastleAppService
                 && ReferenceEquals(world, _announcedWorld))
             {
                 return;
-            }
-
-            if (record.OwnerClanId != last.OwnerClanId)
-            {
-                _world.SetOwner(record.OwnerClanId);
             }
 
             _announcedWorld = world;

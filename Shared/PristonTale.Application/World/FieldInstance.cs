@@ -195,6 +195,8 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
     // A used item's timed effect on a player of this field; it starts with the next step.
     internal void QueueItemEffect(ulong entityId, EffectSpec spec, float durationMs, int rank = 1) => _skills.QueueItemEffect(entityId, spec, durationMs, rank);
 
+    internal void EndItemEffect(WorldPlayer player, uint code) => _skills.EndItemEffect(player, code);
+
     // The field's combat resolution, for scenario tests that drive single monster attacks.
     internal FieldCombat Combat => _combat;
 

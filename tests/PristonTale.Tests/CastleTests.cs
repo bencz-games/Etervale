@@ -168,8 +168,8 @@ internal static class CastleTests
         await fixture.TickAsync(Off);
         Assert.True(fixture.Castle.View().Tax == 1, "the tax changed before four");
         await fixture.TickAsync(Off, TimeSpan.FromSeconds(30));
-        Assert.True(fixture.Castle.View() is { Tax: 6, SkillInForce: CastleClanSkill.Evasion, OwnerName: "Lions" } && fixture.Repository.Saved.Tax == 6,
-            "the next tax and clan skill did not take effect at four");
+        Assert.True(fixture.Castle.View() is { Tax: 6, SkillInForce: CastleClanSkill.Evasion, OwnerName: "Lions" } && fixture.Repository.Saved.Tax == 6
+            && fixture.World is { Owner: 7, Skill: CastleClanSkill.Evasion }, "the next tax and clan skill did not take effect at four, or the world was not told");
         await fixture.TickAsync(Off, TimeSpan.FromSeconds(CastleRules.FountainPotionSeconds));
         Assert.True(fixture.Castle.View().FountainPotions == 1, "the fountain did not fill");
         await fixture.Castle.StartSiegeAsync();
@@ -406,7 +406,9 @@ internal static class CastleTests
 
         public long Owner { get; private set; }
 
-        public void SetOwner(long clanId) => Owner = clanId;
+        public CastleClanSkill Skill { get; private set; }
+
+        public void SetOwner(long clanId, CastleClanSkill skill) => (Owner, Skill) = (clanId, skill);
 
         public Task OpenSiegeAsync(CastleSiegeOrder order)
         {

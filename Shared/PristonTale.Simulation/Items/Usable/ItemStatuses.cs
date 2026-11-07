@@ -55,6 +55,11 @@ public static class ItemStatuses
             return castle.KeepIcon;
         }
 
+        if (Social.Castle.CastleClanSkills.TryGetByStatus(code, out var clanSkill))
+        {
+            return Social.Castle.CastleClanSkills.Icon(clanSkill);
+        }
+
         if (MonsterCrystals.TryGetByPetStatus(code, out var crystal))
         {
             return CrystalIcons + crystal.CatalogKey + ".bmp";
@@ -84,6 +89,11 @@ public static class ItemStatuses
         if (CastleItems.TryGetByStatus(code, out var castle))
         {
             return castle.Name;
+        }
+
+        if (Social.Castle.CastleClanSkills.TryGetByStatus(code, out var clanSkill))
+        {
+            return Social.Castle.CastleClanSkills.Name(clanSkill);
         }
 
         if (MonsterCrystals.TryGetByPetStatus(code, out var crystal))

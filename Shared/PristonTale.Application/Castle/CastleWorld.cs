@@ -20,14 +20,14 @@ public sealed record CastleSiegeView(bool Running, bool DoorDown, int Crystals, 
 // A player the siege's end sent back to the castle's arrival area.
 public readonly record struct CastleArrival(ulong EntityId, int FieldId, Vector3 Position);
 
-// What Bless Castle asks of the world: know the owner clan (its members' way through the wing warp gates), open the
-// siege in the castle field (now, or when the field opens), close it (the defenders leave), end it (players outside the owner
+// What Bless Castle asks of the world: know the owner clan and the clan skill in force (its members' way through the wing
+// warp gates, CastleClanSkills), open the siege in the castle field (now, or when the field opens), close it (the defenders leave), end it (players outside the owner
 // clan go back to the arrival area), and weaken every standing defender to one life (a game master's easy siege).
 public interface ICastleWorld
 {
     CastleSiegeView Siege { get; }
 
-    void SetOwner(long clanId);
+    void SetOwner(long clanId, CastleClanSkill skill);
 
     Task OpenSiegeAsync(CastleSiegeOrder order);
 

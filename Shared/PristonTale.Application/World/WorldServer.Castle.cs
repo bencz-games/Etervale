@@ -11,10 +11,18 @@ public sealed partial class WorldServer : ICastleWorld
     private CastleSiege? _castleSiege;
     private CastleSiegeView _castleSiegeView = CastleSiegeView.None;
     private long _castleOwnerClanId;
+    private int _castleSkill;
+    private long _clanSkillRenewAt;
 
     public CastleSiegeView Siege => Volatile.Read(ref _castleSiegeView);
 
-    public void SetOwner(long clanId) => Volatile.Write(ref _castleOwnerClanId, clanId);
+    // The owner clan and the clan skill in force; the skill is renewed on the tick that follows.
+    public void SetOwner(long clanId, CastleClanSkill skill)
+    {
+        Volatile.Write(ref _castleOwnerClanId, clanId);
+        Volatile.Write(ref _castleSkill, (int)skill);
+        Volatile.Write(ref _clanSkillRenewAt, 0);
+    }
 
     public Task OpenSiegeAsync(CastleSiegeOrder order)
     {
@@ -94,6 +102,39 @@ public sealed partial class WorldServer : ICastleWorld
 
             return true;
         }, waitForCapacity: true);
+
+    // Every CastleClanSkills.RenewSeconds: the owner clan's members get the clan skill in force again; everyone else
+    // (and a member holding another skill) loses it.
+    private void RenewClanSkill(long nowSeconds)
+    {
+        if (nowSeconds < Volatile.Read(ref _clanSkillRenewAt))
+        {
+            return;
+        }
+
+        Volatile.Write(ref _clanSkillRenewAt, nowSeconds + CastleClanSkills.RenewSeconds);
+        var owner = Volatile.Read(ref _castleOwnerClanId);
+        var skill = (CastleClanSkill)Volatile.Read(ref _castleSkill);
+        foreach (var connection in _connections.Values)
+        {
+            var player = connection.Player;
+            var field = _fields[connection.FieldId];
+            var holds = skill != CastleClanSkill.None && CastleSiegeRules.HoldsCastle(player.Clan?.ClanId ?? 0, owner);
+            foreach (var other in CastleClanSkills.All)
+            {
+                var code = CastleClanSkills.StatusCode(other);
+                if ((!holds || other != skill) && player.Character.Effects.TryGet(code, out _))
+                {
+                    field.EndItemEffect(player, code);
+                }
+            }
+
+            if (holds)
+            {
+                field.QueueItemEffect(player.EntityId, CastleClanSkills.Spec(skill), CastleClanSkills.LastSeconds * 1000f);
+            }
+        }
+    }
 
     private void OpenSiegeIn(FieldInstance field)
     {

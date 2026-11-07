@@ -728,6 +728,7 @@ public sealed partial class WorldServer
         LastPhases = new TickPhases(processed, Stopwatch.GetElapsedTime(started, commandsDone).TotalMilliseconds,
             Stopwatch.GetElapsedTime(commandsDone).TotalMilliseconds);
         PublishSiege(nowSeconds);
+        RenewClanSkill(nowSeconds);
         ApplyQuestTravels();
         Checkpoint(serverTick);
         OfferStarterGifts(serverTick);

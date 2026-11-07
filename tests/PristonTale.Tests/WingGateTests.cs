@@ -137,12 +137,12 @@ internal static class WingGateTests
     private static async Task CastleAsync()
     {
         var outsider = await OnStone(60, 10_000);
-        outsider.World.SetOwner(7);
+        outsider.World.SetOwner(7, Simulation.Social.Castle.CastleClanSkill.None);
         Assert.True((await Travel(outsider, WingGates.Castle.Index)).Outcome.Status == WingGateStatus.NotReached && outsider.Session.FieldId == Ricarten,
             "a player outside the owner clan reached the castle's stone");
 
         var member = await OnStone(60, 10_000, "QW102");
-        member.World.SetOwner(7);
+        member.World.SetOwner(7, Simulation.Social.Castle.CastleClanSkill.None);
         member.Player.Clan = new Simulation.Social.Clans.ClanTag(7, "Lions", 0, Registered: true);
         var trip = await Travel(member, WingGates.Castle.Index);
         Assert.True(trip.Outcome.Ok && trip.Outcome.Fee == 300 && member.Session.FieldId == FieldCodes.Castle && member.Session.Character!.Money == 9_700,

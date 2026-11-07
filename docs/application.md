@@ -694,6 +694,11 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
 - The owner clan's members see Bless Castle's stone on the wing warp map (the world told the owner, `SetOwner`), and
   route 2's teleporter takes anyone into the castle for 500 gold per level ([world.md](world.md)).
 - The clients draw the crown over the owner clan's players ([client.md](client.md)).
+- The clan skill in force (`CastleClanSkills`): the world, told the owner and the skill (`SetOwner`), gives every member
+  of the owner clan the skill's status for 10 minutes, renewed every minute on the tick (`WorldServer.RenewClanSkill`);
+  a player outside the owner clan, or holding another skill than the one in force, loses it at the next renewal.
+  Absorb takes 20 off every blow received (flat absorption), Attack adds 15 % to the damage dealt, Evasion evades 20 %
+  of the normal blows; the running-effects bar shows `wa1-1`, `wa1-3` or `wa1-2`.
 - Not yet: the owner's window, the tax on fees and the treasury's movements.
 
 The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner

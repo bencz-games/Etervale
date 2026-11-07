@@ -35,6 +35,7 @@ internal static class CastleSiegeTests
             PvpAsync);
         yield return ("damage skills reach players in the battle zone: a bolt on a foe, a ball on the foes around it, never a clan mate or the north",
             SkillsAsync);
+        yield return ("the owner clan's members hold the clan skill in force, renewed every minute; others and an old skill lose it", ClanSkillAsync);
         yield return ("the easy siege weakens the defenders, closing a siege removes them, ending it sends players outside the owner clan to the arrival area",
             EndAsync);
     }
@@ -319,6 +320,30 @@ internal static class CastleSiegeTests
         fighter.Run(20 * 4, () => struck.Life < struckLife);
         Assert.True(struck.Life < struckLife, "the weapon skill did not hurt the foe");
         return Task.CompletedTask;
+    }
+
+    private static async Task ClanSkillAsync()
+    {
+        var harness = await SpecialItemTests.Harness.CreateAsync(FieldCodes.Castle, Defenders(), []);
+        var member = harness.Player;
+        member.Clan = new ClanTag(7, "Lions", 0, Registered: true);
+        var outsider = await harness.JoinAsync("Outsider", FieldCodes.Castle, 2);
+        var absorb = CastleClanSkills.StatusCode(CastleClanSkill.Absorb);
+        var damage = CastleClanSkills.StatusCode(CastleClanSkill.Damage);
+        var absorption = member.Character.Effects.Totals.Flat(Simulation.Modifiers.StatKind.Absorption);
+        harness.World.SetOwner(7, CastleClanSkill.Absorb);
+        harness.Tick(2);
+        Assert.True(member.Character.Effects.TryGet(absorb, out var running) && running.DurationMs > (CastleClanSkills.LastSeconds - 1) * 1000f
+            && member.Character.Effects.Totals.Flat(Simulation.Modifiers.StatKind.Absorption) == absorption + CastleClanSkills.AbsorbBonus
+            && !outsider.Character.Effects.TryGet(absorb, out _), "the owner clan's member did not hold the absorb skill alone");
+        harness.World.SetOwner(7, CastleClanSkill.Damage);
+        harness.Tick(2);
+        Assert.True(!member.Character.Effects.TryGet(absorb, out _) && member.Character.Effects.TryGet(damage, out _), "the old skill outlived the new one");
+        harness.World.SetOwner(8, CastleClanSkill.Damage);
+        harness.Tick(2);
+        Assert.True(!member.Character.Effects.TryGet(damage, out _), "a member of a clan that lost the castle kept its skill");
+        Assert.True(Simulation.Items.Usable.ItemStatuses.Icon(damage)!.EndsWith("wa1-3.tga") && Simulation.Items.Usable.ItemStatuses.Name(absorb) == "Absorb Up",
+            "the clan skill's status shows no icon or name");
     }
 
     private static async Task EndAsync()
