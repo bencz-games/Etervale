@@ -5,6 +5,7 @@ using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Gameplay.Localization;
 
 namespace PristonTale.Gameplay.UI.Npc;
 
@@ -93,6 +94,9 @@ public abstract class HudWorkbench : IHudServiceWindow
     public void Advance(double seconds) => _slide.Advance(seconds);
 
     public bool Contains(Point pointer) => _slide.Visible && HudStoreLayout.Window(Origin).Contains(pointer);
+
+    // Whether any material slot holds an item.
+    protected bool AnySlot() => Array.FindIndex(Slots, static id => id != Guid.Empty) >= 0;
 
     public bool Holds(Guid id) => id != Guid.Empty && (id == ItemId || id == StoneId || Array.IndexOf(Slots, id) >= 0);
 
@@ -230,7 +234,7 @@ public abstract class HudWorkbench : IHudServiceWindow
             if (!ReferenceEquals(_hovered, _described) || !ReferenceEquals(state, _describedState))
             {
                 (_described, _describedState) = (_hovered, state);
-                _description = HudItemDetailTooltip.Lines(_hovered, state, "", "Right-click: take back");
+                _description = HudItemDetailTooltip.Lines(_hovered, state, "", ClientText.Get("Workbench.TakeBack"));
                 _describedGauge = HudItemDetailTooltip.Gauge(_hovered, state);
             }
 

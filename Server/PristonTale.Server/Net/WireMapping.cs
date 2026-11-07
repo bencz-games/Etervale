@@ -85,7 +85,8 @@ internal static class WireMapping
         ItemCode(summary.WeaponKey),
         ItemCode(summary.ArmorKey),
         ItemCode(summary.OffHandKey),
-        summary.InVillage);
+        summary.InVillage,
+        summary.ClanName);
 
     public static OwnerStatusPacket Status(OwnerState owner) => new(
         owner.Level, owner.Experience, owner.LevelStart, owner.NextLevel, owner.Money,

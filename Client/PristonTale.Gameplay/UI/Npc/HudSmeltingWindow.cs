@@ -28,17 +28,17 @@ public sealed class HudSmeltingWindow : HudWorkbench
     public override bool Succeeded(int result) => (SmeltResult)result == SmeltResult.Smelted;
 
     public override bool Ready(OwnerState state) =>
-        Piece(state) is { } piece && Slots.Take(SmeltingWork.Pieces).All(static id => id != Guid.Empty)
+        Piece(state) is { } piece && Array.IndexOf(Slots, Guid.Empty, 0, SmeltingWork.Pieces) < 0
         && OwnedItemView.Find(state.Items, StoneId) is { } sheltom && AgingRules.SheltomOrdinal(sheltom.CatalogKey) == SmeltingWork.SheltomFor(piece);
 
     public override long Price(OwnerState state) => Piece(state) is { } piece ? SmeltingWork.Fee(piece) : 0;
 
     protected override Rectangle SlotBounds(Point origin, int slot) =>
-        slot < PieceCells.Length ? Cell(origin, PieceCells[slot]) : Rectangle.Empty;
+        slot < PieceCells.Length ? HudCraftLayout.Cell(origin, PieceCells[slot]) : Rectangle.Empty;
 
-    protected override int SlotAt(Point origin, Point pointer) => Array.FindIndex(PieceCells, cell => Cell(origin, cell).Contains(pointer));
+    protected override int SlotAt(Point origin, Point pointer) => HudCraftLayout.CellAt(origin, PieceCells, pointer);
 
-    protected override Rectangle StoneBounds(Point origin) => Cell(origin, SheltomCell);
+    protected override Rectangle StoneBounds(Point origin) => HudCraftLayout.Cell(origin, SheltomCell);
 
     protected override string PlaceItem(OwnedItemView item, Point origin, Point pointer, OwnerState state)
     {
@@ -112,7 +112,7 @@ public sealed class HudSmeltingWindow : HudWorkbench
 
     protected override void DrawStartInfo(HudPainter painter, Point info) => painter.Sprite(HudCraftArt.SmeltingStartInfo, info.X, info.Y);
 
-    protected override bool ShowsStart(OwnerState state) => Ready(state) && StartHovered;
+    protected override bool ShowsStart(OwnerState state) => StartHovered && Ready(state);
 
     protected override bool ShowsPrice(OwnerState state) => Piece(state) is not null;
 
@@ -132,6 +132,4 @@ public sealed class HudSmeltingWindow : HudWorkbench
         return null;
     }
 
-    private static Rectangle Cell(Point origin, Point cell) =>
-        new(origin.X + cell.X, origin.Y + cell.Y, HudGridPlacement.CellSize, HudGridPlacement.CellSize);
 }

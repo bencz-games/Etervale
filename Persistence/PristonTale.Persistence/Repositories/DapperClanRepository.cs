@@ -147,6 +147,17 @@ public sealed class DapperClanRepository(IDbConnectionFactory connectionFactory)
             "SELECT COUNT(*) FROM clan_members WHERE character_id = @characterId", new { characterId }, cancellationToken: ct)) > 0;
     }
 
+    public async Task<IReadOnlyDictionary<long, string>> ClanNamesAsync(long accountId, CancellationToken ct = default)
+    {
+        await using var connection = await connectionFactory.OpenAsync(ct);
+        var rows = await connection.QueryAsync<(long CharacterId, string Name)>(new CommandDefinition(
+            """
+            SELECT m.character_id, k.name FROM clan_members m JOIN clans k ON k.id = m.clan_id
+            JOIN characters c ON c.id = m.character_id WHERE c.account_id = @accountId
+            """, new { accountId }, cancellationToken: ct));
+        return rows.ToDictionary(static row => row.CharacterId, static row => row.Name);
+    }
+
     private static string Key(string name) => name.Trim().ToLowerInvariant();
 
     private static async Task<bool> PayAsync(DbConnection connection, DbTransaction transaction, CharacterRecord payment, CancellationToken ct) =>

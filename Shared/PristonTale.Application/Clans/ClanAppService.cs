@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Data.Common;
 using PristonTale.Application.Chat;
 using PristonTale.Application.Saves;
 using PristonTale.Application.Services;
@@ -28,10 +29,12 @@ public interface IClanLink
     void Invite(ClanInvitation invitation);
 }
 
-// The clans of the server, kept in memory and stored before every change applies (a request storage refuses changes
-// nothing). One change runs at a time; the chat reads ClanOf without waiting. A fee goes through the world's durable path
-// with the clan row in the same transaction. Online members get their clan's view after each change, the clan's line in
-// the chat, and their tag over the head.
+// The clans of the server, kept in memory. Changes run one at a time under the gate and apply only once stored (a
+// request storage refuses changes nothing); the gate is held across storage, never by world entry, departure or the
+// window's view. Clans and the character index change under the state lock, held briefly and never across a wait, so
+// those readers take it instead. A fee goes through the world's durable path with the clan row in the same transaction.
+// An online member's level is its character's live level. Online members get their clan's view after each change, the
+// clan's line in the chat, and their tag over the head.
 public sealed class ClanAppService : IClanRoster
 {
     private readonly IClanRepository _repository;
@@ -41,11 +44,12 @@ public sealed class ClanAppService : IClanRoster
     private readonly TimeProvider _clock;
     private readonly DurableOperations _durable;
     private readonly SemaphoreSlim _gate = new(1, 1);
+    private readonly Lock _state = new();
     private readonly Dictionary<long, Clan> _clans = new();
     private readonly Dictionary<long, Clan> _byCharacter = new();
     private readonly ConcurrentDictionary<ulong, Online> _online = new();
     private readonly ConcurrentDictionary<long, ulong> _entityOf = new();
-    private readonly Dictionary<ulong, Pending> _invitations = new();
+    private readonly ConcurrentDictionary<ulong, Pending> _invitations = new();
 
     public ClanAppService(IClanRepository repository, WorldServer world, ChatDirectory chat, ISessionRegistry sessions, ICharacterSaves saves,
         TimeProvider? clock = null)
@@ -62,7 +66,7 @@ public sealed class ClanAppService : IClanRoster
 
     private long Now => _clock.GetUtcNow().ToUnixTimeSeconds();
 
-    public uint ClanOf(ulong entityId) => _online.TryGetValue(entityId, out var online) && online.ClanId != 0 ? (uint)online.ClanId : 0;
+    public long ClanOf(ulong entityId) => _online.TryGetValue(entityId, out var online) ? online.ClanId : 0;
 
     public async Task LoadAsync(CancellationToken ct = default)
     {
@@ -70,20 +74,24 @@ public sealed class ClanAppService : IClanRoster
         await _gate.WaitAsync(ct);
         try
         {
-            _clans.Clear();
-            _byCharacter.Clear();
-            foreach (var record in clans)
+            lock (_state)
             {
-                _clans[record.Id] = new Clan(record.Id, record.Name, (ClanState)record.State, record.CreatedAt, record.DeadlineAt, record.Intro, record.MarkVersion);
-            }
-
-            foreach (var record in members)
-            {
-                if (_clans.TryGetValue(record.ClanId, out var clan))
+                _clans.Clear();
+                _byCharacter.Clear();
+                foreach (var record in clans)
                 {
-                    clan.Add(new ClanMember(record.CharacterId, record.AccountId, record.Name, (PlayerClass)record.JobCode, record.Level, (ClanRank)record.Rank,
-                        record.JoinedAt));
-                    _byCharacter[record.CharacterId] = clan;
+                    _clans[record.Id] = new Clan(record.Id, record.Name, (ClanState)record.State, record.CreatedAt, record.DeadlineAt, record.Intro,
+                        record.MarkVersion);
+                }
+
+                foreach (var record in members)
+                {
+                    if (_clans.TryGetValue(record.ClanId, out var clan))
+                    {
+                        clan.Add(new ClanMember(record.CharacterId, record.AccountId, record.Name, (PlayerClass)record.JobCode, record.Level,
+                            (ClanRank)record.Rank, record.JoinedAt));
+                        _byCharacter[record.CharacterId] = clan;
+                    }
                 }
             }
 
@@ -95,7 +103,7 @@ public sealed class ClanAppService : IClanRoster
         }
     }
 
-    // A player entered the world: its clan's member row takes its name, class and level, and it gets its view and tag.
+    // A player entered the world: it gets its clan's view and tag, and its clan sees it online.
     public async Task AttachAsync(PlayerSession session, string name, PlayerClass playerClass, int level, IClanLink link)
     {
         if (session.Loaded is not { } loaded)
@@ -103,42 +111,64 @@ public sealed class ClanAppService : IClanRoster
             return;
         }
 
-        await _gate.WaitAsync();
-        try
+        var online = new Online(loaded.Id, session.AccountId, name, playerClass, level, session, link);
+        Clan? clan;
+        lock (_state)
         {
-            var clan = _byCharacter.GetValueOrDefault(loaded.Id);
-            if (clan?.Find(loaded.Id) is { } member)
-            {
-                clan.Replace(member with { Name = name, Class = playerClass, Level = level, AccountId = session.AccountId });
-            }
-
-            _online[session.EntityId] = new Online(loaded.Id, session.AccountId, name, playerClass, level, link) { ClanId = clan?.Id ?? 0 };
+            clan = _byCharacter.GetValueOrDefault(loaded.Id);
+            online.ClanId = clan?.Id ?? 0;
+            _online[session.EntityId] = online;
             _entityOf[loaded.Id] = session.EntityId;
-            await _world.SetClanTagAsync(session.EntityId, Tag(clan));
-            link.Deliver(View(clan, loaded.Id));
-            if (clan is not null)
+        }
+
+        await ShowTagAsync(session.EntityId, clan);
+        Clan? current;
+        lock (_state)
+        {
+            current = _byCharacter.GetValueOrDefault(loaded.Id);
+            if (current is null)
             {
-                Refresh(clan);
+                link.Deliver(null);
+            }
+            else
+            {
+                Refresh(current);
             }
         }
-        finally
+
+        // A change that ran while the tag was being shown already retagged the player; show the clan it left.
+        if (current != clan)
         {
-            _gate.Release();
+            await ShowTagAsync(session.EntityId, current);
         }
     }
 
     public void Detach(ulong entityId)
     {
-        if (_online.TryRemove(entityId, out var online))
+        if (!_online.TryRemove(entityId, out var online))
         {
-            _entityOf.TryRemove(online.CharacterId, out _);
-            _ = RefreshLaterAsync(online.CharacterId);
+            return;
+        }
+
+        _entityOf.TryRemove(new KeyValuePair<long, ulong>(online.CharacterId, entityId));
+        _invitations.TryRemove(entityId, out _);
+        lock (_state)
+        {
+            if (_byCharacter.TryGetValue(online.CharacterId, out var clan))
+            {
+                Refresh(clan);
+            }
         }
     }
 
     // The requester's view again (the Clan Master's window opening).
-    public ClanView? ViewOf(ulong entityId) =>
-        _online.TryGetValue(entityId, out var online) && _byCharacter.TryGetValue(online.CharacterId, out var clan) ? View(clan, online.CharacterId) : null;
+    public ClanView? ViewOf(ulong entityId)
+    {
+        lock (_state)
+        {
+            return _online.TryGetValue(entityId, out var online) && _byCharacter.TryGetValue(online.CharacterId, out var clan) ? View(clan, online.CharacterId) : null;
+        }
+    }
 
     // Founding at the Clan Master: not in a clan nor in a cooldown, no other chief on the account, a free valid name,
     // then the world takes the fee (level and reach checked there) and the clan row is stored with the character.
@@ -157,7 +187,7 @@ public sealed class ClanAppService : IClanRoster
                 : _byCharacter.ContainsKey(online.CharacterId) ? ClanStatus.AlreadyInClan
                 : !ClanRules.IsValidName(name) ? ClanStatus.NameInvalid
                 : _clans.Values.Any(clan => clan.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ? ClanStatus.NameTaken
-                : _clans.Values.Any(clan => clan.Chief.AccountId == online.AccountId) ? ClanStatus.ChiefOnAccount
+                : ChiefOnAccount(online.AccountId) ? ClanStatus.ChiefOnAccount
                 : await CooldownAsync(online.CharacterId);
             if (refusal != ClanStatus.Ok)
             {
@@ -165,34 +195,29 @@ public sealed class ClanAppService : IClanRoster
             }
 
             var now = Now;
-            var status = ClanStatus.Ok;
             long id = 0;
-            using var lease = await _durable.AdmitAsync(_sessions, sessionToken, CancellationToken.None);
-            var outcome = await lease.RunAsync(
-                s => _world.PrepareClanPaymentAsync(s, npcEntityId, ClanRules.FoundingCost, ClanRules.FoundingLevel),
-                _world.CommitClanPaymentAsync,
-                static prepared => prepared.Status,
-                static _ => ClanStatus.Unavailable,
-                async (s, prepared) =>
-                {
-                    id = await _repository.FoundAsync(new ClanRecord(0, name, (short)ClanState.Registering, now, now + ClanRules.GraceSeconds, "", 0),
-                        new ClanMemberRecord(0, online.CharacterId, (short)ClanRank.Chief, now), s.Stamp(prepared.Snapshot!), CancellationToken.None);
-                    status = id != 0 ? ClanStatus.Ok : ClanStatus.Unavailable;
-                    return id != 0 ? null : DurableFailure.StorageFailed;
-                });
-            if (outcome != ClanStatus.Ok || status != ClanStatus.Ok)
+            var outcome = await PayAsync(sessionToken, npcEntityId, ClanRules.FoundingCost, ClanRules.FoundingLevel, async (s, prepared) =>
             {
-                return Tell(session.EntityId, outcome != ClanStatus.Ok ? outcome : status);
+                id = await _repository.FoundAsync(new ClanRecord(0, name, (short)ClanState.Registering, now, now + ClanRules.GraceSeconds, "", 0),
+                    new ClanMemberRecord(0, online.CharacterId, (short)ClanRank.Chief, now), s.Stamp(prepared.Snapshot!), CancellationToken.None);
+                return id != 0;
+            });
+            if (outcome != ClanStatus.Ok)
+            {
+                return Tell(session.EntityId, outcome);
             }
 
             var founded = new Clan(id, name, ClanState.Registering, now, now + ClanRules.GraceSeconds);
-            founded.Add(new ClanMember(online.CharacterId, online.AccountId, online.Name, online.Class, session.Character?.Level ?? online.Level, ClanRank.Chief,
-                now));
-            _clans[id] = founded;
-            _byCharacter[online.CharacterId] = founded;
+            founded.Add(new ClanMember(online.CharacterId, online.AccountId, online.Name, online.Class, online.Level, ClanRank.Chief, now));
+            lock (_state)
+            {
+                _clans[id] = founded;
+                _byCharacter[online.CharacterId] = founded;
+            }
+
             await Retag(founded, online.CharacterId);
-            Announce(founded, GameText.Of(GameTextId.ClanFounded, name));
-            Refresh(founded);
+            Announce(founded, GameText.Of(GameTextId.ClanFounded, name, ClanTexts.Number(ClanRules.RegisteredMembers), ClanTexts.Number(ClanRules.GraceDays)));
+            Publish(founded);
             return ClanStatus.Ok;
         }
         finally
@@ -227,7 +252,7 @@ public sealed class ClanAppService : IClanRoster
                 return Tell(recruiterId, refusal);
             }
 
-            _invitations[targetId] = new Pending(clan.Id, recruiterId, Now + ClanRules.InvitationSeconds);
+            _invitations[targetId] = new Pending(clan.Id, recruiterId, online.CharacterId, Now + ClanRules.InvitationSeconds);
             target!.Link.Invite(new ClanInvitation(recruiterId, clan.Name, clan.Chief.Name));
             Say(recruiterId, GameText.Of(GameTextId.ClanInviteSent, target.Name));
             return ClanStatus.Ok;
@@ -238,13 +263,13 @@ public sealed class ClanAppService : IClanRoster
         }
     }
 
-    // The invited player's answer: a yes joins it (checked again), a no tells the recruiter.
+    // The invited player's answer: a yes joins it (checked again, the recruiter still recruiting), a no tells the recruiter.
     public async Task<ClanStatus> AnswerAsync(ulong entityId, bool accept)
     {
         await _gate.WaitAsync();
         try
         {
-            if (!_invitations.Remove(entityId, out var pending) || pending.ExpiresAt < Now || !_clans.TryGetValue(pending.ClanId, out var clan)
+            if (!_invitations.TryRemove(entityId, out var pending) || pending.ExpiresAt < Now || !_clans.TryGetValue(pending.ClanId, out var clan)
                 || !_online.TryGetValue(entityId, out var online))
             {
                 return Tell(entityId, ClanStatus.NoInvitation);
@@ -256,35 +281,39 @@ public sealed class ClanAppService : IClanRoster
                 return ClanStatus.InviteRefused;
             }
 
-            var refusal = _byCharacter.ContainsKey(online.CharacterId) ? ClanStatus.AlreadyInClan : ClanRules.CheckRoom(clan);
+            Sync(clan);
+            var refusal = clan.Find(pending.RecruiterCharacterId) is not { } recruiter || !ClanRules.CanRecruit(recruiter.Rank) ? ClanStatus.NoInvitation
+                : _byCharacter.ContainsKey(online.CharacterId) ? ClanStatus.AlreadyInClan
+                : ClanRules.CheckRoom(clan);
             if (refusal != ClanStatus.Ok)
             {
                 return Tell(entityId, refusal);
             }
 
             var now = Now;
-            var joined = new ClanMember(online.CharacterId, online.AccountId, online.Name, online.Class, online.Level, ClanRank.Member, now);
-            var state = clan.State;
-            var deadline = clan.DeadlineSeconds;
-            clan.Add(joined);
-            ClanRules.Recount(clan, now);
+            var wasState = clan.State;
+            var (state, deadline) = ClanRules.Counted(clan, clan.Count + 1, now);
             if (!await StoreAsync(() => _repository.AddMemberAsync(new ClanMemberRecord(clan.Id, online.CharacterId, (short)ClanRank.Member, now),
-                    (short)clan.State, clan.DeadlineSeconds)))
+                    (short)state, deadline)))
             {
-                clan.Remove(online.CharacterId);
-                (clan.State, clan.DeadlineSeconds) = (state, deadline);
                 return Tell(entityId, ClanStatus.Unavailable);
             }
 
-            _byCharacter[online.CharacterId] = clan;
+            lock (_state)
+            {
+                clan.Add(new ClanMember(online.CharacterId, online.AccountId, online.Name, online.Class, online.Level, ClanRank.Member, now));
+                (clan.State, clan.DeadlineSeconds) = (state, deadline);
+                _byCharacter[online.CharacterId] = clan;
+            }
+
             await Retag(clan, online.CharacterId);
             Announce(clan, GameText.Of(GameTextId.ClanJoined, online.Name));
-            if (state == ClanState.Registering && clan.State == ClanState.Registered)
+            if (wasState == ClanState.Registering && state == ClanState.Registered)
             {
                 Announce(clan, GameText.Of(GameTextId.ClanRegistered, clan.Name));
             }
 
-            Refresh(clan);
+            Publish(clan);
             return ClanStatus.Ok;
         }
         finally
@@ -337,13 +366,18 @@ public sealed class ClanAppService : IClanRoster
             return ClanStatus.Unavailable;
         }
 
-        clan.Replace(target! with { Rank = rank });
+        lock (_state)
+        {
+            clan.Replace(target! with { Rank = rank });
+        }
+
         Announce(clan, GameText.Of(appoint ? GameTextId.ClanViceAppointed : GameTextId.ClanViceDischarged, target!.Name));
-        Refresh(clan);
+        Publish(clan);
         return ClanStatus.Ok;
     });
 
     // The chief hands the clan to a member at the Clan Master for ClanRules.EntrustCost; the old chief becomes a member.
+    // The heir's account must hold no other clan's chief.
     public async Task<ClanStatus> EntrustAsync(string sessionToken, ulong npcEntityId, string name)
     {
         await _gate.WaitAsync();
@@ -355,31 +389,33 @@ public sealed class ClanAppService : IClanRoster
             }
 
             var heir = clan.Find((name ?? "").Trim());
-            var refusal = chief.Rank != ClanRank.Chief ? ClanStatus.NotChief
-                : ClanRules.CheckEntrust(clan, chief, heir, session.Character?.Money ?? 0);
+            var refusal = chief.Rank != ClanRank.Chief ? ClanStatus.NotChief : ClanRules.CheckEntrust(clan, chief, heir, session.Character?.Money ?? 0);
+            if (refusal == ClanStatus.Ok && ChiefOnAccount(heir!.AccountId, clan))
+            {
+                refusal = ClanStatus.ChiefOnAccount;
+            }
+
             if (refusal != ClanStatus.Ok)
             {
                 return Tell(session.EntityId, refusal);
             }
 
-            using var lease = await _durable.AdmitAsync(_sessions, sessionToken, CancellationToken.None);
-            var outcome = await lease.RunAsync(
-                s => _world.PrepareClanPaymentAsync(s, npcEntityId, ClanRules.EntrustCost, 0),
-                _world.CommitClanPaymentAsync,
-                static prepared => prepared.Status,
-                static _ => ClanStatus.Unavailable,
-                async (s, prepared) => await _repository.SetRanksAsync(clan.Id,
-                    [new ClanRankChange(heir!.CharacterId, (short)ClanRank.Chief), new ClanRankChange(chief.CharacterId, (short)ClanRank.Member)],
-                    s.Stamp(prepared.Snapshot!), CancellationToken.None) ? null : DurableFailure.StorageFailed);
+            var outcome = await PayAsync(sessionToken, npcEntityId, ClanRules.EntrustCost, 0, (s, prepared) => _repository.SetRanksAsync(clan.Id,
+                [new ClanRankChange(heir!.CharacterId, (short)ClanRank.Chief), new ClanRankChange(chief.CharacterId, (short)ClanRank.Member)],
+                s.Stamp(prepared.Snapshot!), CancellationToken.None));
             if (outcome != ClanStatus.Ok)
             {
                 return Tell(session.EntityId, outcome);
             }
 
-            clan.Replace(heir! with { Rank = ClanRank.Chief });
-            clan.Replace(chief with { Rank = ClanRank.Member });
+            lock (_state)
+            {
+                clan.Replace(heir! with { Rank = ClanRank.Chief });
+                clan.Replace(chief with { Rank = ClanRank.Member });
+            }
+
             Announce(clan, GameText.Of(GameTextId.ClanChiefChanged, chief.Name, heir!.Name));
-            Refresh(clan);
+            Publish(clan);
             return ClanStatus.Ok;
         }
         finally
@@ -388,13 +424,22 @@ public sealed class ClanAppService : IClanRoster
         }
     }
 
-    // Dissolves the clans whose deadline passed (a registering clan short of six, or a registered one that stayed below).
+    // Dissolves the clans whose deadline passed (a registering clan short of six, or a registered one that stayed below)
+    // and forgets the invitations nobody answered in time.
     public async Task ExpireAsync()
     {
         await _gate.WaitAsync();
         try
         {
             var now = Now;
+            foreach (var (entityId, pending) in _invitations)
+            {
+                if (pending.ExpiresAt < now)
+                {
+                    _invitations.TryRemove(entityId, out _);
+                }
+            }
+
             foreach (var clan in _clans.Values.Where(clan => ClanRules.Expired(clan, now)).ToArray())
             {
                 await DissolveAsync(clan);
@@ -420,20 +465,43 @@ public sealed class ClanAppService : IClanRoster
         }
     }
 
+    // The Clan Master's fee through the world's durable path, stored by store with the paying character; a refusal, a
+    // busy world or a storage failure answers why.
+    private async Task<ClanStatus> PayAsync(string sessionToken, ulong npcEntityId, long fee, int minimumLevel,
+        Func<PlayerSession, PreparedClanPayment, Task<bool>> store)
+    {
+        try
+        {
+            using var lease = await _durable.AdmitAsync(_sessions, sessionToken, CancellationToken.None);
+            return await lease.RunAsync(
+                s => _world.PrepareClanPaymentAsync(s, npcEntityId, fee, minimumLevel),
+                _world.CommitClanPaymentAsync,
+                static prepared => prepared.Status,
+                static _ => ClanStatus.Unavailable,
+                async (s, prepared) => await StoreAsync(() => store(s, prepared)) ? null : DurableFailure.StorageFailed);
+        }
+        catch (WorldBusyException)
+        {
+            return ClanStatus.Unavailable;
+        }
+    }
+
     private async Task<ClanStatus> RemoveAsync(Clan clan, ClanMember member, GameText line, GameText? toMember)
     {
-        var state = clan.State;
-        var deadline = clan.DeadlineSeconds;
-        clan.Remove(member.CharacterId);
-        ClanRules.Recount(clan, Now);
-        if (!await StoreAsync(() => _repository.RemoveMemberAsync(clan.Id, member.CharacterId, (short)clan.State, clan.DeadlineSeconds)))
+        var deadlineBefore = clan.DeadlineSeconds;
+        var (state, deadline) = ClanRules.Counted(clan, clan.Count - 1, Now);
+        if (!await StoreAsync(() => _repository.RemoveMemberAsync(clan.Id, member.CharacterId, (short)state, deadline)))
         {
-            clan.Add(member);
-            (clan.State, clan.DeadlineSeconds) = (state, deadline);
             return ClanStatus.Unavailable;
         }
 
-        _byCharacter.Remove(member.CharacterId);
+        lock (_state)
+        {
+            clan.Remove(member.CharacterId);
+            (clan.State, clan.DeadlineSeconds) = (state, deadline);
+            _byCharacter.Remove(member.CharacterId);
+        }
+
         await Retag(null, member.CharacterId);
         Announce(clan, line);
         if (_entityOf.TryGetValue(member.CharacterId, out var entityId))
@@ -441,12 +509,12 @@ public sealed class ClanAppService : IClanRoster
             Say(entityId, toMember ?? line);
         }
 
-        if (deadline == 0 && clan.DeadlineSeconds != 0)
+        if (deadlineBefore == 0 && deadline != 0)
         {
-            Announce(clan, GameText.Of(GameTextId.ClanBelowSix, (ClanRules.GraceSeconds / 86400).ToString(System.Globalization.CultureInfo.InvariantCulture)));
+            Announce(clan, GameText.Of(GameTextId.ClanBelowSix, ClanTexts.Number(ClanRules.GraceDays), ClanTexts.Number(ClanRules.RegisteredMembers)));
         }
 
-        Refresh(clan);
+        Publish(clan);
         return ClanStatus.Ok;
     }
 
@@ -459,15 +527,21 @@ public sealed class ClanAppService : IClanRoster
         }
 
         Announce(clan, GameText.Of(GameTextId.ClanDisbanded, clan.Name));
-        _clans.Remove(clan.Id);
-        foreach (var characterId in members)
+        lock (_state)
         {
-            _byCharacter.Remove(characterId);
-            await Retag(null, characterId);
+            _clans.Remove(clan.Id);
+            foreach (var characterId in members)
+            {
+                _byCharacter.Remove(characterId);
+            }
         }
 
+        await Task.WhenAll(members.Select(characterId => Retag(null, characterId)));
         return true;
     }
+
+    private bool ChiefOnAccount(long accountId, Clan? except = null) =>
+        _clans.Values.Any(clan => clan != except && clan.Chief.AccountId == accountId);
 
     private async Task<ClanStatus> CooldownAsync(long characterId)
     {
@@ -475,7 +549,7 @@ public sealed class ClanAppService : IClanRoster
         {
             return await _repository.CooldownAsync(characterId) > Now ? ClanStatus.JoinCooldown : ClanStatus.Ok;
         }
-        catch (System.Data.Common.DbException)
+        catch (DbException)
         {
             return ClanStatus.Unavailable;
         }
@@ -487,17 +561,24 @@ public sealed class ClanAppService : IClanRoster
         {
             return await write();
         }
-        catch (System.Data.Common.DbException)
+        catch (DbException)
         {
             return false;
         }
     }
 
+    // The member's clan with its online members' rows brought to their live levels (the chief's sets the capacity).
     private bool TryMember(ulong entityId, out Online online, out Clan clan, out ClanMember member)
     {
         clan = null!;
         member = null!;
-        if (!_online.TryGetValue(entityId, out online!) || !_byCharacter.TryGetValue(online.CharacterId, out var found) || found.Find(online.CharacterId) is not { } self)
+        if (!_online.TryGetValue(entityId, out online!) || !_byCharacter.TryGetValue(online.CharacterId, out var found))
+        {
+            return false;
+        }
+
+        Sync(found);
+        if (found.Find(online.CharacterId) is not { } self)
         {
             return false;
         }
@@ -505,6 +586,24 @@ public sealed class ClanAppService : IClanRoster
         (clan, member) = (found, self);
         return true;
     }
+
+    private void Sync(Clan clan)
+    {
+        lock (_state)
+        {
+            for (var index = 0; index < clan.Count; index++)
+            {
+                var member = clan.Members[index];
+                if (LevelOf(member) is var level && level != member.Level)
+                {
+                    clan.Replace(member with { Level = level });
+                }
+            }
+        }
+    }
+
+    private int LevelOf(ClanMember member) =>
+        _entityOf.TryGetValue(member.CharacterId, out var entityId) && _online.TryGetValue(entityId, out var online) ? online.Level : member.Level;
 
     // A member's online state, view and tag after its clan changed (a clan of null: it has none now).
     private async Task Retag(Clan? clan, long characterId)
@@ -515,14 +614,22 @@ public sealed class ClanAppService : IClanRoster
         }
 
         online.ClanId = clan?.Id ?? 0;
-        await _world.SetClanTagAsync(entityId, Tag(clan));
+        await ShowTagAsync(entityId, clan);
         if (clan is null)
         {
             online.Link.Deliver(null);
         }
     }
 
-    // Every online member gets the clan's view as it is now.
+    private void Publish(Clan clan)
+    {
+        lock (_state)
+        {
+            Refresh(clan);
+        }
+    }
+
+    // Every online member gets the clan's view as it is now; called under the state lock.
     private void Refresh(Clan clan)
     {
         foreach (var member in clan.Members)
@@ -534,31 +641,25 @@ public sealed class ClanAppService : IClanRoster
         }
     }
 
-    // The clan of a member who left the world shows it offline.
-    private async Task RefreshLaterAsync(long characterId)
-    {
-        await _gate.WaitAsync();
-        try
-        {
-            if (_byCharacter.TryGetValue(characterId, out var clan))
-            {
-                Refresh(clan);
-            }
-        }
-        finally
-        {
-            _gate.Release();
-        }
-    }
-
-    private ClanView? View(Clan? clan, long characterId) =>
-        clan?.Find(characterId) is not { } self ? null
-            : new ClanView(clan.Id, clan.Name, clan.State, clan.DeadlineSeconds, self.Rank, clan.Capacity, clan.Intro, clan.MarkVersion,
+    // Called under the state lock.
+    private ClanView? View(Clan clan, long characterId) =>
+        clan.Find(characterId) is not { } self ? null
+            : new ClanView(clan.Id, clan.Name, clan.State, clan.DeadlineSeconds, self.Rank, ClanRules.Capacity(LevelOf(clan.Chief)), clan.Intro, clan.MarkVersion,
                 clan.Members.OrderByDescending(static member => member.Rank).ThenBy(static member => member.Name, StringComparer.OrdinalIgnoreCase)
-                    .Select(member => new ClanMemberView(member.Name, member.Class, member.Level, member.Rank, _entityOf.ContainsKey(member.CharacterId)))
+                    .Select(member => new ClanMemberView(member.Name, member.Class, LevelOf(member), member.Rank, _entityOf.ContainsKey(member.CharacterId)))
                     .ToArray());
 
-    private static ClanTag? Tag(Clan? clan) => clan is null ? null : new ClanTag(clan.Id, clan.Name, clan.MarkVersion);
+    // The tag over the head is looks only: a busy world leaves the old one until the next change or world entry.
+    private async Task ShowTagAsync(ulong entityId, Clan? clan)
+    {
+        try
+        {
+            await _world.SetClanTagAsync(entityId, clan is null ? null : new ClanTag(clan.Id, clan.Name, clan.MarkVersion));
+        }
+        catch (WorldBusyException)
+        {
+        }
+    }
 
     private void Announce(Clan clan, GameText line)
     {
@@ -585,14 +686,14 @@ public sealed class ClanAppService : IClanRoster
         return status;
     }
 
-    // An online player as it entered the world (its level is the one it joins a clan with).
-    private sealed class Online(long characterId, long accountId, string name, PlayerClass playerClass, int level, IClanLink link)
+    // An online player; its level is its character's live level (the level it entered with while none is loaded).
+    private sealed class Online(long characterId, long accountId, string name, PlayerClass playerClass, int level, PlayerSession session, IClanLink link)
     {
         public long CharacterId { get; } = characterId;
         public long AccountId { get; } = accountId;
         public string Name { get; } = name;
         public PlayerClass Class { get; } = playerClass;
-        public int Level { get; } = level;
+        public int Level => session.Character?.Level ?? level;
         public IClanLink Link { get; } = link;
 
         // Read by the chat without the gate.
@@ -601,5 +702,5 @@ public sealed class ClanAppService : IClanRoster
         private long _clanId;
     }
 
-    private readonly record struct Pending(long ClanId, ulong RecruiterId, long ExpiresAt);
+    private readonly record struct Pending(long ClanId, ulong RecruiterId, long RecruiterCharacterId, long ExpiresAt);
 }

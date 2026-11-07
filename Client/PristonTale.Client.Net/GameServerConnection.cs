@@ -698,7 +698,8 @@ public sealed class GameServerConnection : IGameBackend
     private void OnCharacterList(CharacterListPacket list)
     {
         var summaries = list.Characters.Select(entry => new CharacterSummary(entry.Name, entry.Class, entry.Level, entry.FaceIndex, entry.Tier,
-            entry.HairIndex, ItemCodes.KeyOf(entry.ArmorCode), ItemCodes.KeyOf(entry.WeaponCode), ItemCodes.KeyOf(entry.OffHandCode), entry.InVillage)).ToArray();
+            entry.HairIndex, ItemCodes.KeyOf(entry.ArmorCode), ItemCodes.KeyOf(entry.WeaponCode), ItemCodes.KeyOf(entry.OffHandCode), entry.InVillage,
+            entry.ClanName)).ToArray();
         Volatile.Write(ref _characters, summaries);
     }
 

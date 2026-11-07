@@ -3,6 +3,7 @@ using PristonTale.Client.Net.Presence;
 using PristonTale.Gameplay.UI.Chat;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Contracts.World;
+using PristonTale.Gameplay.UI.Clans;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -98,7 +99,7 @@ public sealed partial class HudCombat
         bool hovered, Entity bar)
     {
         var nameWidth = painter.Measure(name);
-        var ownerWidth = owner is null ? 0 : painter.Measure(owner);
+        var ownerWidth = owner is null ? 0 : painter.Measure(owner) + (clanLine ? ClanMarks.Span : 0);
         var width = Math.Max(nameWidth, ownerWidth);
         var lineHeight = Math.Max(16, painter.TextHeight);
         var extraLine = owner is null ? 0 : lineHeight;
@@ -115,9 +116,14 @@ public sealed partial class HudCombat
         painter.Flush();
         var nameTop = clanLine ? y + 5 + 2 + lineHeight : y + 5 + 2;
         painter.Text(name, anchorX - nameWidth / 2, nameTop, color, false);
-        if (owner is not null)
+        if (owner is not null && clanLine)
         {
-            painter.Text(owner, anchorX - ownerWidth / 2, clanLine ? y + 5 + 2 : y + 5 + 2 + lineHeight, clanLine ? HudNameColors.Clan : HudNameColors.Player, false);
+            painter.ClanMark(anchorX - ownerWidth / 2, y + 5 + (lineHeight - ClanMarks.Size) / 2);
+            painter.Text(owner, anchorX - ownerWidth / 2 + ClanMarks.Span, y + 5 + 2, HudNameColors.Clan, false);
+        }
+        else if (owner is not null)
+        {
+            painter.Text(owner, anchorX - ownerWidth / 2, y + 5 + 2 + lineHeight, HudNameColors.Player, false);
         }
 
         if (bar is not null)
@@ -131,7 +137,7 @@ public sealed partial class HudCombat
         Entity bar)
     {
         var nameWidth = painter.MeasureAt(name, PlateTextScale);
-        var ownerWidth = owner is null ? 0 : painter.MeasureAt(owner, PlateTextScale);
+        var ownerWidth = owner is null ? 0 : painter.MeasureAt(owner, PlateTextScale) + (clanLine ? ClanMarks.Span : 0);
         var (line, textTop) = painter.NameBoxText(PlateTextScale, PlatePadY);
         var (width, height) = HudPainter.NameBoxExtent(Math.Max(nameWidth, ownerWidth), line, owner is null ? 1 : 2);
         var x = anchorX - width / 2;
@@ -144,9 +150,14 @@ public sealed partial class HudCombat
         painter.DrawNameBox(new Rectangle(x, y, width, height), hovered);
         var top = y + textTop;
         painter.Text(name, anchorX - nameWidth / 2, clanLine ? top + line : top, color, PlateTextScale);
-        if (owner is not null)
+        if (owner is not null && clanLine)
         {
-            painter.Text(owner, anchorX - ownerWidth / 2, clanLine ? top : top + line, clanLine ? HudNameColors.Clan : HudNameColors.Player, PlateTextScale);
+            painter.ClanMark(anchorX - ownerWidth / 2, y + HudPainter.NameBoxTop + (line - ClanMarks.Size) / 2);
+            painter.Text(owner, anchorX - ownerWidth / 2 + ClanMarks.Span, top, HudNameColors.Clan, PlateTextScale);
+        }
+        else if (owner is not null)
+        {
+            painter.Text(owner, anchorX - ownerWidth / 2, top + line, HudNameColors.Player, PlateTextScale);
         }
 
         if (bar is not null)

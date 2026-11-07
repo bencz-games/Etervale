@@ -1,23 +1,31 @@
+using System.Globalization;
 using PristonTale.Contracts.Texts;
 using PristonTale.Simulation.Social.Clans;
 
 namespace PristonTale.Application.Clans;
 
-// The line a refused clan request answers with.
+// The line a refused clan request answers with; the rules' numbers travel as its arguments.
 public static class ClanTexts
 {
-    public static GameText Of(ClanStatus status) => GameText.Of(status switch
+    public static GameText Of(ClanStatus status) => status switch
+    {
+        ClanStatus.LevelTooLow => GameText.Of(GameTextId.ClanLevelTooLow, Number(ClanRules.FoundingLevel)),
+        ClanStatus.NameInvalid => GameText.Of(GameTextId.ClanNameInvalid, Number(ClanRules.MinNameLength), Number(ClanRules.MaxNameLength)),
+        ClanStatus.JoinCooldown => GameText.Of(GameTextId.ClanJoinCooldown, Number(ClanRules.JoinCooldownDays)),
+        _ => GameText.Of(Id(status))
+    };
+
+    public static string Number(long value) => value.ToString(CultureInfo.InvariantCulture);
+
+    private static GameTextId Id(ClanStatus status) => status switch
     {
         ClanStatus.NotInClan => GameTextId.ClanNotInClan,
         ClanStatus.AlreadyInClan => GameTextId.ClanAlreadyInClan,
         ClanStatus.NotChief => GameTextId.ClanNotChief,
         ClanStatus.NotRecruiter => GameTextId.ClanNotRecruiter,
-        ClanStatus.LevelTooLow => GameTextId.ClanLevelTooLow,
         ClanStatus.NotEnoughGold => GameTextId.NotEnoughGold,
-        ClanStatus.NameInvalid => GameTextId.ClanNameInvalid,
         ClanStatus.NameTaken => GameTextId.ClanNameTaken,
         ClanStatus.ClanFull => GameTextId.ClanFull,
-        ClanStatus.JoinCooldown => GameTextId.ClanJoinCooldown,
         ClanStatus.ChiefOnAccount => GameTextId.ClanChiefOnAccount,
         ClanStatus.TargetNotFound => GameTextId.ClanTargetNotFound,
         ClanStatus.TargetInClan => GameTextId.ClanTargetInClan,
@@ -30,7 +38,7 @@ public static class ClanTexts
         ClanStatus.NoInvitation => GameTextId.ClanNoInvitation,
         ClanStatus.NotMember => GameTextId.ClanNotMember,
         ClanStatus.OutOfReach => GameTextId.NpcOutOfReach,
-        ClanStatus.Busy => GameTextId.CloseTradeFirst,
+        ClanStatus.Busy => GameTextId.ClanBusy,
         _ => GameTextId.ClanUnavailable
-    });
+    };
 }

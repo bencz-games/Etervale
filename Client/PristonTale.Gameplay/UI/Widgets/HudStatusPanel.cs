@@ -2,6 +2,7 @@ using System.Globalization;
 using Microsoft.Xna.Framework;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Simulation.Characters;
+using PristonTale.Gameplay.UI.Clans;
 
 namespace PristonTale.Gameplay.UI.Widgets;
 
@@ -14,6 +15,11 @@ public sealed class HudStatusPanel
     private const float ExperienceTextScale = 12f / HudPainter.BakePixels;
     private const int ExperienceIndex = 3;
     private const int NextLevelIndex = 4;
+
+    // The clan's row, 20 px under the name's, its mark and name centred together; the mark 1 px above the name's top.
+    private const int NameIndex = 1;
+    private const int ClanRowStep = 20;
+    private const int ClanMarkLift = TextShift + 1;
     private const int MillionsAboveLevel = 79;
     private const ulong Million = 1_000_000;
     private static readonly int[] PointButtonY = [431, 452, 472, 491, 511];
@@ -32,6 +38,12 @@ public sealed class HudStatusPanel
 
     public string Name { get; set; } = "";
     public string ClassName { get; set; } = "";
+
+    // The local player's clan, empty without one.
+    public string ClanName { get; set; } = "";
+
+    private string _clanFitted = "";
+    private string _clanShown = "";
 
     public static Rectangle AllocateButton(Point origin, int index) => new(origin.X + 566, origin.Y + PointButtonY[index] + 1, 18, 17);
     public static Rectangle Close(Point origin) => new(origin.X + 251, origin.Y + 565, 20, 20);
@@ -71,6 +83,20 @@ public sealed class HudStatusPanel
             {
                 painter.TextCentered(_text[index], origin.X + left, origin.X + right, origin.Y + y);
             }
+        }
+
+        if (ClanName.Length > 0)
+        {
+            var (nameLeft, nameRight, _) = Values[NameIndex];
+            if (!ReferenceEquals(ClanName, _clanShown))
+            {
+                (_clanShown, _clanFitted) = (ClanName, painter.Fit(ClanName, nameRight - nameLeft - ClanMarks.Span));
+            }
+
+            var left = origin.X + (nameLeft + nameRight - painter.Measure(_clanFitted) - ClanMarks.Span) / 2;
+            var clanY = origin.Y + Values[NameIndex].Y + ClanRowStep;
+            painter.ClanMark(left, clanY - ClanMarkLift);
+            painter.Text(_clanFitted, left + ClanMarks.Span, clanY);
         }
     }
 

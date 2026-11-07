@@ -268,5 +268,6 @@ public enum GameTextId : ushort
     ClanChiefChanged = 758,
     ClanViceAppointed = 759,
     ClanViceDischarged = 760,
-    ClanInviteSent = 761
+    ClanInviteSent = 761,
+    ClanBusy = 762
 }

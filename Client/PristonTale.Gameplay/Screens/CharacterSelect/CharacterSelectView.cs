@@ -5,7 +5,7 @@ using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Gameplay.Screens.CharacterSelect;
 
-internal readonly record struct CharSelectInfo(string Name, int Level, string BroodName, string ClassName);
+internal readonly record struct CharSelectInfo(string Name, int Level, string BroodName, string ClassName, string ClanName);
 internal readonly record struct CharSelectJobView(PlayerClass Class, Vector3 HeadWorld, bool Hovered, bool Selected);
 
 internal sealed class CharSelectViewModel
@@ -304,22 +304,38 @@ internal sealed class CharacterSelectView
             _sb.Draw(_assets.InfoBackPanel, rect, Color.White);
         }
 
+        // The overlay's top 33 rows hold the clan line: a character in a clan shows them and its rows move 20 px down; its
+        // mark fills the line's box from 3 px left of the values' column.
+        var inClan = info.ClanName.Length > 0;
         if (_assets.InfoOverlay != null)
         {
-            var source = new Rectangle(0, 33, 256, 95);
-            _sb.Draw(_assets.InfoOverlay, new Rectangle(boxX, boxY + 13, 256, 95), source, Color.White);
+            if (inClan)
+            {
+                _sb.Draw(_assets.InfoOverlay, rect, Color.White);
+            }
+            else
+            {
+                _sb.Draw(_assets.InfoOverlay, new Rectangle(boxX, boxY + 13, 256, 95), new Rectangle(0, 33, 256, 95), Color.White);
+            }
         }
 
         var valueX = boxX + InfoPanelValueColumnX;
-        SmallValue(info.Name, valueX, boxY + 20 + InfoPanelValueBaselineAdjustment, new Color(255, 250, 235));
+        var top = boxY + (inClan ? 20 : 0) + InfoPanelValueBaselineAdjustment;
+        if (inClan)
+        {
+            _sb.Draw(_assets.ClanMark, new Vector2(valueX - 3, boxY + 17), Color.White);
+            SmallValue(info.ClanName, valueX + 17, top, new Color(230, 240, 255));
+        }
+
+        SmallValue(info.Name, valueX, top + 20, new Color(255, 250, 235));
         if (info.Level != _levelShown)
         {
             (_levelShown, _levelText) = (info.Level, info.Level.ToString(System.Globalization.CultureInfo.InvariantCulture));
         }
 
-        SmallValue(_levelText, valueX, boxY + 40 + InfoPanelValueBaselineAdjustment, new Color(255, 220, 100));
-        SmallValue(info.BroodName, valueX, boxY + 60 + InfoPanelValueBaselineAdjustment, new Color(255, 250, 235));
-        SmallValue(info.ClassName, valueX, boxY + 80 + InfoPanelValueBaselineAdjustment, new Color(255, 250, 235));
+        SmallValue(_levelText, valueX, top + 40, new Color(255, 220, 100));
+        SmallValue(info.BroodName, valueX, top + 60, new Color(255, 250, 235));
+        SmallValue(info.ClassName, valueX, top + 80, new Color(255, 250, 235));
     }
 
     private void SmallValue(string text, float x, float y, Color color) =>

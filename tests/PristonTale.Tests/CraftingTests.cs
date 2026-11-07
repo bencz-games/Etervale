@@ -19,6 +19,7 @@ internal static class CraftingTests
         yield return ("smelting refuses mixed colours, the wrong sheltom, a missing piece, the green crystal and a short purse", SmeltRefusalsAsync);
         yield return ("a recipe's runes pick the weapon or armour of its tier; all B armour runes pick any, Memory makes the class costume", ProductsAsync);
         yield return ("manufacture spends recipe and runes and a third of the item's price; half the attempts make the item", ManufactureAsync);
+        yield return ("manufacture settles the dearest candidate's fee, bag room and weight before it draws, whatever the draw", ManufactureBeforeDrawAsync);
         yield return ("the mixture reset remakes a mixed item under its identity with its specialization and spends the stone", MixtureResetAsync);
     }
 
@@ -55,12 +56,12 @@ internal static class CraftingTests
         var ore = Def("PR101");
         var materials = Place(character, ore, ore, ore, Def("OS106", ItemKind.Sheltom));
         var money = character.Money;
-        Assert.True(SmeltingWork.TrySmelt(character, materials, items, new LowRng(), out var work, out var fee) == NpcServiceStatus.Ok
+        Assert.True(SmeltingWork.TrySmelt(character, materials, items, BoundRng.Low, out var work, out var fee) == NpcServiceStatus.Ok
             && work.Result == (byte)SmeltResult.Smelted && fee == SmeltingWork.OreFee && character.Money == money - SmeltingWork.OreFee
             && Held(character).SequenceEqual(["PR201"]), "three violet ores did not make the violet crystal");
 
         var crystal = Def("PR201");
-        foreach (var (rng, rune) in new (ISimRng, string)[] { (new LowRng(), "PR301"), (new HighRng(), "PR401") })
+        foreach (var (rng, rune) in new (ISimRng, string)[] { (BoundRng.Low, "PR301"), (BoundRng.High, "PR401") })
         {
             var smelter = Character();
             var pieces = Place(smelter, crystal, crystal, crystal, Def("OS107", ItemKind.Sheltom));
@@ -91,13 +92,13 @@ internal static class CraftingTests
             var character = Character();
             var ids = Place(character, materials);
             var before = Held(character);
-            Assert.True(SmeltingWork.TrySmelt(character, ids, items, new LowRng(), out _, out _) == status && Held(character).SequenceEqual(before),
+            Assert.True(SmeltingWork.TrySmelt(character, ids, items, BoundRng.Low, out _, out _) == status && Held(character).SequenceEqual(before),
                 $"{name} was smelted or spent");
         }
 
         var poor = Character(money: SmeltingWork.OreFee - 1);
         var owned = Place(poor, violet, violet, violet, sheltom);
-        Assert.True(SmeltingWork.TrySmelt(poor, owned, items, new LowRng(), out _, out _) == NpcServiceStatus.NotEnoughGold, "a short purse smelted");
+        Assert.True(SmeltingWork.TrySmelt(poor, owned, items, BoundRng.Low, out _, out _) == NpcServiceStatus.NotEnoughGold, "a short purse smelted");
         return Task.CompletedTask;
     }
 
@@ -128,7 +129,7 @@ internal static class CraftingTests
     {
         var axe = Def("WA114", ItemKind.Axe, 30_000);
         var items = new ItemCatalog([axe]);
-        foreach (var (rng, made) in new (ISimRng, bool)[] { (new LowRng(), true), (new HighRng(), false) })
+        foreach (var (rng, made) in new (ISimRng, bool)[] { (BoundRng.Low, true), (BoundRng.High, false) })
         {
             var character = Character();
             var ids = Place(character, Def("WR101", ItemKind.Quest), Def("PR301"), Def("PR302"), Def("PR303"));
@@ -140,13 +141,37 @@ internal static class CraftingTests
 
         var wrong = Character();
         var wrongIds = Place(wrong, Def("WR101", ItemKind.Quest), Def("PR302"), Def("PR301"), Def("PR303"));
-        Assert.True(ManufactureWork.TryManufacture(wrong, wrongIds[0], wrongIds[1..], items, new LowRng(), out _, out _) == NpcServiceStatus.WrongMaterials
+        Assert.True(ManufactureWork.TryManufacture(wrong, wrongIds[0], wrongIds[1..], items, BoundRng.Low, out _, out _) == NpcServiceStatus.WrongMaterials
             && Held(wrong).Length == 4, "runes out of their slots were spent");
 
         var poor = Character(money: 9_999);
         var poorIds = Place(poor, Def("WR101", ItemKind.Quest), Def("PR301"), Def("PR302"), Def("PR303"));
-        Assert.True(ManufactureWork.TryManufacture(poor, poorIds[0], poorIds[1..], items, new LowRng(), out _, out _) == NpcServiceStatus.NotEnoughGold,
+        Assert.True(ManufactureWork.TryManufacture(poor, poorIds[0], poorIds[1..], items, BoundRng.Low, out _, out _) == NpcServiceStatus.NotEnoughGold,
             "a short purse manufactured");
+        return Task.CompletedTask;
+    }
+
+    private static Task ManufactureBeforeDrawAsync()
+    {
+        // Three B runes on the third armour recipe pick one of seven products at random; the dearest's fee is 16,000.
+        var candidates = ManufactureWork.Products(3, true, 0b111, PlayerClass.Fighter);
+        ItemCatalog Catalog(int width = 1, int weight = 0) => new([.. candidates.Select((key, index) => WorldDataFactory.ToItemDefinition(
+            ItemRecords.Blank(key) with { Kind = (int)ItemKind.Armor, Price = 30_000 + index * 3_000, GridWidth = index == 3 ? width : 1, Weight = index == 3 ? weight : 0 }))]);
+        NpcServiceStatus Try(ItemCatalog items, BoundRng rng, long money, out long fee)
+        {
+            var character = Character(money: money);
+            var ids = Place(character, Def("DR103", ItemKind.Quest), Def("PR403"), Def("PR404"), Def("PR405"));
+            return ManufactureWork.TryManufacture(character, ids[0], ids[1..], items, rng, out _, out fee);
+        }
+
+        foreach (var rng in new[] { BoundRng.Low, BoundRng.High })
+        {
+            Assert.True(Try(Catalog(), rng, 1_000_000, out var fee) == NpcServiceStatus.Ok && fee == 16_000, "the fee was not the dearest candidate's");
+            Assert.True(Try(Catalog(), rng, 15_999, out _) == NpcServiceStatus.NotEnoughGold, "a purse short of the dearest fee depended on the draw");
+            Assert.True(Try(Catalog(width: 40), rng, 1_000_000, out _) == NpcServiceStatus.NoSpace, "a candidate without room depended on the draw");
+            Assert.True(Try(Catalog(weight: 1_000_000), rng, 1_000_000, out _) == NpcServiceStatus.OverWeight, "a candidate too heavy depended on the draw");
+        }
+
         return Task.CompletedTask;
     }
 
@@ -161,30 +186,16 @@ internal static class CraftingTests
         var item = new ItemInstance(sword) { MixSheltom = 6, Roll = new ItemInstance(sword).Roll with { SpecJob = 0 } };
         Assert.True(character.Inventory.TryAdd(item), "the sword did not fit");
         var stone = Place(character, Def(MixtureReset.Stone, ItemKind.Misc));
-        Assert.True(MixtureReset.TryReset(character, item.InstanceId, [], new LowRng(), out _) == NpcServiceStatus.WrongMaterials,
+        Assert.True(MixtureReset.TryReset(character, item.InstanceId, [], BoundRng.Low, out _) == NpcServiceStatus.WrongMaterials,
             "a reset without the stone");
-        Assert.True(MixtureReset.TryReset(character, item.InstanceId, stone, new LowRng(), out var work) == NpcServiceStatus.Ok
+        Assert.True(MixtureReset.TryReset(character, item.InstanceId, stone, BoundRng.Low, out var work) == NpcServiceStatus.Ok
             && work.Result == MixtureReset.Reset && character.Inventory.Find(item.InstanceId) is var at && at >= 0
             && character.Inventory[at] is { Mixed: false, Roll.SpecJob: 0 } && Held(character).SequenceEqual(["WS201"]),
             "the sword was not remade plain under its identity or the stone was kept");
 
         var unmixed = Character();
         var plain = Place(unmixed, sword, Def(MixtureReset.Stone, ItemKind.Misc));
-        Assert.True(MixtureReset.TryReset(unmixed, plain[0], plain[1..], new LowRng(), out _) == NpcServiceStatus.Rejected, "an unmixed item was reset");
+        Assert.True(MixtureReset.TryReset(unmixed, plain[0], plain[1..], BoundRng.Low, out _) == NpcServiceStatus.Rejected, "an unmixed item was reset");
         return Task.CompletedTask;
-    }
-
-    private sealed class LowRng : ISimRng
-    {
-        public int NextInclusive(int minInclusive, int maxInclusive) => minInclusive;
-        public int NextExclusive(int minInclusive, int maxExclusive) => minInclusive;
-        public float NextUnit() => 0f;
-    }
-
-    private sealed class HighRng : ISimRng
-    {
-        public int NextInclusive(int minInclusive, int maxInclusive) => maxInclusive;
-        public int NextExclusive(int minInclusive, int maxExclusive) => maxExclusive - 1;
-        public float NextUnit() => 0.999f;
     }
 }

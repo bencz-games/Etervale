@@ -23,4 +23,22 @@ public static class HudCraftLayout
     public static Point StartInfo(Point origin) => new(origin.X + 131, origin.Y + 145);
     public static Point PricePlate(Point origin) => new(origin.X + 200, origin.Y + 264);
     public static Rectangle PriceText(Point origin) => new(origin.X + 200, origin.Y + 273, 75, 14);
+
+    // One item cell of a window's own boxes, its top-left this far from the window's origin.
+    public static Rectangle Cell(Point origin, Point cell) =>
+        new(origin.X + cell.X, origin.Y + cell.Y, HudGridPlacement.CellSize, HudGridPlacement.CellSize);
+
+    // The index of the cell under the pointer, or -1.
+    public static int CellAt(Point origin, Point[] cells, Point pointer)
+    {
+        for (var index = 0; index < cells.Length; index++)
+        {
+            if (Cell(origin, cells[index]).Contains(pointer))
+            {
+                return index;
+            }
+        }
+
+        return -1;
+    }
 }

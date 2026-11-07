@@ -98,6 +98,9 @@ public sealed record QuestPrompt(QuestCode Code, int State, string Document, Que
     // What the document's "$$%s" names: the monster a hunt draws.
     public GameText Subject { get; init; }
     public IReadOnlyList<string> Choices { get; init; } = [];
+
+    // Items the choices are, by code, in place of Choices: the server names them in the player's language.
+    public IReadOnlyList<uint> ChoiceItems { get; init; } = [];
     public IReadOnlyList<string> ChoiceDocuments { get; init; } = [];
     public int Choice { get; init; }
 }

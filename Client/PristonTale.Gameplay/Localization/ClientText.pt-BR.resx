@@ -60,7 +60,7 @@
   <data name="Clan.ConfirmEntrust" xml:space="preserve"><value>Passar a liderança para {0} por 300.000 de ouro? Você passará a ser membro.</value></data>
   <data name="Clan.ConfirmExpel" xml:space="preserve"><value>Deseja expulsar {0} do clã?</value></data>
   <data name="Clan.ConfirmLeave" xml:space="preserve"><value>Deseja sair do clã {0}?</value></data>
-  <data name="Clan.Cost" xml:space="preserve"><value>Formar um clã custa 500.000 de ouro e exige nível 40.</value></data>
+  <data name="Clan.Cost" xml:space="preserve"><value>Formar um clã custa {0} de ouro e exige nível {1}.</value></data>
   <data name="Clan.Count" xml:space="preserve"><value>Membros: {0} de {1}</value></data>
   <data name="Clan.Disband" xml:space="preserve"><value>Dissolver</value></data>
   <data name="Clan.Discharge" xml:space="preserve"><value>Remover vice</value></data>
@@ -75,7 +75,7 @@
   <data name="Clan.RankVice" xml:space="preserve"><value>(vice)</value></data>
   <data name="Clan.Registered" xml:space="preserve"><value>O clã está oficialmente registrado.</value></data>
   <data name="Clan.Registering" xml:space="preserve"><value>Em registro: faltam {0} dias e {1} horas para chegar a 6 membros.</value></data>
-  <data name="Clan.Requirements" xml:space="preserve"><value>Para ser registrado oficialmente, o clã precisa de 6 membros (contando o líder) em até 10 dias, senão é cancelado. Um clã registrado que cair abaixo de 6 membros tem 10 dias para recrutar de novo antes de ser dissolvido.</value></data>
+  <data name="Clan.Requirements" xml:space="preserve"><value>Para ser registrado oficialmente, o clã precisa de {0} membros (contando o líder) em até {1} dias, senão é cancelado. Um clã registrado que cair abaixo de {0} membros tem {1} dias para recrutar de novo antes de ser dissolvido.</value></data>
   <data name="Clan.Title" xml:space="preserve"><value>Mestre de Clã</value></data>
   <data name="Clan.TypeName" xml:space="preserve"><value>Digite o nome do clã (2 a 16 letras, números, espaços, '-' ou '_') e tecle Enter.</value></data>
   <data name="Clan.Yes" xml:space="preserve"><value>Sim</value></data>
@@ -116,22 +116,23 @@
   <data name="Game.CharacterBusy" xml:space="preserve"><value>Um salvamento ou outra operação do personagem está pendente; tente de novo</value></data>
   <data name="Game.CharacterUnchanged" xml:space="preserve"><value>O armazenamento recusou a operação; o personagem não mudou</value></data>
   <data name="Game.ClanAlreadyInClan" xml:space="preserve"><value>Você já está em um clã.</value></data>
-  <data name="Game.ClanBelowSix" xml:space="preserve"><value>O clã tem menos de 6 membros. Recrute mais em até {0} dias ou ele será dissolvido.</value></data>
+  <data name="Game.ClanBelowSix" xml:space="preserve"><value>O clã tem menos de {1} membros. Recrute mais em até {0} dias ou ele será dissolvido.</value></data>
+  <data name="Game.ClanBusy" xml:space="preserve"><value>Feche a troca ou a sua loja pessoal primeiro.</value></data>
   <data name="Game.ClanCapacityTooLow" xml:space="preserve"><value>Nesse nível o novo líder não conseguiria manter todos os membros.</value></data>
   <data name="Game.ClanChiefCannotLeave" xml:space="preserve"><value>O líder não pode sair do clã: passe a liderança ou dissolva o clã.</value></data>
   <data name="Game.ClanChiefChanged" xml:space="preserve"><value>A liderança do clã passou de {0} para {1}.</value></data>
   <data name="Game.ClanChiefOnAccount" xml:space="preserve"><value>Você já tem um líder de clã nesta conta. Só pode haver um líder de clã por conta.</value></data>
   <data name="Game.ClanDisbanded" xml:space="preserve"><value>O clã {0} foi dissolvido.</value></data>
   <data name="Game.ClanExpelled" xml:space="preserve"><value>{0} foi expulso do clã.</value></data>
-  <data name="Game.ClanFounded" xml:space="preserve"><value>O clã [{0}] foi fundado. Recrute 6 membros (contando o líder) em até 10 dias para registrá-lo.</value></data>
+  <data name="Game.ClanFounded" xml:space="preserve"><value>O clã [{0}] foi fundado. Recrute {1} membros (contando o líder) em até {2} dias para registrá-lo.</value></data>
   <data name="Game.ClanFull" xml:space="preserve"><value>Não é possível recrutar mais membros.</value></data>
   <data name="Game.ClanInviteRefused" xml:space="preserve"><value>{0} recusou entrar no clã.</value></data>
   <data name="Game.ClanInviteSent" xml:space="preserve"><value>O convite do clã foi enviado para {0}.</value></data>
-  <data name="Game.ClanJoinCooldown" xml:space="preserve"><value>Um personagem não pode entrar em um clã por 4 dias depois que o clã dele foi dissolvido.</value></data>
+  <data name="Game.ClanJoinCooldown" xml:space="preserve"><value>Um personagem não pode entrar em um clã por {0} dias depois que o clã dele foi dissolvido.</value></data>
   <data name="Game.ClanJoined" xml:space="preserve"><value>{0} entrou no clã.</value></data>
   <data name="Game.ClanLeft" xml:space="preserve"><value>{0} saiu do clã.</value></data>
-  <data name="Game.ClanLevelTooLow" xml:space="preserve"><value>É preciso ter nível 40 para fundar um clã.</value></data>
-  <data name="Game.ClanNameInvalid" xml:space="preserve"><value>O nome do clã tem de 2 a 16 letras, números, espaços, '-' ou '_'.</value></data>
+  <data name="Game.ClanLevelTooLow" xml:space="preserve"><value>É preciso ter nível {0} para fundar um clã.</value></data>
+  <data name="Game.ClanNameInvalid" xml:space="preserve"><value>O nome do clã tem de {0} a {1} letras, números, espaços, '-' ou '_'.</value></data>
   <data name="Game.ClanNameTaken" xml:space="preserve"><value>Esse nome de clã já existe. Escolha outro.</value></data>
   <data name="Game.ClanNoInvitation" xml:space="preserve"><value>O convite do clã não é mais válido.</value></data>
   <data name="Game.ClanNotChief" xml:space="preserve"><value>Só o líder do clã pode fazer isso.</value></data>
@@ -799,4 +800,5 @@
   <data name="Usable.VirtualLife" xml:space="preserve"><value>Vida virtual nv. {0}</value></data>
   <data name="WingGate.MoveThere" xml:space="preserve"><value>ir para lá?</value></data>
   <data name="WingGate.Title" xml:space="preserve"><value>Portal</value></data>
+  <data name="Workbench.TakeBack" xml:space="preserve"><value>Clique direito: retirar</value></data>
 </root>

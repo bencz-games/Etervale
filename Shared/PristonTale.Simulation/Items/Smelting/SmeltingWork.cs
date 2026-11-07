@@ -24,12 +24,12 @@ public static class SmeltingWork
     private static readonly int[] OreSheltoms = [6, 7, 8, 9, 10, 11, 12, 13];
     private static readonly int[] CrystalSheltoms = [7, 8, 9, 10, 11, 12, 13, 0, 3, 4, 5, 3, 4, 5];
 
-    public static bool IsOre(string key) => Sheltom(OreSheltoms, "PR1", key) > 0;
+    public static bool IsOre(string key) => Sheltom(OreSheltoms, CraftMaterials.Ore, key) > 0;
 
-    public static bool IsCrystal(string key) => Sheltom(CrystalSheltoms, "PR2", key) > 0;
+    public static bool IsCrystal(string key) => Sheltom(CrystalSheltoms, CraftMaterials.Crystal, key) > 0;
 
     // The sheltom ordinal three pieces of this ore or crystal need; 0 for anything the smelter does not take.
-    public static int SheltomFor(string key) => Math.Max(Sheltom(OreSheltoms, "PR1", key), Sheltom(CrystalSheltoms, "PR2", key));
+    public static int SheltomFor(string key) => Math.Max(Sheltom(OreSheltoms, CraftMaterials.Ore, key), Sheltom(CrystalSheltoms, CraftMaterials.Crystal, key));
 
     // The fee of a smelt of this piece; 0 for anything else.
     public static long Fee(string key) => IsOre(key) ? OreFee : IsCrystal(key) ? CrystalFee : 0;
@@ -101,13 +101,15 @@ public static class SmeltingWork
     // An ore's crystal, or one of a crystal's two runes.
     private static string Product(string piece, ISimRng rng)
     {
-        var number = piece.AsSpan(3).ToString();
-        return IsOre(piece) ? $"PR2{number}" : rng.NextExclusive(0, 2) == 0 ? $"PR3{number}" : $"PR4{number}";
+        if (IsOre(piece))
+        {
+            return CraftMaterials.Key(CraftMaterials.Crystal, CraftMaterials.Colour(CraftMaterials.Ore, piece));
+        }
+
+        var colour = CraftMaterials.Colour(CraftMaterials.Crystal, piece);
+        return CraftMaterials.Key(rng.NextExclusive(0, 2) == 0 ? CraftMaterials.RuneA : CraftMaterials.RuneB, colour);
     }
 
     private static int Sheltom(int[] table, string family, string key) =>
-        key is { Length: 5 } && key.StartsWith(family, StringComparison.OrdinalIgnoreCase) && int.TryParse(key.AsSpan(3), out var number)
-        && number >= 1 && number <= table.Length
-            ? table[number - 1]
-            : 0;
+        CraftMaterials.Colour(family, key) is var colour && colour >= 1 && colour <= table.Length ? table[colour - 1] : 0;
 }

@@ -14,8 +14,8 @@ namespace PristonTale.Gameplay.UI.Clans;
 
 // The Clan Master's window, in the help box the NPC dialog uses: without a clan, the founding text and the name typed
 // for it; with one, the clan (state, deadline, members) and the actions of the player's rank, each asked again before it
-// is sent; the chief picks a member from the list to expel, appoint or entrust. A request waits for its result; the clan
-// that comes back replaces the view.
+// is sent; the chief picks a member from the list to expel, appoint or entrust. A request waits for its own result (OK
+// still closes the window meanwhile); the clan that comes back replaces the view.
 public sealed class HudClanWindow
 {
     private enum Page
@@ -32,7 +32,6 @@ public sealed class HudClanWindow
     private const int TextTop = HudNpcPanel.BoxY + 66;
     private const int LineStep = HudPainter.LineHeight;
     private static readonly Color Highlight = HudTextColors.Marked;
-    private static readonly Color Online = new(150, 255, 200);
     private static readonly Color Offline = new(170, 170, 170);
 
     private readonly StringBuilder _name = new();
@@ -43,6 +42,8 @@ public sealed class HudClanWindow
     private int _firstLine;
     private string[] _lines = [];
     private (string Text, Color Color, string Member)[] _rows = [];
+    private bool _rowsStale = true;
+    private ClanAction _requested;
     private string[] _buttons = [];
 
     // Sends a clan request (GameScene).
@@ -70,6 +71,7 @@ public sealed class HudClanWindow
     public void Observe(ClanInfo clan)
     {
         Clan = clan;
+        _rowsStale = true;
         if (_page is Page.View or Page.Intro)
         {
             Go(clan.HasClan ? Page.View : Page.Intro);
@@ -79,8 +81,13 @@ public sealed class HudClanWindow
     // A request's end: a done request goes back to the clan (or its absence), a refused one stays (its line is in the chat).
     public void Result(ClanResultInfo result)
     {
+        if (!Pending || result.Action != (byte)_requested)
+        {
+            return;
+        }
+
         Pending = false;
-        if (!IsOpen || result.Action == (byte)ClanAction.Open)
+        if (!IsOpen)
         {
             return;
         }
@@ -100,7 +107,7 @@ public sealed class HudClanWindow
             return;
         }
 
-        _lines = typed.IsEmpty ? _lines : [];
+        _rowsStale |= !typed.IsEmpty;
         foreach (var character in typed)
         {
             if (character == '\b')
@@ -132,14 +139,14 @@ public sealed class HudClanWindow
             return false;
         }
 
-        if (Pending)
-        {
-            return true;
-        }
-
         if (HudNpcPanel.OkButton.Contains(pointer))
         {
             Close();
+            return true;
+        }
+
+        if (Pending)
+        {
             return true;
         }
 
@@ -211,6 +218,7 @@ public sealed class HudClanWindow
         _page = page;
         _firstLine = 0;
         _lines = [];
+        _rowsStale = true;
         if (page == Page.Name)
         {
             _name.Clear();
@@ -280,6 +288,7 @@ public sealed class HudClanWindow
     private void Request(ClanAction action, ulong id, string name)
     {
         Pending = true;
+        _requested = action;
         Send?.Invoke(action, id, name);
     }
 
@@ -301,10 +310,17 @@ public sealed class HudClanWindow
         return line < Capacity() && _firstLine + line < _rows.Length ? _firstLine + line : -1;
     }
 
-    // The page's lines: wrapped texts, then the member list (chief and vice first) where it shows.
+    // The page's lines: wrapped texts, then the member list (chief and vice first) where it shows; built again only after
+    // the page, the typed name or the clan changed.
     private (string Text, Color Color, string Member)[] Rows(SpriteFont font)
     {
-        if (_lines.Length == 0)
+        if (!_rowsStale)
+        {
+            return _rows;
+        }
+
+        _rowsStale = false;
+        if (_lines.Length == 0 || _page == Page.Name)
         {
             _lines = Text().SelectMany(text => text.Length == 0 ? [""] : HudTextLayout.Wrap(font, text, TextWidth, HudPainter.TextScale)).ToArray();
         }
@@ -320,8 +336,8 @@ public sealed class HudClanWindow
                 }
 
                 var rank = member.Rank switch { ClanRank.Chief => ClientText.Get("Clan.RankChief"), ClanRank.Vice => ClientText.Get("Clan.RankVice"), _ => "" };
-                var text = string.Format(CultureInfo.InvariantCulture, "{0}  Lv.{1} {2}", member.Name, member.Level, rank).TrimEnd();
-                rows.Add((text, member.Online ? Online : Offline, _page == Page.Select ? member.Name : ""));
+                var text = $"{member.Name}  {ClientText.Format("Hud.TargetLevel", member.Level)} {rank}".TrimEnd();
+                rows.Add((text, member.Online ? HudNameColors.Clan : Offline, _page == Page.Select ? member.Name : ""));
             }
         }
 
@@ -331,7 +347,12 @@ public sealed class HudClanWindow
 
     private IEnumerable<string> Text() => _page switch
     {
-        Page.Intro => [ClientText.Get("Clan.Intro"), "", ClientText.Get("Clan.Cost"), "", ClientText.Get("Clan.Requirements")],
+        Page.Intro =>
+        [
+            ClientText.Get("Clan.Intro"), "",
+            ClientText.Format("Clan.Cost", ClanRules.FoundingCost.ToString("N0", CultureInfo.InvariantCulture), ClanRules.FoundingLevel), "",
+            ClientText.Format("Clan.Requirements", ClanRules.RegisteredMembers, ClanRules.GraceDays)
+        ],
         Page.Name => [ClientText.Get("Clan.TypeName"), "", "> " + _name + "_"],
         Page.View => [State(), ClientText.Format("Clan.Count", Clan.Members.Count, Clan.Capacity), ""],
         Page.Select => [ClientText.Get(_action switch

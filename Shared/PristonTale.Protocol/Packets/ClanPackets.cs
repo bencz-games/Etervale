@@ -27,6 +27,9 @@ public static class ClanWire
 {
     public const ushort Version = 1;
     public const int MaxNameBytes = 64;
+
+    // A clan name: 16 characters of at most three UTF-8 bytes (ClanRules).
+    public const int MaxClanNameBytes = 48;
     public const int MaxIntroBytes = 256;
     public const int MaxMembers = 80;
 
@@ -35,6 +38,8 @@ public static class ClanWire
     internal static void ReadHeader(ref PacketReader reader) => WireHeader.Read(ref reader, "Clan message");
 
     internal static string Name(ref PacketReader reader) => Utf8Text.Read(ref reader, MaxNameBytes, "Clan message");
+
+    internal static string ClanName(ref PacketReader reader) => Utf8Text.Read(ref reader, MaxClanNameBytes, "Clan message");
 }
 
 // C->S {header, uint8 Action, varuint Id, text Name}.
@@ -74,7 +79,7 @@ public sealed record ClanStatePacket(ulong ClanId, string Name, byte State, long
     IReadOnlyList<ClanMemberWire> Members) : IFramePacket
 {
     private const int MemberSize = 2 + ClanWire.MaxNameBytes + 1 + VarInt.MaxBytes64 + 2;
-    public const int MaxSize = 8 + WireHeader.Size + 1 + VarInt.MaxBytes64 + 2 + ClanWire.MaxNameBytes + 1 + 8 + 2 + 2 + ClanWire.MaxIntroBytes
+    public const int MaxSize = 8 + WireHeader.Size + 1 + VarInt.MaxBytes64 + 2 + ClanWire.MaxClanNameBytes + 1 + 8 + 2 + 2 + ClanWire.MaxIntroBytes
         + VarInt.MaxBytes64 + 2 + ClanWire.MaxMembers * MemberSize;
 
     public static readonly ClanStatePacket None = new(0, "", 0, 0, 0, 0, "", 0, []);
@@ -94,7 +99,7 @@ public sealed record ClanStatePacket(ulong ClanId, string Name, byte State, long
         if (HasClan)
         {
             writer.VarUInt(ClanId);
-            Utf8Text.Write(ref writer, Name, ClanWire.MaxNameBytes);
+            Utf8Text.Write(ref writer, Name, ClanWire.MaxClanNameBytes);
             writer.Byte(State);
             writer.Int64(Deadline);
             writer.Byte(Rank);
@@ -125,7 +130,7 @@ public sealed record ClanStatePacket(ulong ClanId, string Name, byte State, long
         }
 
         var clanId = reader.VarUInt();
-        var name = ClanWire.Name(ref reader);
+        var name = ClanWire.ClanName(ref reader);
         var state = reader.Byte();
         var deadline = reader.Int64();
         var rank = reader.Byte();
@@ -151,14 +156,14 @@ public sealed record ClanStatePacket(ulong ClanId, string Name, byte State, long
 // S->C a clan's invitation: {header, varuint RecruiterId, text ClanName, text ChiefName}.
 public sealed record ClanInvitePacket(ulong RecruiterId, string ClanName, string ChiefName) : IFramePacket
 {
-    public const int MaxSize = 8 + WireHeader.Size + VarInt.MaxBytes64 + 2 * (2 + ClanWire.MaxNameBytes);
+    public const int MaxSize = 8 + WireHeader.Size + VarInt.MaxBytes64 + 2 + ClanWire.MaxClanNameBytes + 2 + ClanWire.MaxNameBytes;
 
     public int Write(Span<byte> destination)
     {
         var writer = new PacketWriter(destination, EtervaleOpcodes.ClanInvite);
         ClanWire.Header(ref writer);
         writer.VarUInt(RecruiterId);
-        Utf8Text.Write(ref writer, ClanName, ClanWire.MaxNameBytes);
+        Utf8Text.Write(ref writer, ClanName, ClanWire.MaxClanNameBytes);
         Utf8Text.Write(ref writer, ChiefName, ClanWire.MaxNameBytes);
         return writer.Finish();
     }
@@ -167,7 +172,7 @@ public sealed record ClanInvitePacket(ulong RecruiterId, string ClanName, string
     {
         var reader = new PacketReader(packet, 8 + WireHeader.Size + 1 + 4);
         ClanWire.ReadHeader(ref reader);
-        return new ClanInvitePacket(reader.VarUInt(), ClanWire.Name(ref reader), ClanWire.Name(ref reader));
+        return new ClanInvitePacket(reader.VarUInt(), ClanWire.ClanName(ref reader), ClanWire.Name(ref reader));
     }
 }
 

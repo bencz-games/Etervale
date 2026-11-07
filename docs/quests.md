@@ -96,7 +96,8 @@ quest data the importer reads, and the client's quest dialog, quest window, clas
   Fury's level 118 form, 100 kills in the Galluvia valley (field 31), duels with the 119 and 120 forms; each win sends
   the player to Pillai; the reward is one of eleven weapons, any class's (their quest variants): the axe, talon,
   hammer, scythe, bow, sword, javelin and staff of level 100, then the Assassin's dagger, the Shaman's phantom and the
-  Martial Artist's vambrace.
+  Martial Artist's vambrace. The list carries their item codes (`QuestPrompt.ChoiceItems`); the server names them from
+  the player's language's catalog when it sends the prompt.
 - Wing exchange (`WingQuest`, an NPC with a warp gate service of value 0 or 1): the held wing (none, then metal up to
   chaos), two crystals and 3,000 to 80,000 gold for the next wing.
 - Elite chains (`EliteQuests`, `QuestCode.Elite106A`..`Elite114G`, completed in `EliteLog`): three chains of 6, 8 and 7

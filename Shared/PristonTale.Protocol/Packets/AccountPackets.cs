@@ -8,8 +8,8 @@ namespace PristonTale.Protocol.Packets;
 // of any message's layout raises both.
 public static class ProtocolVersion
 {
-    public const uint Current = 13;
-    public const uint Minimum = 13;
+    public const uint Current = 14;
+    public const uint Minimum = 14;
 }
 
 // Account messages: the server greets every connection, the client logs in, manages its characters and keeps the
@@ -106,11 +106,12 @@ public readonly record struct LoginResultPacket(LoginFailure Status)
     }
 }
 
-// One character of the account as character select shows it; item codes are 0 for an empty slot.
+// One character of the account as character select shows it; item codes are 0 for an empty slot, the clan name empty out
+// of a clan.
 public sealed record CharacterListEntry(string Name, PlayerClass Class, int Level, int Tier, int FaceIndex, int HairIndex, uint WeaponCode, uint ArmorCode,
-    uint OffHandCode, bool InVillage)
+    uint OffHandCode, bool InVillage, string ClanName = "")
 {
-    public const int MaxSize = 2 + AccountWire.MaxNameBytes + 4 + 4 + 4 + 12 + 4;
+    public const int MaxSize = 2 + AccountWire.MaxNameBytes + 4 + 4 + 4 + 12 + 4 + 2 + ClanWire.MaxClanNameBytes;
     private const byte VillageFlag = 1;
 
     public void Write(ref PacketWriter writer)
@@ -126,6 +127,7 @@ public sealed record CharacterListEntry(string Name, PlayerClass Class, int Leve
         writer.UInt32(ArmorCode);
         writer.UInt32(OffHandCode);
         writer.Zero(4);
+        Utf8Text.Write(ref writer, ClanName, ClanWire.MaxClanNameBytes);
     }
 
     public static CharacterListEntry Read(ref PacketReader reader)
@@ -141,13 +143,14 @@ public sealed record CharacterListEntry(string Name, PlayerClass Class, int Leve
         var armor = reader.UInt32();
         var offHand = reader.UInt32();
         reader.Skip(4);
-        return new CharacterListEntry(name, playerClass, level, tier, face, hair, weapon, armor, offHand, (flags & VillageFlag) != 0);
+        var clan = Utf8Text.Read(ref reader, ClanWire.MaxClanNameBytes, "Character list");
+        return new CharacterListEntry(name, playerClass, level, tier, face, hair, weapon, armor, offHand, (flags & VillageFlag) != 0, clan);
     }
 }
 
 // S->C {header, uint16 Version = 1, uint16 0, int32 Count, entries {text Name, uint32 Class, int32 Level, uint8 Tier,
-// Face, Hair, Flags (1 in a village), uint32 WeaponCode, ArmorCode, OffHandCode, uint32 0}}: after login and after each
-// change.
+// Face, Hair, Flags (1 in a village), uint32 WeaponCode, ArmorCode, OffHandCode, uint32 0, text ClanName}}: after login
+// and after each change.
 public sealed record CharacterListPacket(IReadOnlyList<CharacterListEntry> Characters)
 {
     public const int MaxCharacters = CharacterSlots.Maximum;

@@ -9,6 +9,7 @@ using PristonTale.Engine3D.IO;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Gameplay.Screens.Framework;
 using PristonTale.Gameplay.UI;
+using PristonTale.Gameplay.UI.Chat;
 using PristonTale.Gameplay.UI.Help;
 using PristonTale.Gameplay.UI.Inventory;
 using PristonTale.Gameplay.UI.Npc;
@@ -105,12 +106,27 @@ internal sealed class HudCaptureProbe : Game
     private const uint ResetterNpc = 15;
     private const uint ClanMasterNpc = 16;
 
+    private enum ProbePlates
+    {
+        None,
+        Compact,
+        Classic
+    }
+
+    // A clan mate and the target monster stand side by side in the middle of the frame.
+    private static HudOverheadPoint? PlateAnchor(ulong id) => id switch
+    {
+        4 => new HudOverheadPoint(new Vector2(300, 300), 1f),
+        2 => new HudOverheadPoint(new Vector2(500, 300), 1f),
+        _ => null
+    };
+
     private sealed record Scenario(string Name, int Width, int Height, Keys Panel = Keys.None, Hover Hover = Hover.None, int HealthPercent = 100,
         PlayerClass Class = PlayerClass.Mechanician, bool Npc = false, bool Settings = false, bool SystemMenu = false, bool Learned = false,
         bool Training = false, bool LowHealth = false, float Hour = 13, bool ClassicTarget = false, ulong Target = 2, ulong NpcId = SkillMasterNpc,
         int ServiceButton = -1, bool SellMode = false, int ServiceCount = 2, int RightSelect = -1, bool Buffs = false, bool Block = false,
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
-        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false);
+        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false, ProbePlates Plates = ProbePlates.None);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -143,6 +159,9 @@ internal sealed class HudCaptureProbe : Game
         new("inventory-1600x1200-scale2", 1600, 1200, Keys.I),
         new("inventory-1920", 1920, 1080, Keys.I),
         new("status-800", 800, 600, Keys.C),
+        new("status-clan-800", 800, 600, Keys.C, Clan: true),
+        new("plates-clan-800", 800, 600, Clan: true, Plates: ProbePlates.Compact),
+        new("plates-clan-classic-800", 800, 600, Clan: true, Plates: ProbePlates.Classic),
         new("status-arrow-hover-800", 800, 600, Keys.C, Hover.AllocateArrow),
         new("status-1280", 1280, 720, Keys.C),
         new("skills-800", 800, 600, Keys.S),
@@ -303,6 +322,8 @@ internal sealed class HudCaptureProbe : Game
         [
             new(1, EntityKind.Player, true, default, 0, MotionState.Stand, 64, 64,
                 new PlayerAppearanceInfo("Panzer", PlayerClass.Fighter, 0, 0, 0, "", "", 1), 0),
+            new(4, EntityKind.Player, false, default, 0, MotionState.Stand, 64, 64,
+                new PlayerAppearanceInfo("Panzer", PlayerClass.Mechanician, 0, 0, 0, "", "", 175) { ClanId = 7, ClanName = "GM" }, 0),
             new(2, EntityKind.Monster, false, default, 0, MotionState.Stand, 31, 50, null, 1, Level: 7),
             new(3, EntityKind.Npc, false, new System.Numerics.Vector3(center.X + 300, 0, center.Z - 200), 0, MotionState.Stand, 0, 0, null, 1,
                 Name: "Lena")
@@ -351,7 +372,12 @@ internal sealed class HudCaptureProbe : Game
             _hud.SummonAutomatic = code => code == MetalGolem ? true : null;
             _hud.PlayerDead = scenario.Dead;
             _hud.RestartOffer = scenario.Dead ? new PristonTale.Simulation.Progression.RestartOffer(scenario.FieldOpen, false, 0, 0) : null;
-            _presentation.Requested = _presentation.Requested with { ClassicTargetHealthBar = scenario.ClassicTarget };
+            _presentation.Requested = _presentation.Requested with
+            {
+                ClassicTargetHealthBar = scenario.ClassicTarget,
+                ClassicNamePlates = scenario.Plates == ProbePlates.Classic
+            };
+            _hud.Overhead = scenario.Plates == ProbePlates.None ? static _ => null : PlateAnchor;
             var state = ScenarioState(scenario);
             var layout = HudLayout.Create(scenario.Width, scenario.Height);
             _quest = scenario.Quest;

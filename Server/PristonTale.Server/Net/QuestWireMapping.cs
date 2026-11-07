@@ -1,6 +1,7 @@
 using PristonTale.Application.World;
 using PristonTale.Protocol.Packets;
 using PristonTale.Simulation.Quests;
+using PristonTale.Simulation.Items;
 
 namespace PristonTale.Server.Net;
 
@@ -10,15 +11,20 @@ internal static class QuestWireMapping
     public static QuestCommand ToCommand(QuestRequestPacket request) =>
         new(request.OperationId, request.NpcId, (QuestAction)request.Action, (QuestCode)request.Code, request.State, request.Choice);
 
-    public static QuestResultPacket ToResult(Guid operationId, QuestOutcome outcome) =>
+    public static QuestResultPacket ToResult(Guid operationId, QuestOutcome outcome, ItemCatalog items) =>
         new(operationId, (byte)outcome.Status, outcome.Ok, outcome.ClassChangeOffered, outcome.SkillResetOffered, outcome.Revision, outcome.Message,
-            ToPrompt(outcome.Prompt), ToNotices(outcome.Notices));
+            ToPrompt(outcome.Prompt, items), ToNotices(outcome.Notices));
 
-    public static QuestPromptEntry? ToPrompt(QuestPrompt? prompt) => prompt is null
+    // Item choices take their names from the player's language's catalog.
+    public static QuestPromptEntry? ToPrompt(QuestPrompt? prompt, ItemCatalog items) => prompt is null
         ? null
         : new QuestPromptEntry((ushort)prompt.Code, prompt.State, (byte)prompt.Followup, prompt.Choice, prompt.Document, prompt.Title,
-            prompt.ConfirmLine1, prompt.ConfirmLine2, prompt.ConfirmDetail, prompt.Subject, prompt.Choices.Take(QuestWire.MaxChoices).ToArray(),
+            prompt.ConfirmLine1, prompt.ConfirmLine2, prompt.ConfirmDetail, prompt.Subject, Choices(prompt, items),
             prompt.ChoiceDocuments.Take(QuestWire.MaxChoices).ToArray());
+
+    private static string[] Choices(QuestPrompt prompt, ItemCatalog items) => prompt.ChoiceItems.Count == 0
+        ? prompt.Choices.Take(QuestWire.MaxChoices).ToArray()
+        : prompt.ChoiceItems.Take(QuestWire.MaxChoices).Select(code => items.TryGet(code, out var item) ? item.Name : ItemCodes.KeyOf(code)).ToArray();
 
     public static QuestNoticeEntry[] ToNotices(IReadOnlyList<QuestNotice> notices) =>
         notices.Take(QuestWire.MaxNotices).Select(static notice => new QuestNoticeEntry((byte)notice.Kind, notice.Text)).ToArray();
@@ -31,7 +37,7 @@ internal static class QuestWireMapping
         entries.Take(max).Select(static entry => new QuestBoardLine(entry.Title, entry.Description)).ToArray();
 
     // Sends a snapshot's quest update: the journal first, then the notices and any dialog the world opened.
-    public static void Send(QuestUpdate? update, Action<Func<Span<byte>, int>, int> send)
+    public static void Send(QuestUpdate? update, ItemCatalog items, Action<Func<Span<byte>, int>, int> send)
     {
         if (update is null || update.IsEmpty)
         {
@@ -48,7 +54,7 @@ internal static class QuestWireMapping
         {
             var batch = update.Notices.Skip(offset).Take(QuestWire.MaxNotices).ToArray();
             var last = offset + QuestWire.MaxNotices >= update.Notices.Count;
-            var notices = new QuestNoticesPacket(ToNotices(batch), last ? ToPrompt(update.Prompt) : null);
+            var notices = new QuestNoticesPacket(ToNotices(batch), last ? ToPrompt(update.Prompt, items) : null);
             send(notices.Write, notices.Capacity);
         }
     }

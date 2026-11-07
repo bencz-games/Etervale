@@ -78,8 +78,14 @@ public sealed partial class GameplayHud
             bench.Sync(state);
         }
 
-        // A recipe placed in the manufacture window asks the server what it makes.
+        // A recipe placed in the manufacture window asks the server what it makes; taking it back and placing it again
+        // asks again (after a refused answer).
         _manufacture.Products = _services.Catalog;
+        if (_manufacture.Item == Guid.Empty)
+        {
+            _manufacture.ProductsFor = Guid.Empty;
+        }
+
         if (_manufacture.FullyOpen && _manufacture.Item != Guid.Empty && _manufacture.ProductsFor != _manufacture.Item
             && _services.Request(_services.NpcId, _services.NpcName, NpcServiceKind.Manufacture, NpcServiceAction.Refresh, itemId: _manufacture.Item))
         {
@@ -445,7 +451,18 @@ public sealed partial class GameplayHud
         }
     }
 
-    private bool BenchHolds(Guid id) => Array.Exists(_benches, bench => bench.Holds(id));
+    private bool BenchHolds(Guid id)
+    {
+        foreach (var bench in _benches)
+        {
+            if (bench.Holds(id))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     private void OpenBench(Action show)
     {

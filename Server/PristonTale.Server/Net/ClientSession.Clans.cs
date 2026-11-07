@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using PristonTale.Application.Clans;
 using PristonTale.Application.Sessions;
 using PristonTale.Protocol.Packets;
@@ -39,22 +40,33 @@ internal sealed partial class ClientSession
             return;
         }
 
+        // Every request is answered: the window waits for its result.
         var clans = _services.Clans;
-        var status = request.Action switch
+        ClanStatus status;
+        try
         {
-            ClanAction.Open => Open(session),
-            ClanAction.Found => await clans.FoundAsync(token, request.Id, request.Name),
-            ClanAction.Invite => await clans.InviteAsync(session.EntityId, request.Id),
-            ClanAction.Accept => await clans.AnswerAsync(session.EntityId, true),
-            ClanAction.Refuse => await clans.AnswerAsync(session.EntityId, false),
-            ClanAction.Leave => await clans.LeaveAsync(session.EntityId),
-            ClanAction.Expel => await clans.ExpelAsync(session.EntityId, request.Name),
-            ClanAction.Disband => await clans.DisbandAsync(session.EntityId),
-            ClanAction.Appoint => await clans.SetViceAsync(session.EntityId, request.Name, true),
-            ClanAction.Discharge => await clans.SetViceAsync(session.EntityId, request.Name, false),
-            ClanAction.Entrust => await clans.EntrustAsync(token, request.Id, request.Name),
-            _ => ClanStatus.Unavailable
-        };
+            status = request.Action switch
+            {
+                ClanAction.Open => Open(session),
+                ClanAction.Found => await clans.FoundAsync(token, request.Id, request.Name),
+                ClanAction.Invite => await clans.InviteAsync(session.EntityId, request.Id),
+                ClanAction.Accept => await clans.AnswerAsync(session.EntityId, true),
+                ClanAction.Refuse => await clans.AnswerAsync(session.EntityId, false),
+                ClanAction.Leave => await clans.LeaveAsync(session.EntityId),
+                ClanAction.Expel => await clans.ExpelAsync(session.EntityId, request.Name),
+                ClanAction.Disband => await clans.DisbandAsync(session.EntityId),
+                ClanAction.Appoint => await clans.SetViceAsync(session.EntityId, request.Name, true),
+                ClanAction.Discharge => await clans.SetViceAsync(session.EntityId, request.Name, false),
+                ClanAction.Entrust => await clans.EntrustAsync(token, request.Id, request.Name),
+                _ => ClanStatus.Unavailable
+            };
+        }
+        catch (Exception ex) when (ex is System.Data.Common.DbException or InvalidOperationException)
+        {
+            _services.Logger.LogWarning("Clan request {Action} from {Remote} failed: {Message}", request.Action, _connection.RemoteEndPoint, ex.Message);
+            status = ClanStatus.Unavailable;
+        }
+
         SendLarge(new ClanResultPacket(request.Action, (byte)status).Write, ClanResultPacket.Size);
     }
 

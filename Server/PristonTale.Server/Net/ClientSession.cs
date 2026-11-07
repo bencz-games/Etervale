@@ -731,7 +731,8 @@ internal sealed partial class ClientSession : IMovementVerdictSink
             outcome = QuestOutcome.Failed(ex is WorldBusyException ? QuestStatus.Busy : QuestStatus.StorageFailed, Refusal(ex));
         }
 
-        var result = QuestWireMapping.ToResult(request.OperationId, outcome);
+        var items = _services.LocalizedWorldData.Get(_session?.Language ?? CatalogLanguages.English, _services.WorldData.Current).Items;
+        var result = QuestWireMapping.ToResult(request.OperationId, outcome, items);
         SendLarge(result.Write, result.Capacity);
     }
 

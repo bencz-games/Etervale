@@ -39,6 +39,10 @@ public sealed partial class HudCombat
         // Set when the local player swings at it at all: its name box over the scene then carries the life bar.
         public bool Attacked { get; set; }
         public string OwnerLabel { get; set; }
+
+        // "[Clan]" over a player's name, formatted again only when its clan name changes.
+        public string ClanLabel { get; set; }
+        public string ClanLabelOf { get; set; }
     }
 
     private readonly Dictionary<ulong, Entity> _entities = new();
@@ -307,8 +311,20 @@ public sealed partial class HudCombat
 
     public long ClanOf(ulong id) => _entities.TryGetValue(id, out var entity) && entity.Spawn.Player is { } player ? player.ClanId : 0;
 
-    private string ClanLine(ulong id) =>
-        _entities.TryGetValue(id, out var entity) && entity.Spawn.Player is { ClanId: not 0, ClanName.Length: > 0 } player ? $"[{player.ClanName}]" : null;
+    private string ClanLine(ulong id)
+    {
+        if (!_entities.TryGetValue(id, out var entity) || entity.Spawn.Player is not { ClanId: not 0, ClanName.Length: > 0 } player)
+        {
+            return null;
+        }
+
+        if (!ReferenceEquals(entity.ClanLabelOf, player.ClanName))
+        {
+            (entity.ClanLabelOf, entity.ClanLabel) = (player.ClanName, $"[{player.ClanName}]");
+        }
+
+        return entity.ClanLabel;
+    }
 
     // A player's name while it is in view; null otherwise.
     public string PlayerName(ulong id) => _entities.TryGetValue(id, out var entity) && entity.Spawn.Player is { } player ? player.Name : null;

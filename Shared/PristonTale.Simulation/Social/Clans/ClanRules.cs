@@ -42,8 +42,11 @@ public static class ClanRules
     public const int FoundingLevel = 40;
     public const long EntrustCost = 300_000;
     public const int RegisteredMembers = 6;
-    public const long GraceSeconds = 10L * 24 * 3600;
-    public const long JoinCooldownSeconds = 4L * 24 * 3600;
+    public const long DaySeconds = 24 * 3600;
+    public const int GraceDays = 10;
+    public const long GraceSeconds = GraceDays * DaySeconds;
+    public const int JoinCooldownDays = 4;
+    public const long JoinCooldownSeconds = JoinCooldownDays * DaySeconds;
     public const int MinNameLength = 2;
     public const int MaxNameLength = 16;
     public const int MaxIntroLength = 80;
@@ -61,39 +64,14 @@ public static class ClanRules
 
     public static bool CanRecruit(ClanRank rank) => rank is ClanRank.Chief or ClanRank.Vice;
 
-    // The clan's state and deadline after its member count changed: six or more register it (no deadline); fewer start
+    // The clan's state and deadline once it counts this many members: six or more register it (no deadline); fewer start
     // the ten-day countdown unless one is running.
-    public static void Recount(Clan clan, long nowSeconds)
-    {
-        if (clan.Count >= RegisteredMembers)
-        {
-            clan.State = ClanState.Registered;
-            clan.DeadlineSeconds = 0;
-        }
-        else if (clan.DeadlineSeconds == 0)
-        {
-            clan.DeadlineSeconds = nowSeconds + GraceSeconds;
-        }
-    }
+    public static (ClanState State, long DeadlineSeconds) Counted(Clan clan, int count, long nowSeconds) =>
+        count >= RegisteredMembers ? (ClanState.Registered, 0)
+        : (clan.State, clan.DeadlineSeconds == 0 ? nowSeconds + GraceSeconds : clan.DeadlineSeconds);
 
     public static bool Expired(Clan clan, long nowSeconds) => clan.DeadlineSeconds != 0 && clan.DeadlineSeconds <= nowSeconds;
 
-    public static ClanStatus CheckFounding(int level, long money, string name)
-    {
-        if (level < FoundingLevel)
-        {
-            return ClanStatus.LevelTooLow;
-        }
-
-        if (!IsValidName(name))
-        {
-            return ClanStatus.NameInvalid;
-        }
-
-        return money < FoundingCost ? ClanStatus.NotEnoughGold : ClanStatus.Ok;
-    }
-
-    // A recruit for the clan: room under the chief's capacity.
     public static ClanStatus CheckRoom(Clan clan) => clan.Count >= clan.Capacity ? ClanStatus.ClanFull : ClanStatus.Ok;
 
     // The chief hands the clan to the member: registered clans only, to a member of at least the chief's level whose

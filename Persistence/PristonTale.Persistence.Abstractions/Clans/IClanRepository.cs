@@ -38,4 +38,7 @@ public interface IClanRepository
     Task<long> CooldownAsync(long characterId, CancellationToken ct = default);
 
     Task<bool> IsMemberAsync(long characterId, CancellationToken ct = default);
+
+    // The clan name of each of the account's characters that is in one, by character id.
+    Task<IReadOnlyDictionary<long, string>> ClanNamesAsync(long accountId, CancellationToken ct = default);
 }

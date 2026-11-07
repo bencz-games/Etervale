@@ -503,7 +503,7 @@ internal sealed class CharacterSelectScene
 
         var klass = _classRegistry.Get(summary.Class);
         var broodName = klass.Brood == CharacterBrood.Tempskron ? "Tempskron" : "Morion";
-        return new CharSelectInfo(summary.Name, summary.Level, broodName, klass.Name);
+        return new CharSelectInfo(summary.Name, summary.Level, broodName, klass.Name, summary.ClanName);
     }
 
     private int PickCharacter(Vector2 cursor, Viewport viewport, int count, Func<int, (float X, float Z)> positionOf)

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PristonTale.Gameplay.UI.Clans;
 
 namespace PristonTale.Gameplay.UI.Rendering;
 
@@ -24,6 +25,7 @@ public sealed class HudPainter : IDisposable
     private readonly Texture2D _white;
     private readonly Texture2D _nameBox;
     private readonly Texture2D _nameBoxHighlighted;
+    private readonly Texture2D _clanMark;
     private readonly List<TextRun> _text = new(128);
     private readonly float _textShift;
     private readonly float _capCropping;
@@ -40,6 +42,7 @@ public sealed class HudPainter : IDisposable
         _white.SetData([Color.White]);
         _nameBox = NameBoxTexture(batch.GraphicsDevice, new Color(170, 136, 65), new Color(98, 84, 48));
         _nameBoxHighlighted = NameBoxTexture(batch.GraphicsDevice, new Color(236, 200, 110), new Color(150, 120, 60));
+        _clanMark = ClanMarks.Default(batch.GraphicsDevice);
         _capCropping = font.GetGlyphs().TryGetValue('M', out var glyph) ? glyph.Cropping.Y : CapTop / TextScale;
         _textShift = MathF.Round(CapTop - _capCropping * TextScale);
     }
@@ -141,6 +144,8 @@ public sealed class HudPainter : IDisposable
             Stretch(path, destination, null, new Color(amount, amount, amount, 0));
         }
     }
+
+    public void ClanMark(int x, int y) => _batch.Draw(_clanMark, new Vector2(x, y), Color.White);
 
     public void Image(Texture2D texture, Rectangle destination, Color? tint = null)
     {
@@ -497,5 +502,6 @@ public sealed class HudPainter : IDisposable
         _white.Dispose();
         _nameBox.Dispose();
         _nameBoxHighlighted.Dispose();
+        _clanMark.Dispose();
     }
 }

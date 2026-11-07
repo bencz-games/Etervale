@@ -83,12 +83,6 @@ public static class QuestTexts
 
     public static GameText ClassTitle(PlayerClass playerClass, int tier) => GameText.Of(GameTextId.ClassTitle, Number((int)playerClass), Number(tier));
 
-    public static readonly string[] FuryRewardNames =
-    [
-        "Minotaur Axe", "Extreme Talon", "Dragon Bone Hammer", "Hellfire Scythe", "Revenge Bow", "Immortal Sword", "Salamander Javelin",
-        "Gothic Staff", "Enigma Dagger", "Kahsehtha Phantom", "Arina Vambrace"
-    ];
-
     private static (GameText, GameText) Lines(GameTextId first, GameTextId second) => (GameText.Of(first), GameText.Of(second));
 
     private static string Number(int value) => value.ToString(CultureInfo.InvariantCulture);

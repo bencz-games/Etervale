@@ -75,7 +75,7 @@ to `PristonTale.Tests`. No sockets, packets, SQL or MonoGame.
 | Service and method | Contract |
 | --- | --- |
 | `AuthAppService.LoginAsync` | Empty input, unknown account, wrong password: `BadCredentials` (-2); blocked: `LoginDenied` (-24). Values are wire codes. Success returns a token. |
-| `CharacterAppService.ListCharactersAsync` | Summaries with armour/weapon/off-hand catalog keys and `InVillage`; throws `InvalidDataException` on corrupt saved equipment |
+| `CharacterAppService.ListCharactersAsync` | Summaries with armour/weapon/off-hand catalog keys, `InVillage` and the clan's name (`IClanRepository.ClanNamesAsync`); throws `InvalidDataException` on corrupt saved equipment |
 | `CharacterAppService.CreateCharacterAsync` | Trimmed name 3-16, defined class, valid face, unique name, `CharacterSlots.Maximum` per account, first free slot, starter record in its class's town (`DeathPenalty.TownField`: Ricarten for the Tempskron classes and the assassin, Pillai for the Morion classes) |
 | `CharacterAppService.DeleteCharacterAsync` | Account-scoped delete by name. |
 | `SessionAppService.EnterWorldAsync` | Load record, validate field and class, claim the character, `CharacterStateCodec.Restore`, clamp resources, resolve spawn, mark ready |
@@ -471,7 +471,7 @@ Flow (`NpcAppService.RequestAsync`):
 | Quest giver, quest script, wing exchange (warp gate 0 or 1) | (dialog only here) | Answered by `QuestAppService` talks, see [quests.md](quests.md) |
 | Aging, mixing and alchemy | Open, Age / Mix / Refine, Close | `AgingWork`, `MixingWork`, see [world.md](world.md) |
 | Smelting | Open, Smelt, Close | `SmeltingWork`: three ores or crystals of one colour and their sheltom, 25,000 or 50,000 gold |
-| Manufacture | Open, Refresh (the recipe's products), Manufacture, Close | `ManufactureWork`: a recipe and its three runes, half the attempts succeed, a third of the product's price |
+| Manufacture | Open, Refresh (the recipe's products), Manufacture, Close | `ManufactureWork`: a recipe and its three runes, half the attempts succeed; the fee is a third of the dearest candidate product's price, and gold, bag room and weight for every candidate are checked before the product is drawn, so no refusal follows a roll |
 | Mixture reset | Open, ResetMix, Close | `MixtureReset`: a mixed item and the reset stone, remade under its identity |
 | Mobile shop | NPC id 0: Open, Refresh, Sell, Repair, RepairAll, Close | `MobileShopTransactions`: only after a used mobile shop item (`PlayerSession.MobileShopOpen`), no stock |
 
@@ -614,21 +614,26 @@ refused ([chat-and-gm.md](chat-and-gm.md)). The recent players are the client's
 
 The clans live on the game server (`ClanAppService`, rules in `ClanRules`, [simulation.md](simulation.md); storage
 `IClanRepository`, [persistence.md](persistence.md)). `ClanService` reads them before the game server opens (a failure
-leaves the service unavailable, refusing every request) and dissolves those past their deadline once a minute. The
-service keeps them in memory and runs one change at a time, stored before it applies (a refused storage changes nothing
-and answers "The clan service is unavailable"); the chat reads `ClanOf` without waiting (clan chat, `IClanRoster`).
+leaves the service unavailable, refusing every request) and dissolves those past their deadline once a minute (and
+forgets invitations nobody answered). The service keeps them in memory and runs one change at a time under its gate,
+stored before it applies (a refused storage, a database error or a busy world changes nothing and answers "The clan
+service is unavailable"; every `ClanRequest` gets its `ClanResult`). Clans change under a short state lock that is never
+held across a wait: world entry, departure and the Clan Master's view take only that lock, so a slow database never holds
+them. The chat reads `ClanOf` without waiting (clan chat, `IClanRoster`). An online member's level is its character's
+live level (views, the chief's capacity, entrusting).
 
-- A player entering the world attaches a link (`IClanLink`): its clan's member row takes its name, class and level, it
-  gets its clan's view (`ClanState`) and its tag (`WorldPlayer.Clan`: id, name, mark version, part of its looks and of
-  `EntityDescription`). Leaving the world detaches it and the clan sees it offline.
+- A player entering the world attaches a link (`IClanLink`): it gets its clan's view (`ClanState`) and its tag
+  (`WorldPlayer.Clan`: id, name, mark version, part of its looks and of `EntityDescription`), and its clan sees it
+  online. Leaving the world detaches it, drops its invitation, and the clan sees it offline.
 - Founding (`FoundAsync`, at a Clan Master): not in a clan nor in a join cooldown, no other chief on the account, a free
   valid name; the world checks reach, level 40 and 500,000 gold (`PrepareClanPaymentAsync`) and the clan row is stored
   with the paying character (`DurableOperations`). The clan starts registering with a ten-day deadline.
 - Invitations: the chief or vice asks an online player without a clan (room under the chief's capacity, no cooldown);
-  the invitation lasts 30 seconds; a yes joins (checked again), a no tells the recruiter. Six members register the clan.
+  the invitation lasts 30 seconds; a yes joins (checked again, the recruiter still chief or vice), a no tells the
+  recruiter. Six members register the clan.
 - The chief appoints or discharges the one vice chief, expels members (online or not), hands the clan to a member at a
-  Clan Master (registered clans only, a member of at least his level whose capacity holds the clan, 300,000 gold stored
-  with the character) and disbands it; members leave (the chief cannot). Below six members a registered clan gets ten
+  Clan Master (registered clans only, a member of at least his level whose capacity holds the clan and whose account
+  leads no other clan, 300,000 gold stored with the character) and disbands it; members leave (the chief cannot). Below six members a registered clan gets ten
   days; a passed deadline dissolves the clan, and its members cannot join one for four days.
 - Every change sends each online member the clan's view and a line in the chat (joined, left, expelled, registered,
   below six, chief changed, vice appointed or discharged, disbanded). A character in a clan cannot be deleted.

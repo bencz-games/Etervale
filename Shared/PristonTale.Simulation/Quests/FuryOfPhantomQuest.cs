@@ -75,7 +75,7 @@ public static class FuryOfPhantomQuest
             12 => new QuestPrompt(Code, 12, "100LVQuest_7End", QuestFollowup.ChooseFromList)
             {
                 Title = QuestTexts.FuryTitle,
-                Choices = QuestTexts.FuryRewardNames,
+                ChoiceItems = RewardWeapons,
                 ChoiceDocuments = RewardDocuments
             },
             _ => Reward(active.Variant)
@@ -91,7 +91,7 @@ public static class FuryOfPhantomQuest
         Title = QuestTexts.FuryTitle,
         ConfirmLine1 = QuestTexts.ReceiveItem.Item1,
         ConfirmLine2 = QuestTexts.ReceiveItem.Item2,
-        Choices = QuestTexts.FuryRewardNames,
+        ChoiceItems = RewardWeapons,
         ChoiceDocuments = RewardDocuments,
         Choice = Math.Clamp(choice, 1, RewardDocuments.Length)
     };

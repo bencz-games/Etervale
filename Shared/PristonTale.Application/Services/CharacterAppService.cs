@@ -39,10 +39,12 @@ public sealed class CharacterAppService
         var session = Authenticate(sessionToken);
 
         var rows = await _characters.ListByAccountAsync(session.AccountId, ct);
+        var clans = _clans is null ? null : await _clans.ClanNamesAsync(session.AccountId, ct);
         var summaries = new List<CharacterSummary>(rows.Count);
         foreach (var row in rows)
         {
-            summaries.Add(BuildSummary(row));
+            var summary = BuildSummary(row);
+            summaries.Add(clans is not null && clans.TryGetValue(row.Id, out var clan) ? summary with { ClanName = clan } : summary);
         }
 
         return summaries;

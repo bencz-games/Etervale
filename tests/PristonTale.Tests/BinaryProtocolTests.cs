@@ -111,7 +111,7 @@ internal static class BinaryProtocolTests
             "login result lost its status");
 
         var entry = new CharacterListEntry("Álvaro", PlayerClass.Knight, 42, 1, 2, 1, 0x01010300, 0x02010100, 0, true);
-        var list = new CharacterListPacket([entry, entry with { Name = "Beta", InVillage = false }]);
+        var list = new CharacterListPacket([entry, entry with { Name = "Beta", InVillage = false, ClanName = "Leões" }]);
         var read = CharacterListPacket.Read(buffer.AsSpan(0, list.Write(buffer)));
         Assert.True(read.Characters.SequenceEqual(list.Characters), "character list round trip changed fields");
         Assert.True(CharacterListPacket.Read(buffer.AsSpan(0, new CharacterListPacket([]).Write(buffer))).Characters.Count == 0, "an empty list did not read back");

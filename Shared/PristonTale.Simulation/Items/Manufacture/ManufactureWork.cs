@@ -56,9 +56,9 @@ public static class ManufactureWork
     // A rune's number (PR3nn or PR4nn) and whether it is a B rune; 0 for anything else.
     public static int RuneOf(string key, out bool b)
     {
-        b = key is { Length: 5 } && key.StartsWith("PR4", StringComparison.OrdinalIgnoreCase);
-        var a = key is { Length: 5 } && key.StartsWith("PR3", StringComparison.OrdinalIgnoreCase);
-        return (a || b) && int.TryParse(key.AsSpan(3), out var number) && number is >= 1 and <= 14 ? number : 0;
+        var colour = CraftMaterials.Colour(CraftMaterials.RuneB, key);
+        b = colour > 0;
+        return b ? colour : CraftMaterials.Colour(CraftMaterials.RuneA, key);
     }
 
     // What the recipe makes from the rune combination; every candidate when the combination picks one at random, none
@@ -117,7 +117,9 @@ public static class ManufactureWork
         return combination;
     }
 
-    // The runes come in slot order.
+    // The runes come in slot order. Everything a draw could decide is settled before it, so a refusal never follows a roll:
+    // the fee is the dearest candidate's, and every candidate must fit the bag and the weight once the recipe and runes are
+    // spent. Then the product is drawn and the success rolled.
     public static NpcServiceStatus TryManufacture(PlayerCharacter candidate, Guid recipeId, IReadOnlyList<Guid> runes, ItemCatalog items,
         ISimRng rng, out ItemWorkResult work, out long fee)
     {
@@ -138,6 +140,7 @@ public static class ManufactureWork
         }
 
         var keys = new List<string>(Runes);
+        var spentWeight = CarriedWeight.Of(inventory[recipeAt]!);
         foreach (var id in runes)
         {
             var at = inventory.Find(id);
@@ -147,18 +150,18 @@ public static class ManufactureWork
             }
 
             keys.Add(rune.Definition.CatalogKey);
+            spentWeight += CarriedWeight.Of(rune);
         }
 
         var products = Products(recipe, armour, Combination(recipe, keys), candidate.Class.Class)
-            .Where(key => items.TryGet(ItemCodes.Parse(key), out _)).ToArray();
+            .Select(key => items.TryGet(ItemCodes.Parse(key), out var definition) ? definition : null).OfType<ItemDefinition>().ToArray();
         if (products.Length == 0)
         {
             return NpcServiceStatus.WrongMaterials;
         }
 
-        items.TryGet(ItemCodes.Parse(products[products.Length == 1 ? 0 : rng.NextExclusive(0, products.Length)]), out var made);
-        fee = Fee(made);
-        if (!candidate.TryChangeMoney(-fee))
+        fee = products.Max(Fee);
+        if (candidate.Money < fee)
         {
             return NpcServiceStatus.NotEnoughGold;
         }
@@ -168,6 +171,19 @@ public static class ManufactureWork
         {
             inventory.ConsumeAt(inventory.Find(id));
         }
+
+        if (products.Any(product => !inventory.HasRoom(product.GridWidth, product.GridHeight)))
+        {
+            return NpcServiceStatus.NoSpace;
+        }
+
+        if (!CarriedWeight.CanTake(candidate, products.Max(static product => CarriedWeight.Of(product, 1)) - spentWeight))
+        {
+            return NpcServiceStatus.OverWeight;
+        }
+
+        candidate.TryChangeMoney(-fee);
+        var made = products[products.Length == 1 ? 0 : rng.NextExclusive(0, products.Length)];
 
         if (rng.NextExclusive(0, 100) >= SuccessPercent)
         {

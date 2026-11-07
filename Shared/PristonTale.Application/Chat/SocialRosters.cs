@@ -10,7 +10,7 @@ public interface IPartyRoster
 // The clan a player belongs to, for clan chat; 0 when the player has no clan.
 public interface IClanRoster
 {
-    uint ClanOf(ulong entityId);
+    long ClanOf(ulong entityId);
 }
 
 // Used while the server runs no clan system: nobody has a clan, so clan lines are not accepted.
@@ -18,5 +18,5 @@ public sealed class NoClans : IClanRoster
 {
     public static readonly NoClans Instance = new();
 
-    public uint ClanOf(ulong entityId) => 0;
+    public long ClanOf(ulong entityId) => 0;
 }

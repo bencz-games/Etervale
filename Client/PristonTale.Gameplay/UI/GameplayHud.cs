@@ -363,6 +363,7 @@ public sealed partial class GameplayHud : IDisposable
         closed |= _itemUse.Teleport.IsOpen || _itemUse.Confirming || _puzzle.Confirming || _crystalDismiss.Confirming || _wingGate.IsOpen || _wingGate.Confirming
             || _helpWindow.IsOpen;
         _helpWindow.Close();
+        _clanWindow.Close();
         _itemUse.Close();
         _wingGate.Close();
         _puzzle.Close();
@@ -662,6 +663,7 @@ public sealed partial class GameplayHud : IDisposable
 
         if (_statusSlide.Visible)
         {
+            _status.ClanName = Clan.Name;
             _status.Draw(_painter, PanelOrigin(layout, _statusSlide), _state, pointer, pressed, _statusSlide.FullyOpen);
         }
 

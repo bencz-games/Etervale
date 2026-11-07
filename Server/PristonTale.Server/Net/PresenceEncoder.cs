@@ -444,7 +444,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
 
     // Its own method: a lambda capturing the connection in EncodeLocked would allocate a closure on every encode.
     private void SendQuest(QuestUpdate quest, IPacketSink connection) =>
-        QuestWireMapping.Send(quest, (write, capacity) => SendSized(connection, write, capacity));
+        QuestWireMapping.Send(quest, LocalizedData.Items, (write, capacity) => SendSized(connection, write, capacity));
 
     private void SendEventsOnly(in WorldSnapshot snapshot, IPacketSink connection)
     {

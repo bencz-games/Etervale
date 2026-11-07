@@ -32,8 +32,7 @@ public sealed class HudMixtureResetWindow : HudWorkbench
 
     public static bool Resettable(OwnedItemView item) => item?.Details is { MixSheltom: > 0 };
 
-    protected override Rectangle StoneBounds(Point origin) =>
-        new(origin.X + StoneCell.X, origin.Y + StoneCell.Y, HudGridPlacement.CellSize, HudGridPlacement.CellSize);
+    protected override Rectangle StoneBounds(Point origin) => HudCraftLayout.Cell(origin, StoneCell);
 
     protected override int SlotAt(Point origin, Point pointer) => -1;
 

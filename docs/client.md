@@ -98,7 +98,8 @@ OpeningScreen --login ok--> CharacterSelectScreen --enter world ok--> GameplaySc
   succeeded or the connection closed) the controller first calls `ScreenContext.RenewBackend`: `GameClient` installs a
   new `GameServerConnection` and disposes the old one off the game thread.
 - `CharacterSelectScreen`: sub-states `CharacterSelect`, `RaceSelect`, `JobSelect`, `FaceSelect`, `Name`. The roster
-  shows each character in its armour, empty-handed. `CharacterSelectCamera` dollies along the original's rail (300 to
+  shows each character in its armour, empty-handed; the hovered one's box lists name, level, tribe and class, with its
+  clan on a line above them for a character in one (the list's `ClanName`). `CharacterSelectCamera` dollies along the original's rail (300 to
   720 units per sub-state) with its vertical angle of pi / 4.4, whatever the settings' field of view; the stage is lit by
   an even ambient only, without lamps (`ConfigureLighting`). While a
   `Busy` operation (roster load, roster/job actor preparation, enter, delete, create) runs, input is ignored and
@@ -543,7 +544,7 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
 - Premium timers (`HudPremiumTimers`) form the column at x 8 under the running-effects bar; usable items have their
   own tooltips (`HudUsableTooltip`). Details: [special-items.md](special-items.md).
 - Status window: attribute buttons send `ProgressionCommand` with `ProgressionRevision`; the organic, poison, fire,
-  lightning and ice resistance boxes show the owner's resistances.
+  lightning and ice resistance boxes show the owner's resistances; the Clan box shows the owner's clan mark and name.
 - Block feedback (`HudStringEffect`): when the player blocks a blow, the original `block.tga` word shows at (354, 488)
   of the 800x600 frame, opaque for 26 interface frames at 70 per second, then fades by 10 alpha per frame while it
   grows 3 pixels and drifts up-left.
@@ -643,7 +644,8 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   a monster's only while hovered or the clicked target (`TargetSelection.HoveredId`, `TracedId`), in (255, 210, 210),
   or (255, 230, 200) when clicked. Another player's box shows while hovered or clicked, a clan mate's always
   (`HudCombat.OwnClan`, the player's `ClanId` in its looks); a player's clan is a "[Clan]" line over its name in
-  (150, 255, 200) (`HudNameColors.Clan`), for another clan only while hovered or clicked, as in the original. A summon or crystal pet's box shows within the NPC range in (220, 255, 160), with
+  (150, 255, 200) (`HudNameColors.Clan`) after its 16x16 mark (`ClanMarks`: every clan shows the default crest until
+  marks can be uploaded), for another clan only while hovered or clicked, as in the original. A summon or crystal pet's box shows within the NPC range in (220, 255, 160), with
   its owner's name in parentheses on a second line in (255, 255, 200) (the box grows upwards); the viewer's own also
   carries the life bar. Farther boxes draw first, the hovered and clicked ones last; a box that would leave
   the screen is skipped. Every box is `HudPainter.NameBox`: the speech bubble's dark translucent fill and gold rim (its
@@ -721,7 +723,7 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
     OK or cancel and closes after 20 s; a request is not shown while the warehouse is open.
   - A click on another player (not selling) approaches it as an NPC; once reached, its portrait shows the trade, party
     and friend buttons (`HudPlayerButtons`, on `cw-1.tga`) instead of the life bar while it stays the target within
-    `TradeLimits.Reach`. Trade asks it to trade, party to group; friend puts it on the friends list and opens the
+    `TradeLimits.Reach`; the hovered button's tip shows 60 px to its left and 18 px below it, clear of the cursor. Trade asks it to trade, party to group; friend puts it on the friends list and opens the
     friends page there. A clan chief or vice chief beside a player without a clan also gets the clan invitation
     (`icon_clan.bmp`, tip `ButtonInfo-c10.bmp`): the box widens to 120 px and the four buttons start 10 px further left.
   - Clans (`GameplayHud.Clans.cs`, `GameScene.Clans.cs`): an invitation opens the party's request box (30 s) with the
@@ -730,8 +732,10 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
     days) and "Form a clan", then the name typed (Enter or Confirm sends `Found`); with one the state (registered, or
     days and hours left to reach six members), members of capacity and the members (chief and vice first, green online,
     grey offline), with Leave for members and Expel, Appoint or Discharge vice, Entrust and Disband for the chief. Expel,
-    appoint and entrust pick a member from the list; every action asks yes or no first and waits for its `ClanResult`;
-    the `ClanState` that follows replaces the view. Refusals come as chat lines.
+    appoint and entrust pick a member from the list; every action asks yes or no first and waits for its own
+    `ClanResult` (OK and Escape still close the window meanwhile); the `ClanState` that follows replaces the view.
+    Refusals come as chat lines. The founding text's numbers come from `ClanRules`; the rows are built again only when
+    the page, the typed name or the clan changes.
   - The party window has two tabs at (60, 2) and (120, 2): the party and the friends page (`HudFriendsPage`, art
     `HudContactArt`, title `title-NoClan_chatting.tga`; `GameplayHud.Contacts.cs`, `GameScene.Contacts.cs` as
     `IContactClient`). Its buttons at (85, 220) show the recent players, the friends (an online or offline mark each,

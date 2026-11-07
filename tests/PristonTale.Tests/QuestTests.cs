@@ -478,9 +478,12 @@ internal static class QuestTests
         }
 
         var list = Talk(hero, npc).Prompt;
-        Assert.True(list is { State: 12, Followup: QuestFollowup.ChooseFromList } && list.Choices.Count == 11 && list.ChoiceDocuments.Count == 11
-            && list.Choices[10] == "Arina Vambrace" && list.ChoiceDocuments[10] == "haQuestFuryItem11",
+        Assert.True(list is { State: 12, Followup: QuestFollowup.ChooseFromList } && list.ChoiceItems.Count == 11 && list.ChoiceDocuments.Count == 11
+            && list.ChoiceItems[10] == Simulation.Items.ItemCodes.Parse("WV121") && list.ChoiceDocuments[10] == "haQuestFuryItem11",
             "the reward list differs");
+        var named = new Simulation.Items.ItemCatalog([Persistence.Abstractions.WorldData.WorldDataFactory.ToItemDefinition(ItemRecords.Blank("WV121") with { Name = "Braçal" })]);
+        Assert.True(Server.Net.QuestWireMapping.ToPrompt(list, named) is { Choices: [.., "Braçal"] } entry && entry.Choices[0] == "WA120",
+            "the rewards were not named from the player's language's catalog");
         var chosen = Expect(hero, npc, QuestAction.ChooseReward, QuestCode.FuryOfPhantom, 12, "choosing a reward failed", choice: 3);
         Assert.True(chosen.Prompt is { State: 13, Followup: QuestFollowup.ConfirmChoice, Choice: 3 } && hero.Quests.Active.Variant == 3,
             "the chosen reward dialog differs");

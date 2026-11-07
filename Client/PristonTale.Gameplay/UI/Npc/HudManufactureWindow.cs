@@ -18,6 +18,8 @@ public sealed class HudManufactureWindow : HudWorkbench
     // The products of the recipe the server last listed, and the recipe they belong to.
     public IReadOnlyList<ShopOffer> Products { get; set; } = [];
 
+    private readonly string[] _runeKeys = new string[ManufactureWork.Runes];
+
     public Guid ProductsFor { get; set; }
 
     public override NpcServiceKind Service => NpcServiceKind.Manufacture;
@@ -36,22 +38,22 @@ public sealed class HudManufactureWindow : HudWorkbench
 
     public override bool Succeeded(int result) => (ManufactureResult)result == ManufactureResult.Made;
 
-    public override bool Ready(OwnerState state) => Chosen(state).Count > 0;
+    public override bool Ready(OwnerState state) => Chosen(state, out _, out _) > 0;
 
-    // The fee of the item the runes pick; for a random pick the highest of its candidates.
-    public override long Price(OwnerState state) => Chosen(state) is { Count: > 0 } chosen ? chosen.Max(static offer => offer.Price) : 0;
+    // The fee of the item the runes pick; for a random pick the highest of its candidates, as the server charges.
+    public override long Price(OwnerState state) => Chosen(state, out _, out var fee) > 0 ? fee : 0;
 
     protected override Rectangle SlotBounds(Point origin, int slot) =>
-        slot < RuneCells.Length ? Cell(origin, RuneCells[slot]) : Rectangle.Empty;
+        slot < RuneCells.Length ? HudCraftLayout.Cell(origin, RuneCells[slot]) : Rectangle.Empty;
 
-    protected override int SlotAt(Point origin, Point pointer) => Array.FindIndex(RuneCells, cell => Cell(origin, cell).Contains(pointer));
+    protected override int SlotAt(Point origin, Point pointer) => HudCraftLayout.CellAt(origin, RuneCells, pointer);
 
     protected override string PlaceItem(OwnedItemView item, Point origin, Point pointer, OwnerState state)
     {
         var key = item.CatalogKey;
         if (ManufactureWork.RecipeOf(key, out _) > 0)
         {
-            if (Slots.Any(static id => id != Guid.Empty))
+            if (AnySlot())
             {
                 return ClientText.Get("Manufacture.RunesPlaced");
             }
@@ -88,9 +90,9 @@ public sealed class HudManufactureWindow : HudWorkbench
         painter.Sprite(HudCraftArt.ManufactureTitle, title.X, title.Y);
         var panel = HudCraftLayout.Panel(origin);
         painter.Sprite(HudCraftArt.ManufacturePanel, panel.X, panel.Y);
-        if (Chosen(state) is { Count: > 0 } chosen)
+        if (Chosen(state, out var first, out _) is var count and > 0)
         {
-            var name = chosen.Count == 1 ? chosen[0].Name : ClientText.Get("Manufacture.Random");
+            var name = count == 1 ? first.Name : ClientText.Get("Manufacture.Random");
             var box = ItemBounds(origin);
             painter.TextCentered(painter.Fit(name, 110), box.Center.X - 55, box.Center.X + 55, box.Bottom + 6);
         }
@@ -114,7 +116,7 @@ public sealed class HudManufactureWindow : HudWorkbench
         var box = ItemBounds(origin);
         if (box.Contains(pointer))
         {
-            var fits = ManufactureWork.RecipeOf(key, out _) > 0 && !Slots.Any(static id => id != Guid.Empty);
+            var fits = ManufactureWork.RecipeOf(key, out _) > 0 && !AnySlot();
             painter.Fill(box, fits ? HudPlacementColors.Fits : HudPlacementColors.Blocked);
         }
     }
@@ -134,30 +136,38 @@ public sealed class HudManufactureWindow : HudWorkbench
     private int Recipe(OwnerState state) =>
         MainItem(state) is { } recipe ? ManufactureWork.RecipeOf(recipe.CatalogKey, out _) : 0;
 
-    // The products the three placed runes pick from the listed ones; none until all three are placed.
-    private IReadOnlyList<ShopOffer> Chosen(OwnerState state)
+    // How many listed products the three placed runes pick from (none until all three are placed), the first of them and
+    // the dearest fee among them.
+    private int Chosen(OwnerState state, out ShopOffer first, out long fee)
     {
+        (first, fee) = (default, 0);
         var recipe = Recipe(state);
         if (recipe == 0 || ProductsFor != ItemId)
         {
-            return [];
+            return 0;
         }
 
-        var keys = new List<string>(ManufactureWork.Runes);
         for (var slot = 0; slot < ManufactureWork.Runes; slot++)
         {
             if (OwnedItemView.Find(state.Items, Slots[slot]) is not { } rune)
             {
-                return [];
+                return 0;
             }
 
-            keys.Add(rune.CatalogKey);
+            _runeKeys[slot] = rune.CatalogKey;
         }
 
-        var combination = ManufactureWork.Combination(recipe, keys);
-        return [.. Products.Where(offer => offer.Ordinal == combination)];
-    }
+        var combination = ManufactureWork.Combination(recipe, _runeKeys);
+        var count = 0;
+        for (var index = 0; index < Products.Count; index++)
+        {
+            if (Products[index] is var offer && offer.Ordinal == combination)
+            {
+                first = count++ == 0 ? offer : first;
+                fee = Math.Max(fee, offer.Price);
+            }
+        }
 
-    private static Rectangle Cell(Point origin, Point cell) =>
-        new(origin.X + cell.X, origin.Y + cell.Y, HudGridPlacement.CellSize, HudGridPlacement.CellSize);
+        return count;
+    }
 }

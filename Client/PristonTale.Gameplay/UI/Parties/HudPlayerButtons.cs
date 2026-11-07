@@ -14,7 +14,7 @@ public enum HudPlayerButton
 
 // The buttons under another player's portrait once the local player reached it, as the original's trade, party and friend
 // requests: cw-1.tga (100x50) from 50 px left of the portrait's centre and 6 px above its bottom, the 20x20 buttons from
-// 36 px left of the centre at 25 px steps along the bottom, the hovered one's tip 60 px to its left. A clan chief or vice
+// 36 px left of the centre at 25 px steps along the bottom, the hovered one's tip 60 px to its left and 18 px below it. A clan chief or vice
 // chief beside a player without a clan also gets the clan invitation: the box widens to 120 px from 60 px left of the
 // centre and the four buttons start 10 px further left. The portrait shows no life bar while they do.
 public static class HudPlayerButtons
@@ -55,7 +55,7 @@ public static class HudPlayerButtons
         if (hovered is { } tip)
         {
             var bounds = Button(frame, tip, clan);
-            painter.Sprite(HudPartyArt.PlayerTips[(int)tip], bounds.X - 60, bounds.Y + 1);
+            painter.Sprite(HudPartyArt.PlayerTips[(int)tip], bounds.X - 60, bounds.Y + 18);
         }
     }
 

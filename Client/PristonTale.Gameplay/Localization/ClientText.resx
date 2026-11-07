@@ -60,7 +60,7 @@
   <data name="Clan.ConfirmEntrust" xml:space="preserve"><value>Entrust the clan to {0} for 300,000 gold? You will become a member.</value></data>
   <data name="Clan.ConfirmExpel" xml:space="preserve"><value>Do you wish to expel {0} from the clan?</value></data>
   <data name="Clan.ConfirmLeave" xml:space="preserve"><value>Do you wish to leave the clan {0}?</value></data>
-  <data name="Clan.Cost" xml:space="preserve"><value>Forming a clan costs 500,000 gold and needs level 40.</value></data>
+  <data name="Clan.Cost" xml:space="preserve"><value>Forming a clan costs {0} gold and needs level {1}.</value></data>
   <data name="Clan.Count" xml:space="preserve"><value>Members: {0} of {1}</value></data>
   <data name="Clan.Disband" xml:space="preserve"><value>Disband</value></data>
   <data name="Clan.Discharge" xml:space="preserve"><value>Discharge vice</value></data>
@@ -75,7 +75,7 @@
   <data name="Clan.RankVice" xml:space="preserve"><value>(vice)</value></data>
   <data name="Clan.Registered" xml:space="preserve"><value>The clan is officially registered.</value></data>
   <data name="Clan.Registering" xml:space="preserve"><value>Registering: {0} days and {1} hours left to reach 6 members.</value></data>
-  <data name="Clan.Requirements" xml:space="preserve"><value>To be officially registered, a clan needs 6 members (the chief included) within 10 days, or it is cancelled. A registered clan that falls below 6 members has 10 days to recruit again before it is disbanded.</value></data>
+  <data name="Clan.Requirements" xml:space="preserve"><value>To be officially registered, a clan needs {0} members (the chief included) within {1} days, or it is cancelled. A registered clan that falls below {0} members has {1} days to recruit again before it is disbanded.</value></data>
   <data name="Clan.Title" xml:space="preserve"><value>Clan Master</value></data>
   <data name="Clan.TypeName" xml:space="preserve"><value>Type your clan name (2 to 16 letters, digits, spaces, '-' or '_') and press Enter.</value></data>
   <data name="Clan.Yes" xml:space="preserve"><value>Yes</value></data>
@@ -116,22 +116,23 @@
   <data name="Game.CharacterBusy" xml:space="preserve"><value>A save or another character operation is pending; try again</value></data>
   <data name="Game.CharacterUnchanged" xml:space="preserve"><value>Storage rejected the operation; character unchanged</value></data>
   <data name="Game.ClanAlreadyInClan" xml:space="preserve"><value>You are already in a clan.</value></data>
-  <data name="Game.ClanBelowSix" xml:space="preserve"><value>The clan has fewer than 6 members. Recruit more within {0} days or it will be disbanded.</value></data>
+  <data name="Game.ClanBelowSix" xml:space="preserve"><value>The clan has fewer than {1} members. Recruit more within {0} days or it will be disbanded.</value></data>
+  <data name="Game.ClanBusy" xml:space="preserve"><value>Close your trade or your personal shop first.</value></data>
   <data name="Game.ClanCapacityTooLow" xml:space="preserve"><value>At that level the new chief could not keep all the members.</value></data>
   <data name="Game.ClanChiefCannotLeave" xml:space="preserve"><value>The clan chief cannot leave: entrust the clan or disband it.</value></data>
   <data name="Game.ClanChiefChanged" xml:space="preserve"><value>The clan chief has changed from {0} to {1}.</value></data>
   <data name="Game.ClanChiefOnAccount" xml:space="preserve"><value>You already have a clan chief on this account. There can only be one clan chief per account.</value></data>
   <data name="Game.ClanDisbanded" xml:space="preserve"><value>The clan {0} has been disbanded.</value></data>
   <data name="Game.ClanExpelled" xml:space="preserve"><value>{0} has been expelled from the clan.</value></data>
-  <data name="Game.ClanFounded" xml:space="preserve"><value>The clan [{0}] was founded. Recruit 6 members (the chief included) within 10 days to register it.</value></data>
+  <data name="Game.ClanFounded" xml:space="preserve"><value>The clan [{0}] was founded. Recruit {1} members (the chief included) within {2} days to register it.</value></data>
   <data name="Game.ClanFull" xml:space="preserve"><value>You cannot recruit any more members.</value></data>
   <data name="Game.ClanInviteRefused" xml:space="preserve"><value>{0} has refused to join the clan.</value></data>
   <data name="Game.ClanInviteSent" xml:space="preserve"><value>The clan invitation was sent to {0}.</value></data>
-  <data name="Game.ClanJoinCooldown" xml:space="preserve"><value>A character cannot join a clan for 4 days after its clan was disbanded.</value></data>
+  <data name="Game.ClanJoinCooldown" xml:space="preserve"><value>A character cannot join a clan for {0} days after its clan was disbanded.</value></data>
   <data name="Game.ClanJoined" xml:space="preserve"><value>{0} has joined the clan.</value></data>
   <data name="Game.ClanLeft" xml:space="preserve"><value>{0} has left the clan.</value></data>
-  <data name="Game.ClanLevelTooLow" xml:space="preserve"><value>You must be level 40 to found a clan.</value></data>
-  <data name="Game.ClanNameInvalid" xml:space="preserve"><value>Clan names have 2 to 16 letters, digits, spaces, '-' or '_'.</value></data>
+  <data name="Game.ClanLevelTooLow" xml:space="preserve"><value>You must be level {0} to found a clan.</value></data>
+  <data name="Game.ClanNameInvalid" xml:space="preserve"><value>Clan names have {0} to {1} letters, digits, spaces, '-' or '_'.</value></data>
   <data name="Game.ClanNameTaken" xml:space="preserve"><value>This clan name already exists. Please try something else.</value></data>
   <data name="Game.ClanNoInvitation" xml:space="preserve"><value>The clan invitation is no longer valid.</value></data>
   <data name="Game.ClanNotChief" xml:space="preserve"><value>Only the clan chief can do that.</value></data>
@@ -799,4 +800,5 @@
   <data name="Usable.VirtualLife" xml:space="preserve"><value>Virtual Life Lv {0}</value></data>
   <data name="WingGate.MoveThere" xml:space="preserve"><value>move there?</value></data>
   <data name="WingGate.Title" xml:space="preserve"><value>Warp gate</value></data>
+  <data name="Workbench.TakeBack" xml:space="preserve"><value>Right-click: take back</value></data>
 </root>

@@ -441,7 +441,8 @@ Presentation (`SkillPresentation`):
 - Continued attack (`GameScene.SkillTrace`): a click with a skill that strikes an enemy, on a monster, keeps attacking it
   while that mouse button is held, or until it dies or leaves when Shift was down at the click, as the original's
   continued attack: the skill again whenever it is ready, the weapon's strikes (a sustained attack) while it is not. A
-  cast the server refuses (mana, stamina) is retried a second later without its notice. Another click ends it.
+  cast the server refuses for a passing reason (mana, stamina, cooldown, range) is retried a second later without its
+  notice; any other refusal ends the trace with its notice. Another click ends it.
 - Own events run at once; another entity's events wait its playback delay (`ISkillSceneHost.PlaybackDelayMsOf`, the
   snapshot buffer's adaptive 150 to 600 ms) to match its interpolated motion.
 - `Start`: plays the motion plan at a rate that fits the server's `DurationMs` (weapon clips: per loop), spawns

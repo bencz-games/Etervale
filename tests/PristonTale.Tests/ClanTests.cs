@@ -31,6 +31,8 @@ internal static class ClanTests
         yield return ("clan storage: founding pays with the character, members, ranks, dissolution with its cooldown, and loading back", StorageAsync);
         yield return ("founding at the Clan Master takes 500,000 gold at level 40 and refuses a short purse, a low level and a taken name", FoundAsync);
         yield return ("a clan recruits by invitation, registers at six members, keeps one vice chief, expels, lets members leave and is entrusted", MembersAsync);
+        yield return ("a storage failure changes no clan nor gold and answers; levels are live; an heir's account cannot lead two clans",
+            FailuresAsync);
         yield return ("a clan short of six members past its deadline is dissolved and its members wait four days to join another", ExpiryAsync);
         yield return ("the Clan Master's window founds a clan from a typed name and asks before the chief's actions; a recruiter gets the clan button",
             WindowAsync);
@@ -42,8 +44,6 @@ internal static class ClanTests
             && ClanRules.Capacity(180) == 80, "the capacity table differs");
         Assert.True(ClanRules.IsValidName("Lions") && ClanRules.IsValidName("Os Leões_2") && !ClanRules.IsValidName("A") && !ClanRules.IsValidName(" Lions")
             && !ClanRules.IsValidName("Two  Spaces") && !ClanRules.IsValidName("<b>") && !ClanRules.IsValidName(new string('x', 17)), "clan name rules differ");
-        Assert.True(ClanRules.CheckFounding(39, 1_000_000, "Lions") == ClanStatus.LevelTooLow && ClanRules.CheckFounding(40, 499_999, "Lions") == ClanStatus.NotEnoughGold
-            && ClanRules.CheckFounding(40, 500_000, "Lions") == ClanStatus.Ok, "founding checks differ");
 
         var clan = new Clan(1, "Lions", ClanState.Registering, 0, ClanRules.GraceSeconds);
         clan.Add(Member(1, "Chief", 50, ClanRank.Chief));
@@ -52,13 +52,12 @@ internal static class ClanTests
             clan.Add(Member(index, $"M{index}", 40, ClanRank.Member));
         }
 
-        ClanRules.Recount(clan, 100);
-        Assert.True(clan is { State: ClanState.Registering, DeadlineSeconds: ClanRules.GraceSeconds }, "five members registered the clan or moved its deadline");
+        Assert.True(ClanRules.Counted(clan, clan.Count, 100) == (ClanState.Registering, ClanRules.GraceSeconds), "five members registered the clan or moved its deadline");
         clan.Add(Member(6, "M6", 60, ClanRank.Member));
-        ClanRules.Recount(clan, 100);
+        (clan.State, clan.DeadlineSeconds) = ClanRules.Counted(clan, clan.Count, 100);
         Assert.True(clan is { State: ClanState.Registered, DeadlineSeconds: 0 }, "six members did not register the clan");
         clan.Remove(6);
-        ClanRules.Recount(clan, 1000);
+        (clan.State, clan.DeadlineSeconds) = ClanRules.Counted(clan, clan.Count, 1000);
         Assert.True(clan.State == ClanState.Registered && clan.DeadlineSeconds == 1000 + ClanRules.GraceSeconds && !ClanRules.Expired(clan, 1000)
             && ClanRules.Expired(clan, 1000 + ClanRules.GraceSeconds), "a registered clan below six has no countdown");
 
@@ -118,6 +117,12 @@ internal static class ClanTests
             Assert.True(await clans.AddMemberAsync(new ClanMemberRecord(id, ann.Id, 0, 11), 0, 20) && !await clans.AddMemberAsync(new ClanMemberRecord(id, ann.Id, 0, 12), 0, 20),
                 "a member was added twice");
             Assert.True(await clans.SetRanksAsync(id, [new ClanRankChange(ann.Id, (short)ClanRank.Vice)]) && await clans.IsMemberAsync(ann.Id), "ranks did not change");
+            Assert.True(await clans.ClanNamesAsync(account.Id) is { Count: 2 } names && names[ann.Id] == "Lions" && names[chief.Id] == "Lions",
+                "the account's clan names differ");
+            var sessions = new SessionRegistry();
+            var listing = new Application.Services.CharacterAppService(sessions, characters, classes, new WorldDataHolder(), new WorldCatalog(), clans);
+            Assert.True((await listing.ListCharactersAsync(sessions.Create(account.Id, "keeper").SessionToken)).All(summary => summary.ClanName == "Lions"),
+                "the character list did not carry the clan");
             var (loaded, members) = await clans.LoadAsync();
             Assert.True(loaded is [{ Name: "Lions", State: 0, DeadlineAt: 20 }] && members.Count == 2
                 && members.Single(member => member.CharacterId == ann.Id) is { Rank: 1, Name: "Ann", JobCode: (int)PlayerClass.Priestess, AccountId: var owner }
@@ -210,6 +215,56 @@ internal static class ClanTests
             && fixture.Link.View is null && fixture.Player.Clan is null && fixture.Clans.Cooldowns.Count == 6, "the clan was not disbanded");
     }
 
+    private static async Task FailuresAsync()
+    {
+        await using var fixture = await Fixture.CreateAsync(1_000_000, 60);
+        var service = fixture.Service;
+        fixture.Clans.Fail = true;
+        Assert.True(await service.FoundAsync(fixture.Session.SessionToken, fixture.NpcId, "Lions") == ClanStatus.Unavailable
+            && fixture.Session.Character!.Money == 1_000_000 && fixture.Link.View is null && service.ClanOf(fixture.Session.EntityId) == 0,
+            "a failed founding kept the clan or the fee");
+        fixture.Clans.Fail = false;
+        Assert.True(await service.FoundAsync(fixture.Session.SessionToken, fixture.NpcId, "Lions") == ClanStatus.Ok, "founding failed");
+        var chiefId = fixture.Session.EntityId;
+
+        var heir = await fixture.AddMemberAsync("Heir", 20, 40, account: 2);
+        Assert.True(await service.InviteAsync(chiefId, heir.Session.EntityId) == ClanStatus.Ok, "the invitation failed");
+        fixture.Clans.Fail = true;
+        Assert.True(await service.AnswerAsync(heir.Session.EntityId, true) == ClanStatus.Unavailable && heir.Link.View is null
+            && fixture.Link.View is { Members.Count: 1 }, "a join storage refused still added the member");
+        fixture.Clans.Fail = false;
+        Assert.True(await service.InviteAsync(chiefId, heir.Session.EntityId) == ClanStatus.Ok && await service.AnswerAsync(heir.Session.EntityId, true) == ClanStatus.Ok,
+            "the heir did not join");
+        for (var index = 0; index < 4; index++)
+        {
+            var recruit = await fixture.AddMemberAsync($"Recruit{index}", 30 + index, 40);
+            Assert.True(await service.InviteAsync(chiefId, recruit.Session.EntityId) == ClanStatus.Ok
+                && await service.AnswerAsync(recruit.Session.EntityId, true) == ClanStatus.Ok, "a recruit did not join");
+        }
+
+        Assert.True(await service.EntrustAsync(fixture.Session.SessionToken, fixture.NpcId, "Heir") == ClanStatus.TargetLevelTooLow, "a level 40 heir took the clan");
+        heir.Session.Character = new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Heir", 70);
+        Assert.True(fixture.Link.View is { State: ClanState.Registered } && heir.Link.View is not null, "the clan did not register");
+
+        // Loading back reads each member's name and account from its character, as the database joins them.
+        foreach (var (id, member) in fixture.Clans.Members.ToArray())
+        {
+            var (memberName, account) = id switch { 1 => ("Founder", 1L), 20 => ("Heir", 2L), _ => ($"Recruit{id - 30}", 1L) };
+            fixture.Clans.Members[id] = member with { Name = memberName, AccountId = account, Level = 40 };
+        }
+
+        fixture.Clans.Clans[99] = new ClanRecord(99, "Tigers", (short)ClanState.Registering, 0, ClanRules.GraceSeconds, "", 0);
+        fixture.Clans.Members[98] = new ClanMemberRecord(99, 98, (short)ClanRank.Chief, 0, "Other", (int)PlayerClass.Fighter, 50, AccountId: 2);
+        await service.LoadAsync();
+        Assert.True(await service.EntrustAsync(fixture.Session.SessionToken, fixture.NpcId, "Heir") == ClanStatus.ChiefOnAccount,
+            "the heir's account came to lead two clans");
+        fixture.Clans.Members.Remove(98);
+        fixture.Clans.Clans.Remove(99);
+        await service.LoadAsync();
+        Assert.True(await service.EntrustAsync(fixture.Session.SessionToken, fixture.NpcId, "Heir") == ClanStatus.Ok && heir.Link.View?.Rank == ClanRank.Chief,
+            "the heir at its live level 70 did not take the clan");
+    }
+
     private static async Task ExpiryAsync()
     {
         var clock = new ManualTime(DateTimeOffset.FromUnixTimeSeconds(1_000_000));
@@ -247,6 +302,10 @@ internal static class ClanTests
         Assert.True(sent.Count == count, "disbanding did not ask first");
         Click(window, 0, 2);
         Assert.True(sent[^1] == (ClanAction.Disband, 0, "") && window.Pending, "the confirmed disband was not sent");
+        window.Result(new Client.Net.Presence.ClanResultInfo((byte)ClanAction.Accept, ClanStatus.Ok));
+        Assert.True(window.Pending, "another request's result ended the disband's wait");
+        window.Click(Gameplay.UI.Widgets.HudNpcPanel.OkButton.Center);
+        Assert.True(!window.IsOpen, "OK did not close a window waiting for its result");
 
         var frame = new Gameplay.UI.Widgets.HudTargetFrame(new Microsoft.Xna.Framework.Rectangle(300, 10, 200, 60), default, default, default, 0, 0);
         var menu = Gameplay.UI.Parties.HudPlayerButtons.Menu(frame, clan: true);
@@ -290,11 +349,15 @@ internal static class ClanTests
         public Dictionary<long, long> Cooldowns { get; } = new();
         private long _nextId = 1;
 
+        // Every write throws as a locked database does.
+        public bool Fail { get; set; }
+
         public Task<(IReadOnlyList<ClanRecord> Clans, IReadOnlyList<ClanMemberRecord> Members)> LoadAsync(CancellationToken ct = default) =>
             Task.FromResult<(IReadOnlyList<ClanRecord>, IReadOnlyList<ClanMemberRecord>)>(([.. Clans.Values], [.. Members.Values]));
 
         public async Task<long> FoundAsync(ClanRecord clan, ClanMemberRecord chief, CharacterRecord payment, CancellationToken ct = default)
         {
+            ThrowIfFailing();
             if (Clans.Values.Any(existing => existing.Name.Equals(clan.Name, StringComparison.OrdinalIgnoreCase)) || !await PayAsync(payment))
             {
                 return 0;
@@ -308,6 +371,7 @@ internal static class ClanTests
 
         public Task<bool> AddMemberAsync(ClanMemberRecord member, short state, long deadlineAt, CancellationToken ct = default)
         {
+            ThrowIfFailing();
             if (!Members.TryAdd(member.CharacterId, member))
             {
                 return Task.FromResult(false);
@@ -326,6 +390,7 @@ internal static class ClanTests
 
         public async Task<bool> SetRanksAsync(long clanId, IReadOnlyList<ClanRankChange> changes, CharacterRecord? payment = null, CancellationToken ct = default)
         {
+            ThrowIfFailing();
             if (payment is not null && !await PayAsync(payment))
             {
                 return false;
@@ -354,6 +419,18 @@ internal static class ClanTests
         public Task<long> CooldownAsync(long characterId, CancellationToken ct = default) => Task.FromResult(Cooldowns.GetValueOrDefault(characterId));
 
         public Task<bool> IsMemberAsync(long characterId, CancellationToken ct = default) => Task.FromResult(Members.ContainsKey(characterId));
+
+        public Task<IReadOnlyDictionary<long, string>> ClanNamesAsync(long accountId, CancellationToken ct = default) =>
+            Task.FromResult<IReadOnlyDictionary<long, string>>(Members.Values.Where(member => member.AccountId == accountId)
+                .ToDictionary(member => member.CharacterId, member => Clans[member.ClanId].Name));
+
+        private void ThrowIfFailing()
+        {
+            if (Fail)
+            {
+                throw new Microsoft.Data.Sqlite.SqliteException("database is locked", 5);
+            }
+        }
 
         private async Task<bool> PayAsync(CharacterRecord payment) => payment.Id != characters.Record.Id || await characters.UpdateAsync(payment);
     }

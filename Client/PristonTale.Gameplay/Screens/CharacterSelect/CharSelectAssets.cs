@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Simulation.Characters;
 using PristonTale.Contracts.Characters;
+using PristonTale.Gameplay.UI.Clans;
 
 namespace PristonTale.Gameplay.Screens.CharacterSelect;
 
@@ -91,6 +92,7 @@ internal sealed class CharSelectAssets : IDisposable
 
         Pixel = new Texture2D(graphicsDevice, 1, 1);
         Pixel.SetData([Color.White]);
+        ClanMark = ClanMarks.Default(graphicsDevice);
     }
 
     public Texture2D BtOk { get; }
@@ -133,6 +135,8 @@ internal sealed class CharSelectAssets : IDisposable
     public Texture2D FaceNameBox { get; }
 
     public Texture2D Pixel { get; }
+
+    public Texture2D ClanMark { get; }
 
     public bool TryClassLabel(PlayerClass playerClass, bool selected, out Texture2D label)
     {
@@ -199,6 +203,7 @@ internal sealed class CharSelectAssets : IDisposable
     public void Dispose()
     {
         Pixel?.Dispose();
+        ClanMark?.Dispose();
         _loader?.Dispose();
     }
 }

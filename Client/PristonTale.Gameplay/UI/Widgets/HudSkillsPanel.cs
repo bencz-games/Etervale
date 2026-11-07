@@ -255,18 +255,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
         }
     }
 
-    private static int Uses(OwnerState state, uint code)
-    {
-        foreach (var skill in state.Skills)
-        {
-            if (skill.Code == code)
-            {
-                return skill.Uses;
-            }
-        }
-
-        return 0;
-    }
+    private static int Uses(OwnerState state, uint code) => Owned(state, code) is var at and >= 0 ? state.Skills[at].Uses : 0;
 
     public void Draw(HudPainter painter, Point origin, Point pointer, OwnerState state, HudSkillBindings bindings, ulong skillMaster, bool pressed,
         bool interactive, Effects.SkillCooldownBook cooldowns = null, double clockMs = 0)
@@ -458,17 +447,20 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
             && state.Money >= SkillLearning.Price(index, Rank(state, skills[index].Code));
     }
 
-    private static int Rank(OwnerState state, uint code)
+    private static int Rank(OwnerState state, uint code) => Owned(state, code) is var at and >= 0 ? state.Skills[at].Rank : 0;
+
+    // The owner's entry for the skill (an index loop: the list is read every frame), or -1.
+    private static int Owned(OwnerState state, uint code)
     {
-        foreach (var skill in state.Skills)
+        for (var index = 0; index < state.Skills.Count; index++)
         {
-            if (skill.Code == code)
+            if (state.Skills[index].Code == code)
             {
-                return skill.Rank;
+                return index;
             }
         }
 
-        return 0;
+        return -1;
     }
 
     private static void DrawLines(HudPainter painter, HudLayout layout, Point anchor, string title, string[] lines)

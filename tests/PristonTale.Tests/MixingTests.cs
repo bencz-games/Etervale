@@ -76,7 +76,7 @@ internal static class MixingTests
         Place(character, 0, axe);
         var ids = Place(character, 12, Sheltom(1), Sheltom(1), Sheltom(1), Sheltom(1), Sheltom(1));
         var money = character.Money;
-        Assert.True(MixingWork.TryMix(character, axe.InstanceId, ids, new FixedRng(), out var work, out var price) == NpcServiceStatus.Ok
+        Assert.True(MixingWork.TryMix(character, axe.InstanceId, ids, BoundRng.Low, out var work, out var price) == NpcServiceStatus.Ok
             && work.Result == (byte)MixResult.Mixed && price == 1000 && character.Money == money - 1000, "the mix was not carried out");
         var mixed = character.Inventory[0];
         Assert.True(mixed.Roll.Resistances.Bionic == 5 && mixed.MixSheltom == 1 && ids.All(id => character.Inventory.Find(id) < 0),
@@ -88,7 +88,7 @@ internal static class MixingTests
         var other = new ItemInstance(AxeDef);
         Place(plain, 0, other);
         var lone = Place(plain, 12, Sheltom(2));
-        Assert.True(MixingWork.TryMix(plain, other.InstanceId, lone, new FixedRng(), out var failed, out _) == NpcServiceStatus.Ok
+        Assert.True(MixingWork.TryMix(plain, other.InstanceId, lone, BoundRng.Low, out var failed, out _) == NpcServiceStatus.Ok
             && failed.Result == (byte)MixResult.Failed && plain.Inventory[0].MixSheltom == 0 && plain.Inventory.Find(lone[0]) < 0,
             "a mix without a formula did not fail and spend the sheltom");
 
@@ -98,7 +98,7 @@ internal static class MixingTests
         var cheap = new ItemInstance(AxeDef);
         Place(poor, 0, cheap);
         var five = Place(poor, 12, Sheltom(1), Sheltom(1), Sheltom(1), Sheltom(1), Sheltom(1));
-        Assert.True(MixingWork.TryMix(poor, cheap.InstanceId, five, new FixedRng(), out _, out _, new MixingSettings(0)) == NpcServiceStatus.Ok,
+        Assert.True(MixingWork.TryMix(poor, cheap.InstanceId, five, BoundRng.Low, out _, out _, new MixingSettings(0)) == NpcServiceStatus.Ok,
             "a free mix needed gold");
         return Task.CompletedTask;
     }
@@ -111,9 +111,9 @@ internal static class MixingTests
         Place(character, 0, axe);
         var seal = Def("SE103");
         var seals = Place(character, 12, new ItemInstance(seal), new ItemInstance(seal));
-        Assert.True(MixingWork.TryMix(character, axe.InstanceId, seals[..1], new FixedRng(), out _, out _) == NpcServiceStatus.WrongMaterials,
+        Assert.True(MixingWork.TryMix(character, axe.InstanceId, seals[..1], BoundRng.Low, out _, out _) == NpcServiceStatus.WrongMaterials,
             "one seal rebuilt the item");
-        Assert.True(MixingWork.TryMix(character, axe.InstanceId, seals, new FixedRng(), out var work, out _) == NpcServiceStatus.Ok
+        Assert.True(MixingWork.TryMix(character, axe.InstanceId, seals, BoundRng.Low, out var work, out _) == NpcServiceStatus.Ok
             && work.Result == (byte)MixResult.Reconstructed && work.ItemId == axe.InstanceId && character.Inventory.Find(axe.InstanceId) == 0,
             "the item was not rebuilt under its identity");
 
@@ -122,7 +122,7 @@ internal static class MixingTests
         var strong = new ItemInstance(Def("WA150", record => record with { Kind = (int)ItemKind.Axe, Price = 10, ReqLevel = 60 }));
         Place(high, 0, strong);
         var young = Place(high, 12, new ItemInstance(seal), new ItemInstance(seal));
-        Assert.True(MixingWork.TryMix(high, strong.InstanceId, young, new FixedRng(), out _, out _) == NpcServiceStatus.WrongMaterials,
+        Assert.True(MixingWork.TryMix(high, strong.InstanceId, young, BoundRng.Low, out _, out _) == NpcServiceStatus.WrongMaterials,
             "a seal rebuilt an item above its level band");
         return Task.CompletedTask;
     }
@@ -135,13 +135,13 @@ internal static class MixingTests
         character.TryChangeMoney(100_000);
         var ids = Place(character, 0, Sheltom(1), Sheltom(1), Sheltom(11));
         var money = character.Money;
-        Assert.True(MixingWork.TryRefine(character, ids, items, new FixedRng(), out var work, out var price) == NpcServiceStatus.Ok
+        Assert.True(MixingWork.TryRefine(character, ids, items, BoundRng.Low, out var work, out var price) == NpcServiceStatus.Ok
             && work.Result == (byte)MixResult.Refined && price == 200 * 2 + 50000 && character.Money == money - price, "the refining differs");
         var made = Enumerable.Range(0, character.Inventory.Capacity).Select(index => character.Inventory[index]).Where(static item => item is not null)
             .Select(static item => item!.Definition.CatalogKey).Order().ToArray();
         Assert.True(made.SequenceEqual(["FO101", "FO101", "FO111"]), "the orbs differ: " + string.Join(",", made));
         var twelfth = Place(character, 20, Sheltom(12));
-        Assert.True(MixingWork.TryRefine(character, twelfth, items, new FixedRng(), out _, out _) == NpcServiceStatus.WrongMaterials,
+        Assert.True(MixingWork.TryRefine(character, twelfth, items, BoundRng.Low, out _, out _) == NpcServiceStatus.WrongMaterials,
             "the twelfth sheltom was refined");
         return Task.CompletedTask;
     }
@@ -157,12 +157,5 @@ internal static class MixingTests
         var read = NpcDialogPacket.Read(buffer.AsSpan(0, dialog.Write(buffer)));
         Assert.True(read.Services[0].PricePercent == 50 && read.Services[0].Value == 1, "the price setting did not reach the dialog");
         return Task.CompletedTask;
-    }
-
-    private sealed class FixedRng : ISimRng
-    {
-        public int NextInclusive(int minInclusive, int maxInclusive) => minInclusive;
-        public int NextExclusive(int minInclusive, int maxExclusive) => minInclusive;
-        public float NextUnit() => 0f;
     }
 }
