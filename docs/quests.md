@@ -161,7 +161,7 @@ again at the next login.
 
 Field 32 (`QuestArenaField`). Entering it travels the player to (22497, 9605); a character saved there starts in its
 home town. `FieldInstance.OpenDuel` spawns the opponent at (22091, 9673) from the monster catalog by sound code (and
-level for Fury and Hestian), with life and damage +1.5% per player level above 60 (life capped at 30,000), three
+level for Fury and Hestian), with life and damage +1.5% per player level above 60 (32-bit, saturated rather than capped), three
 potions on top of its own (one under 30% life heals half, a quarter for the magic master), 3% helpers (metal golem or
 wolverine; fire elemental for the magic master) and the magic master's 3% blink. Hestian instead keeps her potion count
 as lives and calls two level-117 Xetans for her player on every even number of lives left. The opponent, its helper

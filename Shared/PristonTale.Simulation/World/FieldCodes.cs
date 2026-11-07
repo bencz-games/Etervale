@@ -2,7 +2,7 @@ namespace PristonTale.Simulation.World;
 
 // The fields rules name by code: the towns, the teleporter's hunting grounds, the quest weapon's hunting fields,
 // the office room, the inner ice field, Bellatra, the quest arena, Bless Castle, the boss field and the action field
-// whose kills drop the event item. Their definitions (World/Fields) use the same constants.
+// whose kills drop the event item, and the Endless Tower's first floor (Milter's teleport). Their definitions (World/Fields) use the same constants.
 public static class FieldCodes
 {
     public const int Forest3 = 0;
@@ -22,4 +22,5 @@ public static class FieldCodes
     public const int Castle = 33;
     public const int Boss = 36;
     public const int FallGame = 39;
+    public const int EndlessTower1 = 40;
 }

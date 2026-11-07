@@ -465,7 +465,7 @@ Flow (`NpcAppService.RequestAsync`):
 | --- | --- | --- |
 | Shop | Open, Refresh, Buy, Sell, Repair, RepairAll, Close | `NpcShopRules`: buy own stock at catalog price in its shop form within the weight limit; sell at a fifth of the copy's worn value (no quest items); repair an eighth of lost value; gold cap `MoneyLimits.CarryLimit` |
 | Warehouse | Open, Refresh, Deposit, Withdraw, Move, DepositGold, WithdrawGold, Close | `WarehouseStorage`: per account, 9x9 grid, 100 items, weight 1000, 100,000,000 gold; quest items and materials stay on the character; no opening or withdrawing over the weight limit |
-| Teleporter | Open, Teleport, Close | `TeleportRoutes`: route 1 only (Mushroom Cave 100, Beehive Cave 100, Cursed Land 500, Forbidden Land 1000 gold); level must reach the destination field's `LimitLevel` |
+| Teleporter | Open, Teleport, Close | `TeleportRoutes`: route 1 (Mushroom Cave 100, Beehive Cave 100, Cursed Land 500, Forbidden Land 1000 gold) and route 3 (Milter: Endless Tower 1F, free); level must reach the destination field's `LimitLevel` |
 | Skill master | (dialog only here) | Learning goes through `ProgressionCommand.LearnSkill` with the NPC's entity id; the class change goes through the quests |
 | Quest giver, quest script, wing exchange (warp gate 0 or 1) | (dialog only here) | Answered by `QuestAppService` talks, see [quests.md](quests.md) |
 | Mobile shop | NPC id 0: Open, Refresh, Sell, Repair, RepairAll, Close | `MobileShopTransactions`: only after a used mobile shop item (`PlayerSession.MobileShopOpen`), no stock |

@@ -27,15 +27,13 @@ public static class QuestArena
         return levels + levels / 2;
     }
 
-    public const int MaxOpponentLife = 30000;
+    // Life and damage are 32-bit: the grown value saturates instead of wrapping (no 16-bit ceiling).
+    public static int ScaledLife(int life, int playerLevel) => Grown(life, playerLevel);
 
-    public static int ScaledLife(int life, int playerLevel)
-    {
-        var scaled = life + (long)life * StrengthPercent(playerLevel) / 100;
-        return scaled <= 0 || scaled > MaxOpponentLife ? MaxOpponentLife : (int)scaled;
-    }
+    public static int ScaledDamage(int damage, int playerLevel) => Grown(damage, playerLevel);
 
-    public static int ScaledDamage(int damage, int playerLevel) => damage + damage * StrengthPercent(playerLevel) / 100;
+    private static int Grown(int value, int playerLevel) =>
+        (int)Math.Clamp(value + (long)value * StrengthPercent(playerLevel) / 100, int.MinValue, int.MaxValue);
 
     // Three potions on top of the opponent's own; one is drunk whenever its life falls under 30 percent.
     public const int ExtraPotions = 3;

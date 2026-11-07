@@ -40,6 +40,7 @@ internal static class NpcServiceTests
         yield return ("shop buy, sell and repair are durable, idempotent and validated on the server", ShopAsync);
         yield return ("warehouse deposit, withdraw, move and gold persist with the character and reject conflicts", WarehouseAsync);
         yield return ("teleporters charge, move the character and honour field level limits", TeleportAsync);
+        yield return ("cursed Milter sends a character of the Endless Tower's level to its first floor for free", MilterAsync);
         yield return ("SQLite warehouse repository writes the character and warehouse together under a revision", RepositoryAsync);
     }
 
@@ -404,6 +405,25 @@ internal static class NpcServiceTests
             && fixture.Characters.Record.FieldId == 0 && fixture.Characters.Record.Money == 900, "teleport did not charge and move durably");
         var remaining = fixture.Player.Cooldowns.RemainingMs(skill, world.FieldNowMs(0));
         Assert.True(remaining is > 59_000 and <= 60_000, $"teleport did not carry the cooldown to the new field clock ({remaining} ms left)");
+    }
+
+    private static async Task MilterAsync()
+    {
+        foreach (var opened in new[] { false, true })
+        {
+            var catalog = new WorldCatalog(new WorldCatalog().AllFields.Select(field =>
+                opened && field.FieldCode == FieldCodes.EndlessTower1 ? field with { LimitLevel = 0 } : field));
+            var fixture = await Fixture.CreateAsync(1000, [new NpcService(NpcServiceKind.Teleporter, 3)], catalog);
+            var (world, npc, session, service) = (fixture.World, fixture.NpcId, fixture.Session, fixture.Npc);
+            var open = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, new NpcServiceCommand(Guid.NewGuid(), npc,
+                NpcServiceKind.Teleporter, NpcServiceAction.Open)));
+            Assert.True(open.Outcome.Ok && open.Destinations is [{ FieldCode: FieldCodes.EndlessTower1, Price: 0 } only]
+                && only.MinimumLevel == (opened ? 0 : 100), "Milter does not offer the Endless Tower's first floor at its level for free");
+            var trip = new NpcServiceCommand(Guid.NewGuid(), npc, NpcServiceKind.Teleporter, NpcServiceAction.Teleport, session.Character!.InventoryRevision, Anchor: 1);
+            var moved = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, trip));
+            Assert.True(moved.Outcome.Ok == opened && session.Character.Money == 1000
+                && (!opened || moved.Arrival?.FieldCode == FieldCodes.EndlessTower1), $"Milter's teleport (field open: {opened}) was wrong");
+        }
     }
 
     private static async Task RepositoryAsync()

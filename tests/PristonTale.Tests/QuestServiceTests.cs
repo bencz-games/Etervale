@@ -272,6 +272,8 @@ internal static class QuestServiceTests
             && snapshot.Entities.Any(entity => entity.Kind == EntityKind.Monster && entity.DuelPlayerId == world.Session.EntityId));
         var opponent = arena.Entities.Single(entity => entity.Kind == EntityKind.Monster);
         Assert.True(opponent.MaxLife == 1000, "the opponent did not scale with the player");
+        Assert.True(QuestArena.ScaledLife(40_000, 100) == 64_000 && QuestArena.ScaledDamage(200, 100) == 320
+            && QuestArena.ScaledLife(int.MaxValue, 180) == int.MaxValue, "the duel's life kept a 16-bit ceiling or wrapped");
         Assert.True(world.Characters.Record.FieldId == 3 || world.Characters.Record.FieldId == QuestArena.FieldCode, "the record field differs");
 
         // The client walks the player into reach; the test places it there.

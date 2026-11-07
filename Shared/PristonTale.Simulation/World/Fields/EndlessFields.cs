@@ -6,7 +6,7 @@ public static class Dungeon7Field
         "dun-7", "Dungeon 7", FieldState.Dungeon, FieldBackdrops.Ruin2,
         "Field\\endless\\dun-7.smd", [])
     {
-        FieldCode = 40,
+        FieldCode = FieldCodes.EndlessTower1,
         Ambience = FieldAmbience.Dungeon,
         Center = new FieldPoint(14255, -39099),
         WarpGates =
