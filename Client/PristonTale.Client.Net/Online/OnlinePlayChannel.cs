@@ -150,6 +150,14 @@ internal sealed class OnlinePlayChannel : IPlayChannel
         _connection.SendSocial(new ClanRequestPacket(action, id, name ?? ""));
     }
 
+    public async Task SendCastleOwnerAsync(CastleOwnerAction action, ulong npcId, Simulation.Social.Castle.CastleSetup setup, long amount,
+        CancellationToken ct = default)
+    {
+        await _start.WaitAsync(ct);
+        _connection.SendSocial(new CastleOwnerRequestPacket(action, npcId, (byte)setup.Tax, (byte)setup.Skill, [.. setup.Towers.Select(static tower => (byte)tower)],
+            [.. setup.Mercenaries.Select(static count => (byte)Math.Clamp(count, 0, byte.MaxValue))], (ulong)Math.Max(0, amount)));
+    }
+
     public async Task SendClanMarkAsync(byte[] pixels, CancellationToken ct = default)
     {
         await _start.WaitAsync(ct);

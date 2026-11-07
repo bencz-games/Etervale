@@ -1,3 +1,4 @@
+using PristonTale.Application.World;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
 using PristonTale.Application.Castle;
@@ -32,6 +33,12 @@ internal static class CastleTests
             ConquestRetryAsync);
         yield return ("the castle's state crosses the wire whole, and a board of too many clans is refused", WireAsync);
         yield return ("a player in the world is told the castle at once and on every change of owner, tax or siege, never twice the same", AnnounceAsync);
+        yield return ("the owner's purchases cost a tower 500,000 and each mercenary its kind's price, only grow, and need gold", OwnerRulesAsync);
+        yield return ("the owner clan's chief sets the castle at the butler, paying from its gold; others, a vice and a siege are refused", OwnerSetupAsync);
+        yield return ("the chief takes gold out of the treasury at the butler, stored with the castle and the movement", OwnerWithdrawAsync);
+        yield return ("the owner window's request, state and result cross the wire whole", OwnerWireAsync);
+        yield return ("the butler window: the chief's pages pick a tax up to 10 %, towers and mercenaries, save, and keep the changes when refused",
+            OwnerWindowAsync);
         yield return ("castle game-master commands start, time and end a siege, set the owner in peace and read the castle and fountain", CommandsAsync);
     }
 
@@ -64,6 +71,10 @@ internal static class CastleTests
             await provider.GetRequiredService<IDatabaseMigrator>().MigrateAsync();
             var castles = provider.GetRequiredService<ICastleRepository>();
             Assert.True(await castles.LoadAsync() == CastleRecord.Empty, "a new castle is not empty");
+            var payer = await provider.GetRequiredService<Persistence.Abstractions.Accounts.IAccountRepository>().CreateAsync("keeper", "hash");
+            var chief = await provider.GetRequiredService<Persistence.Abstractions.Characters.ICharacterRepository>().CreateAsync(
+                Persistence.Abstractions.Characters.CharacterRecordFactory.NewStarter(new Simulation.Characters.CharacterClassRegistry(), payer.Id, "Chief", 0,
+                    Contracts.Characters.PlayerClass.Knight, 3));
             var saved = CastleRecord.Empty with
             {
                 OwnerClanId = 7, Tax = 3, NextTax = 5, Towers = "123000", MercenaryA = 20, MercenaryC = 4, ClanSkill = 2, SkillInForce = 1,
@@ -72,6 +83,11 @@ internal static class CastleTests
             await castles.SaveAsync(saved);
             await castles.SaveAsync(saved with { Tax = 4 });
             Assert.True(await castles.LoadAsync() == saved with { Tax = 4 }, "the castle did not load back as last saved");
+            var paid = chief with { Money = 300, SaveSeq = chief.SaveSeq + 1 };
+            Assert.True(await castles.SaveWithAsync(saved with { Treasury = 700 }, paid, new TreasuryMove(7, TreasuryKind.Withdrawal, -300, 10))
+                && (await castles.LoadAsync()).Treasury == 700, "the castle and the receiving character were not stored together");
+            Assert.True(!await castles.SaveWithAsync(saved with { Treasury = 1 }, chief, new TreasuryMove(7, TreasuryKind.Withdrawal, -699, 11))
+                && (await castles.LoadAsync()).Treasury == 700, "a stale character still stored the castle");
         }
         finally
         {
@@ -206,7 +222,8 @@ internal static class CastleTests
             CastleRecord.Empty with { OwnerClanId = 7, Towers = "1309", MercenaryA = 2, MercenaryC = 5 });
         fixture.Clans.Names[8] = "Tigers";
         Assert.True(await fixture.Castle.StartSiegeAsync() && fixture.World.Opened is { OwnerClanId: 7 } order
-            && order.Towers is [CastleTower.Ice, CastleTower.Fire, CastleTower.None, CastleTower.None] && order.Mercenaries is [2, 0, 5],
+            && order.Towers is [CastleTower.Ice, CastleTower.Fire, CastleTower.None, CastleTower.None, CastleTower.None, CastleTower.None]
+            && order.Mercenaries is [2, 0, 5],
             "the siege did not open with the owner's defenders");
         await fixture.TickAsync(Off, TimeSpan.FromSeconds(1));
         Assert.True(fixture.Castle.Siege == SiegeState.Running, "the siege closed before the tower fell");
@@ -238,6 +255,185 @@ internal static class CastleTests
         await fixture.TickAsync(Off, TimeSpan.FromSeconds(CastleRules.OverSeconds));
         Assert.True(fixture.Repository.Saved is { Towers: "", MercenaryA: 0, MercenaryB: 0, MercenaryC: 0, OwnerClanId: 8 },
             "the owner's towers and mercenaries outlived the siege");
+    }
+
+    private static Task OwnerRulesAsync()
+    {
+        var empty = CastleSetup.Empty;
+        var wanted = empty with { Tax = 5, Skill = CastleClanSkill.Damage, Towers = [CastleTower.Fire, CastleTower.Ice, .. empty.Towers[2..]], Mercenaries = [2, 1, 1] };
+        Assert.True(CastleOwnerRules.Cost(empty, wanted, out var cost) == CastleOwnerStatus.Ok && cost == 2 * 500_000 + 2 * 50_000 + 100_000 + 300_000,
+            "the purchases' cost differs");
+        var rechosen = wanted with { Towers = [CastleTower.Lightning, .. wanted.Towers[1..]], Mercenaries = [3, 1, 1] };
+        Assert.True(CastleOwnerRules.Cost(wanted, rechosen, out var more) == CastleOwnerStatus.Ok && more == 50_000, "another element for a bought tower was not free");
+        Assert.True(CastleOwnerRules.Cost(wanted, wanted with { Towers = empty.Towers }, out _) == CastleOwnerStatus.InvalidSetup
+            && CastleOwnerRules.Cost(wanted, wanted with { Mercenaries = [1, 1, 1] }, out _) == CastleOwnerStatus.InvalidSetup
+            && CastleOwnerRules.Cost(empty, empty with { Tax = 11 }, out _) == CastleOwnerStatus.InvalidSetup
+            && CastleOwnerRules.Cost(empty, empty with { Mercenaries = [21, 0, 0] }, out _) == CastleOwnerStatus.InvalidSetup,
+            "a setup that shrinks or overflows was accepted");
+        return Task.CompletedTask;
+    }
+
+    private static async Task OwnerSetupAsync()
+    {
+        await using var owner = await OwnerFixture.CreateAsync(1_000_000, CastleRecord.Empty with { OwnerClanId = 7, Treasury = 50_000 });
+        var (castle, token, entity) = (owner.Castle, owner.Session.SessionToken, owner.Session.EntityId);
+        Assert.True(castle.OwnerViewOf(entity) is { CanEdit: true, Treasury: 50_000 } && castle.OwnerViewOf(999) is null, "the owner's window differs");
+        var wanted = CastleSetup.Empty with { Tax = 5, Skill = CastleClanSkill.Damage, Towers = [CastleTower.Fire, .. CastleSetup.Empty.Towers[1..]], Mercenaries = [2, 0, 0] };
+        Assert.True(await castle.SaveSetupAsync(token, owner.NpcId, wanted) == CastleOwnerStatus.Ok && owner.Session.Character!.Money == 1_000_000 - 600_000
+            && owner.Repository.Saved is { NextTax: 5, ClanSkill: 2, Towers: "300000", MercenaryA: 2 } && castle.OwnerViewOf(entity)!.Setup.Towers[0] == CastleTower.Fire,
+            "the chief's setup was not paid and stored");
+        Assert.True(await castle.SaveSetupAsync(token, owner.NpcId, wanted with { Mercenaries = [20, 20, 20] }) == CastleOwnerStatus.NotEnoughGold
+            && owner.Session.Character!.Money == 400_000, "a setup beyond the chief's gold was taken");
+        Assert.True(await castle.SaveSetupAsync(token, owner.NpcId, wanted with { Mercenaries = [1, 0, 0] }) == CastleOwnerStatus.InvalidSetup,
+            "a dismissed mercenary was accepted");
+        owner.Clans.Ranks[entity] = Simulation.Social.Clans.ClanRank.Vice;
+        Assert.True(await castle.SaveSetupAsync(token, owner.NpcId, wanted) == CastleOwnerStatus.NotChief && castle.OwnerViewOf(entity) is { CanEdit: false },
+            "a vice chief changed the castle");
+        owner.Clans.Ranks[entity] = Simulation.Social.Clans.ClanRank.Chief;
+        Assert.True(await castle.StartSiegeAsync() && await castle.SaveSetupAsync(token, owner.NpcId, wanted) == CastleOwnerStatus.DuringSiege
+            && await castle.WithdrawAsync(token, owner.NpcId, 1) == CastleOwnerStatus.DuringSiege, "the castle changed during a siege");
+        owner.Clans.Members[entity] = 8;
+        Assert.True(await castle.SaveSetupAsync(token, owner.NpcId, wanted) == CastleOwnerStatus.NotOwner, "a player outside the owner clan changed the castle");
+    }
+
+    private static async Task OwnerWithdrawAsync()
+    {
+        await using var owner = await OwnerFixture.CreateAsync(1_000, CastleRecord.Empty with { OwnerClanId = 7, Treasury = 1_000_000 });
+        var (castle, token) = (owner.Castle, owner.Session.SessionToken);
+        Assert.True(await castle.WithdrawAsync(token, owner.NpcId, 300_000) == CastleOwnerStatus.Ok && owner.Session.Character!.Money == 301_000
+            && owner.Repository.Saved.Treasury == 700_000 && owner.Repository.Moves is [{ ClanId: 7, Kind: TreasuryKind.Withdrawal, Amount: -300_000 }],
+            "the withdrawal was not paid and stored with its movement");
+        Assert.True(await castle.WithdrawAsync(token, owner.NpcId, 700_001) == CastleOwnerStatus.NotEnoughTreasury
+            && await castle.WithdrawAsync(token, owner.NpcId, 0) == CastleOwnerStatus.NotEnoughTreasury && owner.Repository.Saved.Treasury == 700_000,
+            "a withdrawal beyond the treasury was taken");
+        owner.Repository.StalePayer = true;
+        Assert.True(await castle.WithdrawAsync(token, owner.NpcId, 1_000) == CastleOwnerStatus.Unavailable && owner.Session.Character!.Money == 301_000
+            && castle.OwnerViewOf(owner.Session.EntityId)!.Treasury == 700_000, "a refused storage still paid");
+    }
+
+    // A chief of the owner clan (7) beside the castle's butler in a running world.
+    private sealed class OwnerFixture : IAsyncDisposable
+    {
+        private readonly CancellationTokenSource _stop = new();
+        private Task _ticker = Task.CompletedTask;
+
+        public required WorldServer World { get; init; }
+        public required CastleAppService Castle { get; init; }
+        public required MemoryCastle Repository { get; init; }
+        public required FakeClans Clans { get; init; }
+        public required PlayerSession Session { get; init; }
+        public required ulong NpcId { get; init; }
+
+        public static async Task<OwnerFixture> CreateAsync(long money, CastleRecord stored)
+        {
+            var classes = new Simulation.Characters.CharacterClassRegistry();
+            var starter = Persistence.Abstractions.Characters.CharacterRecordFactory.NewStarter(classes, 1, "Chief", 0, Contracts.Characters.PlayerClass.Fighter, 3)
+                with { Id = 1 };
+            var character = classes.CreatePlayer(Contracts.Characters.PlayerClass.Fighter, starter.Name, 50);
+            character.RestoreProgress(0, money);
+            var characters = new MemoryCharacters(Persistence.Abstractions.Characters.CharacterRecordFactory.FromLiveSession(starter, character, 3,
+                new System.Numerics.Vector3(100, 0, 100)));
+            var npc = new Simulation.World.Npcs.NpcDefinition(1, "Butler", "butler.inx", [new Simulation.World.Npcs.NpcService(Simulation.World.Npcs.NpcServiceKind.BlessCastle)])
+            {
+                DisplayName = "Butler"
+            };
+            var empty = WorldData.Empty;
+            var holder = new WorldDataHolder
+            {
+                Current = new WorldData(empty.Items, empty.Monsters, new Simulation.World.Npcs.NpcCatalog([npc]),
+                    new Dictionary<int, Simulation.World.Fields.FieldSpawnData>
+                    {
+                        [3] = Simulation.World.Fields.FieldSpawnData.Empty with { FixedNpcs = [new Simulation.World.Fields.FixedNpc(1, 100 * 256, 100 * 256, 0)] }
+                    },
+                    empty.Motions)
+            };
+            var catalog = new Simulation.World.WorldCatalog();
+            var world = new WorldServer(holder, catalog);
+            var sessions = new SessionRegistry();
+            var session = sessions.Create(1, "chief");
+            var saves = new ImmediateSaves(characters);
+            var entry = new Application.Services.SessionAppService(sessions, classes, characters, saves, catalog, world, holder);
+            Assert.True((await entry.EnterWorldAsync(session.SessionToken, starter.Name)).Ok && session.TryBeginPlay(), "entry failed");
+            var outbox = System.Threading.Channels.Channel.CreateUnbounded<WorldSnapshot>();
+            await WorldPump.RunAsync(world, world.JoinAsync(3, WorldPlayerFactory.Create(session), outbox.Writer, session));
+            Assert.True(outbox.Reader.TryRead(out var snapshot), "roster missing");
+            var placed = snapshot.Entities.Single(entity => entity.Kind == Contracts.World.EntityKind.Npc);
+            var repository = new MemoryCastle();
+            await repository.SaveAsync(stored);
+            var clans = new FakeClans { Available = true };
+            clans.Names[7] = "Lions";
+            clans.Members[session.EntityId] = 7;
+            clans.Ranks[session.EntityId] = Simulation.Social.Clans.ClanRank.Chief;
+            var castle = new CastleAppService(repository, clans, new ChatDirectory(), world, sessions: sessions, saves: saves);
+            await castle.LoadAsync();
+            var fixture = new OwnerFixture { World = world, Castle = castle, Repository = repository, Clans = clans, Session = session, NpcId = placed.EntityId };
+            fixture._ticker = Task.Run(fixture.TickAsync);
+            return fixture;
+        }
+
+        private async Task TickAsync()
+        {
+            uint tick = 10_000;
+            while (!_stop.IsCancellationRequested)
+            {
+                World.Tick(0.05f, tick++);
+                await Task.Delay(1);
+            }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await _stop.CancelAsync();
+            await _ticker;
+            _stop.Dispose();
+        }
+    }
+
+    private static Task OwnerWireAsync()
+    {
+        var buffer = new byte[Protocol.Packets.CastleOwnerStatePacket.MaxSize + Protocol.Packets.CastleOwnerRequestPacket.MaxSize];
+        var request = new Protocol.Packets.CastleOwnerRequestPacket(Protocol.Packets.CastleOwnerAction.Withdraw, 42, 7, 2, [3, 1, 0, 2, 0, 0], [20, 4, 1], 123_456);
+        var read = Protocol.Packets.CastleOwnerRequestPacket.Read(buffer.AsSpan(0, request.Write(buffer)));
+        Assert.True(read with { Towers = [], Mercenaries = [] } == request with { Towers = [], Mercenaries = [] } && read.Towers.SequenceEqual(request.Towers)
+            && read.Mercenaries.SequenceEqual(request.Mercenaries), "the owner request did not cross the wire");
+        var state = new Protocol.Packets.CastleOwnerStatePacket(true, 9_000_000_000, 3, 5, 2, 3, [3, 0, 0, 0, 0, 1], [8, 4, 2], CanEdit: true);
+        var view = Protocol.Packets.CastleOwnerStatePacket.Read(buffer.AsSpan(0, state.Write(buffer)));
+        Assert.True(view with { Towers = [], Mercenaries = [] } == state with { Towers = [], Mercenaries = [] } && view.Towers.SequenceEqual(state.Towers)
+            && view.Mercenaries.SequenceEqual(state.Mercenaries)
+            && !Protocol.Packets.CastleOwnerStatePacket.Read(buffer.AsSpan(0, Protocol.Packets.CastleOwnerStatePacket.None.Write(buffer))).HasView,
+            "the owner state did not cross the wire");
+        var result = new Protocol.Packets.CastleOwnerResultPacket(Protocol.Packets.CastleOwnerAction.Save, (byte)CastleOwnerStatus.NotEnoughGold);
+        Assert.True(result.Write(buffer) == Protocol.Packets.CastleOwnerResultPacket.Size
+            && Protocol.Packets.CastleOwnerResultPacket.Read(buffer.AsSpan(0, Protocol.Packets.CastleOwnerResultPacket.Size)) == result,
+            "the owner result did not cross the wire");
+        return Task.CompletedTask;
+    }
+
+    private static Task OwnerWindowAsync()
+    {
+        var sent = new List<(Protocol.Packets.CastleOwnerAction Action, CastleSetup Setup, long Amount)>();
+        var window = new Gameplay.UI.Castle.HudCastleWindow { Send = (action, _, setup, amount) => sent.Add((action, setup, amount)) };
+        window.Open(7);
+        var setup = CastleSetup.Empty with { Tax = 2, Mercenaries = [3, 0, 0] };
+        window.Observe(new Client.Net.Presence.CastleOwnerInfo(true, 1_000, 2, setup, CastleClanSkill.None, CanEdit: true));
+        window.Result(new Client.Net.Presence.CastleOwnerResultInfo(Protocol.Packets.CastleOwnerAction.Open, CastleOwnerStatus.Ok));
+        Microsoft.Xna.Framework.Point Button(int index, int count) => Gameplay.UI.Widgets.HudNpcPanel.ServiceButton(index, count).Center;
+        Microsoft.Xna.Framework.Point Line(int line) => new(Gameplay.UI.Widgets.HudNpcPanel.TextLeft + 20,
+            Gameplay.UI.Widgets.HudNpcPanel.TextTop + line * Gameplay.UI.Rendering.HudPainter.LineHeight + 4);
+        Assert.True(window.Click(Button(0, 5)) && window.Click(Line(CastleOwnerRules.MaxTaxRate)) && window.Click(Button(0, 2)),
+            "the tax page did not take a click");
+        Assert.True(sent[^1] is { Action: Protocol.Packets.CastleOwnerAction.Save, Setup.Tax: CastleOwnerRules.MaxTaxRate }, "the highest tax was not saved");
+        window.Result(new Client.Net.Presence.CastleOwnerResultInfo(Protocol.Packets.CastleOwnerAction.Save, CastleOwnerStatus.NotEnoughGold));
+        window.Observe(new Client.Net.Presence.CastleOwnerInfo(true, 1_000, 2, setup, CastleClanSkill.None, CanEdit: true));
+        window.Click(Button(0, 2));
+        Assert.True(sent[^1].Setup.Tax == CastleOwnerRules.MaxTaxRate, "a refused save lost the chief's changes");
+        window.Result(new Client.Net.Presence.CastleOwnerResultInfo(Protocol.Packets.CastleOwnerAction.Save, CastleOwnerStatus.Ok));
+        window.Click(Button(3, 5));
+        window.Click(Line(0));
+        window.Click(Line(0));
+        window.Click(Button(0, 3));
+        Assert.True(sent[^1].Setup.Mercenaries is [5, 0, 0], "two clicks did not hire two more mercenaries");
+        return Task.CompletedTask;
     }
 
     private static Task WireAsync()
@@ -380,7 +576,33 @@ internal static class CastleTests
 
         public bool Refuse { get; set; }
 
+        public List<TreasuryMove> Moves { get; } = [];
+
+        public bool StalePayer { get; set; }
+
         public Task<CastleRecord> LoadAsync(CancellationToken ct = default) => Task.FromResult(Saved);
+
+        public Task<bool> SaveWithAsync(CastleRecord castle, Persistence.Abstractions.Characters.CharacterRecord? character, TreasuryMove? move,
+            CancellationToken ct = default)
+        {
+            if (Refuse)
+            {
+                throw new SqliteException("refused", 5);
+            }
+
+            if (StalePayer)
+            {
+                return Task.FromResult(false);
+            }
+
+            Saved = castle;
+            if (move is not null)
+            {
+                Moves.Add(move);
+            }
+
+            return Task.FromResult(true);
+        }
 
         public Task SaveAsync(CastleRecord castle, CancellationToken ct = default)
         {
@@ -437,6 +659,10 @@ internal static class CastleTests
             Calls.Add("weaken");
             return Task.FromResult(true);
         }
+
+        public Task<PreparedNpcPayment?> PrepareOwnerPaymentAsync(PlayerSession session, ulong npcEntityId, long fee) => throw new NotSupportedException();
+
+        public Task<bool> CommitOwnerPaymentAsync(PlayerSession session, PreparedNpcPayment payment) => throw new NotSupportedException();
     }
 
     private sealed class FakeClans : IClanDirectory
@@ -449,7 +675,13 @@ internal static class CastleTests
 
         public long IdOf(string name) => Names.FirstOrDefault(pair => pair.Value.Equals(name, StringComparison.OrdinalIgnoreCase)).Key;
 
-        public long ClanOf(ulong entityId) => 0;
+        public Dictionary<ulong, long> Members { get; } = new();
+
+        public Dictionary<ulong, Simulation.Social.Clans.ClanRank> Ranks { get; } = new();
+
+        public long ClanOf(ulong entityId) => Members.GetValueOrDefault(entityId);
+
+        public Simulation.Social.Clans.ClanRank? RankOf(ulong entityId) => Ranks.TryGetValue(entityId, out var rank) ? rank : null;
     }
 
     private sealed class ManualTime(DateTimeOffset now) : TimeProvider

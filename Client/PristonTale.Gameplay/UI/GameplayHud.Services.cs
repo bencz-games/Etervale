@@ -197,6 +197,9 @@ public sealed partial class GameplayHud
             case NpcServiceKind.Clan:
                 OpenClan(_services.NpcId);
                 break;
+            case NpcServiceKind.BlessCastle:
+                OpenCastle(_services.NpcId);
+                break;
             case NpcServiceKind.Smelting:
                 OpenBench(_smelting.Show);
                 break;

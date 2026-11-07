@@ -30,7 +30,7 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | `Services/TradeAppService.cs`, `World/WorldServer.Trades.cs`, `World/Trades/Trade.cs` | Trades between players: requests, offers, locks and the exchange that holds and stores two characters (below) |
 | `World/WorldServer.Notices.cs`, `World/WorldNotice.cs`, `Services/WorldNoticeRequests.cs` | The lines a party or trade change answers, delivered through the chat (`ChatDirectory.Deliver`) |
 | `Contacts/ContactAppService.cs` | The friends page: each character's friends and ignored players, stored, with the friends' presence (below) |
-| `Clans/ClanAppService.cs`, `Clans/ClanTexts.cs`, `Clans/IClanMarkStore.cs`, `World/WorldServer.Clans.cs` | The clans: founding, invitations, ranks, leaving, expelling, entrusting, the chief's mark upload, dissolution and the chat roster (below) |
+| `Clans/ClanAppService.cs`, `Clans/ClanTexts.cs`, `Clans/IClanMarkStore.cs`, `World/WorldServer.Clans.cs`, `World/WorldServer.NpcPayments.cs` | The clans: founding, invitations, ranks, leaving, expelling, entrusting, the chief's mark upload, dissolution and the chat roster (below) |
 | `Clans/IClanDirectory.cs`, `Castle/CastleAppService.cs`, `Castle/CastleWorld.cs` | Bless Castle: the owner clan, the tax, the soul fountain and the siege's schedule and clock (below); the clans it reads through `IClanDirectory`, the world through `ICastleWorld` |
 | `World/WorldServer.Castle.cs`, `World/FieldInstance.Castle.cs`, `World/CastleSiege.cs` | The siege in the castle field: its defenders, the clans' damage board, the tower's fall and the published `CastleSiegeView` |
 | `Chat/`, `GameMasters/` | Chat routing, whispers and notices; game-master commands, levels and audit ([chat-and-gm.md](chat-and-gm.md)) |
@@ -649,7 +649,7 @@ live level (views, the chief's capacity, entrusting).
   (`WorldPlayer.Clan`: id, name, mark version, part of its looks and of `EntityDescription`, and whether the clan is
   registered, which clan pets need; every member is retagged when the clan registers), and its clan sees it online. Leaving the world detaches it, drops its invitation, and the clan sees it offline.
 - Founding (`FoundAsync`, at a Clan Master): not in a clan nor in a join cooldown, no other chief on the account, a free
-  valid name; the world checks reach, level 40 and 500,000 gold (`PrepareClanPaymentAsync`) and the clan row is stored
+  valid name; the world checks reach, level 40 and 500,000 gold (`PrepareNpcPaymentAsync`) and the clan row is stored
   with the paying character (`DurableOperations`). The clan starts registering with a ten-day deadline.
 - Invitations: the chief or vice asks an online player without a clan (room under the chief's capacity, no cooldown);
   the invitation lasts 30 seconds; a yes joins (checked again, the recruiter still chief or vice), a no tells the
@@ -699,7 +699,18 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
   a player outside the owner clan, or holding another skill than the one in force, loses it at the next renewal.
   Absorb takes 20 off every blow received (flat absorption), Attack adds 15 % to the damage dealt, Evasion evades 20 %
   of the normal blows; the running-effects bar shows `wa1-1`, `wa1-3` or `wa1-2`.
-- Not yet: the owner's window, the tax on fees and the treasury's movements.
+- The butler (`NpcServiceKind.BlessCastle`) opens the owner's window for the members of the clan holding the castle
+  (`OwnerViewOf`: the setup chosen for the next day and siege, the tax and clan skill in force, the treasury, whether the
+  viewer is the chief). Only the chief changes it, in peace: `SaveSetupAsync` checks the setup (`CastleOwnerRules`: tax
+  0-10, a defined skill, six tower slots that never go back to empty, mercenaries that only grow up to 20) and its
+  cost (a tower in an empty slot 500,000, another element for a bought one free, mercenaries 50,000, 100,000 and
+  300,000 each), takes it from the chief's gold at the butler (`WorldServer.PrepareNpcPaymentAsync`, the same reach,
+  shop, trade and gold checks the Clan Master's fees use) and stores the castle with the character
+  (`SaveWithAsync`) before the gold leaves. `WithdrawAsync` gives the chief gold from the treasury the same way, with a
+  `castle_treasury` movement. Both refuse during a siege and while a conquest or the spent setup waits to be stored.
+  The castle is kept in memory as soon as it is stored. Every request answers a `CastleOwnerStatus`. The treasury stays
+  with the castle: a clan that takes the castle takes what is left in it.
+- Not yet: the tax on fees.
 
 The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner
 and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its spawns

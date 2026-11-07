@@ -85,6 +85,11 @@ public sealed partial class WorldServer : ICastleWorld
             return arrivals;
         }, waitForCapacity: true);
 
+    public Task<PreparedNpcPayment?> PrepareOwnerPaymentAsync(Sessions.PlayerSession session, ulong npcEntityId, long fee) =>
+        PrepareNpcPaymentAsync(session, npcEntityId, Simulation.World.Npcs.NpcServiceKind.BlessCastle, fee);
+
+    public Task<bool> CommitOwnerPaymentAsync(Sessions.PlayerSession session, PreparedNpcPayment payment) => CommitNpcPaymentAsync(session, payment);
+
     // False without a siege; the castle field weakens its defenders now, or when it places them.
     public Task<bool> WeakenSiegeAsync() =>
         EnqueueAsync(NoOwner, () =>

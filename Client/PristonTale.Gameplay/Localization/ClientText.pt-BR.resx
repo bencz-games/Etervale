@@ -21,6 +21,54 @@
   <data name="Brood.Normal" xml:space="preserve"><value>Normal</value></data>
   <data name="Brood.Undead" xml:space="preserve"><value>Morto-vivo</value></data>
   <data name="Brood.User" xml:space="preserve"><value>Jogador</value></data>
+  <data name="Castle.AbsorbEffect" xml:space="preserve"><value>absorção +{0}</value></data>
+  <data name="Castle.Back" xml:space="preserve"><value>Voltar</value></data>
+  <data name="Castle.ChiefOnly" xml:space="preserve"><value>Só o líder do clã altera o castelo.</value></data>
+  <data name="Castle.Cost" xml:space="preserve"><value>Custo: {0} de ouro</value></data>
+  <data name="Castle.DamageEffect" xml:space="preserve"><value>dano +{0}%</value></data>
+  <data name="Castle.EvasionEffect" xml:space="preserve"><value>esquiva de {0}% dos golpes</value></data>
+  <data name="Castle.Fire" xml:space="preserve"><value>Fogo</value></data>
+  <data name="Castle.HowMuch" xml:space="preserve"><value>Quanto ouro</value></data>
+  <data name="Castle.Ice" xml:space="preserve"><value>Gelo</value></data>
+  <data name="Castle.Lightning" xml:space="preserve"><value>Raio</value></data>
+  <data name="Castle.Mercenaries" xml:space="preserve"><value>Mercenários</value></data>
+  <data name="Castle.MercenariesLine" xml:space="preserve"><value>Mercenários: {0} (até {1} de cada)</value></data>
+  <data name="Castle.MercenaryA" xml:space="preserve"><value>Milícia de Ricarten</value></data>
+  <data name="Castle.MercenaryB" xml:space="preserve"><value>Guarda de Ricarten</value></data>
+  <data name="Castle.MercenaryC" xml:space="preserve"><value>Guarda real de Bless</value></data>
+  <data name="Castle.MercenaryLine" xml:space="preserve"><value>{0}: {1}/{2} ({3} cada)</value></data>
+  <data name="Castle.NoSkill" xml:space="preserve"><value>nenhuma</value></data>
+  <data name="Castle.NoTower" xml:space="preserve"><value>nenhuma</value></data>
+  <data name="Castle.Reset" xml:space="preserve"><value>Desfazer</value></data>
+  <data name="Castle.Save" xml:space="preserve"><value>Salvar</value></data>
+  <data name="Castle.Skill" xml:space="preserve"><value>Habilidade</value></data>
+  <data name="Castle.SkillLine" xml:space="preserve"><value>{0}: {1}</value></data>
+  <data name="Castle.SkillNow" xml:space="preserve"><value>Habilidade: {0}</value></data>
+  <data name="Castle.SkillTomorrow" xml:space="preserve"><value>Habilidade a partir de amanhã: {0}</value></data>
+  <data name="Castle.Status.Busy" xml:space="preserve"><value>Termine o que está fazendo primeiro.</value></data>
+  <data name="Castle.Status.DuringSiege" xml:space="preserve"><value>Não durante um cerco.</value></data>
+  <data name="Castle.Status.InvalidSetup" xml:space="preserve"><value>Essa mudança não é possível.</value></data>
+  <data name="Castle.Status.NotChief" xml:space="preserve"><value>Só o líder do clã pode fazer isso.</value></data>
+  <data name="Castle.Status.NotEnoughGold" xml:space="preserve"><value>Você não tem ouro suficiente.</value></data>
+  <data name="Castle.Status.NotEnoughTreasury" xml:space="preserve"><value>O tesouro não tem tudo isso.</value></data>
+  <data name="Castle.Status.NotOwner" xml:space="preserve"><value>Seu clã não domina o Bless Castle.</value></data>
+  <data name="Castle.Status.OutOfReach" xml:space="preserve"><value>Você está longe demais do mordomo.</value></data>
+  <data name="Castle.Status.TooMuchGold" xml:space="preserve"><value>Você não pode carregar tanto ouro.</value></data>
+  <data name="Castle.Status.Unavailable" xml:space="preserve"><value>O castelo não pode ser alterado agora. Tente de novo.</value></data>
+  <data name="Castle.Tax" xml:space="preserve"><value>Imposto</value></data>
+  <data name="Castle.TaxLine" xml:space="preserve"><value>Imposto: {0} (amanhã {1})</value></data>
+  <data name="Castle.ToWithdraw" xml:space="preserve"><value>tirar do tesouro?</value></data>
+  <data name="Castle.TowerInnerA" xml:space="preserve"><value>Pátio interno A</value></data>
+  <data name="Castle.TowerInnerB" xml:space="preserve"><value>Pátio interno B</value></data>
+  <data name="Castle.TowerInnerC" xml:space="preserve"><value>Pátio interno C</value></data>
+  <data name="Castle.TowerInnerD" xml:space="preserve"><value>Pátio interno D</value></data>
+  <data name="Castle.TowerLine" xml:space="preserve"><value>{0}: {1}  {2}</value></data>
+  <data name="Castle.TowerOuterA" xml:space="preserve"><value>Portão externo A</value></data>
+  <data name="Castle.TowerOuterB" xml:space="preserve"><value>Portão externo B</value></data>
+  <data name="Castle.Towers" xml:space="preserve"><value>Torres de cristal</value></data>
+  <data name="Castle.TowersLine" xml:space="preserve"><value>Torres de cristal: {0} de {1}</value></data>
+  <data name="Castle.Treasury" xml:space="preserve"><value>Tesouro: {0} de ouro</value></data>
+  <data name="Castle.Withdraw" xml:space="preserve"><value>Sacar</value></data>
   <data name="CharSelect.ChooseClass" xml:space="preserve"><value>Escolha uma classe.</value></data>
   <data name="CharSelect.ChooseTribe" xml:space="preserve"><value>Escolha uma tribo.</value></data>
   <data name="CharSelect.ClassModelsFailed" xml:space="preserve"><value>Não foi possível carregar os modelos das classes.</value></data>

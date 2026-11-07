@@ -11,4 +11,7 @@ public interface IClanDirectory : IClanRoster
     string? NameOf(long clanId);
 
     long IdOf(string name);
+
+    // An online player's rank in its clan, null without one.
+    Simulation.Social.Clans.ClanRank? RankOf(ulong entityId);
 }

@@ -27,7 +27,10 @@ public sealed class HudNpcPanel(
     public const int VisibleLines = 16;
     public const int ButtonWidth = 152;
     public const int ButtonHeight = 28;
-    private const int TextWidth = SizeW * 32 + 64 - 64;
+    // Where the panel's lines start and how wide they run.
+    public const int TextLeft = BoxX + 30;
+    public const int TextTop = BoxY + 66;
+    public const int TextWidth = SizeW * 32;
     private const int ButtonColumns = 2;
     private const int MaxButtonRows = 3;
     private const int MaxDestinations = 4;
@@ -185,7 +188,7 @@ public sealed class HudNpcPanel(
         {
             var top = ButtonCount == 0 ? OkButton.Y
                 : Destinations.Count > 0 ? DestinationButton(0, ButtonCount).Y : ServiceButton(0, ButtonCount).Y;
-            return Math.Clamp((top - 8 - (BoxY + 66)) / 15, 1, VisibleLines);
+            return Math.Clamp((top - 8 - TextTop) / 15, 1, VisibleLines);
         }
     }
 
@@ -204,7 +207,7 @@ public sealed class HudNpcPanel(
         string[] lines = Destinations.Count > 0 ? [ClientText.Get("Npc.WhereTo")] : _dialog;
         for (var line = 0; line < capacity && _firstLine + line < lines.Length; line++)
         {
-            painter.Text(lines[_firstLine + line], BoxX + 30, BoxY + 66 + 15 * line);
+            painter.Text(lines[_firstLine + line], TextLeft, TextTop + 15 * line);
         }
 
         if (lines.Length > capacity)

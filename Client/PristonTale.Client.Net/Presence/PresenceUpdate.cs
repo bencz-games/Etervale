@@ -58,6 +58,10 @@ public sealed record PresenceUpdate(
     // Bless Castle, at world entry and on every change.
     public CastleInfo? Castle { get; init; }
 
+    // The owner's window at the castle's butler and how a request of it ended.
+    public CastleOwnerInfo? CastleOwner { get; init; }
+    public CastleOwnerResultInfo? CastleOwnerResult { get; init; }
+
     // The local player's trade window when it changed (TradeInfo.None once it ended), and a player's request to trade.
     public TradeInfo? Trade { get; init; }
     public TradeRequestInfo? TradeRequest { get; init; }

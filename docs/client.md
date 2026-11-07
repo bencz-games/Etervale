@@ -455,6 +455,11 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   32 walking (8 ahead), 16 running (14 ahead), attacking or casting. Out of the water, each step in an ice field leaves a
   footprint on an ice floor (`image/mk-r.tga` 3 units right and 5 ahead, `mk-l.tga` left), 12 x 12 units, tilted with
   the ice, fading to a fifth over five seconds; at most 20 lie at a time. Local player only, as in the original.
+- The butler's window (`HudCastleWindow`, in the NPC panel; the NPC's Bless Castle service opens it and asks the
+  server for it): the treasury, the tax and the clan skill now and from the next day, the crystal towers bought and the
+  mercenaries, and, for the chief, pages to pick the tax, the skill, each tower's element (a click gives the next one)
+  and one more mercenary per click, with the cost (`CastleOwnerRules`), Save, Undo and Back, and Withdraw (the count
+  box, at most the treasury). A refused request shows its reason in the notice strip.
 - Bless Castle's crown (`CrownPresentation`): every player of the clan holding the castle within 12 x 64 units of the
   player, the player included, wears `weapons/Crown.smd` floating 20 units over its head bone (the top of the head and
   10 more; 36 units over the feet without one), bobbing half a unit once a second and turning once every 16.4 s.

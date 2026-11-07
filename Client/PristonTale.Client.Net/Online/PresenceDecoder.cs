@@ -145,6 +145,13 @@ internal sealed class PresenceDecoder : IEventHandleReader
             EtervaleOpcodes.PartyRequest => OnPartyRequest(PartyRequestPacket.Read(packet)),
             EtervaleOpcodes.ClanState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Clan = Clan(ClanStatePacket.Read(packet)) },
             EtervaleOpcodes.CastleState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Castle = Castle(CastleStatePacket.Read(packet)) },
+            EtervaleOpcodes.CastleOwnerState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { CastleOwner = CastleOwner(CastleOwnerStatePacket.Read(packet)) },
+            EtervaleOpcodes.CastleOwnerResult => new PresenceUpdate(_tick, [], [], [], [], FieldId)
+            {
+                CastleOwnerResult = CastleOwnerResultPacket.Read(packet) is var result
+                    ? new CastleOwnerResultInfo(result.Action, (Simulation.Social.Castle.CastleOwnerStatus)result.Status)
+                    : null
+            },
             EtervaleOpcodes.ClanInvite => new PresenceUpdate(_tick, [], [], [], [], FieldId)
             {
                 ClanInvitation = ClanInvitePacket.Read(packet) is var invite ? new ClanInvitationInfo(invite.RecruiterId, invite.ClanName, invite.ChiefName) : null
@@ -240,6 +247,12 @@ internal sealed class PresenceDecoder : IEventHandleReader
         new((long)packet.OwnerClanId, packet.OwnerName, (Simulation.Social.Castle.SiegeState)packet.Siege, packet.League, packet.SecondsLeft,
             packet.DoorDown, packet.Crystals, [.. packet.Top.Select(static clan => new CastleClanInfo((long)clan.ClanId, clan.Name, (long)clan.Damage))],
             (long)packet.TotalDamage);
+
+    private static CastleOwnerInfo CastleOwner(CastleOwnerStatePacket packet) => !packet.HasView ? CastleOwnerInfo.None
+        : new CastleOwnerInfo(true, (long)Math.Min(packet.Treasury, long.MaxValue), packet.Tax,
+            new Simulation.Social.Castle.CastleSetup(packet.NextTax, (Simulation.Social.Castle.CastleClanSkill)packet.Skill,
+                [.. packet.Towers.Select(static tower => (Simulation.Social.Castle.CastleTower)tower)], [.. packet.Mercenaries.Select(static count => (int)count)]),
+            (Simulation.Social.Castle.CastleClanSkill)packet.SkillInForce, packet.CanEdit);
 
     private PresenceUpdate OnPartyRequest(PartyRequestPacket packet) =>
         new PresenceUpdate(_tick, [], [], [], [], FieldId) { PartyRequest = new PartyRequestInfo(packet.FromId, packet.FromName, packet.Recommended) };

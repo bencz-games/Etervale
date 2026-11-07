@@ -1,6 +1,7 @@
 using Dapper;
 using PristonTale.Persistence.Abstractions;
 using PristonTale.Persistence.Abstractions.Castle;
+using PristonTale.Persistence.Abstractions.Characters;
 
 namespace PristonTale.Persistence.Repositories;
 
@@ -35,5 +36,28 @@ public sealed class DapperCastleRepository(IDbConnectionFactory connectionFactor
     {
         await using var connection = await connectionFactory.OpenAsync(ct);
         await connection.ExecuteAsync(new CommandDefinition(Upsert, castle, cancellationToken: ct));
+    }
+
+    public async Task<bool> SaveWithAsync(CastleRecord castle, CharacterRecord? character, TreasuryMove? move, CancellationToken ct = default)
+    {
+        await using var connection = await connectionFactory.OpenAsync(ct);
+        await using var transaction = await connection.BeginTransactionAsync(ct);
+        if (character is not null
+            && await connection.ExecuteAsync(new CommandDefinition(DapperCharacterRepository.UpdateSql, character, transaction, cancellationToken: ct)) == 0)
+        {
+            await transaction.RollbackAsync(ct);
+            return false;
+        }
+
+        await connection.ExecuteAsync(new CommandDefinition(Upsert, castle, transaction, cancellationToken: ct));
+        if (move is not null)
+        {
+            await connection.ExecuteAsync(new CommandDefinition(
+                "INSERT INTO castle_treasury (clan_id, kind, amount, character_id, at) VALUES (@ClanId, @Kind, @Amount, @CharacterId, @AtSeconds)",
+                new { move.ClanId, Kind = (short)move.Kind, move.Amount, CharacterId = character?.Id, move.AtSeconds }, transaction, cancellationToken: ct));
+        }
+
+        await transaction.CommitAsync(ct);
+        return true;
     }
 }

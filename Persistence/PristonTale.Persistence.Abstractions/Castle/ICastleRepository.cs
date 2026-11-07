@@ -1,3 +1,5 @@
+using PristonTale.Persistence.Abstractions.Characters;
+
 namespace PristonTale.Persistence.Abstractions.Castle;
 
 // The castle row: the owner's towers (one digit per slot, none before the owner sets them), mercenaries of the three
@@ -8,10 +10,24 @@ public sealed record CastleRecord(long OwnerClanId, int Tax, int NextTax, string
     public static CastleRecord Empty { get; } = new(0, 0, 0, "", 0, 0, 0, 0, 0, 0, 0);
 }
 
+// The kinds of treasury movements (Bellatra's prizes, kind 0, join with Bellatra).
+public enum TreasuryKind : short
+{
+    Tax = 1,
+    Withdrawal = 2
+}
+
+// A movement of the owner clan's treasury: an amount in (positive) or out (negative).
+public sealed record TreasuryMove(long ClanId, TreasuryKind Kind, long Amount, long AtSeconds);
+
 public interface ICastleRepository
 {
     // The castle, or Empty before the first save.
     Task<CastleRecord> LoadAsync(CancellationToken ct = default);
 
     Task SaveAsync(CastleRecord castle, CancellationToken ct = default);
+
+    // The castle with the character that paid or received gold (its UpdateSql) and a treasury movement, in one
+    // transaction; false when the character's capture is older than the stored one.
+    Task<bool> SaveWithAsync(CastleRecord castle, CharacterRecord? character, TreasuryMove? move, CancellationToken ct = default);
 }

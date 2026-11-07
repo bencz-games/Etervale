@@ -86,6 +86,11 @@ public interface IPlayChannel : IAsyncDisposable
     // The chief's new clan mark (ClanWire.MarkSize square RGBA pixels), answered by a ClanResult for ClanAction.Mark.
     Task SendClanMarkAsync(byte[] pixels, CancellationToken ct = default);
 
+    // A request of the owner's window at the castle's butler (the setup it saves, a withdrawal's gold), answered by a
+    // CastleOwnerResult and the window's state.
+    Task SendCastleOwnerAsync(Protocol.Packets.CastleOwnerAction action, ulong npcId, Simulation.Social.Castle.CastleSetup setup, long amount,
+        CancellationToken ct = default);
+
     // Trade requests: ask a player to trade, answer a request (PresenceUpdate.TradeRequest), the side's whole offer, lock it,
     // cancel. None is answered: the window (PresenceUpdate.Trade) and chat lines show what changed.
     Task RequestTradeAsync(ulong targetId, CancellationToken ct = default);

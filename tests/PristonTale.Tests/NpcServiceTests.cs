@@ -276,17 +276,17 @@ internal static class NpcServiceTests
 
     private static async Task ShopAsync()
     {
-        var fixture = await Fixture.CreateAsync(1000, [new NpcService(NpcServiceKind.Shop), new NpcService(NpcServiceKind.BlessCastle)]);
+        var fixture = await Fixture.CreateAsync(1000, [new NpcService(NpcServiceKind.Shop), new NpcService(NpcServiceKind.Polling)]);
         var (world, npc, session, service) = (fixture.World, fixture.NpcId, fixture.Session, fixture.Npc);
         var interaction = await WorldPump.RunAsync(world, world.InteractNpcAsync(session, npc));
-        Assert.True(interaction.Ok && interaction.Offers(NpcServiceKind.Shop) && !interaction.Offers(NpcServiceKind.BlessCastle)
+        Assert.True(interaction.Ok && interaction.Offers(NpcServiceKind.Shop) && !interaction.Offers(NpcServiceKind.Polling)
             && interaction.Dialog.Count == 1 && Fixture.Lines.Contains(interaction.Dialog[0]), "typed dialog differs");
 
         var open = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, new NpcServiceCommand(Guid.NewGuid(), npc, NpcServiceKind.Shop,
             NpcServiceAction.Open)));
         Assert.True(open.Outcome.Ok && open.Catalog!.Single(offer => offer.Code == AxeCode).Price == 60 && open.Quotes is not null,
             "shop catalog does not carry server prices");
-        var castle = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, new NpcServiceCommand(Guid.NewGuid(), npc, NpcServiceKind.BlessCastle,
+        var castle = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, new NpcServiceCommand(Guid.NewGuid(), npc, NpcServiceKind.Polling,
             NpcServiceAction.Open)));
         Assert.True(castle.Outcome.Status == NpcServiceStatus.NotAvailable, "an unported service did not answer not available");
 

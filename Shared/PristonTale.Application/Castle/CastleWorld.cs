@@ -36,4 +36,9 @@ public interface ICastleWorld
     Task<IReadOnlyList<CastleArrival>> EndSiegeAsync(long ownerClanId);
 
     Task<bool> WeakenSiegeAsync();
+
+    // The gold the owner's chief pays at the castle's butler, or receives from the treasury (a negative fee).
+    Task<World.PreparedNpcPayment?> PrepareOwnerPaymentAsync(Sessions.PlayerSession session, ulong npcEntityId, long fee);
+
+    Task<bool> CommitOwnerPaymentAsync(Sessions.PlayerSession session, World.PreparedNpcPayment payment);
 }

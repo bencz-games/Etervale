@@ -32,8 +32,8 @@ public sealed class HudClanWindow
         MarkConfirm
     }
 
-    private const int TextWidth = HudNpcPanel.SizeW * 32;
-    private const int TextTop = HudNpcPanel.BoxY + 66;
+    private const int TextWidth = HudNpcPanel.TextWidth;
+    private const int TextTop = HudNpcPanel.TextTop;
     private const int LineStep = HudPainter.LineHeight;
     private static readonly Color Highlight = HudTextColors.Marked;
     private static readonly Color Offline = new(170, 170, 170);

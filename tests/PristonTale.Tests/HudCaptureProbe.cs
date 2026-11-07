@@ -106,6 +106,7 @@ internal sealed class HudCaptureProbe : Game
     private const uint CraftsmanNpc = 14;
     private const uint ResetterNpc = 15;
     private const uint ClanMasterNpc = 16;
+    private const uint ButlerNpc = 17;
 
     private enum ProbePlates
     {
@@ -128,7 +129,7 @@ internal sealed class HudCaptureProbe : Game
         int ServiceButton = -1, bool SellMode = false, int ServiceCount = 2, int RightSelect = -1, bool Buffs = false, bool Block = false,
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
         ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false, ProbePlates Plates = ProbePlates.None, bool ClanPage = false,
-        bool Siege = false);
+        bool Siege = false, int CastleButton = -1, bool CastleChief = true);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -210,6 +211,11 @@ internal sealed class HudCaptureProbe : Game
         new("npc-mixture-reset-800", 800, 600, Npc: true, NpcId: ResetterNpc, ServiceButton: 0, ServiceCount: 1),
         new("clan-intro-800", 800, 600, Npc: true, NpcId: ClanMasterNpc, ServiceButton: 0, ServiceCount: 1),
         new("clan-chief-800", 800, 600, Npc: true, NpcId: ClanMasterNpc, ServiceButton: 0, ServiceCount: 1, Clan: true),
+        new("castle-owner-800", 800, 600, Npc: true, NpcId: ButlerNpc, ServiceButton: 0, ServiceCount: 1),
+        new("castle-owner-member-800", 800, 600, Npc: true, NpcId: ButlerNpc, ServiceButton: 0, ServiceCount: 1, CastleChief: false),
+        new("castle-owner-towers-800", 800, 600, Npc: true, NpcId: ButlerNpc, ServiceButton: 0, ServiceCount: 1, CastleButton: 2),
+        new("castle-owner-tax-800", 800, 600, Npc: true, NpcId: ButlerNpc, ServiceButton: 0, ServiceCount: 1, CastleButton: 0),
+        new("castle-owner-mercenaries-1280", 1280, 720, Npc: true, NpcId: ButlerNpc, ServiceButton: 0, ServiceCount: 1, CastleButton: 3),
         new("system-menu-800", 800, 600, SystemMenu: true),
         new("settings-800", 800, 600, Hover: Hover.SettingsRow, Settings: true),
         new("settings-1600x1200-scale2", 1600, 1200, Settings: true),
@@ -445,6 +451,26 @@ internal sealed class HudCaptureProbe : Game
                 _hud.Update(state, default, default);
             }
 
+            if (scenario.NpcId == ButlerNpc)
+            {
+                _hud.ObserveCastle(new PresenceUpdate(1, [], [], [], [])
+                {
+                    CastleOwner = new CastleOwnerInfo(true, 12_345_678, 3,
+                        new Simulation.Social.Castle.CastleSetup(5, Simulation.Social.Castle.CastleClanSkill.Damage,
+                        [
+                            Simulation.Social.Castle.CastleTower.Fire, Simulation.Social.Castle.CastleTower.Ice, Simulation.Social.Castle.CastleTower.None,
+                            Simulation.Social.Castle.CastleTower.Lightning, Simulation.Social.Castle.CastleTower.None, Simulation.Social.Castle.CastleTower.None
+                        ], [8, 4, 2]),
+                        Simulation.Social.Castle.CastleClanSkill.Evasion, scenario.CastleChief),
+                    CastleOwnerResult = new CastleOwnerResultInfo(Protocol.Packets.CastleOwnerAction.Open, Simulation.Social.Castle.CastleOwnerStatus.Ok)
+                });
+                if (scenario.CastleButton >= 0)
+                {
+                    Click(state, layout, HudNpcPanel.ServiceButton(scenario.CastleButton, 5).Center);
+                    Click(state, layout, new Point(HudNpcPanel.TextLeft + 30, HudNpcPanel.TextTop + 2 * HudPainter.LineHeight + 4));
+                }
+            }
+
             if (scenario.SellMode)
             {
                 Click(state, layout, HudStoreLayout.Sell(HudStoreLayout.Origin(0)).Center);
@@ -676,6 +702,8 @@ internal sealed class HudCaptureProbe : Game
                 ["Sheltoms become force orbs here."], GameText.None),
             ClanMasterNpc => new NpcInteraction(true, id, "Clan Master", [Offer(NpcServiceKind.Clan, 0, true)],
                 ["All matters of clans are handled by me!"], GameText.None),
+            ButlerNpc => new NpcInteraction(true, id, "Butler Anders", [Offer(NpcServiceKind.BlessCastle, 0, true)],
+                ["How may I serve the lords of Bless Castle?"], GameText.None),
             SmelterNpc => new NpcInteraction(true, id, "Smelter Ruby", [Offer(NpcServiceKind.QuestGiver, 1019, false), Offer(NpcServiceKind.Smelting, 0, true)],
                 ["Three ores or crystals of one colour and their sheltom."], GameText.None),
             CraftsmanNpc => new NpcInteraction(true, id, "Craftsman Salon",

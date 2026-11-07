@@ -4,6 +4,15 @@ namespace PristonTale.Client.Net.Presence;
 
 public sealed record CastleClanInfo(long ClanId, string Name, long Damage);
 
+// The owner's window as the server last sent it (None: the player's clan does not hold the castle): the treasury, the tax
+// in force and the setup for the next day and siege, the clan skill in force, and whether the player (the chief) edits.
+public sealed record CastleOwnerInfo(bool HasView, long Treasury, int Tax, CastleSetup Setup, CastleClanSkill SkillInForce, bool CanEdit)
+{
+    public static readonly CastleOwnerInfo None = new(false, 0, 0, CastleSetup.Empty, CastleClanSkill.None, false);
+}
+
+public sealed record CastleOwnerResultInfo(Protocol.Packets.CastleOwnerAction Action, CastleOwnerStatus Status);
+
 // Bless Castle as the server last told it: the owner clan (0 for none), whether the server runs the league (players
 // never fight each other then), and the siege's state, the seconds a running one had left and what stands, with the best
 // clans' damage.

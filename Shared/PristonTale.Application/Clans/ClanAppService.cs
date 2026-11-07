@@ -86,6 +86,16 @@ public sealed class ClanAppService : IClanDirectory
         }
     }
 
+    public ClanRank? RankOf(ulong entityId)
+    {
+        lock (_state)
+        {
+            return _online.TryGetValue(entityId, out var online) && _byCharacter.TryGetValue(online.CharacterId, out var clan)
+                ? clan.Find(online.CharacterId)?.Rank
+                : null;
+        }
+    }
+
     public async Task LoadAsync(CancellationToken ct = default)
     {
         var (clans, members) = await _repository.LoadAsync(ct);
@@ -522,15 +532,22 @@ public sealed class ClanAppService : IClanDirectory
     // The Clan Master's fee through the world's durable path, stored by store with the paying character; a refusal, a
     // busy world or a storage failure answers why.
     private async Task<ClanStatus> PayAsync(string sessionToken, ulong npcEntityId, long fee, int minimumLevel,
-        Func<PlayerSession, PreparedClanPayment, Task<bool>> store)
+        Func<PlayerSession, PreparedNpcPayment, Task<bool>> store)
     {
         try
         {
             using var lease = await _durable.AdmitAsync(_sessions, sessionToken, CancellationToken.None);
             return await lease.RunAsync(
-                s => _world.PrepareClanPaymentAsync(s, npcEntityId, fee, minimumLevel),
-                _world.CommitClanPaymentAsync,
-                static prepared => prepared.Status,
+                s => _world.PrepareNpcPaymentAsync(s, npcEntityId, Simulation.World.Npcs.NpcServiceKind.Clan, fee, minimumLevel),
+                _world.CommitNpcPaymentAsync,
+                static prepared => prepared.Status switch
+                {
+                    NpcPaymentStatus.Ok => ClanStatus.Ok,
+                    NpcPaymentStatus.OutOfReach => ClanStatus.OutOfReach,
+                    NpcPaymentStatus.LevelTooLow => ClanStatus.LevelTooLow,
+                    NpcPaymentStatus.NotEnoughGold => ClanStatus.NotEnoughGold,
+                    _ => ClanStatus.Busy
+                },
                 static _ => ClanStatus.Unavailable,
                 async (s, prepared) => await StoreAsync(() => store(s, prepared)) ? null : DurableFailure.StorageFailed);
         }

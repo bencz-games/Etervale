@@ -2,6 +2,10 @@ using System.Collections.Concurrent;
 using System.Data.Common;
 using PristonTale.Application.Chat;
 using PristonTale.Application.Clans;
+using PristonTale.Application.Saves;
+using PristonTale.Application.Services;
+using PristonTale.Application.Sessions;
+using PristonTale.Application.World;
 using PristonTale.Contracts.Social;
 using PristonTale.Contracts.Texts;
 using PristonTale.Persistence.Abstractions.Castle;
@@ -18,6 +22,10 @@ public sealed record CastleOptions(CastleMode Mode, int SiegeDay, int SiegeHour)
 // What a game master or a client reads of the castle.
 public sealed record CastleView(long OwnerClanId, string OwnerName, int Tax, int NextTax, CastleClanSkill SkillInForce, int FountainPotions,
     SiegeState Siege, long SiegeStartedAt, long SiegeEndsAt, bool League);
+
+// The owner's window at the castle's butler: the setup chosen for the next day and siege, the tax and the clan skill in
+// force, the treasury, and whether the viewer (the chief) may change them.
+public sealed record CastleOwnerView(CastleSetup Setup, int Tax, CastleClanSkill SkillInForce, long Treasury, bool CanEdit);
 
 public enum CastleOwnerResult : byte
 {
@@ -55,6 +63,8 @@ public sealed class CastleAppService
     private readonly IClanDirectory _clans;
     private readonly ChatDirectory _chat;
     private readonly ICastleWorld _world;
+    private readonly ISessionRegistry? _sessions;
+    private readonly DurableOperations? _durable;
     private readonly TimeProvider _clock;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private CastleRecord _record = CastleRecord.Empty;
@@ -73,8 +83,11 @@ public sealed class CastleAppService
     private CastleMode _mode = CastleOptions.Default.Mode;
     private bool _storageFailed;
 
-    public CastleAppService(ICastleRepository repository, IClanDirectory clans, ChatDirectory chat, ICastleWorld world, TimeProvider? clock = null)
+    public CastleAppService(ICastleRepository repository, IClanDirectory clans, ChatDirectory chat, ICastleWorld world, TimeProvider? clock = null,
+        ISessionRegistry? sessions = null, ICharacterSaves? saves = null)
     {
+        _sessions = sessions;
+        _durable = saves is null ? null : new DurableOperations(saves);
         _repository = repository;
         _clans = clans;
         _chat = chat;
@@ -130,7 +143,7 @@ public sealed class CastleAppService
         var record = Volatile.Read(ref _record);
         var siege = Volatile.Read(ref _siege);
         return new CastleView(record.OwnerClanId, _clans.NameOf(record.OwnerClanId) ?? "", record.Tax, record.NextTax,
-            Enum.IsDefined((CastleClanSkill)record.SkillInForce) ? (CastleClanSkill)record.SkillInForce : CastleClanSkill.None,
+            SkillOf(record.SkillInForce),
             record.FountainPotions, siege.State, siege.StartedAt.ToUnixTimeSeconds(), siege.EndsAt.ToUnixTimeSeconds(),
             siege.LeagueEndsAt > _clock.GetUtcNow());
     }
@@ -268,6 +281,157 @@ public sealed class CastleAppService
             _gate.Release();
         }
     }
+
+    // The owner's window for a member of the clan holding the castle; null for anyone else.
+    public CastleOwnerView? OwnerViewOf(ulong entityId)
+    {
+        var record = Volatile.Read(ref _record);
+        return !CastleSiegeRules.HoldsCastle(_clans.ClanOf(entityId), record.OwnerClanId) ? null
+            : new CastleOwnerView(SetupOf(record), record.Tax, SkillOf(record.SkillInForce), record.Treasury,
+                _clans.RankOf(entityId) == Simulation.Social.Clans.ClanRank.Chief);
+    }
+
+    // The chief's new setup at the butler, in peace: what it adds is paid from the chief's gold (CastleOwnerRules) and
+    // stored with the castle.
+    public async Task<CastleOwnerStatus> SaveSetupAsync(string sessionToken, ulong npcEntityId, CastleSetup wanted)
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            var record = Volatile.Read(ref _record);
+            if (Refusal(sessionToken, record) is { } refused)
+            {
+                return refused;
+            }
+
+            if (_siege.State != SiegeState.Peace)
+            {
+                return CastleOwnerStatus.DuringSiege;
+            }
+
+            if (CastleOwnerRules.Cost(SetupOf(record), wanted, out var cost) != CastleOwnerStatus.Ok)
+            {
+                return CastleOwnerStatus.InvalidSetup;
+            }
+
+            var next = record with
+            {
+                NextTax = wanted.Tax,
+                ClanSkill = (int)wanted.Skill,
+                Towers = string.Concat(wanted.Towers.Select(static tower => (char)('0' + (int)tower))),
+                MercenaryA = wanted.Mercenaries[0],
+                MercenaryB = wanted.Mercenaries[1],
+                MercenaryC = wanted.Mercenaries[2]
+            };
+            return await PayAsync(sessionToken, npcEntityId, cost, next, move: null);
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    // The chief takes gold out of the treasury at the butler, stored with the castle and the movement.
+    public async Task<CastleOwnerStatus> WithdrawAsync(string sessionToken, ulong npcEntityId, long amount)
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            var record = Volatile.Read(ref _record);
+            if (Refusal(sessionToken, record) is { } refused)
+            {
+                return refused;
+            }
+
+            if (_siege.State != SiegeState.Peace)
+            {
+                return CastleOwnerStatus.DuringSiege;
+            }
+
+            if (amount <= 0 || amount > record.Treasury)
+            {
+                return CastleOwnerStatus.NotEnoughTreasury;
+            }
+
+            return await PayAsync(sessionToken, npcEntityId, -amount, record with { Treasury = record.Treasury - amount },
+                new TreasuryMove(record.OwnerClanId, TreasuryKind.Withdrawal, -amount, _clock.GetUtcNow().ToUnixTimeSeconds()));
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    // Who may change the castle: a playing chief of the clan holding it, while no conquest or spent setup waits to be
+    // stored (a purchase then would be counted against what is about to go).
+    private CastleOwnerStatus? Refusal(string sessionToken, CastleRecord record)
+    {
+        if (!Available || _sessions is null || _durable is null || !_sessions.TryGet(sessionToken, out var session))
+        {
+            return CastleOwnerStatus.Unavailable;
+        }
+
+        if (_conquest != NoConquest || _setupSpent)
+        {
+            return CastleOwnerStatus.Busy;
+        }
+
+        return !CastleSiegeRules.HoldsCastle(_clans.ClanOf(session.EntityId), record.OwnerClanId) ? CastleOwnerStatus.NotOwner
+            : _clans.RankOf(session.EntityId) != Simulation.Social.Clans.ClanRank.Chief ? CastleOwnerStatus.NotChief
+            : null;
+    }
+
+    // The world takes the fee (or gives a negative one) at the butler; the castle is stored with the character first and
+    // kept in memory as soon as it is stored, so that a later store never writes back the castle before it.
+    private async Task<CastleOwnerStatus> PayAsync(string sessionToken, ulong npcEntityId, long fee, CastleRecord next, TreasuryMove? move)
+    {
+        try
+        {
+            using var lease = await _durable!.AdmitAsync(_sessions!, sessionToken, CancellationToken.None);
+            var status = await lease.RunAsync(
+                s => _world.PrepareOwnerPaymentAsync(s, npcEntityId, fee),
+                _world.CommitOwnerPaymentAsync,
+                static prepared => prepared.Status switch
+                {
+                    NpcPaymentStatus.Ok => CastleOwnerStatus.Ok,
+                    NpcPaymentStatus.OutOfReach => CastleOwnerStatus.OutOfReach,
+                    NpcPaymentStatus.NotEnoughGold => CastleOwnerStatus.NotEnoughGold,
+                    NpcPaymentStatus.TooMuchGold => CastleOwnerStatus.TooMuchGold,
+                    _ => CastleOwnerStatus.Busy
+                },
+                static _ => CastleOwnerStatus.Unavailable,
+                async (s, prepared) =>
+                {
+                    try
+                    {
+                        if (!await _repository.SaveWithAsync(next, s.Stamp(prepared.Snapshot!), move))
+                        {
+                            return DurableFailure.StorageFailed;
+                        }
+
+                        Volatile.Write(ref _record, next);
+                        return null;
+                    }
+                    catch (DbException)
+                    {
+                        return DurableFailure.StorageFailed;
+                    }
+                });
+            return status;
+        }
+        catch (WorldBusyException)
+        {
+            return CastleOwnerStatus.Busy;
+        }
+    }
+
+    private static CastleClanSkill SkillOf(int value) => Enum.IsDefined((CastleClanSkill)value) ? (CastleClanSkill)value : CastleClanSkill.None;
+
+    // The owner's setup as stored: the next tax, the clan skill chosen, one digit per tower slot and the mercenaries.
+    private static CastleSetup SetupOf(CastleRecord record) => new(record.NextTax, SkillOf(record.ClanSkill),
+        [.. Enumerable.Range(0, CastleSiegeRules.TowerSlots).Select(slot => slot < record.Towers.Length && record.Towers[slot] - '0' is var element
+            && Enum.IsDefined((CastleTower)element) ? (CastleTower)element : CastleTower.None)],
+        [record.MercenaryA, record.MercenaryB, record.MercenaryC]);
 
     // The next tax and the chosen clan skill take effect now (as at CastleRules.TaxHour).
     public async Task<bool> ApplyTaxAsync()
@@ -467,10 +631,11 @@ public sealed class CastleAppService
         _setupSpent = !await StoreAsync(record with { Towers = "", MercenaryA = 0, MercenaryB = 0, MercenaryC = 0 });
     }
 
-    // The owner's towers (one digit per slot) and mercenaries.
-    private static CastleSiegeOrder Order(CastleRecord record) => new(record.OwnerClanId,
-        [.. record.Towers.Select(static digit => digit - '0' is var element && Enum.IsDefined((CastleTower)element) ? (CastleTower)element : CastleTower.None)],
-        [record.MercenaryA, record.MercenaryB, record.MercenaryC]);
+    private static CastleSiegeOrder Order(CastleRecord record)
+    {
+        var setup = SetupOf(record);
+        return new CastleSiegeOrder(record.OwnerClanId, setup.Towers, setup.Mercenaries);
+    }
 
     private void Publish(SiegeClock siege) => Volatile.Write(ref _siege, siege);
 
@@ -488,7 +653,7 @@ public sealed class CastleAppService
         if ((record.OwnerClanId, record.SkillInForce) != _toldWorld)
         {
             _toldWorld = (record.OwnerClanId, record.SkillInForce);
-            _world.SetOwner(record.OwnerClanId, Enum.IsDefined((CastleClanSkill)record.SkillInForce) ? (CastleClanSkill)record.SkillInForce : CastleClanSkill.None);
+            _world.SetOwner(record.OwnerClanId, SkillOf(record.SkillInForce));
         }
 
         lock (_announce)

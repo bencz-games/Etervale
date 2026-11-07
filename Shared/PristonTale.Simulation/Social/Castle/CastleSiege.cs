@@ -35,8 +35,8 @@ public readonly record struct CastleClanScore(long ClanId, long Damage);
 // mercenaries of each kind and crystal towers of random elements.
 public static class CastleSiegeRules
 {
-    public const int TowerSlots = 6;
-    public const int MercenaryKinds = 3;
+    public const int TowerSlots = Contracts.Social.CastleLimits.TowerSlots;
+    public const int MercenaryKinds = Contracts.Social.CastleLimits.MercenaryKinds;
     public const int MercenaryMax = 20;
     public const int TopClans = Contracts.Social.CastleLimits.TopClans;
 
