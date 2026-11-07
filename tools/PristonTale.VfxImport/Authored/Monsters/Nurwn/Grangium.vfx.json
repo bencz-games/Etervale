@@ -1,0 +1,69 @@
+[
+  {
+    "name": "vfx.monster.grangium.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.GrangiumHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ],
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          54,
+          0
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          -4.5,
+          0
+        ],
+        "speed": 900,
+        "reach": 15,
+        "carryEffect": "vfx.mech.spark.bolt",
+        "endEffect": "vfx.mech.spark.hit"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.grangium.body",
+    "duration": 600.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01_Pe",
+        "follow": true,
+        "carryEffect": "particle.GrangiumBody"
+      }
+    ]
+  }
+]

@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.nihil.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.NihilSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.nihil.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.NihilHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

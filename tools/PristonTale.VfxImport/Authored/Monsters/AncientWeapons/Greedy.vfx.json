@@ -1,0 +1,116 @@
+[
+  {
+    "name": "vfx.monster.greedy.skill.kK",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.GreedyStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.greedy.skill.hit.kK",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.GreedySkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.greedy.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.GreedyHit1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.greedy.attack.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.GreedyHit2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.greedy.body",
+    "duration": 600.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 L Finger1",
+        "follow": true,
+        "carryEffect": "particle.GreedyBody"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 R Finger1",
+        "follow": true,
+        "carryEffect": "particle.GreedyBody"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.greedy.summoned",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "vfx.monster.hulk.hit",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          42,
+          -70
+        ],
+        "turn": true
+      }
+    ]
+  }
+]

@@ -156,7 +156,7 @@ seconds; a zero lifetime lives as long as its animation, model clip or flight, o
 
 | Group | Fields |
 |---|---|
-| Look | `shape`: `Billboard`, `Ground`, `Streak` (from where it started to where it is), `Line` (behind it along its velocity, `lineSeconds` long), `Ribbon` (through its last `trailPoints`, `trailFade` alpha off per point), `Blade` (band swept by a bone over `bladeLength` along its Y axis), `Beam` (to its goal, or to `beamTo`), `Model` |
+| Look | `shape`: `Billboard`, `Ground`, `Streak` (from where it started to where it is), `Line` (behind it along its velocity, `lineSeconds` long), `Ribbon` (through its last `trailPoints`, `trailFade` alpha off per point), `Blade` (band swept by a bone over `bladeLength` along its `bladeAxis`, Y by default), `Beam` (to its goal, or to `beamTo`), `Model` |
 | Image | `animation` (an `Effect/AnimationData` file: images, hold ticks, opacity, size, angle and blend come from it), `loop`, `sized` (start from `size` instead of the file's sizes), or `texture` with `frames`, `frameTime`, `pingPong`; `blend`, `color` (0..255), `size`, `height`, `growth`, `rotation`, `spin`, `width` (half width of strips) |
 | Model | `model`, `skeleton`, `modelStart`, `modelFrames`, `modelSpeed` (clip frames per second), `loopFrom`, `angles`, `tumble`, `scale`, `pulse` + `pulsePeriod`, `faceGoal` (face the velocity) |
 | Fade | `fade`: `Rise` (up over 25.5 % of the life, down at the same rate), `Fall` (down over the last 25.5 %), `InOut` (`fadeIn`, `fadeOut` seconds); `fadeOut` also times the fade after arriving |
@@ -225,8 +225,10 @@ client plays it) and reports statuses.
 | `attack.hit` | the attack clip passes its first or second event frame |
 | `skill` | a skill clip starts |
 | `skill.hit` | the skill clip passes one of its four event frames |
-| `death` | the death clip starts (once) |
+| `death` | the death clip starts (once); `death.k<key>` asks the clip's key first |
 | `aura` | the monster appears; stopped at death or when it leaves (hand flames, body glows, circles) |
+| `body` | as `aura`, for the particle scripts traced on the monster's bones; a player's summon shows none |
+| `summoned` | instead of every skill clip start and clip event of a player's summoned Draxos, Greedy or Midranda (Midranda's skill clip start keeps its own): the Hulk's hit 70 ahead; a summoned Draxos plays nothing else of its own |
 | `impact` | a skill hit lands on a player other than the swing's target |
 
 Name: `vfx.monster.<family>.<trigger>`; clip triggers look up `<trigger>.k<key>.e<n>`, `<trigger>.k<key>`,
@@ -248,6 +250,17 @@ lightning crystal's stun (`vfx.debuff.stun`), the defence and attack curses (`vf
 `curseattack`; the mystic's curse visual is part of its skill), ice slows as a blue tint. A Minig reddens with anger
 while it fights. Every family's choices and approximations are in the authored files; `--capture-monster-skills`
 plays representative clips on real models ([testing.md](testing.md)).
+
+The later monsters (the Secret Laboratory's invaders and Draxos, the Ancient Weapons', the Sea of Abyss', Deep Sea
+Temple's, Heart of Fire's, Crystal Nest's and Land of Nurwn's, the lizards, D-Mystery, Inferno, Najan, R-Guard) play the
+ePT client's particle scripts: each family's skill clip start (`skill.k<key>`), skill events (`skill.hit.k<key>[.e<n>]`)
+and attack events (`attack.hit.k<key>`) start `particle.<Script>` once at the caster or the target, 10 above the feet,
+without the facing; `body` carries a script on a bone for the monster's life. Their helpers: Draxos's sword trail (a
+`Blade` from `Bip01 Wapon01` along its X axis), Aragonian's ten falling flame waves, Grangium's spark from above,
+Crystal Wraith's burst on the target; Inferno and the Witch Lord shoot Figon's fire shot with their own sequences and
+colours (Inferno's hands burn with `Power3`/`FireParticle3`, its body of light fades at death), D-Mystery the Shadow's
+dark shot (red) and its skill shot, I-Bomber the Mechanician's bomb with its own model and burst (a larger one at its
+skill), Shogoth a normal hit and Mortal Blow's burst (the Triple Impact hit at twice its size), Najan a homing shot.
 
 To add or change a monster's visuals: edit its family file under `Authored/Monsters/<Group>/`, run `ptvfx import`, then
 `MonsterPresentationTests` (families and names) and the capture probe.

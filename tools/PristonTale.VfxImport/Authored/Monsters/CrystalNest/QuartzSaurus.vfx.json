@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.quartzsaurus.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.QuartzSaurusSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.quartzsaurus.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.QuartzSaurusHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

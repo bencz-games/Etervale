@@ -1,0 +1,66 @@
+[
+  {
+    "name": "vfx.monster.najan.skill.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.MonsterNajanSkill1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.najan.skill.hit.kJ.e2",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.MonsterNajanSkill2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.najan.attack.hit.kH",
+    "duration": 5.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          20,
+          0
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          24,
+          0
+        ],
+        "speed": 700,
+        "reach": 15,
+        "carryEffect": "particle.MonsterNajanHit",
+        "endEffect": "particle.MonsterNajanHitEffect"
+      }
+    ]
+  }
+]

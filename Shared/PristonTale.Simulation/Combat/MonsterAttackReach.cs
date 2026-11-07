@@ -47,6 +47,7 @@ public static class MonsterAttackReach
         CharacterSoundCodes.Naz => true,
         CharacterSoundCodes.Succubus => true,
         CharacterSoundCodes.Shadow => true,
+        CharacterSoundCodes.DMystery => true,
         CharacterSoundCodes.Berserker => true,
         CharacterSoundCodes.StygianLord => true,
         CharacterSoundCodes.DMachine => true,

@@ -1,0 +1,47 @@
+[
+  {
+    "name": "vfx.monster.oblanko.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.OblankoSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.oblanko.attack.hit.kH.e1",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.OblankoHit1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.oblanko.attack.hit.kH.e2",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.OblankoHit2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

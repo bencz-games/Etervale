@@ -1,0 +1,306 @@
+[
+  {
+    "name": "vfx.monster.ibomber.bombhit",
+    "duration": 3.0,
+    "parts": [
+      {
+        "animation": "MonsterIBomberHit_Scatter.ini",
+        "shape": "Line",
+        "count": 23,
+        "radial": [
+          41.0156,
+          81.7578
+        ],
+        "rise": [
+          41.0156,
+          109.1016
+        ],
+        "gravity": [
+          -191.4062,
+          -114.8438
+        ],
+        "lifetime": [
+          0.7857,
+          1.0571
+        ],
+        "lineSeconds": 0.1143,
+        "width": [
+          0.54,
+          0.54
+        ],
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "sized": false
+      },
+      {
+        "animation": "MonsterIBomberHit_Line.ini",
+        "shape": "Streak",
+        "count": 28,
+        "shell": [
+          28.2,
+          16.5,
+          28.2
+        ],
+        "burst": [
+          163.8,
+          163.8
+        ],
+        "width": [
+          0.3906,
+          1.5586
+        ],
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "lifetime": [
+          0.3,
+          0.4
+        ],
+        "fade": "Fall",
+        "sized": false
+      },
+      {
+        "animation": "MonsterIBomberHit_Bomb1.ini",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "sized": false
+      },
+      {
+        "animation": "MonsterIBomberHit_Bomb2.ini",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "sized": false
+      }
+    ],
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "color": [
+          0.0784,
+          0.0784,
+          0.0784
+        ],
+        "power": 100,
+        "decay": 1
+      }
+    ],
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Tempskron/Mechanic_Bomb 02.wav"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.ibomber.bigbombhit",
+    "duration": 3.0,
+    "parts": [
+      {
+        "animation": "MonsterIBomberHit_Scatter.ini",
+        "shape": "Line",
+        "count": 23,
+        "radial": [
+          41.0156,
+          81.7578
+        ],
+        "rise": [
+          41.0156,
+          109.1016
+        ],
+        "gravity": [
+          -191.4062,
+          -114.8438
+        ],
+        "lifetime": [
+          0.7857,
+          1.0571
+        ],
+        "lineSeconds": 0.1143,
+        "width": [
+          0.54,
+          0.54
+        ],
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "sized": false
+      },
+      {
+        "animation": "MonsterIBomberHit_Line.ini",
+        "shape": "Streak",
+        "count": 28,
+        "shell": [
+          28.2,
+          16.5,
+          28.2
+        ],
+        "burst": [
+          163.8,
+          163.8
+        ],
+        "width": [
+          0.3906,
+          1.5586
+        ],
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "lifetime": [
+          0.3,
+          0.4
+        ],
+        "fade": "Fall",
+        "sized": false
+      },
+      {
+        "animation": "MonsterIBomberHit_Bomb1.ini",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "size": [
+          35,
+          35
+        ],
+        "sized": true
+      },
+      {
+        "animation": "MonsterIBomberHit_Bomb2.ini",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "size": [
+          35,
+          35
+        ],
+        "sized": true
+      }
+    ],
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          3.9,
+          0
+        ],
+        "color": [
+          0.0784,
+          0.0784,
+          0.0784
+        ],
+        "power": 100,
+        "decay": 1
+      }
+    ],
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Tempskron/Mechanic_Bomb 02.wav"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.ibomber.attack.hit.kH",
+    "duration": 10.0,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "Effect/ObjAnimationData/MonsterIBomber/Bomb.smd",
+        "blend": "Additive",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          30,
+          0
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          0,
+          0
+        ],
+        "speed": 280,
+        "lift": 200,
+        "gravity": [
+          -800,
+          -800
+        ],
+        "reach": 15,
+        "modelStart": 1,
+        "modelFrames": 8.74,
+        "modelSpeed": 17.5,
+        "loopFrom": 1,
+        "loop": true,
+        "tumble": [
+          787.5,
+          0,
+          0
+        ],
+        "endEffect": "vfx.monster.ibomber.bombhit"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.ibomber.skill.hit.kJ",
+    "duration": 10.0,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "Effect/ObjAnimationData/MonsterIBomber/Bomb.smd",
+        "blend": "Additive",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          60,
+          0
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          0,
+          0
+        ],
+        "speed": 280,
+        "lift": 200,
+        "gravity": [
+          -800,
+          -800
+        ],
+        "reach": 15,
+        "modelStart": 1,
+        "modelFrames": 8.74,
+        "modelSpeed": 17.5,
+        "loopFrom": 1,
+        "loop": true,
+        "tumble": [
+          787.5,
+          0,
+          0
+        ],
+        "endEffect": "vfx.monster.ibomber.bigbombhit"
+      }
+    ]
+  }
+]

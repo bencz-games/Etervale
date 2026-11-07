@@ -13,7 +13,7 @@ public enum VfxPartShape
     Line,
     // A camera-facing ribbon through the part's last TrailPoints positions.
     Ribbon,
-    // A band swept by a bone: from the bone to BladeLength along its Y axis, kept for TrailPoints samples.
+    // A band swept by a bone: from the bone to BladeLength along its BladeAxis (Y), kept for TrailPoints samples.
     Blade,
     // A camera-facing strip from the part to its goal, or to the part plus BeamTo when it has none.
     Beam,
@@ -106,6 +106,8 @@ public sealed record VfxPartDefinition
     public float[] Pulse { get; init; } = [1f, 1f];
     public float PulsePeriod { get; init; }
     public float BladeLength { get; init; } = 40f;
+    // The bone axis a blade runs along, a unit vector in bone space: the far end is BladeLength along it.
+    public float[] BladeAxis { get; init; } = [0f, 1f, 0f];
     // Strip and ribbon half width in world units.
     public float[] Width { get; init; } = [1f, 1f];
     public float LineSeconds { get; init; } = 0.1f;

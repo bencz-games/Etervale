@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.raeda.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.RaedaSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.raeda.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.RaedaHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

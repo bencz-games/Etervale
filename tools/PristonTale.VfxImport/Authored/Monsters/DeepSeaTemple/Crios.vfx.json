@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.crios.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.CriosSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.crios.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.CriosHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "vfx.monster.itechnician.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ItechnicianSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

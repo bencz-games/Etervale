@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.rguard.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.RGuardSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.rguard.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.RGuardHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

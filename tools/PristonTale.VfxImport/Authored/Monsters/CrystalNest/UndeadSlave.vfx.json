@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.undeadslave.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.UndeadSlaveSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.undeadslave.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.UndeadSlaveHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

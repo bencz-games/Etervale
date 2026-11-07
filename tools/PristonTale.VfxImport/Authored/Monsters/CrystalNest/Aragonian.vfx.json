@@ -1,0 +1,424 @@
+[
+  {
+    "name": "vfx.monster.aragonian.skill.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AragonianStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.aragonian.skill.kK",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AragonianStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.aragonian.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AragonianSkill1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ],
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          289,
+          -30
+        ],
+        "velocityMin": [
+          175.0,
+          -1260.0,
+          -303.11
+        ],
+        "velocityMax": [
+          175.0,
+          -1260.0,
+          -303.11
+        ],
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "carryEffect": "particle.AragonianFlameWave"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          289,
+          -30
+        ],
+        "velocityMin": [
+          119.71,
+          -1260.0,
+          -328.89
+        ],
+        "velocityMax": [
+          119.71,
+          -1260.0,
+          -328.89
+        ],
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "carryEffect": "particle.AragonianFlameWave"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          289,
+          -30
+        ],
+        "velocityMin": [
+          -0.0,
+          -1260.0,
+          -350.0
+        ],
+        "velocityMax": [
+          -0.0,
+          -1260.0,
+          -350.0
+        ],
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "carryEffect": "particle.AragonianFlameWave"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          289,
+          -30
+        ],
+        "velocityMin": [
+          -175.0,
+          -1260.0,
+          -303.11
+        ],
+        "velocityMax": [
+          -175.0,
+          -1260.0,
+          -303.11
+        ],
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "carryEffect": "particle.AragonianFlameWave"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          289,
+          -30
+        ],
+        "velocityMin": [
+          -119.71,
+          -1260.0,
+          -328.89
+        ],
+        "velocityMax": [
+          -119.71,
+          -1260.0,
+          -328.89
+        ],
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "carryEffect": "particle.AragonianFlameWave"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          289,
+          -30
+        ],
+        "velocityMin": [
+          175.0,
+          -630.0,
+          -303.11
+        ],
+        "velocityMax": [
+          175.0,
+          -630.0,
+          -303.11
+        ],
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "carryEffect": "particle.AragonianFlameWave"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          289,
+          -30
+        ],
+        "velocityMin": [
+          119.71,
+          -630.0,
+          -328.89
+        ],
+        "velocityMax": [
+          119.71,
+          -630.0,
+          -328.89
+        ],
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "carryEffect": "particle.AragonianFlameWave"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          289,
+          -30
+        ],
+        "velocityMin": [
+          -0.0,
+          -630.0,
+          -350.0
+        ],
+        "velocityMax": [
+          -0.0,
+          -630.0,
+          -350.0
+        ],
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "carryEffect": "particle.AragonianFlameWave"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          289,
+          -30
+        ],
+        "velocityMin": [
+          -175.0,
+          -630.0,
+          -303.11
+        ],
+        "velocityMax": [
+          -175.0,
+          -630.0,
+          -303.11
+        ],
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "carryEffect": "particle.AragonianFlameWave"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          289,
+          -30
+        ],
+        "velocityMin": [
+          -119.71,
+          -630.0,
+          -328.89
+        ],
+        "velocityMax": [
+          -119.71,
+          -630.0,
+          -328.89
+        ],
+        "lifetime": [
+          2.0,
+          2.0
+        ],
+        "carryEffect": "particle.AragonianFlameWave"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.aragonian.skill.hit.kK",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AragonianSkill2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.aragonian.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AragonianHit1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.aragonian.attack.hit.kI",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AragonianHit2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,149 @@
+[
+  {
+    "name": "vfx.monster.draxos.skill.hit.kJ.e1",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.DraxosSkill1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.draxos.skill.hit.kJ.e2",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.DraxosSkill2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.draxos.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.DraxosHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.draxos.body",
+    "duration": 600.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 Spine",
+        "follow": true,
+        "carryEffect": "particle.DraxosBody"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.draxos.skill.kJ",
+    "duration": 5.0,
+    "parts": [
+      {
+        "shape": "Blade",
+        "texture": "Effect/AssaEffect/DraxosSwordEffect.bmp",
+        "blend": "Additive",
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 Wapon01",
+        "boneWorld": true,
+        "bladeAxis": [
+          1,
+          0,
+          0
+        ],
+        "bladeLength": 70,
+        "trailPoints": 16,
+        "lifetime": [
+          1.0,
+          1.0
+        ],
+        "fade": "Fall"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.draxos.attack.kH",
+    "duration": 5.0,
+    "parts": [
+      {
+        "shape": "Blade",
+        "texture": "Effect/AssaEffect/DraxosSwordEffect.bmp",
+        "blend": "Additive",
+        "color": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 Wapon01",
+        "boneWorld": true,
+        "bladeAxis": [
+          1,
+          0,
+          0
+        ],
+        "bladeLength": 70,
+        "trailPoints": 16,
+        "lifetime": [
+          1.0,
+          1.0
+        ],
+        "fade": "Fall"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.draxos.summoned",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "vfx.monster.hulk.hit",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          42,
+          -70
+        ],
+        "turn": true
+      }
+    ]
+  }
+]

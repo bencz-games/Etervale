@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.roblanko.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.RoblankoSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.roblanko.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.RoblankoHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

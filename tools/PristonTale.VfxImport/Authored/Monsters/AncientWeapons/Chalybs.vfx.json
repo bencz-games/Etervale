@@ -1,0 +1,47 @@
+[
+  {
+    "name": "vfx.monster.chalybs.skill.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ChalybsStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.chalybs.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ChalybsSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.chalybs.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ChalybsHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

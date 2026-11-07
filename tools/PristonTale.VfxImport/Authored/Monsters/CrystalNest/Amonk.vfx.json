@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.amonk.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AmonkSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.amonk.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AmonkHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

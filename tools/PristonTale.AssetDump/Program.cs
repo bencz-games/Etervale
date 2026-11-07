@@ -288,7 +288,8 @@ void DumpInx(PristonModelInfo info)
             var events = string.Join(", ", m.EventFrames
                 .Where(e => e != 0)
                 .Select(e => $"{e} → f{m.StartFrame + (e / GameUnits.FrameTicks)}"));
-            Console.WriteLine($"  {slot,-5} 0x{m.State:X4} {m.StartFrame,8} {m.EndFrame,8} {m.Repeat,7}  [{events}]  {name}");
+            var key = m.KeyCode > ' ' ? ((char)m.KeyCode).ToString() : "-";
+            Console.WriteLine($"  {slot,-5} 0x{m.State:X4} {m.StartFrame,8} {m.EndFrame,8} {m.Repeat,7} {key}  [{events}]  {name}");
         }
 
         if (info.NpcMotionRates.Count > PristonFormatConstants.CharacterMotionBase && info.NpcMotionRates[PristonFormatConstants.CharacterMotionBase] != 0)

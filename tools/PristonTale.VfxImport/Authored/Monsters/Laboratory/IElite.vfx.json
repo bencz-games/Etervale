@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.ielite.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.IeliteSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.ielite.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.IeliteHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

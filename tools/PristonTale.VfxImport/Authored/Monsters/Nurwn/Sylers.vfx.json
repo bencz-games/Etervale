@@ -1,0 +1,54 @@
+[
+  {
+    "name": "vfx.monster.sylers.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.SylersSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.sylers.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.SylersHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.sylers.body",
+    "duration": 600.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 Pelvis",
+        "follow": true,
+        "carryEffect": "particle.SylersBody"
+      }
+    ]
+  }
+]

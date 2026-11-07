@@ -411,7 +411,7 @@ public sealed partial class RemoteEntityManager
             if (entity is RemoteModelEntity { Kind: EntityKind.Monster } monster && monster.Actor.IsValid)
             {
                 into.Add(new PristonTale.Gameplay.Effects.MonsterActorView(id, monster.Actor, monster.SoundCode, monster.Level, monster.Scale,
-                    monster.DrawnPosition, monster.RenderFacing, monster.IsDead, monster.MonsterClass == (int)MonsterClass.Hammer));
+                    monster.DrawnPosition, monster.RenderFacing, monster.IsDead, monster.MonsterClass == (int)MonsterClass.Hammer, _summonOwners.ContainsKey(id)));
             }
         }
     }

@@ -23,6 +23,7 @@ internal sealed class CompiledPart
         GoalOffset = VfxDefinition.Vec3(source.GoalOffset);
         Angles = VfxDefinition.Vec3(source.Angles);
         Tumble = VfxDefinition.Vec3(source.Tumble);
+        BladeTip = VfxDefinition.Vec3(source.BladeAxis) * source.BladeLength;
         Color = new Vector4(source.Color[0], source.Color[1], source.Color[2], source.Color[3]);
         Blend = animation is null ? source.Blend : animation.BlendType switch
         {
@@ -47,6 +48,8 @@ internal sealed class CompiledPart
     public Texture2D[] Textures { get; }
     public PristonMeshEffect? Model { get; }
     public Vector3 Offset { get; }
+    // The blade's far end in bone space: BladeLength along BladeAxis.
+    public Vector3 BladeTip { get; }
     public Vector3 JitterMin { get; }
     public Vector3 JitterMax { get; }
     public Vector3 Shell { get; }
@@ -618,7 +621,7 @@ internal sealed class PartState
         if (source.Shape == VfxPartShape.Blade)
         {
             Trail[at + part.TrailHead * 2] = part.Attach.Translation;
-            Trail[at + part.TrailHead * 2 + 1] = Vector3.Transform(new Vector3(0f, source.BladeLength, 0f), part.Attach);
+            Trail[at + part.TrailHead * 2 + 1] = Vector3.Transform(Part.BladeTip, part.Attach);
             return;
         }
 

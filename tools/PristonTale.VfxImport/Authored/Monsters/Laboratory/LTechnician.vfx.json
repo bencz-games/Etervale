@@ -1,0 +1,17 @@
+[
+  {
+    "name": "vfx.monster.ltechnician.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LtechnicianSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

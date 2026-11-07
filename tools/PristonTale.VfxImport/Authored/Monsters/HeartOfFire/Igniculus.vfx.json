@@ -1,0 +1,54 @@
+[
+  {
+    "name": "vfx.monster.igniculus.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.IgniculusSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.igniculus.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.IgniculusHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.igniculus.body",
+    "duration": 600.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip001 Spine",
+        "follow": true,
+        "carryEffect": "particle.IgniculusBody"
+      }
+    ]
+  }
+]

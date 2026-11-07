@@ -1,0 +1,243 @@
+[
+  {
+    "name": "vfx.monster.dmystery.dark",
+    "duration": 30.0,
+    "emitters": [
+      {
+        "texture": "Effect/ImageData/Particle/darkM.tga",
+        "blend": "Shadow",
+        "anchor": "Point",
+        "rate": 140,
+        "maxParticles": 4,
+        "lifetime": [
+          0.014,
+          0.03
+        ],
+        "size": [
+          {
+            "t": 0,
+            "v": [
+              15
+            ]
+          }
+        ],
+        "color": [
+          {
+            "t": 0,
+            "v": [
+              1,
+              1,
+              1,
+              1
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.dmystery.shothit",
+    "duration": 2.0,
+    "parts": [
+      {
+        "animation": "RBlackHole.ini",
+        "size": [
+          60,
+          60
+        ],
+        "sized": true,
+        "blend": "Shadow"
+      },
+      {
+        "animation": "ParticleMeteo1_red.ini",
+        "shape": "Line",
+        "count": 10,
+        "delayStep": 0.0036,
+        "loop": true,
+        "radial": [
+          41.0156,
+          54.4141
+        ],
+        "rise": [
+          27.3438,
+          95.4297
+        ],
+        "gravity": [
+          -172.2656,
+          -95.7031
+        ],
+        "lifetime": [
+          0.4286,
+          0.7
+        ],
+        "lineSeconds": 0.1143,
+        "width": [
+          0.54,
+          0.54
+        ],
+        "sized": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.dmystery.attack.hit.kH",
+    "duration": 10.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          32,
+          0
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          24,
+          0
+        ],
+        "speed": 273.4375,
+        "carryEffect": "vfx.monster.dmystery.dark",
+        "every": 0.0571,
+        "everyEffect": "vfx.monster.shadow.ember",
+        "endEffect": "vfx.monster.dmystery.shothit"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.dmystery.magichit",
+    "duration": 3.0,
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "color": [
+          1.0,
+          0.3922,
+          0.1961
+        ],
+        "power": 250,
+        "decay": 2
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.DMysterySkill",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      },
+      {
+        "effect": "particle.ShadowMagic1",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.dmystery.skill.hit.kJ",
+    "duration": 10.0,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "Effect/ObjAnimationData/Shadow/ShadowShot1.smd",
+        "blend": "Shadow",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          140,
+          -32
+        ],
+        "angles": [
+          0,
+          180,
+          0
+        ],
+        "modelStart": 1,
+        "modelFrames": 10,
+        "modelSpeed": 70,
+        "lifetime": [
+          0.1429,
+          0.1429
+        ]
+      },
+      {
+        "shape": "Model",
+        "model": "Effect/ObjAnimationData/Shadow/ShadowShot1.smd",
+        "blend": "Shadow",
+        "delay": 0.1429,
+        "anchor": "Caster",
+        "offset": [
+          0,
+          140,
+          -32
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          4.5,
+          0
+        ],
+        "speed": 560,
+        "faceGoal": true,
+        "modelStart": 10,
+        "modelFrames": 130,
+        "modelSpeed": 70,
+        "loop": true,
+        "loopFrom": 10,
+        "carryEffect": "particle.DMysteryParticle1",
+        "endEffect": "vfx.monster.dmystery.magichit"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "delay": 0.1429,
+        "anchor": "Caster",
+        "offset": [
+          0,
+          140,
+          -32
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          4.5,
+          0
+        ],
+        "speed": 560,
+        "carryEffect": "particle.DMysteryParticle2"
+      }
+    ]
+  }
+]

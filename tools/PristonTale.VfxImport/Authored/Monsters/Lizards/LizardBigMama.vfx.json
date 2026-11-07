@@ -1,0 +1,17 @@
+[
+  {
+    "name": "vfx.monster.lizardbigmama.skill.hit",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LizardBigmamaSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

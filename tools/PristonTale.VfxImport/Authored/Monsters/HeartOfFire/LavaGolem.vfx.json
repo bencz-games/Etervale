@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.lavagolem.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LavaGolemSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.lavagolem.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LavaGolemHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

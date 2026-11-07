@@ -1,0 +1,47 @@
+[
+  {
+    "name": "vfx.monster.sathla.skill.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ShathlaStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.sathla.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ShathlaSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.sathla.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ShathlaHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

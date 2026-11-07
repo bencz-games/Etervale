@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.tees.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.TeesSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.tees.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.TeesHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

@@ -10,6 +10,7 @@ using PristonTale.Simulation.World.Fields;
 using PristonTale.Simulation.World.Spawning;
 using PristonTale.Contracts.Combat;
 using PristonTale.Contracts.Characters;
+using PristonTale.Simulation.World.Npcs;
 
 namespace PristonTale.Tests;
 
@@ -42,6 +43,8 @@ internal static class MonsterCombatTests
         var ranged = monster with { SoundCode = 0x1180 };
         Assert.True(MonsterAttackReach.CanLandBasic(ranged, Vector3.Zero, new Vector3(459, 0, 0)), "Figon's ranged exception lost");
         Assert.True(!MonsterAttackReach.CanLandBasic(ranged, Vector3.Zero, new Vector3(460, 0, 0)), "ranged impact became unbounded");
+        Assert.True(MonsterAttackReach.HasRangedBasicAttack(CharacterSoundCodes.DMystery) && !MonsterAttackReach.HasRangedBasicAttack(CharacterSoundCodes.Inferno),
+            "D-Mystery's dark shot is not ranged, or Inferno's blow is");
         Assert.True(!MonsterAttackReach.CanBegin(monster, Vector3.Zero, new Vector3(float.NaN, 0, 0)), "NaN entered an attack");
         return Task.CompletedTask;
     }

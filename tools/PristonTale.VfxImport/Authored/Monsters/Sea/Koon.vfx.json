@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.koon.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.KoonSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.koon.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.KoonHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

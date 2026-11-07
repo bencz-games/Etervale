@@ -1,0 +1,54 @@
+[
+  {
+    "name": "vfx.monster.arhdyra.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ArhdyraSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.arhdyra.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ArhdyraHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.arhdyra.body",
+    "duration": 600.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 Spine",
+        "follow": true,
+        "carryEffect": "particle.ArhdyraBody"
+      }
+    ]
+  }
+]

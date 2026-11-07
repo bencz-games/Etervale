@@ -1,0 +1,47 @@
+[
+  {
+    "name": "vfx.monster.dey.skill.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.DeyStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.dey.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.DeySkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.dey.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.DeyHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

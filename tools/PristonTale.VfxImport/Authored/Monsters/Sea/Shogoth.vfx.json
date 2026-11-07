@@ -1,0 +1,127 @@
+[
+  {
+    "name": "vfx.monster.shogoth.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "vfx.common.normalhit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          -14,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.shogoth.mortalblow",
+    "duration": 2.0,
+    "parts": [
+      {
+        "animation": "SkillTripleImpactHit.ini",
+        "size": [
+          600,
+          600
+        ],
+        "anchor": "Point",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "sized": true
+      },
+      {
+        "animation": "SkillTripleImpactParticle.ini",
+        "shape": "Streak",
+        "count": 20,
+        "delayStep": 0.0143,
+        "burst": [
+          437.5,
+          437.5
+        ],
+        "width": [
+          0.3906,
+          1.168
+        ],
+        "anchor": "Point",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "sized": false
+      },
+      {
+        "animation": "ReturnParticle1.ini",
+        "count": 15,
+        "size": [
+          18,
+          18
+        ],
+        "loop": true,
+        "radial": [
+          54.6875,
+          54.6875
+        ],
+        "rise": [
+          27.3438,
+          27.3438
+        ],
+        "gravity": [
+          -95.7031,
+          0
+        ],
+        "lifetime": [
+          0.5714,
+          0.8429
+        ],
+        "anchor": "Point",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "sized": true
+      }
+    ],
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          10,
+          0
+        ],
+        "color": [
+          1.0,
+          0.3922,
+          0.3922
+        ],
+        "power": 200,
+        "decay": 3
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.shogoth.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "vfx.monster.shogoth.mortalblow",
+        "anchor": "Target",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ],
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Skill_Swing 01.wav"
+      }
+    ]
+  }
+]

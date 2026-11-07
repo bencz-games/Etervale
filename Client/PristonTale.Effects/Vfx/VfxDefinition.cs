@@ -299,7 +299,8 @@ public sealed record VfxDefinition
     {
         var vectors = new[]
         {
-            part.Offset, part.JitterMin, part.JitterMax, part.Shell, part.VelocityMin, part.VelocityMax, part.GoalOffset, part.Angles, part.Tumble, part.BeamTo
+            part.Offset, part.JitterMin, part.JitterMax, part.Shell, part.VelocityMin, part.VelocityMax, part.GoalOffset, part.Angles, part.Tumble, part.BeamTo,
+            part.BladeAxis
         };
         var ranges = new[] { part.Lifetime, part.Size, part.Height, part.Rotation, part.Width, part.Scale, part.Pulse, part.Ring, part.Radial, part.Rise, part.Burst,
             part.Gravity, part.Swirl, part.SwirlGrowth, part.MoveTime };

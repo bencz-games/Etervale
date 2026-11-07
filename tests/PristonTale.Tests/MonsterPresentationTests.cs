@@ -22,6 +22,7 @@ internal static class MonsterPresentationTests
         yield return ("monster effect families split by level and size as the original did", FamiliesAsync);
         yield return ("monster clips start their effects at clip start and at each event frame, keyed by the clip", TriggersAsync);
         yield return ("monster auras run while the monster lives and death effects play once", AuraAsync);
+        yield return ("the later monsters trace their body scripts but a summon does not, a summoned Draxos, Greedy or Midranda strikes with the Hulk's hit, and a death clip asks its key", LaterMonstersAsync);
         yield return ("corpses darken after their death clip starts and a Figon's body of light fades away", CorpsesAsync);
         yield return ("monster statuses show their effect and tint on the holder until removed", StatusesAsync);
         yield return ("authored monster effects use known families and cover every family the client draws", DataAsync);
@@ -99,6 +100,45 @@ internal static class MonsterPresentationTests
         scene.Ticks = 5;
         presentation.Update([deadzone], 1f / 60f);
         Assert.True(sink.Spawned.Count(name => name == "vfx.monster.deadzone.death") == 1, "death effect did not play exactly once");
+        return Task.CompletedTask;
+    }
+
+    private static Task LaterMonstersAsync()
+    {
+        var sink = new Sink("vfx.monster.deius.body", "vfx.monster.greedy.skill.hit.kK", "vfx.monster.greedy.summoned", "vfx.monster.midranda.skill.kK",
+            "vfx.monster.midranda.summoned", "vfx.monster.draxos.attack.kH", "vfx.monster.draxos.summoned", "vfx.monster.wlord.death.kL",
+            "vfx.monster.wlord.death");
+        var scene = new Scene();
+        var presentation = new MonsterPresentation(sink, scene);
+        var deius = new MonsterActorView(1, new ActorHandle(1, 1), 0x63C0, 166, 1f, Vector3.Zero, 0f, false);
+        var tamed = deius with { EntityId = 2, Actor = new ActorHandle(2, 1), Summoned = true };
+        presentation.Update([deius, tamed], 1f / 60f);
+        presentation.Update([deius, tamed], 1f / 60f);
+        Assert.True(sink.Spawned.SequenceEqual(["vfx.monster.deius.body"]) && sink.Casters.Single() == 1, "the body scripts did not start once, or a summon traced them");
+
+        sink.Spawned.Clear();
+        var greedy = new MonsterActorView(3, new ActorHandle(3, 1), 0x60C0, 110, 1f, Vector3.Zero, 0f, false, Summoned: true);
+        var midranda = new MonsterActorView(4, new ActorHandle(4, 1), 0x6240, 140, 1f, Vector3.Zero, 0f, false, Summoned: true);
+        var draxos = new MonsterActorView(5, new ActorHandle(5, 1), 0x60A0, 120, 1f, Vector3.Zero, 0f, false, Summoned: true);
+        scene.Motion = Clip(0x150, 100, 200, 'K', 800);
+        scene.Ticks = 100 * 160;
+        presentation.Update([greedy, midranda], 1f / 60f);
+        scene.Ticks = 100 * 160 + 900;
+        presentation.Update([greedy, midranda], 1f / 60f);
+        Assert.True(sink.Spawned.SequenceEqual(["vfx.monster.greedy.summoned", "vfx.monster.midranda.skill.kK", "vfx.monster.greedy.summoned",
+            "vfx.monster.midranda.summoned"]), "a summon's skill clip did not strike with the Hulk's hit: " + string.Join(", ", sink.Spawned));
+        sink.Spawned.Clear();
+        scene.Motion = Clip(0x100, 10, 40, 'H', 1600);
+        scene.Ticks = 10 * 160;
+        presentation.Update([draxos], 1f / 60f);
+        Assert.True(sink.Spawned.Count == 0, "a summoned Draxos played its own sword trail");
+
+        sink.Spawned.Clear();
+        var witch = new MonsterActorView(6, new ActorHandle(6, 1), 0x6340, 145, 1f, Vector3.Zero, 0f, true);
+        scene.Motion = Clip(0x120, 0, 30, 'L');
+        scene.Ticks = 0;
+        presentation.Update([witch], 1f / 60f);
+        Assert.True(sink.Spawned.SequenceEqual(["vfx.monster.wlord.death.kL"]), "the death clip did not ask its key");
         return Task.CompletedTask;
     }
 

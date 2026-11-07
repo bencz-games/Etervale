@@ -1,0 +1,47 @@
+[
+  {
+    "name": "vfx.monster.quartzbat.skill.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.QuartzBatStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.quartzbat.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.QuartzBatSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.quartzbat.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.QuartzBatHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

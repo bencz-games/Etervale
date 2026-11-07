@@ -1,0 +1,54 @@
+[
+  {
+    "name": "vfx.monster.insec.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.InsecSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.insec.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.InsecHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.insec.body",
+    "duration": 600.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip001 Spine01",
+        "follow": true,
+        "carryEffect": "particle.InsecBody"
+      }
+    ]
+  }
+]

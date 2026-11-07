@@ -1,0 +1,17 @@
+[
+  {
+    "name": "vfx.monster.lizardpapa.skill.hit",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LizardPapaSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,17 @@
+[
+  {
+    "name": "vfx.monster.lizarddoctor.skill.hit",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LizardDoctorSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

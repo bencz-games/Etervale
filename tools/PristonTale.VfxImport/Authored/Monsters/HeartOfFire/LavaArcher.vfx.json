@@ -1,0 +1,47 @@
+[
+  {
+    "name": "vfx.monster.lavaarcher.skill.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LavaArcherStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.lavaarcher.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LavaArcherSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.lavaarcher.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LavaArcherHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

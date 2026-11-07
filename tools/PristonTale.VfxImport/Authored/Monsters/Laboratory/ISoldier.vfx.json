@@ -1,0 +1,17 @@
+[
+  {
+    "name": "vfx.monster.isoldier.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.IsoldierSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

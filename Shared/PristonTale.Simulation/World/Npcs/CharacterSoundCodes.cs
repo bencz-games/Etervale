@@ -16,6 +16,7 @@ public static class CharacterSoundCodes
     public const int MetalGolem = 0x3020;
     public const int FireElemental = 0x3030;
     public const int Figon = 0x1180;
+    public const int Inferno = 0x6150;
     public const int StygianLord = 0x1350;
     public const int CastleDoor = 0x5010;
     // The castle tower crystals: red fire, green lightning, blue ice.
@@ -70,6 +71,7 @@ public static class CharacterSoundCodes
     public const int MutantTree = 0x1270;
     public const int Naz = 0x1290;
     public const int Shadow = 0x12E0;
+    public const int DMystery = 0x6090;
     public const int Berserker = 0x12F0;
     public const int DMachine = 0x1370;
     public const int HyperMachine = 0x1530;
@@ -302,7 +304,7 @@ public static class CharacterSoundCodes
             "CSTONE" => 0x6060,
             "DEVILSHY" => 0x6070,
             "DEY" => 0x6080,
-            "DMYSTERY" => 0x6090,
+            "DMYSTERY" => DMystery,
             "DRAXOS" => 0x60A0,
             "FAUGN" => 0x60B0,
             "GREEDY" => 0x60C0,
@@ -314,7 +316,7 @@ public static class CharacterSoundCodes
             "ICEWORM" => 0x6120,
             "IELITE" => 0x6130,
             "IGNIS" => 0x6140,
-            "INFERNO" => 0x6150,
+            "INFERNO" => Inferno,
             "ISOLDIER" => 0x6160,
             "ITECHNICIAN" => 0x6170,
             "KOON" => 0x6180,

@@ -1,0 +1,47 @@
+[
+  {
+    "name": "vfx.monster.acero.skill.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AceroStart",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.acero.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AceroSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.acero.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.SoreSword",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

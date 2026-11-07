@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.lizardcommander.skill.hit",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LizardCommanderSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.lizardcommander.attack.hit",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LizardCommanderHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

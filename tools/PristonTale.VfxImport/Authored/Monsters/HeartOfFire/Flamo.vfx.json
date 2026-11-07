@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.flamo.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.FlamoSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.flamo.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.FlamoHit1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

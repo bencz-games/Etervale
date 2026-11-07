@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.toos.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ToosSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.toos.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.ToosHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

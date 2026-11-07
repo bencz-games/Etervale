@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.amesyst.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AmesystSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.amesyst.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.AmesystHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

@@ -1,0 +1,214 @@
+[
+  {
+    "name": "vfx.monster.wlord.skill.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.WLordSkill1",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.wlord.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.WLordSkill2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.wlord.death.kL",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.WLordDead",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.wlord.trail",
+    "duration": 30.0,
+    "emitters": [
+      {
+        "texture": "Effect/ImageData/Particle/bubble.tga",
+        "blend": "Additive",
+        "anchor": "Point",
+        "rate": 700,
+        "maxParticles": 256,
+        "lifetime": [
+          0.105,
+          0.15
+        ],
+        "speed": [
+          0,
+          12
+        ],
+        "spread": 180,
+        "size": [
+          {
+            "t": 0,
+            "v": [
+              12.0
+            ]
+          },
+          {
+            "t": 1,
+            "v": [
+              6.0
+            ]
+          }
+        ],
+        "color": [
+          {
+            "t": 0,
+            "v": [
+              0.1961,
+              0.3922,
+              1.0,
+              0.7843
+            ]
+          },
+          {
+            "t": 1,
+            "v": [
+              0.1961,
+              0.1961,
+              1.0,
+              0.0
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.wlord.firehit",
+    "duration": 3.0,
+    "parts": [
+      {
+        "animation": "ParticleWitchLord1.ini",
+        "shape": "Line",
+        "count": 20,
+        "delayStep": 0.0036,
+        "loop": true,
+        "radial": [
+          41.0156,
+          81.7578
+        ],
+        "rise": [
+          65.625,
+          133.7109
+        ],
+        "gravity": [
+          -191.4062,
+          -114.8438
+        ],
+        "lifetime": [
+          0.7857,
+          1.0571
+        ],
+        "lineSeconds": 0.2,
+        "width": [
+          0.78,
+          0.78
+        ],
+        "sized": false
+      },
+      {
+        "animation": "ParticleWitchLord2.ini",
+        "shape": "Streak",
+        "count": 20,
+        "delayStep": 0.0143,
+        "delayRandom": 0.2714,
+        "shell": [
+          0,
+          0,
+          0
+        ],
+        "burst": [
+          191.4062,
+          191.4062
+        ],
+        "width": [
+          0.3906,
+          1.5586
+        ],
+        "sized": false
+      }
+    ],
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "color": [
+          0.1961,
+          0.1961,
+          1.0
+        ],
+        "power": 200,
+        "decay": 1
+      }
+    ],
+    "sounds": [
+      {
+        "path": "wav/Effects/monster/Figon/impact 1.wav"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.wlord.attack.hit.kH",
+    "duration": 10.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "offset": [
+          0,
+          32,
+          0
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          24,
+          0
+        ],
+        "speed": 410.1562,
+        "carryEffect": "vfx.monster.wlord.trail",
+        "endEffect": "vfx.monster.wlord.firehit"
+      }
+    ]
+  }
+]

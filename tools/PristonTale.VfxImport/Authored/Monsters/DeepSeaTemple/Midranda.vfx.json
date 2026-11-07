@@ -1,0 +1,149 @@
+[
+  {
+    "name": "vfx.monster.midranda.skill.hit.kK",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.MonsterMidrandaSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.midranda.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.MonsterMidrandaHit2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.midranda.attack.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.MonsterMidrandaHit1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.midranda.body",
+    "duration": 600.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 L UpperArm",
+        "follow": true,
+        "carryEffect": "particle.MonsterMidrandaUpperArm"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 R UpperArm",
+        "follow": true,
+        "carryEffect": "particle.MonsterMidrandaUpperArm"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 Pelvis",
+        "follow": true,
+        "carryEffect": "particle.MonsterMidrandaPelvis"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 L Finger1",
+        "follow": true,
+        "carryEffect": "particle.MonsterMidrandaHand"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 R Finger1",
+        "follow": true,
+        "carryEffect": "particle.MonsterMidrandaHand"
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.midranda.summoned",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "vfx.monster.hulk.hit",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          42,
+          -70
+        ],
+        "turn": true
+      }
+    ]
+  }
+]

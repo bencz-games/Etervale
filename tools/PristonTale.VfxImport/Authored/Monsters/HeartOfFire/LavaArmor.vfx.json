@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.lavaarmor.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LavaArmorSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.lavaarmor.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LavaArmorHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]

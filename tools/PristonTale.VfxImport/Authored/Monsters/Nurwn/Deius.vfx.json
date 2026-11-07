@@ -1,0 +1,69 @@
+[
+  {
+    "name": "vfx.monster.deius.skill.hit.kJ",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.DeiusSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.deius.attack.hit.kH",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.DeiusHit1",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.deius.attack.hit.kI",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.DeiusHit2",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.deius.body",
+    "duration": 600.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip01 Pelvis",
+        "follow": true,
+        "carryEffect": "particle.DeiusBody"
+      }
+    ]
+  }
+]

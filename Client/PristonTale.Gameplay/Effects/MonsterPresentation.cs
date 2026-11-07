@@ -12,8 +12,9 @@ namespace PristonTale.Gameplay.Effects;
 
 // A monster drawn this frame: its body actor, what selects its effects and where it stands (client space; facing as the
 // server sends it).
+// Summoned: a player's summon (a crystal's pet, a mercenary).
 public readonly record struct MonsterActorView(ulong EntityId, ActorHandle Actor, int SoundCode, int Level, float Scale, Vector3 Position, float Facing,
-    bool IsDead, bool Hammer = false);
+    bool IsDead, bool Hammer = false, bool Summoned = false);
 
 // The effects the monster presentation starts: named effect definitions, running instances it may stop and the statuses
 // of every visible entity.
@@ -152,6 +153,7 @@ public sealed class MonsterPresentation
         foreach (var tracked in _tracked.Values)
         {
             tracked.Aura?.Stop();
+            tracked.Body?.Stop();
         }
 
         foreach (var instance in _statusEffects.Values)
@@ -170,6 +172,7 @@ public sealed class MonsterPresentation
         if (_tracked.Remove(id, out var tracked))
         {
             tracked.Aura?.Stop();
+            tracked.Body?.Stop();
         }
 
         _targets.Remove(id);
@@ -210,6 +213,13 @@ public sealed class MonsterPresentation
             tracked.Aura = Spawn(tracked.Family, "aura", '\0', 0, monster, 0);
         }
 
+        // The particle scripts traced on its bones: a player's summon shows none.
+        if (tracked.Body is null && !monster.Summoned && tracked.BodyTried != _effects.DefinitionCount && !monster.IsDead && !tracked.DeathShown)
+        {
+            tracked.BodyTried = _effects.DefinitionCount;
+            tracked.Body = Spawn(tracked.Family, "body", '\0', 0, monster, 0);
+        }
+
         if (!_scene.TryGetActorMotion(monster.Actor, out var motion, out var ticks) || motion is null)
         {
             return;
@@ -232,7 +242,7 @@ public sealed class MonsterPresentation
 
             if (tracked.Clip.Passed(index))
             {
-                Spawn(tracked.Family, state == SkillState ? "skill.hit" : "attack.hit", (char)motion.KeyCode, index + 1, monster, Target(monster.EntityId));
+                SpawnClip(tracked.Family, state == SkillState ? "skill.hit" : "attack.hit", (char)motion.KeyCode, index + 1, monster);
             }
         }
 
@@ -247,16 +257,18 @@ public sealed class MonsterPresentation
         switch ((int)motion.State)
         {
             case AttackState:
-                Spawn(tracked.Family, "attack", (char)motion.KeyCode, 0, monster, Target(monster.EntityId));
+                SpawnClip(tracked.Family, "attack", (char)motion.KeyCode, 0, monster);
                 break;
             case SkillState:
-                Spawn(tracked.Family, "skill", (char)motion.KeyCode, 0, monster, Target(monster.EntityId));
+                SpawnClip(tracked.Family, "skill", (char)motion.KeyCode, 0, monster);
                 break;
             case DeadState when !tracked.DeathShown:
                 tracked.DeathShown = true;
                 tracked.Aura?.Stop();
                 tracked.Aura = null;
-                Spawn(tracked.Family, "death", '\0', 0, monster, 0);
+                tracked.Body?.Stop();
+                tracked.Body = null;
+                Spawn(tracked.Family, "death", (char)motion.KeyCode, 0, monster, 0);
                 break;
         }
     }
@@ -269,7 +281,7 @@ public sealed class MonsterPresentation
     public static float CorpseFade(int soundCode, float ticks) => FadesOnDeath(soundCode) ? Math.Max(0f, 1f - FadePerTick * ticks / Units) : 1f;
 
     private static bool FadesOnDeath(int soundCode) => soundCode is CharacterSoundCodes.Figon or CharacterSoundCodes.StygianLord
-        or CharacterSoundCodes.GuardianSaint or CharacterSoundCodes.FireElemental or CharacterSoundCodes.ChaosCara;
+        or CharacterSoundCodes.GuardianSaint or CharacterSoundCodes.FireElemental or CharacterSoundCodes.ChaosCara or CharacterSoundCodes.Inferno;
 
     // A Minig grows red while it fights: +2 per frame in attack or flinch clips, -1 otherwise, at most 100.
     private void StepAnger(Tracked tracked, ulong entityId, int state, float seconds)
@@ -280,6 +292,27 @@ public sealed class MonsterPresentation
     }
 
     private ulong Target(ulong attackerId) => _targets.TryGetValue(attackerId, out var target) ? target : 0;
+
+    // A clip's effect. A player's summoned Draxos, Greedy or Midranda strikes with the Hulk's hit instead (`summoned`,
+    // at every skill clip and event; Midranda's skill clip start aside) and a summoned Draxos plays none of its own.
+    private void SpawnClip(string family, string trigger, char key, int eventNumber, in MonsterActorView monster)
+    {
+        if (monster.Summoned && family is "draxos" or "greedy" or "midranda")
+        {
+            var strikes = trigger != "attack" && (family != "midranda" || trigger != "skill");
+            if (strikes)
+            {
+                Spawn(family, "summoned", '\0', 0, monster, Target(monster.EntityId));
+            }
+
+            if (strikes || family == "draxos")
+            {
+                return;
+            }
+        }
+
+        Spawn(family, trigger, key, eventNumber, monster, Target(monster.EntityId));
+    }
 
     private IMonsterEffect Spawn(string family, string trigger, char key, int eventNumber, in MonsterActorView monster, ulong target)
     {
@@ -449,7 +482,9 @@ public sealed class MonsterPresentation
         public string Family = "";
         public ClipEventCursor Clip;
         public IMonsterEffect Aura;
+        public IMonsterEffect Body;
         public int AuraTried = -1;
+        public int BodyTried = -1;
         public bool DeathShown;
         public float DeathTicks;
         public float Fade = 1f;

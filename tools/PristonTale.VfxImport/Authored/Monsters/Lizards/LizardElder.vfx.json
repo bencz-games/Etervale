@@ -1,0 +1,32 @@
+[
+  {
+    "name": "vfx.monster.lizardelder.skill.hit",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LizardElderSkill",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.monster.lizardelder.attack.hit",
+    "duration": 5.0,
+    "children": [
+      {
+        "effect": "particle.LizardElderHit",
+        "anchor": "Target",
+        "offset": [
+          0,
+          10,
+          0
+        ]
+      }
+    ]
+  }
+]
