@@ -74,6 +74,9 @@ public static class EtervaleOpcodes
     public const uint CastleOwnerRequest = 0x45541201;
     public const uint CastleOwnerState = 0x45541202;
     public const uint CastleOwnerResult = 0x45541203;
+    public const uint BellatraClanRequest = 0x45541300;
+    public const uint BellatraClanState = 0x45541301;
+    public const uint BellatraClanResult = 0x45541302;
 
     public const uint PresenceEntries = 0x45540900;
     public const uint DescribeEntity = 0x45540901;

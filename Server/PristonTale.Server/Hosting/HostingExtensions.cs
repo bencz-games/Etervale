@@ -52,6 +52,7 @@ public static class HostingExtensions
         builder.Services.AddSingleton<PristonTale.Application.Castle.ICastleWorld>(services => services.GetRequiredService<WorldServer>());
         builder.Services.AddSingleton<PristonTale.Application.Castle.CastleAppService>();
         builder.Services.AddSingleton<StarterGiftAppService>();
+        builder.Services.AddSingleton<PristonTale.Application.Bellatra.BellatraClanAppService>();
         builder.Services.AddSingleton<BellatraAppService>();
 
         var provider = builder.Configuration["Database:Provider"] ?? "Sqlite";

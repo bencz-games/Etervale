@@ -51,6 +51,7 @@ internal sealed record SessionServices(
     ChatAppService Chat,
     Application.Clans.ClanAppService Clans,
     Application.Castle.CastleAppService Castle,
+    Application.Bellatra.BellatraClanAppService BellatraClans,
     GameServerControl Control)
 {
     // Shared by every connection so a flood from many peers still yields one warning per interval.
@@ -308,6 +309,9 @@ internal sealed partial class ClientSession : IMovementVerdictSink
                     break;
                 case EtervaleOpcodes.CastleOwnerRequest:
                     await CastleOwnerAsync(CastleOwnerRequestPacket.Read(memory.Span));
+                    break;
+                case EtervaleOpcodes.BellatraClanRequest:
+                    await BellatraClanAsync(BellatraClanRequestPacket.Read(memory.Span));
                     break;
                 case EtervaleOpcodes.ContactChange:
                     await ChangeContactAsync(ContactChangePacket.Read(memory.Span));

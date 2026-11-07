@@ -7,6 +7,9 @@ namespace PristonTale.Persistence.Repositories;
 
 public sealed class DapperCastleRepository(IDbConnectionFactory connectionFactory) : ICastleRepository
 {
+    // A clan money movement (castle_treasury), shared with Bellatra's clans.
+    internal const string InsertMove = "INSERT INTO castle_treasury (clan_id, kind, amount, character_id, at) VALUES (@ClanId, @Kind, @Amount, @CharacterId, @At)";
+
     private const string Upsert =
         """
         INSERT INTO castle (id, owner_clan_id, tax, next_tax, towers, mercenary_a, mercenary_b, mercenary_c, clan_skill, skill_in_force,
@@ -52,9 +55,8 @@ public sealed class DapperCastleRepository(IDbConnectionFactory connectionFactor
         await connection.ExecuteAsync(new CommandDefinition(Upsert, castle, transaction, cancellationToken: ct));
         if (move is not null)
         {
-            await connection.ExecuteAsync(new CommandDefinition(
-                "INSERT INTO castle_treasury (clan_id, kind, amount, character_id, at) VALUES (@ClanId, @Kind, @Amount, @CharacterId, @AtSeconds)",
-                new { move.ClanId, Kind = (short)move.Kind, move.Amount, CharacterId = character?.Id, move.AtSeconds }, transaction, cancellationToken: ct));
+            await connection.ExecuteAsync(new CommandDefinition(InsertMove,
+                new { move.ClanId, Kind = (short)move.Kind, move.Amount, CharacterId = character?.Id, At = move.AtSeconds }, transaction, cancellationToken: ct));
         }
 
         await transaction.CommitAsync(ct);

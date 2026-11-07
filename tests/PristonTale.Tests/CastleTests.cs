@@ -792,6 +792,8 @@ internal static class CastleTests
 
         public string? NameOf(long clanId) => Names.GetValueOrDefault(clanId);
 
+        public string? ChiefNameOf(long clanId) => Names.ContainsKey(clanId) ? "Chief" : null;
+
         public long IdOf(string name) => Names.FirstOrDefault(pair => pair.Value.Equals(name, StringComparison.OrdinalIgnoreCase)).Key;
 
         public Dictionary<ulong, long> Members { get; } = new();

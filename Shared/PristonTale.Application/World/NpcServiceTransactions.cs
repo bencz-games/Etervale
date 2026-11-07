@@ -77,8 +77,9 @@ internal static class NpcServiceTransactions
 
         if (!NpcServiceActions.IsDurable(command.Action))
         {
-            var answer = command.Service == NpcServiceKind.EventBooth && command.Action == NpcServiceAction.Open && booth is not null
-                ? booth.Answer(original, Simulation.World.Bellatra.BellatraRules.TeamOfBooth(service!.Value))
+            var team = Simulation.World.Bellatra.BellatraRules.TeamOfBooth(service!.Value);
+            var answer = command.Service == NpcServiceKind.EventBooth && command.Action == NpcServiceAction.Open && booth is not null && team >= 0
+                ? booth.Answer(original, team)
                 : GameText.None;
             var shown = Show(command, npc!, service!, original, storage, items, world, Done(original, storage, answer), field.CastleTax);
             return new PreparedNpcOperation(original, null, null, shown);
@@ -192,9 +193,9 @@ internal static class NpcServiceTransactions
                 status = Simulation.Items.Mixing.MixtureReset.TryReset(candidate, command.ItemId, command.Materials ?? [], field.ItemRng, out work);
                 break;
             case NpcServiceAction.EnterBellatra:
-                status = booth is null
-                    ? NpcServiceStatus.BellatraClosed
-                    : booth.Admit(candidate, Simulation.World.Bellatra.BellatraRules.TeamOfBooth(service.Value), out arrival);
+                status = Simulation.World.Bellatra.BellatraRules.TeamOfBooth(service.Value) is var team and >= 0 && booth is not null
+                    ? booth.Admit(candidate, team, out arrival)
+                    : NpcServiceStatus.Rejected;
                 if (arrival is not null)
                 {
                     fieldId = arrival.FieldCode;

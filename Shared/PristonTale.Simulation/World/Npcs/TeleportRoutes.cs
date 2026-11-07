@@ -66,7 +66,7 @@ public static class NpcServiceAvailability
         NpcServiceKind.WarpGate => service.Value <= 1,
         NpcServiceKind.Teleporter => TeleportRoutes.IsAvailable(service.Value),
         NpcServiceKind.QuestEvent => service.Value == Items.Usable.Puzzles.CollectorEvent,
-        NpcServiceKind.EventBooth => Bellatra.BellatraRules.TeamOfBooth(service.Value) >= 0,
+        NpcServiceKind.EventBooth => Bellatra.BellatraRules.TeamOfBooth(service.Value) >= 0 || service.Value == Bellatra.BellatraRules.SecretaryBooth,
         _ => false
     };
 }

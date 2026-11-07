@@ -78,6 +78,14 @@ public sealed class ClanAppService : IClanDirectory
         }
     }
 
+    public string? ChiefNameOf(long clanId)
+    {
+        lock (_state)
+        {
+            return _clans.TryGetValue(clanId, out var clan) ? clan.Chief.Name : null;
+        }
+    }
+
     public long IdOf(string name)
     {
         lock (_state)

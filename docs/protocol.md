@@ -26,6 +26,7 @@ The codecs live in `Shared/PristonTale.Protocol`; the server edge is `Server/Pri
 | `Binary/WireList.cs` | `IWireEntry<T>` (static `Size`, `Read`, instance `Write`) and `WireList`: `{int32 Count, entries}` with the entries filling the rest exactly; the cooldown, timer, item effect, shop quote and item detail lists use it (the skill list, the object removals and the aging progress still check their counts themselves). |
 | `Packets/IFramePacket.cs` | `IFramePacket`: a message that writes itself as one frame; every client-to-server message implements it. |
 | `Packets/CastlePackets.cs` | `CastleState` (Bless Castle's owner, league mode and siege board), the owner's window (`CastleOwnerRequest`, `CastleOwnerState`, `CastleOwnerResult`). |
+| `Packets/BellatraPackets.cs` | Bellatra's secretary (`BellatraClanRequest`, `BellatraClanState`, `BellatraClanResult`). |
 | `Packets/AccountPackets.cs` | `ProtocolVersion`, `ServerHello`, `Login`/`LoginResult`, `CharacterList`, `CharacterCommand`/`CharacterResult`, `Heartbeat`. |
 | `Packets/PlayerActionPackets.cs` | `MovementReport`, `AttackRequest` and `FieldWarp`. |
 | `Packets/WingGatePackets.cs` | `WingGateRequest` and `WingGateResult`. |
@@ -94,7 +95,7 @@ Bodies start with `uint16 Version = 1`; text is UTF-8 with a `uint16` byte lengt
 | Step | Packet | Notes |
 | --- | --- | --- |
 | Connect | S→C `ServerHello` (`0x45540F00`) | `{uint16 Version, uint16 0, uint32 Protocol, MinimumProtocol, int32 FullPlayers, text ServerName (32 B)}`: `FullPlayers` = players in the world when the player limit (`server.max_users` or `/user_limit`) is reached, else 0 (then only game masters may log in); `ServerName` is `server.name`. |
-| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (19); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
+| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (20); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
 | Result | S→C `CharacterList` (`0x45540F03`), then `LoginResult` (`0x45540F02`) | `LoginResult` = `{uint16 Version, uint8 Status, uint8 0}`: 0 ok, 1 bad credentials (also unknown accounts), 2 account blocked, 3 already logged in on this connection, 4 busy (throttled, full or storage failure), 5 client protocol older than the server's minimum. A failed login sends no list. |
 | Character list | S→C `CharacterList` | `{uint16 Version, uint16 0, int32 Count (at most 6)}`, then `{text Name, uint32 Class (PlayerClass), int32 Level, uint8 Tier, Face, Hair, Flags (1 in a village), uint32 WeaponCode, ArmorCode, OffHandCode, uint32 0, text ClanName (48 B; empty out of a clan)}`. |
 | Create, delete | C→S `CharacterCommand` (`0x45540F04`), S→C `CharacterResult` (`0x45540F05`) | Command `{uint16 Version, uint8 Action (1 create, 2 delete), uint8 0, int32 Class (PlayerClass), FaceIndex, text Name}`; result `{uint16 Version, uint8 Action, uint8 Ok, int32 Failure (CreateCharacterFailure), text Name}`. |
@@ -220,6 +221,9 @@ Every message code has the high word `0x4554` ("ET"); every message keeps the `{
 | `0x45541201` | `CastleOwnerRequest` | C→S | The owner's window at the castle's butler: open it, save the setup or withdraw from the treasury. |
 | `0x45541202` | `CastleOwnerState` | S→C | The owner's window, after every request (none when the player's clan does not hold the castle). |
 | `0x45541203` | `CastleOwnerResult` | S→C | How a `CastleOwnerRequest` ended (`CastleOwnerStatus`, 0 done). |
+| `0x45541300` | `BellatraClanRequest` | C→S | Bellatra's secretary: open the window or redeem the clan's income. |
+| `0x45541301` | `BellatraClanState` | S→C | The secretary's window: the operating clan, its chief, the tax, the player's clan's income and yesterday's best clans ([application.md](application.md#bellatra)). |
+| `0x45541302` | `BellatraClanResult` | S→C | How a `BellatraClanRequest` ended (`BellatraClanStatus`, 0 done). |
 | `0x45540A00` / `0x45540A01` | `RestartRequest` / `RestartResult` | C→S / S→C | A dead player's restart (field, town, exit), correlated by operation id; a stored restart also sends a forced `FieldWarp`. |
 | `0x45540A02` | `RestartOffer` | S→C | While the owner is dead, what a restart would cost, whenever it changes. |
 | `0x45540B00` / `0x45540B01` | `GroundItems` / `GroundItemsRemoved` | S→C | Drops entering and leaving the receiver's view: within the ground-item range (squared `0xC8000` units, about 905 units), private drops only to their owner. |
@@ -529,6 +533,9 @@ at most 48 bytes (`ClanWire.MaxClanNameBytes`: 16 characters), a character's 64.
 | `CastleState` | `varuint OwnerClanId` (0 none), `text OwnerName` (48 bytes), `uint8 Tax` (in force on fees), `uint8 Siege` (0 peace, 1 running, 3 over), `uint8 Flags` (1 the server runs the league, 2 door down), `varuint SecondsLeft` (a running siege's, when the state was made; 0 otherwise), `uint8 Crystals`, `uint8 Count` (at most 10, `CastleLimits.TopClans`), then per clan `varuint ClanId, text Name, varuint Damage`, then `varuint TotalDamage` |
 | `CastleOwnerRequest` | `uint8 Action` (0 open, 1 save, 2 withdraw), `varuint Npc` (the butler), `uint8 Tax, uint8 Skill`, `uint8 x6 Towers` (0 none, 1 ice, 2 lightning, 3 fire), `uint8 x3 Mercenaries`, `varuint Amount` (a withdrawal's gold) |
 | `CastleOwnerState` | `uint8 HasView`; with one `varuint Treasury, uint8 Tax` (in force), `uint8 NextTax, uint8 Skill` (chosen), `uint8 SkillInForce`, `uint8 x6 Towers, uint8 x3 Mercenaries, uint8 CanEdit` (the chief) |
+| `BellatraClanRequest` | `uint8 Action` (0 open, 1 redeem), `varuint Npc` (the secretary), `varuint Amount` (a redemption's gold) |
+| `BellatraClanState` | `uint8 HasView`; with one `varuint OperatingClanId` (0 none), `text OperatingName` (48 bytes), `text Chief` (64 bytes), `uint8 Tax`, `varuint Balance` (the player's clan's income), `uint8 CanRedeem` (its chief), `uint8 Count` (at most 10, `BellatraLimits.TopClans`), then per clan `text Name, varuint Points` (yesterday's) |
+| `BellatraClanResult` | `uint8 Action, uint8 Status` (`BellatraClanStatus`: 0 done, 1 not the chief, 2 not enough income, 3 out of reach, 4 too much gold, 5 busy, 6 unavailable) |
 | `CastleOwnerResult` | `uint8 Action, uint8 Status` (`CastleOwnerStatus`: 0 done, 1 not the owner clan, 2 not the chief, 3 out of reach, 4 busy, 5 not enough gold, 6 invalid setup, 7 during a siege, 8 not enough in the treasury, 9 too much gold, 10 unavailable) |
 
 ### Death and restart
@@ -665,12 +672,13 @@ connection every `Server:ReportSeconds` (30 by default).
 
 ## How to add an opcode or packet
 
-1. **Code.** Add a constant to `EtervaleOpcodes` in `Binary/EtervaleOpcodes.cs`, in the range of its area (`0x455401xx`
-   owner state, `0x4554011x` inventory, `0x4554012x` progression, `0x4554013x` NPC, `0x4554014x` combat, `0x4554015x`
-   removals, `0x4554016x` leave, `0x4554017x` clock, `0x455402xx` skills, `0x455403xx` item details, `0x455404xx`
-   usable items, `0x455405xx` quests, `0x455406xx` personal shops, `0x455407xx` parties, `0x455408xx` trades, `0x455409xx` presence, `0x45540Axx` restart,
-   `0x45540Bxx` ground items, `0x45540Cxx` chat, `0x45540Dxx` player actions, `0x45540Exx` world entry, `0x45540Fxx`
-   account, `0x455410xx` contacts).
+1. **Code.** Add a constant to `EtervaleOpcodes` in `Binary/EtervaleOpcodes.cs`, in the range of its area
+   (`0x455401xx` owner state, `0x4554011x` inventory, `0x4554012x` progression, `0x4554013x` NPC, `0x4554014x` combat,
+   `0x4554015x` removals, `0x4554016x` leave, `0x4554017x` clock, `0x455402xx` skills, `0x455403xx` item details,
+   `0x455404xx` usable items, `0x455405xx` quests, `0x455406xx` personal shops, `0x455407xx` parties, `0x455408xx`
+   trades, `0x455409xx` presence, `0x45540Axx` restart, `0x45540Bxx` ground items, `0x45540Cxx` chat, `0x45540Dxx` player
+   actions, `0x45540Exx` world entry, `0x45540Fxx` account, `0x455410xx` contacts, `0x455411xx` clans, `0x455412xx` Bless
+   Castle, `0x455413xx` Bellatra).
 2. **Packet type.** Add a record in `Packets/` with `Size` or `HeaderSize` constants, `int Write(Span<byte>)` built on
    `PacketWriter` (returning `Finish()`), and `static Read(ReadOnlySpan<byte>)` built on `PacketReader(packet,
    minimum)`. Start new bodies with `{uint16 Version, uint16 Flags}`, reject version 0, append fields only at the end,

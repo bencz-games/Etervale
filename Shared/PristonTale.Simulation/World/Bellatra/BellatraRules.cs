@@ -50,6 +50,9 @@ public static class BellatraRules
 
     public static long Fee(int level) => level * FeePerLevel;
 
+    // Bellatra's secretary, who shows the operating clan and pays a clan's income, is the booth of this value.
+    public const int SecretaryBooth = 5;
+
     // A team booth carries its team (1 to 4) as its value.
     public static int TeamOfBooth(int boothValue) => boothValue is >= 1 and <= BellatraArena.Teams ? boothValue - 1 : -1;
 

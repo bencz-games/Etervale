@@ -21,10 +21,12 @@ public sealed record PreparedNpcPayment(PlayerCharacter Original, PlayerCharacte
     long MoneyDelta = 0) : PreparedOperation(Original, Candidate, Snapshot);
 
 // The gold an NPC's service takes or gives (founding or handing over a clan at a Clan Master, Bless Castle's owner at its
-// butler): the player stands within the service's reach, out of a shop and a trade, at the level, and the gold fits.
+// butler, a clan's Bellatra income at the secretary): the player stands within the reach of the service (of that value,
+// when given), out of a shop and a trade, at the level, and the gold fits.
 public sealed partial class WorldServer
 {
-    public Task<PreparedNpcPayment?> PrepareNpcPaymentAsync(PlayerSession session, ulong npcEntityId, NpcServiceKind service, long fee, int minimumLevel = 0)
+    public Task<PreparedNpcPayment?> PrepareNpcPaymentAsync(PlayerSession session, ulong npcEntityId, NpcServiceKind service, long fee, int minimumLevel = 0,
+        int? serviceValue = null)
     {
         return EnqueueAsync<PreparedNpcPayment?>(session.EntityId, () =>
         {
@@ -35,8 +37,9 @@ public sealed partial class WorldServer
 
             var player = connection.Player;
             var character = player.Character;
-            var reach = NpcServiceTransactions.Check(player, field, new NpcServiceCommand(Guid.Empty, npcEntityId, service, NpcServiceAction.Open), out _, out _);
-            var status = !reach.Ok ? NpcPaymentStatus.OutOfReach
+            var reach = NpcServiceTransactions.Check(player, field, new NpcServiceCommand(Guid.Empty, npcEntityId, service, NpcServiceAction.Open), out _,
+                out var offered);
+            var status = !reach.Ok || serviceValue is { } value && offered?.Value != value ? NpcPaymentStatus.OutOfReach
                 : player.Shop is not null || player.Trade is not null ? NpcPaymentStatus.Busy
                 : character.Level < minimumLevel ? NpcPaymentStatus.LevelTooLow
                 : character.Money < fee ? NpcPaymentStatus.NotEnoughGold

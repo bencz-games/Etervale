@@ -41,7 +41,7 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | `World/WorldServer.Npc.cs` | NPC interaction, NPC service check/prepare/commit, teleport arrival |
 | `World/WorldServer.Quests.cs`, `World/FieldInstance.Quests.cs`, `World/QuestTransactions.cs`, `World/PlayerQuestState.cs` | Quest prepare/commit, upkeep requests, quest travel; kill credit, quest drops, timers and arena duels on the field |
 | `World/WorldServerOptions.cs` | `ExperienceMultiplier`, `ExperienceEventPercent`, `ClockOffsetMinutes`, `CrystalEvent`, `ItemEvents`, `Aging`, `Mixing`, `Bellatra` (`BellatraOptions`), `Weather`, `WeatherCycleMinutes`, `MaxPendingCommandsPerPlayer`, `GiveStarterGifts`, `CheckpointSeconds`; `WorldBusyException` |
-| `World/WorldServer.Bellatra.cs`, `World/BellatraGame.cs`, `World/BellatraBooth.cs`, `World/FieldInstance.Bellatra.cs`, `Services/BellatraAppService.cs` | Bellatra's game: the rounds on the tick, the team booths, the arena's monsters and scores, the prizes paid off the tick ([Bellatra](#bellatra)) |
+| `World/WorldServer.Bellatra.cs`, `World/BellatraGame.cs`, `World/BellatraBooth.cs`, `World/FieldInstance.Bellatra.cs`, `Services/BellatraAppService.cs`, `Bellatra/BellatraClanAppService.cs` | Bellatra's game: the rounds on the tick, the team booths, the arena's monsters and scores, the prizes paid off the tick, the operating clan and its income ([Bellatra](#bellatra)) |
 | `World/WorldServer.StarterGifts.cs`, `Services/StarterGiftAppService.cs` | The starter gifts of new characters: their offers on the tick, prepare and commit, the durable operation and its chat line ([Starter gifts](#starter-gifts)) |
 | `Settings/` | `ServerSettings`, `ServerSettingCatalog` (every row of the settings table), `ServerSettingsAppService` (read, apply, write) |
 | [`World/FieldInstance.cs`](../Shared/PristonTale.Application/World/FieldInstance.cs) | One live field: players, monsters, NPCs, spawner, AI, collision index, step order, views |
@@ -790,13 +790,19 @@ characters, so a relog keeps a player's place and score.
   sixth), before round 7 the best to the top room, `BellatraRules.BannerMs` after the round's start; the others are
   paid and go to Navisko's centre as long. A move waits while its player lies dead, and is dropped once the player
   left the arena.
-- The end: every entrant in the arena is paid its score less `bellatra.tax` percent (`BellatraRules.Prize`; the tax is
-  for the operating clan, not kept yet), and 30 s later every entrant still there goes to Navisko and the game
-  resets.
-- Prizes are paid off the tick (`WorldServer.BellatraPrizes`, `BellatraAppService`, `BellatraService`) through the
-  path of every character change, a fixed gold amount, tried again a few times while the player is busy with another
-  change; the player is told the prize, the gold limit that refused it or why it failed. A prize still waiting when the
-  server stops, or owed to a player who left, is lost.
+- The end: every entrant in the arena is paid its score less `bellatra.tax` percent (`BellatraRules.Prize`), and 30 s
+  later every entrant still there goes to Navisko and the game resets.
+- The operating clan (`BellatraClanAppService`, `IBellatraRepository`), by the server's local day (`BellatraDays`):
+  every paid prize gives its entrant's registered clan the score as the points of the day it was won and the clan
+  operating Bellatra the prize's tax as income (a `castle_treasury` movement of kind `Bellatra`); the paid prizes wait
+  in their own queue (`Records`), so that storage never holds the payments. At a new day the clan with the most
+  points of the day before (one that still exists) operates Bellatra; nobody does after a day without games, nor
+  while the clans are not loaded (the day turns once they are). The secretary (`EventBooth` value 5) shows the
+  operating clan, its chief, the tax, the player's clan's income and yesterday's ten best clans (`BellatraClanState`;
+  the ranking and the balances read are kept in memory); a clan's chief redeems its income there alone (the NPC
+  payment of that service value), the redemption stored with the character and a `BellatraRedemption` movement
+  before the gold reaches it. Storage runs off the tick under one gate; a refused storage loses a prize's points and
+  income (logged).
 
 ## Published outcomes and events
 

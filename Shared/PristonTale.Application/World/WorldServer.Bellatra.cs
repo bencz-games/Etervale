@@ -10,8 +10,10 @@ using PristonTale.Simulation.World.Npcs;
 
 namespace PristonTale.Application.World;
 
-// Gold the world owes a player for Bellatra, with the line that tells it; paid off the tick (BellatraPrizes).
-public sealed record BellatraPrize(PlayerSession Session, long Gold, GameText Text);
+// Gold the world owes a player for Bellatra, with the line that tells it; paid off the tick (BellatraPrizes). The score
+// counts as points for the entrant's registered clan (none: 0) on the server's local day it was won (BellatraDays), and
+// Tax is the gold kept from the score for the operating clan.
+public sealed record BellatraPrize(PlayerSession Session, long Gold, GameText Text, long ClanId, long Points, long Tax, int Day);
 
 // Bellatra's game (BellatraGame), stepped on the tick after the fields: rounds as the game clock reaches their hours
 // (each hour reached counts, even when the clock jumps), monsters into the rooms of the round being played, the teams
@@ -179,7 +181,9 @@ public sealed partial class WorldServer
     {
         if (connection.Session is { } session)
         {
-            _bellatraPrizes.Writer.TryWrite(new BellatraPrize(session, BellatraRules.Prize(entrant.Score, _options.Bellatra.Tax), text));
+            _bellatraPrizes.Writer.TryWrite(new BellatraPrize(session, BellatraRules.Prize(entrant.Score, _options.Bellatra.Tax), text,
+                connection.Player.Clan is { Registered: true } clan ? clan.ClanId : 0, entrant.Score, BellatraRules.TaxOf(entrant.Score, _options.Bellatra.Tax),
+                BellatraDays.Of(_clock.GetLocalNow())));
         }
     }
 

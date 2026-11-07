@@ -10,6 +10,9 @@ public interface IClanDirectory : IClanRoster
 
     string? NameOf(long clanId);
 
+    // A clan's chief's name, null when there is no such clan.
+    string? ChiefNameOf(long clanId);
+
     long IdOf(string name);
 
     // An online player's rank in its clan, null without one.

@@ -2,8 +2,8 @@ using FluentMigrator;
 
 namespace PristonTale.Persistence.Migrations;
 
-// Bless Castle's treasury movements: the owner clan, the kind (0 Bellatra prizes, 1 castle tax, 2 a withdrawal), the
-// amount (negative for a withdrawal), the character that received it and when.
+// The clan money ledger: the clan, the kind (TreasuryKind: 0 a Bellatra income, 1 castle tax, 2 a castle withdrawal, 3 a
+// Bellatra redemption), the amount (negative out), the character that received it and when.
 [Migration(39)]
 public sealed class M039CastleTreasury : Migration
 {

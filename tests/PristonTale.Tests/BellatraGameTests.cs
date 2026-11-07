@@ -129,7 +129,7 @@ internal static class BellatraGameTests
     }
 
     // A level's character at a Navisko team booth (team 1) at game hour 4, with Bellatra in the given mode.
-    private sealed class Arena
+    internal sealed class Arena
     {
         public const long Gold = 1_000_000;
 
@@ -142,6 +142,7 @@ internal static class BellatraGameTests
         public required ulong BoothId { get; init; }
         public required GameClock Clock { get; init; }
         public required ImmediateSaves Saves { get; init; }
+        public required SessionRegistry Sessions { get; init; }
 
         public NpcServiceCommand Booth(NpcServiceAction action) =>
             new(Guid.NewGuid(), BoothId, NpcServiceKind.EventBooth, action, Session.Character!.InventoryRevision);
@@ -167,14 +168,15 @@ internal static class BellatraGameTests
 
         private void Tick() => World.Tick(0.05f, _tick++);
 
-        public static async Task<Arena> CreateAsync(BellatraMode mode, int level)
+        // booth: the Navisko booth's value (1 a team booth, BellatraRules.SecretaryBooth the secretary).
+        public static async Task<Arena> CreateAsync(BellatraMode mode, int level, int booth = 1)
         {
             var classes = new CharacterClassRegistry();
             var starter = CharacterRecordFactory.NewStarter(classes, 1, "Entrant", 0, PlayerClass.Fighter, BellatraArena.Village) with { Id = 1 };
             var character = classes.CreatePlayer(PlayerClass.Fighter, starter.Name, level);
             character.RestoreProgress(ExperienceTable.ForLevel(level), Gold);
             var characters = new MemoryCharacters(CharacterRecordFactory.FromLiveSession(starter, character, BellatraArena.Village, new Vector3(100, 0, 100)));
-            var booth = new NpcDefinition(1, "Kasa", "sod_01.npc", [new NpcService(NpcServiceKind.EventBooth, 1)]) { DisplayName = "Kasa", Dialog = ["Welcome."] };
+            var npc = new NpcDefinition(1, "Kasa", "sod_01.npc", [new NpcService(NpcServiceKind.EventBooth, booth)]) { DisplayName = "Kasa", Dialog = ["Welcome."] };
             MonsterDefinition[] monsters =
             [
                 .. new[] { "Mephit", "NorthGoblin", "Devilish Tree", "Bargon", "Buma" }.Select(static (name, index) =>
@@ -183,7 +185,7 @@ internal static class BellatraGameTests
             var empty = WorldData.Empty;
             var holder = new WorldDataHolder
             {
-                Current = new WorldData(empty.Items, new MonsterCatalog(monsters), new NpcCatalog([booth]),
+                Current = new WorldData(empty.Items, new MonsterCatalog(monsters), new NpcCatalog([npc]),
                     new Dictionary<int, FieldSpawnData> { [BellatraArena.Village] = FieldSpawnData.Empty with { FixedNpcs = [new FixedNpc(1, 100 * 256, 100 * 256, 0)] } },
                     empty.Motions)
             };
@@ -207,14 +209,15 @@ internal static class BellatraGameTests
                 Npc = new NpcAppService(sessions, saves, new MemoryWarehouses(), world, holder),
                 BoothId = snapshot.Entities.Single(static entity => entity.Kind == EntityKind.Npc).EntityId,
                 Clock = clock,
-                Saves = saves
+                Saves = saves,
+                Sessions = sessions
             };
             arena.AtHour(BellatraRules.TicketHour);
             return arena;
         }
     }
 
-    private sealed class GameClock : TimeProvider
+    internal sealed class GameClock : TimeProvider
     {
         public DateTimeOffset Now { get; set; } = new(2026, 11, 9, 12, 0, 0, TimeSpan.Zero);
 

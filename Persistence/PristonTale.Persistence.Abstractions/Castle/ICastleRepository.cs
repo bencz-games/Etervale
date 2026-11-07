@@ -10,11 +10,14 @@ public sealed record CastleRecord(long OwnerClanId, int Tax, int NextTax, string
     public static CastleRecord Empty { get; } = new(0, 0, 0, "", 0, 0, 0, 0, 0, 0, 0);
 }
 
-// The kinds of treasury movements (Bellatra's prizes, kind 0, join with Bellatra).
+// The kinds of clan money movements: Bellatra's income for its operating clan and its chief's redemption of it, the
+// castle's tax and its chief's withdrawal.
 public enum TreasuryKind : short
 {
+    Bellatra = 0,
     Tax = 1,
-    Withdrawal = 2
+    Withdrawal = 2,
+    BellatraRedemption = 3
 }
 
 // A movement of the owner clan's treasury: an amount in (positive) or out (negative).
