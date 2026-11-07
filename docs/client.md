@@ -623,7 +623,13 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   and title; an item in the item box (mixing only), sheltoms or seals in the twelve cells (alchemy: sheltoms up to the
   eleventh), the respec stone in the stone cell. The plate shows the item's price or the alchemy prices, both scaled by
   the offer's `PricePercent`; the result shows what the mix added (the formula's lines), the reconstruction, the
-  refining or the failure. Server rules: [application.md](application.md), [world.md](world.md).
+  refining or the failure. Smelting (`HudSmeltingWindow`): three ores or crystals of one colour in the left panel's three
+  boxes and their sheltom (its grey hint shows) in the right box; the plate shows 25,000 or 50,000. Manufacture
+  (`HudManufactureWindow`): a recipe in the item box (fixed while runes are placed), each rune only in the box that asks
+  for it; a placed recipe sends a `Refresh` whose catalog lists its products, and the window shows the product the runes
+  pick (or "Random") under the recipe with its fee on the plate. Mixture reset (`HudMixtureResetWindow`): a mixed item in
+  the item box, then the stone in the stone box; its own start button, no price. The benches share `_benches` in
+  `GameplayHud`. Server rules: [application.md](application.md), [world.md](world.md).
 - Target frame (`HudCombat.DrawTarget`, `TargetSelection`): a clicked monster or NPC owns the frame; otherwise the
   hovered entity. The frame stays after an attack is cancelled and closes when the entity is removed or has been dead
   for 0x50 frames at 70 Hz. With `classicTargetHealthBar` false (default) the bar shows with level and life

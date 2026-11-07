@@ -17,6 +17,9 @@ public static class ItemClassRestrictions
     private static readonly (string Family, JobBitCode Owner)[] ClassWeapons =
         [("WD1", JobBitCode.Assassin), ("WN1", JobBitCode.Shaman), ("WV1", JobBitCode.MartialArtist)];
 
+    // The classes whose body armour is a robe.
+    public static bool WearsRobe(PlayerClass playerClass) => (JobBits.Of(playerClass) & Casters) != 0;
+
     public static uint AllowedJobs(string key)
     {
         if (ItemEquipmentMetadata.TryGet(key, out _, out var slot) && slot == EquipmentSlot.Weapon)

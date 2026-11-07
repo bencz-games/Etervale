@@ -68,18 +68,23 @@ public sealed partial class GameplayHud
             _warehouse.Hide();
         }
 
-        if (_services.Open != NpcServiceKind.ItemAging && _aging.IsOpen)
+        foreach (var bench in _benches)
         {
-            _aging.Hide();
+            if (_services.Open != bench.Service && bench.IsOpen)
+            {
+                bench.Hide();
+            }
+
+            bench.Sync(state);
         }
 
-        _aging.Sync(state);
-        if (_services.Open != NpcServiceKind.ItemMix && _mix.IsOpen)
+        // A recipe placed in the manufacture window asks the server what it makes.
+        _manufacture.Products = _services.Catalog;
+        if (_manufacture.FullyOpen && _manufacture.Item != Guid.Empty && _manufacture.ProductsFor != _manufacture.Item
+            && _services.Request(_services.NpcId, _services.NpcName, NpcServiceKind.Manufacture, NpcServiceAction.Refresh, itemId: _manufacture.Item))
         {
-            _mix.Hide();
+            _manufacture.ProductsFor = _manufacture.Item;
         }
-
-        _mix.Sync(state);
 
         if (_warehouse.IsOpen && _services.Warehouse is { } view && !ReferenceEquals(view, _warehouse.View))
         {
@@ -181,18 +186,21 @@ public sealed partial class GameplayHud
                 _npc.ShowDestinations(_services.Destinations);
                 break;
             case NpcServiceKind.ItemAging:
-                _npcOpen = false;
-                _aging.Show(_npc.Current?.Services.FirstOrDefault(static offer => offer.Kind == NpcServiceKind.ItemAging)?.PricePercent ?? 100);
-                RequestIcons(_state);
-                OpenOnly(_inventorySlide);
+                OpenBench(() => _aging.Show(_npc.Current?.Services.FirstOrDefault(static offer => offer.Kind == NpcServiceKind.ItemAging)?.PricePercent ?? 100));
+                break;
+            case NpcServiceKind.Smelting:
+                OpenBench(_smelting.Show);
+                break;
+            case NpcServiceKind.Manufacture:
+                OpenBench(_manufacture.Show);
+                break;
+            case NpcServiceKind.MixtureReset:
+                OpenBench(_mixtureReset.Show);
                 break;
             case NpcServiceKind.ItemMix:
             {
-                _npcOpen = false;
                 var offer = _npc.Current?.Services.FirstOrDefault(static offer => offer.Kind == NpcServiceKind.ItemMix);
-                _mix.Show(offer?.Value == Simulation.Items.Mixing.MixingWork.AlchemyMode, offer?.PricePercent ?? 100);
-                RequestIcons(_state);
-                OpenOnly(_inventorySlide);
+                OpenBench(() => _mix.Show(offer?.Value == Simulation.Items.Mixing.MixingWork.AlchemyMode, offer?.PricePercent ?? 100));
                 break;
             }
             case NpcServiceKind.QuestEvent:
@@ -288,7 +296,7 @@ public sealed partial class GameplayHud
             return true;
         }
 
-        if (_aging.Holds(item.InstanceId) || _mix.Holds(item.InstanceId))
+        if (BenchHolds(item.InstanceId))
         {
             return true;
         }
@@ -377,7 +385,7 @@ public sealed partial class GameplayHud
         }
 
         var dropped = OwnedItemView.Find(_state.Items, itemId);
-        if ((_aging.FullyOpen ? _aging.Place(dropped, pointer, _state) : _mix.FullyOpen ? _mix.Place(dropped, pointer, _state) : null) is { } refusal)
+        if (_benches.FirstOrDefault(static bench => bench.FullyOpen)?.Place(dropped, pointer, _state) is { } refusal)
         {
             if (refusal.Length > 0)
             {
@@ -432,6 +440,16 @@ public sealed partial class GameplayHud
                 _notice.Show(action.Message);
                 break;
         }
+    }
+
+    private bool BenchHolds(Guid id) => Array.Exists(_benches, bench => bench.Holds(id));
+
+    private void OpenBench(Action show)
+    {
+        _npcOpen = false;
+        show();
+        RequestIcons(_state);
+        OpenOnly(_inventorySlide);
     }
 
     private void ApplyWorkAction(HudWorkbench bench, OwnerState state, HudWorkActionKind action)

@@ -55,6 +55,12 @@ public sealed partial class GameplayHud : IDisposable
     private readonly Func<OwnedItemView, Point, HudPlacement> _storedPlacement;
     private readonly HudAgingWindow _aging = new();
     private readonly HudMixWindow _mix = new();
+    private readonly HudSmeltingWindow _smelting = new();
+    private readonly HudManufactureWindow _manufacture = new();
+    private readonly HudMixtureResetWindow _mixtureReset = new();
+
+    // The crafting windows, each open while its NPC service is.
+    private readonly HudWorkbench[] _benches;
     // The service windows in draw order: bodies, then overlays, shop first.
     private readonly IHudServiceWindow[] _serviceWindows;
     private readonly HudQuestController _quests;
@@ -137,7 +143,8 @@ public sealed partial class GameplayHud : IDisposable
         _painter = new HudPainter(context.SpriteBatch, context.Font, _sprites);
         _icons = new HudItemIcons(context.GraphicsDevice, context.AssetRoot, context.Log);
         _personalShop = new HudPersonalShopController(context.Log) { Notify = _notice.Show, AskCount = (first, second, maximum, accepted) => _countBox.Open(first, second, maximum, accepted) };
-        _serviceWindows = [_shop, _warehouse, _aging, _mix, _personalShop.Window, _trade];
+        _benches = [_aging, _mix, _smelting, _manufacture, _mixtureReset];
+        _serviceWindows = [_shop, _warehouse, .. _benches, _personalShop.Window, _trade];
         _sprites.Request(HudPersonalShopArt.All);
         _skills = new HudSkillsPanel(context.Font, _sprites);
         _skillHud = new HudSkillHud(_sprites, context.GraphicsDevice);
@@ -179,7 +186,7 @@ public sealed partial class GameplayHud : IDisposable
         _storedPlacement = StoredPlacement;
         _inventoryPanel.Note = InventoryNote;
         _inventoryPanel.Hunt = item => item.Code == QuestClasses.QuestWeapon(_class) ? _weaponHunt : "";
-        _inventoryPanel.Withheld = id => _aging.Holds(id) || _mix.Holds(id) || _personalShop.Holds(id) || _trade.Holds(id);
+        _inventoryPanel.Withheld = id => BenchHolds(id) || _personalShop.Holds(id) || _trade.Holds(id);
         _inventory.ShopRequested = OpenOwnShop;
         _sprites.Request(HudChatWindow.Art);
         _sprites.Request(HudChatBubbles.Art);
@@ -526,19 +533,24 @@ public sealed partial class GameplayHud : IDisposable
         // A click that sets a warehouse item down in the bag is not also a pick-up there.
         var storedCarried = _warehouse.Dragging != Guid.Empty;
         var warehouseAction = _warehouse.Update(mouse, _previousMouse, pointer, _storedPlacement, workLocked, _inventory.Dragging != Guid.Empty);
-        var agingAction = _aging.Update(mouse, _previousMouse, pointer, state, workLocked);
-        var mixAction = _mix.Update(mouse, _previousMouse, pointer, state, workLocked);
+        HudWorkbench actedBench = null;
+        var benchAction = HudWorkActionKind.None;
+        foreach (var bench in _benches)
+        {
+            var action = bench.Update(mouse, _previousMouse, pointer, state, workLocked);
+            if (actedBench is null && action != HudWorkActionKind.None)
+            {
+                (actedBench, benchAction) = (bench, action);
+            }
+        }
+
         if (warehouseAction.Kind != HudWarehouseActionKind.None)
         {
             ApplyWarehouseAction(state, warehouseAction);
         }
-        else if (agingAction != HudWorkActionKind.None)
+        else if (actedBench is not null)
         {
-            ApplyWorkAction(_aging, state, agingAction);
-        }
-        else if (mixAction != HudWorkActionKind.None)
-        {
-            ApplyWorkAction(_mix, state, mixAction);
+            ApplyWorkAction(actedBench, state, benchAction);
         }
         else if (clicked)
         {

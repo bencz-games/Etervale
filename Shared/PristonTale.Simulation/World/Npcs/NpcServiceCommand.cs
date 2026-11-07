@@ -27,7 +27,16 @@ public enum NpcServiceAction : byte
 
     // The mixing NPC: Mix works ItemId with sheltoms (or reconstructs it with seals); Refine turns sheltoms into force orbs.
     Mix = 51,
-    Refine = 52
+    Refine = 52,
+
+    // The smelter: Materials are three ores or crystals and their sheltom.
+    Smelt = 53,
+
+    // The craftsman: ItemId is the recipe, Materials its three runes in slot order.
+    Manufacture = 54,
+
+    // The mixture reset: ItemId is the mixed item, Materials the reset stone.
+    ResetMix = 55
 }
 
 public enum NpcServiceStatus : ushort

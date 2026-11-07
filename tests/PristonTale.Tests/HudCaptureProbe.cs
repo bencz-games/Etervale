@@ -99,6 +99,9 @@ internal sealed class HudCaptureProbe : Game
     private const uint TeleporterNpc = 10;
     private const uint MixerNpc = 11;
     private const uint AlchemistNpc = 12;
+    private const uint SmelterNpc = 13;
+    private const uint CraftsmanNpc = 14;
+    private const uint ResetterNpc = 15;
 
     private sealed record Scenario(string Name, int Width, int Height, Keys Panel = Keys.None, Hover Hover = Hover.None, int HealthPercent = 100,
         PlayerClass Class = PlayerClass.Mechanician, bool Npc = false, bool Settings = false, bool SystemMenu = false, bool Learned = false,
@@ -175,6 +178,9 @@ internal sealed class HudCaptureProbe : Game
         new("npc-aging-1600x1200-scale2", 1600, 1200, Npc: true, NpcId: TeleporterNpc, ServiceButton: 2, ServiceCount: 4),
         new("npc-mix-800", 800, 600, Npc: true, NpcId: MixerNpc, ServiceButton: 1),
         new("npc-alchemy-800", 800, 600, Npc: true, NpcId: AlchemistNpc, ServiceButton: 1),
+        new("npc-smelting-800", 800, 600, Npc: true, NpcId: SmelterNpc, ServiceButton: 0, ServiceCount: 1),
+        new("npc-manufacture-800", 800, 600, Npc: true, NpcId: CraftsmanNpc, ServiceButton: 0, ServiceCount: 1),
+        new("npc-mixture-reset-800", 800, 600, Npc: true, NpcId: ResetterNpc, ServiceButton: 0, ServiceCount: 1),
         new("system-menu-800", 800, 600, SystemMenu: true),
         new("settings-800", 800, 600, Hover: Hover.SettingsRow, Settings: true),
         new("settings-1600x1200-scale2", 1600, 1200, Settings: true),
@@ -599,6 +605,12 @@ internal sealed class HudCaptureProbe : Game
             AlchemistNpc => new NpcInteraction(true, id, "Alchemist Lisa",
                 [Offer(NpcServiceKind.QuestGiver, 1017, false), Offer(NpcServiceKind.ItemMix, Simulation.Items.Mixing.MixingWork.AlchemyMode, true)],
                 ["Sheltoms become force orbs here."], GameText.None),
+            SmelterNpc => new NpcInteraction(true, id, "Smelter Ruby", [Offer(NpcServiceKind.QuestGiver, 1019, false), Offer(NpcServiceKind.Smelting, 0, true)],
+                ["Three ores or crystals of one colour and their sheltom."], GameText.None),
+            CraftsmanNpc => new NpcInteraction(true, id, "Craftsman Salon",
+                [Offer(NpcServiceKind.QuestGiver, 2200, false), Offer(NpcServiceKind.Manufacture, 0, true)], ["A recipe and its runes."], GameText.None),
+            ResetterNpc => new NpcInteraction(true, id, "Mixer Rayon",
+                [Offer(NpcServiceKind.QuestGiver, 1016, false), Offer(NpcServiceKind.MixtureReset, 0, true)], ["A mixed item and the stone."], GameText.None),
             _ => new NpcInteraction(true, id, "Skill Master, Verkan", [Offer(NpcServiceKind.QuestGiver, 1003, false), Offer(NpcServiceKind.SkillMaster, 4, true)],
                 ["Welcome to the school of skills. Choose a skill to learn or improve.", "Choose a skill."], GameText.None)
         };

@@ -16,8 +16,8 @@ public enum HudWorkActionKind
     Start
 }
 
-// The frame the aging and mixing windows share: it slides in beside the bag with a main item box, a stone box and the
-// sheltom slots. Items dropped from the bag are placed by the window's rules and taken back with a right click; a
+// The frame the crafting windows share (aging, mixing, smelting, manufacture, mixture reset): it slides in beside the bag
+// with a main item box, a stone box and material slots, placed where each window's panel draws them. Items dropped from the bag are placed by the window's rules and taken back with a right click; a
 // placed item that leaves the bag leaves the window. The start button runs the work once the window is ready.
 public abstract class HudWorkbench : IHudServiceWindow
 {
@@ -32,6 +32,17 @@ public abstract class HudWorkbench : IHudServiceWindow
     private bool _exitHovered;
 
     protected Guid[] Slots { get; } = new Guid[HudCraftLayout.SheltomSlots];
+
+    // Where the window draws its main item box, its stone box and its material slots (the sheltom grid by default).
+    protected virtual Rectangle ItemBounds(Point origin) => HudCraftLayout.ItemBox(origin);
+
+    protected virtual Rectangle StoneBounds(Point origin) => HudCraftLayout.Stone(origin);
+
+    protected virtual Rectangle SlotBounds(Point origin, int slot) => HudCraftLayout.Sheltom(origin, slot);
+
+    protected virtual int SlotAt(Point origin, Point pointer) => HudCraftLayout.SheltomAt(origin, pointer);
+
+    protected virtual string StartButtonArt => HudCraftArt.StartButton;
     protected Guid ItemId { get; set; }
     protected Guid StoneId { get; set; }
     protected int PricePercent { get; private set; } = 100;
@@ -191,7 +202,7 @@ public abstract class HudWorkbench : IHudServiceWindow
         if (ShowsStart(state))
         {
             var start = HudCraftLayout.Start(origin);
-            painter.Sprite(HudCraftArt.StartButton, start.X, start.Y);
+            painter.Sprite(StartButtonArt, start.X, start.Y);
         }
 
         if (_exitHovered && interactive)
@@ -279,18 +290,18 @@ public abstract class HudWorkbench : IHudServiceWindow
     private Guid? PlacedAt(Point pointer)
     {
         var origin = Origin;
-        if (StoneId != Guid.Empty && HudCraftLayout.Stone(origin).Contains(pointer))
+        if (StoneId != Guid.Empty && StoneBounds(origin).Contains(pointer))
         {
             return StoneId;
         }
 
-        var slot = HudCraftLayout.SheltomAt(origin, pointer);
+        var slot = SlotAt(origin, pointer);
         if (slot >= 0 && Slots[slot] != Guid.Empty)
         {
             return Slots[slot];
         }
 
-        return ItemId != Guid.Empty && HudCraftLayout.ItemBox(origin).Contains(pointer) ? ItemId : null;
+        return ItemId != Guid.Empty && ItemBounds(origin).Contains(pointer) ? ItemId : null;
     }
 
     private readonly HudNumberText _price = new();
@@ -300,14 +311,14 @@ public abstract class HudWorkbench : IHudServiceWindow
     {
         if (item.InstanceId == ItemId)
         {
-            return HudGridPlacement.Frame(item, HudCraftLayout.ItemBox(origin).Center);
+            return HudGridPlacement.Frame(item, ItemBounds(origin).Center);
         }
 
         if (item.InstanceId == StoneId)
         {
-            return HudCraftLayout.Stone(origin);
+            return StoneBounds(origin);
         }
 
-        return Array.IndexOf(Slots, item.InstanceId) is >= 0 and var slot ? HudCraftLayout.Sheltom(origin, slot) : null;
+        return Array.IndexOf(Slots, item.InstanceId) is >= 0 and var slot ? SlotBounds(origin, slot) : null;
     }
 }

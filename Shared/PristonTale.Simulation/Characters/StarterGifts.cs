@@ -40,7 +40,7 @@ public static class StarterGifts
     public static string ItemKey(ItemCatalog items, PlayerClass playerClass, int index) => index switch
     {
         Weapon => WeaponKey(playerClass),
-        Armour => playerClass is PlayerClass.Magician or PlayerClass.Priestess or PlayerClass.Shaman ? "DA202" : "DA102",
+        Armour => ItemClassRestrictions.WearsRobe(playerClass) ? "DA202" : "DA102",
         OffHand => OffHandKey(items, playerClass),
         _ => "GP101"
     };

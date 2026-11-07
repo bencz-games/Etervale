@@ -365,6 +365,11 @@
   <data name="Login.Subtitle" xml:space="preserve"><value>Sua aventura começa aqui</value></data>
   <data name="Login.Unreachable" xml:space="preserve"><value>Não foi possível alcançar o servidor do jogo.</value></data>
   <data name="Loot.Gold" xml:space="preserve"><value>{0} de ouro</value></data>
+  <data name="Manufacture.Done" xml:space="preserve"><value>O item foi fabricado.</value></data>
+  <data name="Manufacture.Failed" xml:space="preserve"><value>A fabricação do item falhou.</value></data>
+  <data name="Manufacture.Random" xml:space="preserve"><value>Aleatório</value></data>
+  <data name="Manufacture.RunesPlaced" xml:space="preserve"><value>Com runas colocadas, a receita não pode ser trocada.</value></data>
+  <data name="Manufacture.WrongRune" xml:space="preserve"><value>Esta não é a forma certa de fabricar.</value></data>
   <data name="Mix.Bonus.Absorb" xml:space="preserve"><value>Taxa de absorção +{0}</value></data>
   <data name="Mix.Bonus.AttackRating" xml:space="preserve"><value>Taxa de ataque +{0}</value></data>
   <data name="Mix.Bonus.AttackSpeed" xml:space="preserve"><value>Velocidade de ataque +{0}</value></data>
@@ -390,6 +395,9 @@
   <data name="Mix.Reconstructed" xml:space="preserve"><value>O item foi reconstruído.</value></data>
   <data name="Mix.Refined" xml:space="preserve"><value>Os sheltoms foram refinados em force orbs.</value></data>
   <data name="Mix.Result" xml:space="preserve"><value>Resultado da mistura: {0}</value></data>
+  <data name="MixReset.CannotReset" xml:space="preserve"><value>Só um item misturado pode ter a mistura desfeita.</value></data>
+  <data name="MixReset.Done" xml:space="preserve"><value>A mistura do item foi desfeita.</value></data>
+  <data name="MixReset.ItemFirst" xml:space="preserve"><value>Coloque primeiro o item misturado.</value></data>
   <data name="Npc.Bought" xml:space="preserve"><value>Comprado.</value></data>
   <data name="Npc.Destination" xml:space="preserve"><value>{0}  {1} de ouro</value></data>
   <data name="Npc.DestinationLevel" xml:space="preserve"><value>{0}  {1} de ouro  (Nv {2})</value></data>
@@ -594,6 +602,10 @@
   <data name="SkillWindow.TrainTitle" xml:space="preserve"><value>Treinar habilidade/magia</value></data>
   <data name="SkillWindow.Unavailable" xml:space="preserve"><value>Indisponível nesta versão</value></data>
   <data name="SkillWindow.Unlearned" xml:space="preserve"><value>Não aprendida | Prévia do rank 1</value></data>
+  <data name="Smelt.CannotSmelt" xml:space="preserve"><value>Só três minérios ou cristais do mesmo tipo e o sheltom deles podem ser fundidos.</value></data>
+  <data name="Smelt.Done" xml:space="preserve"><value>A fundição foi concluída.</value></data>
+  <data name="Smelt.Failed" xml:space="preserve"><value>A fundição do item falhou.</value></data>
+  <data name="Smelt.NotSame" xml:space="preserve"><value>Estes não são minérios ou cristais do mesmo tipo.</value></data>
   <data name="Stat.Absorption" xml:space="preserve"><value>Absorção</value></data>
   <data name="Stat.AbsorptionVsUndead" xml:space="preserve"><value>Absorção contra mortos-vivos</value></data>
   <data name="Stat.Agility" xml:space="preserve"><value>Agilidade</value></data>

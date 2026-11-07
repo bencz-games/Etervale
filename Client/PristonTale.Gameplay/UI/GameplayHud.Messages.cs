@@ -40,8 +40,10 @@ public sealed partial class GameplayHud
         {
             _serviceCompletions = _services.Completions;
             Report(_services.LastOk, _services.Message);
-            ShowWorkResult(_aging);
-            ShowWorkResult(_mix);
+            foreach (var bench in _benches)
+            {
+                ShowWorkResult(bench);
+            }
         }
 
         if (_itemUse.Completions != _itemUseCompletions)

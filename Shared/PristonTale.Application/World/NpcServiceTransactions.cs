@@ -175,6 +175,16 @@ internal static class NpcServiceTransactions
                 status = Simulation.Items.Mixing.MixingWork.TryRefine(candidate, command.Materials ?? [], items, field.ItemRng, out work, out _,
                     field.Mixing);
                 break;
+            case NpcServiceAction.Smelt:
+                status = Simulation.Items.Smelting.SmeltingWork.TrySmelt(candidate, command.Materials ?? [], items, field.ItemRng, out work, out _);
+                break;
+            case NpcServiceAction.Manufacture:
+                status = Simulation.Items.Manufacture.ManufactureWork.TryManufacture(candidate, command.ItemId, command.Materials ?? [], items,
+                    field.ItemRng, out work, out _);
+                break;
+            case NpcServiceAction.ResetMix:
+                status = Simulation.Items.Mixing.MixtureReset.TryReset(candidate, command.ItemId, command.Materials ?? [], field.ItemRng, out work);
+                break;
             default:
                 status = NpcServiceStatus.Rejected;
                 break;
@@ -233,8 +243,36 @@ internal static class NpcServiceTransactions
             },
             NpcServiceKind.Warehouse => new NpcServiceReply(outcome) { Warehouse = storage!.View() },
             NpcServiceKind.Teleporter => new NpcServiceReply(outcome) { Destinations = Destinations(service, world) },
+            NpcServiceKind.Manufacture when command.Action == NpcServiceAction.Refresh => new NpcServiceReply(outcome)
+            {
+                Catalog = ManufactureProducts(character, command.ItemId, items)
+            },
             _ => new NpcServiceReply(outcome)
         };
+    }
+
+    // What the recipe the player holds makes, one offer per product with its rune combination as Ordinal (the random
+    // armour of all B runes lists every candidate under one combination) and its fee as Price.
+    private static IReadOnlyList<ShopOffer> ManufactureProducts(PlayerCharacter character, Guid recipeId, ItemCatalog items)
+    {
+        var inventory = character.Inventory;
+        var at = inventory.Find(recipeId);
+        var armour = false;
+        var recipe = at >= 0 && inventory[at] is { } held ? Simulation.Items.Manufacture.ManufactureWork.RecipeOf(held.Definition.CatalogKey, out armour) : 0;
+        var offers = new List<ShopOffer>();
+        for (var combination = 0; recipe > 0 && combination < 1 << Simulation.Items.Manufacture.ManufactureWork.Runes; combination++)
+        {
+            foreach (var key in Simulation.Items.Manufacture.ManufactureWork.Products(recipe, armour, combination, character.Class.Class))
+            {
+                if (items.TryGet(ItemCodes.Parse(key), out var made))
+                {
+                    offers.Add(new ShopOffer(made.Code, 0, combination, made.Name, made.Kind, Simulation.Items.Manufacture.ManufactureWork.Fee(made),
+                        made.GridWidth, made.GridHeight, made.MaxStack, made.CatalogKey));
+                }
+            }
+        }
+
+        return offers;
     }
 
     private static NpcServiceReply State(NpcServiceCommand command, PlayerCharacter character, WarehouseStorage? storage, NpcServiceOutcome outcome) =>
@@ -297,7 +335,7 @@ internal static class NpcServiceTransactions
     private static bool Accepts(NpcServiceKind service, NpcServiceAction action) => action switch
     {
         NpcServiceAction.Open or NpcServiceAction.Close => true,
-        NpcServiceAction.Refresh => service is NpcServiceKind.Shop or NpcServiceKind.Warehouse,
+        NpcServiceAction.Refresh => service is NpcServiceKind.Shop or NpcServiceKind.Warehouse or NpcServiceKind.Manufacture,
         NpcServiceAction.Buy or NpcServiceAction.Sell or NpcServiceAction.Repair or NpcServiceAction.RepairAll => service == NpcServiceKind.Shop,
         NpcServiceAction.Deposit or NpcServiceAction.Withdraw or NpcServiceAction.Move or NpcServiceAction.DepositGold
             or NpcServiceAction.WithdrawGold => service == NpcServiceKind.Warehouse,
@@ -305,6 +343,9 @@ internal static class NpcServiceTransactions
         NpcServiceAction.Exchange => service == NpcServiceKind.QuestEvent,
         NpcServiceAction.Age => service == NpcServiceKind.ItemAging,
         NpcServiceAction.Mix or NpcServiceAction.Refine => service == NpcServiceKind.ItemMix,
+        NpcServiceAction.Smelt => service == NpcServiceKind.Smelting,
+        NpcServiceAction.Manufacture => service == NpcServiceKind.Manufacture,
+        NpcServiceAction.ResetMix => service == NpcServiceKind.MixtureReset,
         _ => false
     };
 

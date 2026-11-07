@@ -365,6 +365,11 @@
   <data name="Login.Subtitle" xml:space="preserve"><value>Your adventure begins here</value></data>
   <data name="Login.Unreachable" xml:space="preserve"><value>Could not reach the game server.</value></data>
   <data name="Loot.Gold" xml:space="preserve"><value>{0} Gold</value></data>
+  <data name="Manufacture.Done" xml:space="preserve"><value>The item was manufactured.</value></data>
+  <data name="Manufacture.Failed" xml:space="preserve"><value>Item manufacture has failed.</value></data>
+  <data name="Manufacture.Random" xml:space="preserve"><value>Random</value></data>
+  <data name="Manufacture.RunesPlaced" xml:space="preserve"><value>While runes are placed, the recipe cannot be changed.</value></data>
+  <data name="Manufacture.WrongRune" xml:space="preserve"><value>This is not the right way to manufacture.</value></data>
   <data name="Mix.Bonus.Absorb" xml:space="preserve"><value>Absorption Rating +{0}</value></data>
   <data name="Mix.Bonus.AttackRating" xml:space="preserve"><value>Attack Rating +{0}</value></data>
   <data name="Mix.Bonus.AttackSpeed" xml:space="preserve"><value>Attack Speed +{0}</value></data>
@@ -390,6 +395,9 @@
   <data name="Mix.Reconstructed" xml:space="preserve"><value>The item was re-constructed.</value></data>
   <data name="Mix.Refined" xml:space="preserve"><value>The sheltoms were refined into force orbs.</value></data>
   <data name="Mix.Result" xml:space="preserve"><value>Item Mixture Result: {0}</value></data>
+  <data name="MixReset.CannotReset" xml:space="preserve"><value>Only a mixed item can be reset.</value></data>
+  <data name="MixReset.Done" xml:space="preserve"><value>The mixture of the item was reset.</value></data>
+  <data name="MixReset.ItemFirst" xml:space="preserve"><value>Place the mixed item first.</value></data>
   <data name="Npc.Bought" xml:space="preserve"><value>Bought.</value></data>
   <data name="Npc.Destination" xml:space="preserve"><value>{0}  {1} gold</value></data>
   <data name="Npc.DestinationLevel" xml:space="preserve"><value>{0}  {1} gold  (Lv {2})</value></data>
@@ -594,6 +602,10 @@
   <data name="SkillWindow.TrainTitle" xml:space="preserve"><value>Train Skill/Magic</value></data>
   <data name="SkillWindow.Unavailable" xml:space="preserve"><value>Unavailable in this version</value></data>
   <data name="SkillWindow.Unlearned" xml:space="preserve"><value>Unlearned | Rank 1 preview</value></data>
+  <data name="Smelt.CannotSmelt" xml:space="preserve"><value>Only three ores or crystals of one kind and their sheltom can be smelted.</value></data>
+  <data name="Smelt.Done" xml:space="preserve"><value>The smelting is done.</value></data>
+  <data name="Smelt.Failed" xml:space="preserve"><value>Item smelting has failed.</value></data>
+  <data name="Smelt.NotSame" xml:space="preserve"><value>These are not the same kind of ores or crystals.</value></data>
   <data name="Stat.Absorption" xml:space="preserve"><value>Absorption</value></data>
   <data name="Stat.AbsorptionVsUndead" xml:space="preserve"><value>Absorption vs undead</value></data>
   <data name="Stat.Agility" xml:space="preserve"><value>Agility</value></data>

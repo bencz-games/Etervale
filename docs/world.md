@@ -507,7 +507,7 @@ only with `MoveRange > 0` and a walk clip, with a 25% chance at the end of each 
 | Type | Contract |
 |---|---|
 | `NpcServiceKind` | Stored in `npc_services.kind`, sent in the dialog and as bit `1 << kind`; append only. Argument meanings per member. |
-| `NpcServiceAvailability.IsAvailable` | Running services: `Shop`, `Warehouse`, `SkillMaster`, quest givers and scripts, `ItemAging`, `ItemMix`, the wing exchange, the puzzle collector, `Teleporter` with a known route. Others are offered but unavailable. |
+| `NpcServiceAvailability.IsAvailable` | Running services: `Shop`, `Warehouse`, `SkillMaster`, quest givers and scripts, `ItemAging`, `ItemMix`, `Smelting`, `Manufacture`, `MixtureReset`, the wing exchange, the puzzle collector, `Teleporter` with a known route. Others are offered but unavailable. |
 | `NpcInteraction` | Dialog reply; `Reach = 96` planar units for NPC service requests |
 | `NpcServiceCommand` | `OperationId` (idempotency), NPC, service, action, expected revisions, item, `Anchor`, `Count`, `Amount`, `Materials` (compared by value) |
 | `NpcServiceAction` | Persisted in the operation history and sent on the wire; append only. `IsDurable` is false for Open, Close, Refresh. |
@@ -601,6 +601,32 @@ stats the item tooltip marks (`AgedStats`; bows and javelins also mark mana, as 
   5000, 10000, 20000, 30000, 40000 or 50000 gold (`alchemy.price_percent`); the later and the magic sheltoms are refused.
 - Results (`MixResult`): 0 failed, 1 mixed, 2 reconstructed, 3 refined. A mixed copy whose highest sheltom is Devine to
   Mirage glows in the mixing colours (`HeldItemGlow`).
+- Mixture reset (`MixtureReset`, the `MixtureReset` service, action `ResetMix`): a mixed item and the Mixture Reset Stone
+  (`BI189`) remake the item as a newly rolled copy under the same identity, keeping its class specialization (a plain
+  item stays plain, `ItemRollOverrides.Plain`); the stone is spent and the service is free. Result 1 is the reset.
+
+## Smelting and manufacture
+
+`SmeltingWork` (`Items/Smelting/`) and `ManufactureWork` (`Items/Manufacture/`) hold the rules; `NpcServiceTransactions`
+runs `Smelt` for the `Smelting` service and `Manufacture` for the `Manufacture` service. Neither has a price setting.
+
+- Smelting: three ores of one colour (PR101-PR108) and the sheltom the colour asks for (Lucidy + 5 for ore n: OS106 to
+  OS113) make the colour's crystal (PR2nn) for 25,000 gold; three crystals of one colour and their sheltom (OS107 to
+  OS113 for crystals 1-7; OS103, OS104, OS105 for crystals 9-11 and again 12-14) make its A or B rune (PR3nn, PR4nn, even
+  odds) for 50,000. Smelting always succeeds. The green crystal (PR208) is not smelted.
+- Manufacture: a recipe (WR1nn weapons, DR1nn armour, nn 1-11) and the three runes it names, in their slots: recipe 1
+  runes 1, 2, 3; recipe 2 runes 2, 3, 4; recipes 3-6 runes 3, 4, 5; recipe 7 runes 4, 5, 6; recipe 8 runes 5, 6, 7;
+  recipe 9 runes 6, 7, 8; recipe 10 runes 9, 10, 11; recipe 11 runes 12, 13, 14. Each rune is A or B; which are B
+  (first, second, third as bits 4, 2, 1) picks the product. Weapon recipes 1-8 make the axe, talon, hammer, scythe, bow,
+  sword, javelin or staff from WA114, WC114, WH115, WP115, WS116, WS217, WT115, WM115, one number higher per recipe and
+  recipes 7 and 8 one further (WA121, WA122). Armour recipes 1-8 make the armour, robe, shield, orb, gauntlets, armlets or
+  boots from DA116, DA216, DS114, OM115, DG114, OA214, DB114 in the same steps; three B runes pick any of the seven. The
+  tenth armour recipe makes OA136 from A, B, A runes; the eleventh (Memory) makes the class's costume from three A runes:
+  DA1 for armour, DA2 for the robe classes (Magician, Priestess, Shaman), 51 for men, 52 for women. Recipe 9 and the
+  weapon recipes 10 and 11 make nothing and are refused, as is a product the catalog lacks.
+- An attempt spends recipe and runes and a third of the product's price; half the attempts make the product
+  (`ManufactureResult` 1), the others fail (0). A `Refresh` of the service with the recipe as `ItemId` answers a
+  `ShopCatalog` of its products: one offer per product, `Ordinal` the rune combination, `Price` the fee.
 
 ## Wing warp gates
 

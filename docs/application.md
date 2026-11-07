@@ -455,7 +455,7 @@ Flow (`NpcAppService.RequestAsync`):
    and within `NpcInteraction.Reach` (96, planar), NPC offers the service, the action fits the service, the service is
    available (`NpcServiceAvailability`). Warehouse actions other than `Close` need an open warehouse (`NotOpen`).
 4. Non-durable actions (`Open`, `Close`, `Refresh`) return the view: shop catalog (3 tabs) and quotes, warehouse view,
-   or teleport destinations. Durable actions check replay, empty id and revisions, then apply to a candidate.
+   teleport destinations, or a manufacture recipe's products. Durable actions check replay, empty id and revisions, then apply to a candidate.
 5. Persist: character only, or character plus warehouse in one transaction under the expected warehouse revision.
    A warehouse revision mismatch returns `Conflict` and clears the cached warehouse ("open it again").
 6. `CommitNpcServiceAsync` (tick): inventory, `MoneyDelta`, warehouse cache, and for a teleport `Arrive` (move to the
@@ -468,6 +468,10 @@ Flow (`NpcAppService.RequestAsync`):
 | Teleporter | Open, Teleport, Close | `TeleportRoutes`: route 1 (Mushroom Cave 100, Beehive Cave 100, Cursed Land 500, Forbidden Land 1000 gold) and route 3 (Milter: Endless Tower 1F, free); level must reach the destination field's `LimitLevel` |
 | Skill master | (dialog only here) | Learning goes through `ProgressionCommand.LearnSkill` with the NPC's entity id; the class change goes through the quests |
 | Quest giver, quest script, wing exchange (warp gate 0 or 1) | (dialog only here) | Answered by `QuestAppService` talks, see [quests.md](quests.md) |
+| Aging, mixing and alchemy | Open, Age / Mix / Refine, Close | `AgingWork`, `MixingWork`, see [world.md](world.md) |
+| Smelting | Open, Smelt, Close | `SmeltingWork`: three ores or crystals of one colour and their sheltom, 25,000 or 50,000 gold |
+| Manufacture | Open, Refresh (the recipe's products), Manufacture, Close | `ManufactureWork`: a recipe and its three runes, half the attempts succeed, a third of the product's price |
+| Mixture reset | Open, ResetMix, Close | `MixtureReset`: a mixed item and the reset stone, remade under its identity |
 | Mobile shop | NPC id 0: Open, Refresh, Sell, Repair, RepairAll, Close | `MobileShopTransactions`: only after a used mobile shop item (`PlayerSession.MobileShopOpen`), no stock |
 
 Other `NpcServiceKind` values answer `NotAvailable`. Prices, stock, totals and destinations always come from the

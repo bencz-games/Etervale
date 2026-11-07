@@ -432,7 +432,8 @@ to 64 bytes, item names 40, messages 128, dialog lines 256), and counts are 32-b
 - `ItemWork`: `{uint16 Version, uint16 0, Guid OperationId, uint64 NpcId, uint8 Service, uint8 Result, uint16 0,
   Guid ItemId, uint32 Code}`. For the aging NPC `Result` is `AgingResult` (0 lost, 1 down one, 2 down two, 3 success,
   4 doubled) and `ItemId` is empty when the item was lost; for the mixing NPC it is `MixResult` (0 failed, 1 mixed,
-  2 reconstructed, 3 refined, `ItemId` empty after refining). `PricePercent` of a dialog service is the server's price
+  2 reconstructed, 3 refined, `ItemId` empty after refining); for the smelter `SmeltResult` (1 smelted), the craftsman
+  `ManufactureResult` (0 failed, `ItemId` empty, 1 made) and the mixture reset 1. `PricePercent` of a dialog service is the server's price
   setting of the aging, mixing and alchemy services (100 for the others). A teleport also sends a forced `FieldWarp`.
 
 The server checks every request against the NPC in the player's field (alive, within 96 units, offering the service),

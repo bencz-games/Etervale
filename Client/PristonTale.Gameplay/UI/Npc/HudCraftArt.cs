@@ -5,6 +5,8 @@ public static class HudCraftArt
     private const string Shop = "image/Sinimage/shopall/";
     private const string Aging = Shop + "Aging/";
     private const string Craft = Shop + "CraftItem/";
+    private const string Smelting = Shop + "SmeltingItem/";
+    private const string Manufacture = Shop + "Manufacture/";
 
     public const string Panel = Craft + "CraftItemMain.bmp";
     public const string StartButton = Craft + "Button.bmp";
@@ -15,6 +17,16 @@ public static class HudCraftArt
     public const string AlchemyTitle = Shop + "title_alchemy.bmp";
     public const string AlchemyPanel = Shop + "shop_alchemy.bmp";
     public const string AlchemyStartInfo = Shop + "Bt_alchemy.bmp";
+    public const string SmeltingPanel = Smelting + "SmeltingMain.bmp";
+    public const string SmeltingTitle = Smelting + "SmeltingTitle.bmp";
+    public const string SmeltingStartInfo = Smelting + "ButtonInfo.bmp";
+    public const string ManufacturePanel = Manufacture + "ManufactureMain.bmp";
+    public const string ManufactureTitle = Manufacture + "ManufactureTitle.bmp";
+    public const string ManufactureStartInfo = Manufacture + "ButtonInfo.bmp";
+    public const string ResetPanel = Craft + "MResetMain.bmp";
+    public const string ResetTitle = Craft + "MResetTitle.bmp";
+    public const string ResetButton = Craft + "MResetButton.bmp";
+    public const string ResetStartInfo = Craft + "MResetButtonInfo.bmp";
 
     public const string AgingBar = Aging + "Bar.bmp";
     public const string AgingFill = Aging + "Bar_.bmp";
@@ -28,7 +40,8 @@ public static class HudCraftArt
     public static readonly string[] All =
     [
         Panel, StartButton, MixStartInfo, MixTitle, AgingTitle, AgingStartInfo, AlchemyTitle, AlchemyPanel, AlchemyStartInfo, AgingBar, AgingFill,
-        AgingPlate,
+        AgingPlate, SmeltingPanel, SmeltingTitle, SmeltingStartInfo, ManufacturePanel, ManufactureTitle, ManufactureStartInfo, ResetPanel, ResetTitle,
+        ResetButton, ResetStartInfo,
         .. SheltomHints[1..]
     ];
 }

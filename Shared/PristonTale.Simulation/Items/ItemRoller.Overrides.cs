@@ -5,9 +5,10 @@ using PristonTale.Contracts.Characters;
 
 namespace PristonTale.Simulation.Items;
 
-// How a game master's item command shapes the copy: a forced class specialization (when the item can take it) and the
-// middle mode, which rolls every whole-number range without its lowest and highest quarter.
-public sealed record ItemRollOverrides(uint ForcedSpecJob = 0, bool Middle = false)
+// How a game master's item command or a remade item shapes the copy: a forced class specialization (when the item can
+// take it), the middle mode, which rolls every whole-number range without its lowest and highest quarter, and Plain,
+// which leaves the copy without a specialization.
+public sealed record ItemRollOverrides(uint ForcedSpecJob = 0, bool Middle = false, bool Plain = false)
 {
     public static readonly ItemRollOverrides None = new();
 }
@@ -74,7 +75,7 @@ public static partial class ItemRoller
         var requirements = definition.Requirements;
         var bonus = ItemSpecBonus.None;
         // A forced specialization always specializes the copy; the draws of the ordinary roll still happen.
-        if (template.CanSpecialize && (rng.NextExclusive(0, 10) <= 3 || forced != 0))
+        if (template.CanSpecialize && !overrides.Plain && (rng.NextExclusive(0, 10) <= 3 || forced != 0))
         {
             var mask = template.SpecJob;
             var chosen = mask;
