@@ -36,6 +36,8 @@ internal static class ClanTests
         yield return ("a clan short of six members past its deadline is dissolved and its members wait four days to join another", ExpiryAsync);
         yield return ("the Clan Master's window founds a clan from a typed name and asks before the chief's actions; a recruiter gets the clan button",
             WindowAsync);
+        yield return ("the party window's clan tab shows only in a clan; its page picks members, whispers to online ones, opens clan chat and closes",
+            PageAsync);
     }
 
     private static Task RulesAsync()
@@ -314,6 +316,53 @@ internal static class ClanTests
         Assert.True(menu.Width == 120 && buttons.All(button => menu.Contains(button.Center))
             && Gameplay.UI.Parties.HudPlayerButtons.At(frame, buttons[3].Center, clan: true) == Gameplay.UI.Parties.HudPlayerButton.Clan
             && Gameplay.UI.Parties.HudPlayerButtons.At(frame, buttons[3].Center) is null, "the clan button differs");
+        return Task.CompletedTask;
+    }
+
+    private static Task PageAsync()
+    {
+        var window = new Gameplay.UI.Parties.HudPartyWindow();
+        var layout = Gameplay.UI.HudLayout.Create(800, 600);
+        window.Show();
+        for (var step = 0; step < 60 && !window.FullyOpen; step++)
+        {
+            window.Advance(0.05);
+        }
+
+        var origin = window.CurrentOrigin(layout);
+        var party = Client.Net.Presence.PartyInfo.None;
+        window.Click(layout, Gameplay.UI.Parties.HudPartyWindow.ClanTab(origin).Center, party, 1, 0);
+        Assert.True(window.Page == Gameplay.UI.Parties.HudPartyPage.Party, "a player without a clan opened the clan tab");
+
+        var clan = new Client.Net.Presence.ClanInfo(7, "Lions", ClanState.Registered, 0, ClanRank.Member, 22, "", 0,
+            [
+                new Client.Net.Presence.ClanMemberInfo("Founder", PlayerClass.Knight, 42, ClanRank.Chief, true),
+                new Client.Net.Presence.ClanMemberInfo("Bob", PlayerClass.Archer, 41, ClanRank.Member, false)
+            ]);
+        window.ObserveClan(clan);
+        window.Click(layout, Gameplay.UI.Parties.HudPartyWindow.ClanTab(origin).Center, party, 1, 0);
+        Assert.True(window.Page == Gameplay.UI.Parties.HudPartyPage.Clan, "a member could not open the clan tab");
+
+        var whispered = new List<string>();
+        var talked = 0;
+        window.Clan.Whispered = whispered.Add;
+        window.Clan.Talk = () => talked++;
+        var offline = Gameplay.UI.Clans.HudClanPage.Row(origin, 1).Center;
+        window.Click(layout, offline, party, 1, 1.0);
+        window.Click(layout, offline, party, 1, 1.1);
+        var online = Gameplay.UI.Clans.HudClanPage.Row(origin, 0).Center;
+        window.Click(layout, online, party, 1, 2.0);
+        window.Click(layout, online, party, 1, 2.1);
+        Assert.True(whispered is ["Founder"], $"a double click did not whisper to the online member only ({string.Join(",", whispered)})");
+        window.Click(layout, Gameplay.UI.Clans.HudClanPage.ChatButton(origin).Center, party, 1, 3);
+        Assert.True(talked == 1, "the chat button did not open the clan chat");
+
+        window.ObserveClan(Client.Net.Presence.ClanInfo.None);
+        Assert.True(window.Page == Gameplay.UI.Parties.HudPartyPage.Party, "leaving the clan kept the clan page");
+        window.ObserveClan(clan);
+        window.Click(layout, Gameplay.UI.Parties.HudPartyWindow.ClanTab(origin).Center, party, 1, 4);
+        window.Click(layout, Gameplay.UI.Clans.HudClanPage.CloseButton(origin).Center, party, 1, 5);
+        Assert.True(!window.Open, "the clan page's close button did not close the window");
         return Task.CompletedTask;
     }
 

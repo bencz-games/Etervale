@@ -6,11 +6,12 @@ using PristonTale.Gameplay.UI.Parties;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Protocol.Packets;
 using PristonTale.Simulation.Social.Clans;
+using PristonTale.Gameplay.UI.Chat;
 
 namespace PristonTale.Gameplay.UI;
 
-// The clan: the Clan Master's window, the invitation box (the party's request box) and the clan button under a reached
-// player's portrait for a chief or vice chief when that player has no clan.
+// The clan: the Clan Master's window, the party window's clan page, the invitation box (the party's request box) and the
+// clan button under a reached player's portrait for a chief or vice chief when that player has no clan.
 public sealed partial class GameplayHud
 {
     private readonly HudClanWindow _clanWindow = new();
@@ -35,6 +36,7 @@ public sealed partial class GameplayHud
         if (update.Clan is { } clan)
         {
             _clanWindow.Observe(clan);
+            _partyWindow.ObserveClan(clan);
             Combat.OwnClan = clan.ClanId;
         }
 
@@ -48,6 +50,13 @@ public sealed partial class GameplayHud
         {
             _clanWindow.Result(result);
         }
+    }
+
+    private void SetUpClans()
+    {
+        _sprites.Request(HudClanArt.All);
+        _partyWindow.Clan.Whispered = _chat.Window.WhisperTo;
+        _partyWindow.Clan.Talk = () => _chat.Window.TalkOn(HudChatTab.Clan);
     }
 
     private void OpenClan(ulong npcId)

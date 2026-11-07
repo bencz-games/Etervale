@@ -40,7 +40,7 @@ public sealed partial class GameplayHud
                 _questWindow.Close();
                 _partyWindow.Show();
             }
-            else if (released && !_partyWindow.ShowsFriends)
+            else if (released && _partyWindow.Page == HudPartyPage.Party)
             {
                 _partyWindow.Close();
             }

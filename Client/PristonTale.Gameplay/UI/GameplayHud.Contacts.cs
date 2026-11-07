@@ -1,6 +1,7 @@
 using PristonTale.Client.Net.Presence;
 using PristonTale.Contracts.Social;
 using PristonTale.Gameplay.UI.Contacts;
+using PristonTale.Gameplay.UI.Parties;
 
 namespace PristonTale.Gameplay.UI;
 
@@ -33,7 +34,7 @@ public sealed partial class GameplayHud
 
     private void UpdateContacts(double nowMs)
     {
-        if (_partyWindow.Visible && _partyWindow.ShowsFriends && nowMs - _contactsAskedMs >= ContactRefreshMs)
+        if (_partyWindow.Visible && _partyWindow.Page == HudPartyPage.Friends && nowMs - _contactsAskedMs >= ContactRefreshMs)
         {
             _contactsAskedMs = nowMs;
             Contacts?.RefreshContactsAsync();

@@ -6,9 +6,17 @@ using PristonTale.Gameplay.UI.Widgets;
 
 namespace PristonTale.Gameplay.UI.Parties;
 
-// The party window's party and friends pages (its "Party" and "chatting" tabs over the frame, at x 60 and 120), where its
-// quest page (HudQuestWindow) stands: 256x256 at (539, 155) of the 800x600 frame (right and bottom anchored), sliding in
-// from the right edge. The friends page is HudFriendsPage. On the party page, members go down from (80, 38) at 30 px
+public enum HudPartyPage
+{
+    Party,
+    Friends,
+    Clan
+}
+
+// The party window's party and friends pages (its "Party" and "chatting" tabs over the frame, at x 60 and 120), and for a
+// clan's members the clan page (a third tab at x 180; the titles then show three tabs), where its quest page
+// (HudQuestWindow) stands: 256x256 at (539, 155) of the 800x600 frame (right and bottom anchored), sliding in from the
+// right edge. The friends page is HudFriendsPage, the clan page HudClanPage. On the party page, members go down from (80, 38) at 30 px
 // steps: the life bar (94 px) under the name, the member's mark (the leader's own) before it and the level after it,
 // shown in tens past level 10 ("L4x"). Under them the delegate, disband, kick, leave and close buttons: the first three
 // are the leader's, and without a party only close works. A click picks a member for delegate and kick (neither acts
@@ -29,9 +37,9 @@ public sealed class HudPartyWindow
 
     public bool Open => _slide.Open;
 
-    // The friends page shows instead of the party page.
-    public bool ShowsFriends { get; private set; }
+    public HudPartyPage Page { get; private set; }
     public Contacts.HudFriendsPage Friends { get; } = new();
+    public Clans.HudClanPage Clan { get; } = new();
     public bool Visible => _slide.Visible;
     public bool FullyOpen => _slide.FullyOpen;
 
@@ -58,22 +66,37 @@ public sealed class HudPartyWindow
 
     public Point CurrentOrigin(HudLayout layout) => HudSidePanel.Origin(layout, _slide.Move);
 
-    public HudPartyWindow() => Friends.Closed = Close;
+    public HudPartyWindow()
+    {
+        Friends.Closed = Close;
+        Clan.Closed = Close;
+    }
 
     public static Rectangle PartyTab(Point origin) => new(origin.X + 60, origin.Y + 2, 60, 20);
     public static Rectangle FriendsTab(Point origin) => new(origin.X + 120, origin.Y + 2, 60, 20);
+    public static Rectangle ClanTab(Point origin) => new(origin.X + 180, origin.Y + 2, 60, 20);
 
     public void Show()
     {
-        ShowsFriends = false;
+        Page = HudPartyPage.Party;
         _slide.Open = true;
     }
 
     public void ShowFriends(Contacts.HudFriendsView view)
     {
-        ShowsFriends = true;
+        Page = HudPartyPage.Friends;
         Friends.Show(view);
         _slide.Open = true;
+    }
+
+    // The player's clan; leaving it takes the window off the clan page.
+    public void ObserveClan(ClanInfo clan)
+    {
+        Clan.Observe(clan);
+        if (!clan.HasClan && Page == HudPartyPage.Clan)
+        {
+            Page = HudPartyPage.Party;
+        }
     }
 
     public void Toggle()
@@ -116,15 +139,21 @@ public sealed class HudPartyWindow
         }
 
         var origin = CurrentOrigin(layout);
-        if (PartyTab(origin).Contains(pointer) || FriendsTab(origin).Contains(pointer))
+        if (TabAt(origin, pointer) is { } page)
         {
-            ShowsFriends = FriendsTab(origin).Contains(pointer);
+            Page = page;
             return true;
         }
 
-        if (ShowsFriends)
+        if (Page == HudPartyPage.Friends)
         {
             Friends.Click(origin, pointer);
+            return true;
+        }
+
+        if (Page == HudPartyPage.Clan)
+        {
+            Clan.Click(origin, pointer, nowSeconds);
             return true;
         }
 
@@ -183,15 +212,21 @@ public sealed class HudPartyWindow
 
         var origin = CurrentOrigin(layout);
         painter.Stretch(HudPartyArt.Window, new Rectangle(origin.X, origin.Y, HudSidePanel.Width, HudSidePanel.Height));
-        painter.Stretch(ShowsFriends ? Contacts.HudContactArt.Title : HudPartyArt.Title, new Rectangle(origin.X, origin.Y - 8, HudSidePanel.Width, 32));
+        painter.Stretch(Title(), new Rectangle(origin.X, origin.Y - 8, HudSidePanel.Width, 32));
         if (!_slide.FullyOpen)
         {
             return;
         }
 
-        if (ShowsFriends)
+        if (Page == HudPartyPage.Friends)
         {
             Friends.Draw(painter, origin, pointer);
+            return;
+        }
+
+        if (Page == HudPartyPage.Clan)
+        {
+            Clan.Draw(painter, origin, pointer);
             return;
         }
 
@@ -219,6 +254,20 @@ public sealed class HudPartyWindow
             painter.Sprite(tipArt, at.X - 30, at.Y - 30);
         }
     }
+
+    private HudPartyPage? TabAt(Point origin, Point pointer) =>
+        PartyTab(origin).Contains(pointer) ? HudPartyPage.Party
+        : FriendsTab(origin).Contains(pointer) ? HudPartyPage.Friends
+        : Clan.HasClan && ClanTab(origin).Contains(pointer) ? HudPartyPage.Clan
+        : null;
+
+    // A clan's member sees the titles with the clan tab.
+    private string Title() => Page switch
+    {
+        HudPartyPage.Clan => Clans.HudClanArt.Title,
+        HudPartyPage.Friends => Clan.HasClan ? Clans.HudClanArt.FriendsTitle : Contacts.HudContactArt.Title,
+        _ => Clan.HasClan ? Clans.HudClanArt.PartyTitle : HudPartyArt.Title
+    };
 
     private void DrawMember(HudPainter painter, Point origin, int index, PartyMemberInfo member, Point pointer)
     {

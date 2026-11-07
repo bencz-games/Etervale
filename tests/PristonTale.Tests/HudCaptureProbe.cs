@@ -30,6 +30,7 @@ using PristonTale.Contracts.Skills;
 using PristonTale.Assets;
 using PristonTale.Contracts.Characters;
 using PristonTale.Contracts.Texts;
+using PristonTale.Gameplay.UI.Parties;
 
 namespace PristonTale.Tests;
 
@@ -126,7 +127,7 @@ internal sealed class HudCaptureProbe : Game
         bool Training = false, bool LowHealth = false, float Hour = 13, bool ClassicTarget = false, ulong Target = 2, ulong NpcId = SkillMasterNpc,
         int ServiceButton = -1, bool SellMode = false, int ServiceCount = 2, int RightSelect = -1, bool Buffs = false, bool Block = false,
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
-        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false, ProbePlates Plates = ProbePlates.None);
+        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false, ProbePlates Plates = ProbePlates.None, bool ClanPage = false);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -162,6 +163,8 @@ internal sealed class HudCaptureProbe : Game
         new("status-clan-800", 800, 600, Keys.C, Clan: true),
         new("plates-clan-800", 800, 600, Clan: true, Plates: ProbePlates.Compact),
         new("plates-clan-classic-800", 800, 600, Clan: true, Plates: ProbePlates.Classic),
+        new("party-clan-800", 800, 600, Keys.D, Clan: true),
+        new("party-clan-page-800", 800, 600, Keys.D, Clan: true, ClanPage: true),
         new("status-arrow-hover-800", 800, 600, Keys.C, Hover.AllocateArrow),
         new("status-1280", 1280, 720, Keys.C),
         new("skills-800", 800, 600, Keys.S),
@@ -411,6 +414,12 @@ internal sealed class HudCaptureProbe : Game
                         new ClanMemberInfo("Cid", PlayerClass.Fighter, 35, ClanRank.Member, true)
                     ])
                 });
+            }
+
+            if (scenario.ClanPage)
+            {
+                _hud.Update(state, default, default);
+                Click(state, layout, HudPartyWindow.ClanTab(HudSidePanel.Origin(layout)).Center);
             }
 
             if (scenario.ServiceButton >= 0)

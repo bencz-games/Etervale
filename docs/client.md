@@ -743,6 +743,12 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
     list "make friend" and "ignore" move the picked name onto a list, elsewhere the arrows page and "delete" takes it
     off. A click picks a name and a click on the picked one whispers to it (marked red). The recent players are the
     last seven whispered (either way), traded with or befriended, kept by the client for the session.
+  - A clan's member gets a third tab at (180, 2), the clan page (`HudClanPage`, art `HudClanArt`; the party and friends
+    titles then show the three tabs): "[Clan]" at (115, 30) over the members, eight rows from (81, 49) at 20 px steps
+    (chief, vice, then by name; a scroll bar at (231, 38) past eight, the wheel scrolls it). Each row has its mark (the
+    clan's for the chief, the vice's own, a figure for a member) and the name 35 px on, grey while offline. A click picks
+    a member (green), a double click whispers to an online one (red, with the whisper mark); the chat button at (86, 220)
+    opens the chat on its clan tab (`HudChatWindow.TalkOn`), close at (201, 220). Leaving the clan leaves the page.
   - Members show on the minimap (`image/party.tga`, red past `PartyLimits.NearRange`), in name boxes with their life
     bar and in the bubbles' party colour.
 

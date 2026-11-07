@@ -70,6 +70,13 @@ public sealed class HudChatWindow
         OpenInput();
     }
 
+    // The input line takes the keyboard on the tab, which its lines then go to (the clan page's chat button: the clan's).
+    public void TalkOn(HudChatTab tab)
+    {
+        Log.SelectTab(tab);
+        OpenInput();
+    }
+
     // A whisper (and Enter) opens the window without taking the keyboard.
     public void Reveal() => Open = true;
 

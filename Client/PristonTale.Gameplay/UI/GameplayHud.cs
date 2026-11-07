@@ -197,6 +197,7 @@ public sealed partial class GameplayHud : IDisposable
         SetUpParty();
         SetUpTrade();
         SetUpContacts();
+        SetUpClans();
         SetUpHelp();
     }
 
@@ -456,6 +457,10 @@ public sealed partial class GameplayHud : IDisposable
         else if (_clanWindow.Contains(pointer))
         {
             _clanWindow.Scroll(mouse.ScrollWheelValue - _previousMouse.ScrollWheelValue);
+        }
+        else if (_partyWindow.Page == HudPartyPage.Clan && _partyWindow.Contains(layout, pointer))
+        {
+            _partyWindow.Clan.Scroll(mouse.ScrollWheelValue - _previousMouse.ScrollWheelValue);
         }
         else if (_npcOpen && HudNpcPanel.Box.Contains(pointer))
         {
