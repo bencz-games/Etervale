@@ -23,7 +23,7 @@ internal static class GameMasterCommandTests
     private static readonly (string Text, int Level)[] ExpectedLevels =
     [
         ("/localtime", 1), ("/get_bosstime", 1), ("/get_forceorb", 1), ("/get_primitem", 1), ("/get_currency", 1), ("/init_premiumitem", 4),
-        ("/specific", 1), ("/Performance", 1), ("/@get_perf", 4), ("/@get", 4), ("/@put", 4), ("/AgingSetting", 3), ("/get_potion", 1), ("/>", 2), ("/netlog", 1),
+        ("/specific", 1), ("/Performance", 1), ("/@get_perf", 4), ("/@get", 4), ("/@put_perf", 4), ("/@put", 4), ("/AgingSetting", 3), ("/get_potion", 1), ("/>", 2), ("/netlog", 1),
         ("//netlog", 1), ("/user_limit", 2), ("/kick", 2), ("/kill", 2), ("/open_warehouse", 2), ("/shutdown", 2), ("/weather", 2),
         ("/reload_settings", 4), ("/setting", 4), ("/insert", 2),
         ("/usercode", 1), ("/userid", 1), ("/username", 1), ("/near", 2), ("/call", 2), ("/where", 2), ("/field", 2),
@@ -280,7 +280,11 @@ internal static class GameMasterCommandTests
         Assert.True(drops.Count(drop => drop.View.CatalogKey == "WA101") == 2 && drops.Single(drop => drop.View.Gold).View.Amount == 5000 && drops.All(drop => drop.Public),
             "the created items and gold were not dropped at the game master");
         await fixture.SayAsync(gm, "/@get_perf WA101 MS");
-        Assert.True(gm.Link.Last == "Perfect WA101 created (Mechanician)", gm.Link.Last);
+        Assert.True(gm.Link.Last == "Perfect WA101 (Mechanician) created", gm.Link.Last);
+        await fixture.SayAsync(gm, "/@get_perf WA101 MS 18");
+        Assert.True(gm.Link.Last == "Perfect +18 WA101 (Mechanician) created", gm.Link.Last);
+        await fixture.SayAsync(gm, "/@get_perf WA101 none 25");
+        Assert.True(gm.Link.Last == "Perfect +20 WA101 (no spec) created", $"the aging was not capped at +20: {gm.Link.Last}");
         await fixture.SayAsync(gm, "/@get_perf WA101 KS");
         Assert.True(gm.Link.Last == "WA101 cannot take the Knight spec", gm.Link.Last);
         await fixture.SayAsync(gm, "/@get_perf WA101 cooks");
@@ -317,6 +321,15 @@ internal static class GameMasterCommandTests
         Assert.True(carried.Any(item => item.Definition.CatalogKey == "PL101"), "the gift did not reach the player's bag");
         Assert.True(fixture.Log.Rows.Single(row => row.Kind == ItemTransferKind.GameMasterGift) is { ItemCode: "PL101", FromCharacterId: null } gift
             && gift.ToCharacterId == fixture.Characters.Records["Ann"].Id, "the gift was not logged");
+
+        await fixture.SayAsync(gm, "/@put_perf Ann WA101 MS 12");
+        Assert.True(gm.Link.Last == "Perfect +12 WA101 (Mechanician) sent to Ann", gm.Link.Last);
+        var axe = Enumerable.Range(0, ann.Session.Character.Inventory.Capacity).Select(anchor => ann.Session.Character.Inventory[anchor])
+            .SingleOrDefault(item => item?.Definition.CatalogKey == "WA101");
+        Assert.True(axe is { UpgradeLevel: 12, Roll.SpecJob: (uint)JobBitCode.Mechanician, Roll.AttackRating: > 30 } && fixture.Characters.Updates == before + 2,
+            $"the perfect +12 copy was not stored and delivered to the player's bag ({axe?.UpgradeLevel}, {axe?.Roll}, {fixture.Characters.Updates - before})");
+        await fixture.SayAsync(gm, "/@put_perf Nobody WA101");
+        Assert.True(gm.Link.Last == "No player named Nobody is online", gm.Link.Last);
     }
 
     private static async Task CharacterAsync()

@@ -136,7 +136,7 @@ Commands match by exact, case-sensitive prefix in table order. Levels:
 | Moderator | `/>`, `/>>`, `/user_limit`, `/kick`, `/kill`, `/open_warehouse`, `/shutdown`, `/weather`, `/insert`, `/near`, `/call`, `/where` |
 | Moderator | `/field`, `/player_location` |
 | Operator | `/get_money`, `/AgingSetting` |
-| Administrator | `/init_premiumitem`, `/@get_perf`, `/@get`, `/@put`, `/GiveMeExp!`, `/expup`, `/GiveMeMoney!`, `/reload_settings`, `/setting`, `/set_absorb` |
+| Administrator | `/init_premiumitem`, `/@get_perf`, `/@get`, `/@put_perf`, `/@put`, `/GiveMeExp!`, `/expup`, `/GiveMeMoney!`, `/reload_settings`, `/setting`, `/set_absorb` |
 
 - Information: local time, boss minute, the issuer's force orb and premium timers, gold spent per sink, carried potions,
   connection packet counts, players and monsters, a player by entity id, account or name, damage range, session.
@@ -145,8 +145,9 @@ Commands match by exact, case-sensitive prefix in table order. Levels:
   the field (each move carries the running statuses), `/hide` and `/show` make the issuer invisible to other players' presence, `/grant` lends the issuer's level to a
   player until that player leaves the world.
 - Items: `/@get code` or `/@get "name"` drops an item (`code#U<n>` or a named unique's name makes that named unique,
-  `code#Q` the quest variant), `/@get_perf code [class]` its best copy, `/@put name code` writes
-  a copy into a player's bag before delivering it, `/AgingSetting code level [class 1-8]` drops a weapon or armour aged
+  `code#Q` the quest variant), `/@get_perf code [class] [aging]` its best copy, aged to the level when one is given
+  (0 to 20, `AgingRules.MaxLevel`; the class may be `none`), `/@put name code` writes
+  a copy into a player's bag before delivering it, `/@put_perf name code [class] [aging]` the same with the best copy, `/AgingSetting code level [class 1-8]` drops a weapon or armour aged
   to the level; `/specific job` and `/Performance value` force the class and middle
   roll of items made in the next minute; `/init_premiumitem n` ends a premium timer.
 - Monsters: `/monster name [count]` spawns up to 21 (only the highest level drops items), `/mymonster name [count]` as
@@ -179,7 +180,7 @@ Commands match by exact, case-sensitive prefix in table order. Levels:
 
 ## Pitfalls
 
-- Command matching is a prefix match: `/show` must come after `/show_blackuser`, `/@get` after `/@get_perf`.
+- Command matching is a prefix match: `/show` must come after `/show_blackuser`, `/@get` after `/@get_perf`, `/@put` after `/@put_perf`.
 - The client shows its own spoken and party lines at once; the server never echoes them back.
 - The standing notice is delivered on the heartbeat, not on the command.
 - Not ported because Etervale has no such system: siege and castle commands, billing and PC-room time, event levels,

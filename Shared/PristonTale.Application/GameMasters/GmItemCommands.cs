@@ -49,17 +49,47 @@ internal static class GmItemCommands
         }
     }
 
-    // The best copy of an item code dropped at the game master, optionally for a class: a class name, a short name
-    // (MS FS PS AS KS ATA PRS MG), its number 1 to 8, or none.
+    // /@get_perf code [class] [aging]: the best copy of an item code dropped at the game master.
     public static async Task Perfect(GmCommandContext context)
+    {
+        if (ReadPerfect(context) is not { } copy)
+        {
+            return;
+        }
+
+        var dropped = await context.Commands.World.DropAsync(context.Issuer.EntityId, _ => copy.Make(), 0);
+        context.Reply(dropped ? copy.Done("created") : Format("No field to drop {0} on", copy.Code));
+    }
+
+    // /@put_perf name code [class] [aging]: the best copy written into a player's bag, as /@put.
+    public static async Task GiftPerfect(GmCommandContext context)
+    {
+        var name = context.Word();
+        if (name.Length == 0 || context.Commands.Directory.FindByName(name) is not { } target)
+        {
+            context.Reply(Format("No player named {0} is online", name));
+            return;
+        }
+
+        if (ReadPerfect(context) is { } copy && await GmGifts.GiveAsync(context.Commands, context.Issuer, target, _ => copy.Make()))
+        {
+            context.Reply(copy.Done(Format("sent to {0}", target.Name)));
+        }
+    }
+
+    // The arguments of a perfect copy: the item code, optionally a class (a class name, a short name MS FS PS AS KS ATA PRS
+    // MG, its number 1 to 8, or none) and an aging level (0 to AgingRules.MaxLevel, as /AgingSetting); null after telling
+    // what was wrong.
+    private static PerfectCopy? ReadPerfect(GmCommandContext context)
     {
         var code = context.Word();
         var specName = context.Word();
+        var aging = Math.Clamp(ChatCommandText.ToNumber(context.Word()), 0, Simulation.Items.Aging.AgingRules.MaxLevel);
         var job = SpecJobCode(specName);
         if (job < 0)
         {
             context.Reply(Format("Unknown spec {0} (a class name, MS FS PS AS KS ATA PRS MG, 1-8 or none)", specName));
-            return;
+            return null;
         }
 
         var specBit = job == 0 ? 0u : (uint)JobBits.Of((PlayerClass)job);
@@ -67,17 +97,37 @@ internal static class GmItemCommands
         if (FindByCode(context, code) is not { } definition)
         {
             context.Reply(Format("Unknown item code {0}", code));
-            return;
+            return null;
         }
 
         if (!ItemRoller.CanTakeSpec(definition, specBit))
         {
             context.Reply(Format("{0} cannot take the {1} spec", code, className));
-            return;
+            return null;
         }
 
-        var dropped = await context.Commands.World.DropAsync(context.Issuer.EntityId, _ => ItemRoller.CreatePerfect(definition, 1, specBit), 0);
-        context.Reply(dropped ? Format("Perfect {0} created ({1})", code, className) : Format("No field to drop {0} on", code));
+        return new PerfectCopy(definition, specBit, aging, code, className);
+    }
+
+    private sealed class PerfectCopy(ItemDefinition definition, uint specBit, int aging, string code, string className)
+    {
+        private int _aged;
+
+        public string Code => code;
+
+        public ItemInstance Make()
+        {
+            var item = ItemRoller.CreatePerfect(definition, 1, specBit);
+            Simulation.Items.Aging.AgingRules.AgeTo(item, aging);
+            _aged = item.UpgradeLevel;
+            return item;
+        }
+
+        // "Perfect +18 WA101 (Mechanician) created", noting an aging the item does not take.
+        public string Done(string what) =>
+            _aged < aging ? Format("Perfect {0} ({1}) {2}; it cannot be aged", code, className, what)
+            : _aged > 0 ? Format("Perfect +{0} {1} ({2}) {3}", _aged, code, className, what)
+            : Format("Perfect {0} ({1}) {2}", code, className, what);
     }
 
     // An item copy by code, or by a double-quoted name (which also finds unique items), dropped at the game master.
