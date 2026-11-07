@@ -70,6 +70,7 @@ public static class EtervaleOpcodes
     public const uint ClanInvite = 0x45541102;
     public const uint ClanResult = 0x45541103;
     public const uint ClanMark = 0x45541104;
+    public const uint CastleState = 0x45541200;
 
     public const uint PresenceEntries = 0x45540900;
     public const uint DescribeEntity = 0x45540901;

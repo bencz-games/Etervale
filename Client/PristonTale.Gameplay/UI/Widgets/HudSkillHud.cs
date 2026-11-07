@@ -301,7 +301,7 @@ public sealed class HudSkillHud : IDisposable
             if (seconds >= 0)
             {
                 _tipLines.Add(crystalPet
-                    ? ClientText.Format("Hud.TimeLeft", string.Create(System.Globalization.CultureInfo.InvariantCulture, $"{seconds / 60}:{seconds % 60:D2}"))
+                    ? ClientText.Format("Hud.TimeLeft", HudClock.MinutesSeconds(seconds))
                     : ClientText.Format("Hud.TimeLeftSeconds", seconds));
             }
 

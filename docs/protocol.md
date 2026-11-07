@@ -25,6 +25,7 @@ The codecs live in `Shared/PristonTale.Protocol`; the server edge is `Server/Pri
 | `Binary/WireHeader.cs` | `{uint16 Version, uint16 Flags = 0}` body header: `Write(version)`, `Read(name, minimumVersion = 1)` (newer versions append fields). Domain helpers (`NpcWire.Header`, `ItemUseWire.ReadHeader`...) delegate to it. |
 | `Binary/WireList.cs` | `IWireEntry<T>` (static `Size`, `Read`, instance `Write`) and `WireList`: `{int32 Count, entries}` with the entries filling the rest exactly; the cooldown, timer, item effect, shop quote and item detail lists use it (the skill list, the object removals and the aging progress still check their counts themselves). |
 | `Packets/IFramePacket.cs` | `IFramePacket`: a message that writes itself as one frame; every client-to-server message implements it. |
+| `Packets/CastlePackets.cs` | `CastleState` (Bless Castle's owner, league mode and siege board). |
 | `Packets/AccountPackets.cs` | `ProtocolVersion`, `ServerHello`, `Login`/`LoginResult`, `CharacterList`, `CharacterCommand`/`CharacterResult`, `Heartbeat`. |
 | `Packets/PlayerActionPackets.cs` | `MovementReport`, `AttackRequest` and `FieldWarp`. |
 | `Packets/WingGatePackets.cs` | `WingGateRequest` and `WingGateResult`. |
@@ -93,7 +94,7 @@ Bodies start with `uint16 Version = 1`; text is UTF-8 with a `uint16` byte lengt
 | Step | Packet | Notes |
 | --- | --- | --- |
 | Connect | S→C `ServerHello` (`0x45540F00`) | `{uint16 Version, uint16 0, uint32 Protocol, MinimumProtocol, int32 FullPlayers, text ServerName (32 B)}`: `FullPlayers` = players in the world when the player limit (`server.max_users` or `/user_limit`) is reached, else 0 (then only game masters may log in); `ServerName` is `server.name`. |
-| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (16); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
+| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (17); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
 | Result | S→C `CharacterList` (`0x45540F03`), then `LoginResult` (`0x45540F02`) | `LoginResult` = `{uint16 Version, uint8 Status, uint8 0}`: 0 ok, 1 bad credentials (also unknown accounts), 2 account blocked, 3 already logged in on this connection, 4 busy (throttled, full or storage failure), 5 client protocol older than the server's minimum. A failed login sends no list. |
 | Character list | S→C `CharacterList` | `{uint16 Version, uint16 0, int32 Count (at most 6)}`, then `{text Name, uint32 Class (PlayerClass), int32 Level, uint8 Tier, Face, Hair, Flags (1 in a village), uint32 WeaponCode, ArmorCode, OffHandCode, uint32 0, text ClanName (48 B; empty out of a clan)}`. |
 | Create, delete | C→S `CharacterCommand` (`0x45540F04`), S→C `CharacterResult` (`0x45540F05`) | Command `{uint16 Version, uint8 Action (1 create, 2 delete), uint8 0, int32 Class (PlayerClass), FaceIndex, text Name}`; result `{uint16 Version, uint8 Action, uint8 Ok, int32 Failure (CreateCharacterFailure), text Name}`. |
@@ -215,6 +216,7 @@ Every message code has the high word `0x4554` ("ET"); every message keeps the `{
 | `0x45541102` | `ClanInvite` | S→C | A recruiter's invitation to a clan. |
 | `0x45541103` | `ClanResult` | S→C | How a `ClanRequest` or a `ClanMark` ended (`ClanStatus`); a refusal's line comes in the chat. |
 | `0x45541104` | `ClanMark` | C→S | The chief's new clan mark, fitted by the client. |
+| `0x45541200` | `CastleState` | S→C | Bless Castle: on entering the world and on every change of its owner, league mode or siege ([application.md](application.md#bless-castle)); one packet is made per state and shared by every connection. |
 | `0x45540A00` / `0x45540A01` | `RestartRequest` / `RestartResult` | C→S / S→C | A dead player's restart (field, town, exit), correlated by operation id; a stored restart also sends a forced `FieldWarp`. |
 | `0x45540A02` | `RestartOffer` | S→C | While the owner is dead, what a restart would cost, whenever it changes. |
 | `0x45540B00` / `0x45540B01` | `GroundItems` / `GroundItemsRemoved` | S→C | Drops entering and leaving the receiver's view: within the ground-item range (squared `0xC8000` units, about 905 units), private drops only to their owner. |
@@ -519,6 +521,7 @@ at most 48 bytes (`ClanWire.MaxClanNameBytes`: 16 characters), a character's 64.
 | `ClanInvite` | `varuint RecruiterId, text ClanName, text ChiefName` |
 | `ClanResult` | `uint8 Action, uint8 Status` (`ClanStatus`, 0 done) |
 | `ClanMark` | `uint16 Size` (32, `ClanWire.MarkSize`), then Size x Size pixels of `uint8` red, green, blue and alpha (straight), rows from the top: 4,096 bytes, one frame |
+| `CastleState` | `varuint OwnerClanId` (0 none), `text OwnerName` (48 bytes), `uint8 Siege` (0 peace, 1 running, 3 over), `uint8 Flags` (1 the server runs the league, 2 door down), `varuint SecondsLeft` (a running siege's, when the state was made; 0 otherwise), `uint8 Crystals`, `uint8 Count` (at most 10, `CastleLimits.TopClans`), then per clan `varuint ClanId, text Name, varuint Damage`, then `varuint TotalDamage` |
 
 ### Death and restart
 

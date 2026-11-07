@@ -687,7 +687,12 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
 - Off: no scheduled siege; a game master may still start one.
 - In peace with an owner, the fountain gains a potion a minute, up to 1440.
 - The siege's clock lives in memory: a restart during a siege ends it, and the owner stays.
-- Not yet: the owner's window, the tax on fees and the treasury's movements, the siege's client state.
+- Every player in the world is told the castle (`Attach`/`Detach`, `ICastleLink`, `CastleBroadcast`): at entry and,
+  from the tick, whenever the owner, the league mode, the siege's state or end, or the world's view of the siege
+  changed (the best clans named, the running siege's seconds left counted then; `CastleState` on the wire). Attaching
+  and announcing share one lock, so that no player keeps an older castle than the last.
+- Not yet: the owner's window, the tax on fees and the treasury's movements, the crown over the owner clan, the castle
+  teleport and the owner's wing gate destination.
 
 The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner
 and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its spawns

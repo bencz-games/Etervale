@@ -543,6 +543,13 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   (119, 200, 254). A mixed copy's name is cyan (150, 255, 255) and the stats its mix raised are blue (110, 165, 250).
 - Premium timers (`HudPremiumTimers`) form the column at x 8 under the running-effects bar; usable items have their
   own tooltips (`HudUsableTooltip`). Details: [special-items.md](special-items.md).
+- Bless Castle (`GameplayHud.Castle`, `HudSiegeBoard`): the server's `CastleState` is kept; while a siege runs and the
+  player is in the castle field, a board on the right under the target frame (below the windows) shows the time left
+  (counted down on the HUD clock, set again only when the server's drifts by more than 1.5 s), the clan holding the
+  castle, the castle door, the crystal towers standing and the best clans with their share of the damage (the player's
+  own clan in gold). When a siege ends, players in the castle field see a notice that their clan holds the castle or
+  that the siege is over. While the server runs the league mode, clicks on other players never attack
+  (`GameScene.CastleLeague`), as the server lets nobody fight then.
 - Status window: attribute buttons send `ProgressionCommand` with `ProgressionRevision`; the organic, poison, fire,
   lightning and ice resistance boxes show the owner's resistances; the Clan box shows the owner's clan mark and name.
 - Block feedback (`HudStringEffect`): when the player blocks a blow, the original `block.tga` word shows at (354, 488)

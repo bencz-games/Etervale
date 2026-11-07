@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Data.Common;
 using PristonTale.Application.Chat;
 using PristonTale.Application.Clans;
@@ -63,6 +64,12 @@ public sealed class CastleAppService
     private bool _taxDue;
     private long _conquest = NoConquest;
     private bool _setupSpent;
+    private readonly ConcurrentDictionary<ulong, ICastleLink> _links = new();
+    private readonly object _announce = new();
+    private CastleBroadcast _broadcast = CastleBroadcast.None;
+    private CastleSiegeView _announcedWorld = CastleSiegeView.None;
+    private long _announcedEnd;
+    private CastleMode _mode = CastleOptions.Default.Mode;
     private bool _storageFailed;
 
     public CastleAppService(ICastleRepository repository, IClanDirectory clans, ChatDirectory chat, ICastleWorld world, TimeProvider? clock = null)
@@ -81,6 +88,18 @@ public sealed class CastleAppService
     public long OwnerClanId => Volatile.Read(ref _record).OwnerClanId;
 
     public SiegeState Siege => Volatile.Read(ref _siege).State;
+
+    // A player in the world: told the castle now and on every change until it leaves.
+    public void Attach(ulong entityId, ICastleLink link)
+    {
+        lock (_announce)
+        {
+            _links[entityId] = link;
+            link.Deliver(_broadcast);
+        }
+    }
+
+    public void Detach(ulong entityId) => _links.TryRemove(entityId, out _);
 
     public async Task LoadAsync(CancellationToken ct = default)
     {
@@ -128,6 +147,7 @@ public sealed class CastleAppService
         try
         {
             _storageFailed = false;
+            _mode = options.Mode;
             var now = _clock.GetUtcNow();
             var minute = now.ToUnixTimeSeconds() / 60;
             var first = _lastMinute < 0 ? minute : Math.Max(_lastMinute + 1, minute - CatchUpMinutes + 1);
@@ -139,6 +159,7 @@ public sealed class CastleAppService
             _lastMinute = minute;
             await StepSiegeAsync(now, options);
             await StepFountainAsync(now);
+            Announce();
             return !_storageFailed;
         }
         finally
@@ -451,6 +472,39 @@ public sealed class CastleAppService
         [record.MercenaryA, record.MercenaryB, record.MercenaryC]);
 
     private void Publish(SiegeClock siege) => Volatile.Write(ref _siege, siege);
+
+    // Every attached player is told the castle when its owner, the league mode, the siege's state or end, or the world's
+    // view of the siege changed; under one lock with Attach, so that no player keeps an older castle than the last.
+    private void Announce()
+    {
+        var record = Volatile.Read(ref _record);
+        var siege = _siege;
+        var world = _world.Siege;
+        var league = _mode == CastleMode.League;
+        var running = siege.State == SiegeState.Running;
+        var end = running ? siege.EndsAt.ToUnixTimeSeconds() : 0;
+        lock (_announce)
+        {
+            var last = _broadcast;
+            if (record.OwnerClanId == last.OwnerClanId && siege.State == last.Siege && league == last.League && end == _announcedEnd
+                && ReferenceEquals(world, _announcedWorld))
+            {
+                return;
+            }
+
+            _announcedWorld = world;
+            _announcedEnd = end;
+            var board = running && world.Running;
+            _broadcast = new CastleBroadcast(record.OwnerClanId, _clans.NameOf(record.OwnerClanId) ?? "", siege.State, league,
+                running ? Math.Max(0, end - _clock.GetUtcNow().ToUnixTimeSeconds()) : 0, board && world.DoorDown, board ? world.Crystals : 0,
+                board ? [.. world.Top.Select(score => new CastleBoardClan(score.ClanId, _clans.NameOf(score.ClanId) ?? "", score.Damage))] : [],
+                board ? world.TotalDamage : 0);
+            foreach (var pair in _links)
+            {
+                pair.Value.Deliver(_broadcast);
+            }
+        }
+    }
 
     private bool OwnerGone(CastleRecord record) => record.OwnerClanId != 0 && _clans.Available && _clans.NameOf(record.OwnerClanId) is null;
 

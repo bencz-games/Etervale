@@ -666,6 +666,7 @@ public sealed partial class GameplayHud : IDisposable
             HudPlayerButtons.Draw(_painter, HudCombat.TargetFrame(layout), pointer, ClanButton);
         }
         _premium.Draw(_painter, _clock.Elapsed.TotalMilliseconds);
+        _siegeBoard.Draw(_painter, layout, InCastleField, _clock.Elapsed.TotalMilliseconds, Combat.OwnClan);
         _personalShop.Draw(_painter);
         _chat.Window.Draw(_painter, layout, SideWindowOpen);
 

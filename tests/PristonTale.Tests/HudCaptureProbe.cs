@@ -127,7 +127,8 @@ internal sealed class HudCaptureProbe : Game
         bool Training = false, bool LowHealth = false, float Hour = 13, bool ClassicTarget = false, ulong Target = 2, ulong NpcId = SkillMasterNpc,
         int ServiceButton = -1, bool SellMode = false, int ServiceCount = 2, int RightSelect = -1, bool Buffs = false, bool Block = false,
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
-        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false, ProbePlates Plates = ProbePlates.None, bool ClanPage = false);
+        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false, ProbePlates Plates = ProbePlates.None, bool ClanPage = false,
+        bool Siege = false);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -163,6 +164,8 @@ internal sealed class HudCaptureProbe : Game
         new("status-clan-800", 800, 600, Keys.C, Clan: true),
         new("plates-clan-800", 800, 600, Clan: true, Plates: ProbePlates.Compact),
         new("plates-clan-classic-800", 800, 600, Clan: true, Plates: ProbePlates.Classic),
+        new("siege-board-800", 800, 600, Clan: true, Siege: true),
+        new("siege-board-1280x720", 1280, 720, Clan: true, Siege: true),
         new("party-clan-800", 800, 600, Keys.D, Clan: true),
         new("party-clan-page-800", 800, 600, Keys.D, Clan: true, ClanPage: true),
         new("status-arrow-hover-800", 800, 600, Keys.C, Hover.AllocateArrow),
@@ -413,6 +416,19 @@ internal sealed class HudCaptureProbe : Game
                         new ClanMemberInfo("Bob", PlayerClass.Archer, 41, ClanRank.Member, false),
                         new ClanMemberInfo("Cid", PlayerClass.Fighter, 35, ClanRank.Member, true)
                     ])
+                });
+            }
+
+            if (scenario.Siege)
+            {
+                _hud.InCastleField = true;
+                _hud.ObserveCastle(new PresenceUpdate(1, [], [], [], [])
+                {
+                    Castle = new CastleInfo(8, "Eagles", Simulation.Social.Castle.SiegeState.Running, false, 75 * 60 + 12, true, 4,
+                    [
+                        new CastleClanInfo(9, "Tigers", 52_000), new CastleClanInfo(7, "Lions", 31_000), new CastleClanInfo(11, "Wolves", 9_500),
+                        new CastleClanInfo(12, "Hawks", 4_100)
+                    ], 96_600)
                 });
             }
 

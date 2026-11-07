@@ -38,7 +38,7 @@ public static class CastleSiegeRules
     public const int TowerSlots = 6;
     public const int MercenaryKinds = 3;
     public const int MercenaryMax = 20;
-    public const int TopClans = 10;
+    public const int TopClans = Contracts.Social.CastleLimits.TopClans;
 
     // The castle field south of this line is the battle zone; north of it lies the arrival area, where players never
     // fight.

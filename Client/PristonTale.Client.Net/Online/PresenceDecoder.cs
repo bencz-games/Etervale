@@ -144,6 +144,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
             EtervaleOpcodes.PartyMembers => OnPartyMembers(PartyMembersPacket.Read(packet)),
             EtervaleOpcodes.PartyRequest => OnPartyRequest(PartyRequestPacket.Read(packet)),
             EtervaleOpcodes.ClanState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Clan = Clan(ClanStatePacket.Read(packet)) },
+            EtervaleOpcodes.CastleState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Castle = Castle(CastleStatePacket.Read(packet)) },
             EtervaleOpcodes.ClanInvite => new PresenceUpdate(_tick, [], [], [], [], FieldId)
             {
                 ClanInvitation = ClanInvitePacket.Read(packet) is var invite ? new ClanInvitationInfo(invite.RecruiterId, invite.ClanName, invite.ChiefName) : null
@@ -234,6 +235,11 @@ internal sealed class PresenceDecoder : IEventHandleReader
         : new ClanInfo((long)packet.ClanId, packet.Name, (Simulation.Social.Clans.ClanState)packet.State, packet.Deadline, (Simulation.Social.Clans.ClanRank)packet.Rank,
             packet.Capacity, packet.Intro, packet.MarkVersion, packet.Members.Select(static member => new ClanMemberInfo(member.Name, member.Class, member.Level,
                 (Simulation.Social.Clans.ClanRank)member.Rank, member.Online)).ToArray());
+
+    private static CastleInfo Castle(CastleStatePacket packet) =>
+        new((long)packet.OwnerClanId, packet.OwnerName, (Simulation.Social.Castle.SiegeState)packet.Siege, packet.League, packet.SecondsLeft,
+            packet.DoorDown, packet.Crystals, [.. packet.Top.Select(static clan => new CastleClanInfo((long)clan.ClanId, clan.Name, (long)clan.Damage))],
+            (long)packet.TotalDamage);
 
     private PresenceUpdate OnPartyRequest(PartyRequestPacket packet) =>
         new PresenceUpdate(_tick, [], [], [], [], FieldId) { PartyRequest = new PartyRequestInfo(packet.FromId, packet.FromName, packet.Recommended) };

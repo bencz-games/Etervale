@@ -30,6 +30,8 @@ internal static class CastleTests
             TakenAsync);
         yield return ("a conquest refused by storage is kept and stored on a later minute; the owner's towers and mercenaries serve one siege",
             ConquestRetryAsync);
+        yield return ("the castle's state crosses the wire whole, and a board of too many clans is refused", WireAsync);
+        yield return ("a player in the world is told the castle at once and on every change of owner, tax or siege, never twice the same", AnnounceAsync);
         yield return ("castle game-master commands start, time and end a siege, set the owner in peace and read the castle and fountain", CommandsAsync);
     }
 
@@ -236,6 +238,51 @@ internal static class CastleTests
         await fixture.TickAsync(Off, TimeSpan.FromSeconds(CastleRules.OverSeconds));
         Assert.True(fixture.Repository.Saved is { Towers: "", MercenaryA: 0, MercenaryB: 0, MercenaryC: 0, OwnerClanId: 8 },
             "the owner's towers and mercenaries outlived the siege");
+    }
+
+    private static Task WireAsync()
+    {
+        var state = new Protocol.Packets.CastleStatePacket(7, "Lions", 1, League: true, DoorDown: true, 3599, 5,
+            [new Protocol.Packets.CastleClanWire(9, "Tigers", 1500), new Protocol.Packets.CastleClanWire(8, "Eagles", 700)], 2200);
+        var buffer = new byte[Protocol.Packets.CastleStatePacket.MaxSize];
+        var read = Protocol.Packets.CastleStatePacket.Read(buffer.AsSpan(0, state.Write(buffer)));
+        Assert.True(read with { Top = [] } == state with { Top = [] } && read.Top.SequenceEqual(state.Top), "the castle's state did not cross the wire");
+        var none = Protocol.Packets.CastleStatePacket.Read(buffer.AsSpan(0, Protocol.Packets.CastleStatePacket.None.Write(buffer)));
+        Assert.True(none.OwnerClanId == 0 && none.Top.Count == 0, "no castle read as a castle");
+        var crowded = state with { Top = [.. Enumerable.Range(0, Contracts.Social.CastleLimits.TopClans + 1).Select(static id => new Protocol.Packets.CastleClanWire((ulong)id, "C", 1))] };
+        Assert.Throws<InvalidOperationException>(() => crowded.Write(buffer), "a board of too many clans was written");
+        return Task.CompletedTask;
+    }
+
+    private static async Task AnnounceAsync()
+    {
+        var fixture = await Fixture.CreateAsync(new DateTimeOffset(2026, 11, 9, 12, 0, 0, TimeSpan.Zero), CastleRecord.Empty with { OwnerClanId = 7, Tax = 3 });
+        var told = new List<CastleBroadcast>();
+        fixture.Castle.Attach(5, new Told(told));
+        await fixture.TickAsync(Off);
+        Assert.True(told is [{ OwnerClanId: 0 }, { OwnerClanId: 7, OwnerName: "Lions", Siege: SiegeState.Peace, League: false }], "the castle was not told at once");
+        await fixture.TickAsync(Off, TimeSpan.FromSeconds(1));
+        Assert.True(told.Count == 2, "the same castle was told twice");
+        fixture.Clans.Names[9] = "Tigers";
+        await fixture.Castle.StartSiegeAsync(30);
+        fixture.World.Siege = fixture.World.Siege with { Crystals = 4, DoorDown = true, Top = [new CastleClanScore(9, 500)], TotalDamage = 500 };
+        await fixture.TickAsync(Off, TimeSpan.FromSeconds(1));
+        Assert.True(told[^1] is { Siege: SiegeState.Running, DoorDown: true, Crystals: 4, TotalDamage: 500, SecondsLeft: 30 * 60 - 1 } running
+            && running.Top is [{ ClanId: 9, Name: "Tigers" }], "the running siege was not told");
+        await fixture.TickAsync(League, TimeSpan.FromSeconds(1));
+        Assert.True(told[^1] is { League: true, Siege: SiegeState.Running }, "the league mode was not told");
+        fixture.Castle.Detach(5);
+        await fixture.Castle.EndSiegeAsync();
+        await fixture.TickAsync(Off, TimeSpan.FromSeconds(1));
+        Assert.True(told[^1].Siege == SiegeState.Running, "a player that left was still told");
+        var late = new List<CastleBroadcast>();
+        fixture.Castle.Attach(6, new Told(late));
+        Assert.True(late is [{ Siege: SiegeState.Over, SecondsLeft: 0, Top.Length: 0 }], "a player arriving was not told the castle as it is");
+    }
+
+    private sealed class Told(List<CastleBroadcast> told) : ICastleLink
+    {
+        public void Deliver(CastleBroadcast castle) => told.Add(castle);
     }
 
     private static async Task CommandsAsync()

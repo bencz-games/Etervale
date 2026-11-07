@@ -55,6 +55,7 @@ public sealed class GameplayScreen : GameScreen
         _hud.PersonalShops = _scene;
         _scene.PresenceObserved += _hud.ObserveParty;
         _scene.PresenceObserved += _hud.ObserveClan;
+        _scene.PresenceObserved += _hud.ObserveCastle;
         _hud.Parties = _scene;
         _hud.SendClan = _scene.SendClan;
         _hud.SendClanMark = _scene.SendClanMark;
@@ -146,6 +147,7 @@ public sealed class GameplayScreen : GameScreen
         _hud.PremiumTimers = _scene.PremiumTimers;
         _hud.InCastleField = field?.State == Simulation.World.FieldState.Castle;
         _scene.OwnClanId = _hud.Combat.OwnClan;
+        _scene.CastleLeague = _hud.Castle.League;
         _hud.InTown = field?.State == Simulation.World.FieldState.Village;
         _hud.ShopSigns = _scene.ShopSigns;
         _hud.PlayerDead = _scene.PlayerDead;
@@ -280,6 +282,7 @@ public sealed class GameplayScreen : GameScreen
             _scene.ShopSellerSelected -= _hud.ViewPersonalShop;
             _scene.PresenceObserved -= _hud.ObserveParty;
             _scene.PresenceObserved -= _hud.ObserveClan;
+            _scene.PresenceObserved -= _hud.ObserveCastle;
             _scene.PresenceObserved -= _hud.ObserveTrade;
             _scene.PresenceObserved -= _hud.ObserveContacts;
             _hud.PlayerButtonsUsed -= _scene.DismissPlayerButtons;

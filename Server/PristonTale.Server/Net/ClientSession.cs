@@ -50,6 +50,7 @@ internal sealed record SessionServices(
     ContactAppService Contacts,
     ChatAppService Chat,
     Application.Clans.ClanAppService Clans,
+    Application.Castle.CastleAppService Castle,
     GameServerControl Control)
 {
     // Shared by every connection so a flood from many peers still yields one warning per interval.
@@ -515,6 +516,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         _pump = PumpAsync(outbox, _encoder);
         JoinChat(session, contacts);
         RefreshContacts();
+        JoinCastle(session);
         await JoinClansAsync(session);
     }
 
@@ -897,6 +899,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         _pump = null;
         LeaveChat(session);
         LeaveClans(session);
+        _services.Castle.Detach(session.EntityId);
         outbox.Writer.TryComplete();
         var leave = await _services.World.LeaveAsync(session.FieldId, session.EntityId, outbox.Writer);
         _services.Chat.Directory.Deliver(leave.Notices);
