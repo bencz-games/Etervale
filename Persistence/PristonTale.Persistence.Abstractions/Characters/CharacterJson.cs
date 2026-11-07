@@ -18,7 +18,7 @@ public static class CharacterJson
     public static readonly JsonSerializerOptions Options = new()
     {
         WriteIndented = false,
-        Converters = { new JsonStringEnumConverter() },
+        Converters = { new GameTextJsonConverter(), new JsonStringEnumConverter() },
     };
 
     public static JsonText Write<T>(T value) => new(JsonSerializer.Serialize(value, Options));

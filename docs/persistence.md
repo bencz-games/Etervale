@@ -23,6 +23,7 @@ FluentMigrator migrations, the schema, and the SQLite and PostgreSQL providers. 
 | `.../GameLogs/GameLogRecords.cs` | `IGameLogRepository` and the game log records: item transfers, currency sinks, server events |
 | `.../Characters/CharacterRecord.cs` | One `characters` row; positional record, JSON columns as `JsonText` |
 | `.../Characters/CharacterJson.cs` | `JsonText` wrapper, shared JSON options |
+| `.../Characters/GameTextJsonConverter.cs` | Game texts as `{Id, Args}`; plain-text lines of older saves read as none |
 | `.../Characters/CharacterStateCodec.cs` | Owned-state JSON (`SavedItems`, `SavedSkills`): capture, strict restore |
 | `.../Characters/CharacterRecordFactory.cs` | New starter rows; capture a live `PlayerCharacter` into a save snapshot |
 | `.../Warehouses/` | `WarehouseRecord`, `IWarehouseRepository`, `WarehouseStateCodec` |
@@ -138,6 +139,8 @@ and its account warehouse are always written together, so a gold or item move be
 - `SavedItem.Unique` is 2 for the quest variant of a code (quest weapons, the rank-up ring, Fury rewards); such an item
   restores as the code's quest variant, or as the regular definition when the catalog has no variant.
 - Enums serialize as strings (`JsonStringEnumConverter`).
+- A game text (a saved operation's answer line) is `{Id, Args}` (`GameTextJsonConverter`); a line saved as plain text
+  before game texts, or an id this version lacks, loads as no line.
 
 ## Migrations
 
