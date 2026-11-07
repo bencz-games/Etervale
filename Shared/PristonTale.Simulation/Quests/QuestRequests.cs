@@ -24,7 +24,10 @@ public enum QuestAction : byte
     ResetSkills = 6,
 
     // The redistribution offer answered No: the offer ends.
-    DeclineSkillReset = 7
+    DeclineSkillReset = 7,
+
+    // The running quest's item used where the player stands (an elite quest's bomb or soul).
+    UseItem = 8
 }
 
 public enum QuestStatus : byte

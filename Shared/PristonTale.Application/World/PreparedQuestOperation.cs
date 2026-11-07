@@ -18,6 +18,9 @@ public sealed record PreparedQuestOperation(
     public int SkillPoints { get; init; }
     public int EliteSkillPoints { get; init; }
     public long MoneyDelta { get; init; }
+
+    // Experience the quest pays, awarded at the commit as a kill's is and stored with the next save.
+    public ulong Experience { get; init; }
     public bool ResetSkills { get; init; }
 
     // Upkeep only: the pending drops it took, returned to the player when storage fails.

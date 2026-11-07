@@ -85,6 +85,7 @@
   <data name="Game.ClanOnly" xml:space="preserve"><value>Só membros de um clã regular podem usar este item</value></data>
   <data name="Game.CloseShopFirst" xml:space="preserve"><value>Feche sua loja pessoal primeiro</value></data>
   <data name="Game.CloseTradeFirst" xml:space="preserve"><value>Feche a janela de troca primeiro</value></data>
+  <data name="Game.ConfirmAcceptQuest" xml:space="preserve"><value>Aceitar a quest</value></data>
   <data name="Game.ConfirmBattleZone" xml:space="preserve"><value>ir para a zona de batalha?</value></data>
   <data name="Game.ConfirmCarryOut" xml:space="preserve"><value>cumprir a quest?</value></data>
   <data name="Game.ConfirmDoYouWanna" xml:space="preserve"><value>Você quer</value></data>
@@ -98,6 +99,7 @@
   <data name="Game.ConfirmRedistribute" xml:space="preserve"><value>redistribuir?</value></data>
   <data name="Game.ConfirmSearchQuest" xml:space="preserve"><value>procurar a quest?</value></data>
   <data name="Game.ConfirmTheQuest" xml:space="preserve"><value>a quest?</value></data>
+  <data name="Game.ConfirmWantToAccept" xml:space="preserve"><value>deseja aceitar?</value></data>
   <data name="Game.ConfirmWantToDo" xml:space="preserve"><value>quer fazer?</value></data>
   <data name="Game.ConnectionError" xml:space="preserve"><value>Erro de conexão. Tente de novo.</value></data>
   <data name="Game.ContactListFull" xml:space="preserve"><value>A lista está cheia</value></data>
@@ -109,6 +111,10 @@
   <data name="Game.DeadCannotUse" xml:space="preserve"><value>Não é possível usar itens enquanto está morto</value></data>
   <data name="Game.DeathPenaltyReduced" xml:space="preserve"><value>Penalidade de EXP por morte reduzida em 1</value></data>
   <data name="Game.DropOutOfReach" xml:space="preserve"><value>O item sumiu ou está fora de alcance</value></data>
+  <data name="Game.EliteQuestDone" xml:space="preserve"><value>{0} : concluída</value></data>
+  <data name="Game.EliteQuestExpired" xml:space="preserve"><value>O tempo limite da quest acabou.</value></data>
+  <data name="Game.EliteQuestProgress" xml:space="preserve"><value>{0} : {1}/{2}</value></data>
+  <data name="Game.EliteSkillPointsGained" xml:space="preserve"><value>Pontos de skill de elite aumentaram em +{0}.</value></data>
   <data name="Game.EnterWorldFirst" xml:space="preserve"><value>Entre no mundo primeiro</value></data>
   <data name="Game.FemaleCannotUse" xml:space="preserve"><value>A personagem feminina não pode usar</value></data>
   <data name="Game.FuryLost" xml:space="preserve"><value>Derrota no confronto com Fury.</value></data>
@@ -186,6 +192,7 @@
   <data name="Game.QuestItemSlowed" xml:space="preserve"><value>A velocidade de ataque do item da quest diminuiu</value></data>
   <data name="Game.QuestKillCount" xml:space="preserve"><value>Quest&gt; {0}: faltam {1} monstros</value></data>
   <data name="Game.QuestMovedOn" xml:space="preserve"><value>A quest avançou; fale com o NPC de novo</value></data>
+  <data name="Game.QuestName" xml:space="preserve"><value>{0}</value></data>
   <data name="Game.QuestTitle" xml:space="preserve"><value> Q U E S T </value></data>
   <data name="Game.RequestRefused" xml:space="preserve"><value>O pedido foi recusado</value></data>
   <data name="Game.RewardReceived" xml:space="preserve"><value>Itens recebidos como recompensa.</value></data>
@@ -215,6 +222,7 @@
   <data name="Game.StatFiveSkillOne" xml:space="preserve"><value>pontos de atributo e de habilidade aumentados em 5 e 1</value></data>
   <data name="Game.StatFiveSkillTwo" xml:space="preserve"><value>pontos de atributo e de habilidade aumentados em 5 e 2</value></data>
   <data name="Game.StatPointsFive" xml:space="preserve"><value>pontos de atributo aumentados em 5</value></data>
+  <data name="Game.StatPointsGained" xml:space="preserve"><value>Pontos de status aumentaram em +{0}.</value></data>
   <data name="Game.StatsReset" xml:space="preserve"><value>Seus pontos de atributo podem ser distribuídos de novo</value></data>
   <data name="Game.StorageRejected" xml:space="preserve"><value>O armazenamento recusou a operação; nada mudou</value></data>
   <data name="Game.SummonLimit" xml:space="preserve"><value>Você só pode ter {0} invocações de cristal ao mesmo tempo</value></data>

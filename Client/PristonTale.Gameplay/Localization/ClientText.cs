@@ -46,7 +46,16 @@ public static class ClientText
     public static string Format(GameText text) => text.IsNone ? ""
         : text.Id == GameTextId.ClassTitle ? ClassTitle(text)
         : text.Args.IsEmpty ? Get(GameKey(text.Id))
+        : text.Id is GameTextId.QuestName or GameTextId.EliteQuestProgress or GameTextId.EliteQuestDone ? TitledQuest(text)
         : string.Format(CultureInfo.InvariantCulture, Get(GameKey(text.Id)), [.. text.Args]);
+
+    // The quest texts whose first argument is a quest window title, worded from the client's data.
+    private static string TitledQuest(GameText text)
+    {
+        object[] args = [.. text.Args];
+        args[0] = DataText.QuestTitle(text.Args[0]);
+        return string.Format(CultureInfo.InvariantCulture, Get(GameKey(text.Id)), args);
+    }
 
     public static string Get(GameTextId id) => Get(GameKey(id));
 

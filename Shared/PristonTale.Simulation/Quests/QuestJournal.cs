@@ -34,6 +34,9 @@ public sealed record ActiveQuest
     // The arena opponent of the current duel was beaten; the next talk moves the quest on.
     public bool ArenaWon { get; init; }
 
+    // An elite quest's crystals, item use and kill, and the items its kills earned that wait for the upkeep (EliteQuests).
+    public int Flags { get; init; }
+
     public bool IsIdle => Code == QuestCode.None;
 
     public bool HuntComplete => KillsNeeded > 0 && Kills >= KillsNeeded;
@@ -68,6 +71,7 @@ public sealed class QuestJournal
     private ActiveQuest _active = ActiveQuest.Idle;
     private LevelQuestLog _levelLog;
     private ElementaryQuestLog _elementaryLog;
+    private EliteQuestLog _eliteLog;
     private bool _skillResetOffered;
     private bool _weaponSlowed;
 
@@ -100,6 +104,16 @@ public sealed class QuestJournal
         set
         {
             _elementaryLog = value;
+            Revision++;
+        }
+    }
+
+    public EliteQuestLog EliteLog
+    {
+        get => _eliteLog;
+        set
+        {
+            _eliteLog = value;
             Revision++;
         }
     }
@@ -155,8 +169,8 @@ public sealed class QuestJournal
 
     public AppliedQuestOperation Find(Guid operationId) => _operations.Find(operationId);
 
-    public void Restore(ActiveQuest active, LevelQuestLog levelLog, ElementaryQuestLog elementaryLog, IEnumerable<QuestCode> finished, int finishedCount,
-        bool skillResetOffered, long revision, IEnumerable<AppliedQuestOperation> operations)
+    public void Restore(ActiveQuest active, LevelQuestLog levelLog, ElementaryQuestLog elementaryLog, EliteQuestLog eliteLog, IEnumerable<QuestCode> finished,
+        int finishedCount, bool skillResetOffered, long revision, IEnumerable<AppliedQuestOperation> operations)
     {
         ArgumentNullException.ThrowIfNull(active);
         if (revision < 0 || finishedCount < 0)
@@ -180,6 +194,7 @@ public sealed class QuestJournal
         _active = active;
         _levelLog = levelLog;
         _elementaryLog = elementaryLog;
+        _eliteLog = eliteLog;
         FinishedCount = Math.Max(finishedCount, _finished.Count);
         _skillResetOffered = skillResetOffered;
         _weaponSlowed = false;
@@ -189,7 +204,7 @@ public sealed class QuestJournal
     public QuestJournal Clone()
     {
         var clone = new QuestJournal();
-        clone.Restore(_active, _levelLog, _elementaryLog, _finished, FinishedCount, _skillResetOffered, Revision, _operations);
+        clone.Restore(_active, _levelLog, _elementaryLog, _eliteLog, _finished, FinishedCount, _skillResetOffered, Revision, _operations);
         clone._weaponSlowed = _weaponSlowed;
         return clone;
     }
@@ -212,8 +227,8 @@ public sealed class QuestJournal
         }
 
         var revision = Math.Max(Revision, committed.Revision) + 1;
-        Restore(adopted, committed._levelLog, committed._elementaryLog, committed._finished, committed.FinishedCount, committed._skillResetOffered,
-            revision, committed._operations);
+        Restore(adopted, committed._levelLog, committed._elementaryLog, committed._eliteLog, committed._finished, committed.FinishedCount,
+            committed._skillResetOffered, revision, committed._operations);
         _weaponSlowed = committed._weaponSlowed;
     }
 }

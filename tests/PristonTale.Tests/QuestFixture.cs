@@ -92,7 +92,8 @@ internal static class QuestFixture
         foreach (var key in new[]
                  {
                      "QT101", "QT102", "QT103", "QT104", "QT105", "QT106", "QT107", "QT108", "QT109", "QT110", "QT111", "QT112", "QT113", "QT114",
-                     "QT115", "QT116", "QT125", "QT126"
+                     "QT115", "QT116", "QT125", "QT126", "QT127", "QT128", "QT129", "QT130", "QT131", "QT132", "QT133", "QT136", "QT137", "QT138",
+                     "QT139", "QT140", "QT141", "QT142", "QT143"
                  })
         {
             definitions.Add(new ItemDefinition(Code(key), key, ItemKind.Quest) { CatalogKey = key });
@@ -106,6 +107,8 @@ internal static class QuestFixture
             var key = $"GP1{crystal:D2}";
             definitions.Add(new ItemDefinition(Code(key), key, ItemKind.Misc) { CatalogKey = key });
         }
+
+        definitions.Add(new ItemDefinition(Code("GP141"), "Dragon Crystal", ItemKind.Misc) { CatalogKey = "GP141" });
 
         for (var wing = 1; wing <= 6; wing++)
         {

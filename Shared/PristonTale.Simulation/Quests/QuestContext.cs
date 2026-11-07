@@ -80,6 +80,12 @@ public sealed class QuestContext(PlayerCharacter character, QuestNpc npc, IQuest
     public long NowUnixMs { get; } = nowUnixMs;
     public int FieldCode { get; } = fieldCode;
 
+    // Where the player stands, for a quest item used inside an area.
+    public System.Numerics.Vector3 Position { get; init; }
+
+    // Experience the request pays, given at its commit as a kill's is.
+    public ulong Experience { get; set; }
+
     public QuestPrompt Prompt { get; set; }
     public bool ClassChangeOffered { get; set; }
     public QuestTravel Travel { get; set; }

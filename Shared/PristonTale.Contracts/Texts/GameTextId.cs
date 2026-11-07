@@ -169,6 +169,17 @@ public enum GameTextId : ushort
     NoSkillRedistribution = 547,
     ConfirmExchangeItem = 548,
 
+    // Elite quests. QuestName, EliteQuestProgress and EliteQuestDone take {0} a quest window title the client words from
+    // its data; EliteQuestProgress {1} done of {2}; the points texts {0} the points.
+    QuestName = 549,
+    ConfirmAcceptQuest = 550,
+    ConfirmWantToAccept = 551,
+    EliteQuestProgress = 552,
+    EliteQuestDone = 553,
+    EliteQuestExpired = 554,
+    EliteSkillPointsGained = 555,
+    StatPointsGained = 556,
+
     // Trades: TradeRequested and TradeTooFar take {0} the player.
     TradeRequested = 600,
     TradeTooFar = 601,

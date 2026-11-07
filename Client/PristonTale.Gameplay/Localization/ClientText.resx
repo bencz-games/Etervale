@@ -85,6 +85,7 @@
   <data name="Game.ClanOnly" xml:space="preserve"><value>Only members of a regular clan can use this item</value></data>
   <data name="Game.CloseShopFirst" xml:space="preserve"><value>Close your personal shop first</value></data>
   <data name="Game.CloseTradeFirst" xml:space="preserve"><value>Close the trade window first</value></data>
+  <data name="Game.ConfirmAcceptQuest" xml:space="preserve"><value>Accept quest</value></data>
   <data name="Game.ConfirmBattleZone" xml:space="preserve"><value>move to the Battle Zone?</value></data>
   <data name="Game.ConfirmCarryOut" xml:space="preserve"><value>carry out the quest?</value></data>
   <data name="Game.ConfirmDoYouWanna" xml:space="preserve"><value>Do you wanna</value></data>
@@ -98,6 +99,7 @@
   <data name="Game.ConfirmRedistribute" xml:space="preserve"><value>redistribute?</value></data>
   <data name="Game.ConfirmSearchQuest" xml:space="preserve"><value>search for the quest?</value></data>
   <data name="Game.ConfirmTheQuest" xml:space="preserve"><value>the quest?</value></data>
+  <data name="Game.ConfirmWantToAccept" xml:space="preserve"><value>want to accept?</value></data>
   <data name="Game.ConfirmWantToDo" xml:space="preserve"><value>want to do?</value></data>
   <data name="Game.ConnectionError" xml:space="preserve"><value>Connection error. Please try again.</value></data>
   <data name="Game.ContactListFull" xml:space="preserve"><value>The list is full</value></data>
@@ -109,6 +111,10 @@
   <data name="Game.DeadCannotUse" xml:space="preserve"><value>Cannot use items while dead</value></data>
   <data name="Game.DeathPenaltyReduced" xml:space="preserve"><value>Death penalty Exp decreased by 1</value></data>
   <data name="Game.DropOutOfReach" xml:space="preserve"><value>The item is gone or out of reach</value></data>
+  <data name="Game.EliteQuestDone" xml:space="preserve"><value>{0} : done</value></data>
+  <data name="Game.EliteQuestExpired" xml:space="preserve"><value>The time limit of the quest has run out.</value></data>
+  <data name="Game.EliteQuestProgress" xml:space="preserve"><value>{0} : {1}/{2}</value></data>
+  <data name="Game.EliteSkillPointsGained" xml:space="preserve"><value>Elite skill points increased by +{0}.</value></data>
   <data name="Game.EnterWorldFirst" xml:space="preserve"><value>Enter the world first</value></data>
   <data name="Game.FemaleCannotUse" xml:space="preserve"><value>The female character cannot use</value></data>
   <data name="Game.FuryLost" xml:space="preserve"><value>Lose in the confrontation with Fury.</value></data>
@@ -186,6 +192,7 @@
   <data name="Game.QuestItemSlowed" xml:space="preserve"><value>Decreased ATK speed of quest item</value></data>
   <data name="Game.QuestKillCount" xml:space="preserve"><value>Quest&gt; {0} {1} number of monster needed</value></data>
   <data name="Game.QuestMovedOn" xml:space="preserve"><value>The quest has moved on; talk to the NPC again</value></data>
+  <data name="Game.QuestName" xml:space="preserve"><value>{0}</value></data>
   <data name="Game.QuestTitle" xml:space="preserve"><value> Q U E S T </value></data>
   <data name="Game.RequestRefused" xml:space="preserve"><value>The request was refused</value></data>
   <data name="Game.RewardReceived" xml:space="preserve"><value>Acquierd items in compensation.</value></data>
@@ -215,6 +222,7 @@
   <data name="Game.StatFiveSkillOne" xml:space="preserve"><value>stat &amp; skill point increased by 5 and 1</value></data>
   <data name="Game.StatFiveSkillTwo" xml:space="preserve"><value>stat &amp; skill point increased by 5 and 2</value></data>
   <data name="Game.StatPointsFive" xml:space="preserve"><value>stat point increased by 5</value></data>
+  <data name="Game.StatPointsGained" xml:space="preserve"><value>Stat points increased by +{0}.</value></data>
   <data name="Game.StatsReset" xml:space="preserve"><value>Your stat points can be distributed again</value></data>
   <data name="Game.StorageRejected" xml:space="preserve"><value>Storage rejected the operation; nothing changed</value></data>
   <data name="Game.SummonLimit" xml:space="preserve"><value>You can only have {0} crystal summons at a time</value></data>

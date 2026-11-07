@@ -88,8 +88,22 @@
   <data name="Quest.Bitter ordeal(Complete)" xml:space="preserve"><value>Provação amarga(Concluída)</value></data>
   <data name="Quest.Candy Delivery" xml:space="preserve"><value>Entrega de doces</value></data>
   <data name="Quest.Candy Delivery(Complete)" xml:space="preserve"><value>Entrega de doces(Concluída)</value></data>
+  <data name="Quest.Capturing the devil" xml:space="preserve"><value>Capturando o demônio</value></data>
+  <data name="Quest.Capturing the devil(Complete)" xml:space="preserve"><value>Capturando o demônio(Concluída)</value></data>
+  <data name="Quest.Clever Newter" xml:space="preserve"><value>Newter, o Esperto</value></data>
+  <data name="Quest.Clever Newter(Complete)" xml:space="preserve"><value>Newter, o Esperto(Concluída)</value></data>
+  <data name="Quest.Delivery bomb" xml:space="preserve"><value>Entrega da bomba</value></data>
+  <data name="Quest.Delivery bomb(Complete)" xml:space="preserve"><value>Entrega da bomba(Concluída)</value></data>
+  <data name="Quest.Destroyed destruction weapon" xml:space="preserve"><value>A arma de destruição destruída</value></data>
+  <data name="Quest.Destroyed destruction weapon(Complete)" xml:space="preserve"><value>A arma de destruição destruída(Concluída)</value></data>
+  <data name="Quest.Devious Necromancer" xml:space="preserve"><value>O necromante ardiloso</value></data>
+  <data name="Quest.Devious Necromancer(Complete)" xml:space="preserve"><value>O necromante ardiloso(Concluída)</value></data>
   <data name="Quest.Enclosed Fury" xml:space="preserve"><value>Fury aprisionado</value></data>
   <data name="Quest.Enclosed Fury(completed)" xml:space="preserve"><value>Fury aprisionado(Concluída)</value></data>
+  <data name="Quest.Eternal Love1" xml:space="preserve"><value>Amor eterno 1</value></data>
+  <data name="Quest.Eternal Love1(Complete)" xml:space="preserve"><value>Amor eterno 1(Concluída)</value></data>
+  <data name="Quest.Eternal Love2" xml:space="preserve"><value>Amor eterno 2</value></data>
+  <data name="Quest.Eternal Love2(Complete)" xml:space="preserve"><value>Amor eterno 2(Concluída)</value></data>
   <data name="Quest.For her" xml:space="preserve"><value>Por ela</value></data>
   <data name="Quest.For her(completed)" xml:space="preserve"><value>Por ela(Concluída)</value></data>
   <data name="Quest.Fury's phantasma(Complete)" xml:space="preserve"><value>O fantasma de Fury(Concluída)</value></data>
@@ -102,13 +116,29 @@
   <data name="Quest.Goblin Hill(Complete)" xml:space="preserve"><value>Colina dos Goblins(Concluída)</value></data>
   <data name="Quest.Helping Michelle" xml:space="preserve"><value>Ajudando Michelle</value></data>
   <data name="Quest.Helping Michelle(completed)" xml:space="preserve"><value>Ajudando Michelle(Concluída)</value></data>
+  <data name="Quest.Invaders chopped up" xml:space="preserve"><value>Invasores retalhados</value></data>
+  <data name="Quest.Invaders chopped up(Complete)" xml:space="preserve"><value>Invasores retalhados(Concluída)</value></data>
   <data name="Quest.Job Quest 3th(Complete)" xml:space="preserve"><value>Quest do 3º Rank(Concluída)</value></data>
   <data name="Quest.Job Quest 3th[1]" xml:space="preserve"><value>Quest do 3º Rank[1]</value></data>
   <data name="Quest.Job Quest 3th[2]" xml:space="preserve"><value>Quest do 3º Rank[2]</value></data>
   <data name="Quest.Job Quest 3th[3]" xml:space="preserve"><value>Quest do 3º Rank[3]</value></data>
   <data name="Quest.Job Quest 3th[4]" xml:space="preserve"><value>Quest do 3º Rank[4]</value></data>
+  <data name="Quest.Lovers of history1" xml:space="preserve"><value>Amantes da história 1</value></data>
+  <data name="Quest.Lovers of history1(Complete)" xml:space="preserve"><value>Amantes da história 1(Concluída)</value></data>
+  <data name="Quest.Lovers of history2" xml:space="preserve"><value>Amantes da história 2</value></data>
+  <data name="Quest.Lovers of history2(Complete)" xml:space="preserve"><value>Amantes da história 2(Concluída)</value></data>
+  <data name="Quest.Manufacturing bomb" xml:space="preserve"><value>Fabricando a bomba</value></data>
+  <data name="Quest.Manufacturing bomb(Complete)" xml:space="preserve"><value>Fabricando a bomba(Concluída)</value></data>
+  <data name="Quest.Miranda's location" xml:space="preserve"><value>O paradeiro de Miranda</value></data>
+  <data name="Quest.Miranda's location(Complete)" xml:space="preserve"><value>O paradeiro de Miranda(Concluída)</value></data>
+  <data name="Quest.Mission from the ancestor" xml:space="preserve"><value>Missão do ancestral</value></data>
+  <data name="Quest.Mission from the ancestor(Complete)" xml:space="preserve"><value>Missão do ancestral(Concluída)</value></data>
   <data name="Quest.One-eyed Monsters" xml:space="preserve"><value>Monstros de um olho só</value></data>
   <data name="Quest.One-eyed Monsters(Complete)" xml:space="preserve"><value>Monstros de um olho só(Concluída)</value></data>
+  <data name="Quest.Patron's request" xml:space="preserve"><value>O pedido da protetora</value></data>
+  <data name="Quest.Patron's request(Complete)" xml:space="preserve"><value>O pedido da protetora(Concluída)</value></data>
+  <data name="Quest.Questionable document" xml:space="preserve"><value>Documento suspeito</value></data>
+  <data name="Quest.Questionable document(Complete)" xml:space="preserve"><value>Documento suspeito(Concluída)</value></data>
   <data name="Quest.Rank up quest" xml:space="preserve"><value>Quest de rank</value></data>
   <data name="Quest.Rank up quest (Completed)" xml:space="preserve"><value>Quest de rank (Concluída)</value></data>
   <data name="Quest.Rank up quest [Second]" xml:space="preserve"><value>Quest de rank [Segunda]</value></data>
@@ -120,8 +150,18 @@
   <data name="Quest.Rank up quest second[Completed]" xml:space="preserve"><value>Segunda quest de rank[Concluída]</value></data>
   <data name="Quest.Rank up quest(Completed)" xml:space="preserve"><value>Quest de rank(Concluída)</value></data>
   <data name="Quest.Rank-up Exam (Done)" xml:space="preserve"><value>Exame de rank (Feito)</value></data>
+  <data name="Quest.Report delivery" xml:space="preserve"><value>Entrega do relatório</value></data>
+  <data name="Quest.Report delivery(Complete)" xml:space="preserve"><value>Entrega do relatório(Concluída)</value></data>
+  <data name="Quest.Ring purification1" xml:space="preserve"><value>Purificação do anel 1</value></data>
+  <data name="Quest.Ring purification1(Complete)" xml:space="preserve"><value>Purificação do anel 1(Concluída)</value></data>
+  <data name="Quest.Ring purification2" xml:space="preserve"><value>Purificação do anel 2</value></data>
+  <data name="Quest.Ring purification2(Complete)" xml:space="preserve"><value>Purificação do anel 2(Concluída)</value></data>
+  <data name="Quest.Shattering Ancient weapon" xml:space="preserve"><value>Despedaçando a Arma Antiga</value></data>
+  <data name="Quest.Shattering Ancient weapon(Complete)" xml:space="preserve"><value>Despedaçando a Arma Antiga(Concluída)</value></data>
   <data name="Quest.Signs of fear" xml:space="preserve"><value>Sinais de medo</value></data>
   <data name="Quest.Signs of fear(Complete)" xml:space="preserve"><value>Sinais de medo(Concluída)</value></data>
+  <data name="Quest.Soul of Devil" xml:space="preserve"><value>Alma do demônio</value></data>
+  <data name="Quest.Soul of Devil(Complete)" xml:space="preserve"><value>Alma do demônio(Concluída)</value></data>
   <data name="Quest.Tears of Khalia" xml:space="preserve"><value>Lágrimas de Khalia</value></data>
   <data name="Quest.Tears of Khalia(completed)" xml:space="preserve"><value>Lágrimas de Khalia(Concluída)</value></data>
   <data name="Quest.Test of Kingdom" xml:space="preserve"><value>Prova do Reino</value></data>
@@ -130,8 +170,10 @@
   <data name="Quest.The Cave(completed)" xml:space="preserve"><value>A caverna(Concluída)</value></data>
   <data name="Quest.Threats of the Undead" xml:space="preserve"><value>Ameaças dos mortos-vivos</value></data>
   <data name="Quest.Threats of the Undead(Complete)" xml:space="preserve"><value>Ameaças dos mortos-vivos(Concluída)</value></data>
-  <data name="Quest.Village of eura" xml:space="preserve"><value>Vila de Eura</value></data>
   <data name="Quest.Village of Eura(completed)" xml:space="preserve"><value>Vila de Eura(Concluída)</value></data>
+  <data name="Quest.Village of eura" xml:space="preserve"><value>Vila de Eura</value></data>
+  <data name="Quest.War of the Ancient" xml:space="preserve"><value>Guerra dos Antigos</value></data>
+  <data name="Quest.War of the Ancient(Complete)" xml:space="preserve"><value>Guerra dos Antigos(Concluída)</value></data>
   <data name="Skill.01010001.Description" xml:space="preserve"><value>Aumenta temporariamente a taxa de bloqueio do escudo atual</value></data>
   <data name="Skill.01010001.Name" xml:space="preserve"><value>Escudo Extremo</value></data>
   <data name="Skill.01010002.Description" xml:space="preserve"><value>Arremessa uma bomba nos inimigos dentro do raio da explosão</value></data>

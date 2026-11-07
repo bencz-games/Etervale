@@ -155,6 +155,7 @@ public sealed partial class GameplayHud : IDisposable
         _sprites.Request(HudWingGate.Art);
         _inventory.UseRequested = item => _itemUse.Request(item, _state);
         _quests = new HudQuestController(requestQuest, context.Log);
+        _inventory.QuestItemUse = _quests.UseItem;
         _questDocuments = new HudQuestDocuments(context.AssetRoot, context.Log);
         _inventory.InterceptClick = InterceptInventoryClick;
         _inventory.ExternalDrop = DropFromInventory;

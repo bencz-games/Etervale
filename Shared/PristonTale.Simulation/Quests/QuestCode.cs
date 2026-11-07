@@ -42,7 +42,30 @@ public enum QuestCode : ushort
     FuryOfPhantom = 0x28,
 
     // The fourth rank-up, into the fifth tier.
-    RankUpHestian = 0x30
+    RankUpHestian = 0x30,
+
+    // The elite chains of levels 106, 110 and 114 (EliteQuests), in order.
+    Elite106A = 0x40,
+    Elite106B = 0x41,
+    Elite106C = 0x42,
+    Elite106D = 0x43,
+    Elite106E = 0x44,
+    Elite106F = 0x45,
+    Elite110A = 0x46,
+    Elite110B = 0x47,
+    Elite110C = 0x48,
+    Elite110D = 0x49,
+    Elite110E = 0x4A,
+    Elite110F = 0x4B,
+    Elite110G = 0x4C,
+    Elite110H = 0x4D,
+    Elite114A = 0x4E,
+    Elite114B = 0x4F,
+    Elite114C = 0x50,
+    Elite114D = 0x51,
+    Elite114E = 0x52,
+    Elite114F = 0x53,
+    Elite114G = 0x54
 }
 
 // Completed level-milestone quests (bit per quest); both level 55 branches share one bit.
@@ -73,6 +96,13 @@ public enum ElementaryQuestLog : uint
     F = 32,
     G = 64,
     FuryOfPhantom = 128
+}
+
+// Completed elite quests (EliteQuests.Bit): bit n is the chains' n-th quest, Elite106A first.
+[Flags]
+public enum EliteQuestLog : uint
+{
+    None = 0
 }
 
 public static class QuestCodes

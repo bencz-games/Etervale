@@ -3,6 +3,7 @@ using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Simulation.Quests;
 using PristonTale.Contracts.Texts;
 using PristonTale.Gameplay.Localization;
+using PristonTale.Simulation.Characters;
 
 namespace PristonTale.Gameplay.UI.Quests;
 
@@ -92,6 +93,20 @@ public sealed class HudQuestController(Func<QuestCommand, Task<QuestOutcome>> re
         {
             Send(new QuestCommand(Guid.NewGuid(), npc, QuestAction.ChangeClass, QuestCode.None, 0, 0));
         }
+    }
+
+    // A right click on the item the running elite quest waits to be used: the server checks where the player stands.
+    // Answers whether the click was the quest's.
+    public bool UseItem(OwnedItemView item)
+    {
+        if (Pending || View is not { } view || view.State != EliteQuests.Running
+            || EliteQuests.Find(view.Code) is not { Objective: EliteObjective.Use or EliteObjective.UseAndKill } quest || item.Code != quest.AcceptItem)
+        {
+            return false;
+        }
+
+        Send(new QuestCommand(Guid.NewGuid(), 0, QuestAction.UseItem, view.Code, view.State, 0));
+        return true;
     }
 
     // The dialog's OK button.

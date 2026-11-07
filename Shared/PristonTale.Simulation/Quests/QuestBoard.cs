@@ -74,10 +74,13 @@ public static class QuestBoard
     ];
 
     // Every description file the window can open, under the client's quest board folder.
-    public static IEnumerable<string> Documents => Rows.Concat(BeginnerRows).SelectMany(static row => row.Skip(2)).Distinct(StringComparer.Ordinal);
+    public static IEnumerable<string> Documents => Rows.Concat(BeginnerRows).SelectMany(static row => row.Skip(2))
+        .Concat(EliteQuests.All.Select(static quest => quest.Board)).Distinct(StringComparer.Ordinal);
 
     // Every title the window can show, open and finished.
-    public static IEnumerable<string> Titles => Rows.Concat(BeginnerRows).SelectMany(static row => row.Take(2)).Distinct(StringComparer.Ordinal);
+    public static IEnumerable<string> Titles => Rows.Concat(BeginnerRows).SelectMany(static row => row.Take(2))
+        .Concat(EliteQuests.All.SelectMany(static quest => new[] { EliteQuests.Line(quest, false).Title, EliteQuests.Line(quest, true).Title }))
+        .Distinct(StringComparer.Ordinal);
 
     private static QuestBoardEntry Open(string[] row) => new(row[0], row[2]);
 
@@ -132,6 +135,10 @@ public static class QuestBoard
                 {
                     entries.Add(Open(BeginnerRows[BeginnerRow(active.Code, tempskron)]));
                 }
+                else if (EliteQuests.Find(active.Code) is { } elite)
+                {
+                    entries.Add(EliteQuests.Line(elite, false));
+                }
 
                 break;
         }
@@ -162,6 +169,16 @@ public static class QuestBoard
             if (row is not null)
             {
                 entries.Add(row);
+            }
+        }
+
+        // The elite quests come from their log, which keeps them all: the latest of each chain first.
+        for (var index = EliteQuests.All.Count - 1; index >= 0; index--)
+        {
+            var quest = EliteQuests.All[index];
+            if (EliteQuests.Completed(character.Quests, quest.Code))
+            {
+                entries.Add(EliteQuests.Line(quest, true));
             }
         }
 

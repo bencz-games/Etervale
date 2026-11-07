@@ -27,6 +27,7 @@ quest data the importer reads, and the client's quest dialog, quest window, clas
 | `Shared/PristonTale.Simulation/Quests/LevelBonusQuests.cs` | Level 80 and level 90 bonus chains (extra stat points per level) |
 | `Shared/PristonTale.Simulation/Quests/ElementaryQuests.cs` | The seven beginner quests (A..G) up to level 39 |
 | `Shared/PristonTale.Simulation/Quests/FuryOfPhantomQuest.cs` | Fury of Phantom (level 100): two field hunts, three arena battles, a reward list |
+| `Shared/PristonTale.Simulation/Quests/EliteQuests.cs` | The elite chains of levels 106, 110 and 114 (21 quests): the table, offers, objectives, the timer, owed items, reports |
 | `Shared/PristonTale.Simulation/Quests/RankUpRules.cs` | Class-change offer (level, learned skills, home master, group), rank-up, skill redistribution |
 | `Shared/PristonTale.Simulation/Quests/RankUpByTrophies.cs`, `RankUpByPotion.cs` | First rank-up: Tempskron trophies; Morion royal jelly or hair tonic by name branch |
 | `Shared/PristonTale.Simulation/Quests/RankUpByQuestWeapon.cs` | Second rank-up: vamps buy a quest weapon that grows by hunting stages, ring, expiry |
@@ -96,6 +97,21 @@ quest data the importer reads, and the client's quest dialog, quest window, clas
   the player to Pillai; the reward is one of eight weapons (their quest variants).
 - Wing exchange (`WingQuest`, an NPC with a warp gate service of value 0 or 1): the held wing (none, then metal up to
   chaos), two crystals and 3,000 to 80,000 gold for the next wing.
+- Elite chains (`EliteQuests`, `QuestCode.Elite106A`..`Elite114G`, completed in `EliteLog`): three chains of 6, 8 and 7
+  quests from levels 106, 110 and 114, each in order. A quest giver (Force Master 1006, Knight Commander Derik 1012,
+  Royal Mage Ray 1013, Craftman Salon 2200, Clever Newter 2201, Wandering Soul 2300, Sage Celina 2301) offers the chain's
+  next quest (`<level>LVQuest_<n>_Start`, yes/no "Accept quest"), only when none of its other quests answered; the
+  running quest shows `_Path` at its giver and reporter and `_End` (Proceed reports) at its reporter once its objective
+  is met. Objectives: deliver (met at accept), kill (20 Cold Eye in Ice 1, Chaos Cara within 1,800 seconds of play
+  time, Valento, 60 invaders, Tulla, 50 Nihil in the Ancient Weapon, Greedy), a drop (Mine Golem, Lab Engineer: 51 kills
+  in 1000), four crystals (one from each of the Ancient Weapon's T-Soldier, T-Elite, Acero and Chalybs, 51 in 1000),
+  the bomb used in the Secret Lab's mechanical room after Draxos, the demon soul used at the Ancient Weapon's centre
+  (`QuestAction.UseItem`, the player's position checked by the server). Kills count for the credited player by the
+  monster's quest code; items a kill earns (the ring, the crystals, the document) are owed in `ActiveQuest.Flags` and
+  handed out by the quest upkeep, retried while the pack is full. Chaos Cara's time running out drops the quest, which
+  can be accepted again. The report takes the quest's items back and pays 1% (106, 110) or 2% (114) of what the chain's
+  level takes in experience (`QuestContext.Experience`, awarded at the commit as a kill's is), 2, 3 and 3 elite points
+  at each chain's end, 10 stat points for the demon soul, and the Dragon Crystal (GP141) for the four crystals.
 - Rank-ups: the skill master of the side's home town (Ricarten, field 3, or Pillai, field 21).
 
 ### Rank-ups and the class tier

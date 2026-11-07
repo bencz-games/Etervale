@@ -140,6 +140,9 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
     // A right click on a carried usable item (premium, travel and effect items).
     public Action<OwnedItemView> UseRequested { get; set; }
 
+    // A right-clicked item a running quest uses (answers true when it took the click).
+    public Func<OwnedItemView, bool> QuestItemUse { get; set; }
+
     // The catalog key of an item lifted from or set into the pack or the equipment, for its sound.
     public Action<string> ItemSound { get; set; }
     private string _pendingSound;
@@ -655,6 +658,11 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
     // Right click: a usable item is used, a potion drunk, and an item worn or taken off.
     private void Use(OwnedItemView item)
     {
+        if (!item.Equipped && QuestItemUse?.Invoke(item) == true)
+        {
+            return;
+        }
+
         if (item.InBag && UsableItemCatalog.IsUsable(item.CatalogKey))
         {
             UseRequested?.Invoke(item);

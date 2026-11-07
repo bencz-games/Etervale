@@ -38,6 +38,30 @@ internal static class QuestServiceTests
             KillToMasterAsync);
         yield return ("the master duel travels to the arena, yields at a sixteenth and promotes from the victory dialog", ArenaAsync);
         yield return ("Hosean sends the player to Hestian, whose lives call Xetans for that player alone, and her death wins the fight", HestianArenaAsync);
+        yield return ("an elite report pays its experience at the commit, and the quest's item is used where the player stands", EliteAsync);
+    }
+
+    private static async Task EliteAsync()
+    {
+        var world = await QuestWorld.CreateAsync(PlayerClass.Fighter, 106, 3, [new NpcService(NpcServiceKind.QuestGiver, 1006)], [], null);
+        var (quests, token, npc) = (world.Quests, world.Session.SessionToken, world.NpcId);
+        var character = world.Session.Character!;
+        character.Quests.LevelLog = (LevelQuestLog)0xFF;
+        character.Quests.Active = new ActiveQuest { Code = QuestCode.Elite106A, State = EliteQuests.Met, Kills = 20, KillsNeeded = 20 };
+        var experience = character.Experience;
+        var report = await world.Advance(quests.RequestAsync(token, new QuestCommand(Guid.NewGuid(), npc, QuestAction.Proceed, QuestCode.Elite106A,
+            EliteQuests.Met, 0)));
+        Assert.True(report.Ok && character.Experience == experience + EliteQuests.Experience(EliteQuests.Find(QuestCode.Elite106A)!)
+            && EliteQuests.Completed(QuestStateCodec.Read(world.Characters.Record.Quests), QuestCode.Elite106A),
+            "the report did not store its log or pay its experience at the commit");
+
+        // The bomb's use asks for no NPC, only the place the server knows the player stands at.
+        character.Quests.EliteLog = (EliteQuestLog)((1u << 13) - 1);
+        character.Quests.Active = new ActiveQuest { Code = QuestCode.Elite110H, State = EliteQuests.Running, Flags = EliteQuests.Killed };
+        Give(character, EliteQuests.DestructionBomb);
+        var use = new QuestCommand(Guid.NewGuid(), 0, QuestAction.UseItem, QuestCode.Elite110H, EliteQuests.Running, 0);
+        var refused = await world.Advance(quests.RequestAsync(token, use));
+        Assert.True(!refused.Ok && character.Quests.Active.State == EliteQuests.Running, "the bomb counted away from the mechanical room");
     }
 
     private static Task PersistenceAsync()

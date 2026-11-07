@@ -74,7 +74,7 @@ internal static class QuestTransactions
         }
 
         var candidate = original.CloneForInventoryOperation();
-        var context = new QuestContext(candidate, npc, source, rng, nowUnixMs, field.FieldId);
+        var context = new QuestContext(candidate, npc, source, rng, nowUnixMs, field.FieldId) { Position = player.Position };
         var ok = QuestEngine.Run(context, command);
         if (!ok)
         {
@@ -86,7 +86,7 @@ internal static class QuestTransactions
 
         var changed = candidate.Quests.Revision != journal.Revision || candidate.InventoryRevision != original.InventoryRevision
             || candidate.Tier != original.Tier || candidate.StatPoints != original.StatPoints || candidate.SkillPoints != original.SkillPoints
-            || candidate.EliteSkillPoints != original.EliteSkillPoints || candidate.Money != original.Money;
+            || candidate.EliteSkillPoints != original.EliteSkillPoints || candidate.Money != original.Money || context.Experience > 0;
         var outcome = new QuestOutcome(true, QuestStatus.Ok, GameText.None, candidate.Quests.Revision, context.Prompt, context.Notices)
         {
             ClassChangeOffered = context.ClassChangeOffered,
@@ -109,6 +109,7 @@ internal static class QuestTransactions
             SkillPoints = candidate.SkillPoints - original.SkillPoints,
             EliteSkillPoints = candidate.EliteSkillPoints - original.EliteSkillPoints,
             MoneyDelta = candidate.Money - original.Money,
+            Experience = context.Experience,
             ResetSkills = command.Action == QuestAction.ResetSkills
         };
     }

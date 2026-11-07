@@ -51,6 +51,22 @@ public static class QuestTexts
 
     public static readonly GameText SkillPointName = GameText.Of(GameTextId.SkillPointName);
 
+    public static readonly (GameText, GameText) AcceptQuest = Lines(GameTextId.ConfirmAcceptQuest, GameTextId.ConfirmWantToAccept);
+    public static readonly GameText EliteExpired = GameText.Of(GameTextId.EliteQuestExpired);
+    public static readonly GameText NotHere = GameText.Of(GameTextId.ItemNotHere);
+
+    // A quest window title, which the client words from its data.
+    public static GameText QuestName(string title) => GameText.Of(GameTextId.QuestName, title);
+
+    // "title : done/count" of an elite quest's objective, and the title of one met without a count.
+    public static GameText EliteProgress(string title, int done, int count) => GameText.Of(GameTextId.EliteQuestProgress, title, Number(done), Number(count));
+
+    public static GameText EliteDone(string title) => GameText.Of(GameTextId.EliteQuestDone, title);
+
+    public static GameText ElitePoints(int points) => GameText.Of(GameTextId.EliteSkillPointsGained, Number(points));
+
+    public static GameText StatPoints(int points) => GameText.Of(GameTextId.StatPointsGained, Number(points));
+
     // "Quest> name count number of monster needed": the running count of a hunt.
     public static GameText Count(string monster, int kills) => GameText.Of(GameTextId.QuestKillCount, monster, Number(kills));
 

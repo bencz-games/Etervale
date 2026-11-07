@@ -60,6 +60,10 @@ public sealed partial class WorldServer
 
             operation.Original.CommitQuestOperation(operation.Candidate, operation.Tier, operation.StatPoints, operation.SkillPoints,
                 operation.EliteSkillPoints, operation.MoneyDelta, operation.ResetSkills);
+            if (operation.Experience > 0)
+            {
+                operation.Original.AwardExperience(operation.Experience);
+            }
             if (!TryGetOwnConnection(session, out var connection))
             {
                 return true;

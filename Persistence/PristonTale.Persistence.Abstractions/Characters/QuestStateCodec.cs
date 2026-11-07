@@ -21,7 +21,8 @@ public sealed record SavedQuest(
     int WeaponKillsLeft,
     int WeaponLifeBonus,
     int WeaponManaRegenTenths,
-    bool ArenaWon);
+    bool ArenaWon,
+    int Flags = 0);
 
 public sealed record SavedQuestOperation(Guid OperationId, ulong NpcEntityId, QuestAction Action, QuestCode Code, int State, int Choice, long Revision);
 
@@ -36,7 +37,8 @@ public sealed record SavedQuests(
     int FinishedCount,
     bool SkillResetOffered,
     long Revision,
-    SavedQuestOperation[] Operations);
+    SavedQuestOperation[] Operations,
+    EliteQuestLog EliteLog = EliteQuestLog.None);
 
 public static class QuestStateCodec
 {
@@ -47,13 +49,13 @@ public static class QuestStateCodec
         var active = journal.Active;
         var saved = new SavedQuest(active.Code, active.State, active.Target, active.Kills, active.KillsNeeded, active.Variant, active.Timer, active.TimerMs,
             active.StartLevel, active.WeaponId, active.RingId, active.WeaponCreatedUnixMs, active.WeaponStage, active.WeaponKillsLeft, active.WeaponLifeBonus,
-            active.WeaponManaRegenTenths, active.ArenaWon);
+            active.WeaponManaRegenTenths, active.ArenaWon, active.Flags);
         var operations = StoredHistory.Newest(journal.Operations)
             .Select(static applied => new SavedQuestOperation(applied.Command.OperationId, applied.Command.NpcEntityId, applied.Command.Action,
                 applied.Command.Code, applied.Command.State, applied.Command.Choice, applied.Revision))
             .ToArray();
         return new SavedQuests(CurrentVersion, saved, journal.LevelLog, journal.ElementaryLog, journal.Finished.ToArray(), journal.FinishedCount,
-            journal.SkillResetOffered, journal.Revision, operations);
+            journal.SkillResetOffered, journal.Revision, operations, journal.EliteLog);
     }
 
     public static QuestJournal Read(JsonText json)
@@ -96,14 +98,16 @@ public static class QuestStateCodec
             WeaponKillsLeft = saved.WeaponKillsLeft,
             WeaponLifeBonus = saved.WeaponLifeBonus,
             WeaponManaRegenTenths = saved.WeaponManaRegenTenths,
-            ArenaWon = saved.ArenaWon
+            ArenaWon = saved.ArenaWon,
+            Flags = saved.Flags
         };
         var operations = state.Operations.Select(static operation => new AppliedQuestOperation(
             new QuestCommand(operation.OperationId, operation.NpcEntityId, operation.Action, operation.Code, operation.State, operation.Choice),
             operation.Revision));
         try
         {
-            journal.Restore(active, state.LevelLog, state.ElementaryLog, state.Finished, state.FinishedCount, state.SkillResetOffered, state.Revision, operations);
+            journal.Restore(active, state.LevelLog, state.ElementaryLog, state.EliteLog, state.Finished, state.FinishedCount, state.SkillResetOffered,
+                state.Revision, operations);
         }
         catch (ArgumentException exception)
         {

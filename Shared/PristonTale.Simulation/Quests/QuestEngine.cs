@@ -20,6 +20,7 @@ public static class QuestEngine
             QuestAction.ChooseReward => command.Code == QuestCode.FuryOfPhantom ? FuryOfPhantomQuest.Choose(context, command.State, command.Choice)
                 : QuestSteps.Stale(context),
             QuestAction.ResetSkills => RankUpRules.ResetSkills(context),
+            QuestAction.UseItem => EliteQuests.UseItem(context, command.Code, command.State),
             QuestAction.DeclineSkillReset => RankUpRules.DeclineSkillReset(context),
             _ => context.Fail(QuestStatus.Rejected, GameText.Of(GameTextId.InvalidQuestRequest))
         };
@@ -55,6 +56,12 @@ public static class QuestEngine
 
         RankUpByHestian.TalkAtElder(context);
         WingQuest.Talk(context);
+        if (npc.GiverCode != 0)
+        {
+            // The elite chains speak only when no other quest of the NPC did.
+            EliteQuests.Talk(context, npc.GiverCode);
+        }
+
         if (context.Prompt is null && context.Blocked)
         {
             context.Notice(QuestNoticeKind.Message, QuestTexts.QuestInProgress);
@@ -73,6 +80,11 @@ public static class QuestEngine
         if (QuestCodes.IsElementary(code))
         {
             return ElementaryQuests.Proceed(context, code, state);
+        }
+
+        if (EliteQuests.IsElite(code))
+        {
+            return EliteQuests.Report(context, code, state);
         }
 
         return code switch
@@ -96,6 +108,11 @@ public static class QuestEngine
         if (QuestCodes.IsElementary(code))
         {
             return ElementaryQuests.Accept(context, code, state);
+        }
+
+        if (EliteQuests.IsElite(code))
+        {
+            return EliteQuests.Accept(context, code, state);
         }
 
         return code switch

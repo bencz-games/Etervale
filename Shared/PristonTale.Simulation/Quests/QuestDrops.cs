@@ -93,6 +93,7 @@ public static class QuestDrops
         }
 
         RemoveLeftovers(context);
+        EliteQuests.Upkeep(context);
         RankUpByQuestWeapon.Grow(context);
         RankUpByQuestWeapon.Expire(context);
     }
@@ -141,6 +142,11 @@ public static class QuestDrops
     public static bool UpkeepDue(PlayerCharacter character, long nowUnixMs)
     {
         var active = character.Quests.Active;
+        if (EliteQuests.OwesItems(active))
+        {
+            return true;
+        }
+
         if (active is { Code: QuestCode.RankUpQuestWeapon, State: 3, WeaponKillsLeft: <= 0 } && active.WeaponStage is >= 1 and < RankUpByQuestWeapon.FinalStage)
         {
             return true;
@@ -182,7 +188,8 @@ public static class QuestDrops
 // journal; item changes they cause wait for the next quest upkeep.
 public static class QuestTick
 {
-    // Returns true when the kill finished a stage of the quest weapon, which the upkeep then grows.
+    // Returns true when the kill finished a stage of the quest weapon, which the upkeep then grows, or earned an elite
+    // quest's item, which the upkeep hands out.
     public static bool OnKill(QuestContext context, int monsterCode)
     {
         if (monsterCode == QuestMonsters.EventMonster || context.Journal.Active.IsIdle)
@@ -196,7 +203,8 @@ public static class QuestTick
         FuryOfPhantomQuest.OnKill(context);
         RankUpByMasterTrial.OnKill(context, monsterCode);
         RankUpByHestian.OnKill(context, monsterCode);
-        return RankUpByQuestWeapon.OnKill(context, monsterCode);
+        var eliteItem = EliteQuests.OnKill(context, monsterCode);
+        return RankUpByQuestWeapon.OnKill(context, monsterCode) | eliteItem;
     }
 
     // Returns true when the death took a quest item back, which the upkeep then removes.
@@ -216,6 +224,7 @@ public static class QuestTick
 
         RankUpByMasterTrial.StepTimer(context, elapsedMs);
         RankUpByHestian.StepTimer(context, elapsedMs);
+        EliteQuests.StepTimer(context, elapsedMs);
         RankUpByQuestWeapon.CheckLevelSkip(context);
     }
 }
