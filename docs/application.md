@@ -623,8 +623,8 @@ them. The chat reads `ClanOf` without waiting (clan chat, `IClanRoster`). An onl
 live level (views, the chief's capacity, entrusting).
 
 - A player entering the world attaches a link (`IClanLink`): it gets its clan's view (`ClanState`) and its tag
-  (`WorldPlayer.Clan`: id, name, mark version, part of its looks and of `EntityDescription`), and its clan sees it
-  online. Leaving the world detaches it, drops its invitation, and the clan sees it offline.
+  (`WorldPlayer.Clan`: id, name, mark version, part of its looks and of `EntityDescription`, and whether the clan is
+  registered, which clan pets need; every member is retagged when the clan registers), and its clan sees it online. Leaving the world detaches it, drops its invitation, and the clan sees it offline.
 - Founding (`FoundAsync`, at a Clan Master): not in a clan nor in a join cooldown, no other chief on the account, a free
   valid name; the world checks reach, level 40 and 500,000 gold (`PrepareClanPaymentAsync`) and the clan row is stored
   with the paying character (`DurableOperations`). The clan starts registering with a ten-day deadline.

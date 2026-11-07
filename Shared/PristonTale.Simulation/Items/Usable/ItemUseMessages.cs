@@ -27,6 +27,7 @@ public static class ItemUseMessages
         ItemUseStatus.Conflict => GameTextId.OperationConflict,
         ItemUseStatus.StorageFailed => GameTextId.CharacterUnchanged,
         ItemUseStatus.ClanOnly => GameTextId.ClanOnly,
+        ItemUseStatus.RegisteredClanOnly => GameTextId.RegisteredClanOnly,
         ItemUseStatus.NoSpace => GameTextId.NoSpace,
         ItemUseStatus.OverWeight => GameTextId.OverWeight,
         ItemUseStatus.MaleCannotUse => GameTextId.MaleCannotUse,

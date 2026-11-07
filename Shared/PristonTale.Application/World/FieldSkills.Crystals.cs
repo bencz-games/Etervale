@@ -45,6 +45,7 @@ internal sealed partial class FieldSkills
         var lifetimeMs = MonsterCrystals.PetLifetimeMs(level);
         var monster = _host.AddSummon(owned, SpawnPoint(owner), owner.Facing);
         monster.OwnerId = owner.EntityId;
+        monster.ClanId = crystal.Kind == CrystalKind.ClanPet ? owner.Clan?.ClanId ?? 0 : 0;
         monster.ExpiresAtMs = _host.NowMs + (long)lifetimeMs;
         monster.Aggressive = true;
         monster.AiState = MonsterAiState.Idle;

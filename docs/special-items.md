@@ -79,7 +79,7 @@ and draws the result.
 | `LevelTooLow` | Helper pets need level 10; Teleport Core destinations and force orbs have their own levels |
 | `NothingToChange` | Nothing to reset or train, the same hair, no aged item worn, five Gravity Scrolls used, a revealed piece |
 | `Delay` | A billing crystal or soul stone within three seconds of the last crystal; eating while eating; Restoration early |
-| `ClanOnly` | Clan crystals and the Union Core (Etervale has no clans, so they always refuse) |
+| `ClanOnly`, `RegisteredClanOnly` | Clan crystals and the Union Core without a clan, or in a clan still registering |
 | `NoSpace`, `OverWeight` | A gift box without room for a 2 x 2 item or within ten weight (five for the capsule) of the limit |
 | `MaleCannotUse`, `FemaleCannotUse` | A chocolate meant for the other gender |
 | `NotEnoughGold` | A lucky bag without 1000 gold |
@@ -127,7 +127,7 @@ from the inventory. Items without a rule keep the generic tooltip.
 | GP121 Marvel | Bargon 20, Head Cutter 20, Figon 15, King Hopy 15, Hulk 12, Web 10, Dark Specter 5, Iron Guard 3 (event: their event monsters) |
 | GP117-119 | One of four skeletons, chaos or Inferna monsters, uniformly |
 | GP120 Extreme | Omicron 35, Spider Trooper 30, Mountain 20, Omega 15 |
-| GP110, GP122 | Guardian Saint, Guardian Divine for the clan; refused (`ClanOnly`) |
+| GP110, GP122 | Guardian Saint, Guardian Divine for a registered clan's member (a pet slot like the others); the pet belongs to the caller's clan (`MonsterInstance.ClanId`) |
 | GP114-116 | Ricarten militia, Ricarten guard, Bless royal guard as castle mercenaries; refused (`CrystalRefused`) |
 | GP201-209 | Soul stones: a hostile "soul of" monster for 4 min from seven per stone, uniformly |
 

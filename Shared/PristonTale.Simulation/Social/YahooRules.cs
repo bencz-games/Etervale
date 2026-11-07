@@ -25,4 +25,11 @@ public static class YahooRules
     }
 
     public static int KeyStaminaCost(int maxStamina) => maxStamina * KeyStaminaPercent / 100;
+
+    // A cheer heals at most ClanMonsters of the player's clan's monsters within ClanMonsterRange, sharing a quarter of the
+    // player's level among them (at least 1 each).
+    public const int ClanMonsters = 3;
+    public const float ClanMonsterRangeSquared = 3_276_800f;
+
+    public static int ClanMonsterHeal(int level, int count) => Math.Max(1, (level >> 2) / Math.Max(1, count));
 }

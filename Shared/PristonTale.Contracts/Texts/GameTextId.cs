@@ -271,5 +271,6 @@ public enum GameTextId : ushort
     ClanInviteSent = 761,
     ClanBusy = 762,
     ClanMarkUnavailable = 763,
-    ClanMarkChanged = 764
+    ClanMarkChanged = 764,
+    RegisteredClanOnly = 765
 }

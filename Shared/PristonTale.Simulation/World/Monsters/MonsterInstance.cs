@@ -113,6 +113,9 @@ public sealed class MonsterInstance
     public float ModelScale { get; set; }
     public bool IsSummon => OwnerId != 0;
 
+    // A clan pet belongs to its caller's clan (0 for none): a cheer of that clan heals it.
+    public long ClanId { get; set; }
+
     // A monster a game master called up drops nothing when it dies.
     public bool DropsDisabled { get; set; }
 

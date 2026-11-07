@@ -189,6 +189,7 @@ internal static class ClanTests
 
         Assert.True(fixture.Link.View is { State: ClanState.Registered, DeadlineSeconds: 0, Members.Count: 6 } && first.Link.View?.Rank == ClanRank.Member,
             "six members did not register the clan");
+        Assert.True(fixture.Player.Clan is { Registered: true }, "the chief's tag did not carry the registration");
         Assert.True(await service.InviteAsync(chiefId, first.Session.EntityId) == ClanStatus.TargetInClan, "a member was invited again");
 
         Assert.True(await service.SetViceAsync(first.Session.EntityId, "Recruit1", true) == ClanStatus.NotChief

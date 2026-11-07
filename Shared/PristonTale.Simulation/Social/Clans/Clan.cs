@@ -73,5 +73,6 @@ public sealed class Clan
     }
 }
 
-// What a player shows of its clan over its head: the clan, its name and its mark's version (0 the default mark).
-public sealed record ClanTag(long ClanId, string Name, int MarkVersion);
+// What a player shows of its clan over its head: the clan, its name and its mark's version (0 the default mark); the
+// world also reads whether the clan is registered (clan pets need one).
+public sealed record ClanTag(long ClanId, string Name, int MarkVersion, bool Registered = false);

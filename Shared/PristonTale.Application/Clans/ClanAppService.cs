@@ -308,11 +308,16 @@ public sealed class ClanAppService : IClanRoster
                 _byCharacter[online.CharacterId] = clan;
             }
 
-            await Retag(clan, online.CharacterId);
             Announce(clan, GameText.Of(GameTextId.ClanJoined, online.Name));
             if (wasState == ClanState.Registering && state == ClanState.Registered)
             {
+                // Every member's tag now carries the registration.
+                await Task.WhenAll(clan.Members.Select(member => Retag(clan, member.CharacterId)));
                 Announce(clan, GameText.Of(GameTextId.ClanRegistered, clan.Name));
+            }
+            else
+            {
+                await Retag(clan, online.CharacterId);
             }
 
             Publish(clan);
@@ -687,7 +692,7 @@ public sealed class ClanAppService : IClanRoster
     {
         try
         {
-            await _world.SetClanTagAsync(entityId, clan is null ? null : new ClanTag(clan.Id, clan.Name, clan.MarkVersion));
+            await _world.SetClanTagAsync(entityId, clan is null ? null : new ClanTag(clan.Id, clan.Name, clan.MarkVersion, clan.State == ClanState.Registered));
         }
         catch (WorldBusyException)
         {

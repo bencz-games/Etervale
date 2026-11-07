@@ -150,7 +150,7 @@
   <data name="Game.ClanNotRecruiter" xml:space="preserve"><value>Only the clan chief or vice chief can recruit.</value></data>
   <data name="Game.ClanNotRegistered" xml:space="preserve"><value>The clan must be officially registered first.</value></data>
   <data name="Game.ClanNotVice" xml:space="preserve"><value>That member is not the vice chief.</value></data>
-  <data name="Game.ClanOnly" xml:space="preserve"><value>Only members of a regular clan can use this item</value></data>
+  <data name="Game.ClanOnly" xml:space="preserve"><value>Only clan members can use this item</value></data>
   <data name="Game.ClanRegistered" xml:space="preserve"><value>Congratulations! The clan [{0}] is now officially registered.</value></data>
   <data name="Game.ClanTargetInClan" xml:space="preserve"><value>That player is already in a clan.</value></data>
   <data name="Game.ClanTargetLevelTooLow" xml:space="preserve"><value>The new chief must be of your level or higher.</value></data>
@@ -271,6 +271,7 @@
   <data name="Game.QuestMovedOn" xml:space="preserve"><value>The quest has moved on; talk to the NPC again</value></data>
   <data name="Game.QuestName" xml:space="preserve"><value>{0}</value></data>
   <data name="Game.QuestTitle" xml:space="preserve"><value> Q U E S T </value></data>
+  <data name="Game.RegisteredClanOnly" xml:space="preserve"><value>Only members of a registered clan can use this item</value></data>
   <data name="Game.RequestRefused" xml:space="preserve"><value>The request was refused</value></data>
   <data name="Game.RewardReceived" xml:space="preserve"><value>Acquierd items in compensation.</value></data>
   <data name="Game.SameAttributeRunning" xml:space="preserve"><value>An item with the same attribute is already in use</value></data>

@@ -150,7 +150,7 @@
   <data name="Game.ClanNotRecruiter" xml:space="preserve"><value>Só o líder ou o vice-líder do clã pode recrutar.</value></data>
   <data name="Game.ClanNotRegistered" xml:space="preserve"><value>O clã precisa estar oficialmente registrado primeiro.</value></data>
   <data name="Game.ClanNotVice" xml:space="preserve"><value>Esse membro não é o vice-líder.</value></data>
-  <data name="Game.ClanOnly" xml:space="preserve"><value>Só membros de um clã regular podem usar este item</value></data>
+  <data name="Game.ClanOnly" xml:space="preserve"><value>Só membros de um clã podem usar este item</value></data>
   <data name="Game.ClanRegistered" xml:space="preserve"><value>Parabéns! O clã [{0}] agora está oficialmente registrado.</value></data>
   <data name="Game.ClanTargetInClan" xml:space="preserve"><value>Esse jogador já está em um clã.</value></data>
   <data name="Game.ClanTargetLevelTooLow" xml:space="preserve"><value>O novo líder precisa ter o seu nível ou mais.</value></data>
@@ -271,6 +271,7 @@
   <data name="Game.QuestMovedOn" xml:space="preserve"><value>A quest avançou; fale com o NPC de novo</value></data>
   <data name="Game.QuestName" xml:space="preserve"><value>{0}</value></data>
   <data name="Game.QuestTitle" xml:space="preserve"><value> Q U E S T </value></data>
+  <data name="Game.RegisteredClanOnly" xml:space="preserve"><value>Só membros de um clã registrado podem usar este item</value></data>
   <data name="Game.RequestRefused" xml:space="preserve"><value>O pedido foi recusado</value></data>
   <data name="Game.RewardReceived" xml:space="preserve"><value>Itens recebidos como recompensa.</value></data>
   <data name="Game.SameAttributeRunning" xml:space="preserve"><value>Um item com o mesmo atributo já está em uso</value></data>

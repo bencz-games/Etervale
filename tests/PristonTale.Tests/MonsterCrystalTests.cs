@@ -23,6 +23,7 @@ internal static class MonsterCrystalTests
         yield return ("a crystal calls an owned pet beside its user, consumes itself and plays the return sparkle", SummonAsync);
         yield return ("billing crystals wait for the shared delay; towns, clan crystals, mercenaries and unknown souls refuse", RefusalsAsync);
         yield return ("a crystal pet hunts the nearest wild monster, credits its owner and dies when it expires", PetHuntsAsync);
+        yield return ("a clan crystal needs a registered clan; its pet belongs to the clan and a member's cheer heals up to three of them", ClanPetsAsync);
         yield return ("a crystal pet follows its owner, shows in the owner's status bar and dies when dismissed, with the owner's death or left behind",
             FollowsAndDismissesAsync);
         yield return ("every pet has its own icon, a mixed crystal's pet shows its monster's crystal, and pets do not stand in each other", PetsApartAsync);
@@ -108,6 +109,12 @@ internal static class MonsterCrystalTests
         var clan = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("GP110")));
         await harness.AdvanceAsync(clan);
         Assert.True((await clan).Outcome.Status == ItemUseStatus.ClanOnly && harness.Item("GP110") is not null, "clan crystal without a clan");
+        harness.Player.Clan = new Simulation.Social.Clans.ClanTag(7, "Lions", 0);
+        var registering = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("GP110")));
+        await harness.AdvanceAsync(registering);
+        Assert.True((await registering).Outcome.Status == ItemUseStatus.RegisteredClanOnly && harness.Item("GP110") is not null,
+            "clan crystal in a clan still registering");
+        harness.Player.Clan = null;
         var mercenary = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("GP114")));
         await harness.AdvanceAsync(mercenary);
         Assert.True((await mercenary).Outcome.Status == ItemUseStatus.CrystalRefused && harness.Item("GP114") is not null, "mercenary without a siege");
@@ -137,6 +144,26 @@ internal static class MonsterCrystalTests
         pet.ExpiresAtMs = 0;
         scenario.Run(2);
         Assert.True(!pet.IsAlive, "an expired pet kept fighting");
+        return Task.CompletedTask;
+    }
+
+    private static Task ClanPetsAsync()
+    {
+        var scenario = SkillScenario.Create(PlayerClass.Fighter, 20, null, null, Hopy());
+        scenario.Player.Clan = new Simulation.Social.Clans.ClanTag(7, "Lions", 0, Registered: true);
+        scenario.Field.CallCrystalMonster(scenario.Player, "GP110", "HOPY 2");
+        scenario.Field.CallCrystalMonster(scenario.Player, "GP101", "HOPY 2");
+        var pets = scenario.Field.MonstersForInspection.Where(monster => monster.OwnerId == scenario.Player.EntityId).ToArray();
+        var clanPet = pets.Single(monster => monster.ClanId == 7);
+        var pet = pets.Single(monster => monster.ClanId == 0);
+        clanPet.Life = 1;
+        pet.Life = 1;
+        scenario.Player.QueueYahoo();
+        scenario.Run(1);
+        Assert.True(clanPet.Life == 1 + Simulation.Social.YahooRules.ClanMonsterHeal(20, 1) && pet.Life == 1,
+            $"the cheer did not heal the clan pet alone ({clanPet.Life}, {pet.Life})");
+        Assert.True(Simulation.Social.YahooRules.ClanMonsterHeal(20, 3) == 1 && Simulation.Social.YahooRules.ClanMonsterHeal(100, 3) == 8,
+            "the cheer's heal is not a quarter of the level shared");
         return Task.CompletedTask;
     }
 
