@@ -94,7 +94,9 @@ quest data the importer reads, and the client's quest dialog, quest window, clas
   class-specialised items and potions. Past level 39 the instructor drops an unfinished one.
 - Fury of Phantom (`FuryOfPhantomQuest`, 1013 from level 100): 50 kills in the Heart of Perum (field 28), a duel with
   Fury's level 118 form, 100 kills in the Galluvia valley (field 31), duels with the 119 and 120 forms; each win sends
-  the player to Pillai; the reward is one of eight weapons (their quest variants).
+  the player to Pillai; the reward is one of eleven weapons, any class's (their quest variants): the axe, talon,
+  hammer, scythe, bow, sword, javelin and staff of level 100, then the Assassin's dagger, the Shaman's phantom and the
+  Martial Artist's vambrace.
 - Wing exchange (`WingQuest`, an NPC with a warp gate service of value 0 or 1): the held wing (none, then metal up to
   chaos), two crystals and 3,000 to 80,000 gold for the next wing.
 - Elite chains (`EliteQuests`, `QuestCode.Elite106A`..`Elite114G`, completed in `EliteLog`): three chains of 6, 8 and 7

@@ -610,8 +610,8 @@ internal sealed class HudCaptureProbe : Game
     private QuestOutcome QuestReply(QuestCommand command)
     {
         var rewards = new[] { "Minotaur Axe", "Extreme Talon", "Dragon Bone Hammer", "Hellfire Scythe", "Revenge Bow", "Immortal Sword", "Salamander Javelin",
-            "Gothic Staff" };
-        var documents = Enumerable.Range(1, 8).Select(index => $"haQuestFuryItem{index}").ToArray();
+            "Gothic Staff", "Enigma Dagger", "Kahsehtha Phantom", "Arina Vambrace" };
+        var documents = Enumerable.Range(1, 11).Select(index => $"haQuestFuryItem{index}").ToArray();
         QuestPrompt? prompt = _quest switch
         {
             ProbeQuest.Dialog or ProbeQuest.Confirm => QuestSteps.Confirm(QuestCode.Level30, 0, "LevelQuest30start", QuestTexts.SearchQuest),
