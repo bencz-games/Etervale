@@ -489,7 +489,7 @@ Flow (`NpcAppService.RequestAsync`):
 | --- | --- | --- |
 | Shop | Open, Refresh, Buy, Sell, Repair, RepairAll, Close | `NpcShopRules`: buy own stock at catalog price in its shop form within the weight limit; sell at a fifth of the copy's worn value (no quest items); repair an eighth of lost value; gold cap `MoneyLimits.CarryLimit` |
 | Warehouse | Open, Refresh, Deposit, Withdraw, Move, DepositGold, WithdrawGold, Close | `WarehouseStorage`: per account, 9x9 grid, 100 items, weight 1000, 100,000,000 gold; quest items and materials stay on the character; no opening or withdrawing over the weight limit |
-| Teleporter | Open, Teleport, Close | `TeleportRoutes`: route 1 (Mushroom Cave 100, Beehive Cave 100, Cursed Land 500, Forbidden Land 1000 gold) and route 3 (Milter: Endless Tower 1F, free); level must reach the destination field's `LimitLevel` |
+| Teleporter | Open, Teleport, Close | `TeleportRoutes`: route 1 (Mushroom Cave 100, Beehive Cave 100, Cursed Land 500, Forbidden Land 1000 gold), route 2 (Bless Castle, 500 gold per level) and route 3 (Milter: Endless Tower 1F, free); level must reach the destination field's `LimitLevel` |
 | Skill master | (dialog only here) | Learning goes through `ProgressionCommand.LearnSkill` with the NPC's entity id; the class change goes through the quests |
 | Quest giver, quest script, wing exchange (warp gate 0 or 1) | (dialog only here) | Answered by `QuestAppService` talks, see [quests.md](quests.md) |
 | Aging, mixing and alchemy | Open, Age / Mix / Refine, Close | `AgingWork`, `MixingWork`, see [world.md](world.md) |
@@ -691,8 +691,9 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
   from the tick, whenever the owner, the league mode, the siege's state or end, or the world's view of the siege
   changed (the best clans named, the running siege's seconds left counted then; `CastleState` on the wire). Attaching
   and announcing share one lock, so that no player keeps an older castle than the last.
-- Not yet: the owner's window, the tax on fees and the treasury's movements, the crown over the owner clan, the castle
-  teleport and the owner's wing gate destination.
+- The owner clan's members see Bless Castle's stone on the wing warp map (the world told the owner, `SetOwner`), and
+  route 2's teleporter takes anyone into the castle for 500 gold per level ([world.md](world.md)).
+- Not yet: the owner's window, the tax on fees and the treasury's movements, the crown over the owner clan.
 
 The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner
 and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its spawns

@@ -12,7 +12,7 @@ public sealed partial class WorldServer
     {
         return EnqueueAsync<PreparedWingGateOperation?>(session.EntityId, () =>
             TryGetPlaying(session, out var connection) && _fields.TryGetValue(connection.FieldId, out var field)
-                ? WingGateTransactions.Prepare(session, connection.Player, field, _catalog, command)
+                ? WingGateTransactions.Prepare(session, connection.Player, field, _catalog, command, Volatile.Read(ref _castleOwnerClanId))
                 : null);
     }
 

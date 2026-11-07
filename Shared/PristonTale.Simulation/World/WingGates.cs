@@ -12,8 +12,9 @@ public sealed record WingGateDestination(int Index, int FieldCode, string Name, 
 
 // The wing warp gates. Stepping on a warp stone (a FieldWarpGate with SpecialEffect 2) opens a map of the stones a
 // carried wing reaches: without a wing Ricarten and Pillai, with one the first Reach stones of the list, the best wing
-// carried counting. Ricarten, Pillai and the field the player stands in are free; elsewhere the trip costs the wing's
-// fee. The traveller lands on the exit of the destination's stone.
+// carried counting; a member of the clan holding Bless Castle also sees the castle's stone, whatever wing it carries.
+// Ricarten, Pillai and the field the player stands in are free; elsewhere the trip costs the wing's fee. The traveller
+// lands on the exit of the destination's stone.
 public static class WingGates
 {
     // A warp gate's special effect: a delayed warp with the return sparkle, or a wing warp stone.
@@ -40,6 +41,12 @@ public static class WingGates
         new(7, 29, "Eura Village", 155, 65, "yura", 90),
         new(8, 37, "Land of Chaos", 140, 225, "chaoticpost", 95)
     ];
+
+    // Bless Castle's stone, for the owner clan's members only.
+    public static readonly WingGateDestination Castle = new(Destinations.Count, FieldCodes.Castle, "Bless Castle", 69, 207, "B_Castle");
+
+    // Every stone the map may show, the castle's last.
+    public static readonly IReadOnlyList<WingGateDestination> All = [.. Destinations, Castle];
 
     // The wings from Metal to Extreme: how many stones each reaches and the fee it charges.
     public static readonly IReadOnlyList<WingGateWing> Wings =
@@ -89,9 +96,13 @@ public static class WingGates
 
     public static bool TryGet(int index, out WingGateDestination destination)
     {
-        destination = index >= 0 && index < Destinations.Count ? Destinations[index] : null;
+        destination = index >= 0 && index < All.Count ? All[index] : null;
         return destination is not null;
     }
+
+    // Whether the map offers the stone to a player with this wing, a member of the castle's owner clan or not.
+    public static bool Offers(WingGateDestination destination, WingGateWing wing, bool castleOwner) =>
+        ReferenceEquals(destination, Castle) ? castleOwner : destination.Index < Reach(wing);
 
     // What a trip to the destination costs a player with this wing standing in the given field.
     public static long Fee(WingGateWing wing, WingGateDestination destination, int currentField) =>

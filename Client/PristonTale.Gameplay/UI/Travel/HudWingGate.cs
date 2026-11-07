@@ -13,7 +13,7 @@ using PristonTale.Gameplay.Localization;
 namespace PristonTale.Gameplay.UI.Travel;
 
 // The wing warp map a warp stone opens: WG_map.tga (256 x 256) at (472, 120) with the 16 x 16 icon of every stone the
-// carried wing reaches (WingGates), three rings that grow and fade from the hovered icon, the help box at (50, 45) with
+// carried wing reaches, and Bless Castle's for a member of the clan holding it (WingGates.Offers, CastleOwner), three rings that grow and fade from the hovered icon, the help box at (50, 45) with
 // the hovered stone's name and document (the warp gate's fee table while none is hovered) and the cancel button at the
 // map's lower right. Choosing a stone checks the level and the fee, then asks for confirmation before the trip is sent;
 // the server checks the stone, wing, level and fee again.
@@ -52,6 +52,8 @@ public sealed class HudWingGate(IClientLog log)
     public Func<int, int> RequiredLevel { get; set; } = static _ => 0;
 
     public bool IsOpen { get; private set; }
+
+    public bool CastleOwner { get; set; }
     public bool Confirming => _confirm is not null;
     public bool Pending => _request.Pending;
     public string Message { get; private set; } = "";
@@ -101,10 +103,10 @@ public sealed class HudWingGate(IClientLog log)
             return null;
         }
 
-        var reach = WingGates.Reach(Wing(state));
-        foreach (var destination in WingGates.Destinations)
+        var wing = Wing(state);
+        foreach (var destination in WingGates.All)
         {
-            if (destination.Index < reach && IconHover(destination).Contains(pointer))
+            if (WingGates.Offers(destination, wing, CastleOwner) && IconHover(destination).Contains(pointer))
             {
                 return destination;
             }
@@ -208,10 +210,10 @@ public sealed class HudWingGate(IClientLog log)
     private void DrawMap(HudPainter painter, OwnerState state, WingGateDestination hovered, Point pointer, double nowMs)
     {
         painter.Sprite(WingGates.MapArt, MapX, MapY);
-        var reach = WingGates.Reach(Wing(state));
-        foreach (var destination in WingGates.Destinations)
+        var wing = Wing(state);
+        foreach (var destination in WingGates.All)
         {
-            if (destination.Index < reach)
+            if (WingGates.Offers(destination, wing, CastleOwner))
             {
                 var icon = Icon(destination);
                 painter.Sprite(WingGates.IconArt, icon.X, icon.Y);

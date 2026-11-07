@@ -15,13 +15,14 @@ public sealed record PreparedWingGateOperation(
     TeleportArrival? Arrival = null)
     : PreparedCharacterOperation<WingGateOutcome>(Original, Candidate, Snapshot, Outcome);
 
-// Runs on the world tick. A living player standing on a warp stone travels to a stone its best carried wing reaches
-// (WingGates) when its level meets the destination field's; the candidate pays the fee and the snapshot places the
-// character at the destination stone's exit, so the trip is stored before the world moves the player.
+// Runs on the world tick. A living player standing on a warp stone travels to a stone its best carried wing reaches, or
+// to Bless Castle's for a member of the clan holding it (WingGates.Offers), when its level meets the destination field's;
+// the candidate pays the fee and the snapshot places the character at the destination stone's exit, so the trip is stored
+// before the world moves the player.
 internal static class WingGateTransactions
 {
     public static PreparedWingGateOperation Prepare(PlayerSession session, WorldPlayer player, FieldInstance field, WorldCatalog world,
-        WingGateCommand command)
+        WingGateCommand command, long castleOwnerClanId)
     {
         var original = player.Character;
         if (player.IsDead || session.Loaded is null || !WingGates.TryGet(command.Destination, out var destination)
@@ -36,7 +37,7 @@ internal static class WingGateTransactions
         }
 
         var wing = WingGates.BestWing(Carried(original));
-        if (destination.Index >= WingGates.Reach(wing))
+        if (!WingGates.Offers(destination, wing, Simulation.Social.Castle.CastleSiegeRules.HoldsCastle(player.Clan?.ClanId ?? 0, castleOwnerClanId)))
         {
             return Final(original, command, WingGateStatus.NotReached);
         }

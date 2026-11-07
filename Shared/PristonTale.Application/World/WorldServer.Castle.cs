@@ -10,8 +10,11 @@ public sealed partial class WorldServer : ICastleWorld
 {
     private CastleSiege? _castleSiege;
     private CastleSiegeView _castleSiegeView = CastleSiegeView.None;
+    private long _castleOwnerClanId;
 
     public CastleSiegeView Siege => Volatile.Read(ref _castleSiegeView);
+
+    public void SetOwner(long clanId) => Volatile.Write(ref _castleOwnerClanId, clanId);
 
     public Task OpenSiegeAsync(CastleSiegeOrder order)
     {
@@ -61,7 +64,7 @@ public sealed partial class WorldServer : ICastleWorld
             foreach (var connection in _connections.Values.Where(connection => connection.FieldId == FieldCodes.Castle).ToList())
             {
                 var player = connection.Player;
-                if (player.IsDead || ownerClanId != 0 && player.Clan?.ClanId == ownerClanId
+                if (player.IsDead || CastleSiegeRules.HoldsCastle(player.Clan?.ClanId ?? 0, ownerClanId)
                     || FieldArrival(FieldCodes.Castle, Random.Shared) is not { } arrival)
                 {
                     continue;

@@ -216,12 +216,12 @@ internal static class NpcServiceTransactions
             return NpcServiceStatus.Rejected;
         }
 
-        if (!candidate.TryChangeMoney(-destination.Price))
+        if (!candidate.TryChangeMoney(-destination.PriceFor(candidate.Level)))
         {
             return NpcServiceStatus.NotEnoughGold;
         }
 
-        var start = target.Arrival;
+        var start = target.ArrivalFor(Random.Shared);
         arrival = new TeleportArrival(target.FieldCode, new Vector3(start.X, 0f, start.Z));
         return NpcServiceStatus.Ok;
     }
@@ -242,7 +242,7 @@ internal static class NpcServiceTransactions
                 Quotes = Quotes(character)
             },
             NpcServiceKind.Warehouse => new NpcServiceReply(outcome) { Warehouse = storage!.View() },
-            NpcServiceKind.Teleporter => new NpcServiceReply(outcome) { Destinations = Destinations(service, world) },
+            NpcServiceKind.Teleporter => new NpcServiceReply(outcome) { Destinations = Destinations(service, world, character.Level) },
             NpcServiceKind.Manufacture when command.Action == NpcServiceAction.Refresh => new NpcServiceReply(outcome)
             {
                 Catalog = ManufactureProducts(character, command.ItemId, items)
@@ -320,13 +320,13 @@ internal static class NpcServiceTransactions
         return new ShopQuotes(character.InventoryRevision, quotes);
     }
 
-    private static IReadOnlyList<TeleportOffer> Destinations(NpcService service, WorldCatalog world)
+    private static IReadOnlyList<TeleportOffer> Destinations(NpcService service, WorldCatalog world, int level)
     {
         var offers = new List<TeleportOffer>();
         foreach (var destination in TeleportRoutes.For(service.Value))
         {
-            var level = world.TryGetFieldByCode(destination.FieldCode, out var field) ? field.LimitLevel : 0;
-            offers.Add(new TeleportOffer(destination.Index, destination.FieldCode, destination.Name, destination.Price, level));
+            var limit = world.TryGetFieldByCode(destination.FieldCode, out var field) ? field.LimitLevel : 0;
+            offers.Add(new TeleportOffer(destination.Index, destination.FieldCode, destination.Name, destination.PriceFor(level), limit));
         }
 
         return offers;

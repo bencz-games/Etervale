@@ -543,8 +543,10 @@ or the client's view was stale), the covered one going to the moved item's cell 
 (`OverWeight`), and an overweight character cannot open the warehouse (`NpcServiceTransactions.Check`).
 
 Teleport routes (`TeleportRoutes`): route 0 means route 1. Route 1: index 1 field 0 "Mushroom Cave" 100 gold, 2 field 18
-"Beehive Cave" 100, 3 field 7 "Cursed Land" 500, 4 field 12 "Forbidden Land" 1000. The destination field's
-`LimitLevel` applies; arrival is its first start point (or `Center`) placed on the floor. The cave destinations are the
+"Beehive Cave" 100, 3 field 7 "Cursed Land" 500, 4 field 12 "Forbidden Land" 1000. Route 2 (the castle's
+teleporter): index 1 field 33 "Bless Castle", 500 gold per level of the traveller (`TeleportDestination.PricePerLevel`).
+The destination field's `LimitLevel` applies; arrival is its first start point (a random one in a castle, `FieldDef.ArrivalFor`; `Center`
+without one) placed on the floor. The cave destinations are the
 fields that hold the cave entrances: field 0 (`fore-3`) has the warp gate to `Tcave`, field 18 (`forever-fall-03`) the
 one to `Mcave`.
 
@@ -649,8 +651,10 @@ Ruinen Village (6), Navisko (9), Forbidden Land (12), Eura (29), Land of Chaos (
   units of a stone of its field, the reach, the level and the gold. The candidate pays the fee and is stored at the
   destination, then the commit takes the gold and moves the player (`Arrive`, also within the same field) to the
   destination stone's exit (its first start point when it has no stone).
-- Bless Castle's stone has no map entry: the castle destination belongs to the castle's owner clan; the owner is
-  kept by `CastleAppService` ([application.md](application.md#bless-castle)), and the stone does not read it yet.
+- Bless Castle's stone (`WingGates.Castle`, map spot 69, 207, document `B_Castle`) shows only to a member of the
+  clan holding the castle, whatever wing it carries (`WingGates.Offers`); the trip costs the wing's fee as any other.
+  The world knows the owner from `CastleAppService` (`ICastleWorld.SetOwner`,
+  [application.md](application.md#bless-castle)), the client from its `CastleState`.
 
 `CharacterSoundCodes` names every sound family code a rule or sound reads (NPCs, castle objects, and the monsters
 with rules of their own); `CharacterSoundCodes.Resolve(key)` maps the authored sound keyword of a monster or NPC to its

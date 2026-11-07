@@ -112,6 +112,9 @@ public static class CastleSiegeRules
         _ => -1
     };
 
+    // A player of this clan belongs to the clan holding the castle.
+    public static bool HoldsCastle(long clanId, long ownerClanId) => ownerClanId != 0 && clanId == ownerClanId;
+
     public static bool InBattleZone(Vector3 position) => position.Z <= BattleLineZ;
 
     // Two players fight each other in the battle zone unless they share a clan.

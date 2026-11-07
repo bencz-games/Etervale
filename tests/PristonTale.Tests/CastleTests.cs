@@ -260,7 +260,8 @@ internal static class CastleTests
         var told = new List<CastleBroadcast>();
         fixture.Castle.Attach(5, new Told(told));
         await fixture.TickAsync(Off);
-        Assert.True(told is [{ OwnerClanId: 0 }, { OwnerClanId: 7, OwnerName: "Lions", Siege: SiegeState.Peace, League: false }], "the castle was not told at once");
+        Assert.True(told is [{ OwnerClanId: 0 }, { OwnerClanId: 7, OwnerName: "Lions", Siege: SiegeState.Peace, League: false }] && fixture.World.Owner == 7,
+            "the castle was not told at once, or the world not told its owner");
         await fixture.TickAsync(Off, TimeSpan.FromSeconds(1));
         Assert.True(told.Count == 2, "the same castle was told twice");
         fixture.Clans.Names[9] = "Tigers";
@@ -271,13 +272,18 @@ internal static class CastleTests
             && running.Top is [{ ClanId: 9, Name: "Tigers" }], "the running siege was not told");
         await fixture.TickAsync(League, TimeSpan.FromSeconds(1));
         Assert.True(told[^1] is { League: true, Siege: SiegeState.Running }, "the league mode was not told");
-        fixture.Castle.Detach(5);
-        await fixture.Castle.EndSiegeAsync();
+        Assert.True(await fixture.Castle.EndSiegeAsync() && fixture.World.Owner == 7, "the world lost its owner");
+        await fixture.TickAsync(Off, TimeSpan.FromSeconds(CastleRules.OverSeconds));
+        Assert.True(await fixture.Castle.SetOwnerAsync(9) == CastleOwnerResult.Set, "the owner did not change");
         await fixture.TickAsync(Off, TimeSpan.FromSeconds(1));
-        Assert.True(told[^1].Siege == SiegeState.Running, "a player that left was still told");
+        Assert.True(fixture.World.Owner == 9 && told[^1].OwnerClanId == 9, "the world was not told the new owner");
+        fixture.Castle.Detach(5);
+        await fixture.Castle.StartSiegeAsync();
+        await fixture.TickAsync(Off, TimeSpan.FromSeconds(1));
+        Assert.True(told[^1].Siege == SiegeState.Peace, "a player that left was still told");
         var late = new List<CastleBroadcast>();
         fixture.Castle.Attach(6, new Told(late));
-        Assert.True(late is [{ Siege: SiegeState.Over, SecondsLeft: 0, Top.Length: 0 }], "a player arriving was not told the castle as it is");
+        Assert.True(late is [{ Siege: SiegeState.Running, OwnerClanId: 9 }], "a player arriving was not told the castle as it is");
     }
 
     private sealed class Told(List<CastleBroadcast> told) : ICastleLink
@@ -397,6 +403,10 @@ internal static class CastleTests
         public CastleSiegeOrder? Opened { get; private set; }
 
         public List<CastleArrival> Arrivals { get; } = [];
+
+        public long Owner { get; private set; }
+
+        public void SetOwner(long clanId) => Owner = clanId;
 
         public Task OpenSiegeAsync(CastleSiegeOrder order)
         {

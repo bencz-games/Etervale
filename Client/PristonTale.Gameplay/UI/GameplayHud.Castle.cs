@@ -13,6 +13,8 @@ public sealed partial class GameplayHud
 
     public CastleInfo Castle => _siegeBoard.Castle;
 
+    private bool HoldsCastle => CastleSiegeRules.HoldsCastle(Combat.OwnClan, _siegeBoard.Castle.OwnerClanId);
+
     public void ObserveCastle(PresenceUpdate update)
     {
         if (update.Castle is not { } castle)
@@ -22,9 +24,10 @@ public sealed partial class GameplayHud
 
         var ended = _siegeBoard.Castle.Siege == SiegeState.Running && castle.Siege != SiegeState.Running;
         _siegeBoard.Apply(castle, _clock.Elapsed.TotalMilliseconds);
+        _wingGate.CastleOwner = HoldsCastle;
         if (ended && InCastleField)
         {
-            _notice.Show(ClientText.Get(Combat.OwnClan != 0 && castle.OwnerClanId == Combat.OwnClan ? "Siege.Won" : "Siege.Ended"));
+            _notice.Show(ClientText.Get(HoldsCastle ? "Siege.Won" : "Siege.Ended"));
         }
     }
 }

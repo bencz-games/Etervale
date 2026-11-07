@@ -188,6 +188,9 @@ public sealed record FieldDef(
     // Where a traveller arrives in the field (an entry, a teleport, a warp, a quest's travel): its first start point,
     // else its centre.
     public FieldPoint Arrival => StartPoints.Count > 0 ? StartPoints[0] : Center;
+
+    // Where a traveller arrives: a random start point of a castle, else Arrival.
+    public FieldPoint ArrivalFor(Random random) => State == FieldState.Castle && StartPoints.Count > 0 ? StartPoints[random.Next(StartPoints.Count)] : Arrival;
     public IReadOnlyList<FieldGate> Gates { get; init; } = [];
     public IReadOnlyList<FieldWarpGate> WarpGates { get; init; } = [];
     public IReadOnlyList<FieldAmbient> Ambients { get; init; } = [];

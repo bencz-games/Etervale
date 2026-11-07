@@ -492,6 +492,11 @@ public sealed class CastleAppService
                 return;
             }
 
+            if (record.OwnerClanId != last.OwnerClanId)
+            {
+                _world.SetOwner(record.OwnerClanId);
+            }
+
             _announcedWorld = world;
             _announcedEnd = end;
             var board = running && world.Running;

@@ -21,6 +21,7 @@ internal static class WingGateTests
         yield return ("every stone the wing map lists exists, and a trip lands on the exit of the destination's stone", StonesAsync);
         yield return ("a trip from a stone pays the wing's fee, is stored and lands on the destination stone; a boxed wing counts", TravelAsync);
         yield return ("a trip off the stone, beyond the wing, below the level or without the fee changes nothing", RefusalsAsync);
+        yield return ("the castle's stone takes a member of the clan holding it, with the wing's fee, and refuses everyone else", CastleAsync);
         yield return ("the wing gate request and result packets round trip", PacketsAsync);
         yield return ("field and gate level limits: the deserts, the dungeons, the iron, ice and lost fields", LimitsAsync);
     }
@@ -36,7 +37,11 @@ internal static class WingGateTests
         Assert.True(WingGates.Fee(silver, forbidden, Ricarten) == 300 && WingGates.Fee(silver, pillai, Ricarten) == 0
             && WingGates.Fee(silver, forbidden, forbidden.FieldCode) == 0 && WingGates.Fee(null, pillai, Ricarten) == 0, "the fees differ");
         Assert.True(WingGates.RequiredLevel(forbidden, 0) == 55 && WingGates.RequiredLevel(pillai, 0) == 0
-            && !WingGates.TryGet(9, out _) && !WingGates.TryGet(-1, out _), "the destinations' levels or bounds differ");
+            && !WingGates.TryGet(WingGates.All.Count, out _) && !WingGates.TryGet(-1, out _), "the destinations' levels or bounds differ");
+        Assert.True(WingGates.TryGet(WingGates.Destinations.Count, out var castle) && castle == WingGates.Castle && castle.FieldCode == FieldCodes.Castle
+            && WingGates.Offers(castle, null, castleOwner: true) && !WingGates.Offers(castle, best, castleOwner: false)
+            && WingGates.Offers(pillai, null, castleOwner: false) && !WingGates.Offers(forbidden, null, castleOwner: true),
+            "the castle's stone is not offered to its owner clan alone, whatever the wing");
         return Task.CompletedTask;
     }
 
@@ -127,6 +132,21 @@ internal static class WingGateTests
         Assert.True((await Travel(away, 1)).Outcome.Status == WingGateStatus.NotAtStone && away.Session.FieldId == Ricarten,
             "a trip away from the stone was accepted");
         Assert.True((await Travel(away, 12)).Outcome.Status == WingGateStatus.Rejected, "an unknown destination was accepted");
+    }
+
+    private static async Task CastleAsync()
+    {
+        var outsider = await OnStone(60, 10_000);
+        outsider.World.SetOwner(7);
+        Assert.True((await Travel(outsider, WingGates.Castle.Index)).Outcome.Status == WingGateStatus.NotReached && outsider.Session.FieldId == Ricarten,
+            "a player outside the owner clan reached the castle's stone");
+
+        var member = await OnStone(60, 10_000, "QW102");
+        member.World.SetOwner(7);
+        member.Player.Clan = new Simulation.Social.Clans.ClanTag(7, "Lions", 0, Registered: true);
+        var trip = await Travel(member, WingGates.Castle.Index);
+        Assert.True(trip.Outcome.Ok && trip.Outcome.Fee == 300 && member.Session.FieldId == FieldCodes.Castle && member.Session.Character!.Money == 9_700,
+            $"the owner clan's member did not reach the castle for the wing's fee: {trip.Outcome}");
     }
 
     private static Task PacketsAsync()

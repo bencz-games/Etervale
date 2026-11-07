@@ -40,6 +40,7 @@ internal static class NpcServiceTests
         yield return ("shop buy, sell and repair are durable, idempotent and validated on the server", ShopAsync);
         yield return ("warehouse deposit, withdraw, move and gold persist with the character and reject conflicts", WarehouseAsync);
         yield return ("teleporters charge, move the character and honour field level limits", TeleportAsync);
+        yield return ("the castle teleport costs 500 gold per level and leads into Bless Castle", CastleTeleportAsync);
         yield return ("cursed Milter sends a character of the Endless Tower's level to its first floor for free", MilterAsync);
         yield return ("SQLite warehouse repository writes the character and warehouse together under a revision", RepositoryAsync);
     }
@@ -405,6 +406,25 @@ internal static class NpcServiceTests
             && fixture.Characters.Record.FieldId == 0 && fixture.Characters.Record.Money == 900, "teleport did not charge and move durably");
         var remaining = fixture.Player.Cooldowns.RemainingMs(skill, world.FieldNowMs(0));
         Assert.True(remaining is > 59_000 and <= 60_000, $"teleport did not carry the cooldown to the new field clock ({remaining} ms left)");
+    }
+
+    private static async Task CastleTeleportAsync()
+    {
+        var fixture = await Fixture.CreateAsync(100_000, [new NpcService(NpcServiceKind.Teleporter, 2)], new WorldCatalog());
+        var (world, npc, session, service) = (fixture.World, fixture.NpcId, fixture.Session, fixture.Npc);
+        session.Character!.AwardExperience(Simulation.Progression.ExperienceTable.ForLevel(50));
+        var level = session.Character.Level;
+        Assert.True(level == 50, "the fixture did not reach level 50");
+        var open = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, new NpcServiceCommand(Guid.NewGuid(), npc,
+            NpcServiceKind.Teleporter, NpcServiceAction.Open)));
+        Assert.True(open.Outcome.Ok && open.Destinations is [{ FieldCode: FieldCodes.Castle } only] && only.Price == 500L * level,
+            "the castle teleport is not offered at 500 gold per level");
+        var trip = new NpcServiceCommand(Guid.NewGuid(), npc, NpcServiceKind.Teleporter, NpcServiceAction.Teleport, session.Character.InventoryRevision, Anchor: 1);
+        var moved = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, trip));
+        var castle = new WorldCatalog().GetFieldByCode(FieldCodes.Castle);
+        Assert.True(moved.Outcome.Ok && moved.Arrival is { FieldCode: FieldCodes.Castle } arrival && session.Character.Money == 100_000 - 500L * level
+            && castle.StartPoints.Any(point => point.X == arrival.Position.X && point.Z == arrival.Position.Z),
+            "the castle teleport did not charge the level's price and move onto a start point of the castle");
     }
 
     private static async Task MilterAsync()

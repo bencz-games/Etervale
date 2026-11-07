@@ -106,10 +106,7 @@ public sealed partial class WorldServer
             return null;
         }
 
-        var points = definition.StartPoints;
-        var point = points.Count == 0 ? definition.Center
-            : definition.State == FieldState.Castle ? points[random.Next(points.Count)]
-            : points[0];
+        var point = definition.ArrivalFor(random);
         return new GmPlacement(fieldCode, new Vector3(point.X, float.NaN, point.Z));
     }
 

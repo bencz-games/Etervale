@@ -458,7 +458,7 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
 - Held items (`GameScene.HeldItems.cs`): the weapon and off-hand glow and the class-up lights of every drawn player
   ([effects.md](effects.md#held-item-glow)).
 - Wing warp map (`HudWingGate`): `WG_map.tga` (256 x 256) at (472, 120) with the icon of each stone the carried wing
-  reaches, three rings growing and fading from the hovered icon, the help box at (50, 45) with the hovered stone's name
+  reaches (and Bless Castle's for a member of the clan holding it), three rings growing and fading from the hovered icon, the help box at (50, 45) with the hovered stone's name
   and `WarpGateDoc` document (the fee table of `Default.sin`, its `%d` filled with the wings' fees, while none is
   hovered), and the cancel button at the map's lower right. A click checks the level and the gold, then asks for
   confirmation before `IPlayChannel.TravelWingGateAsync`; a refusal shows as a notice.

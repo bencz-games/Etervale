@@ -1,10 +1,16 @@
 namespace PristonTale.Simulation.World.Npcs;
 
-public sealed record TeleportDestination(int Index, int FieldCode, string Name, long Price);
+// A teleport's destination; its fee is the price plus the price per level times the traveller's level.
+public sealed record TeleportDestination(int Index, int FieldCode, string Name, long Price)
+{
+    public long PricePerLevel { get; init; }
 
-// NPC teleports by route (the teleporter's Value). Route 1 is the town teleporter's list of hunting grounds; route 3 is
-// cursed Milter's free way into the Endless Tower's first floor. A destination also requires the level of its field. The
-// route to Bless Island (2) leads to event content Etervale does not run yet.
+    public long PriceFor(int level) => Price + PricePerLevel * Math.Max(0, level);
+}
+
+// NPC teleports by route (the teleporter's Value). Route 1 is the town teleporter's list of hunting grounds; route 2 is the
+// way into Bless Castle, 500 gold per level; route 3 is cursed Milter's free way into the Endless Tower's first floor. A
+// destination also requires the level of its field.
 public static class TeleportRoutes
 {
     private static readonly IReadOnlyDictionary<int, IReadOnlyList<TeleportDestination>> Routes =
@@ -16,6 +22,10 @@ public static class TeleportRoutes
                 new(2, FieldCodes.ForeverFall3, "Beehive Cave", 100),
                 new(3, FieldCodes.Ruin1, "Cursed Land", 500),
                 new(4, FieldCodes.Desert4, "Forbidden Land", 1000)
+            ],
+            [2] =
+            [
+                new(1, FieldCodes.Castle, "Bless Castle", 0) { PricePerLevel = 500 }
             ],
             [3] =
             [
