@@ -35,6 +35,7 @@ internal static class CastleSiegeTests
             PvpAsync);
         yield return ("damage skills reach players in the battle zone: a bolt on a foe, a ball on the foes around it, never a clan mate or the north",
             SkillsAsync);
+        yield return ("the soul fountain's turns go round the owner clan's members at it, and a recipient that left gets nothing", FountainTurnsAsync);
         yield return ("the owner clan's members hold the clan skill in force, renewed every minute; others and an old skill lose it", ClanSkillAsync);
         yield return ("the easy siege weakens the defenders, closing a siege removes them, ending it sends players outside the owner clan to the arrival area",
             EndAsync);
@@ -320,6 +321,36 @@ internal static class CastleSiegeTests
         fighter.Run(20 * 4, () => struck.Life < struckLife);
         Assert.True(struck.Life < struckLife, "the weapon skill did not hurt the foe");
         return Task.CompletedTask;
+    }
+
+    private static async Task FountainTurnsAsync()
+    {
+        var harness = await SpecialItemTests.Harness.CreateAsync(FieldCodes.Castle, Defenders(), []);
+        var first = harness.Player;
+        var second = await harness.JoinAsync("Second", FieldCodes.Castle, 2);
+        var outsider = await harness.JoinAsync("Outsider", FieldCodes.Castle, 3);
+        var away = await harness.JoinAsync("Away", FieldCodes.Castle, 4);
+        var fountain = new System.Numerics.Vector3(37100, 0, -30200);
+        foreach (var player in new[] { first, second, outsider })
+        {
+            player.Teleport(fountain);
+        }
+
+        foreach (var player in new[] { first, second, away })
+        {
+            player.Clan = new ClanTag(7, "Lions", 0, Registered: true);
+        }
+
+        harness.World.SetOwner(7, CastleClanSkill.None, 0);
+        var (low, high) = first.EntityId < second.EntityId ? (first.EntityId, second.EntityId) : (second.EntityId, first.EntityId);
+        async Task<ulong> After(ulong last) => (await WorldPump.RunAsync(harness.World, harness.World.FountainRecipientAsync(7, last)))?.EntityId ?? 0;
+        Assert.True(await After(0) == low && await After(low) == high && await After(high) == low && await After(ulong.MaxValue) == low,
+            "the fountain's turns do not go round the owner clan's members at it by entity id");
+        Assert.True(await WorldPump.RunAsync(harness.World, harness.World.FountainRecipientAsync(8, 0)) is null,
+            "a player outside the owner clan, or away from the fountain, had a turn");
+        harness.Player.Teleport(new System.Numerics.Vector3(37100, 0, -30000));
+        Assert.True(await WorldPump.RunAsync(harness.World, harness.World.PrepareFountainPotionAsync(harness.Session)) is null,
+            "a recipient that left the fountain before its potion was prepared still received it");
     }
 
     private static async Task ClanSkillAsync()

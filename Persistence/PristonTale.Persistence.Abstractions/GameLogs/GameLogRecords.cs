@@ -9,12 +9,13 @@ public enum ItemTransferKind : short
     WarehouseWithdrawal = 3,
     GroundThrow = 4,
     GroundPickup = 5,
-    GameMasterGift = 6
+    GameMasterGift = 6,
+    CastleFountain = 7
 }
 
 // One item, part of a stack, or an amount of gold (ItemCode null) that moved. A null character is the other end the kind
-// names: the account warehouse (AccountId), the ground (FieldId) or a game master. TransferId groups the rows of one
-// transfer; a throw and the pickup of what it threw share the ground drop's id.
+// names: the account warehouse (AccountId), the ground (FieldId), a game master or Bless Castle's soul fountain.
+// TransferId groups the rows of one transfer; a throw and the pickup of what it threw share the ground drop's id.
 public sealed record ItemTransferRecord(
     DateTime OccurredAt,
     ItemTransferKind Kind,

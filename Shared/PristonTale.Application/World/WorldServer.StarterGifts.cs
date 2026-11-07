@@ -116,6 +116,40 @@ public sealed partial class WorldServer
         return (candidate, CharacterRecordFactory.Capture(session.Loaded!, candidate, connection.FieldId, connection.Player.Position));
     }
 
+    // An item made on the tick (none: the character no longer qualifies) into a playing character's bag, given by the
+    // server: Outcome false when it does not fit (nothing is written), null when the character does not play or qualify.
+    private Task<PreparedCharacterOperation<bool>?> PrepareIntoBagAsync(ulong owner, PlayerSession session, Func<Connection, ItemInstance?> make,
+        bool waitForCapacity)
+    {
+        return EnqueueAsync<PreparedCharacterOperation<bool>?>(owner, () =>
+        {
+            if (session.Loaded is null || !TryGetPlaying(session, out var connection) || make(connection) is not { } item)
+            {
+                return null;
+            }
+
+            var (candidate, snapshot) = Receive(session, connection, item, null);
+            return new PreparedCharacterOperation<bool>(connection.Player.Character, candidate, snapshot, candidate is not null);
+        }, waitForCapacity);
+    }
+
+    private Task<bool> CommitIntoBagAsync(PlayerSession session, PreparedCharacterOperation<bool> operation,
+        Persistence.Abstractions.GameLogs.ItemTransferKind kind, string what)
+    {
+        return EnqueueAsync(NoOwner, () =>
+        {
+            var candidate = CheckReceived(session, operation, what);
+            if (Transfer(kind, Guid.NewGuid(), session.FieldId) is { } log)
+            {
+                log.Arrived(operation.Original, candidate, null, CharacterIdOf(session));
+                Log(log);
+            }
+
+            operation.Original.CommitInventoryOperation(candidate);
+            return true;
+        }, waitForCapacity: true);
+    }
+
     // Tick only. The candidate of an item received, once the session still owns the character it was copied from.
     private static PlayerCharacter CheckReceived(PlayerSession session, PreparedOperation operation, string what) =>
         ReferenceEquals(session.Character, operation.Original) && operation.Candidate is { } candidate

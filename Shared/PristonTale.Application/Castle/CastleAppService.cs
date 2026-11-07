@@ -1,5 +1,6 @@
 using System.Collections.Concurrent;
 using System.Data.Common;
+using System.Globalization;
 using PristonTale.Application.Chat;
 using PristonTale.Application.Clans;
 using PristonTale.Application.Saves;
@@ -41,12 +42,13 @@ public enum CastleOwnerResult : byte
 // CatchUpMinutes): the tax and the clan skill chosen take effect each day at CastleRules.TaxHour (retried each minute
 // until stored); a weekly siege is announced an hour and half an hour before its day and hour and starts then; in the
 // league a siege restarts CastleRules.LeagueRestartMinutes after each end until the league's CastleRules.LeagueMinutes
-// are over. A siege runs in the castle field (ICastleWorld) until its end time (the owner keeps the castle) or until the
-// Tower of Valhalla falls (the clan that dealt the castle the most damage takes it), then stays over for
+// are over. A siege runs in the castle field (ICastleWorld) until its end time (the owner keeps the castle) or until
+// the Tower of Valhalla falls (the clan that dealt the castle the most damage takes it), then stays over for
 // CastleRules.OverSeconds (the defenders gone) before peace (players outside the owner clan back to the arrival area,
 // the owner's towers and mercenaries spent). The fountain gains a potion a minute in peace while the castle has an
-// owner. An owner clan that no longer exists (checked at load and each minute, only while the clans are loaded) leaves
-// the castle without one. The world outlives the castle's service (it stops later), so its commands always complete.
+// owner and gives one a second to the owner clan's members standing at it, in turn. An owner clan that no longer exists
+// (checked at load and each minute, only while the clans are loaded) leaves the castle without one. The world outlives
+// the castle's service (it stops later), so its commands always complete.
 public sealed class CastleAppService
 {
     private const int CatchUpMinutes = 60;
@@ -70,6 +72,8 @@ public sealed class CastleAppService
     private CastleRecord _record = CastleRecord.Empty;
     private SiegeClock _siege = SiegeClock.Peace;
     private DateTimeOffset _nextPotionAt;
+    private DateTimeOffset _nextGiftAt;
+    private ulong _lastRecipient;
     private long _lastMinute = -1;
     private bool _taxDue;
     private long _conquest = NoConquest;
@@ -175,6 +179,7 @@ public sealed class CastleAppService
             await StepSiegeAsync(now, options);
             await StepFountainAsync(now);
             Announce();
+            await GiveFountainPotionAsync(now);
             return !_storageFailed;
         }
         finally
@@ -401,28 +406,31 @@ public sealed class CastleAppService
                     _ => CastleOwnerStatus.Busy
                 },
                 static _ => CastleOwnerStatus.Unavailable,
-                async (s, prepared) =>
-                {
-                    try
-                    {
-                        if (!await _repository.SaveWithAsync(next, s.Stamp(prepared.Snapshot!), move))
-                        {
-                            return DurableFailure.StorageFailed;
-                        }
-
-                        Volatile.Write(ref _record, next);
-                        return null;
-                    }
-                    catch (DbException)
-                    {
-                        return DurableFailure.StorageFailed;
-                    }
-                });
+                (s, prepared) => StoreWithAsync(next, s.Stamp(prepared.Snapshot!), move));
             return status;
         }
         catch (WorldBusyException)
         {
             return CastleOwnerStatus.Busy;
+        }
+    }
+
+    // The castle stored with a character (and a treasury movement) in one write, kept in memory as soon as it is stored.
+    private async Task<DurableFailure?> StoreWithAsync(CastleRecord next, Persistence.Abstractions.Characters.CharacterRecord character, TreasuryMove? move)
+    {
+        try
+        {
+            if (!await _repository.SaveWithAsync(next, character, move))
+            {
+                return DurableFailure.StorageFailed;
+            }
+
+            Volatile.Write(ref _record, next);
+            return null;
+        }
+        catch (DbException)
+        {
+            return DurableFailure.StorageFailed;
         }
     }
 
@@ -448,7 +456,6 @@ public sealed class CastleAppService
         }
     }
 
-    // The fountain's next potion comes CastleRules.FountainPotionSeconds from now.
     // On shutdown, once the players' operations are done: the tax gathered goes to the treasury (false when storage refused
     // it or the castle has no owner, and it is lost).
     public async Task<bool> FlushTaxAsync()
@@ -465,6 +472,7 @@ public sealed class CastleAppService
         }
     }
 
+    // The fountain's next potion comes CastleRules.FountainPotionSeconds from now.
     public async Task ResetFountainTimeAsync()
     {
         await _gate.WaitAsync();
@@ -582,6 +590,39 @@ public sealed class CastleAppService
         if (record.FountainPotions < CastleRules.FountainMaxPotions)
         {
             await StoreAsync(record with { FountainPotions = record.FountainPotions + 1 });
+        }
+    }
+
+    // One potion to the next member of the owner clan at the fountain, through the path of every inventory change, stored
+    // with the fountain's count before it reaches the bag (a player busy with another change, or with a full bag, waits
+    // for its next turn), with a whisper of the potions left.
+    private async Task GiveFountainPotionAsync(DateTimeOffset now)
+    {
+        var record = Volatile.Read(ref _record);
+        if (_durable is null || record.OwnerClanId == 0 || record.FountainPotions <= 0 || _siege.State != SiegeState.Peace || now < _nextGiftAt)
+        {
+            return;
+        }
+
+        _nextGiftAt = now.AddSeconds(CastleRules.FountainGiveSeconds);
+        if (await _world.FountainRecipientAsync(record.OwnerClanId, _lastRecipient) is not { } session)
+        {
+            return;
+        }
+
+        _lastRecipient = session.EntityId;
+        var next = record with { FountainPotions = record.FountainPotions - 1 };
+        bool given;
+        using (var lease = await _durable.AdmitAsync(session, TimeSpan.Zero, CancellationToken.None))
+        {
+            given = await lease.RunAsync(_world.PrepareFountainPotionAsync, _world.CommitFountainPotionAsync, static prepared => prepared.Outcome,
+                static _ => false, (s, prepared) => StoreWithAsync(next, s.Stamp(prepared.Snapshot!), null));
+        }
+
+        if (given && _chat.TryGet(session.EntityId, out var member))
+        {
+            member.Link.Deliver(new ChatLine(ChatKind.Whisper, 0, "",
+                GameText.Of(GameTextId.FountainPotion, member.Name, next.FountainPotions.ToString(CultureInfo.InvariantCulture))));
         }
     }
 

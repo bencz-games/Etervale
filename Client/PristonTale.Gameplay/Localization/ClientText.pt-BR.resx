@@ -245,6 +245,7 @@
   <data name="Game.EliteSkillPointsGained" xml:space="preserve"><value>Pontos de skill de elite aumentaram em +{0}.</value></data>
   <data name="Game.EnterWorldFirst" xml:space="preserve"><value>Entre no mundo primeiro</value></data>
   <data name="Game.FemaleCannotUse" xml:space="preserve"><value>A personagem feminina não pode usar</value></data>
+  <data name="Game.FountainPotion" xml:space="preserve"><value>&gt; {0} recebeu uma Poção de Mana Mística da Fonte das Almas [Restam: {1}]</value></data>
   <data name="Game.FuryLost" xml:space="preserve"><value>Derrota no confronto com Fury.</value></data>
   <data name="Game.FuryTitle" xml:space="preserve"><value>O fantasma de Fury</value></data>
   <data name="Game.FuryWon" xml:space="preserve"><value>Vitória no confronto com Fury.</value></data>

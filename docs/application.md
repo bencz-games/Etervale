@@ -685,7 +685,14 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
   league's end, and one that ends sooner restarts 3 minutes later (announced) while the league goes on. A game
   master's `/end_castle` ends the league too, and so does turning the mode away from League.
 - Off: no scheduled siege; a game master may still start one.
-- In peace with an owner, the fountain gains a potion a minute, up to 1440.
+- In peace with an owner, the fountain gains a potion a minute, up to 1440, and gives one a second
+  (`GiveFountainPotionAsync`) to the next member of the owner clan standing at it in the castle field
+  (`CastleRules.AtFountain`: x 37040..37158, z -30286..-30102, bounds excluded; `FountainRecipientAsync`, in turn by
+  entity id): a `PM104` into the bag through the path of every inventory change (`PrepareFountainPotionAsync`, an
+  `item_transfers` row of kind 7), stored with the fountain's count in one write before it reaches the bag
+  (`SaveWithAsync`), with a whisper of the potions left (`GameTextId.FountainPotion`). The world checks the recipient
+  again when it prepares the potion; a player busy with another change, with a full bag, or whose write storage refused
+  waits for its next turn.
 - The siege's clock lives in memory: a restart during a siege ends it, and the owner stays.
 - Every player in the world is told the castle (`Attach`/`Detach`, `ICastleLink`, `CastleBroadcast`): at entry and,
   from the tick, whenever the owner, the tax in force, the league mode, the siege's state or end, or the world's view

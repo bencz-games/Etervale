@@ -40,6 +40,8 @@ internal static class CastleTests
         yield return ("the butler window: the chief's pages pick a tax up to 10 %, towers and mercenaries, save, and keep the changes when refused",
             OwnerWindowAsync);
         yield return ("the castle's tax adds whole gold to fees, and the tax the world gathered goes to the treasury each minute", TaxAsync);
+        yield return ("the soul fountain gives a potion a second to the owner clan's members at it, in turn, with a whisper, and only in peace",
+            FountainAsync);
         yield return ("castle game-master commands start, time and end a siege, set the owner in peace and read the castle and fountain", CommandsAsync);
     }
 
@@ -321,7 +323,47 @@ internal static class CastleTests
             && castle.OwnerViewOf(owner.Session.EntityId)!.Treasury == 700_000, "a refused storage still paid");
     }
 
-    // A chief of the owner clan (7) beside the castle's butler in a running world.
+    private static async Task FountainAsync()
+    {
+        Assert.True(CastleRules.AtFountain(new System.Numerics.Vector3(37100, 0, -30200)) && !CastleRules.AtFountain(new System.Numerics.Vector3(37040, 0, -30200))
+            && !CastleRules.AtFountain(new System.Numerics.Vector3(37100, 0, -30102)), "the fountain's area differs");
+        var clock = new ManualTime(new DateTimeOffset(2026, 11, 9, 12, 0, 30, TimeSpan.Zero));
+        await using var owner = await OwnerFixture.CreateAsync(1_000, CastleRecord.Empty with { OwnerClanId = 7, FountainPotions = 3 }, clock);
+        int Potions() => owner.Session.Character!.Inventory.Items().Where(item => item.Definition.Code == CastleRules.FountainPotion).Sum(item => item.Count);
+        async Task NextSecond()
+        {
+            clock.Advance(TimeSpan.FromSeconds(1));
+            await owner.Castle.TickAsync(Off);
+        }
+
+        await owner.Castle.TickAsync(Off);
+        await owner.Castle.TickAsync(Off);
+        Assert.True(Potions() == 1 && owner.Repository.Saved.FountainPotions == 2
+            && owner.Link.Lines is [{ Kind: Contracts.Social.ChatKind.Whisper, Line: { Id: GameTextId.FountainPotion, Args: ["Chief", "2"] } }],
+            "the fountain did not give one potion a second to the member at it, with a whisper of the potions left");
+        await owner.World.SetClanTagAsync(owner.Session.EntityId, new Simulation.Social.Clans.ClanTag(8, "Tigers", 0, Registered: true));
+        await NextSecond();
+        Assert.True(Potions() == 1 && owner.Repository.Saved.FountainPotions == 2, "the fountain gave a potion to a player outside the owner clan");
+        await owner.World.SetClanTagAsync(owner.Session.EntityId, new Simulation.Social.Clans.ClanTag(7, "Lions", 0, Registered: true));
+        owner.Repository.StalePayer = true;
+        await NextSecond();
+        Assert.True(Potions() == 1 && owner.Repository.Saved.FountainPotions == 2, "a potion reached the bag although storage refused it");
+        owner.Repository.StalePayer = false;
+        Assert.True(await owner.Castle.StartSiegeAsync(), "the siege did not start");
+        await NextSecond();
+        Assert.True(Potions() == 1, "the fountain gave a potion during a siege");
+        Assert.True(await owner.Castle.EndSiegeAsync(), "the siege did not end");
+        clock.Advance(TimeSpan.FromSeconds(CastleRules.OverSeconds));
+        for (var second = 0; second < 4; second++)
+        {
+            await NextSecond();
+        }
+
+        Assert.True(Potions() == 3 && owner.Repository.Saved.FountainPotions == 0 && owner.Castle.View().FountainPotions == 0,
+            "the fountain did not give its last potions in peace, or gave more than it held");
+    }
+
+    // A chief of the owner clan (7) beside the castle's butler in a running world, or at the soul fountain in the castle.
     private sealed class OwnerFixture : IAsyncDisposable
     {
         private readonly CancellationTokenSource _stop = new();
@@ -332,9 +374,13 @@ internal static class CastleTests
         public required MemoryCastle Repository { get; init; }
         public required FakeClans Clans { get; init; }
         public required PlayerSession Session { get; init; }
+        public required FakeLink Link { get; init; }
         public required ulong NpcId { get; init; }
 
-        public static async Task<OwnerFixture> CreateAsync(long money, CastleRecord stored)
+        public static Task<OwnerFixture> CreateAsync(long money, CastleRecord stored) => CreateAsync(money, stored, null);
+
+        // With a clock, the chief stands at the soul fountain instead, and the castle runs on that clock.
+        public static async Task<OwnerFixture> CreateAsync(long money, CastleRecord stored, TimeProvider? clock)
         {
             var classes = new Simulation.Characters.CharacterClassRegistry();
             var starter = Persistence.Abstractions.Characters.CharacterRecordFactory.NewStarter(classes, 1, "Chief", 0, Contracts.Characters.PlayerClass.Fighter, 3)
@@ -350,7 +396,9 @@ internal static class CastleTests
             var empty = WorldData.Empty;
             var holder = new WorldDataHolder
             {
-                Current = new WorldData(empty.Items, empty.Monsters, new Simulation.World.Npcs.NpcCatalog([npc]),
+                Current = new WorldData(new Simulation.Items.ItemCatalog([new Simulation.Items.ItemDefinition(
+                        CastleRules.FountainPotion, "Mystic Mana Potion", Simulation.Items.ItemKind.Potion) { MaxStack = 100, Weight = 1 }]),
+                    empty.Monsters, new Simulation.World.Npcs.NpcCatalog([npc]),
                     new Dictionary<int, Simulation.World.Fields.FieldSpawnData>
                     {
                         [3] = Simulation.World.Fields.FieldSpawnData.Empty with { FixedNpcs = [new Simulation.World.Fields.FixedNpc(1, 100 * 256, 100 * 256, 0)] }
@@ -365,18 +413,31 @@ internal static class CastleTests
             var entry = new Application.Services.SessionAppService(sessions, classes, characters, saves, catalog, world, holder);
             Assert.True((await entry.EnterWorldAsync(session.SessionToken, starter.Name)).Ok && session.TryBeginPlay(), "entry failed");
             var outbox = System.Threading.Channels.Channel.CreateUnbounded<WorldSnapshot>();
-            await WorldPump.RunAsync(world, world.JoinAsync(3, WorldPlayerFactory.Create(session), outbox.Writer, session));
+            var player = WorldPlayerFactory.Create(session);
+            await WorldPump.RunAsync(world, world.JoinAsync(clock is null ? 3 : Simulation.World.FieldCodes.Castle, player, outbox.Writer, session));
             Assert.True(outbox.Reader.TryRead(out var snapshot), "roster missing");
-            var placed = snapshot.Entities.Single(entity => entity.Kind == Contracts.World.EntityKind.Npc);
+            var npcId = snapshot.Entities.Where(entity => entity.Kind == Contracts.World.EntityKind.Npc).Select(entity => entity.EntityId).SingleOrDefault();
+            if (clock is not null)
+            {
+                player.Teleport(new System.Numerics.Vector3(37100, 0, -30200));
+                player.Clan = new Simulation.Social.Clans.ClanTag(7, "Lions", 0, Registered: true);
+            }
             var repository = new MemoryCastle();
             await repository.SaveAsync(stored);
             var clans = new FakeClans { Available = true };
             clans.Names[7] = "Lions";
             clans.Members[session.EntityId] = 7;
             clans.Ranks[session.EntityId] = Simulation.Social.Clans.ClanRank.Chief;
-            var castle = new CastleAppService(repository, clans, new ChatDirectory(), world, sessions: sessions, saves: saves);
+            var chat = new ChatDirectory();
+            var link = new FakeLink();
+            chat.Join(new ChatMember(session, starter.Name, link, 0, money));
+            var castle = new CastleAppService(repository, clans, chat, world, clock, sessions, saves);
             await castle.LoadAsync();
-            var fixture = new OwnerFixture { World = world, Castle = castle, Repository = repository, Clans = clans, Session = session, NpcId = placed.EntityId };
+            var fixture = new OwnerFixture
+            {
+                World = world, Castle = castle, Repository = repository, Clans = clans, Session = session, Link = link,
+                NpcId = npcId
+            };
             fixture._ticker = Task.Run(fixture.TickAsync);
             return fixture;
         }
@@ -715,6 +776,12 @@ internal static class CastleTests
         public Task<PreparedNpcPayment?> PrepareOwnerPaymentAsync(PlayerSession session, ulong npcEntityId, long fee) => throw new NotSupportedException();
 
         public Task<bool> CommitOwnerPaymentAsync(PlayerSession session, PreparedNpcPayment payment) => throw new NotSupportedException();
+
+        public Task<PlayerSession?> FountainRecipientAsync(long ownerClanId, ulong after) => Task.FromResult<PlayerSession?>(null);
+
+        public Task<PreparedCharacterOperation<bool>?> PrepareFountainPotionAsync(PlayerSession session) => throw new NotSupportedException();
+
+        public Task<bool> CommitFountainPotionAsync(PlayerSession session, PreparedCharacterOperation<bool> operation) => throw new NotSupportedException();
     }
 
     private sealed class FakeClans : IClanDirectory

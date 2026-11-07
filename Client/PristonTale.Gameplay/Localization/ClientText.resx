@@ -245,6 +245,7 @@
   <data name="Game.EliteSkillPointsGained" xml:space="preserve"><value>Elite skill points increased by +{0}.</value></data>
   <data name="Game.EnterWorldFirst" xml:space="preserve"><value>Enter the world first</value></data>
   <data name="Game.FemaleCannotUse" xml:space="preserve"><value>The female character cannot use</value></data>
+  <data name="Game.FountainPotion" xml:space="preserve"><value>&gt; {0} took a Mystic Mana Potion from the Soul Fountain [Left: {1}]</value></data>
   <data name="Game.FuryLost" xml:space="preserve"><value>Lose in the confrontation with Fury.</value></data>
   <data name="Game.FuryTitle" xml:space="preserve"><value>Fury's phantasma</value></data>
   <data name="Game.FuryWon" xml:space="preserve"><value>Win in the confrontation with Fury.</value></data>

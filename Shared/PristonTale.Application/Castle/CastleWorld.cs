@@ -45,4 +45,13 @@ public interface ICastleWorld
     Task<World.PreparedNpcPayment?> PrepareOwnerPaymentAsync(Sessions.PlayerSession session, ulong npcEntityId, long fee);
 
     Task<bool> CommitOwnerPaymentAsync(Sessions.PlayerSession session, World.PreparedNpcPayment payment);
+
+    // The soul fountain's next recipient: a playing member of the owner clan at the fountain in the castle field, the
+    // first whose entity id follows after, else the first (none when nobody stands there).
+    Task<Sessions.PlayerSession?> FountainRecipientAsync(long ownerClanId, ulong after);
+
+    // One fountain potion into the recipient's bag; Outcome false when it does not fit (nothing is written).
+    Task<World.PreparedCharacterOperation<bool>?> PrepareFountainPotionAsync(Sessions.PlayerSession session);
+
+    Task<bool> CommitFountainPotionAsync(Sessions.PlayerSession session, World.PreparedCharacterOperation<bool> operation);
 }

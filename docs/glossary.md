@@ -99,7 +99,7 @@ that explains it in depth.
 | `SaveGate` | Per-session semaphore serialising saves and durable character operations | application.md |
 | Save sequence | `characters.save_seq`: the order of a character's captures; storage keeps the highest it was given | persistence.md |
 | Checkpoint | The world's capture of every playing character once per `World:CheckpointSeconds` for background storage | application.md |
-| Item transfer | A logged change of hands of items or gold: trade, personal shop, warehouse, ground throw and pickup, game-master gift (`item_transfers`) | application.md |
+| Item transfer | A logged change of hands of items or gold: trade, personal shop, warehouse, ground throw and pickup, game-master gift, Bless Castle's soul fountain (`item_transfers`) | application.md |
 | Currency sink | Where gold leaves the economy (`CurrencySink`); the totals per period are logged in `currency_sinks` | application.md |
 | Save journal | Captures storage refused while the server stopped, stored by the next start before players enter | application.md |
 | Operation id | Client GUID per durable command; same id and command replays, different command conflicts | application.md |

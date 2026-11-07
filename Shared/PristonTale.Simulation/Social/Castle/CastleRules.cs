@@ -40,6 +40,14 @@ public static class CastleRules
     public const int FountainMaxPotions = 1440;
     public const int FountainPotionSeconds = 60;
 
+    // The soul fountain gives one of its potions (FountainPotion) every FountainGiveSeconds to the next member of the
+    // owner clan standing at it, in turn.
+    public static readonly uint FountainPotion = Items.ItemCodes.Parse("PM104");
+    public const int FountainGiveSeconds = 1;
+
+    public static bool AtFountain(System.Numerics.Vector3 position) =>
+        position.X > 37040 && position.X < 37158 && position.Z > -30286 && position.Z < -30102;
+
     // The tax in force: the owner's rate, 0 to CastleOwnerRules.MaxTaxRate percent, and none without an owner.
     public static int TaxInForce(long ownerClanId, int tax) => ownerClanId == 0 ? 0 : Math.Clamp(tax, 0, CastleOwnerRules.MaxTaxRate);
 

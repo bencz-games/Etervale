@@ -358,35 +358,11 @@ public sealed partial class WorldServer
 
     // A game master's gift into a player's bag: the copy must fit the bag and the weight limit. Outcome false means it did
     // not fit (nothing is written); null means the player is not playing.
-    public Task<PreparedCharacterOperation<bool>?> PrepareGiftAsync(ulong requesterId, PlayerSession session, Func<ISimRng, ItemInstance> make)
-    {
-        return EnqueueAsync<PreparedCharacterOperation<bool>?>(requesterId, () =>
-        {
-            if (session.Loaded is null || !TryGetPlaying(session, out var connection))
-            {
-                return null;
-            }
+    public Task<PreparedCharacterOperation<bool>?> PrepareGiftAsync(ulong requesterId, PlayerSession session, Func<ISimRng, ItemInstance> make) =>
+        PrepareIntoBagAsync(requesterId, session, connection => make(_fields[connection.FieldId].Rng), waitForCapacity: false);
 
-            var (candidate, snapshot) = Receive(session, connection, make(_fields[connection.FieldId].Rng), null);
-            return new PreparedCharacterOperation<bool>(connection.Player.Character, candidate, snapshot, candidate is not null);
-        });
-    }
-
-    public Task<bool> CommitGiftAsync(PlayerSession session, PreparedCharacterOperation<bool> operation)
-    {
-        return EnqueueAsync(NoOwner, () =>
-        {
-            var candidate = CheckReceived(session, operation, "a game master's gift");
-            if (Transfer(Persistence.Abstractions.GameLogs.ItemTransferKind.GameMasterGift, Guid.NewGuid(), session.FieldId) is { } log)
-            {
-                log.Arrived(operation.Original, candidate, null, CharacterIdOf(session));
-                Log(log);
-            }
-
-            operation.Original.CommitInventoryOperation(candidate);
-            return true;
-        }, waitForCapacity: true);
-    }
+    public Task<bool> CommitGiftAsync(PlayerSession session, PreparedCharacterOperation<bool> operation) =>
+        CommitIntoBagAsync(session, operation, Persistence.Abstractions.GameLogs.ItemTransferKind.GameMasterGift, "a game master's gift");
 
     public Task<GmCharacterReport?> InspectAsync(ulong requesterId, ulong entityId)
     {

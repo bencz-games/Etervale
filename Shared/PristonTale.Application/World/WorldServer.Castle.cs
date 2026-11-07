@@ -1,4 +1,5 @@
 using PristonTale.Application.Castle;
+using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Social.Castle;
 using PristonTale.Simulation.World;
 
@@ -124,6 +125,46 @@ public sealed partial class WorldServer : ICastleWorld
         PrepareNpcPaymentAsync(session, npcEntityId, Simulation.World.Npcs.NpcServiceKind.BlessCastle, fee);
 
     public Task<bool> CommitOwnerPaymentAsync(Sessions.PlayerSession session, PreparedNpcPayment payment) => CommitNpcPaymentAsync(session, payment);
+
+    public Task<Sessions.PlayerSession?> FountainRecipientAsync(long ownerClanId, ulong after) =>
+        EnqueueAsync<Sessions.PlayerSession?>(NoOwner, () =>
+        {
+            Sessions.PlayerSession? first = null;
+            Sessions.PlayerSession? next = null;
+            foreach (var connection in _connections.Values)
+            {
+                if (connection.Session is not { IsPlaying: true } session || !AtFountain(connection, ownerClanId))
+                {
+                    continue;
+                }
+
+                if (first is null || session.EntityId < first.EntityId)
+                {
+                    first = session;
+                }
+
+                if (session.EntityId > after && (next is null || session.EntityId < next.EntityId))
+                {
+                    next = session;
+                }
+            }
+
+            return next ?? first;
+        }, waitForCapacity: true);
+
+    // Checked again on the tick that prepares it: the recipient may have left the fountain or the owner clan since.
+    public Task<PreparedCharacterOperation<bool>?> PrepareFountainPotionAsync(Sessions.PlayerSession session) =>
+        PrepareIntoBagAsync(NoOwner, session, connection =>
+            AtFountain(connection, Volatile.Read(ref _castleOwnerClanId)) && _worldData.Current.Items.TryGet(CastleRules.FountainPotion, out var potion)
+                ? ItemRoller.Create(potion, 1, _fields[connection.FieldId].Rng)
+                : null, waitForCapacity: true);
+
+    public Task<bool> CommitFountainPotionAsync(Sessions.PlayerSession session, PreparedCharacterOperation<bool> operation) =>
+        CommitIntoBagAsync(session, operation, Persistence.Abstractions.GameLogs.ItemTransferKind.CastleFountain, "a fountain potion");
+
+    private static bool AtFountain(Connection connection, long ownerClanId) =>
+        connection.FieldId == FieldCodes.Castle && CastleSiegeRules.HoldsCastle(connection.Player.Clan?.ClanId ?? 0, ownerClanId)
+        && CastleRules.AtFountain(connection.Player.Position);
 
     // False without a siege; the castle field weakens its defenders now, or when it places them.
     public Task<bool> WeakenSiegeAsync() =>
