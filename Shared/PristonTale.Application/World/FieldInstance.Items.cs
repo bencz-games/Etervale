@@ -107,8 +107,7 @@ public sealed partial class FieldInstance
             }
             else if (NowMs >= endMs)
             {
-                monster.ApplyDamage(monster.Life);
-                _combat.BeginCorpse(id);
+                KillOutright(monster);
                 _soulScratch.Add(id);
             }
         }

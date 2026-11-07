@@ -75,7 +75,8 @@ public sealed partial class WorldServer
                     message, revision)));
             }
 
-            return NpcServiceTransactions.Prepare(session, connection.Player, field, command, _worldData.Current.Items, _catalog);
+            return NpcServiceTransactions.Prepare(session, connection.Player, field, command, _worldData.Current.Items, _catalog,
+                command.Service == NpcServiceKind.EventBooth ? Booth() : null);
         });
     }
 
@@ -115,6 +116,11 @@ public sealed partial class WorldServer
             if (operation.Reply.Arrival is { } arrival)
             {
                 Arrive(session, arrival);
+            }
+
+            if (operation.BellatraTeam >= 0)
+            {
+                EnterBellatra(session, operation.BellatraTeam);
             }
 
             return true;

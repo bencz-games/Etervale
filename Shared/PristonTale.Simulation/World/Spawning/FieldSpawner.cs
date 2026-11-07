@@ -131,7 +131,7 @@ public sealed class FieldSpawner
         for (int i = 0; i < live.Count; i++)
         {
             MonsterInstance m = live[i];
-            if (!m.IsAlive || m.StaysUntilDawn || m.CastleRole != Social.Castle.CastleObject.None)
+            if (!m.IsAlive || m.StaysUntilDawn || m.CastleRole != Social.Castle.CastleObject.None || m.BellatraRoom >= 0)
             {
                 continue;
             }

@@ -173,8 +173,8 @@ internal static class GmInformationCommands
     }
 
     private static string CurrencyLine(string prefix, CurrencyLedger ledger, long unit) => prefix + Format(
-        "Mx({0}) Ag({1}) Sh({2}) Po({3} {4} {5}) Fo({6}) Wp({7}) Sk({8} ) Tt({9})",
+        "Mx({0}) Ag({1}) Sh({2}) Po({3} {4} {5}) Fo({6}) Wp({7}) Sk({8} ) Bt({9}) Tt({10})",
         ledger[CurrencySink.Mixing] / unit, ledger[CurrencySink.Aging] / unit, ledger[CurrencySink.Shop] / unit, ledger[CurrencySink.LifePotions] / unit,
         ledger[CurrencySink.ManaPotions] / unit, ledger[CurrencySink.StaminaPotions] / unit, ledger[CurrencySink.ForceOrbs] / unit,
-        ledger[CurrencySink.Teleports] / unit, ledger[CurrencySink.SkillTraining] / unit, ledger.Total / unit);
+        ledger[CurrencySink.Teleports] / unit, ledger[CurrencySink.SkillTraining] / unit, ledger[CurrencySink.BellatraTickets] / unit, ledger.Total / unit);
 }

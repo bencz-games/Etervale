@@ -70,6 +70,9 @@ public sealed partial class WorldServer
             case Simulation.World.Npcs.NpcServiceAction.Refine:
                 RecordSpending(CurrencySink.ForceOrbs, spent, CastleRules.TaxIn(spent, operation.Tax));
                 break;
+            case Simulation.World.Npcs.NpcServiceAction.EnterBellatra:
+                RecordSpending(CurrencySink.BellatraTickets, spent, 0);
+                break;
         }
     }
 

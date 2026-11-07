@@ -155,6 +155,13 @@ public sealed class MonsterInstance
 
     // A siege's defender stays until the siege closes, even with no player near.
     public Social.Castle.CastleObject CastleRole { get; set; }
+
+    // A Bellatra round's monster: the room it was opened in (none: -1); it stays until the round ends, even with no player
+    // near, and its kill scores.
+    public int BellatraRoom { get; set; } = -1;
+
+    // The round's boss of its room, whose kill scores more.
+    public bool BellatraBoss { get; set; }
     public float SpecialMsLeft { get; set; }
     public MotionState CompletedSpecial { get; set; }
     public bool DrinkHeals { get; set; }

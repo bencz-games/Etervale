@@ -136,6 +136,11 @@ public sealed partial class WorldServer
         field.DropLedger = DropLedgerFor(_worldData.Current.Items);
         _fields.Add(fieldId, field);
         OpenSiegeIn(field);
+        if (fieldId == Simulation.World.Bellatra.BellatraArena.Field)
+        {
+            field.Bellatra = _bellatra;
+        }
+
         return field;
     }
 
@@ -162,6 +167,7 @@ public sealed partial class WorldServer
         field.ExperienceMultiplier = options.ExperienceMultiplier;
         field.ExperienceEventPercent = options.ExperienceEventPercent;
         field.CastleTax = tax;
+        field.BellatraScoreDivisor = options.Bellatra.ScoreDivisor;
         field.Aging = options.Aging with { Tax = tax };
         field.Mixing = options.Mixing with { Tax = tax };
         field.PlayersFight = field.State == FieldState.Castle && !options.CastleLeague;
@@ -734,6 +740,7 @@ public sealed partial class WorldServer
         PublishSiege(nowSeconds);
         ApplyCastleTax();
         RenewClanSkill(nowSeconds);
+        StepBellatra(UnixNowMs);
         ApplyQuestTravels();
         Checkpoint(serverTick);
         OfferStarterGifts(serverTick);

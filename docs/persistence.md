@@ -269,7 +269,7 @@ Rows only ever inserted, by the server's background writers, and deleted by age 
 | Table | Columns and constraints |
 | --- | --- |
 | `item_transfers` | `id` int64 identity PK; `occurred_at` UTC; `kind` int16 (`ItemTransferKind`: 0 trade, 1 personal shop, 2 warehouse deposit, 3 warehouse withdrawal, 4 ground throw, 5 ground pickup, 6 game-master gift, 7 Bless Castle's soul fountain); `transfer_id` (36: the rows of one transfer; a throw and the pickup of what it threw share the ground drop's id); `from_character_id`, `to_character_id` int64 nullable (null: the warehouse, the ground, a game master or the fountain); `account_id` (the warehouse's account); `field_id`; `item_code` (16, the catalog key; null for gold); `instance_id` (36); `amount` int64 (items, or gold). Indexes on `occurred_at`, `from_character_id`, `to_character_id`, `instance_id` |
-| `currency_sinks` | `id` int64 identity PK; `occurred_at` UTC (end of the period); `sink` int16 (`CurrencySink`); `gold` int64. Index on `occurred_at` |
+| `currency_sinks` | `id` int64 identity PK; `occurred_at` UTC (end of the period); `sink` int16 (`CurrencySink`: 0 mixing, 1 aging, 2 shop, 3-5 life, mana and stamina potions, 6 force orbs, 7 teleports, 8 skill training, 9 Bellatra tickets); `gold` int64. Index on `occurred_at` |
 | `server_events` | `id` int64 identity PK; `occurred_at` UTC; `kind` int16 (`ServerEventKind`: 0 started, 1 stopped); `server_name` (64); `detail`. Index on `occurred_at` |
 
 ### World source preservation

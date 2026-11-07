@@ -13,7 +13,8 @@ public enum CurrencySink
     StaminaPotions = 5,
     ForceOrbs = 6,
     Teleports = 7,
-    SkillTraining = 8
+    SkillTraining = 8,
+    BellatraTickets = 9
 }
 
 public sealed class CurrencyLedger

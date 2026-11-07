@@ -436,7 +436,8 @@ to 64 bytes, item names 40, messages 128, dialog lines 256), and counts are 32-b
 - `NpcServiceResult`: `{Guid OperationId, uint64 NpcId, uint8 Service, uint8 Action, uint16 Status, int32 Ok, int64
   Revision, int64 StorageRevision, game text Message}`. `Status` is `NpcServiceStatus` (`NotAvailable` for services Etervale
   does not run, `OutOfReach`, `Rejected`, `Stale`, `NotEnoughGold`, `NoSpace`, `GoldLimit`, `Busy`, `StorageFailed`,
-  `Conflict`, `NotOpen`, `OverWeight`, `WrongPuzzle`, `WrongMaterials`). The state messages a request produces
+  `Conflict`, `NotOpen`, `OverWeight`, `WrongPuzzle`, `WrongMaterials`, `BellatraClosed`, `BellatraLevel`,
+  `BellatraNoTickets`, `BellatraTeamFull`, `BellatraEntered`). The state messages a request produces
   (`ShopCatalog`, `ShopQuotes`, `Warehouse`, `TeleportList`, `ItemWork`) carry the same operation id and precede the
   result.
 - `ItemWork`: `{uint16 Version, uint16 0, Guid OperationId, uint64 NpcId, uint8 Service, uint8 Result, uint16 0,

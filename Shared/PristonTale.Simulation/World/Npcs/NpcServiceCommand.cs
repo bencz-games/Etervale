@@ -36,7 +36,10 @@ public enum NpcServiceAction : byte
     Manufacture = 54,
 
     // The mixture reset: ItemId is the mixed item, Materials the reset stone.
-    ResetMix = 55
+    ResetMix = 55,
+
+    // A Bellatra team booth: a ticket into the game for the booth's team.
+    EnterBellatra = 60
 }
 
 public enum NpcServiceStatus : ushort
@@ -55,7 +58,12 @@ public enum NpcServiceStatus : ushort
     NotOpen = 11,
     OverWeight = 12,
     WrongPuzzle = 13,
-    WrongMaterials = 14
+    WrongMaterials = 14,
+    BellatraClosed = 15,
+    BellatraLevel = 16,
+    BellatraNoTickets = 17,
+    BellatraTeamFull = 18,
+    BellatraEntered = 19
 }
 
 // ItemCode names a stock entry to buy; ItemId an owned item. Anchor is a destination cell (-1 = first free) or, for a

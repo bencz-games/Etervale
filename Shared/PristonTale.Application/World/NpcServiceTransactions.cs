@@ -53,8 +53,9 @@ internal static class NpcServiceTransactions
         return new NpcServiceOutcome(true, NpcServiceStatus.Ok, player.Character.InventoryRevision, 0, GameText.None);
     }
 
+    // booth: Bellatra as it stands, for its team booths.
     public static PreparedNpcOperation Prepare(PlayerSession session, WorldPlayer player, FieldInstance field, NpcServiceCommand command,
-        ItemCatalog items, WorldCatalog world)
+        ItemCatalog items, WorldCatalog world, BellatraBooth? booth = null)
     {
         if (MobileShopTransactions.Handles(command))
         {
@@ -76,11 +77,14 @@ internal static class NpcServiceTransactions
 
         if (!NpcServiceActions.IsDurable(command.Action))
         {
-            var shown = Show(command, npc!, service!, original, storage, items, world, Done(original, storage, GameText.None), field.CastleTax);
+            var answer = command.Service == NpcServiceKind.EventBooth && command.Action == NpcServiceAction.Open && booth is not null
+                ? booth.Answer(original, Simulation.World.Bellatra.BellatraRules.TeamOfBooth(service!.Value))
+                : GameText.None;
+            var shown = Show(command, npc!, service!, original, storage, items, world, Done(original, storage, answer), field.CastleTax);
             return new PreparedNpcOperation(original, null, null, shown);
         }
 
-        return Settled(original, storage, command) ?? Apply(session, player, field, command, npc!, service!, items, world);
+        return Settled(original, storage, command) ?? Apply(session, player, field, command, npc!, service!, items, world, booth);
     }
 
     // A durable request already answered: its replay (the same command) or an identity conflict, and a request made
@@ -118,7 +122,7 @@ internal static class NpcServiceTransactions
     };
 
     private static PreparedNpcOperation Apply(PlayerSession session, WorldPlayer player, FieldInstance field, NpcServiceCommand command,
-        WorldNpc npc, NpcService service, ItemCatalog items, WorldCatalog world)
+        WorldNpc npc, NpcService service, ItemCatalog items, WorldCatalog world, BellatraBooth? booth)
     {
         var original = player.Character;
         var candidate = original.CloneForInventoryOperation();
@@ -187,6 +191,17 @@ internal static class NpcServiceTransactions
             case NpcServiceAction.ResetMix:
                 status = Simulation.Items.Mixing.MixtureReset.TryReset(candidate, command.ItemId, command.Materials ?? [], field.ItemRng, out work);
                 break;
+            case NpcServiceAction.EnterBellatra:
+                status = booth is null
+                    ? NpcServiceStatus.BellatraClosed
+                    : booth.Admit(candidate, Simulation.World.Bellatra.BellatraRules.TeamOfBooth(service.Value), out arrival);
+                if (arrival is not null)
+                {
+                    fieldId = arrival.FieldCode;
+                    position = arrival.Position;
+                }
+
+                break;
             default:
                 status = NpcServiceStatus.Rejected;
                 break;
@@ -202,7 +217,8 @@ internal static class NpcServiceTransactions
         var outcome = Done(candidate, storage ?? session.Warehouse, GameText.None);
         var reply = State(command, candidate, storage, outcome) with { Arrival = arrival, Work = work };
         return new PreparedNpcOperation(original, candidate, snapshot, reply, candidate.Money - original.Money, storage,
-            session.Warehouse?.Revision ?? 0, field.CastleTax);
+            session.Warehouse?.Revision ?? 0, field.CastleTax,
+            command.Action == NpcServiceAction.EnterBellatra ? Simulation.World.Bellatra.BellatraRules.TeamOfBooth(service.Value) : -1);
     }
 
     private static NpcServiceStatus TryTeleport(PlayerCharacter candidate, NpcService service, int index, WorldCatalog world, int tax, out TeleportArrival? arrival)
@@ -348,10 +364,20 @@ internal static class NpcServiceTransactions
         NpcServiceAction.Smelt => service == NpcServiceKind.Smelting,
         NpcServiceAction.Manufacture => service == NpcServiceKind.Manufacture,
         NpcServiceAction.ResetMix => service == NpcServiceKind.MixtureReset,
+        NpcServiceAction.EnterBellatra => service == NpcServiceKind.EventBooth,
         _ => false
     };
 
-    internal static GameText Describe(NpcServiceStatus status, GameTextId refusal = GameTextId.NpcRefused) => GameText.Of(status switch
+    internal static GameText Describe(NpcServiceStatus status, GameTextId refusal = GameTextId.NpcRefused) => status switch
+    {
+        NpcServiceStatus.BellatraLevel => GameText.Of(GameTextId.BellatraLevel, Simulation.World.Bellatra.BellatraRules.MinLevel),
+        NpcServiceStatus.BellatraNoTickets => GameText.Of(GameTextId.BellatraNoTickets,
+            Simulation.World.Bellatra.BellatraRules.TicketHour.ToString(System.Globalization.CultureInfo.InvariantCulture),
+            (Simulation.World.Bellatra.BellatraRules.TicketHour + 1).ToString(System.Globalization.CultureInfo.InvariantCulture)),
+        _ => GameText.Of(RefusalText(status, refusal))
+    };
+
+    private static GameTextId RefusalText(NpcServiceStatus status, GameTextId refusal) => status switch
     {
         NpcServiceStatus.NotEnoughGold => GameTextId.NotEnoughGold,
         NpcServiceStatus.NoSpace => GameTextId.NoSpace,
@@ -359,8 +385,11 @@ internal static class NpcServiceTransactions
         NpcServiceStatus.OverWeight => GameTextId.OverWeight,
         NpcServiceStatus.WrongPuzzle => GameTextId.WrongPuzzle,
         NpcServiceStatus.WrongMaterials => GameTextId.WrongMaterials,
+        NpcServiceStatus.BellatraClosed => GameTextId.BellatraClosed,
+        NpcServiceStatus.BellatraTeamFull => GameTextId.BellatraTeamFull,
+        NpcServiceStatus.BellatraEntered => GameTextId.BellatraEntered,
         _ => refusal
-    });
+    };
 
     internal static NpcServiceOutcome Done(PlayerCharacter character, WarehouseStorage? storage, GameText message) =>
         new(true, NpcServiceStatus.Ok, character.InventoryRevision, storage?.Revision ?? 0, message);

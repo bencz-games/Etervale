@@ -27,6 +27,7 @@ layouts live in [protocol.md](protocol.md).
 | `Hosting/FieldTerrainLoadService.cs` | Hosted service: reads every field's stage `.smd` collision in parallel into `FieldTerrainCatalog`. |
 | `World/WorldTickService.cs` | `BackgroundService` calling `WorldServer.Tick(1/20 s, tick)` on its own thread, on the absolute timeline of `TickSchedule` (owed ticks run back to back, a stall past 5 ticks is skipped); logs tick percentiles, ticks caught up and skipped, the command and field phases, process CPU, allocation rate, collections, heap and working set. |
 | `World/StarterGiftService.cs`, `World/SessionWork.cs` | `BackgroundService` reading `WorldServer.StarterGiftRequests` and running `StarterGiftAppService.GiveAsync`; `SessionWork` is the loop it shares with `QuestUpkeepService` (a few sessions at a time, a failure logged). |
+| `World/BellatraService.cs` | `BackgroundService` reading `WorldServer.BellatraPrizes` and paying each with `BellatraAppService.PayAsync`, one after another ([application.md](application.md#bellatra)). |
 | `World/QuestUpkeepService.cs` | `BackgroundService` reading `WorldServer.QuestUpkeepRequests` and running `QuestAppService.RunUpkeepAsync`, at most 8 players at a time ([quests.md](quests.md)). |
 | [Net/GameTcpServer.cs](../Server/PristonTale.Server/Net/GameTcpServer.cs) | Listener, connection and handshake caps (in all and per address), TLS handshake, one `ClientSession` per connection, housekeeping (idle/login timeouts, bandwidth log). |
 | `Net/ServerCertificate.cs` | Loads the TLS certificate, or creates and stores a self-signed one. |
@@ -64,6 +65,7 @@ registration order. An exception from any `StartAsync` stops the host before the
 | 10 | `GameTcpServer` | Loads the TLS certificate, binds `[::]:<Network:Port>` (10009) dual-stack, backlog 512, and accepts. | The port is in use (the host stops). |
 | 11 | `QuestUpkeepService` | Applies the quest work the tick queues (quest drops, quest weapon growth and expiry) and queues the character for storage. | Never; a failed upkeep is logged and retried on the field's next check. |
 | 12 | `StarterGiftService` | Gives the starter gifts the tick finds due ([application.md](application.md#starter-gifts)). | Never; a failed gift is logged and offered again after the interval. |
+| 13 | `BellatraService` | Pays the Bellatra prizes the tick owes ([application.md](application.md#bellatra)). | Never; a failed prize is logged and the player told. |
 
 Shutdown runs the services in reverse: the game server closes every connection and awaits their leave saves while the
 tick still runs, and the character store stops last. Once the host is stopping, the first write storage refuses sends
@@ -204,6 +206,9 @@ show or write one row with `/setting name [value]` ([chat-and-gm.md](chat-and-gm
 | `castle.mode` | 1 | Bless Castle siege: 0 off, 1 weekly, 2 league, during which players never fight each other in the castle ([application.md](application.md#bless-castle)). |
 | `castle.siege_day` | 0 | Day of the scheduled siege, 0 Sunday to 6 Saturday, server local time. |
 | `castle.siege_hour` | 20 | Hour of the scheduled siege, 0 to 23, server local time. |
+| `bellatra.mode` | 1 | Bellatra: 0 closed, 1 open while the server's hour is 0 to 5 or 12 to 17, 2 always open ([application.md](application.md#bellatra)). |
+| `bellatra.tax` | 5 | Percent of each Bellatra prize kept for the operating clan. |
+| `bellatra.score_divisor` | 35 | A Bellatra kill scores the monster's experience divided by this (a boss's times twice the round); the score is the prize in gold. |
 
 Settings apply on the tick (`WorldServer.ApplyOptionsAsync`): every open field and the fields opened later take the
 experience, item event and aging values.

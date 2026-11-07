@@ -287,5 +287,14 @@ public enum GameTextId : ushort
     SiegeLeague = 777,
     CastleTaken = 778,
     FountainPotion = 779,
-    MercenaryLimit = 780
+    MercenaryLimit = 780,
+    BellatraClosed = 781,
+    BellatraLevel = 782,
+    BellatraNoTickets = 783,
+    BellatraTeamFull = 784,
+    BellatraEntered = 785,
+    BellatraTicket = 786,
+    BellatraOut = 787,
+    BellatraCleared = 788,
+    BellatraBossDown = 789
 }

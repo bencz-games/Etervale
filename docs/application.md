@@ -40,7 +40,8 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | [`World/WorldServer.cs`](../Shared/PristonTale.Application/World/WorldServer.cs) | Command queue, tick, field registry, connections, prepare/commit entry points |
 | `World/WorldServer.Npc.cs` | NPC interaction, NPC service check/prepare/commit, teleport arrival |
 | `World/WorldServer.Quests.cs`, `World/FieldInstance.Quests.cs`, `World/QuestTransactions.cs`, `World/PlayerQuestState.cs` | Quest prepare/commit, upkeep requests, quest travel; kill credit, quest drops, timers and arena duels on the field |
-| `World/WorldServerOptions.cs` | `ExperienceMultiplier`, `ExperienceEventPercent`, `ClockOffsetMinutes`, `CrystalEvent`, `ItemEvents`, `Aging`, `Mixing`, `Weather`, `WeatherCycleMinutes`, `MaxPendingCommandsPerPlayer`, `GiveStarterGifts`, `CheckpointSeconds`; `WorldBusyException` |
+| `World/WorldServerOptions.cs` | `ExperienceMultiplier`, `ExperienceEventPercent`, `ClockOffsetMinutes`, `CrystalEvent`, `ItemEvents`, `Aging`, `Mixing`, `Bellatra` (`BellatraOptions`), `Weather`, `WeatherCycleMinutes`, `MaxPendingCommandsPerPlayer`, `GiveStarterGifts`, `CheckpointSeconds`; `WorldBusyException` |
+| `World/WorldServer.Bellatra.cs`, `World/BellatraGame.cs`, `World/BellatraBooth.cs`, `World/FieldInstance.Bellatra.cs`, `Services/BellatraAppService.cs` | Bellatra's game: the rounds on the tick, the team booths, the arena's monsters and scores, the prizes paid off the tick ([Bellatra](#bellatra)) |
 | `World/WorldServer.StarterGifts.cs`, `Services/StarterGiftAppService.cs` | The starter gifts of new characters: their offers on the tick, prepare and commit, the durable operation and its chat line ([Starter gifts](#starter-gifts)) |
 | `Settings/` | `ServerSettings`, `ServerSettingCatalog` (every row of the settings table), `ServerSettingsAppService` (read, apply, write) |
 | [`World/FieldInstance.cs`](../Shared/PristonTale.Application/World/FieldInstance.cs) | One live field: players, monsters, NPCs, spawner, AI, collision index, step order, views |
@@ -399,6 +400,7 @@ A prepared operation with `Snapshot == null` is final (rejection or replay) and 
 | NPC services | `NpcServiceTransactions.Prepare` (`PreparedNpcOperation`) | inventory, gold delta, open warehouse, teleport arrival |
 | Quest requests | `QuestTransactions.Prepare` (`PreparedQuestOperation`); follow-ups must answer a step the NPC still offers | inventory, equipment, quest journal (merging tick kills), tier, stat/skill point and gold deltas, travel, arena duel |
 | Starter gift | `WorldServer.PrepareStarterGiftAsync`, run by the server's `StarterGiftService` ([Starter gifts](#starter-gifts)) | inventory and equipment, the gift count |
+| Bellatra prize | `WorldServer.PrepareBellatraPrizeAsync`, run by the server's `BellatraService` ([Bellatra](#bellatra)) | gold |
 | Quest upkeep | `QuestTransactions.PrepareUpkeep`, run by the server's `QuestUpkeepService` | quest drops into the pack, quest weapon growth and expiry, leftovers removed; a busy save gate defers the work to the field's next check |
 | Item use | `ItemUseTransactions.Prepare` with the item's `ItemUseAction` (`PreparedItemUseOperation`) | inventory, premium state, resets and mastery re-applied with the prepared clock, item effects, hair, arrival |
 | Personal shop purchase | `PersonalShopTransactions.Prepare` (`PreparedShopPurchase`): the buyer's and the seller's candidates, stored together first with `ICharacterRepository.UpdateAllAsync` | both inventories, the price from the buyer to the seller, the seller's listing pruned |
@@ -755,6 +757,46 @@ the castle field outside the owner clan are sent to a random start point of the 
 mercenaries are spent (they serve one siege). While a crystal tower stands no blow takes the tower's life
 (`MonsterInstance.MinimumLife`). `/easy_castle` leaves every defender one life, no lives in reserve and no potions;
 the tower keeps that one life while a crystal tower stands.
+
+## Bellatra
+
+Bellatra is a game of four teams in its arena (field 30, `BellatraArena`), played by the game clock (`WorldClock`, a
+game hour lasting 48 s). The world owns the game (`BellatraGame`) and steps it on the tick after the fields
+(`WorldServer.StepBellatra`); the arena field counts its entrants' kills. Entrants and the moves owed to them name
+characters, so a relog keeps a player's place and score.
+
+- Tickets: a team booth (`NpcServiceKind.EventBooth`, value 1 to 4 = team 0 to 3; the Navisko booths) answers on
+  opening why it refuses or the ticket's price (`BellatraBooth`), and sells it (`NpcServiceAction.EnterBellatra`)
+  while Bellatra is open (`bellatra.mode`, `BellatraRules.IsOpen`), between games, at game hours 4 and 5, to a
+  character of level 40 or more not entered yet while the team's entrants' levels do not pass 549 (two tickets
+  prepared together may pass it by one), for 300 gold a level (`CurrencySink.BellatraTickets`). The ticket is a
+  durable NPC payment that arrives at the team's room centre; its commit enters the team
+  (`PreparedNpcOperation.BellatraTeam`).
+- Rounds: eight rounds of one of three tables (`BellatraRounds`; each game after the first picks one with the world's
+  seeded draw) start as the game clock reaches hours 6, 8, 10, 12, 15, 18, 21 and 0, the game ending at 3; a clock
+  that jumps (a changed clock offset) starts each hour it passed in turn (`BellatraRules.HourReached`). A day whose
+  tickets nobody bought plays nothing. A round's start kills every round monster still standing (lives in reserve
+  too) and drops the entrants away from the arena (another field, or outside `BellatraArena.InArea`); the game
+  finishes when nobody is left. After the round's delay one monster a pulse (`BellatraRules.PulseMs`) enters each
+  room of the round with no more than the round's cap standing, by cumulative chance among the round's monsters
+  resolved once a round, the room's boss once the room has opened more than the cap less 10
+  (`FieldInstance.SpawnBellatraRound`, `MonsterInstance.BellatraRoom`, `BellatraBoss`; these monsters never leave
+  idle). Rounds 1 to 3 use the four first rooms, 4 to 6 the middle two, 7 and 8 the top room. The final round is
+  skipped when no entrant has 50,000 points.
+- Score: an entrant's kill of a round's monster during a round scores the monster's experience by
+  `bellatra.score_divisor`, a round boss's times twice the round (the killer is whispered it), to the entrant and its
+  team. Monsters a round monster calls are not round monsters.
+- Teams: before round 4 the two best teams with somebody left go on (the best to the fifth room, the second to the
+  sixth), before round 7 the best to the top room, `BellatraRules.BannerMs` after the round's start; the others are
+  paid and go to Navisko's centre as long. A move waits while its player lies dead, and is dropped once the player
+  left the arena.
+- The end: every entrant in the arena is paid its score less `bellatra.tax` percent (`BellatraRules.Prize`; the tax is
+  for the operating clan, not kept yet), and 30 s later every entrant still there goes to Navisko and the game
+  resets.
+- Prizes are paid off the tick (`WorldServer.BellatraPrizes`, `BellatraAppService`, `BellatraService`) through the
+  path of every character change, a fixed gold amount, tried again a few times while the player is busy with another
+  change; the player is told the prize, the gold limit that refused it or why it failed. A prize still waiting when the
+  server stops, or owed to a player who left, is lost.
 
 ## Published outcomes and events
 

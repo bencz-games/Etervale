@@ -130,8 +130,8 @@ internal static class GameMasterCommandTests
         fixture.World.Currency.Record(CurrencySink.Teleports, 100);
         await fixture.SayAsync(gm, "/get_currency");
         var lines = gm.Link.Texts();
-        Assert.True(lines[^2] == ">currency: Mx(0) Ag(0) Sh(2500000) Po(40 0 0) Fo(0) Wp(100) Sk(0 ) Tt(2500140)"
-            && lines[^1] == ">currency[M]: Mx(0) Ag(0) Sh(2) Po(0 0 0) Fo(0) Wp(0) Sk(0 ) Tt(2)", string.Join("|", lines.TakeLast(2)));
+        Assert.True(lines[^2] == ">currency: Mx(0) Ag(0) Sh(2500000) Po(40 0 0) Fo(0) Wp(100) Sk(0 ) Bt(0) Tt(2500140)"
+            && lines[^1] == ">currency[M]: Mx(0) Ag(0) Sh(2) Po(0 0 0) Fo(0) Wp(0) Sk(0 ) Bt(0) Tt(2)", string.Join("|", lines.TakeLast(2)));
         Assert.True(CurrencyLedger.ShopSinkFor("PM102") == CurrencySink.ManaPotions && CurrencyLedger.ShopSinkFor("WA101") == CurrencySink.Shop,
             "shop purchases are not sorted by potion kind");
     }

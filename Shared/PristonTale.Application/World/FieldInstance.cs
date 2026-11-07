@@ -327,6 +327,14 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
 
     private bool IsPresent(ulong entityId) => _players.ContainsKey(entityId) || _monsters.ContainsKey(entityId) || _npcs.ContainsKey(entityId);
 
+    // Dead at once, lives in reserve and all, leaving a corpse.
+    private void KillOutright(MonsterInstance monster)
+    {
+        monster.VirtualLives = 0;
+        monster.ApplyDamage(monster.Life);
+        _combat.BeginCorpse(monster.EntityId);
+    }
+
     private void PlaceLoot(KillPayout reward, long nowMs)
     {
         reward = CreditQuests(reward);
@@ -337,6 +345,7 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
             if (reward.CreditedPlayerId != 0)
             {
                 CallKillSummons(killed, reward.CreditedPlayerId);
+                ScoreBellatra(killed, reward.CreditedPlayerId);
             }
         }
     }

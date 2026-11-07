@@ -165,6 +165,15 @@
   <data name="Game.AgedItemMatured" xml:space="preserve"><value>The aged item has matured</value></data>
   <data name="Game.AlreadyApplied" xml:space="preserve"><value>Already done</value></data>
   <data name="Game.AlreadyTalking" xml:space="preserve"><value>Already talking to this NPC</value></data>
+  <data name="Game.BellatraBossDown" xml:space="preserve"><value>A boss fell ({0} points).</value></data>
+  <data name="Game.BellatraCleared" xml:space="preserve"><value>Congratulations! Bellatra is over. You gained {0} gold.</value></data>
+  <data name="Game.BellatraClosed" xml:space="preserve"><value>You cannot enter Bellatra at this time. Please come back later.</value></data>
+  <data name="Game.BellatraEntered" xml:space="preserve"><value>You are already in this Bellatra game.</value></data>
+  <data name="Game.BellatraLevel" xml:space="preserve"><value>You are not strong enough to enter Bellatra yet (level {0}). Train more and come back.</value></data>
+  <data name="Game.BellatraNoTickets" xml:space="preserve"><value>Bellatra's tickets are sold at dawn (game hours {0} and {1}), before a game. Please come back then.</value></data>
+  <data name="Game.BellatraOut" xml:space="preserve"><value>Your team is out (rank {0}). You gained {1} gold.</value></data>
+  <data name="Game.BellatraTeamFull" xml:space="preserve"><value>All of this team's tickets are sold out.</value></data>
+  <data name="Game.BellatraTicket" xml:space="preserve"><value>Bellatra's tickets are on sale: {0} gold.</value></data>
   <data name="Game.BossTime" xml:space="preserve"><value>Boss Time: XX:{0}</value></data>
   <data name="Game.CannotDrop" xml:space="preserve"><value>This item cannot be dropped</value></data>
   <data name="Game.CannotUseYet" xml:space="preserve"><value>Item cannot be used yet</value></data>
