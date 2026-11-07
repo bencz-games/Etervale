@@ -31,7 +31,7 @@ internal static class GameMasterCommandTests
         ("/user", 1), ("/sockets", 1), ("/talk", 1), ("/set_absorb", 4), ("/area_users", 1), ("/monster", 1), ("/mymonster", 1),
         ("/event_monster", 1), ("/area_monster", 1), ("/show_blackuser", 1), ("/reset_blackuser", 1), ("/free_blackuser", 1), ("/hide", 1),
         ("/show", 1), ("/get_money", 3), ("/dm_info", 1), ("/get_guid", 1), ("/grant", 1),
-        ("/start_castle", 1), ("/end_castle", 1), ("/set_castle_time", 1), ("/set_castle_master", 1), ("/get_castle_info", 1),
+        ("/start_castle", 1), ("/end_castle", 1), ("/easy_castle", 4), ("/set_castle_time", 1), ("/set_castle_master", 1), ("/get_castle_info", 1),
         ("/get_fountain_info", 1), ("/reset_fountain_time", 1), ("/set_castle_tax", 1)
     ];
 

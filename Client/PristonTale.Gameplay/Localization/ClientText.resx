@@ -120,6 +120,7 @@
   <data name="Game.BossTime" xml:space="preserve"><value>Boss Time: XX:{0}</value></data>
   <data name="Game.CannotDrop" xml:space="preserve"><value>This item cannot be dropped</value></data>
   <data name="Game.CannotUseYet" xml:space="preserve"><value>Item cannot be used yet</value></data>
+  <data name="Game.CastleTaken" xml:space="preserve"><value>The clan {0} has taken Bless Castle.</value></data>
   <data name="Game.CharacterBusy" xml:space="preserve"><value>A save or another character operation is pending; try again</value></data>
   <data name="Game.CharacterUnchanged" xml:space="preserve"><value>Storage rejected the operation; character unchanged</value></data>
   <data name="Game.ClanAlreadyInClan" xml:space="preserve"><value>You are already in a clan.</value></data>

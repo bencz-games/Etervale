@@ -49,6 +49,7 @@ public static class HostingExtensions
         builder.Services.AddSingleton<PristonTale.Application.Clans.ClanAppService>();
         builder.Services.AddSingleton<PristonTale.Application.Clans.IClanDirectory>(services =>
             services.GetRequiredService<PristonTale.Application.Clans.ClanAppService>());
+        builder.Services.AddSingleton<PristonTale.Application.Castle.ICastleWorld>(services => services.GetRequiredService<WorldServer>());
         builder.Services.AddSingleton<PristonTale.Application.Castle.CastleAppService>();
         builder.Services.AddSingleton<StarterGiftAppService>();
 

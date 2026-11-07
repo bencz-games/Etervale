@@ -26,19 +26,22 @@ public enum CastleOwnerResult : byte
     StorageFailed
 }
 
-// Bless Castle on the server: the owner clan, the tax, the owner's setup, the soul fountain and the treasury (stored before
-// every change applies, CastleRecord), and the siege's clock (kept in memory: a restart during a siege ends it). TickAsync
-// runs it from the local time, minute by minute (a late tick catches up the minutes it missed, at most CatchUpMinutes):
-// the tax and the clan skill chosen take effect each day at CastleRules.TaxHour (retried each minute until stored); a
-// weekly siege is announced an hour and half an hour before its day and hour and starts then; in the league a siege
-// restarts CastleRules.LeagueRestartMinutes after each end until the league's CastleRules.LeagueMinutes are over. A siege
-// runs until its end time (the owner keeps the castle) or until the Tower of Valhalla falls, then stays over for
-// CastleRules.OverSeconds before peace. The fountain gains a potion a minute in peace while the castle has an owner. An
-// owner clan that no longer exists (checked at load and each minute, only while the clans are loaded) leaves the castle
-// without one.
+// Bless Castle on the server: the owner clan, the tax, the owner's setup, the soul fountain and the treasury (stored
+// before every change applies, CastleRecord), and the siege's clock (kept in memory: a restart during a siege ends it).
+// TickAsync runs it from the local time, minute by minute (a late tick catches up the minutes it missed, at most
+// CatchUpMinutes): the tax and the clan skill chosen take effect each day at CastleRules.TaxHour (retried each minute
+// until stored); a weekly siege is announced an hour and half an hour before its day and hour and starts then; in the
+// league a siege restarts CastleRules.LeagueRestartMinutes after each end until the league's CastleRules.LeagueMinutes
+// are over. A siege runs in the castle field (ICastleWorld) until its end time (the owner keeps the castle) or until the
+// Tower of Valhalla falls (the clan that dealt the castle the most damage takes it), then stays over for
+// CastleRules.OverSeconds (the defenders gone) before peace (players outside the owner clan back to the arrival area,
+// the owner's towers and mercenaries spent). The fountain gains a potion a minute in peace while the castle has an
+// owner. An owner clan that no longer exists (checked at load and each minute, only while the clans are loaded) leaves
+// the castle without one. The world outlives the castle's service (it stops later), so its commands always complete.
 public sealed class CastleAppService
 {
     private const int CatchUpMinutes = 60;
+    private const long NoConquest = -1;
 
     // The siege's clock, replaced whole so that readers outside the gate see one consistent state.
     private sealed record SiegeClock(SiegeState State, DateTimeOffset StartedAt, DateTimeOffset EndsAt, DateTimeOffset OverUntil,
@@ -50,6 +53,7 @@ public sealed class CastleAppService
     private readonly ICastleRepository _repository;
     private readonly IClanDirectory _clans;
     private readonly ChatDirectory _chat;
+    private readonly ICastleWorld _world;
     private readonly TimeProvider _clock;
     private readonly SemaphoreSlim _gate = new(1, 1);
     private CastleRecord _record = CastleRecord.Empty;
@@ -57,13 +61,16 @@ public sealed class CastleAppService
     private DateTimeOffset _nextPotionAt;
     private long _lastMinute = -1;
     private bool _taxDue;
+    private long _conquest = NoConquest;
+    private bool _setupSpent;
     private bool _storageFailed;
 
-    public CastleAppService(ICastleRepository repository, IClanDirectory clans, ChatDirectory chat, TimeProvider? clock = null)
+    public CastleAppService(ICastleRepository repository, IClanDirectory clans, ChatDirectory chat, ICastleWorld world, TimeProvider? clock = null)
     {
         _repository = repository;
         _clans = clans;
         _chat = chat;
+        _world = world;
         _clock = clock ?? TimeProvider.System;
     }
 
@@ -130,7 +137,7 @@ public sealed class CastleAppService
             }
 
             _lastMinute = minute;
-            StepSiege(now, options);
+            await StepSiegeAsync(now, options);
             await StepFountainAsync(now);
             return !_storageFailed;
         }
@@ -147,7 +154,7 @@ public sealed class CastleAppService
         await _gate.WaitAsync();
         try
         {
-            return BeginSiege(minutes > 0 ? minutes : CastleRules.SiegeMinutes);
+            return await BeginSiegeAsync(minutes > 0 ? minutes : CastleRules.SiegeMinutes);
         }
         finally
         {
@@ -155,7 +162,7 @@ public sealed class CastleAppService
         }
     }
 
-    // A game master ends the siege now, and the league with it; the owner does not change.
+    // A game master ends the siege now, and the league with it; the owner does not change unless the tower already fell.
     public async Task<bool> EndSiegeAsync()
     {
         await _gate.WaitAsync();
@@ -167,7 +174,7 @@ public sealed class CastleAppService
             }
 
             Publish(_siege with { LeagueEndsAt = default });
-            CloseSiege();
+            await CloseSiegeAsync();
             return true;
         }
         finally
@@ -212,7 +219,27 @@ public sealed class CastleAppService
                 return CastleOwnerResult.NoClan;
             }
 
-            return await StoreAsync(Volatile.Read(ref _record) with { OwnerClanId = clanId }) ? CastleOwnerResult.Set : CastleOwnerResult.StorageFailed;
+            if (!await StoreAsync(Volatile.Read(ref _record) with { OwnerClanId = clanId }))
+            {
+                return CastleOwnerResult.StorageFailed;
+            }
+
+            _conquest = NoConquest;
+            return CastleOwnerResult.Set;
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
+    // A game master's easy siege: every standing defender keeps one life.
+    public async Task<bool> WeakenSiegeAsync()
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            return _siege.State == SiegeState.Running && await _world.WeakenSiegeAsync();
         }
         finally
         {
@@ -250,6 +277,12 @@ public sealed class CastleAppService
 
     private async Task OnMinuteAsync(DateTimeOffset local, CastleOptions options)
     {
+        await ConquerAsync();
+        if (_setupSpent)
+        {
+            await SpendSetupAsync();
+        }
+
         var record = Volatile.Read(ref _record);
         if (OwnerGone(record))
         {
@@ -284,12 +317,12 @@ public sealed class CastleAppService
                 Notice(GameTextId.SiegeLeague);
             }
 
-            BeginSiege(CastleRules.SiegeMinutes);
+            await BeginSiegeAsync(CastleRules.SiegeMinutes);
         }
     }
 
     // A league stops restarting once the mode leaves League.
-    private void StepSiege(DateTimeOffset now, CastleOptions options)
+    private async Task StepSiegeAsync(DateTimeOffset now, CastleOptions options)
     {
         var siege = _siege;
         if (options.Mode != CastleMode.League && siege.LeagueEndsAt != default)
@@ -298,15 +331,29 @@ public sealed class CastleAppService
             Publish(siege);
         }
 
-        if (siege.State == SiegeState.Running && now >= siege.EndsAt)
+        if (siege.State == SiegeState.Running && _world.Siege is { Running: true, ValhallaFallen: true })
         {
-            CloseSiege();
+            await CloseSiegeAsync();
+        }
+        else if (siege.State == SiegeState.Running && now >= siege.EndsAt)
+        {
+            await CloseSiegeAsync();
         }
         else if (siege.State == SiegeState.Over && now >= siege.OverUntil)
         {
             var restart = now.AddMinutes(CastleRules.LeagueRestartMinutes);
             var restarts = restart < siege.LeagueEndsAt;
             Publish(siege with { State = SiegeState.Peace, LeagueRestartAt = restarts ? restart : default });
+            _setupSpent = true;
+            await SpendSetupAsync();
+            foreach (var arrival in await _world.EndSiegeAsync(OwnerClanId))
+            {
+                if (_chat.TryGet(arrival.EntityId, out var member))
+                {
+                    member.Link.Warp(arrival.FieldId, arrival.Position);
+                }
+            }
+
             Notice(GameTextId.SiegeOver);
             if (restarts)
             {
@@ -315,7 +362,7 @@ public sealed class CastleAppService
         }
         else if (siege.State == SiegeState.Peace && siege.LeagueRestartAt != default && now >= siege.LeagueRestartAt)
         {
-            BeginSiege(CastleRules.SiegeMinutes);
+            await BeginSiegeAsync(CastleRules.SiegeMinutes);
         }
     }
 
@@ -334,7 +381,7 @@ public sealed class CastleAppService
         }
     }
 
-    private bool BeginSiege(int minutes)
+    private async Task<bool> BeginSiegeAsync(int minutes)
     {
         var siege = _siege;
         if (siege.State != SiegeState.Peace)
@@ -342,6 +389,7 @@ public sealed class CastleAppService
             return false;
         }
 
+        await _world.OpenSiegeAsync(Order(Volatile.Read(ref _record)));
         var now = _clock.GetUtcNow();
         var ends = now.AddMinutes(minutes);
         Publish(siege with
@@ -355,7 +403,52 @@ public sealed class CastleAppService
         return true;
     }
 
-    private void CloseSiege() => Publish(_siege with { State = SiegeState.Over, OverUntil = _clock.GetUtcNow().AddSeconds(CastleRules.OverSeconds) });
+    // A tower that fell gives the castle to its winner first (kept and tried again each minute while storage refuses).
+    private async Task CloseSiegeAsync()
+    {
+        if (_world.Siege is { Running: true, ValhallaFallen: true } fallen)
+        {
+            _conquest = fallen.Winner;
+            await ConquerAsync();
+        }
+
+        Publish(_siege with { State = SiegeState.Over, OverUntil = _clock.GetUtcNow().AddSeconds(CastleRules.OverSeconds) });
+        await _world.CloseSiegeAsync();
+    }
+
+    // The clan that dealt the most damage takes the castle (none when no clan dealt any), with a notice naming it.
+    private async Task ConquerAsync()
+    {
+        if (_conquest == NoConquest)
+        {
+            return;
+        }
+
+        var winner = _conquest;
+        var record = Volatile.Read(ref _record);
+        if (winner != record.OwnerClanId && !await StoreAsync(record with { OwnerClanId = winner }))
+        {
+            return;
+        }
+
+        _conquest = NoConquest;
+        if (winner != record.OwnerClanId && _clans.NameOf(winner) is { } name)
+        {
+            _chat.Broadcast(new ChatLine(ChatKind.Notice, 0, "", GameText.Of(GameTextId.CastleTaken, name)));
+        }
+    }
+
+    // The towers and mercenaries the owner bought serve one siege (tried again each minute while storage refuses).
+    private async Task SpendSetupAsync()
+    {
+        var record = Volatile.Read(ref _record);
+        _setupSpent = !await StoreAsync(record with { Towers = "", MercenaryA = 0, MercenaryB = 0, MercenaryC = 0 });
+    }
+
+    // The owner's towers (one digit per slot) and mercenaries.
+    private static CastleSiegeOrder Order(CastleRecord record) => new(record.OwnerClanId,
+        [.. record.Towers.Select(static digit => digit - '0' is var element && Enum.IsDefined((CastleTower)element) ? (CastleTower)element : CastleTower.None)],
+        [record.MercenaryA, record.MercenaryB, record.MercenaryC]);
 
     private void Publish(SiegeClock siege) => Volatile.Write(ref _siege, siege);
 

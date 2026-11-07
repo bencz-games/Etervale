@@ -92,6 +92,15 @@ internal static class GmCastleCommands
         }
     }
 
+    // /easy_castle
+    public static async Task Easy(GmCommandContext context)
+    {
+        if (Castle(context) is { } castle)
+        {
+            context.Reply(await castle.WeakenSiegeAsync() ? "> Every castle defender has one life left" : "> No siege is running");
+        }
+    }
+
     // /set_castle_tax: the next tax and the chosen clan skill take effect now.
     public static async Task Tax(GmCommandContext context)
     {

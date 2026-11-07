@@ -219,8 +219,9 @@ first `Order`; `Query` returns candidates sorted by `Order`, which keeps neighbo
   radius; `Ai.Iq` enables running; `Ai.GroupSize` the spawn group. `Ai.MoveSpeed` is only sent to clients for
   presentation; `Ai.MoveRange`, `Ai.Nature` and `Ai.ActiveHour` are imported but no rule reads them.
 - `SoundCode` is the original sound family code and doubles as a behaviour key (see Pitfalls).
-- `PotionCount`/`PotionPercent`: potions a spawn may carry (Valento, Kelvezu, Mokova and Hestian use the count as lives, see
-  Monster skills). `Skill` keeps curse-only skills (no damage, no area, a rating and a curse code).
+- `PotionCount`/`PotionPercent`: potions a spawn may carry (Valento, Kelvezu, Mokova, Hestian and the castle's door,
+  Tower of Valhalla and crystal towers use the count as lives, see Monster skills). `Skill` keeps curse-only skills (no
+  damage, no area, a rating and a curse code).
 - `MonsterCatalog.TryFindKey(key)` matches the key case-insensitively; `TryFind(name)` (game-master commands, skill
   summons) matches the key, else the display name, and returns the lowest code (an event form shares its key).
 
@@ -297,7 +298,9 @@ Host-called rules:
 - `ApplyBossRetargetOnHit`: a boss without an active lock takes the attacker as target for 4000 ms.
 - `MonsterAiTuning.IsUnyielding`: the four great bosses by sound code; skills never knock back or taunt them and they
   see through stealth.
-- A definition with `MeleeRange == 0` is immobile and never attacks (`IsImmobile`).
+- A definition with `MeleeRange == 0` is immobile and never attacks (`IsImmobile`). The castle's door, Tower of
+  Valhalla and crystal towers never move either; those with a reach strike the prey in it without turning
+  (`StrikesInPlace`) and let go of prey out of it.
 
 Speed (`MonsterLocomotion`): 70 units/s per step; a Dark Knight boss has 2 base steps; running adds one step (Greven 4,
 Wolverlin 2). The brain integrates toward its target at this speed; terrain then accepts or slides the step.
@@ -343,11 +346,11 @@ Boss and special rules:
   half its damage roll, and then a target farther than 200 units takes 70 %. While hunting a player it regenerates once
   per clip that runs 120 frames: a table row per player within 260 units beyond six (at most nine), 1800..2800, or
   2300..3300 below 20 % life.
-- Valento, Kelvezu, Mokova, Hestian: `PotionCount` lives; at 10 % life or less one is spent and life refills (a lethal
-  blow included). On every even number of lives left after a spend, Kelvezu calls two Chaos Cara, Mokova two Dark Guards
-  and Hestian two Xetans of level 117 (her duel's player's) within ±100 units, at most 8 monsters on the boss's spawn
-  point. Views show one bar of `(lives + 1) x 100` points.
-  Reinforcements and bees are the family's ordinary definition of the lowest level.
+- Valento, Kelvezu, Mokova, Hestian and the castle's standing defenders: `PotionCount` lives; at 10 % life or less one
+  is spent and life refills (a lethal blow included). On every even number of lives left after a spend, Kelvezu calls
+  two Chaos Cara, Mokova two Dark Guards and Hestian two Xetans of level 117 (her duel's player's) within ±100 units, at
+  most 8 monsters on the boss's spawn point. Views show one bar of `(lives + 1) x 100` points. Reinforcements and bees
+  are the family's ordinary definition of the lowest level.
 - Potions: a spawn carries `rand[1, PotionCount]` potions with `PotionPercent` chance; below 30 % life at a clip end it
   drinks one (`Eat` clip) and heals half its life when the clip ends (`PotionApplied` event). Quest duel opponents keep
   their own potion rules ([quests.md](quests.md)). The magic master drinks a mana potion instead of 20 % of its casts.

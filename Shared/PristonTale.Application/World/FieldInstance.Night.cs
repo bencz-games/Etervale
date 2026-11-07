@@ -32,7 +32,8 @@ public sealed partial class FieldInstance
     // The field's event, set by the world when it opens the field.
     internal FieldEventKind Event { get; set; }
 
-    private bool SpawnsNow => Event != FieldEventKind.Nightmare || Night;
+    // A siege holds the castle field's spawns.
+    internal bool SpawnsNow => (Event != FieldEventKind.Nightmare || Night) && _siege is null;
 
     private void StepNight()
     {

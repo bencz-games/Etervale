@@ -127,13 +127,20 @@ public sealed partial class WorldServer
                 return null;
             }
 
-            var terrain = GetField(destination.FieldId).Terrain;
-            var position = onFloor ? terrain.PlaceOnFloor(requested) : terrain.SettleNear(requested, FieldTerrain.ArrivalTolerance);
-            var inVillage = definition.State == FieldState.Village;
-            Relocate(connection, destination.FieldId, position, inVillage);
-            connection.Player.EnterField(position, inVillage);
-            return new GmPlacement(destination.FieldId, position);
+            return new GmPlacement(destination.FieldId, MoveTo(connection, definition, requested, onFloor));
         });
+    }
+
+    // Moves a player to a position of a field (on the highest floor there, or settled near the height given) and returns
+    // where it stands; the caller sends the forced warp.
+    private Vector3 MoveTo(Connection connection, FieldDef definition, Vector3 requested, bool onFloor)
+    {
+        var terrain = GetField(definition.FieldCode).Terrain;
+        var position = onFloor ? terrain.PlaceOnFloor(requested) : terrain.SettleNear(requested, FieldTerrain.ArrivalTolerance);
+        var inVillage = definition.State == FieldState.Village;
+        Relocate(connection, definition.FieldCode, position, inVillage);
+        connection.Player.EnterField(position, inVillage);
+        return position;
     }
 
     // Players in the world and living wild monsters of every field.

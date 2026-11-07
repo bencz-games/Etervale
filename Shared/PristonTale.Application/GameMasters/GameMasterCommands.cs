@@ -177,6 +177,7 @@ public sealed class GameMasterCommands
         new("/grant", GameMasterLevel.Guide, GmPlayerCommands.Grant),
         new("/start_castle", GameMasterLevel.Guide, GmCastleCommands.Start),
         new("/end_castle", GameMasterLevel.Guide, GmCastleCommands.End),
+        new("/easy_castle", GameMasterLevel.Administrator, GmCastleCommands.Easy),
         new("/set_castle_time", GameMasterLevel.Guide, GmCastleCommands.Time),
         new("/set_castle_master", GameMasterLevel.Guide, GmCastleCommands.Master),
         new("/get_castle_info", GameMasterLevel.Guide, GmCastleCommands.Info),

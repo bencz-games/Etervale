@@ -120,6 +120,7 @@
   <data name="Game.BossTime" xml:space="preserve"><value>Hora do chefe: XX:{0}</value></data>
   <data name="Game.CannotDrop" xml:space="preserve"><value>Este item não pode ser jogado fora</value></data>
   <data name="Game.CannotUseYet" xml:space="preserve"><value>O item ainda não pode ser usado</value></data>
+  <data name="Game.CastleTaken" xml:space="preserve"><value>O clã {0} conquistou o Bless Castle.</value></data>
   <data name="Game.CharacterBusy" xml:space="preserve"><value>Um salvamento ou outra operação do personagem está pendente; tente de novo</value></data>
   <data name="Game.CharacterUnchanged" xml:space="preserve"><value>O armazenamento recusou a operação; o personagem não mudou</value></data>
   <data name="Game.ClanAlreadyInClan" xml:space="preserve"><value>Você já está em um clã.</value></data>

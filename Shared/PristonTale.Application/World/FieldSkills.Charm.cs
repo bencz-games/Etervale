@@ -12,7 +12,7 @@ internal sealed partial class FieldSkills
     private bool Charm(WorldPlayer caster, ActiveCast cast)
     {
         var rule = cast.Rule;
-        if (!_host.TryGetMonster(cast.TargetId, out var monster) || !Strikeable(monster) || monster.Def.IsBoss
+        if (!_host.TryGetMonster(cast.TargetId, out var monster) || !Strikeable(caster, monster) || monster.Def.IsBoss
             || !SkillFormulas.MatchesBrood(rule.Charm.Broods, monster.Def)
             || _rng.RollPercent() >= SkillFormulas.CharmChance(rule, cast.Rank, monster.Def.Combat.Resistances.Bionic))
         {

@@ -230,10 +230,10 @@ internal sealed partial class FieldSkills
     {
         if (!summon.Aggressive)
         {
-            return _host.TryGetMonster(owner.CombatTargetId, out var fought) && Strikeable(fought) ? fought : null;
+            return _host.TryGetMonster(owner.CombatTargetId, out var fought) && Strikeable(owner, fought) ? fought : null;
         }
 
-        if (summon.TargetId != 0 && _host.TryGetMonster(summon.TargetId, out var held) && Strikeable(held)
+        if (summon.TargetId != 0 && _host.TryGetMonster(summon.TargetId, out var held) && Strikeable(owner, held)
             && summon.SinceRetargetMs < MonsterAiTuning.RetargetIntervalMs)
         {
             return held;
@@ -244,7 +244,7 @@ internal sealed partial class FieldSkills
         var best = (float)tuning.SightSq;
         foreach (var monster in _host.Monsters)
         {
-            if (!Strikeable(monster) || MathF.Abs(monster.Position.Y - summon.Position.Y) >= SummonVerticalSight)
+            if (!Strikeable(owner, monster) || MathF.Abs(monster.Position.Y - summon.Position.Y) >= SummonVerticalSight)
             {
                 continue;
             }
@@ -264,8 +264,8 @@ internal sealed partial class FieldSkills
     // player target is closer.
     public void ResolveSummonHit(MonsterInstance summon, in MonsterAttackEvent landed)
     {
-        if (!summon.IsAlive || !_host.TryGetMonster(landed.TargetEntityId, out var target) || !Strikeable(target)
-            || !_host.TryGetPlayer(summon.OwnerId, out var owner)
+        if (!summon.IsAlive || !_host.TryGetMonster(landed.TargetEntityId, out var target) || !_host.TryGetPlayer(summon.OwnerId, out var owner)
+            || !Strikeable(owner, target)
             || FieldMonsterSkills.BlowOnMonster(_rng, summon, target, landed.IsSkill) is not { } damage)
         {
             return;

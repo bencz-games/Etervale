@@ -524,7 +524,7 @@ internal sealed class FieldMonsterSkills
     // A skill blow never misses and is never blocked: the power less the player's absorption, at least 1.
     private void SkillOnPlayer(MonsterInstance attacker, WorldPlayer target, bool applyRiders)
     {
-        if (target.IsDead || target.Life <= 0)
+        if (target.IsDead || target.Life <= 0 || FieldCombat.OwnClan(target, attacker))
         {
             return;
         }

@@ -4,8 +4,9 @@ using PristonTale.Simulation.World.Monsters;
 
 namespace PristonTale.Application.World;
 
-// The field's part of the clans: a member's cheer heals the clan's monsters nearby (its clan pets), and a clan crystal
-// calls one pet a member while fewer than ClanRules.NearbyMonsters of the clan stand near.
+// The field's part of the clans: a member's cheer heals the clan's monsters nearby (its clan pets, never the castle's
+// defenders), and a clan crystal calls one pet a member while fewer than ClanRules.NearbyMonsters of the clan's pets
+// stand near.
 public sealed partial class FieldInstance
 {
     private readonly MonsterInstance?[] _cheered = new MonsterInstance?[ClanRules.NearbyMonsters];
@@ -21,7 +22,7 @@ public sealed partial class FieldInstance
         var nearby = 0;
         foreach (var monster in _monsters.Values)
         {
-            if (monster.ClanId != clan.ClanId || !monster.IsAlive)
+            if (monster.ClanId != clan.ClanId || !monster.IsAlive || monster.CastleRole != Simulation.Social.Castle.CastleObject.None)
             {
                 continue;
             }
@@ -51,7 +52,7 @@ public sealed partial class FieldInstance
         var count = 0;
         foreach (var monster in _monsters.Values)
         {
-            if (count < _cheered.Length && monster.ClanId == clan.ClanId && monster.IsAlive
+            if (count < _cheered.Length && monster.ClanId == clan.ClanId && monster.IsAlive && monster.CastleRole == Simulation.Social.Castle.CastleObject.None
                 && System.Numerics.Vector3.DistanceSquared(monster.Position, player.Position) < ClanRules.NearbyRangeSquared)
             {
                 _cheered[count++] = monster;

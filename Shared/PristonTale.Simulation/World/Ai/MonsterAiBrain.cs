@@ -149,6 +149,12 @@ public sealed class MonsterAiBrain
             m.Engaged = false;
         }
 
+        if (t.StrikesInPlace)
+        {
+            StrikeInPlace(m, t, hasTarget, live);
+            return null;
+        }
+
         if (t.IsImmobile)
         {
             EnterIdle(m);
@@ -199,6 +205,20 @@ public sealed class MonsterAiBrain
             default:
                 return null;
         }
+    }
+
+    // A target out of reach is let go with its lock (a boss's lock on a ranged attacker), so that the next scan picks the
+    // nearest prey again.
+    private void StrikeInPlace(MonsterInstance m, MonsterAiTuning t, bool hasTarget, in PreyCandidate target)
+    {
+        if (hasTarget && MonsterAttackReach.CanBegin(m.Def, m.Position, target.Position))
+        {
+            BeginAttack(m, t);
+            return;
+        }
+
+        m.TargetLockMsLeft = 0f;
+        EnterIdle(m);
     }
 
     private static ulong AcquireNearestPrey(MonsterInstance m, MonsterAiTuning t, IPreyView prey)
@@ -522,7 +542,11 @@ public sealed class MonsterAiBrain
             // reach, so consecutive attacks never pass through a walk. An impact on this tick is resolved first.
             if (stillValid && landed is null && MonsterAttackReach.CanBegin(m.Def, m.Position, tgt2.Position))
             {
-                FaceToward(m, tgt2.Position);
+                if (!t.StrikesInPlace)
+                {
+                    FaceToward(m, tgt2.Position);
+                }
+
                 BeginAttack(m, t);
             }
             else if (stillValid)

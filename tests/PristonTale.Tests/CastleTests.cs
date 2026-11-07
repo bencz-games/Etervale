@@ -26,6 +26,10 @@ internal static class CastleTests
         yield return ("the tax and clan skill chosen take effect at four; the fountain fills a potion a minute; an owner clan that is gone is forgotten",
             OwnerAsync);
         yield return ("an owner is kept while the clans are not loaded, and a refused storage changes nothing and is retried", FailuresAsync);
+        yield return ("a siege opens the owner's defenders; the tower's fall gives the castle to the leading clan, closes the siege and sends outsiders back",
+            TakenAsync);
+        yield return ("a conquest refused by storage is kept and stored on a later minute; the owner's towers and mercenaries serve one siege",
+            ConquestRetryAsync);
         yield return ("castle game-master commands start, time and end a siege, set the owner in peace and read the castle and fountain", CommandsAsync);
     }
 
@@ -194,6 +198,46 @@ internal static class CastleTests
         Assert.True(await refused.TickAsync(Off, TimeSpan.FromMinutes(1)) && refused.Castle.View().Tax == 6, "the tax was not tried again");
     }
 
+    private static async Task TakenAsync()
+    {
+        var fixture = await Fixture.CreateAsync(new DateTimeOffset(2026, 11, 9, 12, 0, 0, TimeSpan.Zero),
+            CastleRecord.Empty with { OwnerClanId = 7, Towers = "1309", MercenaryA = 2, MercenaryC = 5 });
+        fixture.Clans.Names[8] = "Tigers";
+        Assert.True(await fixture.Castle.StartSiegeAsync() && fixture.World.Opened is { OwnerClanId: 7 } order
+            && order.Towers is [CastleTower.Ice, CastleTower.Fire, CastleTower.None, CastleTower.None] && order.Mercenaries is [2, 0, 5],
+            "the siege did not open with the owner's defenders");
+        await fixture.TickAsync(Off, TimeSpan.FromSeconds(1));
+        Assert.True(fixture.Castle.Siege == SiegeState.Running, "the siege closed before the tower fell");
+        fixture.World.Siege = fixture.World.Siege with { ValhallaFallen = true, Winner = 8 };
+        fixture.World.Arrivals.Add(new CastleArrival(1, Simulation.World.FieldCodes.Castle, new System.Numerics.Vector3(1, 2, 3)));
+        await fixture.TickAsync(Off, TimeSpan.FromSeconds(1));
+        Assert.True(fixture.Castle.View() is { OwnerClanId: 8, Siege: SiegeState.Over } && fixture.Repository.Saved.OwnerClanId == 8
+            && fixture.Link.Lines[^1].Line is { Id: GameTextId.CastleTaken, Args: ["Tigers"] } && fixture.World.Calls is ["open", "close"],
+            "the tower's fall did not give the castle to the leading clan");
+        await fixture.TickAsync(Off, TimeSpan.FromSeconds(CastleRules.OverSeconds));
+        Assert.True(fixture.Castle.Siege == SiegeState.Peace && fixture.World.Calls is [.., "end 8"] && fixture.Link.Warps is [(Simulation.World.FieldCodes.Castle, _)],
+            "the end did not send the outsiders back");
+    }
+
+    private static async Task ConquestRetryAsync()
+    {
+        var fixture = await Fixture.CreateAsync(new DateTimeOffset(2026, 11, 9, 12, 0, 0, TimeSpan.Zero),
+            CastleRecord.Empty with { OwnerClanId = 7, Towers = "123", MercenaryB = 4 });
+        fixture.Clans.Names[8] = "Tigers";
+        await fixture.Castle.StartSiegeAsync();
+        fixture.World.Siege = fixture.World.Siege with { ValhallaFallen = true, Winner = 8 };
+        fixture.Repository.Refuse = true;
+        Assert.True(await fixture.Castle.EndSiegeAsync() && fixture.Castle.OwnerClanId == 7 && fixture.World.Calls is ["open", "close"],
+            "a refused conquest changed the owner");
+        fixture.Repository.Refuse = false;
+        await fixture.TickAsync(Off, TimeSpan.FromMinutes(1));
+        Assert.True(fixture.Castle.OwnerClanId == 8 && fixture.Repository.Saved.OwnerClanId == 8 && fixture.Notices() is [.., GameTextId.CastleTaken, GameTextId.SiegeOver],
+            "the conquest was not stored on the next minute");
+        await fixture.TickAsync(Off, TimeSpan.FromSeconds(CastleRules.OverSeconds));
+        Assert.True(fixture.Repository.Saved is { Towers: "", MercenaryA: 0, MercenaryB: 0, MercenaryC: 0, OwnerClanId: 8 },
+            "the owner's towers and mercenaries outlived the siege");
+    }
+
     private static async Task CommandsAsync()
     {
         var chat = new ChatFixture();
@@ -218,10 +262,15 @@ internal static class CastleTests
             gm.Link.Last);
         await chat.SayAsync(gm, "/get_castle_info");
         Assert.True(gm.Link.Last == "> BlessCastle ( MasterClan[Lions] Tax[0] NextTax[4] ) MyClan() Mode(1)", gm.Link.Last);
+        var admin = await chat.JoinAsync("Admin", 0, 0, GameMasterLevel.Administrator);
+        await chat.SayAsync(admin, "/easy_castle");
+        Assert.True(admin.Link.Last == "> Every castle defender has one life left" && fixture.World.Calls[^1] == "weaken", admin.Link.Last);
         await chat.SayAsync(gm, "/end_castle");
         Assert.True(gm.Link.Last == "> Bless Castle siege ended" && fixture.Castle.Siege == SiegeState.Over, gm.Link.Last);
         await chat.SayAsync(gm, "/end_castle");
         Assert.True(gm.Link.Last == "> No siege is running", gm.Link.Last);
+        await chat.SayAsync(admin, "/easy_castle");
+        Assert.True(admin.Link.Last == "> No siege is running", admin.Link.Last);
         await chat.SayAsync(gm, "/get_fountain_info");
         Assert.True(gm.Link.Last == "> SoulFountain ( Potion[0] )", gm.Link.Last);
         await chat.SayAsync(gm, "/reset_fountain_time");
@@ -240,6 +289,7 @@ internal static class CastleTests
         public required FakeClans Clans { get; init; }
         public required ManualTime Clock { get; init; }
         public required FakeLink Link { get; init; }
+        public required FakeWorld World { get; init; }
 
         // Lions (7) is the one clan.
         public static async Task<Fixture> CreateAsync(DateTimeOffset now, CastleRecord? stored = null, bool clansLoaded = true)
@@ -256,9 +306,10 @@ internal static class CastleTests
             var chat = new ChatDirectory();
             var link = new FakeLink();
             chat.Join(new ChatMember(new SessionRegistry().Create(1, "watcher"), "Watcher", link, 0, 0));
-            var castle = new CastleAppService(repository, clans, chat, clock);
+            var world = new FakeWorld();
+            var castle = new CastleAppService(repository, clans, chat, world, clock);
             await castle.LoadAsync();
-            return new Fixture { Castle = castle, Repository = repository, Clans = clans, Clock = clock, Link = link };
+            return new Fixture { Castle = castle, Repository = repository, Clans = clans, Clock = clock, Link = link, World = world };
         }
 
         public Task<bool> TickAsync(CastleOptions options, TimeSpan advance = default)
@@ -287,6 +338,45 @@ internal static class CastleTests
 
             Saved = castle;
             return Task.CompletedTask;
+        }
+    }
+
+    private sealed class FakeWorld : ICastleWorld
+    {
+        public CastleSiegeView Siege { get; set; } = CastleSiegeView.None;
+
+        public List<string> Calls { get; } = [];
+
+        public CastleSiegeOrder? Opened { get; private set; }
+
+        public List<CastleArrival> Arrivals { get; } = [];
+
+        public Task OpenSiegeAsync(CastleSiegeOrder order)
+        {
+            Opened = order;
+            Calls.Add("open");
+            Siege = CastleSiegeView.None with { Running = true };
+            return Task.CompletedTask;
+        }
+
+        public Task CloseSiegeAsync()
+        {
+            Calls.Add("close");
+            Siege = Siege with { Running = false };
+            return Task.CompletedTask;
+        }
+
+        public Task<IReadOnlyList<CastleArrival>> EndSiegeAsync(long ownerClanId)
+        {
+            Calls.Add("end " + ownerClanId);
+            Siege = CastleSiegeView.None;
+            return Task.FromResult<IReadOnlyList<CastleArrival>>([.. Arrivals]);
+        }
+
+        public Task<bool> WeakenSiegeAsync()
+        {
+            Calls.Add("weaken");
+            return Task.FromResult(true);
         }
     }
 

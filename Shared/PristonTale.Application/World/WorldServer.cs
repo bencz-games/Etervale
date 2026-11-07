@@ -133,6 +133,7 @@ public sealed partial class WorldServer
         field.Rains = described is not null && WeatherSchedule.Rains(described);
         field.DropLedger = DropLedgerFor(_worldData.Current.Items);
         _fields.Add(fieldId, field);
+        OpenSiegeIn(field);
         return field;
     }
 
@@ -725,6 +726,7 @@ public sealed partial class WorldServer
             _stepInputs.NowSeconds, _stepInputs.Night, _stepInputs.Weather));
         LastPhases = new TickPhases(processed, Stopwatch.GetElapsedTime(started, commandsDone).TotalMilliseconds,
             Stopwatch.GetElapsedTime(commandsDone).TotalMilliseconds);
+        PublishSiege(nowSeconds);
         ApplyQuestTravels();
         Checkpoint(serverTick);
         OfferStarterGifts(serverTick);

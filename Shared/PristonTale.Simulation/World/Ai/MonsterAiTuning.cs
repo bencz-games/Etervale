@@ -67,8 +67,11 @@ public sealed class MonsterAiTuning
         StopDistance = Math.Max(0, AttackRange - StopMargin);
 
         // An attack range of 0 never passes the reach test (dist < 0), and the five such definitions (doors and maple
-        // event objects) have no walk or run clip, so a walk motion cannot start and they never move either.
-        IsImmobile = AttackRange == 0;
+        // event objects) have no walk or run clip, so a walk motion cannot start and they never move either. The castle's
+        // standing defenders hold their place too, and those with a reach strike what comes into it without turning.
+        var rooted = Social.Castle.CastleSiegeRules.StandsStill(def.SoundCode);
+        IsImmobile = AttackRange == 0 || rooted;
+        StrikesInPlace = rooted && AttackRange > 0;
 
         StuckDistanceSq = (long)StuckDistance * StuckDistance;
         VerticalAggroGateF = VerticalAggroGate;
@@ -181,6 +184,7 @@ public sealed class MonsterAiTuning
     public int AttackRange { get; }
     public int StopDistance { get; }
     public bool IsImmobile { get; }
+    public bool StrikesInPlace { get; }
     public long StuckDistanceSq { get; }
     public float VerticalAggroGateF { get; }
     public bool HasRunClip { get; }

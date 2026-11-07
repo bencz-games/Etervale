@@ -140,6 +140,7 @@ Commands match by exact, case-sensitive prefix in table order. Levels:
 | Moderator | `/>`, `/>>`, `/user_limit`, `/kick`, `/kill`, `/open_warehouse`, `/shutdown`, `/weather`, `/insert`, `/near`, `/call`, `/where` |
 | Moderator | `/field`, `/player_location` |
 | Operator | `/get_money`, `/AgingSetting` |
+| Administrator | `/easy_castle` |
 | Administrator | `/init_premiumitem`, `/@get_perf`, `/@get`, `/@put_perf`, `/@put`, `/GiveMeExp!`, `/expup`, `/GiveMeMoney!`, `/reload_settings`, `/setting`, `/set_absorb` |
 
 - Information: local time, boss minute, the issuer's force orb and premium timers, gold spent per sink, carried potions,
@@ -168,7 +169,8 @@ Commands match by exact, case-sensitive prefix in table order. Levels:
   `/end_castle` ends it and a running league (the owner stays), `/set_castle_time minutes` sets the running siege's
   end, `/set_castle_master [clan]` gives the castle to a clan outside a siege (the issuer's own clan without a name),
   `/get_castle_info` and `/get_fountain_info` read the castle and the soul fountain, `/reset_fountain_time` restarts
-  the fountain's minute, `/set_castle_tax` makes the next tax and the chosen clan skill take effect now.
+  the fountain's minute, `/set_castle_tax` makes the next tax and the chosen clan skill take effect now,
+  `/easy_castle` leaves every standing defender of the running siege one life.
 - Experience: `/GiveMeExp! level` raises to a level, `/expup n` adds n points as a monster's award would.
 - `server.test` or `server.debug` (settings table) lower `/GiveMeExp!`, `/expup` and `/GiveMeMoney!` to Guide; on a debug
   server `/` and an item code drops that item; `gm.potion_monitor` (default on) enables `/get_potion`.
@@ -192,9 +194,9 @@ Commands match by exact, case-sensitive prefix in table order. Levels:
 - Command matching is a prefix match: `/show` must come after `/show_blackuser`, `/@get` after `/@get_perf`, `/@put` after `/@put_perf`.
 - The client shows its own spoken and party lines at once; the server never echoes them back.
 - The standing notice is delivered on the heartbeat, not on the command.
-- Not ported because Etervale has no such system yet: the siege's easy mode (`/easy_castle`, with the siege's
-  objects), billing and PC-room time, event levels, client checksum commands, item-age revision, the wishing fountain,
-  Bellatra (`/sod_view`, `/sod_enter`), billing time (`/time`), couple rings and only one game master pet at a time. The classic password elevation is replaced by the stored level.
+- Not ported because Etervale has no such system: billing and PC-room time, event levels, client checksum commands,
+  item-age revision, the wishing fountain, Bellatra (`/sod_view`, `/sod_enter`), billing time (`/time`), couple rings
+  and only one game master pet at a time. The classic password elevation is replaced by the stored level.
 - The classic client's own commands: `/field` and `/player_location` (and `/expup`) are server commands here, since the
   server owns position and experience; `/save` has no counterpart (every change is stored as it happens); the lighting
   and model debug commands (`/dark`, `/color`, `/time_offset`, `/load`, `/body`, `/mymodel`, ...) and `/latency` are

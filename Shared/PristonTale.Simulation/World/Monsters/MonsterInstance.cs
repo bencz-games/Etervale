@@ -152,6 +152,9 @@ public sealed class MonsterInstance
 
     // A night creature stays until dawn even with no player near.
     public bool StaysUntilDawn { get; set; }
+
+    // A siege's defender stays until the siege closes, even with no player near.
+    public Social.Castle.CastleObject CastleRole { get; set; }
     public float SpecialMsLeft { get; set; }
     public MotionState CompletedSpecial { get; set; }
     public bool DrinkHeals { get; set; }

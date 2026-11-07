@@ -24,7 +24,7 @@ internal sealed partial class FieldSkills
         }
 
         var rank = cast.Rank;
-        if (!_host.TryGetMonster(cast.TargetId, out var monster) || !Strikeable(monster)
+        if (!_host.TryGetMonster(cast.TargetId, out var monster) || !Strikeable(caster, monster)
             || !InRange(caster, monster.Position, SkillFormulas.Range(cast.Rule, rank, caster.Character)))
         {
             return false;
@@ -147,7 +147,7 @@ internal sealed partial class FieldSkills
         power = power * burst.Percent / 100;
         var damage = new SkillDamageRule { Element = burst.Element };
         _targets.Clear();
-        CollectCircle(origin, burst.Radius, rule.MaxTargets);
+        CollectCircle(caster, origin, burst.Radius, rule.MaxTargets);
         foreach (var monster in _targets)
         {
             if (monster is null)
@@ -162,7 +162,7 @@ internal sealed partial class FieldSkills
 
     private bool MagicHit(WorldPlayer caster, ActiveCast cast, SkillRule rule)
     {
-        if (!_host.TryGetMonster(cast.TargetId, out var monster) || !Strikeable(monster))
+        if (!_host.TryGetMonster(cast.TargetId, out var monster) || !Strikeable(caster, monster))
         {
             return false;
         }
@@ -192,11 +192,11 @@ internal sealed partial class FieldSkills
         return rule.At(rule.Radius, rank);
     }
 
-    private void CollectCircle(Vector3 center, float radius, int limit)
+    private void CollectCircle(WorldPlayer caster, Vector3 center, float radius, int limit)
     {
         foreach (var monster in _host.Monsters)
         {
-            if (!Strikeable(monster) || MathF.Abs(monster.Position.Y - center.Y) > HeightTolerance)
+            if (!Strikeable(caster, monster) || MathF.Abs(monster.Position.Y - center.Y) > HeightTolerance)
             {
                 continue;
             }

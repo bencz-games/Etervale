@@ -72,14 +72,14 @@ internal sealed partial class FieldSkills
         if (companion.OwnerTarget)
         {
             var fighting = holder.IsBusy && holder.Action is PlayerActionState.Swing or PlayerActionState.Cast || holder.AttackTargetId != 0;
-            return fighting && _host.TryGetMonster(holder.CombatTargetId, out var target) && Strikeable(target) ? target : null;
+            return fighting && _host.TryGetMonster(holder.CombatTargetId, out var target) && Strikeable(holder, target) ? target : null;
         }
 
         MonsterInstance? nearest = null;
         var best = (float)companion.Radius * companion.Radius;
         foreach (var monster in _host.Monsters)
         {
-            if (!Strikeable(monster) || MathF.Abs(monster.Position.Y - holder.Position.Y) > HeightTolerance)
+            if (!Strikeable(holder, monster) || MathF.Abs(monster.Position.Y - holder.Position.Y) > HeightTolerance)
             {
                 continue;
             }

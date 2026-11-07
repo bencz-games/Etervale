@@ -450,7 +450,7 @@ internal sealed partial class FieldSkills
 
                 return SkillCastVerdict.Accepted;
             case SkillTarget.Enemy:
-                if (!_host.TryGetMonster(request.TargetId, out var monster) || !Strikeable(monster)
+                if (!_host.TryGetMonster(request.TargetId, out var monster) || !Strikeable(player, monster)
                     || rule.Charm is { } charm && !SkillFormulas.MatchesBrood(charm.Broods, monster.Def))
                 {
                     return SkillCastVerdict.InvalidTarget;

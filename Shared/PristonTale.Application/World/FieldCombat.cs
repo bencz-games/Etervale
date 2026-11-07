@@ -70,7 +70,8 @@ internal sealed class FieldCombat
             return;
         }
 
-        if (!_host.TryGetMonster(targetId, out var monster) || !monster.IsAlive || monster.Effects.Has(ControlFlags.Charmed) || monster.IsSummon)
+        if (!_host.TryGetMonster(targetId, out var monster) || !monster.IsAlive || monster.Effects.Has(ControlFlags.Charmed) || monster.IsSummon
+            || OwnClan(player, monster))
         {
             player.ClearAttackTarget();
             return;
@@ -129,10 +130,17 @@ internal sealed class FieldCombat
     // A player's own hit on a wild monster (not a familiar's or a summon's), for the effects that answer each attack.
     public Action<WorldPlayer, MonsterInstance, int>? PlayerHitLanded { get; set; }
 
+    // Every hit of a player (or of its summon) with the life it took, for the siege's board.
+    public Action<WorldPlayer, MonsterInstance, int>? DamageDealt { get; set; }
+
+    // A monster of the player's clan (a clan pet, the castle's defenders for the owner clan) never hurts the player nor is
+    // hurt by it.
+    public static bool OwnClan(WorldPlayer player, MonsterInstance monster) => monster.ClanId != 0 && player.Clan?.ClanId == monster.ClanId;
+
     public KillPayout? ApplyPlayerDamage(WorldPlayer player, MonsterInstance monster, int damage, bool crit, long nowMs, bool forceFlinch = false,
         ulong sourceEntityId = 0)
     {
-        if (damage <= 0 || !monster.IsAlive || monster.DuelPlayerId != 0 && monster.DuelPlayerId != player.EntityId)
+        if (damage <= 0 || !monster.IsAlive || monster.DuelPlayerId != 0 && monster.DuelPlayerId != player.EntityId || OwnClan(player, monster))
         {
             return null;
         }
@@ -145,7 +153,9 @@ internal sealed class FieldCombat
             FieldInstance.AgingAttack(player, monster, crit, nowMs);
         }
 
+        var lifeBefore = monster.Life;
         monster.ApplyDamage(damage);
+        DamageDealt?.Invoke(player, monster, Math.Min(damage, lifeBefore));
         SkillCombat?.MonsterDamaged(monster);
 
         MonsterAiBrain.ApplyBossRetargetOnHit(monster, sourceEntityId != 0 ? sourceEntityId : player.EntityId);
@@ -203,6 +213,11 @@ internal sealed class FieldCombat
     // A monster's normal blow on a player with percent of its damage roll; splash spreads Babel's blow around the target.
     internal void BlowOnPlayer(MonsterInstance attacker, WorldPlayer target, int percent, bool splash)
     {
+        if (OwnClan(target, attacker))
+        {
+            return;
+        }
+
         SkillCombat?.Reflect(attacker, target);
         if (!attacker.IsAlive || SkillCombat?.Evades(attacker, target) == true)
         {

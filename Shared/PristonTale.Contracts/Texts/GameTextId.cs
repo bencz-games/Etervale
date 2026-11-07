@@ -284,5 +284,6 @@ public enum GameTextId : ushort
     SiegeStarted = 774,
     SiegeOver = 775,
     SiegeRestartsSoon = 776,
-    SiegeLeague = 777
+    SiegeLeague = 777,
+    CastleTaken = 778
 }

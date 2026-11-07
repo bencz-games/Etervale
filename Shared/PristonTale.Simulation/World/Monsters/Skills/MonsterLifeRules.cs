@@ -11,15 +11,16 @@ public static class MonsterLifeRules
     public const int PotionThresholdPercent = 30;
     public const int PotionHealDivisor = 2;
 
-    // Valento, Kelvezu, Mokova and Hestian carry their potion count as lives: at 10 % life or less one is spent and life
-    // refills.
+    // Valento, Kelvezu, Mokova, Hestian and the castle's standing defenders (door, Tower of Valhalla, crystal towers) carry
+    // their potion count as lives: at 10 % life or less one is spent and life refills.
     public const int VirtualLifeThresholdPercent = 10;
 
     public static bool HasVirtualLives(MonsterDefinition definition) =>
         definition.SoundCode is CharacterSoundCodes.DeathKnight or CharacterSoundCodes.Kelvezu or CharacterSoundCodes.Mokova
-            or CharacterSoundCodes.Hestian;
+            or CharacterSoundCodes.Hestian
+        || Social.Castle.CastleSiegeRules.StandsStill(definition.SoundCode);
 
-    // Potions or lives a new monster carries: lives for the four bosses, otherwise rand[1, count] potions with the
+    // Potions or lives a new monster carries: lives for the monsters that have them, otherwise rand[1, count] potions with the
     // definition's percent chance.
     public static void Prepare(MonsterInstance monster, ISimRng rng)
     {

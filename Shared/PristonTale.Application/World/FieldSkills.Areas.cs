@@ -17,8 +17,9 @@ internal sealed partial class FieldSkills
     private readonly List<MonsterInstance> _candidates = new();
     private readonly List<WorldPlayer> _echoes = new();
 
-    private static bool Strikeable(MonsterInstance monster) =>
-        monster.IsAlive && monster.Def.IsHostile && !monster.IsSummon && !monster.Effects.Has(ControlFlags.Charmed);
+    // A living hostile monster outside the player's clan (FieldCombat.OwnClan), neither a summon nor charmed.
+    private static bool Strikeable(WorldPlayer player, MonsterInstance monster) =>
+        monster.IsAlive && monster.Def.IsHostile && !monster.IsSummon && !monster.Effects.Has(ControlFlags.Charmed) && !FieldCombat.OwnClan(player, monster);
 
     // Whether the monster takes the effect (a boss is spared by an effect that spares bosses).
     private static bool Takes(SkillBuffRule? buff, MonsterInstance monster) => buff is not null && !(buff.SparesBosses && monster.Def.IsBoss);
@@ -30,7 +31,7 @@ internal sealed partial class FieldSkills
         var character = caster.Character;
         EndOnAreaAttack(caster);
         _host.TryGetMonster(cast.TargetId, out var main);
-        if (main is not null && !Strikeable(main))
+        if (main is not null && !Strikeable(caster, main))
         {
             main = null;
         }
@@ -100,7 +101,7 @@ internal sealed partial class FieldSkills
         _candidates.Clear();
         foreach (var monster in _host.Monsters)
         {
-            if (!Strikeable(monster) || MathF.Abs(monster.Position.Y - center.Y) > HeightTolerance || rule.MainInArea && ReferenceEquals(monster, main))
+            if (!Strikeable(caster, monster) || MathF.Abs(monster.Position.Y - center.Y) > HeightTolerance || rule.MainInArea && ReferenceEquals(monster, main))
             {
                 continue;
             }
@@ -156,7 +157,7 @@ internal sealed partial class FieldSkills
     // The chain starts at the target and links to the nearest enemy not yet struck within the link length of the last.
     private void CollectChain(WorldPlayer caster, ActiveCast cast, int links, int linkLength)
     {
-        if (!_host.TryGetMonster(cast.TargetId, out var first) || !Strikeable(first))
+        if (!_host.TryGetMonster(cast.TargetId, out var first) || !Strikeable(caster, first))
         {
             return;
         }
@@ -170,7 +171,7 @@ internal sealed partial class FieldSkills
             var best = reach;
             foreach (var monster in _host.Monsters)
             {
-                if (!Strikeable(monster) || _targets.Contains(monster) || MathF.Abs(monster.Position.Y - last.Position.Y) > ChainHeight)
+                if (!Strikeable(caster, monster) || _targets.Contains(monster) || MathF.Abs(monster.Position.Y - last.Position.Y) > ChainHeight)
                 {
                     continue;
                 }

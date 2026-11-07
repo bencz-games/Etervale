@@ -89,6 +89,7 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         _combat.MonsterSkills = _monsterSkills;
         Premium = new FieldPremium(fieldId, this);
         _combat.PlayerHitLanded = Premium.RecordHit;
+        _combat.DamageDealt = RecordSiegeDamage;
         _combat.HammerLanded = OnHammerLanded;
         foreach (var placement in spawnData.FixedNpcs)
         {
@@ -165,7 +166,8 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         }
 
         if (!_monsters.TryGetValue(targetEntityId, out var monster) || !monster.IsAlive || monster.IsSummon
-            || monster.Effects.Has(Simulation.Modifiers.ControlFlags.Charmed) || monster.DuelPlayerId != 0 && monster.DuelPlayerId != attackerEntityId)
+            || monster.Effects.Has(Simulation.Modifiers.ControlFlags.Charmed) || monster.DuelPlayerId != 0 && monster.DuelPlayerId != attackerEntityId
+            || FieldCombat.OwnClan(attacker, monster))
         {
             attacker.ClearAttackTarget();
             return false;
@@ -232,6 +234,7 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         ApplyEventForms();
         StepSummons(dtMs);
         ExpireSoulMonsters();
+        StepSiege();
 
         // Authoritative NPC movement keeps interaction range and presentation aligned.
         foreach (var npc in _npcs.Values)
@@ -662,10 +665,14 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         }
     }
 
-    MonsterInstance ISpawnSink.Spawn(MonsterDefinition definition, Vector3 position, int spawnPointIndex, float facing)
+    MonsterInstance ISpawnSink.Spawn(MonsterDefinition definition, Vector3 position, int spawnPointIndex, float facing) =>
+        Place(definition, Terrain.PlaceOnFloor(position), spawnPointIndex, facing);
+
+    // A new monster at exactly this position, with its potions or lives.
+    private MonsterInstance Place(MonsterDefinition definition, Vector3 position, int spawnPointIndex, float facing)
     {
         ulong id = _ids.NextMonsterId();
-        var monster = new MonsterInstance(id, definition, Terrain.PlaceOnFloor(position), facing, spawnPointIndex);
+        var monster = new MonsterInstance(id, definition, position, facing, spawnPointIndex);
         _monsters[id] = monster;
         _monsterSkills.Prepare(monster);
         return monster;

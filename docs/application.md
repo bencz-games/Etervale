@@ -31,7 +31,8 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | `World/WorldServer.Notices.cs`, `World/WorldNotice.cs`, `Services/WorldNoticeRequests.cs` | The lines a party or trade change answers, delivered through the chat (`ChatDirectory.Deliver`) |
 | `Contacts/ContactAppService.cs` | The friends page: each character's friends and ignored players, stored, with the friends' presence (below) |
 | `Clans/ClanAppService.cs`, `Clans/ClanTexts.cs`, `Clans/IClanMarkStore.cs`, `World/WorldServer.Clans.cs` | The clans: founding, invitations, ranks, leaving, expelling, entrusting, the chief's mark upload, dissolution and the chat roster (below) |
-| `Clans/IClanDirectory.cs`, `Castle/CastleAppService.cs` | Bless Castle: the owner clan, the tax, the soul fountain and the siege's schedule and clock (below); the clans it reads through `IClanDirectory` |
+| `Clans/IClanDirectory.cs`, `Castle/CastleAppService.cs`, `Castle/CastleWorld.cs` | Bless Castle: the owner clan, the tax, the soul fountain and the siege's schedule and clock (below); the clans it reads through `IClanDirectory`, the world through `ICastleWorld` |
+| `World/WorldServer.Castle.cs`, `World/FieldInstance.Castle.cs`, `World/CastleSiege.cs` | The siege in the castle field: its defenders, the clans' damage board, the tower's fall and the published `CastleSiegeView` |
 | `Chat/`, `GameMasters/` | Chat routing, whispers and notices; game-master commands, levels and audit ([chat-and-gm.md](chat-and-gm.md)) |
 | `World/WorldServer.Chat.cs`, `World/WorldServer.GameMasters.cs` | Players in hearing range; tick-side game-master reads and changes (kill, hide, move, spawn, drop, gifts) |
 | `Shared/PristonTale.Contracts/Sessions/*Outcome.cs`, `CharacterSummary.cs`; `Contracts/World/Restart.cs`, `WingGateTrip.cs` | Result records returned to the edge and read by the client (login, characters, world entry, restart, wing trips); failure enums carry stable codes |
@@ -665,8 +666,29 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
 - Off: no scheduled siege; a game master may still start one.
 - In peace with an owner, the fountain gains a potion a minute, up to 1440.
 - The siege's clock lives in memory: a restart during a siege ends it, and the owner stays.
-- Not yet in the world: the siege's objects and scoring, PvP in the battle zone, the owner's window, the tax on fees
-  and the treasury's movements, the siege's client state.
+- Not yet: PvP in the battle zone, the owner's window, the tax on fees and the treasury's movements, the siege's
+  client state.
+
+The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner
+and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its spawns
+and places the defenders (`CastleSiegeRules`): the door, the Tower of Valhalla and six crystal towers of the chosen
+elements stand still at their places with their potion count as lives (`MonsterLifeRules`; the crystal towers and the
+tower strike what comes into their reach without turning), and up to twenty mercenaries of each kind wander around
+their posts with all their potions. A castle without an owner gets twenty of each and crystal towers of random
+elements. Every defender belongs to the owner clan (`MonsterInstance.ClanId`, `CastleRole`): the defenders and its
+players never hurt each other (`FieldCombat.OwnClan`, also for clan pets: no attack target, no blow or area skill, no
+skill or summon of theirs on them) and the defenders never pick its players; clan pet rules (the cheer, the pets
+nearby) leave the defenders out. Each player hit (summons' too) on a
+crystal tower, or on the tower once no crystal tower stands, adds the life it took to the player's clan on the damage
+board (`CastleDamageBoard`); while a crystal tower stands the tower is made whole every tick. The world publishes
+`CastleSiegeView` (door, crystal towers and mercenaries standing, the ten best clans and the total) at most once a
+second while it changes. When the tower falls, the castle goes to the board's leader (no owner when no clan dealt
+damage, and any clan may win), with a notice naming the clan; a conquest storage refuses is kept and stored on a later
+minute (a game master's `/end_castle` after the fall still gives it). The siege then closes: its defenders leave. At
+peace, living players in the castle field outside the owner clan are sent to a random start point of the castle, and
+the owner's towers and mercenaries are spent (they serve one siege). While a crystal tower stands no blow takes the
+tower's life (`MonsterInstance.MinimumLife`). `/easy_castle` leaves every defender one life, no lives in reserve and
+no potions; the tower keeps that one life while a crystal tower stands.
 
 ## Published outcomes and events
 
