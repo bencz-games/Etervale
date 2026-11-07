@@ -12,7 +12,7 @@ How the code works is documented in [docs/](docs/README.md).
 ## Requirements
 
 - .NET 10 SDK.
-- [Game data archive](https://drive.google.com/file/d/1oE3oQwQAG8YghbTlqzXhtX23seGhH2pF/view?usp=sharing),
+- [Game data archive](https://drive.google.com/file/d/1b9z7PrSsWzTBY_O-uoIOw4bK-vwKq4p1/view?usp=sharing),
   **published 2026-11-04 at 15:50 (UTC-03:00)**.
 - For the client: a GPU and driver with Vulkan 1.1 or later. The client uses MonoGame's Native platform on Vulkan
   through the fork in [monogame/](monogame/README.md); shaders compile with DXC on every platform (no Wine).
