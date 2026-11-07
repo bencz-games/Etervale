@@ -39,9 +39,10 @@ public static class HudPartyArt
 
     // The trade, party and friend buttons under another player's portrait.
     public const string PlayerMenu = "image/cw-1.tga";
-    public static readonly string[] PlayerButtons = [Party + "icon-c5.bmp", Party + "icon-c1.bmp", Party + "icon-c2.bmp"];
-    public static readonly string[] PlayerButtonsIdle = [Party + "icon-c5_.bmp", Party + "icon-c1_.bmp", Party + "icon-c2_.bmp"];
-    public static readonly string[] PlayerTips = [Party + "ButtonInfo-c5.bmp", Party + "ButtonInfo-c1.bmp", Party + "ButtonInfo-c0.bmp"];
+    public static readonly string[] PlayerButtons = [Party + "icon-c5.bmp", Party + "icon-c1.bmp", Party + "icon-c2.bmp", Party + "icon_clan.bmp"];
+    public static readonly string[] PlayerButtonsIdle = [Party + "icon-c5_.bmp", Party + "icon-c1_.bmp", Party + "icon-c2_.bmp", Party + "icon_clan_.bmp"];
+    public static readonly string[] PlayerTips =
+        [Party + "ButtonInfo-c5.bmp", Party + "ButtonInfo-c1.bmp", Party + "ButtonInfo-c0.bmp", Party + "ButtonInfo-c10.bmp"];
 
     public static readonly string[] All =
     [

@@ -32,6 +32,8 @@ internal static class ClanTests
         yield return ("founding at the Clan Master takes 500,000 gold at level 40 and refuses a short purse, a low level and a taken name", FoundAsync);
         yield return ("a clan recruits by invitation, registers at six members, keeps one vice chief, expels, lets members leave and is entrusted", MembersAsync);
         yield return ("a clan short of six members past its deadline is dissolved and its members wait four days to join another", ExpiryAsync);
+        yield return ("the Clan Master's window founds a clan from a typed name and asks before the chief's actions; a recruiter gets the clan button",
+            WindowAsync);
     }
 
     private static Task RulesAsync()
@@ -224,6 +226,40 @@ internal static class ClanTests
         clock.Advance(TimeSpan.FromSeconds(ClanRules.JoinCooldownSeconds));
         Assert.True(await fixture.Service.FoundAsync(fixture.Session.SessionToken, fixture.NpcId, "Tigers") == ClanStatus.Ok, "the cooldown never ended");
     }
+
+    private static Task WindowAsync()
+    {
+        var sent = new List<(ClanAction Action, ulong Id, string Name)>();
+        var window = new Gameplay.UI.Clans.HudClanWindow { Send = (action, id, name) => sent.Add((action, id, name)) };
+        window.Open(42);
+        Assert.True(window.IsOpen && !window.Typing && sent is [(ClanAction.Open, 42, "")], "opening did not ask for the clan");
+        Click(window, 0, 1);
+        Assert.True(window.Typing, "the founding button did not ask for the name");
+        window.Type("Lions", key => key == Microsoft.Xna.Framework.Input.Keys.Enter, static _ => true);
+        Assert.True(sent[^1] == (ClanAction.Found, 42, "Lions") && window.Pending, "the typed name was not sent at the Clan Master");
+
+        window.Observe(new Client.Net.Presence.ClanInfo(7, "Lions", ClanState.Registering, 0, ClanRank.Chief, 20, "", 0,
+            [new Client.Net.Presence.ClanMemberInfo("Founder", PlayerClass.Knight, 40, ClanRank.Chief, true)]));
+        window.Result(new Client.Net.Presence.ClanResultInfo((byte)ClanAction.Found, ClanStatus.Ok));
+        Assert.True(!window.Pending && !window.Typing && window.Clan.Rank == ClanRank.Chief, "the founded clan was not shown");
+        var count = sent.Count;
+        Click(window, 3, 4);
+        Assert.True(sent.Count == count, "disbanding did not ask first");
+        Click(window, 0, 2);
+        Assert.True(sent[^1] == (ClanAction.Disband, 0, "") && window.Pending, "the confirmed disband was not sent");
+
+        var frame = new Gameplay.UI.Widgets.HudTargetFrame(new Microsoft.Xna.Framework.Rectangle(300, 10, 200, 60), default, default, default, 0, 0);
+        var menu = Gameplay.UI.Parties.HudPlayerButtons.Menu(frame, clan: true);
+        var buttons = Enum.GetValues<Gameplay.UI.Parties.HudPlayerButton>().Select(button => Gameplay.UI.Parties.HudPlayerButtons.Button(frame, button, clan: true))
+            .ToArray();
+        Assert.True(menu.Width == 120 && buttons.All(button => menu.Contains(button.Center))
+            && Gameplay.UI.Parties.HudPlayerButtons.At(frame, buttons[3].Center, clan: true) == Gameplay.UI.Parties.HudPlayerButton.Clan
+            && Gameplay.UI.Parties.HudPlayerButtons.At(frame, buttons[3].Center) is null, "the clan button differs");
+        return Task.CompletedTask;
+    }
+
+    private static void Click(Gameplay.UI.Clans.HudClanWindow window, int index, int count) =>
+        window.Click(Gameplay.UI.Widgets.HudNpcPanel.ServiceButton(index, count).Center);
 
     private static ClanMember Member(long id, string name, int level, ClanRank rank) => new(id, id, name, PlayerClass.Fighter, level, rank, 0);
 

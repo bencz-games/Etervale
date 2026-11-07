@@ -12,5 +12,8 @@ public static class HudNameColors
     public static readonly Color HoveredMonster = new(255, 230, 200);
     public static readonly Color Npc = new(180, 180, 255);
 
+    // The "[Clan]" line over a player's name.
+    public static readonly Color Clan = new(150, 255, 200);
+
     public const float OverheadDepth = 12 * 64;
 }

@@ -46,6 +46,39 @@
   <data name="CharSelect.ModelsFailed" xml:space="preserve"><value>Could not load character models.</value></data>
   <data name="CharSelect.Unreachable" xml:space="preserve"><value>Could not reach server.</value></data>
   <data name="Chat.Frozen" xml:space="preserve"><value>{0} : I talk too much, my tongue has got frozen! WOW -_-;</value></data>
+  <data name="Clan.Appoint" xml:space="preserve"><value>Appoint vice</value></data>
+  <data name="Clan.Back" xml:space="preserve"><value>Back</value></data>
+  <data name="Clan.BelowSix" xml:space="preserve"><value>Fewer than 6 members: {0} days and {1} hours left to recruit before the clan is disbanded.</value></data>
+  <data name="Clan.Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Clan.ChooseEntrust" xml:space="preserve"><value>Choose the new clan chief (equal or higher level than yours). It costs 300,000 gold, and you become a member.</value></data>
+  <data name="Clan.ChooseExpel" xml:space="preserve"><value>Choose the member to expel.</value></data>
+  <data name="Clan.ChooseVice" xml:space="preserve"><value>Choose the member to appoint vice chief.</value></data>
+  <data name="Clan.Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Clan.ConfirmAppoint" xml:space="preserve"><value>Do you wish to appoint {0} vice chief?</value></data>
+  <data name="Clan.ConfirmDisband" xml:space="preserve"><value>If you disband the clan, all of its information and members are lost. Do you wish to continue?</value></data>
+  <data name="Clan.ConfirmDischarge" xml:space="preserve"><value>Do you wish to discharge {0} from vice chief?</value></data>
+  <data name="Clan.ConfirmEntrust" xml:space="preserve"><value>Entrust the clan to {0} for 300,000 gold? You will become a member.</value></data>
+  <data name="Clan.ConfirmExpel" xml:space="preserve"><value>Do you wish to expel {0} from the clan?</value></data>
+  <data name="Clan.ConfirmLeave" xml:space="preserve"><value>Do you wish to leave the clan {0}?</value></data>
+  <data name="Clan.Cost" xml:space="preserve"><value>Forming a clan costs 500,000 gold and needs level 40.</value></data>
+  <data name="Clan.Count" xml:space="preserve"><value>Members: {0} of {1}</value></data>
+  <data name="Clan.Disband" xml:space="preserve"><value>Disband</value></data>
+  <data name="Clan.Discharge" xml:space="preserve"><value>Discharge vice</value></data>
+  <data name="Clan.Entrust" xml:space="preserve"><value>Entrust clan</value></data>
+  <data name="Clan.Expel" xml:space="preserve"><value>Expel</value></data>
+  <data name="Clan.Found" xml:space="preserve"><value>Form a clan</value></data>
+  <data name="Clan.Intro" xml:space="preserve"><value>Many warriors with the same objectives gather and form a group around the world. It is called a clan. Clans guard and protect their own people. In order to form a clan, you must pay a fee to register it officially. Do you wish to form a clan?</value></data>
+  <data name="Clan.InviteLine" xml:space="preserve"><value>invites you to the clan {0}.</value></data>
+  <data name="Clan.Leave" xml:space="preserve"><value>Leave clan</value></data>
+  <data name="Clan.No" xml:space="preserve"><value>No</value></data>
+  <data name="Clan.RankChief" xml:space="preserve"><value>(chief)</value></data>
+  <data name="Clan.RankVice" xml:space="preserve"><value>(vice)</value></data>
+  <data name="Clan.Registered" xml:space="preserve"><value>The clan is officially registered.</value></data>
+  <data name="Clan.Registering" xml:space="preserve"><value>Registering: {0} days and {1} hours left to reach 6 members.</value></data>
+  <data name="Clan.Requirements" xml:space="preserve"><value>To be officially registered, a clan needs 6 members (the chief included) within 10 days, or it is cancelled. A registered clan that falls below 6 members has 10 days to recruit again before it is disbanded.</value></data>
+  <data name="Clan.Title" xml:space="preserve"><value>Clan Master</value></data>
+  <data name="Clan.TypeName" xml:space="preserve"><value>Type your clan name (2 to 16 letters, digits, spaces, '-' or '_') and press Enter.</value></data>
+  <data name="Clan.Yes" xml:space="preserve"><value>Yes</value></data>
   <data name="Combat.Evade" xml:space="preserve"><value>Evade</value></data>
   <data name="Combat.Miss" xml:space="preserve"><value>Miss</value></data>
   <data name="Count.DoYouWant" xml:space="preserve"><value>Do you wanna</value></data>

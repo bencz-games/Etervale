@@ -202,7 +202,7 @@ public sealed partial class GameplayHud
             return;
         }
 
-        if (ClickQuests(layout, pointer) || ClickTrade(pointer) || ClickParty(layout, pointer))
+        if (ClickClan(pointer) || ClickQuests(layout, pointer) || ClickTrade(pointer) || ClickParty(layout, pointer))
         {
             return;
         }
@@ -431,7 +431,7 @@ public sealed partial class GameplayHud
             return true;
         }
 
-        if (_helpPet.Captures(pointer) || CapturesHelp(pointer) || CapturesParty(layout, pointer) || _tradeRequest.Captures(pointer) || _personalShop.Captures(pointer)
+        if (_helpPet.Captures(pointer) || CapturesHelp(pointer) || CapturesParty(layout, pointer) || CapturesClan(pointer) || _tradeRequest.Captures(pointer) || _personalShop.Captures(pointer)
             || _itemUse.Captures(pointer) || _wingGate.Captures(pointer) || _puzzle.Captures(pointer) || _crystalDismiss.Captures(pointer) || _premium.Contains(pointer))
         {
             return true;

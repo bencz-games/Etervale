@@ -54,7 +54,9 @@ public sealed class GameplayScreen : GameScreen
         _scene.PickupToCursorAnswered += _hud.PickupAnswered;
         _hud.PersonalShops = _scene;
         _scene.PresenceObserved += _hud.ObserveParty;
+        _scene.PresenceObserved += _hud.ObserveClan;
         _hud.Parties = _scene;
+        _hud.SendClan = _scene.SendClan;
         _scene.PresenceObserved += _hud.ObserveTrade;
         _hud.Trades = _scene;
         _scene.PresenceObserved += _hud.ObserveContacts;
@@ -275,6 +277,7 @@ public sealed class GameplayScreen : GameScreen
             _scene.NpcSelected -= _hud.OpenNpc;
             _scene.ShopSellerSelected -= _hud.ViewPersonalShop;
             _scene.PresenceObserved -= _hud.ObserveParty;
+            _scene.PresenceObserved -= _hud.ObserveClan;
             _scene.PresenceObserved -= _hud.ObserveTrade;
             _scene.PresenceObserved -= _hud.ObserveContacts;
             _hud.PlayerButtonsUsed -= _scene.DismissPlayerButtons;

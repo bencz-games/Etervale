@@ -143,6 +143,15 @@ internal sealed class PresenceDecoder : IEventHandleReader
             EtervaleOpcodes.CloseRequest => OnCloseRequest(packet),
             EtervaleOpcodes.PartyMembers => OnPartyMembers(PartyMembersPacket.Read(packet)),
             EtervaleOpcodes.PartyRequest => OnPartyRequest(PartyRequestPacket.Read(packet)),
+            EtervaleOpcodes.ClanState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Clan = Clan(ClanStatePacket.Read(packet)) },
+            EtervaleOpcodes.ClanInvite => new PresenceUpdate(_tick, [], [], [], [], FieldId)
+            {
+                ClanInvitation = ClanInvitePacket.Read(packet) is var invite ? new ClanInvitationInfo(invite.RecruiterId, invite.ClanName, invite.ChiefName) : null
+            },
+            EtervaleOpcodes.ClanResult => new PresenceUpdate(_tick, [], [], [], [], FieldId)
+            {
+                ClanResult = ClanResultPacket.Read(packet) is var result ? new ClanResultInfo((byte)result.Action, (Simulation.Social.Clans.ClanStatus)result.Status) : null
+            },
             EtervaleOpcodes.TradeDetails => OnTradeDetails(TradeDetailsPacket.Read(packet)),
             EtervaleOpcodes.TradeState => OnTradeState(TradeStatePacket.Read(packet)),
             EtervaleOpcodes.TradeAsked => OnTradeAsked(TradeAskedPacket.Read(packet)),
@@ -220,6 +229,11 @@ internal sealed class PresenceDecoder : IEventHandleReader
 
         return new PresenceUpdate(_tick, [], [], [], [], FieldId) { Party = new PartyInfo(members) };
     }
+
+    private static ClanInfo Clan(ClanStatePacket packet) => !packet.HasClan ? ClanInfo.None
+        : new ClanInfo((long)packet.ClanId, packet.Name, (Simulation.Social.Clans.ClanState)packet.State, packet.Deadline, (Simulation.Social.Clans.ClanRank)packet.Rank,
+            packet.Capacity, packet.Intro, packet.MarkVersion, packet.Members.Select(static member => new ClanMemberInfo(member.Name, member.Class, member.Level,
+                (Simulation.Social.Clans.ClanRank)member.Rank, member.Online)).ToArray());
 
     private PresenceUpdate OnPartyRequest(PartyRequestPacket packet) =>
         new PresenceUpdate(_tick, [], [], [], [], FieldId) { PartyRequest = new PartyRequestInfo(packet.FromId, packet.FromName, packet.Recommended) };

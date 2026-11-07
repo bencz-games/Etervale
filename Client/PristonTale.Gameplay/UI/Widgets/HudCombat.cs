@@ -302,6 +302,14 @@ public sealed partial class HudCombat
         return _percentText;
     }
 
+    // The local player's clan (0 for none); a player's clan and its name while it is in view.
+    public long OwnClan { get; set; }
+
+    public long ClanOf(ulong id) => _entities.TryGetValue(id, out var entity) && entity.Spawn.Player is { } player ? player.ClanId : 0;
+
+    private string ClanLine(ulong id) =>
+        _entities.TryGetValue(id, out var entity) && entity.Spawn.Player is { ClanId: not 0, ClanName.Length: > 0 } player ? $"[{player.ClanName}]" : null;
+
     // A player's name while it is in view; null otherwise.
     public string PlayerName(ulong id) => _entities.TryGetValue(id, out var entity) && entity.Spawn.Player is { } player ? player.Name : null;
 

@@ -50,6 +50,11 @@ public sealed record PresenceUpdate(
     public PartyInfo? Party { get; init; }
     public PartyRequestInfo? PartyRequest { get; init; }
 
+    // The local player's clan (ClanInfo.None when it has none), an invitation to one and a request's result.
+    public ClanInfo? Clan { get; init; }
+    public ClanInvitationInfo? ClanInvitation { get; init; }
+    public ClanResultInfo? ClanResult { get; init; }
+
     // The local player's trade window when it changed (TradeInfo.None once it ended), and a player's request to trade.
     public TradeInfo? Trade { get; init; }
     public TradeRequestInfo? TradeRequest { get; init; }

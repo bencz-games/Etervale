@@ -16,6 +16,7 @@ using PristonTale.Gameplay.UI.Quests;
 using PristonTale.Gameplay.UI.Rendering;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Simulation.Characters;
+using PristonTale.Simulation.Social.Clans;
 using PristonTale.Simulation.Skills;
 using PristonTale.Simulation.Combat;
 using PristonTale.Simulation.Items;
@@ -102,13 +103,14 @@ internal sealed class HudCaptureProbe : Game
     private const uint SmelterNpc = 13;
     private const uint CraftsmanNpc = 14;
     private const uint ResetterNpc = 15;
+    private const uint ClanMasterNpc = 16;
 
     private sealed record Scenario(string Name, int Width, int Height, Keys Panel = Keys.None, Hover Hover = Hover.None, int HealthPercent = 100,
         PlayerClass Class = PlayerClass.Mechanician, bool Npc = false, bool Settings = false, bool SystemMenu = false, bool Learned = false,
         bool Training = false, bool LowHealth = false, float Hour = 13, bool ClassicTarget = false, ulong Target = 2, ulong NpcId = SkillMasterNpc,
         int ServiceButton = -1, bool SellMode = false, int ServiceCount = 2, int RightSelect = -1, bool Buffs = false, bool Block = false,
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
-        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false);
+        ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -181,6 +183,8 @@ internal sealed class HudCaptureProbe : Game
         new("npc-smelting-800", 800, 600, Npc: true, NpcId: SmelterNpc, ServiceButton: 0, ServiceCount: 1),
         new("npc-manufacture-800", 800, 600, Npc: true, NpcId: CraftsmanNpc, ServiceButton: 0, ServiceCount: 1),
         new("npc-mixture-reset-800", 800, 600, Npc: true, NpcId: ResetterNpc, ServiceButton: 0, ServiceCount: 1),
+        new("clan-intro-800", 800, 600, Npc: true, NpcId: ClanMasterNpc, ServiceButton: 0, ServiceCount: 1),
+        new("clan-chief-800", 800, 600, Npc: true, NpcId: ClanMasterNpc, ServiceButton: 0, ServiceCount: 1, Clan: true),
         new("system-menu-800", 800, 600, SystemMenu: true),
         new("settings-800", 800, 600, Hover: Hover.SettingsRow, Settings: true),
         new("settings-1600x1200-scale2", 1600, 1200, Settings: true),
@@ -367,6 +371,20 @@ internal sealed class HudCaptureProbe : Game
             if (scenario.Settings)
             {
                 Click(state, layout, layout.Bottom(HudSystemMenu.Entry(HudSystemEntry.Settings)).Center);
+            }
+
+            if (scenario.Clan)
+            {
+                _hud.ObserveClan(new PresenceUpdate(1, [], [], [], [])
+                {
+                    Clan = new ClanInfo(7, "Lions", ClanState.Registering, DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3 * 86400 + 5 * 3600, ClanRank.Chief, 22, "", 0,
+                    [
+                        new ClanMemberInfo("Founder", PlayerClass.Knight, 42, ClanRank.Chief, true),
+                        new ClanMemberInfo("Ann", PlayerClass.Priestess, 38, ClanRank.Vice, true),
+                        new ClanMemberInfo("Bob", PlayerClass.Archer, 41, ClanRank.Member, false),
+                        new ClanMemberInfo("Cid", PlayerClass.Fighter, 35, ClanRank.Member, true)
+                    ])
+                });
             }
 
             if (scenario.ServiceButton >= 0)
@@ -605,6 +623,8 @@ internal sealed class HudCaptureProbe : Game
             AlchemistNpc => new NpcInteraction(true, id, "Alchemist Lisa",
                 [Offer(NpcServiceKind.QuestGiver, 1017, false), Offer(NpcServiceKind.ItemMix, Simulation.Items.Mixing.MixingWork.AlchemyMode, true)],
                 ["Sheltoms become force orbs here."], GameText.None),
+            ClanMasterNpc => new NpcInteraction(true, id, "Clan Master", [Offer(NpcServiceKind.Clan, 0, true)],
+                ["All matters of clans are handled by me!"], GameText.None),
             SmelterNpc => new NpcInteraction(true, id, "Smelter Ruby", [Offer(NpcServiceKind.QuestGiver, 1019, false), Offer(NpcServiceKind.Smelting, 0, true)],
                 ["Three ores or crystals of one colour and their sheltom."], GameText.None),
             CraftsmanNpc => new NpcInteraction(true, id, "Craftsman Salon",

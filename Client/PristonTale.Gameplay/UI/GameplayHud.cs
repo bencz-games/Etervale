@@ -355,7 +355,7 @@ public sealed partial class GameplayHud : IDisposable
         }
 
         _npc.Dismiss();
-        var closed = _npcOpen || _settingsOpen || _systemMenu || _skills.TrainingPending
+        var closed = _clanWindow.IsOpen || _npcOpen || _settingsOpen || _systemMenu || _skills.TrainingPending
             || _inventorySlide.Open || _statusSlide.Open || _skillSlide.Open || ServiceWindowOpen(blockingOnly: false)
             || _questWindow.Open || _partyWindow.Open || _quests.Dialog is not null || _quests.SkillResetBox;
         closed |= _personalShop.Close();
@@ -419,6 +419,7 @@ public sealed partial class GameplayHud : IDisposable
         _questWindow.Advance(elapsedSeconds);
         _partyWindow.Advance(elapsedSeconds);
         _partyRequest.Update(_clock.Elapsed.TotalMilliseconds);
+        _clanRequest.Update(_clock.Elapsed.TotalMilliseconds);
         _tradeRequest.Update(_clock.Elapsed.TotalMilliseconds);
         UpdateContacts(_clock.Elapsed.TotalMilliseconds);
         ForwardMessages();
@@ -450,6 +451,10 @@ public sealed partial class GameplayHud : IDisposable
         if (_quests.Dialog is not null && HudQuestDialog.Box.Contains(pointer))
         {
             _questDialog.Scroll(mouse.ScrollWheelValue - _previousMouse.ScrollWheelValue);
+        }
+        else if (_clanWindow.Contains(pointer))
+        {
+            _clanWindow.Scroll(mouse.ScrollWheelValue - _previousMouse.ScrollWheelValue);
         }
         else if (_npcOpen && HudNpcPanel.Box.Contains(pointer))
         {
@@ -493,7 +498,7 @@ public sealed partial class GameplayHud : IDisposable
         var clickTaken = clicked && Captures(layout, pointer, design);
         var typedText = _context.TypedText.Drain();
         // A count box or the shop's sign box takes the keyboard: neither the chat nor a game key sees what is typed there.
-        var boxTyping = _countBox.IsOpen || _personalShop.SignOpen;
+        var boxTyping = _countBox.IsOpen || _personalShop.SignOpen || _clanWindow.Typing;
         if (_countBox.IsOpen)
         {
             _typingKeyboard = keyboard;
@@ -503,6 +508,11 @@ public sealed partial class GameplayHud : IDisposable
         {
             _typingKeyboard = keyboard;
             _personalShop.Type(typedText, _typedKey ??= key => Pressed(_typingKeyboard, key), _canDraw ??= _painter.CanDraw, _measure ??= _painter.Measure);
+        }
+        else if (_clanWindow.Typing)
+        {
+            _typingKeyboard = keyboard;
+            _clanWindow.Type(typedText, _typedKey ??= key => Pressed(_typingKeyboard, key), _canDraw ??= _painter.CanDraw);
         }
         else if (_crystalDismiss.Confirming && !_chat.Window.Focused && Pressed(keyboard, Keys.Enter))
         {
@@ -595,7 +605,7 @@ public sealed partial class GameplayHud : IDisposable
 
     // A dialog, a message box or the warp map: it takes every click, the bag's included.
     private bool ModalOpen =>
-        _countBox.IsOpen || _personalShop.ModalOpen || _npcOpen || _quests.Dialog is not null || _quests.Confirming || _quests.SkillResetBox || _skills.TrainingPending
+        _countBox.IsOpen || _personalShop.ModalOpen || _npcOpen || _clanWindow.IsOpen || _quests.Dialog is not null || _quests.Confirming || _quests.SkillResetBox || _skills.TrainingPending
         || _wingGate.IsOpen || _wingGate.Confirming || _itemUse.Teleport.IsOpen || _itemUse.Confirming || _puzzle.Confirming
         || _crystalDismiss.Confirming;
 
@@ -644,7 +654,7 @@ public sealed partial class GameplayHud : IDisposable
             ShowsPlayerButtons);
         if (ShowsPlayerButtons)
         {
-            HudPlayerButtons.Draw(_painter, HudCombat.TargetFrame(layout), pointer);
+            HudPlayerButtons.Draw(_painter, HudCombat.TargetFrame(layout), pointer, ClanButton);
         }
         _premium.Draw(_painter, _clock.Elapsed.TotalMilliseconds);
         _personalShop.Draw(_painter);
@@ -730,6 +740,11 @@ public sealed partial class GameplayHud : IDisposable
                 _questDialog.Draw(_painter, _context.Font, _quests, _questDocuments, pointer);
             }
         }
+        else if (_clanWindow.IsOpen)
+        {
+            _painter.Flush();
+            _clanWindow.Draw(_painter, _context.Font, pointer);
+        }
         else if (_npcOpen)
         {
             _painter.Flush();
@@ -811,6 +826,7 @@ public sealed partial class GameplayHud : IDisposable
         _premium.DrawHover(_painter, pointer, _clock.Elapsed.TotalMilliseconds);
         _painter.Flush();
         _partyRequest.Draw(_painter, pointer, _clock.Elapsed.TotalMilliseconds);
+        _clanRequest.Draw(_painter, pointer, _clock.Elapsed.TotalMilliseconds);
         _tradeRequest.Draw(_painter, pointer, _clock.Elapsed.TotalMilliseconds);
         _restart.Draw(_painter, layout, pointer, RestartOffer?.FieldOpen == true, InCastleField);
         _painter.Flush();

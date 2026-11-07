@@ -46,6 +46,39 @@
   <data name="CharSelect.ModelsFailed" xml:space="preserve"><value>Não foi possível carregar os modelos dos personagens.</value></data>
   <data name="CharSelect.Unreachable" xml:space="preserve"><value>Não foi possível alcançar o servidor.</value></data>
   <data name="Chat.Frozen" xml:space="preserve"><value>{0} : Falei demais, minha língua congelou! WOW -_-;</value></data>
+  <data name="Clan.Appoint" xml:space="preserve"><value>Nomear vice</value></data>
+  <data name="Clan.Back" xml:space="preserve"><value>Voltar</value></data>
+  <data name="Clan.BelowSix" xml:space="preserve"><value>Menos de 6 membros: faltam {0} dias e {1} horas para recrutar antes de o clã ser dissolvido.</value></data>
+  <data name="Clan.Cancel" xml:space="preserve"><value>Cancelar</value></data>
+  <data name="Clan.ChooseEntrust" xml:space="preserve"><value>Escolha o novo líder (nível igual ou maior que o seu). Custa 300.000 de ouro, e você passa a ser membro.</value></data>
+  <data name="Clan.ChooseExpel" xml:space="preserve"><value>Escolha o membro a expulsar.</value></data>
+  <data name="Clan.ChooseVice" xml:space="preserve"><value>Escolha o membro a nomear vice-líder.</value></data>
+  <data name="Clan.Confirm" xml:space="preserve"><value>Confirmar</value></data>
+  <data name="Clan.ConfirmAppoint" xml:space="preserve"><value>Deseja nomear {0} vice-líder?</value></data>
+  <data name="Clan.ConfirmDisband" xml:space="preserve"><value>Se você dissolver o clã, todas as informações e os membros dele se perdem. Deseja continuar?</value></data>
+  <data name="Clan.ConfirmDischarge" xml:space="preserve"><value>Deseja remover {0} do cargo de vice-líder?</value></data>
+  <data name="Clan.ConfirmEntrust" xml:space="preserve"><value>Passar a liderança para {0} por 300.000 de ouro? Você passará a ser membro.</value></data>
+  <data name="Clan.ConfirmExpel" xml:space="preserve"><value>Deseja expulsar {0} do clã?</value></data>
+  <data name="Clan.ConfirmLeave" xml:space="preserve"><value>Deseja sair do clã {0}?</value></data>
+  <data name="Clan.Cost" xml:space="preserve"><value>Formar um clã custa 500.000 de ouro e exige nível 40.</value></data>
+  <data name="Clan.Count" xml:space="preserve"><value>Membros: {0} de {1}</value></data>
+  <data name="Clan.Disband" xml:space="preserve"><value>Dissolver</value></data>
+  <data name="Clan.Discharge" xml:space="preserve"><value>Remover vice</value></data>
+  <data name="Clan.Entrust" xml:space="preserve"><value>Passar liderança</value></data>
+  <data name="Clan.Expel" xml:space="preserve"><value>Expulsar</value></data>
+  <data name="Clan.Found" xml:space="preserve"><value>Formar um clã</value></data>
+  <data name="Clan.Intro" xml:space="preserve"><value>Muitos guerreiros com os mesmos objetivos se reúnem pelo mundo e formam um grupo, chamado clã. Os clãs guardam e protegem os seus. Para formar um clã é preciso pagar uma taxa para registrá-lo oficialmente. Deseja formar um clã?</value></data>
+  <data name="Clan.InviteLine" xml:space="preserve"><value>convida você para o clã {0}.</value></data>
+  <data name="Clan.Leave" xml:space="preserve"><value>Sair do clã</value></data>
+  <data name="Clan.No" xml:space="preserve"><value>Não</value></data>
+  <data name="Clan.RankChief" xml:space="preserve"><value>(líder)</value></data>
+  <data name="Clan.RankVice" xml:space="preserve"><value>(vice)</value></data>
+  <data name="Clan.Registered" xml:space="preserve"><value>O clã está oficialmente registrado.</value></data>
+  <data name="Clan.Registering" xml:space="preserve"><value>Em registro: faltam {0} dias e {1} horas para chegar a 6 membros.</value></data>
+  <data name="Clan.Requirements" xml:space="preserve"><value>Para ser registrado oficialmente, o clã precisa de 6 membros (contando o líder) em até 10 dias, senão é cancelado. Um clã registrado que cair abaixo de 6 membros tem 10 dias para recrutar de novo antes de ser dissolvido.</value></data>
+  <data name="Clan.Title" xml:space="preserve"><value>Mestre de Clã</value></data>
+  <data name="Clan.TypeName" xml:space="preserve"><value>Digite o nome do clã (2 a 16 letras, números, espaços, '-' ou '_') e tecle Enter.</value></data>
+  <data name="Clan.Yes" xml:space="preserve"><value>Sim</value></data>
   <data name="Combat.Evade" xml:space="preserve"><value>Esquivou</value></data>
   <data name="Combat.Miss" xml:space="preserve"><value>Errou</value></data>
   <data name="Count.DoYouWant" xml:space="preserve"><value>Você quer</value></data>

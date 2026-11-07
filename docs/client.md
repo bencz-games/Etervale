@@ -641,7 +641,9 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
 - Name boxes over the scene (`HudCombat.DrawNamePlates`, drawn right after the drop names in `GameplayHud.Draw`, at
   the speech bubbles' head point): an NPC's name always within 768 units of the camera (180, 180, 255, as in the chat);
   a monster's only while hovered or the clicked target (`TargetSelection.HoveredId`, `TracedId`), in (255, 210, 210),
-  or (255, 230, 200) when clicked. A summon or crystal pet's box shows within the NPC range in (220, 255, 160), with
+  or (255, 230, 200) when clicked. Another player's box shows while hovered or clicked, a clan mate's always
+  (`HudCombat.OwnClan`, the player's `ClanId` in its looks); a player's clan is a "[Clan]" line over its name in
+  (150, 255, 200) (`HudNameColors.Clan`), for another clan only while hovered or clicked, as in the original. A summon or crystal pet's box shows within the NPC range in (220, 255, 160), with
   its owner's name in parentheses on a second line in (255, 255, 200) (the box grows upwards); the viewer's own also
   carries the life bar. Farther boxes draw first, the hovered and clicked ones last; a box that would leave
   the screen is skipped. Every box is `HudPainter.NameBox`: the speech bubble's dark translucent fill and gold rim (its
@@ -720,7 +722,16 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   - A click on another player (not selling) approaches it as an NPC; once reached, its portrait shows the trade, party
     and friend buttons (`HudPlayerButtons`, on `cw-1.tga`) instead of the life bar while it stays the target within
     `TradeLimits.Reach`. Trade asks it to trade, party to group; friend puts it on the friends list and opens the
-    friends page there.
+    friends page there. A clan chief or vice chief beside a player without a clan also gets the clan invitation
+    (`icon_clan.bmp`, tip `ButtonInfo-c10.bmp`): the box widens to 120 px and the four buttons start 10 px further left.
+  - Clans (`GameplayHud.Clans.cs`, `GameScene.Clans.cs`): an invitation opens the party's request box (30 s) with the
+    chief's name and "invites you to the clan ..."; OK accepts, cancel refuses. The Clan Master's "Clan" service opens
+    `HudClanWindow` in the NPC dialog's help box: without a clan the founding text (cost, level, the six members in ten
+    days) and "Form a clan", then the name typed (Enter or Confirm sends `Found`); with one the state (registered, or
+    days and hours left to reach six members), members of capacity and the members (chief and vice first, green online,
+    grey offline), with Leave for members and Expel, Appoint or Discharge vice, Entrust and Disband for the chief. Expel,
+    appoint and entrust pick a member from the list; every action asks yes or no first and waits for its `ClanResult`;
+    the `ClanState` that follows replaces the view. Refusals come as chat lines.
   - The party window has two tabs at (60, 2) and (120, 2): the party and the friends page (`HudFriendsPage`, art
     `HudContactArt`, title `title-NoClan_chatting.tga`; `GameplayHud.Contacts.cs`, `GameScene.Contacts.cs` as
     `IContactClient`). Its buttons at (85, 220) show the recent players, the friends (an online or offline mark each,

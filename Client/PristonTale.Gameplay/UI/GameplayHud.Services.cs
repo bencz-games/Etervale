@@ -188,6 +188,9 @@ public sealed partial class GameplayHud
             case NpcServiceKind.ItemAging:
                 OpenBench(() => _aging.Show(_npc.Current?.Services.FirstOrDefault(static offer => offer.Kind == NpcServiceKind.ItemAging)?.PricePercent ?? 100));
                 break;
+            case NpcServiceKind.Clan:
+                OpenClan(_services.NpcId);
+                break;
             case NpcServiceKind.Smelting:
                 OpenBench(_smelting.Show);
                 break;
