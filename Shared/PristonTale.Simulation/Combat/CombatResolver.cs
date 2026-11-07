@@ -26,8 +26,7 @@ public static class CombatResolver
 
         var damage = RollBaseDamage(rng, attack);
         damage = ApplyElement(damage, attack.Element, defender.Resistances);
-        damage = Math.Max(1, damage - defender.Absorption);
-        return new HitResult(true, false, false, damage, attack.Element);
+        return new HitResult(true, false, false, AbsorbFlat(damage, defender.Absorption), attack.Element);
     }
 
     // Accuracy step table {accuracy-rating threshold, hit%} ascending (AccuracyChance).
@@ -129,6 +128,9 @@ public static class CombatResolver
         return rng.RollPercent() < block;
     }
 
+    // A player absorbs its absorption off every blow it takes, at least 1 left.
+    public static int AbsorbFlat(int dmg, int absorption) => Math.Max(1, dmg - absorption);
+
     public static int ApplyAbsorbMonster(int dmg, int absorption)
     {
         dmg -= PercentOf(dmg, absorption);
@@ -162,7 +164,7 @@ public static class CombatResolver
             dmg = ApplyElement(dmg, a.Element, d.Resistances);
 
         // A monster absorbs a percent; a player (struck by another) its flat absorption, as monsters' blows meet it.
-        dmg = d.IsMonster ? ApplyAbsorbMonster(dmg, d.Absorption) : Math.Max(1, dmg - d.Absorption);
+        dmg = d.IsMonster ? ApplyAbsorbMonster(dmg, d.Absorption) : AbsorbFlat(dmg, d.Absorption);
 
         return new HitResult(Hit: true, Blocked: false, Crit: crit, Damage: dmg, Element: a.Element);
     }

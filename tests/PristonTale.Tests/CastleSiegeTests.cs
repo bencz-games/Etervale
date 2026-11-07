@@ -1,13 +1,19 @@
 using PristonTale.Application.Castle;
 using PristonTale.Application.World;
+using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Combat;
+using PristonTale.Contracts.Skills;
+using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Combat;
+using PristonTale.Simulation.Items;
+using PristonTale.Simulation.Skills;
 using PristonTale.Simulation.Social.Castle;
 using PristonTale.Simulation.Social.Clans;
-using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Ai;
-using PristonTale.Simulation.World.Monsters;
 using PristonTale.Simulation.World.Monsters.Skills;
+using PristonTale.Simulation.World.Monsters;
 using PristonTale.Simulation.World.Npcs;
+using PristonTale.Simulation.World;
 
 namespace PristonTale.Tests;
 
@@ -27,6 +33,8 @@ internal static class CastleSiegeTests
         yield return ("the easy siege leaves the tower one life it keeps while a crystal tower stands, then a blow fells it", EasyAsync);
         yield return ("players of different clans fight in the battle zone, never north of it, of one clan or in the league; blows score in a siege",
             PvpAsync);
+        yield return ("damage skills reach players in the battle zone: a bolt on a foe, a ball on the foes around it, never a clan mate or the north",
+            SkillsAsync);
         yield return ("the easy siege weakens the defenders, closing a siege removes them, ending it sends players outside the owner clan to the arrival area",
             EndAsync);
     }
@@ -241,6 +249,76 @@ internal static class CastleSiegeTests
             "the swings on a player of the owner clan did not land and score");
         attacker.Hidden = true;
         Assert.True(!field.SetAttackTarget(attacker.EntityId, foe.EntityId, sustained: false), "a hidden player took a foe");
+    }
+
+    private static Task SkillsAsync()
+    {
+        const uint fireBolt = 0x08010002;
+        const uint fireBall = 0x08010004;
+        const uint raving = 0x02010003;
+        const uint holyMind = 0x07010004;
+        const uint chainLightning = 0x07080003;
+        Assert.True(SkillRuleCatalog.TryGet(fireBolt, out var bolt) && SkillFormulas.ReachesPlayers(bolt)
+            && SkillRuleCatalog.TryGet(raving, out var weapon) && SkillFormulas.ReachesPlayers(weapon)
+            && SkillRuleCatalog.TryGet(holyMind, out var debuff) && !SkillFormulas.ReachesPlayers(debuff)
+            && SkillRuleCatalog.TryGet(chainLightning, out var chain) && !SkillFormulas.ReachesPlayers(chain), "the skills that reach players differ");
+
+        var zone = new System.Numerics.Vector3(34500, 0, CastleSiegeRules.BattleLineZ - 2000);
+        var north = new System.Numerics.Vector3(34500, 0, CastleSiegeRules.BattleLineZ + 500);
+        var scenario = SkillScenario.Create(PlayerClass.Magician, 60, SkillScenario.Weapon(ItemKind.Staff, "WM101")).Learn(fireBolt, 5).Learn(fireBall, 5);
+        scenario.Field.PlayersFight = true;
+        scenario.Player.EnterField(zone, inVillage: false);
+        scenario.Player.Clan = new ClanTag(9, "Tigers", 0, Registered: true);
+        var classes = new CharacterClassRegistry();
+        WorldPlayer Join(FieldInstance field, ulong id, System.Numerics.Vector3 at, long clan)
+        {
+            var player = new WorldPlayer(id, at, classes.CreatePlayer(PlayerClass.Knight, "Foe" + id, 60), false, default)
+            {
+                Clan = new ClanTag(clan, "Clan" + clan, 0, Registered: true)
+            };
+            field.Add(player);
+            player.EnterField(at, inVillage: false);
+            return player;
+        }
+
+        var foe = Join(scenario.Field, 2, zone + new System.Numerics.Vector3(120, 0, 0), 7);
+        var near = Join(scenario.Field, 3, zone + new System.Numerics.Vector3(140, 0, 20), 7);
+        var mate = Join(scenario.Field, 4, zone + new System.Numerics.Vector3(130, 0, -20), 9);
+        var (foeLife, nearLife, mateLife) = (foe.Life, near.Life, mate.Life);
+        Assert.True(scenario.Cast(fireBolt, mate.EntityId).Verdict == SkillCastVerdict.InvalidTarget, "a bolt took a clan mate");
+        Assert.True(scenario.Cast(fireBolt, foe.EntityId).Verdict == SkillCastVerdict.Accepted, "a bolt did not take a foe");
+        scenario.Run(20 * 3, () => foe.Life < foeLife);
+        Assert.True(foe.Life < foeLife && scenario.Combat.Any(hit => hit.Kind == CombatEventKind.Hit && hit.TargetId == foe.EntityId),
+            "the bolt did not hurt the foe");
+
+        scenario.ClearCooldowns();
+        scenario.Refill();
+        foeLife = foe.Life;
+        Assert.True(scenario.Cast(fireBall, foe.EntityId).Verdict == SkillCastVerdict.Accepted, "a ball did not take a foe");
+        scenario.Run(20 * 3, () => foe.Life < foeLife && near.Life < nearLife);
+        Assert.True(foe.Life < foeLife && near.Life < nearLife && mate.Life == mateLife, "the ball did not hurt the foes around and spare the mate");
+
+        scenario.ClearCooldowns();
+        foe.EnterField(north, inVillage: false);
+        scenario.Player.EnterField(north + new System.Numerics.Vector3(0, 0, -100), inVillage: false);
+        Assert.True(scenario.Cast(fireBolt, foe.EntityId).Verdict == SkillCastVerdict.InvalidTarget, "a bolt took a foe north of the line");
+
+        var priestess = SkillScenario.Create(PlayerClass.Priestess, 80, SkillScenario.Weapon(ItemKind.Staff, "WM101")).Learn(holyMind, 5).Learn(chainLightning, 5);
+        priestess.Field.PlayersFight = true;
+        priestess.Player.EnterField(zone, inVillage: false);
+        var target = Join(priestess.Field, 2, zone + new System.Numerics.Vector3(100, 0, 0), 7);
+        Assert.True(priestess.Cast(holyMind, target.EntityId).Verdict == SkillCastVerdict.InvalidTarget
+            && priestess.Cast(chainLightning, target.EntityId).Verdict == SkillCastVerdict.InvalidTarget, "a skill that cannot hurt a player took one");
+
+        var fighter = SkillScenario.Create(PlayerClass.Fighter, 60, SkillScenario.Weapon(ItemKind.Axe, "WA101", 200, 220)).Learn(raving, 5);
+        fighter.Field.PlayersFight = true;
+        fighter.Player.EnterField(zone, inVillage: false);
+        var struck = Join(fighter.Field, 2, zone + new System.Numerics.Vector3(30, 0, 0), 7);
+        var struckLife = struck.Life;
+        Assert.True(fighter.Cast(raving, struck.EntityId).Verdict == SkillCastVerdict.Accepted, "a weapon skill did not take a foe");
+        fighter.Run(20 * 4, () => struck.Life < struckLife);
+        Assert.True(struck.Life < struckLife, "the weapon skill did not hurt the foe");
+        return Task.CompletedTask;
     }
 
     private static async Task EndAsync()

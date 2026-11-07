@@ -36,11 +36,16 @@ internal sealed partial class FieldSkills
             main = null;
         }
 
-        CollectAreaTargets(caster, cast, rule, aim, main);
+        var mainFoe = main is null && _host.TryGetPlayer(cast.TargetId, out var clicked) && _host.MayFight(caster, clicked) ? clicked : null;
+        CollectAreaTargets(caster, cast, rule, aim, main, mainFoe);
         var hits = 0;
         if (rule.MainHit is not null && main is not null)
         {
             hits += MainWeaponHit(caster, rule, rank, main) ? 1 : 0;
+        }
+        else if (rule.MainHit is not null && mainFoe is not null)
+        {
+            hits += MainWeaponHitOnPlayer(caster, rule, rank, mainFoe) ? 1 : 0;
         }
 
         var damageRule = rule.Damage;
@@ -77,16 +82,17 @@ internal sealed partial class FieldSkills
         }
 
         ReturnDrainedLife(caster, damageRule, drained);
-        return hits;
+        return hits + AreaHitOnPlayers(caster, cast, rule, power);
     }
 
     // The targets of an area: a chain, or the enemies inside the circle or box (a capped area takes a random selection).
     // RollsAccuracy skips the enemies that dodge; AreaAccuracy keeps their slot empty, as the original selection counts
     // them. MainInArea adds the clicked target last, beyond the cap and without a roll.
-    private void CollectAreaTargets(WorldPlayer caster, ActiveCast cast, SkillRule rule, Vector3 aim, MonsterInstance? main)
+    private void CollectAreaTargets(WorldPlayer caster, ActiveCast cast, SkillRule rule, Vector3 aim, MonsterInstance? main, WorldPlayer? mainFoe)
     {
         var rank = cast.Rank;
         _targets.Clear();
+        _foes.Clear();
         var limit = SkillFormulas.At(rule.MaxTargetsByRank, rank, rule.MaxTargets);
         if (rule.AreaShape == SkillAreaShape.Chain)
         {
@@ -96,6 +102,7 @@ internal sealed partial class FieldSkills
 
         var center = rule.AreaCenter == SkillAreaCenter.Caster ? caster.Position : aim;
         var reach = AreaRadius(rule, rank, caster, aim);
+        var halfBox = rule.AreaShape == SkillAreaShape.Box ? rule.BoxWidth * 0.5f : 0f;
         var forward = new Vector2(aim.X - caster.Position.X, aim.Z - caster.Position.Z);
         forward = forward.LengthSquared() > 1e-4f ? Vector2.Normalize(forward) : new Vector2(MathF.Sin(caster.Facing), MathF.Cos(caster.Facing));
         _candidates.Clear();
@@ -106,11 +113,7 @@ internal sealed partial class FieldSkills
                 continue;
             }
 
-            var offset = new Vector2(monster.Position.X - center.X, monster.Position.Z - center.Z);
-            var inside = rule.AreaShape == SkillAreaShape.Box
-                ? InBox(offset, forward, rule.BoxWidth * 0.5f, reach)
-                : offset.LengthSquared() <= reach * reach;
-            if (inside || rule.AreaIncludesTarget && monster.EntityId == cast.TargetId)
+            if (InArea(monster.Position, center, forward, reach, halfBox) || rule.AreaIncludesTarget && monster.EntityId == cast.TargetId)
             {
                 _candidates.Add(monster);
             }
@@ -152,6 +155,15 @@ internal sealed partial class FieldSkills
         {
             _targets.Add(main);
         }
+
+        CollectFoes(caster, center, reach, forward, halfBox, limit, rolls ? attack : null, mainFoe, rule.MainInArea, rule.AreaIncludesTarget);
+    }
+
+    // Inside a circle of the reach around the center, or a box of this half width reaching along forward.
+    private static bool InArea(Vector3 position, Vector3 center, Vector2 forward, float reach, float halfBox)
+    {
+        var offset = new Vector2(position.X - center.X, position.Z - center.Z);
+        return halfBox > 0f ? InBox(offset, forward, halfBox, reach) : offset.LengthSquared() <= reach * reach;
     }
 
     // The chain starts at the target and links to the nearest enemy not yet struck within the link length of the last.
@@ -238,18 +250,9 @@ internal sealed partial class FieldSkills
         }
 
         var isMain = monster.EntityId == cast.TargetId;
-        var share = power * damageRule.AreaPercent / 100 + (isMain && rule.MainHit is null ? power * damageRule.MainPercent / 100 : 0);
-        if (rule.AreaCritical)
-        {
-            var attack = CombatProfileFactory.ForPlayerBasicAttack(character);
-            crit = CombatResolver.RollCrit(_rng, attack, DefenderProfile.FromMonster(monster));
-            share = crit ? CombatResolver.ApplyCrit(share, attack.CritBonusPercent) : share;
-        }
-
+        var share = AreaShare(caster, rule, power, isMain, DefenderProfile.FromMonster(monster), out crit, out var resolved);
         if (share > 0)
         {
-            var element = isMain ? damageRule.MainElement ?? damageRule.Element : damageRule.Element;
-            var resolved = element == damageRule.Element ? damageRule : damageRule with { Element = element };
             damage = SkillFormulas.PowerAgainst(Math.Max(1, share), resolved, monster.Def, character.Effects.Totals, monster.Effects.Totals, rank);
         }
 
@@ -263,6 +266,25 @@ internal sealed partial class FieldSkills
         }
 
         return true;
+    }
+
+    // An area's share of its power on one target (the main target's main percent too unless it has its own hit), the
+    // area's critical rolled against the target, and the damage rule of the share's element.
+    private int AreaShare(WorldPlayer caster, SkillRule rule, int power, bool isMain, in DefenderProfile defender, out bool crit, out SkillDamageRule resolved)
+    {
+        var damageRule = rule.Damage;
+        var share = power * damageRule.AreaPercent / 100 + (isMain && rule.MainHit is null ? power * damageRule.MainPercent / 100 : 0);
+        crit = false;
+        if (rule.AreaCritical)
+        {
+            var attack = CombatProfileFactory.ForPlayerBasicAttack(caster.Character);
+            crit = CombatResolver.RollCrit(_rng, attack, defender);
+            share = crit ? CombatResolver.ApplyCrit(share, attack.CritBonusPercent) : share;
+        }
+
+        var element = isMain ? damageRule.MainElement ?? damageRule.Element : damageRule.Element;
+        resolved = element == damageRule.Element ? damageRule : damageRule with { Element = element };
+        return share;
     }
 
     // The main target's own magic hit of an area skill (a javelin's strike under its lightning): rolled with its own rule

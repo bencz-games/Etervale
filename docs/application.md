@@ -302,8 +302,17 @@ attack meets the target's defence, block and flat absorption (`CombatProfileFact
 `CombatResolver.Resolve`: a player defender absorbs flat, a monster a percent), scaled by both sides' effects, with the
 attacker's enchant elements (`EnchantOnPlayer`) and Might Stone (`CastleItems.Strike`) and the target's absorbing
 shields (`DefendFromPlayer`; guards answer only monsters of their broods), then `WorldPlayer.ApplyDamage` (nothing
-during a revive guard or Athanasia). Skills, familiars and summons do not reach players yet; a hidden game master
-neither fights nor is fought.
+during a revive guard or Athanasia). A hidden game master neither fights nor is fought. Damage skills reach players
+there too (`FieldSkills.Players`): only the skills that can hurt one take a foe as their target
+(`SkillFormulas.ReachesPlayers`: weapon skills, bolts and areas of rolled damage that are not chains, never a charm;
+the client offers the same). A weapon skill rolls the player's evasion, then its accuracy, block, critical and flat
+element add against the player as a normal attack does, with the caster's enchants; a bolt's, an area's, a burst's
+and a clicked player's main hit's power meets the player through `SkillFormulas.PowerAgainstPlayer` (the element step
+with the rule's divisor or none, a bonus against the player brood, flat absorption, the dealt and taken effects).
+Areas and bursts take the foes inside them after the monsters under the same cap, rolling accuracy where the area
+does; the clicked player joins beyond the cap when the rule puts its target in the area. Every such hit goes through
+`FieldCombat.HurtPlayer` (Might Stone, shields, the board). Skill effects, pushes and life-share damage never reach
+players, nor do familiars and summons.
 
 Monster attacks (`ResolveMonsterHit`): basic hits check reach, reflection and evasion hooks, roll with
 `CombatResolver.ResolveMonsterAttack` (the player's block chance; a block emits `Block`), scale by modifiers and undead
@@ -678,8 +687,7 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
 - Off: no scheduled siege; a game master may still start one.
 - In peace with an owner, the fountain gains a potion a minute, up to 1440.
 - The siege's clock lives in memory: a restart during a siege ends it, and the owner stays.
-- Not yet: skills on players, the owner's window, the tax on fees and the treasury's movements, the siege's client
-  state.
+- Not yet: the owner's window, the tax on fees and the treasury's movements, the siege's client state.
 
 The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner
 and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its spawns

@@ -208,7 +208,7 @@ public sealed partial class GameScene : ISkillSceneHost
             case SkillTarget.None:
                 return RequestCast(code, rule, 0, null);
             case SkillTarget.Enemy:
-                if (target == 0 || kind != EntityKind.Monster)
+                if (target == 0 || kind != EntityKind.Monster && !(kind == EntityKind.Player && SkillFormulas.ReachesPlayers(rule) && Fights(target)))
                 {
                     return false;
                 }

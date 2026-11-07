@@ -82,6 +82,16 @@ public static partial class SkillFormulas
         return ModifierRules.ScaleDamage(value, attacker, defender);
     }
 
+    // The main spell hit on a player: as on a monster (MainSpellPowerAgainst), with the player's resistances and flat
+    // absorption.
+    public static int MainSpellPowerAgainstPlayer(int power, SkillDamageRule damage, int rank, in DefenderProfile player, ModifierTotals attacker,
+        ModifierTotals defender)
+    {
+        var value = WithBroodBonus(power, damage, PlayerStandIn, rank);
+        value = CombatResolver.ApplyResistance(value, player.Resistances[damage.Element] / Math.Max(1, damage.ResistanceDivisor));
+        return ModifierRules.ScaleDamage(CombatResolver.AbsorbFlat(value, player.Absorption), attacker, defender);
+    }
+
     // The holder's extra damage against undead monsters (a percent of the hit).
     public static int WithUndeadBonus(int damage, ModifierTotals attacker, MonsterDefinition target)
     {

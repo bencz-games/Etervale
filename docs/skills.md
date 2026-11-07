@@ -424,7 +424,8 @@ Input and cast flow (`GameScene.Skills.cs`, `HudSkillBindings`, `GameplayHud`):
   socket if its `mouse` allows it (otherwise a notice). Holding the button over a skill and pressing `F1`-`F8` binds
   that key to the skill and side (one key per skill); pressing `F1`-`F8` elsewhere selects the bound skill. `Ctrl`
   suppresses the keys. Sockets fall back to the basic attack (`0x11111111`) when a skill is lost.
-- A click with a skill in the clicked socket picks the entity under the cursor: `Enemy` needs a monster, `Ally` takes a
+- A click with a skill in the clicked socket picks the entity under the cursor: `Enemy` needs a monster (or, except a
+  charm, a player of another clan where both stand in the castle's battle zone), `Ally` takes a
   picked player or none, `Self`/`None` cast at once. Local pre-checks (rank, cooldown) show a notice instead of sending;
   mana and stamina are the server's (`SkillFormulas.ManaCost`/`StaminaCost`, with the cost-reducing effects), refused as
   `NotEnoughMana`/`NotEnoughStamina`. The avatar walks until within `SkillFormulas.Range` of the owner's attack range,

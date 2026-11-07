@@ -250,7 +250,13 @@ public static partial class SkillFormulas
         return new SkillTiming(clipMs * clipLoops, events);
     }
 
+    // A player struck by a skill, where the formulas want a monster: the player brood, so that only a skill's bonus
+    // against players applies (the player's own resistances and absorption come apart, PowerAgainstPlayer).
+    public static MonsterDefinition PlayerStandIn { get; } = new(0, "", MonsterFaction.Enemy, MonsterClass.Normal, MonsterBrood.User,
+        new MonsterCombatStats(0, 0, new MonsterRange(0, 0), 0, 0, 0, 0, 0, 1, ResistanceBlock.Zero), "");
+
     // The attack profile of a weapon skill: the basic attack plus the skill's accuracy, damage and critical bonuses.
+
     public static AttackProfile WeaponAttack(PlayerCharacter caster, SkillRule rule, int rank, MonsterDefinition target, CombatRng rng, int hit = 0)
     {
         var basic = CombatProfileFactory.ForPlayerBasicAttack(caster);
@@ -433,11 +439,7 @@ public static partial class SkillFormulas
     // original area order), absorption and the dealt/taken scaling. Resistances run -100 (double damage) to 100 (none).
     public static int PowerAgainst(int power, SkillDamageRule damage, MonsterDefinition target, ModifierTotals attacker, ModifierTotals defender, int rank)
     {
-        var resistances = ModifierRules.Resistances(defender, target.Combat.Resistances);
-        var value = damage.Unresisted ? power
-            : damage.ResistanceDivisor > 1
-                ? CombatResolver.ApplyResistance(power, resistances[damage.Element] / damage.ResistanceDivisor)
-                : CombatResolver.ApplyElement(power, damage.Element, resistances);
+        var value = Resisted(power, damage, ModifierRules.Resistances(defender, target.Combat.Resistances));
         if (damage.Magic)
         {
             value = CombatResolver.ApplyResistance(value, target.MagicResistance);
@@ -447,6 +449,30 @@ public static partial class SkillFormulas
         value = CombatResolver.ApplyAbsorbMonster(value, target.Combat.Absorption + defender.Flat(StatKind.Absorption));
         return ModifierRules.ScaleDamage(value, attacker, defender);
     }
+
+    // The element step of a skill's power: none for an unresisted skill, the resistance divided by the rule's divisor, else
+    // the whole element resistance.
+    public static int Resisted(int power, SkillDamageRule damage, in ResistanceBlock resistances) =>
+        damage.Unresisted ? power
+        : damage.ResistanceDivisor > 1 ? CombatResolver.ApplyResistance(power, resistances[damage.Element] / damage.ResistanceDivisor)
+        : CombatResolver.ApplyElement(power, damage.Element, resistances);
+
+    // What a resolved power deals to a player (the castle's battle zone): the element step against the player's
+    // resistances, a skill's bonus against players, the player's flat absorption and the dealt/taken scaling (players have
+    // no magic resistance).
+    public static int PowerAgainstPlayer(int power, SkillDamageRule damage, in DefenderProfile player, ModifierTotals attacker, ModifierTotals defender,
+        int rank)
+    {
+        var value = Resisted(power, damage, player.Resistances);
+        value = WithBroodBonus(value, damage, PlayerStandIn, rank);
+        return ModifierRules.ScaleDamage(CombatResolver.AbsorbFlat(value, player.Absorption), attacker, defender);
+    }
+
+    // Whether an enemy skill may take a player of the castle's battle zone as its target: one that can hurt it (a weapon
+    // skill, a bolt, or an area of rolled damage that is not a chain), never a charm.
+    public static bool ReachesPlayers(SkillRule rule) =>
+        rule.Charm is null && (rule.Kind is SkillKind.WeaponAttack or SkillKind.MagicBolt
+            || rule.Kind == SkillKind.Area && rule.AreaShape != SkillAreaShape.Chain && rule.Damage is { Mode: SkillDamageMode.Rolled });
 
     // Healing: the table plus the weapon's own damage / 3 and spirit / 8 (minimum) and / 6 (maximum).
     public static int RollHeal(PlayerCharacter caster, SkillRule rule, int rank, CombatRng rng)

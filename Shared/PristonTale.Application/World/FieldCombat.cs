@@ -118,8 +118,8 @@ internal sealed class FieldCombat
         SkillFormulas.NormalAttack(player.Character) with { ExtraPercent = player.Character.Effects.Totals.Flat(StatKind.NextHitDamage) };
 
     // A player's blow on another still in range: the target's evasion, then the attacker's normal attack against the
-    // target's defence, block and flat absorption, scaled by both sides' effects, with the attacker's enchants and Might
-    // Stone and the target's absorbing shields (Athanasia's guard takes none of it).
+    // target's defence, block and flat absorption, scaled by both sides' effects, with the attacker's enchants
+    // (Athanasia's guard takes none of it).
     private void ResolveSwingOnPlayer(WorldPlayer player, WorldPlayer foe)
     {
         if (!_host.MayFight(player, foe) || !player.InAttackRange(foe.Position) || SkillCombat?.Evades(player.EntityId, foe) == true)
@@ -146,17 +146,23 @@ internal sealed class FieldCombat
 
         SkillCombat?.ConsumeNextHit(player);
         var damage = ModifierRules.ScaleDamage(result.Damage, player.Character.Effects.Totals, foe.Character.Effects.Totals);
-        damage += SkillCombat?.EnchantOnPlayer(player, defender) ?? 0;
-        damage = CastleItems.Strike(player.Character.Effects, foe.Character.Class.Class, damage);
+        HurtPlayer(player, foe, damage + (SkillCombat?.EnchantOnPlayer(player, defender) ?? 0), result.Crit);
+    }
+
+    // A player's blow or skill reaches another player for this damage: the attacker's Might Stone, the target's absorbing
+    // shields, then the life it takes (PlayerHurtPlayer) and the hit's event.
+    public void HurtPlayer(WorldPlayer attacker, WorldPlayer foe, int damage, bool crit)
+    {
+        damage = CastleItems.Strike(attacker.Character.Effects, foe.Character.Class.Class, damage);
         damage = SkillCombat?.DefendFromPlayer(foe, damage) ?? damage;
         var lifeBefore = foe.Life;
         foe.ApplyDamage(damage);
         if (lifeBefore > foe.Life)
         {
-            PlayerHurtPlayer?.Invoke(player, foe, lifeBefore - foe.Life);
+            PlayerHurtPlayer?.Invoke(attacker, foe, lifeBefore - foe.Life);
         }
 
-        _host.EmitCombatEvent(new CombatEventView(player.EntityId, foe.EntityId, CombatEventKind.Hit, damage: lifeBefore - foe.Life, crit: result.Crit,
+        _host.EmitCombatEvent(new CombatEventView(attacker.EntityId, foe.EntityId, CombatEventKind.Hit, damage: lifeBefore - foe.Life, crit: crit,
             killed: foe.IsDead));
     }
 

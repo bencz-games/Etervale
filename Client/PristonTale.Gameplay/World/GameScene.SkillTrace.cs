@@ -4,11 +4,11 @@ using PristonTale.Contracts.Skills;
 
 namespace PristonTale.Gameplay.World;
 
-// The original's continued attack with a skill: a click of a mouse button whose skill strikes an enemy, on a monster,
-// keeps attacking it while the button is held, or until it dies or leaves when Shift was down at the click. The skill
-// goes again whenever it is ready; while it is not, the player strikes with the weapon. A cast the server refuses for a
-// passing reason (mana, stamina, cooldown, range) is tried again a second later without its notice, the weapon striking
-// meanwhile; any other refusal ends the trace and shows its notice.
+// The original's continued attack with a skill: a click of a mouse button whose skill strikes an enemy, on a monster (or
+// a foe in the castle's battle zone), keeps attacking it while the button is held, or until it dies or leaves when Shift
+// was down at the click. The skill goes again whenever it is ready; while it is not, the player strikes with the weapon.
+// A cast the server refuses for a passing reason (mana, stamina, cooldown, range) is tried again a second later without
+// its notice, the weapon striking meanwhile; any other refusal ends the trace and shows its notice.
 public sealed partial class GameScene
 {
     private const double TraceRetryMs = 1000d;
