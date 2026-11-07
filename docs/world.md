@@ -474,6 +474,13 @@ local date, shared by all fields) and adds the monster's death gold when its cha
 Drops settle on the floor within 32 units of the corpse. `DropTable.AllPlayersSeeDrops` makes a drop public at once;
 lifetimes and the owner window live in `FieldGroundLoot` ([application.md](application.md)).
 
+A player's kill may call more monsters (`KillSummons`, `FieldInstance.CallKillSummons`, each with the return sparkle):
+a Wanted Morif calls three Mini Morifs within 64 units (x and z) of where it fell, free to roam. During a siege in
+Bless Castle a fallen crystal tower calls ten guards of one kind (Course Ricarten militia, guard or Bless royal guard,
+at random) and the fallen door six door soldiers at each guard post within 300 units of where it fell (by the door,
+the two towers near it, mid-castle and the Tower of Valhalla), each within 64 units of its post; they are defenders of
+the owner clan, wander around where they stand and leave with the siege ([application.md](application.md#bless-castle)).
+
 ## Motion timing
 
 INX motion tables are extracted by the importer (`MotionTableExtractor`) into the database and loaded as a

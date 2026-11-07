@@ -738,22 +738,23 @@ and the tower strike what comes into their reach without turning), and up to twe
 around their posts with all their potions. A castle without an owner gets twenty of each and crystal towers of random
 elements. The owner clan's members call more mercenaries with crystals during the siege (GP114-116: one a character,
 five of a kind, twenty of the clan; `FieldInstance.CallMercenary`, [special-items.md](special-items.md)), each one a
-defender as the others are. Every defender belongs to the owner clan (`MonsterInstance.ClanId`, `CastleRole`): the
-defenders and its players never hurt each other (`FieldCombat.OwnClan`, also for clan pets: no attack target, no blow
-or area skill, no skill or summon of theirs on them) and the defenders never pick its players; clan pet rules (the
-cheer, the pets nearby) leave the defenders out. Each player hit (summons' too) on a crystal tower, or on the tower
-once no crystal tower stands, adds the life it took to the player's clan on the damage board (`CastleDamageBoard`);
-while a crystal tower stands the tower is made whole every tick. A player's blow on another (see Combat resolution)
-scores a tenth of the life it took, at least 1 (`CastleSiegeRules.PkScore`), while the tower stands, unless the target
-has no clan and neither side is the owner clan. The world publishes `CastleSiegeView` (door, crystal towers and
-mercenaries standing, the ten best clans and the total) at most once a second while it changes. When the tower falls,
-the castle goes to the board's leader (no owner when no clan dealt damage, and any clan may win), with a notice naming
-the clan; a conquest storage refuses is kept and stored on a later minute (a game master's `/end_castle` after the
-fall still gives it). The siege then closes: its defenders leave. At peace, living players in the castle field outside
-the owner clan are sent to a random start point of the castle, and the owner's towers and mercenaries are spent (they
-serve one siege). While a crystal tower stands no blow takes the tower's life (`MonsterInstance.MinimumLife`).
-`/easy_castle` leaves every defender one life, no lives in reserve and no potions; the tower keeps that one life while
-a crystal tower stands.
+defender as the others are; a fallen crystal tower or the door calls guards at the posts near it
+([world.md](world.md#loot-and-kill-rewards)). Every defender belongs to the owner clan (`MonsterInstance.ClanId`,
+`CastleRole`): the defenders and its players never hurt each other (`FieldCombat.OwnClan`, also for clan pets: no
+attack target, no blow or area skill, no skill or summon of theirs on them) and the defenders never pick its players;
+clan pet rules (the cheer, the pets nearby) leave the defenders out. Each player hit (summons' too) on a crystal
+tower, or on the tower once no crystal tower stands, adds the life it took to the player's clan on the damage board
+(`CastleDamageBoard`); while a crystal tower stands the tower is made whole every tick. A player's blow on another
+(see Combat resolution) scores a tenth of the life it took, at least 1 (`CastleSiegeRules.PkScore`), while the tower
+stands, unless the target has no clan and neither side is the owner clan. The world publishes `CastleSiegeView` (door,
+crystal towers and mercenaries standing, the ten best clans and the total) at most once a second while it changes.
+When the tower falls, the castle goes to the board's leader (no owner when no clan dealt damage, and any clan may
+win), with a notice naming the clan; a conquest storage refuses is kept and stored on a later minute (a game master's
+`/end_castle` after the fall still gives it). The siege then closes: its defenders leave. At peace, living players in
+the castle field outside the owner clan are sent to a random start point of the castle, and the owner's towers and
+mercenaries are spent (they serve one siege). While a crystal tower stands no blow takes the tower's life
+(`MonsterInstance.MinimumLife`). `/easy_castle` leaves every defender one life, no lives in reserve and no potions;
+the tower keeps that one life while a crystal tower stands.
 
 ## Published outcomes and events
 

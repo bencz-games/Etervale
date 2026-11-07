@@ -36,6 +36,8 @@ internal static class CastleSiegeTests
             PvpAsync);
         yield return ("damage skills reach players in the battle zone: a bolt on a foe, a ball on the foes around it, never a clan mate or the north",
             SkillsAsync);
+        yield return ("a kill calls its summons: a Wanted Morif three Mini Morifs, a crystal tower ten guards and the door six soldiers at their posts",
+            KillSummonsAsync);
         yield return ("a member of the owner clan calls one mercenary with a crystal during a siege, a relog too, five of a kind, and they leave with the siege",
             CalledMercenariesAsync);
         yield return ("the soul fountain's turns go round the owner clan's members at it, and a recipient that left gets nothing", FountainTurnsAsync);
@@ -324,6 +326,48 @@ internal static class CastleSiegeTests
         fighter.Run(20 * 4, () => struck.Life < struckLife);
         Assert.True(struck.Life < struckLife, "the weapon skill did not hurt the foe");
         return Task.CompletedTask;
+    }
+
+    private static async Task KillSummonsAsync()
+    {
+        MonsterDefinition[] called =
+        [
+            .. KillSummons.CrystalGuards.Select(static (key, index) => Defender(key, 0, 0, 70) with { Code = 950 + index }),
+            Defender(KillSummons.DoorSoldier, 0, 0, 70) with { Code = 953 },
+            Defender("Wanted Morif", 0, 0, 70) with { Code = 954 },
+            Defender("Mini morif", 0, 0, 70) with { Code = 955 }
+        ];
+        var harness = await SpecialItemTests.Harness.CreateAsync(FieldCodes.Castle, [.. Defenders(), .. called], []);
+        harness.World.TryGetOpenField(FieldCodes.Castle, out var field);
+        var killer = harness.Player.EntityId;
+        static float Planar(System.Numerics.Vector3 a, System.Numerics.Vector2 b) => System.Numerics.Vector2.Distance(new(a.X, a.Z), b);
+        var morif = field.SpawnForGameMaster(called[4], new System.Numerics.Vector3(34000, 0, -24000), false);
+        field.CallKillSummons(morif, killer);
+        var minis = field.MonstersForInspection.Where(static monster => monster.Def.Key == "Mini morif").ToList();
+        Assert.True(minis.Count == 3 && minis.All(mini => Planar(mini.Position, new(morif.Position.X, morif.Position.Z)) <= KillSummons.Spread * 1.5f
+            && mini.CastleRole == CastleObject.None), "a Wanted Morif's death did not call three Mini Morifs where it fell");
+        await harness.AdvanceAsync(harness.World.OpenSiegeAsync(new CastleSiegeOrder(7, [], [])));
+        harness.Tick(1);
+        var defenders = field.MonstersForInspection.ToList();
+        var crystal = defenders.First(static monster => monster.CastleRole == CastleObject.Crystal
+            && Planar(monster.Position, new(CastleSiegeRules.CrystalSlots[0].X, CastleSiegeRules.CrystalSlots[0].Z)) < 1);
+        field.CallKillSummons(crystal, killer);
+        var guards = field.MonstersForInspection.Where(static monster => KillSummons.CrystalGuards.Contains(monster.Def.Key)).ToList();
+        Assert.True(guards.Count == KillSummons.CrystalGuardCount && guards.Select(static guard => guard.Def.Key).Distinct().Count() == 1
+            && guards.All(guard => guard.ClanId == 7 && guard.CastleRole == CastleObject.Mercenary
+                && Planar(guard.Position, KillSummons.GuardPosts[1]) <= KillSummons.Spread * 1.5f),
+            "a fallen crystal tower did not call ten guards of one kind at the post near it, for the owner clan");
+        var door = defenders.Single(static monster => monster.CastleRole == CastleObject.Door);
+        field.CallKillSummons(door, killer);
+        var soldiers = field.MonstersForInspection.Where(static monster => monster.Def.Key == KillSummons.DoorSoldier).ToList();
+        Assert.True(soldiers.Count == KillSummons.DoorSoldierCount && soldiers.All(soldier => Planar(soldier.Position, KillSummons.GuardPosts[0]) <= KillSummons.Spread * 1.5f),
+            "the fallen door did not call six soldiers at its post");
+        await harness.AdvanceAsync(harness.World.CloseSiegeAsync());
+        harness.Tick(1);
+        Assert.True(!field.MonstersForInspection.Any(static monster => KillSummons.CrystalGuards.Contains(monster.Def.Key) || monster.Def.Key == KillSummons.DoorSoldier),
+            "the called guards outlived the siege");
+        field.CallKillSummons(crystal, killer);
+        Assert.True(!field.MonstersForInspection.Any(static monster => KillSummons.CrystalGuards.Contains(monster.Def.Key)), "a tower called guards without a siege");
     }
 
     private static async Task CalledMercenariesAsync()

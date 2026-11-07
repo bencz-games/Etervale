@@ -334,6 +334,10 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         {
             var dropPosition = Terrain.SettleNear(killed.Position, FieldTerrain.DropTolerance);
             GroundLoot.Place(reward, dropPosition, killed.Def.Drops.AllPlayersSeeDrops, nowMs, _rng);
+            if (reward.CreditedPlayerId != 0)
+            {
+                CallKillSummons(killed, reward.CreditedPlayerId);
+            }
         }
     }
 
