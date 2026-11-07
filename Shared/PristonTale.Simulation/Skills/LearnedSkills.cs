@@ -50,7 +50,7 @@ public sealed class LearnedSkills
         Changed?.Invoke();
     }
 
-    // Proficiency changes no derived stat, so it does not announce a change; it is saved with the ranks.
+    // Proficiency changes no derived stat, so it announces no change; the revision sends the owner its skill window gauge.
     public void RecordUses(uint code, int uses)
     {
         if (RankOf(code) == 0)
@@ -58,7 +58,12 @@ public sealed class LearnedSkills
             throw new ArgumentOutOfRangeException(nameof(code));
         }
 
-        _uses[code] = Math.Clamp(uses, 0, MaxUses);
+        uses = Math.Clamp(uses, 0, MaxUses);
+        if (_uses.GetValueOrDefault(code) != uses)
+        {
+            _uses[code] = uses;
+            Revision++;
+        }
     }
 
     // Forgets every learned skill and its proficiency (a skill reset).

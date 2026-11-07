@@ -136,8 +136,8 @@ internal static class HudInteractionTests
         nodes = nodes[..HudSkillTreeLayout.NodeCount];
         for (var index = 0; index < nodes.Length; index++)
         {
-            var gauge = HudSkillTreeLayout.RankGauge(origin, index);
-            Assert.True(window.Contains(gauge) && gauge.Left > nodes[index].Left, "skill rank gauge escaped the window");
+            var gauge = HudSkillTreeLayout.ReadyGauge(origin, index);
+            Assert.True(window.Contains(gauge) && gauge.Left > nodes[index].Left, "skill ready gauge escaped the window");
         }
 
         var allocate = Enumerable.Range(0, 5).Select(index => HudStatusPanel.AllocateButton(origin, index)).ToArray();

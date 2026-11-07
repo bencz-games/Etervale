@@ -1031,7 +1031,7 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
         if (owner.SkillsRevision != _skillsRevision)
         {
             _skillsRevision = owner.SkillsRevision;
-            var skills = owner.Skills.Take(SkillsPacket.MaxSkills).Select(skill => (skill.Code, skill.Rank)).ToArray();
+            var skills = owner.Skills.Take(SkillsPacket.MaxSkills).Select(skill => (skill.Code, skill.Rank, skill.Uses)).ToArray();
             connection.Send(_scratch.AsSpan(0, new SkillsPacket(owner.SkillsRevision, skills).Write(_scratch)));
         }
     }

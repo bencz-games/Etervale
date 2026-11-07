@@ -86,6 +86,20 @@ internal static class SkillSystemTests
         Assert.True(SkillFormulas.UsesAfterCast(0, 6, 0, 4) == 100 && SkillFormulas.UsesAfterCast(0, 5, 0, 4) == 0, "rank did not lengthen the streak");
         Assert.True(SkillFormulas.UsesAfterCast(0, 9, 8, 1) == 100 && SkillFormulas.UsesAfterCast(0, 17, 15, 3) == 100, "window position streak changed");
         Assert.True(SkillFormulas.UsesAfterCast(9950, 10, 0, 1) == 10000, "proficiency exceeded its cap");
+        Assert.True(SkillFormulas.Proficiency(0x08010002, 150, 10, 300) == 5300 && SkillFormulas.Proficiency(0x08010002, 0, 0, 12000) == 10000
+            && SkillFormulas.Proficiency(0x08080002, 0, 0, 0) == 10000, "the training gauge's proficiency differs (fourth tier is always trained)");
+
+        var mage = Classes.CreatePlayer(PlayerClass.Magician, "Trainer", 30);
+        mage.Skills.Restore(0x08010002, 1);
+        var revision = mage.Skills.Revision;
+        mage.Skills.RecordUses(0x08010002, 0);
+        Assert.True(mage.Skills.Revision == revision, "an unchanged use count raised the skills revision");
+        mage.Skills.RecordUses(0x08010002, 100);
+        Assert.True(mage.Skills.Revision == revision + 1 && OwnerState.Capture(mage).Skills.Single().Uses == 100,
+            "a trained skill did not reach the owner's skill list");
+        var buffer = new byte[64];
+        var read = SkillsPacket.Read(buffer.AsSpan(0, new SkillsPacket(7, [(0x08010002u, 3, 4200)]).Write(buffer)));
+        Assert.True(read.Revision == 7 && read.Skills.Single() == (0x08010002u, 3, 4200), "the skills packet lost the uses");
         return Task.CompletedTask;
     }
 

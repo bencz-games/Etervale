@@ -64,7 +64,7 @@
       "spiritMinDivisor": 6, "spiritMaxDivisor": 3, "element": "Lighting", "resistanceDivisor": 10, "bonusBroods": ["Undead"], "bonusPercent": 50,
       "noCritical": true },
     "motionIndex": 65, "motionFrames": 50, "motionEvents": [30], "motionSpeed": 85,
-    "castEffect": "vfx.priestess.castcircle", "impactEffect": "vfx.priestess.divinelightning.strike", "castSound": "wav/Effects/Skill/Morion/Casting_P.wav",
+    "castEffect": "vfx.priestess.castcircle", "impactEffect": "vfx.priestess.divinelightning.strike", "impactNeedsTarget": true, "castSound": "wav/Effects/Skill/Morion/Casting_P.wav",
       "impactSoundOrder": "Random", "impactSounds": ["wav/Effects/Skill/Morion/DivineLightning 1.wav", "wav/Effects/Skill/Morion/DivineLightning 2.wav", "wav/Effects/Skill/Morion/DivineLightning 3.wav"] },
   {
     "code": "0x07020003", "name": "Holy Reflection", "tier": "Job2", "category": "Buff", "icon": "MP26 H_Reflection",

@@ -153,7 +153,7 @@ public sealed record InventoryPartPacket(long Revision, int Part, int Parts, IRe
     }
 }
 
-public sealed record SkillsPacket(long Revision, IReadOnlyList<(uint Code, int Rank)> Skills)
+public sealed record SkillsPacket(long Revision, IReadOnlyList<(uint Code, int Rank, int Uses)> Skills)
 {
     public const int HeaderSize = 8 + 8 + 4;
     public const int MaxSkills = 512;
@@ -163,10 +163,11 @@ public sealed record SkillsPacket(long Revision, IReadOnlyList<(uint Code, int R
         var writer = new PacketWriter(destination, EtervaleOpcodes.Skills);
         writer.Int64(Revision);
         writer.Int32(Skills.Count);
-        foreach (var (code, rank) in Skills)
+        foreach (var (code, rank, uses) in Skills)
         {
             writer.UInt32(code);
             writer.Int32(rank);
+            writer.Int32(uses);
         }
 
         return writer.Finish();
@@ -177,15 +178,15 @@ public sealed record SkillsPacket(long Revision, IReadOnlyList<(uint Code, int R
         var reader = new PacketReader(packet, HeaderSize);
         var revision = reader.Int64();
         var count = reader.Int32();
-        if (count < 0 || count > MaxSkills || reader.Remaining != count * 8)
+        if (count < 0 || count > MaxSkills || reader.Remaining != count * 12)
         {
             throw new InvalidDataException("Skill list has an invalid count.");
         }
 
-        var skills = new (uint, int)[count];
+        var skills = new (uint, int, int)[count];
         for (var index = 0; index < count; index++)
         {
-            skills[index] = (reader.UInt32(), reader.Int32());
+            skills[index] = (reader.UInt32(), reader.Int32(), reader.Int32());
         }
 
         return new SkillsPacket(revision, skills);

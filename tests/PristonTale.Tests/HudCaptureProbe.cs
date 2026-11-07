@@ -722,7 +722,7 @@ internal sealed class HudCaptureProbe : Game
             {
                 Level = 24,
                 SkillPoints = 4,
-                Skills = new OwnedSkillView[] { new(0x01010001, 3), new(0x01010002, 1), new(0x01010004, 1) }
+                Skills = new OwnedSkillView[] { new(0x01010001, 3, 6000), new(0x01010002, 1, 2500), new(0x01010004, 1) }
             };
         }
 

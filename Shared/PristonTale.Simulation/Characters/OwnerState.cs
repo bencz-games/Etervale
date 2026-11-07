@@ -58,7 +58,7 @@ public sealed record OwnedItemView(
         return null;
     }
 }
-public sealed record OwnedSkillView(uint Code, int Rank);
+public sealed record OwnedSkillView(uint Code, int Rank, int Uses = 0);
 
 public sealed record AgingProgressView(Guid InstanceId, int Count, int Goal);
 
@@ -112,6 +112,9 @@ public sealed record OwnerState(
     // so the capture the server makes every tick allocates nothing for it.
     private OwnerStamp Stamp { get; init; }
 
+    private static IReadOnlyList<OwnedSkillView> SkillViews(PristonTale.Simulation.Skills.LearnedSkills skills) =>
+        Array.AsReadOnly(skills.Ranks.Select(pair => new OwnedSkillView(pair.Key, pair.Value, skills.UsesOf(pair.Key))).ToArray());
+
     // An unchanged owner returns the previous instance (which the encoder skips); otherwise the state is built in full and
     // compared as a record, the lists reused while their revision holds.
     public static OwnerState Capture(PlayerCharacter character, OwnerState previous = null, long nowSeconds = 0)
@@ -145,8 +148,7 @@ public sealed record OwnerState(
             BagPage = character.BagPage,
             WeaponSet = character.WeaponSet,
             EliteSkillPoints = character.EliteSkillPoints,
-            Skills = previous is not null && previous.SkillsRevision == character.Skills.Revision ? previous.Skills
-                : Array.AsReadOnly(character.Skills.Ranks.Select(pair => new OwnedSkillView(pair.Key, pair.Value)).ToArray()),
+            Skills = previous is not null && previous.SkillsRevision == character.Skills.Revision ? previous.Skills : SkillViews(character.Skills),
             CarriedWeight = character.Derived.CarriedWeight,
             MaxWeight = character.Derived.MaxWeight,
             CriticalChance = Combat.CombatProfileFactory.CriticalChance(character),

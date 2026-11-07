@@ -560,7 +560,10 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   training mode the skills the master can teach now in colour and a skill at rank 10 gray. The arrows at (765, 482) and
   (12, 482), or `P` once the class reached the fifth tier, turn to the second page (`Skil25.bmp`) and back: the fifth
   tier's title on the first title's place and its four skills (window indices 16-19) on the first tier's boxes, with
-  the basic attack, the points and the training box as on the first page.
+  the basic attack, the points and the training box as on the first page. Beside each skill two 5 x 35 gauges, as the
+  original's: left the training (`Gage-3` frame, a passive's `Gage-4`; once learned the green `Gage-2` fill of its
+  proficiency out of 10,000 with `Gage-22` as its top, full for the fourth and fifth tiers), right the readiness
+  (`Gage.bmp` filling as the cooldown runs out, full when the skill is ready).
 - Training box (`HudSkillsPanel.DrawMasterBox`): while a skill master trains the pupil (no skill being confirmed), the
   item-info frame of 13 by 21 tiles stands at (90, 100) of the screen's top left (`HudSkillTreeLayout.MasterBox`):
   "Train Skill/Magic", then "Select a Skill or Magic / To learn or train" with the skill points (pale yellow) and elite

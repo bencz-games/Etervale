@@ -62,6 +62,8 @@ public static class HudArt
     public const string SkillGauge = Sin + "skill/Gage.bmp";
     public const string SkillGaugeBack = Sin + "skill/Gage-3.bmp";
     public const string SkillGaugePassive = Sin + "skill/Gage-4.bmp";
+    public const string SkillTraining = Sin + "skill/Gage-2.bmp";
+    public const string SkillTrainingTop = Sin + "skill/Gage-22.bmp";
     public static readonly string[] ShortKeys = Enumerable.Range(1, 8).Select(index => $"{Sin}skill/ShortKey/f{index}.bmp").ToArray();
 
     public const string Inventory = Sin + "Inven/Inven.bmp";
@@ -151,7 +153,7 @@ public static class HudArt
         Walk, CameraAuto, CameraFixed, MapOn, RunInfo, WalkInfo, CameraHandInfo, MapOnInfo, MapOffInfo,
         SystemMenu, SystemSettings, SystemHelp, SystemExit, RestartMain, RestartField, RestartTown, RestartExit, SelectJobGray, SelectJob,
         .. MenuButtons, .. MenuButtonsDown, .. MenuInfo,
-        SkillNormal, SkillWindow, SkillWindowSecond, SkillPageForward, SkillPageBack, SkillSelect, SkillGauge, SkillGaugeBack, SkillGaugePassive, .. ShortKeys,
+        SkillNormal, SkillWindow, SkillWindowSecond, SkillPageForward, SkillPageBack, SkillSelect, SkillGauge, SkillGaugeBack, SkillGaugePassive, SkillTraining, SkillTrainingTop, .. ShortKeys,
         Inventory, PuzzleBoard, CoverLarge, CoverMiddle, CoverSmall, PotionBack, SideLeft, SideRight, .. PageHints, .. PairHints, CloseHint,
         QuestBoxButton, QuestBoxButtonOpen, QuestBoxTile, QuestBoxHint, QuestBoxCloseHint, QuestBoxGlow,
         Status, StatusPoint, StatusArrow, StatusArrowDown,

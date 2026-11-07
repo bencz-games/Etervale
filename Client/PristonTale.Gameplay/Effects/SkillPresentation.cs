@@ -377,7 +377,7 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
         _impacts[skillEvent.CasterId] = impact + 1;
         Looks.Impact(skillEvent, rule);
         var impactEffect = ImpactEffectOf(rule, skillEvent, impact);
-        if (impactEffect.Length > 0 && (skillEvent.TargetCount > 0 || !targetsEntity))
+        if (impactEffect.Length > 0 && (skillEvent.TargetCount > 0 || !targetsEntity && !rule.ImpactNeedsTarget))
         {
             Spawn(impactEffect, skillEvent.CasterId, skillEvent.TargetId != 0 ? skillEvent.TargetId : skillEvent.CasterId, point, -skillEvent.Facing);
         }

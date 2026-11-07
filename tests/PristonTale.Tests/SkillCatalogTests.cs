@@ -147,7 +147,7 @@ internal static class SkillCatalogTests
         Assert.True(frost.Buff.Enchant is { BasicOnly: true } enchant && SkillFormulas.RankValue(enchant.Choices[0].Max, 10) == 86
             && SkillFormulas.RankValue(enchant.Choices[0].SlowTenths, 10) == 90, "Frost Javelin");
         Rule(0x07020002, out var divine);
-        Assert.True(divine.At(divine.MaxTargetsByRank, 10) == 6 && divine.Damage.ResistanceDivisor == 10, "Divine Lightning");
+        Assert.True(divine.At(divine.MaxTargetsByRank, 10) == 6 && divine.Damage.ResistanceDivisor == 10 && divine.ImpactNeedsTarget, "Divine Lightning");
         Rule(0x07080003, out var chain);
         Assert.True(chain.AreaShape == SkillAreaShape.Chain && chain.At(chain.MaxTargetsByRank, 10) == 9 && chain.At(chain.Radius, 10) == 185, "Chain Lightning");
         Rule(0x07040002, out var resurrection);

@@ -225,8 +225,51 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
 
     private Rectangle Box(Point origin, int index) => ClassRow(origin, index - PageFirst);
 
+    // The training gauge left of a skill: a passive skill's plain frame; for the others (and the fourth- and fifth-tier
+    // passives, always trained) the frame and, once learned, the green fill of its proficiency out of 10,000.
+    private static void DrawTraining(HudPainter painter, Rectangle gauge, Entry entry, OwnerState state)
+    {
+        var code = entry.Skill.Code;
+        if (entry.Skill.MouseUse == SkillMouseUse.None && !SkillFormulas.IsFullyTrained(code))
+        {
+            painter.Sprite(HudArt.SkillGaugePassive, gauge.X, gauge.Y);
+            return;
+        }
+
+        painter.Sprite(HudArt.SkillGaugeBack, gauge.X, gauge.Y);
+        if (entry.Rank > 0 && state is not null)
+        {
+            var proficiency = SkillFormulas.Proficiency(code, state.Talent, (int)state.MagicMastery, Uses(state, code));
+            Fill(painter, HudArt.SkillTraining, HudArt.SkillTrainingTop, gauge, gauge.Height * proficiency / LearnedSkills.MaxUses);
+        }
+    }
+
+    // A gauge filled from the bottom: the sprite's lower part, its rounded top three rows over the fill's edge.
+    private static void Fill(HudPainter painter, string sprite, string top, Rectangle gauge, int filled)
+    {
+        filled = Math.Clamp(filled, 0, gauge.Height);
+        painter.Sprite(sprite, gauge.X, gauge.Bottom - filled, new Rectangle(0, gauge.Height - filled, gauge.Width, filled));
+        if (filled >= 3)
+        {
+            painter.Sprite(top, gauge.X, gauge.Bottom - filled, new Rectangle(0, 0, gauge.Width, 3));
+        }
+    }
+
+    private static int Uses(OwnerState state, uint code)
+    {
+        foreach (var skill in state.Skills)
+        {
+            if (skill.Code == code)
+            {
+                return skill.Uses;
+            }
+        }
+
+        return 0;
+    }
+
     public void Draw(HudPainter painter, Point origin, Point pointer, OwnerState state, HudSkillBindings bindings, ulong skillMaster, bool pressed,
-        bool interactive)
+        bool interactive, Effects.SkillCooldownBook cooldowns = null, double clockMs = 0)
     {
         RefreshRanks(state);
         _hovered = null;
@@ -273,12 +316,13 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
                 // elsewhere the learned skills are in colour.
                 var usable = skillMaster != 0 ? entry.Rank < SkillLearning.MaxRank && (entry.Rank > 0 || CanTrain(index, state)) : entry.Rank > 0;
                 painter.Sprite(usable ? entry.Button : entry.GrayButton, node.X, node.Y);
-                var mastery = HudSkillTreeLayout.MasteryGauge(origin, index - PageFirst);
-                painter.Sprite(entry.Skill.MouseUse == SkillMouseUse.None ? HudArt.SkillGaugePassive : HudArt.SkillGaugeBack, mastery.X, mastery.Y);
-
-                var rank = HudSkillTreeLayout.RankGauge(origin, index - PageFirst);
-                var length = Math.Clamp(entry.Rank, 0, SkillLearning.MaxRank) * rank.Height / SkillLearning.MaxRank;
-                painter.Sprite(HudArt.SkillGauge, rank.X, rank.Bottom - length, new Rectangle(0, rank.Height - length, rank.Width, length));
+                DrawTraining(painter, HudSkillTreeLayout.MasteryGauge(origin, index - PageFirst), entry, state);
+                if (entry.Rank > 0)
+                {
+                    var ready = HudSkillTreeLayout.ReadyGauge(origin, index - PageFirst);
+                    var charged = (int)((1f - (cooldowns?.Fraction(entry.Skill.Code, clockMs) ?? 0f)) * ready.Height);
+                    Fill(painter, HudArt.SkillGauge, HudArt.SkillGauge, ready, charged);
+                }
                 DrawShortcut(painter, node, entry.Skill.Code, bindings);
             }
 

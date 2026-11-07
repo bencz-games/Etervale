@@ -646,7 +646,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
 
     public PresenceUpdate? OnSkills(SkillsPacket skills)
     {
-        _skills = skills.Skills.Select(skill => new OwnedSkillView(skill.Code, skill.Rank)).ToArray();
+        _skills = skills.Skills.Select(skill => new OwnedSkillView(skill.Code, skill.Rank, skill.Uses)).ToArray();
         _skillsRevision = skills.Revision;
         return OwnerUpdate();
     }

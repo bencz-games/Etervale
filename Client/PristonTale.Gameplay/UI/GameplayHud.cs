@@ -657,7 +657,8 @@ public sealed partial class GameplayHud : IDisposable
 
         if (_skillSlide.Visible)
         {
-            _skills.Draw(_painter, PanelOrigin(layout, _skillSlide), pointer, _state, _bindings, _skillMaster, pressed, _skillSlide.FullyOpen);
+            _skills.Draw(_painter, PanelOrigin(layout, _skillSlide), pointer, _state, _bindings, _skillMaster, pressed, _skillSlide.FullyOpen,
+                Cooldowns, SkillClockMs);
         }
 
         if (_inventorySlide.Visible)

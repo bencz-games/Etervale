@@ -73,6 +73,7 @@ public sealed partial class GameScene
         else if (!WorldClicksBlocked && !RightAttackEnabled && mouse.RightButton == ButtonState.Pressed
             && _lastMouseState.RightButton == ButtonState.Released && !SelfCasting)
         {
+            EndSkillTrace();
             TryCastSkillClick(mouse, rightButton: true);
         }
 
@@ -85,6 +86,7 @@ public sealed partial class GameScene
             _lastLeftClickMs = nowMs;
             _followCursor = false;
             _holdCursorMovement = false;
+            EndSkillTrace();
             if (TryPickLoot(mouse))
             {
             }
@@ -114,6 +116,7 @@ public sealed partial class GameScene
 
         UpdateCharge(mouse);
         EndSkillMotion();
+        UpdateSkillTrace(mouse);
         UpdatePendingCast();
         UpdateNpcApproach();
         UpdateReachedPlayer();

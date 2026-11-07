@@ -38,13 +38,16 @@ public static partial class SkillFormulas
             return 0;
         }
 
-        // Fourth- and fifth-tier skills have no proficiency to train: they always count as fully trained.
-        var proficiency = IsFullyTrained(rule.Code) ? LearnedSkills.MaxUses : Math.Min(LearnedSkills.MaxUses, Math.Min(talent / 3 + itemMastery, 50) * 100 + Math.Max(0, uses));
-        var mastery = Math.Clamp(rule.MasteryBase + rule.MasteryPerRank * rank - proficiency / 100, 1, 70);
+        var mastery = Math.Clamp(rule.MasteryBase + rule.MasteryPerRank * rank - Proficiency(rule.Code, talent, itemMastery, uses) / 100, 1, 70);
         var step = Math.Max(1, 70 / mastery);
         var ticksPerStep = Math.Max(1, Gauge / step);
         return Gauge * ticksPerStep * CooldownTickMs;
     }
+
+    // A skill's training, up to LearnedSkills.MaxUses: talent / 3 plus the worn magic mastery (at most 50) in hundreds plus
+    // the uses. Fourth- and fifth-tier skills have none to train: they always count as fully trained.
+    public static int Proficiency(uint code, int talent, int itemMastery, int uses) =>
+        IsFullyTrained(code) ? LearnedSkills.MaxUses : Math.Min(LearnedSkills.MaxUses, Math.Min(talent / 3 + itemMastery, 50) * 100 + Math.Max(0, uses));
 
     public static bool IsFullyTrained(uint code) => (code >> 16 & 0xFF) is (uint)JobTier.Job4 or (uint)JobTier.Job5;
 
