@@ -83,11 +83,13 @@ standalone importer build is explicit because its Release output must be availab
 
 ## Screenshots
 
-<img width="1918" height="1012" alt="image" src="https://github.com/user-attachments/assets/2850e4b8-9c72-43b2-9171-6434a6313135" />
+<img width="1920" height="1033" alt="image" src="https://github.com/user-attachments/assets/d5978f70-be44-4e95-92c7-7af454e220f0" />
 --
-<img width="1918" height="1012" alt="image" src="https://github.com/user-attachments/assets/81668a53-e1ed-499d-b5d5-e13488e596dd" />
+<img width="1920" height="1034" alt="image" src="https://github.com/user-attachments/assets/4f1d1923-ed92-4709-aa3a-d2fd44ff6d3c" />
 --
-<img width="1918" height="1012" alt="image" src="https://github.com/user-attachments/assets/ac1b25ce-96f1-489f-9aa4-a2c9f6e70fb1" />
+<img width="1920" height="1034" alt="image" src="https://github.com/user-attachments/assets/5b0d2e28-a940-42ac-bfb2-8c0d67910756" />
+--
+<img width="1920" height="1036" alt="image" src="https://github.com/user-attachments/assets/edc99191-0b33-4653-9553-69b82c8600de" />
 
 ## Run: migrate, import, and connect
 
