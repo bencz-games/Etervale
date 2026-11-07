@@ -50,6 +50,10 @@ public sealed partial class GameplayHud
         var ended = _siegeBoard.Castle.Siege == SiegeState.Running && castle.Siege != SiegeState.Running;
         _siegeBoard.Apply(castle, _clock.Elapsed.TotalMilliseconds);
         _wingGate.CastleOwner = HoldsCastle;
+        _wingGate.Tax = castle.Tax;
+        _skills.Tax = castle.Tax;
+        _aging.Tax = castle.Tax;
+        _mix.Tax = castle.Tax;
         if (ended && InCastleField)
         {
             _notice.Show(ClientText.Get(HoldsCastle ? "Siege.Won" : "Siege.Ended"));

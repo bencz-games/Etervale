@@ -104,9 +104,9 @@ public static class WingGates
     public static bool Offers(WingGateDestination destination, WingGateWing wing, bool castleOwner) =>
         ReferenceEquals(destination, Castle) ? castleOwner : destination.Index < Reach(wing);
 
-    // What a trip to the destination costs a player with this wing standing in the given field.
-    public static long Fee(WingGateWing wing, WingGateDestination destination, int currentField) =>
-        wing is null || destination.Index < FreeDestinations || destination.FieldCode == currentField ? 0 : wing.Fee;
+    // What a trip to the destination costs a player with this wing standing in the given field, with the castle's tax.
+    public static long Fee(WingGateWing wing, WingGateDestination destination, int currentField, int tax = 0) =>
+        wing is null || destination.Index < FreeDestinations || destination.FieldCode == currentField ? 0 : Social.Castle.CastleRules.WithTax(wing.Fee, tax);
 
     public static bool IsStone(FieldWarpGate warp) => warp.SpecialEffect == StoneEffect;
 

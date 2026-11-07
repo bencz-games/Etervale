@@ -331,15 +331,15 @@ internal static class CastleSiegeTests
         var absorb = CastleClanSkills.StatusCode(CastleClanSkill.Absorb);
         var damage = CastleClanSkills.StatusCode(CastleClanSkill.Damage);
         var absorption = member.Character.Effects.Totals.Flat(Simulation.Modifiers.StatKind.Absorption);
-        harness.World.SetOwner(7, CastleClanSkill.Absorb);
+        harness.World.SetOwner(7, CastleClanSkill.Absorb, 0);
         harness.Tick(2);
         Assert.True(member.Character.Effects.TryGet(absorb, out var running) && running.DurationMs > (CastleClanSkills.LastSeconds - 1) * 1000f
             && member.Character.Effects.Totals.Flat(Simulation.Modifiers.StatKind.Absorption) == absorption + CastleClanSkills.AbsorbBonus
             && !outsider.Character.Effects.TryGet(absorb, out _), "the owner clan's member did not hold the absorb skill alone");
-        harness.World.SetOwner(7, CastleClanSkill.Damage);
+        harness.World.SetOwner(7, CastleClanSkill.Damage, 0);
         harness.Tick(2);
         Assert.True(!member.Character.Effects.TryGet(absorb, out _) && member.Character.Effects.TryGet(damage, out _), "the old skill outlived the new one");
-        harness.World.SetOwner(8, CastleClanSkill.Damage);
+        harness.World.SetOwner(8, CastleClanSkill.Damage, 0);
         harness.Tick(2);
         Assert.True(!member.Character.Effects.TryGet(damage, out _), "a member of a clan that lost the castle kept its skill");
         Assert.True(Simulation.Items.Usable.ItemStatuses.Icon(damage)!.EndsWith("wa1-3.tga") && Simulation.Items.Usable.ItemStatuses.Name(absorb) == "Absorb Up",

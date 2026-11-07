@@ -10,6 +10,8 @@ using PristonTale.Simulation.World.Ai;
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Spawning;
 
+using PristonTale.Simulation.Social.Castle;
+
 namespace PristonTale.Application.World;
 
 // World state the game-master commands read and change. Every call runs on the command phase; the requester's quota
@@ -54,19 +56,19 @@ public sealed partial class WorldServer
         {
             case Simulation.World.Npcs.NpcServiceAction.Buy:
                 var key = _worldData.Current.Items.TryGet(command.ItemCode, out var definition) ? definition.CatalogKey : "";
-                Currency.Record(CurrencyLedger.ShopSinkFor(key), spent);
+                RecordSpending(CurrencyLedger.ShopSinkFor(key), spent, CastleRules.TaxIn(spent, operation.Tax, command.Count));
                 break;
             case Simulation.World.Npcs.NpcServiceAction.Teleport:
-                Currency.Record(CurrencySink.Teleports, spent);
+                RecordSpending(CurrencySink.Teleports, spent, CastleRules.TaxIn(spent, operation.Tax));
                 break;
             case Simulation.World.Npcs.NpcServiceAction.Age:
-                Currency.Record(CurrencySink.Aging, spent);
+                RecordSpending(CurrencySink.Aging, spent, CastleRules.TaxIn(spent, operation.Tax));
                 break;
             case Simulation.World.Npcs.NpcServiceAction.Mix:
-                Currency.Record(CurrencySink.Mixing, spent);
+                RecordSpending(CurrencySink.Mixing, spent, CastleRules.TaxIn(spent, operation.Tax));
                 break;
             case Simulation.World.Npcs.NpcServiceAction.Refine:
-                Currency.Record(CurrencySink.ForceOrbs, spent);
+                RecordSpending(CurrencySink.ForceOrbs, spent, CastleRules.TaxIn(spent, operation.Tax));
                 break;
         }
     }

@@ -54,6 +54,20 @@ public sealed class HudWingGate(IClientLog log)
     public bool IsOpen { get; private set; }
 
     public bool CastleOwner { get; set; }
+
+    // The fee table in the introduction is made again for a new tax.
+    public int Tax
+    {
+        get;
+        set
+        {
+            if (field != value)
+            {
+                field = value;
+                _help = null;
+            }
+        }
+    }
     public bool Confirming => _confirm is not null;
     public bool Pending => _request.Pending;
     public string Message { get; private set; } = "";
@@ -153,7 +167,7 @@ public sealed class HudWingGate(IClientLog log)
         {
             Report(WingGateStatus.LevelTooLow);
         }
-        else if (WingGates.Fee(Wing(state), destination, _currentField) > state.Money)
+        else if (WingGates.Fee(Wing(state), destination, _currentField, Tax) > state.Money)
         {
             Report(WingGateStatus.NotEnoughGold);
         }
@@ -268,7 +282,7 @@ public sealed class HudWingGate(IClientLog log)
             var at = lines[line].IndexOf("%d", StringComparison.Ordinal);
             if (at >= 0 && fee < WingGates.Wings.Count)
             {
-                lines[line] = lines[line][..at] + WingGates.Wings[fee++].Fee + lines[line][(at + 2)..];
+                lines[line] = lines[line][..at] + Simulation.Social.Castle.CastleRules.WithTax(WingGates.Wings[fee++].Fee, Tax) + lines[line][(at + 2)..];
             }
         }
 

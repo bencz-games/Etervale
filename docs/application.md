@@ -688,9 +688,9 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
 - In peace with an owner, the fountain gains a potion a minute, up to 1440.
 - The siege's clock lives in memory: a restart during a siege ends it, and the owner stays.
 - Every player in the world is told the castle (`Attach`/`Detach`, `ICastleLink`, `CastleBroadcast`): at entry and,
-  from the tick, whenever the owner, the league mode, the siege's state or end, or the world's view of the siege
-  changed (the best clans named, the running siege's seconds left counted then; `CastleState` on the wire). Attaching
-  and announcing share one lock, so that no player keeps an older castle than the last.
+  from the tick, whenever the owner, the tax in force, the league mode, the siege's state or end, or the world's view
+  of the siege changed (the best clans named, the running siege's seconds left counted then; `CastleState` on the
+  wire). Attaching and announcing share one lock, so that no player keeps an older castle than the last.
 - The owner clan's members see Bless Castle's stone on the wing warp map (the world told the owner, `SetOwner`), and
   route 2's teleporter takes anyone into the castle for 500 gold per level ([world.md](world.md)).
 - The clients draw the crown over the owner clan's players ([client.md](client.md)).
@@ -710,7 +710,18 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
   `castle_treasury` movement. Both refuse during a siege and while a conquest or the spent setup waits to be stored.
   The castle is kept in memory as soon as it is stored. Every request answers a `CastleOwnerStatus`. The treasury stays
   with the castle: a clan that takes the castle takes what is left in it.
-- Not yet: the tax on fees.
+- The tax in force (`CastleRules.TaxInForce`: the owner's rate, 0 without an owner; a clan that takes the castle keeps
+  the rate until its own setup takes effect at four) is added to the final price of the fees players pay
+  (`CastleRules.WithTax`, whole gold rounded down): each shop unit (offered and charged, `NpcShopRules.BuyPrice`), an
+  aging, a mix and an alchemy's force orbs together after their price percents (`AgingSettings.Tax`,
+  `MixingSettings.Tax`), teleports, the wing warp gates and skill training. The NPCs offer the price percents without
+  it. The world takes it from `SetOwner` and gives it to every field on the next tick (`FieldInstance.CastleTax`); a
+  prepared operation keeps the tax it was charged with, which the training's commit charges again. Every gold spent
+  is recorded once (`WorldServer.RecordSpending`: the currency report and the tax part, exact by
+  `CastleRules.TaxIn`). Each minute the castle service takes what was gathered (`TakeTaxGold`) into the treasury with
+  a `castle_treasury` tax movement naming the clan holding the castle, kept and tried again while storage refuses or
+  the castle has no owner; on shutdown, after the game server, the last of it is stored (`FlushTaxAsync`), and what
+  storage then refuses is lost.
 
 The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner
 and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its spawns

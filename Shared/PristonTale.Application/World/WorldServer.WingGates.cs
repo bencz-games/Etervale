@@ -29,7 +29,7 @@ public sealed partial class WorldServer
             }
 
             operation.Original.TryChangeMoney(-fee);
-            Currency.Record(CurrencySink.Teleports, fee);
+            RecordSpending(CurrencySink.Teleports, fee, Simulation.Social.Castle.CastleRules.TaxIn(fee, operation.Tax));
             Arrive(session, arrival);
             return true;
         }, waitForCapacity: true);

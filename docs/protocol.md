@@ -94,7 +94,7 @@ Bodies start with `uint16 Version = 1`; text is UTF-8 with a `uint16` byte lengt
 | Step | Packet | Notes |
 | --- | --- | --- |
 | Connect | S→C `ServerHello` (`0x45540F00`) | `{uint16 Version, uint16 0, uint32 Protocol, MinimumProtocol, int32 FullPlayers, text ServerName (32 B)}`: `FullPlayers` = players in the world when the player limit (`server.max_users` or `/user_limit`) is reached, else 0 (then only game masters may log in); `ServerName` is `server.name`. |
-| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (18); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
+| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (19); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
 | Result | S→C `CharacterList` (`0x45540F03`), then `LoginResult` (`0x45540F02`) | `LoginResult` = `{uint16 Version, uint8 Status, uint8 0}`: 0 ok, 1 bad credentials (also unknown accounts), 2 account blocked, 3 already logged in on this connection, 4 busy (throttled, full or storage failure), 5 client protocol older than the server's minimum. A failed login sends no list. |
 | Character list | S→C `CharacterList` | `{uint16 Version, uint16 0, int32 Count (at most 6)}`, then `{text Name, uint32 Class (PlayerClass), int32 Level, uint8 Tier, Face, Hair, Flags (1 in a village), uint32 WeaponCode, ArmorCode, OffHandCode, uint32 0, text ClanName (48 B; empty out of a clan)}`. |
 | Create, delete | C→S `CharacterCommand` (`0x45540F04`), S→C `CharacterResult` (`0x45540F05`) | Command `{uint16 Version, uint8 Action (1 create, 2 delete), uint8 0, int32 Class (PlayerClass), FaceIndex, text Name}`; result `{uint16 Version, uint8 Action, uint8 Ok, int32 Failure (CreateCharacterFailure), text Name}`. |
@@ -216,7 +216,7 @@ Every message code has the high word `0x4554` ("ET"); every message keeps the `{
 | `0x45541102` | `ClanInvite` | S→C | A recruiter's invitation to a clan. |
 | `0x45541103` | `ClanResult` | S→C | How a `ClanRequest` or a `ClanMark` ended (`ClanStatus`); a refusal's line comes in the chat. |
 | `0x45541104` | `ClanMark` | C→S | The chief's new clan mark, fitted by the client. |
-| `0x45541200` | `CastleState` | S→C | Bless Castle: on entering the world and on every change of its owner, league mode or siege ([application.md](application.md#bless-castle)); one packet is made per state and shared by every connection. |
+| `0x45541200` | `CastleState` | S→C | Bless Castle: on entering the world and on every change of its owner, tax in force, league mode or siege ([application.md](application.md#bless-castle)); one packet is made per state and shared by every connection; it carries the tax for the prices the client works out. |
 | `0x45541201` | `CastleOwnerRequest` | C→S | The owner's window at the castle's butler: open it, save the setup or withdraw from the treasury. |
 | `0x45541202` | `CastleOwnerState` | S→C | The owner's window, after every request (none when the player's clan does not hold the castle). |
 | `0x45541203` | `CastleOwnerResult` | S→C | How a `CastleOwnerRequest` ended (`CastleOwnerStatus`, 0 done). |
@@ -444,7 +444,8 @@ to 64 bytes, item names 40, messages 128, dialog lines 256), and counts are 32-b
   4 doubled) and `ItemId` is empty when the item was lost; for the mixing NPC it is `MixResult` (0 failed, 1 mixed,
   2 reconstructed, 3 refined, `ItemId` empty after refining); for the smelter `SmeltResult` (1 smelted), the craftsman
   `ManufactureResult` (0 failed, `ItemId` empty, 1 made) and the mixture reset 1. `PricePercent` of a dialog service is the server's price
-  setting of the aging, mixing and alchemy services (100 for the others). A teleport also sends a forced `FieldWarp`.
+  setting of the aging, mixing and alchemy services (100 for the others), without Bless Castle's tax, which the client
+  adds to the price it works out (`CastleState`). A teleport also sends a forced `FieldWarp`.
 
 The server checks every request against the NPC in the player's field (alive, within 96 units, offering the service),
 writes durable changes before applying them and records the operation id with the character, so a retried request
@@ -524,7 +525,7 @@ at most 48 bytes (`ClanWire.MaxClanNameBytes`: 16 characters), a character's 64.
 | `ClanInvite` | `varuint RecruiterId, text ClanName, text ChiefName` |
 | `ClanResult` | `uint8 Action, uint8 Status` (`ClanStatus`, 0 done) |
 | `ClanMark` | `uint16 Size` (32, `ClanWire.MarkSize`), then Size x Size pixels of `uint8` red, green, blue and alpha (straight), rows from the top: 4,096 bytes, one frame |
-| `CastleState` | `varuint OwnerClanId` (0 none), `text OwnerName` (48 bytes), `uint8 Siege` (0 peace, 1 running, 3 over), `uint8 Flags` (1 the server runs the league, 2 door down), `varuint SecondsLeft` (a running siege's, when the state was made; 0 otherwise), `uint8 Crystals`, `uint8 Count` (at most 10, `CastleLimits.TopClans`), then per clan `varuint ClanId, text Name, varuint Damage`, then `varuint TotalDamage` |
+| `CastleState` | `varuint OwnerClanId` (0 none), `text OwnerName` (48 bytes), `uint8 Tax` (in force on fees), `uint8 Siege` (0 peace, 1 running, 3 over), `uint8 Flags` (1 the server runs the league, 2 door down), `varuint SecondsLeft` (a running siege's, when the state was made; 0 otherwise), `uint8 Crystals`, `uint8 Count` (at most 10, `CastleLimits.TopClans`), then per clan `varuint ClanId, text Name, varuint Damage`, then `varuint TotalDamage` |
 | `CastleOwnerRequest` | `uint8 Action` (0 open, 1 save, 2 withdraw), `varuint Npc` (the butler), `uint8 Tax, uint8 Skill`, `uint8 x6 Towers` (0 none, 1 ice, 2 lightning, 3 fire), `uint8 x3 Mercenaries`, `varuint Amount` (a withdrawal's gold) |
 | `CastleOwnerState` | `uint8 HasView`; with one `varuint Treasury, uint8 Tax` (in force), `uint8 NextTax, uint8 Skill` (chosen), `uint8 SkillInForce`, `uint8 x6 Towers, uint8 x3 Mercenaries, uint8 CanEdit` (the chief) |
 | `CastleOwnerResult` | `uint8 Action, uint8 Status` (`CastleOwnerStatus`: 0 done, 1 not the owner clan, 2 not the chief, 3 out of reach, 4 busy, 5 not enough gold, 6 invalid setup, 7 during a siege, 8 not enough in the treasury, 9 too much gold, 10 unavailable) |

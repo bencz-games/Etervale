@@ -25,6 +25,7 @@ internal static class ProgressionTransactionTests
             LaterTierLearningAsync);
         yield return ("NPC learning is durable, rejects remote service access and replays after reconnect", DurabilityAsync);
         yield return ("a skill master trains only its own town's classes: Ricarten's the Tempskron, not the Morion", HomeMasterAsync);
+        yield return ("Bless Castle's tax on training is the one its stored candidate paid, even when it changes before the commit", CastleTaxAsync);
         yield return ("a gained level and a trained skill rank each give one cue for the effects everyone near sees", ProgressCuesAsync);
     }
 
@@ -171,34 +172,55 @@ internal static class ProgressionTransactionTests
     {
         foreach (var (playerClass, trains) in new[] { (PlayerClass.Mechanician, true), (PlayerClass.Priestess, false) })
         {
-            var classes = new CharacterClassRegistry();
-            var starter = CharacterRecordFactory.NewStarter(classes, 1, "Pupil", 0, playerClass, 3) with { Id = 1 };
-            var character = classes.CreatePlayer(playerClass, starter.Name, 40);
-            character.RestoreProgress(ExperienceTable.ForLevel(40), 10000, 5, skillPoints: 40);
-            var repository = new MemoryCharacters(CharacterRecordFactory.FromLiveSession(starter, character, 3, new Vector3(100, 0, 100)));
-            var npc = new NpcDefinition(1, "Trainer", "trainer.inx", [new NpcService(NpcServiceKind.SkillMaster)]) { Dialog = ["Welcome"] };
-            var empty = WorldData.Empty;
-            var holder = new WorldDataHolder
-            {
-                Current = new WorldData(empty.Items, empty.Monsters, new NpcCatalog([npc]),
-                    new Dictionary<int, FieldSpawnData> { [3] = FieldSpawnData.Empty with { FixedNpcs = [new FixedNpc(1, 100 * 256, 100 * 256, 1024)] } },
-                    empty.Motions)
-            };
-            var catalog = new WorldCatalog();
-            var world = new WorldServer(holder, catalog);
-            var sessions = new SessionRegistry();
-            var session = sessions.Create(1, "owner");
-            var service = new SessionAppService(sessions, classes, repository, new ImmediateSaves(repository), catalog, world, holder);
-            Assert.True((await service.EnterWorldAsync(session.SessionToken, starter.Name)).Ok && session.TryBeginPlay(), "entry failed");
-            var outbox = new WorldOutbox();
-            await WorldPump.RunAsync(world, world.JoinAsync(3, WorldPlayerFactory.Create(session), outbox.Writer, session));
-            Assert.True(outbox.Reader.TryRead(out var snapshot), "initial roster missing");
-            var master = snapshot.Entities.Single(entity => entity.Kind == EntityKind.Npc).EntityId;
+            var (world, service, session, master) = await TrainerAsync(playerClass);
             var skill = ClassSkillCatalog.For(playerClass).Where(static skill => skill.Tier == JobTier.Job1).ToArray()[0];
             var learn = new ProgressionCommand(Guid.NewGuid(), 0, ProgressionAction.LearnSkill, SkillCode: skill.Code, NpcEntityId: master);
             Assert.True((await WorldPump.RunAsync(world, service.ApplyProgressionAsync(session.SessionToken, learn))).Ok == trains,
                 $"Ricarten's master {(trains ? "refused" : "trained")} a {playerClass}");
         }
+    }
+
+    private static async Task CastleTaxAsync()
+    {
+        var (world, service, session, master) = await TrainerAsync(PlayerClass.Mechanician);
+        world.SetOwner(7, Simulation.Social.Castle.CastleClanSkill.None, 10);
+        world.Tick(0.05f, 1);
+        var skill = ClassSkillCatalog.For(PlayerClass.Mechanician).Where(static skill => skill.Tier == JobTier.Job1).ToArray()[0];
+        var pending = service.ApplyProgressionAsync(session.SessionToken,
+            new ProgressionCommand(Guid.NewGuid(), 0, ProgressionAction.LearnSkill, SkillCode: skill.Code, NpcEntityId: master));
+        world.Tick(0.05f, 2);
+        world.SetOwner(0, Simulation.Social.Castle.CastleClanSkill.None, 0);
+        Assert.True((await WorldPump.RunAsync(world, pending)).Ok, "the taxed training failed");
+        Assert.True(session.Character!.Money == 10000 - 550 && world.TakeTaxGold() == 50,
+            "the training's commit did not charge the tax the stored candidate paid, or its tax was not gathered");
+    }
+
+    // A level-40 character of the class at Ricarten's skill master, in the world.
+    private static async Task<(WorldServer World, SessionAppService Service, PlayerSession Session, ulong Master)> TrainerAsync(PlayerClass playerClass)
+    {
+        var classes = new CharacterClassRegistry();
+        var starter = CharacterRecordFactory.NewStarter(classes, 1, "Pupil", 0, playerClass, 3) with { Id = 1 };
+        var character = classes.CreatePlayer(playerClass, starter.Name, 40);
+        character.RestoreProgress(ExperienceTable.ForLevel(40), 10000, 5, skillPoints: 40);
+        var repository = new MemoryCharacters(CharacterRecordFactory.FromLiveSession(starter, character, 3, new Vector3(100, 0, 100)));
+        var npc = new NpcDefinition(1, "Trainer", "trainer.inx", [new NpcService(NpcServiceKind.SkillMaster)]) { Dialog = ["Welcome"] };
+        var empty = WorldData.Empty;
+        var holder = new WorldDataHolder
+        {
+            Current = new WorldData(empty.Items, empty.Monsters, new NpcCatalog([npc]),
+                new Dictionary<int, FieldSpawnData> { [3] = FieldSpawnData.Empty with { FixedNpcs = [new FixedNpc(1, 100 * 256, 100 * 256, 1024)] } },
+                empty.Motions)
+        };
+        var catalog = new WorldCatalog();
+        var world = new WorldServer(holder, catalog);
+        var sessions = new SessionRegistry();
+        var session = sessions.Create(1, "owner");
+        var service = new SessionAppService(sessions, classes, repository, new ImmediateSaves(repository), catalog, world, holder);
+        Assert.True((await service.EnterWorldAsync(session.SessionToken, starter.Name)).Ok && session.TryBeginPlay(), "entry failed");
+        var outbox = new WorldOutbox();
+        await WorldPump.RunAsync(world, world.JoinAsync(3, WorldPlayerFactory.Create(session), outbox.Writer, session));
+        Assert.True(outbox.Reader.TryRead(out var snapshot), "initial roster missing");
+        return (world, service, session, snapshot.Entities.Single(entity => entity.Kind == EntityKind.Npc).EntityId);
     }
 
     private static async Task DurabilityAsync()

@@ -520,7 +520,8 @@ only with `MoveRange > 0` and a walk clip, with a 25% chance at the end of each 
 
 Shop rules (`NpcShopRules`):
 
-- Buy: catalog price times count (count 1, or 1 to `MaxStack` for stackables); needs gold, a free cell and room under
+- Buy: catalog price times count (count 1, or 1 to `MaxStack` for stackables), the catalog's price carrying Bless
+  Castle's tax on each unit ([application.md](application.md#bless-castle)); needs gold, a free cell and room under
   the weight limit (`OverWeight`; a potion weighs one per unit). The bought copy is the shop form of the item
   (`ItemRoller.Lower`, see [simulation.md](simulation.md#items)).
 - Worn value: `intact = price * dur / maxDur` (0 counts as 1), `worn = intact + (price - intact) / 4`, where price is
@@ -544,7 +545,8 @@ or the client's view was stale), the covered one going to the moved item's cell 
 
 Teleport routes (`TeleportRoutes`): route 0 means route 1. Route 1: index 1 field 0 "Mushroom Cave" 100 gold, 2 field 18
 "Beehive Cave" 100, 3 field 7 "Cursed Land" 500, 4 field 12 "Forbidden Land" 1000. Route 2 (the castle's teleporter):
-index 1 field 33 "Bless Castle", 500 gold per level of the traveller (`TeleportDestination.PricePerLevel`). The
+index 1 field 33 "Bless Castle", 500 gold per level of the traveller (`TeleportDestination.PricePerLevel`). Every
+price carries Bless Castle's tax, offered and charged. The
 destination field's `LimitLevel` applies; arrival is its first start point (a random one in a castle,
 `FieldDef.ArrivalFor`; `Center` without one) placed on the floor. The cave destinations are the fields that hold the
 cave entrances: field 0 (`fore-3`) has the warp gate to `Tcave`, field 18 (`forever-fall-03`) the one to `Mcave`.
@@ -564,7 +566,8 @@ stats the item tooltip marks (`AgedStats`; bows and javelins also mark mana, as 
   laid out in four rows of three) and at most one aging stone (`BI110` aging stone, `BI111` copper ore, `BI160` elder
   copper ore, `BI161` super aging stone, `BI185` superior copper ore), for `(level + 1) * price / 2` gold. Materials and
   gold are spent whatever the roll gives (`WrongMaterials`, `NotEnoughGold` otherwise). `aging.price_percent`,
-  `aging.failure_percent` and `aging.double_percent` scale the price and the chances (`AgingSettings`).
+  `aging.failure_percent` and `aging.double_percent` scale the price and the chances (`AgingSettings`); Bless Castle's
+  tax is added to the scaled price.
 - The roll (`Roll`, three draws of 0..100: destroy, down, plus): a failure by the level's chance (none to +4, 95% at +18
   and +19; lower with the aging stone, the super stone and the superior ore) falls one or two levels or loses the item
   by the level's split; otherwise below +10 the level may come at once (doubled chance with the aging stone, never with
@@ -593,17 +596,19 @@ stats the item tooltip marks (`AgedStats`; bows and javelins also mark mana, as 
 `Refine` for the `ItemMix` service (value 1 the mixer, 200 the alchemist).
 
 - Mix: an item from the bag that can be worn, never aged nor mixed, not a quest, timed or clan item, with up to twelve
-  sheltoms (Lucidy .. Ordo), for the item's price (`mixing.price_percent`). The sheltoms and the gold are spent whatever
-  the result. The first of the 103 formulas (`MixFormulas.Table`) whose families hold the item's family (axes to
-  javelins, armours and robes, shields, orbs) and whose counts of the nine sheltoms Lucidy .. Celesto are exactly those
-  placed adds its bonuses: elements add their value; other stats add a whole value or a percent of the copy's own value.
-  The copy records its highest sheltom (`MixSheltom`) and the stats the mix raised (`MixStats`); without a formula the
-  mix fails and the item stays as it was. A mixed copy can no longer be aged or mixed.
+  sheltoms (Lucidy .. Ordo), for the item's price (`mixing.price_percent`, then Bless Castle's tax). The sheltoms and
+  the gold are spent whatever the result. The first of the 103 formulas (`MixFormulas.Table`) whose families hold the
+  item's family (axes to javelins, armours and robes, shields, orbs) and whose counts of the nine sheltoms Lucidy ..
+  Celesto are exactly those placed adds its bonuses: elements add their value; other stats add a whole value or a
+  percent of the copy's own value. The copy records its highest sheltom (`MixSheltom`) and the stats the mix raised
+  (`MixStats`); without a formula the mix fails and the item stays as it was. A mixed copy can no longer be aged or
+  mixed.
 - Reconstruction: two seals of one kind and nothing else, for an item whose level requirement is in the seal's band
   (SE101 0..105, SE102 40..79, SE103 0..39, SE104 0..80), rebuilds the item as a newly rolled copy under the same identity.
   With the respec stone (`BI190`) half the rebuilds take the owner's class specialization, the others never take it.
 - Alchemy: each sheltom from Lucidy to the eleventh becomes the force orb of its rank, for 200, 500, 1000, 2000, 4000,
-  5000, 10000, 20000, 30000, 40000 or 50000 gold (`alchemy.price_percent`); the later and the magic sheltoms are refused.
+  5000, 10000, 20000, 30000, 40000 or 50000 gold (`alchemy.price_percent`; Bless Castle's tax on the orbs' price
+  together); the later and the magic sheltoms are refused.
 - Results (`MixResult`): 0 failed, 1 mixed, 2 reconstructed, 3 refined. A mixed copy whose highest sheltom is Devine to
   Mirage glows in the mixing colours (`HeldItemGlow`).
 - Mixture reset (`MixtureReset`, the `MixtureReset` service, action `ResetMix`): a mixed item and the Mixture Reset Stone
@@ -645,7 +650,8 @@ Ruinen Village (6), Navisko (9), Forbidden Land (12), Eura (29), Land of Chaos (
 - Reach: without a wing the first two; with a wing in the pack the best one counts: Metal (`QW101`) 4, Silver 5,
   Gold 6, Dia 7, Chaos 8, Extreme (`QW106`) 9.
 - Fee: Ricarten, Pillai and the field the player stands in are free; elsewhere the wing's fee: 100, 300, 500, 1000,
-  2000, 4000 gold from Metal to Extreme. It counts as teleport spending in the currency report.
+  2000, 4000 gold from Metal to Extreme, plus Bless Castle's tax in force. It counts as teleport spending in the
+  currency report.
 - The server checks that the living player stands within `FieldWarpGate.ServerReach` (`max(Width, 48) + 64`) planar
   units of a stone of its field, the reach, the level and the gold. The candidate pays the fee and is stored at the
   destination, then the commit takes the gold and moves the player (`Arrive`, also within the same field) to the

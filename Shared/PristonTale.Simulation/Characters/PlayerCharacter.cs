@@ -717,7 +717,7 @@ public sealed partial class PlayerCharacter
         return clone;
     }
 
-    public bool ApplyProgression(ProgressionCommand command)
+    public bool ApplyProgression(ProgressionCommand command, int tax = 0)
     {
         if (command.OperationId == Guid.Empty || command.ExpectedRevision != ProgressionRevision || ProgressionRevision == long.MaxValue)
         {
@@ -735,7 +735,7 @@ public sealed partial class PlayerCharacter
                 break;
             case ProgressionAction.LearnSkill:
                 if (command.Amount != 0 || command.Attribute != CharacterAttribute.Strength || command.NpcEntityId == 0
-                    || !SkillLearning.TryQuote(this, command.SkillCode, out var price, out var elite))
+                    || !SkillLearning.TryQuote(this, command.SkillCode, out var price, out var elite, tax))
                 {
                     return false;
                 }

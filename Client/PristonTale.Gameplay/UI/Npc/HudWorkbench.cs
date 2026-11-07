@@ -47,6 +47,8 @@ public abstract class HudWorkbench : IHudServiceWindow
     protected Guid ItemId { get; set; }
     protected Guid StoneId { get; set; }
     protected int PricePercent { get; private set; } = 100;
+
+    public int Tax { get; set; }
     protected bool StartHovered { get; private set; }
 
     public bool IsOpen => _slide.Open;

@@ -244,7 +244,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
                 (Simulation.Social.Clans.ClanRank)member.Rank, member.Online)).ToArray());
 
     private static CastleInfo Castle(CastleStatePacket packet) =>
-        new((long)packet.OwnerClanId, packet.OwnerName, (Simulation.Social.Castle.SiegeState)packet.Siege, packet.League, packet.SecondsLeft,
+        new((long)packet.OwnerClanId, packet.OwnerName, packet.Tax, (Simulation.Social.Castle.SiegeState)packet.Siege, packet.League, packet.SecondsLeft,
             packet.DoorDown, packet.Crystals, [.. packet.Top.Select(static clan => new CastleClanInfo((long)clan.ClanId, clan.Name, (long)clan.Damage))],
             (long)packet.TotalDamage);
 

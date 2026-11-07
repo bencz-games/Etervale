@@ -79,7 +79,8 @@ public sealed class CastleAppService
     private CastleBroadcast _broadcast = CastleBroadcast.None;
     private CastleSiegeView _announcedWorld = CastleSiegeView.None;
     private long _announcedEnd;
-    private (long Owner, int Skill) _toldWorld = (0, 0);
+    private (long Owner, int Skill, int Tax) _toldWorld = (0, 0, 0);
+    private long _taxGold;
     private CastleMode _mode = CastleOptions.Default.Mode;
     private bool _storageFailed;
 
@@ -448,6 +449,22 @@ public sealed class CastleAppService
     }
 
     // The fountain's next potion comes CastleRules.FountainPotionSeconds from now.
+    // On shutdown, once the players' operations are done: the tax gathered goes to the treasury (false when storage refused
+    // it or the castle has no owner, and it is lost).
+    public async Task<bool> FlushTaxAsync()
+    {
+        await _gate.WaitAsync();
+        try
+        {
+            await CreditTaxAsync();
+            return _taxGold == 0;
+        }
+        finally
+        {
+            _gate.Release();
+        }
+    }
+
     public async Task ResetFountainTimeAsync()
     {
         await _gate.WaitAsync();
@@ -464,6 +481,7 @@ public sealed class CastleAppService
     private async Task OnMinuteAsync(DateTimeOffset local, CastleOptions options)
     {
         await ConquerAsync();
+        await CreditTaxAsync();
         if (_setupSpent)
         {
             await SpendSetupAsync();
@@ -624,6 +642,32 @@ public sealed class CastleAppService
         }
     }
 
+    // The tax gathered goes to the castle's treasury with a movement naming the clan holding it, kept and tried again on a
+    // later minute while storage refuses or the castle has no owner (an operation prepared before the owner was lost).
+    private async Task CreditTaxAsync()
+    {
+        _taxGold += _world.TakeTaxGold();
+        var record = Volatile.Read(ref _record);
+        if (_taxGold <= 0 || record.OwnerClanId == 0)
+        {
+            return;
+        }
+
+        var next = record with { Treasury = record.Treasury + _taxGold };
+        try
+        {
+            if (await _repository.SaveWithAsync(next, null, new TreasuryMove(record.OwnerClanId, TreasuryKind.Tax, _taxGold, _clock.GetUtcNow().ToUnixTimeSeconds())))
+            {
+                Volatile.Write(ref _record, next);
+                _taxGold = 0;
+            }
+        }
+        catch (DbException)
+        {
+            _storageFailed = true;
+        }
+    }
+
     // The towers and mercenaries the owner bought serve one siege (tried again each minute while storage refuses).
     private async Task SpendSetupAsync()
     {
@@ -639,9 +683,9 @@ public sealed class CastleAppService
 
     private void Publish(SiegeClock siege) => Volatile.Write(ref _siege, siege);
 
-    // The world is told the owner and the clan skill in force when either changed. Every attached player is told the castle
-    // when its owner, the league mode, the siege's state or end, or the world's view of the siege changed; under one lock
-    // with Attach, so that no player keeps an older castle than the last.
+    // The world is told the owner, the clan skill and the tax in force when any changed. Every attached player is told the
+    // castle when its owner, the tax in force, the league mode, the siege's state or end, or the world's view of the siege
+    // changed; under one lock with Attach, so that no player keeps an older castle than the last.
     private void Announce()
     {
         var record = Volatile.Read(ref _record);
@@ -650,16 +694,17 @@ public sealed class CastleAppService
         var league = _mode == CastleMode.League;
         var running = siege.State == SiegeState.Running;
         var end = running ? siege.EndsAt.ToUnixTimeSeconds() : 0;
-        if ((record.OwnerClanId, record.SkillInForce) != _toldWorld)
+        var tax = CastleRules.TaxInForce(record.OwnerClanId, record.Tax);
+        if ((record.OwnerClanId, record.SkillInForce, tax) != _toldWorld)
         {
-            _toldWorld = (record.OwnerClanId, record.SkillInForce);
-            _world.SetOwner(record.OwnerClanId, SkillOf(record.SkillInForce));
+            _toldWorld = (record.OwnerClanId, record.SkillInForce, tax);
+            _world.SetOwner(record.OwnerClanId, SkillOf(record.SkillInForce), tax);
         }
 
         lock (_announce)
         {
             var last = _broadcast;
-            if (record.OwnerClanId == last.OwnerClanId && siege.State == last.Siege && league == last.League && end == _announcedEnd
+            if (record.OwnerClanId == last.OwnerClanId && tax == last.Tax && siege.State == last.Siege && league == last.League && end == _announcedEnd
                 && ReferenceEquals(world, _announcedWorld))
             {
                 return;
@@ -668,7 +713,7 @@ public sealed class CastleAppService
             _announcedWorld = world;
             _announcedEnd = end;
             var board = running && world.Running;
-            _broadcast = new CastleBroadcast(record.OwnerClanId, _clans.NameOf(record.OwnerClanId) ?? "", siege.State, league,
+            _broadcast = new CastleBroadcast(record.OwnerClanId, _clans.NameOf(record.OwnerClanId) ?? "", tax, siege.State, league,
                 running ? Math.Max(0, end - _clock.GetUtcNow().ToUnixTimeSeconds()) : 0, board && world.DoorDown, board ? world.Crystals : 0,
                 board ? [.. world.Top.Select(score => new CastleBoardClan(score.ClanId, _clans.NameOf(score.ClanId) ?? "", score.Damage))] : [],
                 board ? world.TotalDamage : 0);

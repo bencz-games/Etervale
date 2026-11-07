@@ -5,7 +5,8 @@ namespace PristonTale.Server.World;
 
 // Reads Bless Castle after the clans and before the game server opens (a storage failure leaves the castle without its
 // schedule), then runs its clock every TickInterval with the castle settings in force; a throwing tick is logged and
-// the clock goes on, and a refused storage is logged once until a tick stores again.
+// the clock goes on, and a refused storage is logged once until a tick stores again. It stops after the game server, so
+// the tax of the last operations is stored with the treasury.
 public sealed class CastleService(CastleAppService castle, ServerSettingsAppService settings, ILogger<CastleService> logger) : BackgroundService
 {
     private static readonly TimeSpan TickInterval = TimeSpan.FromSeconds(1);
@@ -22,6 +23,22 @@ public sealed class CastleService(CastleAppService castle, ServerSettingsAppServ
         }
 
         await base.StartAsync(cancellationToken);
+    }
+
+    public override async Task StopAsync(CancellationToken cancellationToken)
+    {
+        await base.StopAsync(cancellationToken);
+        try
+        {
+            if (!await castle.FlushTaxAsync())
+            {
+                logger.LogWarning("Bless Castle's last tax could not be stored with its treasury");
+            }
+        }
+        catch (Exception exception)
+        {
+            logger.LogError(exception, "Bless Castle's last tax could not be stored with its treasury");
+        }
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

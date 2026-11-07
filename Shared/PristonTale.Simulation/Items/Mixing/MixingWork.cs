@@ -12,7 +12,8 @@ public enum MixResult : byte
     Refined = 3
 }
 
-public sealed record MixingSettings(int PricePercent = 100, int AlchemyPricePercent = 100)
+// Tax: the castle's tax on a mix's price and on an alchemy's force orbs together.
+public sealed record MixingSettings(int PricePercent = 100, int AlchemyPricePercent = 100, int Tax = 0)
 {
     public static readonly MixingSettings Default = new();
 }
@@ -59,7 +60,15 @@ public static class MixingWork
 
     public static SealRule SealOf(string key) => Seals.FirstOrDefault(seal => seal.Key.Equals(key, StringComparison.OrdinalIgnoreCase));
 
-    public static long Price(long itemPrice, MixingSettings settings = null) => itemPrice * Math.Max(0, (settings ?? MixingSettings.Default).PricePercent) / 100;
+    public static long Price(long itemPrice, MixingSettings settings = null)
+    {
+        settings ??= MixingSettings.Default;
+        return Social.Castle.CastleRules.WithTax(itemPrice * Math.Max(0, settings.PricePercent) / 100, settings.Tax);
+    }
+
+    // The force orbs' price together, from the sheltoms' alchemy prices.
+    public static long AlchemyTotal(long sheltomPrices, MixingSettings settings = null) =>
+        Social.Castle.CastleRules.WithTax(sheltomPrices, (settings ?? MixingSettings.Default).Tax);
 
     public static long AlchemyPrice(int ordinal, MixingSettings settings = null) =>
         ordinal >= 1 && ordinal <= AlchemyPrices.Length
@@ -200,6 +209,7 @@ public static class MixingWork
             orbs.AddRange(Enumerable.Repeat(orb, group.Count()));
         }
 
+        price = AlchemyTotal(price, settings);
         if (!candidate.TryChangeMoney(-price))
         {
             return NpcServiceStatus.NotEnoughGold;

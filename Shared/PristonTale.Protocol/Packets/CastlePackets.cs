@@ -16,19 +16,20 @@ public static class CastleWire
 public readonly record struct CastleClanWire(ulong ClanId, string Name, ulong Damage);
 
 // S->C Bless Castle as it stands, sent at world entry and on every change: {header, varuint owner clan (0 none), text
-// owner name, uint8 siege (0 peace, 1 running, 3 over), uint8 flags (1 league mode, 2 door down), varuint seconds the
-// running siege had left when the state was made (0 otherwise), uint8 crystal towers standing, uint8 count, {varuint
-// clan, text name, varuint damage} x count (the best clans, at most CastleLimits.TopClans), varuint total damage}.
-public sealed record CastleStatePacket(ulong OwnerClanId, string OwnerName, byte Siege, bool League, bool DoorDown, uint SecondsLeft, byte Crystals,
+// owner name, uint8 tax (in force on fees), uint8 siege (0 peace, 1 running, 3 over), uint8 flags (1 league mode, 2
+// door down), varuint seconds the running siege had left when the state was made (0 otherwise), uint8 crystal towers
+// standing, uint8 count, {varuint clan, text name, varuint damage} x count (the best clans, at most
+// CastleLimits.TopClans), varuint total damage}.
+public sealed record CastleStatePacket(ulong OwnerClanId, string OwnerName, byte Tax, byte Siege, bool League, bool DoorDown, uint SecondsLeft, byte Crystals,
     IReadOnlyList<CastleClanWire> Top, ulong TotalDamage) : IFramePacket
 {
     private const byte LeagueFlag = 1;
     private const byte DoorDownFlag = 2;
     private const int ClanSize = VarInt.MaxBytes64 + 2 + ClanWire.MaxClanNameBytes + VarInt.MaxBytes64;
-    public const int MaxSize = 8 + WireHeader.Size + VarInt.MaxBytes64 + 2 + ClanWire.MaxClanNameBytes + 2 + VarInt.MaxBytes64 + 2
+    public const int MaxSize = 8 + WireHeader.Size + VarInt.MaxBytes64 + 2 + ClanWire.MaxClanNameBytes + 3 + VarInt.MaxBytes64 + 2
         + CastleLimits.TopClans * ClanSize + VarInt.MaxBytes64;
 
-    public static readonly CastleStatePacket None = new(0, "", 0, false, false, 0, 0, [], 0);
+    public static readonly CastleStatePacket None = new(0, "", 0, 0, false, false, 0, 0, [], 0);
 
     public int Write(Span<byte> destination)
     {
@@ -41,6 +42,7 @@ public sealed record CastleStatePacket(ulong OwnerClanId, string OwnerName, byte
         CastleWire.Header(ref writer);
         writer.VarUInt(OwnerClanId);
         Utf8Text.Write(ref writer, OwnerName, ClanWire.MaxClanNameBytes);
+        writer.Byte(Tax);
         writer.Byte(Siege);
         writer.Byte((byte)((League ? LeagueFlag : 0) | (DoorDown ? DoorDownFlag : 0)));
         writer.VarUInt(SecondsLeft);
@@ -63,6 +65,7 @@ public sealed record CastleStatePacket(ulong OwnerClanId, string OwnerName, byte
         CastleWire.ReadHeader(ref reader);
         var owner = reader.VarUInt();
         var ownerName = ClanWire.ClanName(ref reader);
+        var tax = reader.Byte();
         var siege = reader.Byte();
         var flags = reader.Byte();
         var left = reader.VarUInt();
@@ -84,7 +87,7 @@ public sealed record CastleStatePacket(ulong OwnerClanId, string OwnerName, byte
             top[index] = new CastleClanWire(reader.VarUInt(), ClanWire.ClanName(ref reader), reader.VarUInt());
         }
 
-        return new CastleStatePacket(owner, ownerName, siege, (flags & LeagueFlag) != 0, (flags & DoorDownFlag) != 0, (uint)left, crystals, top, reader.VarUInt());
+        return new CastleStatePacket(owner, ownerName, tax, siege, (flags & LeagueFlag) != 0, (flags & DoorDownFlag) != 0, (uint)left, crystals, top, reader.VarUInt());
     }
 }
 

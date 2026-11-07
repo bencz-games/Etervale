@@ -12,16 +12,51 @@ public sealed partial class WorldServer : ICastleWorld
     private CastleSiegeView _castleSiegeView = CastleSiegeView.None;
     private long _castleOwnerClanId;
     private int _castleSkill;
+    private int _castleTax;
+    private bool _castleTaxChanged;
+    private long _castleTaxGold;
     private long _clanSkillRenewAt;
 
     public CastleSiegeView Siege => Volatile.Read(ref _castleSiegeView);
 
-    // The owner clan and the clan skill in force; the skill is renewed on the tick that follows.
-    public void SetOwner(long clanId, CastleClanSkill skill)
+    // The castle's tax in force on the fees players pay (0 without an owner).
+    public int CastleTax => Volatile.Read(ref _castleTax);
+
+    // The owner clan, the clan skill and the tax in force; the skill is renewed and the tax reaches the fields on the tick
+    // that follows.
+    public void SetOwner(long clanId, CastleClanSkill skill, int tax)
     {
         Volatile.Write(ref _castleOwnerClanId, clanId);
         Volatile.Write(ref _castleSkill, (int)skill);
         Volatile.Write(ref _clanSkillRenewAt, 0);
+        Volatile.Write(ref _castleTax, CastleRules.TaxInForce(clanId, tax));
+        Volatile.Write(ref _castleTaxChanged, true);
+    }
+
+    public long TakeTaxGold() => Interlocked.Exchange(ref _castleTaxGold, 0);
+
+    // Gold players spent (the currency report) and the castle's tax part of it, gathered for the treasury.
+    internal void RecordSpending(GameMasters.CurrencySink sink, long spent, long taxGold)
+    {
+        Currency.Record(sink, spent);
+        if (taxGold > 0)
+        {
+            Interlocked.Add(ref _castleTaxGold, taxGold);
+        }
+    }
+
+    private void ApplyCastleTax()
+    {
+        if (!Volatile.Read(ref _castleTaxChanged))
+        {
+            return;
+        }
+
+        Volatile.Write(ref _castleTaxChanged, false);
+        foreach (var field in _fields.Values)
+        {
+            ApplyOptions(field, _options, CastleTax);
+        }
     }
 
     public Task OpenSiegeAsync(CastleSiegeOrder order)

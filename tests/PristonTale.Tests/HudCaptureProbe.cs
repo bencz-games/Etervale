@@ -430,7 +430,7 @@ internal sealed class HudCaptureProbe : Game
                 _hud.InCastleField = true;
                 _hud.ObserveCastle(new PresenceUpdate(1, [], [], [], [])
                 {
-                    Castle = new CastleInfo(8, "Eagles", Simulation.Social.Castle.SiegeState.Running, false, 75 * 60 + 12, true, 4,
+                    Castle = new CastleInfo(8, "Eagles", 5, Simulation.Social.Castle.SiegeState.Running, false, 75 * 60 + 12, true, 4,
                     [
                         new CastleClanInfo(9, "Tigers", 52_000), new CastleClanInfo(7, "Lions", 31_000), new CastleClanInfo(11, "Wolves", 9_500),
                         new CastleClanInfo(12, "Hawks", 4_100)

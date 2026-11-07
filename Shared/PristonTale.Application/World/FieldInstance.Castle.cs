@@ -12,6 +12,9 @@ public sealed partial class FieldInstance
 {
     private CastleSiege? _siege;
 
+    // The castle's tax in force, added to the fees the field's players pay (CastleRules.WithTax).
+    internal int CastleTax { get; set; }
+
     // The castle field, outside the league: its battle zone lets players fight (WorldServerOptions.CastleLeague).
     internal bool PlayersFight { get; set; }
 

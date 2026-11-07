@@ -19,6 +19,8 @@ public static class SkillLearning
     private static readonly int[] RankPrices = [500, 600, 700, 800, 1000, 1200, 1400, 1600, 2000, 2500, 3000, 4000, 5000, 6000, 7000, 8000,
         10000, 12000, 14000, 16000];
 
+    public static long Price(int index, int currentRank, int tax) => Social.Castle.CastleRules.WithTax(Price(index, currentRank), tax);
+
     public static int Price(int index, int currentRank)
     {
         if (index < 0 || index >= BasePrices.Length || currentRank is < 0 or >= MaxRank)
@@ -51,7 +53,7 @@ public static class SkillLearning
             && (index == 0 || rankOf(skills[index - 1].Code) > 0);
     }
 
-    public static bool TryQuote(PlayerCharacter character, uint code, out int price, out bool elite)
+    public static bool TryQuote(PlayerCharacter character, uint code, out long price, out bool elite, int tax = 0)
     {
         price = 0;
         elite = false;
@@ -68,7 +70,7 @@ public static class SkillLearning
                 return false;
             }
 
-            price = Price(index, character.Skills.RankOf(code));
+            price = Price(index, character.Skills.RankOf(code), tax);
             elite = UsesElitePoints(index);
             return character.Money >= price;
         }

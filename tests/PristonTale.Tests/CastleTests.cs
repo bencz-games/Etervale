@@ -39,6 +39,7 @@ internal static class CastleTests
         yield return ("the owner window's request, state and result cross the wire whole", OwnerWireAsync);
         yield return ("the butler window: the chief's pages pick a tax up to 10 %, towers and mercenaries, save, and keep the changes when refused",
             OwnerWindowAsync);
+        yield return ("the castle's tax adds whole gold to fees, and the tax the world gathered goes to the treasury each minute", TaxAsync);
         yield return ("castle game-master commands start, time and end a siege, set the owner in peace and read the castle and fountain", CommandsAsync);
     }
 
@@ -88,6 +89,15 @@ internal static class CastleTests
                 && (await castles.LoadAsync()).Treasury == 700, "the castle and the receiving character were not stored together");
             Assert.True(!await castles.SaveWithAsync(saved with { Treasury = 1 }, chief, new TreasuryMove(7, TreasuryKind.Withdrawal, -699, 11))
                 && (await castles.LoadAsync()).Treasury == 700, "a stale character still stored the castle");
+            Assert.True(await castles.SaveWithAsync(saved with { Treasury = 750 }, null, new TreasuryMove(7, TreasuryKind.Tax, 50, 12))
+                && (await castles.LoadAsync()).Treasury == 750, "the tax credit was not stored with the castle");
+            await using (var connection = new SqliteConnection($"Data Source={Path.Combine(directory, "world.db")}"))
+            {
+                await connection.OpenAsync();
+                var rows = connection.CreateCommand();
+                rows.CommandText = "SELECT COUNT(*) FROM castle_treasury WHERE kind = 1 AND amount = 50 AND character_id IS NULL AND clan_id = 7";
+                Assert.True((long)(await rows.ExecuteScalarAsync())! == 1, "the tax movement was not stored without a character");
+            }
         }
         finally
         {
@@ -389,6 +399,37 @@ internal static class CastleTests
         }
     }
 
+    private static async Task TaxAsync()
+    {
+        Assert.True(CastleRules.WithTax(1_000, 10) == 1_100 && CastleRules.WithTax(999, 5) == 1_048 && CastleRules.WithTax(1_000, 50) == 1_100
+            && CastleRules.TaxIn(1_100, 10) == 100 && CastleRules.TaxIn(1_048, 5) == 49 && CastleRules.TaxIn(500, 0) == 0
+            && CastleRules.TaxIn(27 * 3, 10, 3) == 6 && CastleRules.TaxIn(82, 10, 3) == 0, "the tax on fees differs");
+        Assert.True(CastleRules.TaxInForce(0, 5) == 0 && CastleRules.TaxInForce(7, 300) == 10 && CastleRules.TaxInForce(7, -5) == 0
+            && CastleRules.TaxInForce(7, 4) == 4, "the tax in force differs");
+        Assert.True(Simulation.World.WingGates.Fee(Simulation.World.WingGates.Wings[0], Simulation.World.WingGates.Destinations[6], 3, 10) == 110
+            && Simulation.Progression.SkillLearning.Price(0, 0, 10) == 550, "the wing fee or the training price does not carry the tax");
+        var aging = Simulation.Items.Aging.AgingRules.Price(3, 1_000, 150, 5);
+        var mixing = Simulation.Items.Mixing.MixingWork.Price(1_000, new Simulation.Items.Mixing.MixingSettings(150, Tax: 5));
+        var alchemy = Simulation.Items.Mixing.MixingWork.AlchemyTotal(999, new Simulation.Items.Mixing.MixingSettings(Tax: 5));
+        Assert.True(aging == 3_150 && CastleRules.TaxIn(aging, 5) == 150 && mixing == 1_575 && CastleRules.TaxIn(mixing, 5) == 75
+            && alchemy == 1_048 && CastleRules.TaxIn(alchemy, 5) == 49, "a price percent other than 100 taxed the percent, or its tax was not gathered exactly");
+        var fixture = await Fixture.CreateAsync(new DateTimeOffset(2026, 11, 9, 12, 0, 0, TimeSpan.Zero), CastleRecord.Empty with { OwnerClanId = 7, Tax = 5, Treasury = 1_000 });
+        await fixture.TickAsync(Off);
+        Assert.True(fixture.World.Tax == 5, "the world was not told the tax");
+        fixture.World.TaxGold = 250;
+        fixture.Repository.Refuse = true;
+        await fixture.TickAsync(Off, TimeSpan.FromMinutes(1));
+        Assert.True(fixture.Repository.Saved.Treasury == 1_000, "a refused credit still reached the treasury");
+        fixture.Repository.Refuse = false;
+        fixture.World.TaxGold = 50;
+        await fixture.TickAsync(Off, TimeSpan.FromMinutes(1));
+        Assert.True(fixture.Repository.Saved.Treasury == 1_300 && fixture.Repository.Moves is [{ Kind: TreasuryKind.Tax, Amount: 300, ClanId: 7 }],
+            "the tax gathered was not credited to the treasury once with its movement");
+        fixture.World.TaxGold = 20;
+        Assert.True(await fixture.Castle.FlushTaxAsync() && fixture.Repository.Saved.Treasury == 1_320 && fixture.Repository.Moves.Count == 2,
+            "the last tax was not stored on shutdown");
+    }
+
     private static Task OwnerWireAsync()
     {
         var buffer = new byte[Protocol.Packets.CastleOwnerStatePacket.MaxSize + Protocol.Packets.CastleOwnerRequestPacket.MaxSize];
@@ -438,7 +479,7 @@ internal static class CastleTests
 
     private static Task WireAsync()
     {
-        var state = new Protocol.Packets.CastleStatePacket(7, "Lions", 1, League: true, DoorDown: true, 3599, 5,
+        var state = new Protocol.Packets.CastleStatePacket(7, "Lions", 4, 1, League: true, DoorDown: true, 3599, 5,
             [new Protocol.Packets.CastleClanWire(9, "Tigers", 1500), new Protocol.Packets.CastleClanWire(8, "Eagles", 700)], 2200);
         var buffer = new byte[Protocol.Packets.CastleStatePacket.MaxSize];
         var read = Protocol.Packets.CastleStatePacket.Read(buffer.AsSpan(0, state.Write(buffer)));
@@ -630,7 +671,18 @@ internal static class CastleTests
 
         public CastleClanSkill Skill { get; private set; }
 
-        public void SetOwner(long clanId, CastleClanSkill skill) => (Owner, Skill) = (clanId, skill);
+        public int Tax { get; private set; }
+
+        public long TaxGold { get; set; }
+
+        public void SetOwner(long clanId, CastleClanSkill skill, int tax) => (Owner, Skill, Tax) = (clanId, skill, tax);
+
+        public long TakeTaxGold()
+        {
+            var gold = TaxGold;
+            TaxGold = 0;
+            return gold;
+        }
 
         public Task OpenSiegeAsync(CastleSiegeOrder order)
         {

@@ -19,7 +19,7 @@ internal sealed partial class ClientSession
         var made = Volatile.Read(ref s_castlePacket);
         if (!ReferenceEquals(made.Castle, castle))
         {
-            made = new CastlePacketOf(castle, new CastleStatePacket((ulong)castle.OwnerClanId, castle.OwnerName, (byte)castle.Siege, castle.League,
+            made = new CastlePacketOf(castle, new CastleStatePacket((ulong)castle.OwnerClanId, castle.OwnerName, (byte)castle.Tax, (byte)castle.Siege, castle.League,
                 castle.DoorDown, (uint)Math.Clamp(castle.SecondsLeft, 0, uint.MaxValue), (byte)Math.Clamp(castle.Crystals, 0, byte.MaxValue),
                 [.. castle.Top.Select(static clan => new CastleClanWire((ulong)clan.ClanId, clan.Name, (ulong)Math.Max(0, clan.Damage)))],
                 (ulong)Math.Max(0, castle.TotalDamage)));

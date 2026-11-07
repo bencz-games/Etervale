@@ -40,7 +40,9 @@ internal static class NpcServiceTests
         yield return ("shop buy, sell and repair are durable, idempotent and validated on the server", ShopAsync);
         yield return ("warehouse deposit, withdraw, move and gold persist with the character and reject conflicts", WarehouseAsync);
         yield return ("teleporters charge, move the character and honour field level limits", TeleportAsync);
-        yield return ("the castle teleport costs 500 gold per level and leads into Bless Castle", CastleTeleportAsync);
+        yield return ("the castle teleport costs 500 gold per level with the castle's tax and leads into Bless Castle", CastleTeleportAsync);
+        yield return ("Bless Castle's tax raises each shop unit's price, a stack's as the catalog offers it, not the aging percent, and its part is gathered",
+            CastleTaxAsync);
         yield return ("cursed Milter sends a character of the Endless Tower's level to its first floor for free", MilterAsync);
         yield return ("SQLite warehouse repository writes the character and warehouse together under a revision", RepositoryAsync);
     }
@@ -408,23 +410,52 @@ internal static class NpcServiceTests
         Assert.True(remaining is > 59_000 and <= 60_000, $"teleport did not carry the cooldown to the new field clock ({remaining} ms left)");
     }
 
+    private static async Task CastleTaxAsync()
+    {
+        var fixture = await Fixture.CreateAsync(10_000, [new NpcService(NpcServiceKind.Shop), new NpcService(NpcServiceKind.ItemAging)]);
+        var (world, npc, session, service) = (fixture.World, fixture.NpcId, fixture.Session, fixture.Npc);
+        world.SetOwner(7, Simulation.Social.Castle.CastleClanSkill.None, 10);
+        world.Tick(0.05f, 1);
+        var interaction = await WorldPump.RunAsync(world, world.InteractNpcAsync(session, npc));
+        Assert.True(interaction.Services.Single(offer => offer.Kind == NpcServiceKind.ItemAging).PricePercent == 100,
+            "the aging percent carries the tax, which is on the final price");
+        var open = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, new NpcServiceCommand(Guid.NewGuid(), npc, NpcServiceKind.Shop,
+            NpcServiceAction.Open)));
+        Assert.True(open.Catalog!.Single(offer => offer.Code == AxeCode).Price == 66, "the shop does not offer the taxed price");
+        var character = session.Character!;
+        var bought = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken,
+            new NpcServiceCommand(Guid.NewGuid(), npc, NpcServiceKind.Shop, NpcServiceAction.Buy, character.InventoryRevision, ItemCode: AxeCode)));
+        Assert.True(bought.Outcome.Ok && character.Money == 10_000 - 66 && world.TakeTaxGold() == 6 && world.TakeTaxGold() == 0,
+            "the taxed purchase was not charged, or its tax not gathered once");
+        Assert.True(open.Catalog!.Single(offer => offer.Code == PotionCode).Price == 27, "the shop does not offer a unit's taxed price");
+        var stack = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken,
+            new NpcServiceCommand(Guid.NewGuid(), npc, NpcServiceKind.Shop, NpcServiceAction.Buy, character.InventoryRevision, ItemCode: PotionCode, Count: 3)));
+        Assert.True(stack.Outcome.Ok && character.Money == 10_000 - 66 - 81 && world.TakeTaxGold() == 6,
+            "a stack did not cost its units' offered price, or its tax was not gathered exactly");
+        world.SetOwner(0, Simulation.Social.Castle.CastleClanSkill.None, 10);
+        world.Tick(0.05f, 2);
+        Assert.True(world.CastleTax == 0, "a castle without an owner taxed fees");
+    }
+
     private static async Task CastleTeleportAsync()
     {
         var fixture = await Fixture.CreateAsync(100_000, [new NpcService(NpcServiceKind.Teleporter, 2)], new WorldCatalog());
         var (world, npc, session, service) = (fixture.World, fixture.NpcId, fixture.Session, fixture.Npc);
+        world.SetOwner(7, Simulation.Social.Castle.CastleClanSkill.None, 10);
+        world.Tick(0.05f, 1);
         session.Character!.AwardExperience(Simulation.Progression.ExperienceTable.ForLevel(50));
         var level = session.Character.Level;
         Assert.True(level == 50, "the fixture did not reach level 50");
         var open = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, new NpcServiceCommand(Guid.NewGuid(), npc,
             NpcServiceKind.Teleporter, NpcServiceAction.Open)));
-        Assert.True(open.Outcome.Ok && open.Destinations is [{ FieldCode: FieldCodes.Castle } only] && only.Price == 500L * level,
-            "the castle teleport is not offered at 500 gold per level");
+        Assert.True(open.Outcome.Ok && open.Destinations is [{ FieldCode: FieldCodes.Castle } only] && only.Price == 550L * level,
+            "the castle teleport is not offered at 500 gold per level and the tax");
         var trip = new NpcServiceCommand(Guid.NewGuid(), npc, NpcServiceKind.Teleporter, NpcServiceAction.Teleport, session.Character.InventoryRevision, Anchor: 1);
         var moved = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, trip));
         var castle = new WorldCatalog().GetFieldByCode(FieldCodes.Castle);
-        Assert.True(moved.Outcome.Ok && moved.Arrival is { FieldCode: FieldCodes.Castle } arrival && session.Character.Money == 100_000 - 500L * level
-            && castle.StartPoints.Any(point => point.X == arrival.Position.X && point.Z == arrival.Position.Z),
-            "the castle teleport did not charge the level's price and move onto a start point of the castle");
+        Assert.True(moved.Outcome.Ok && moved.Arrival is { FieldCode: FieldCodes.Castle } arrival && session.Character.Money == 100_000 - 550L * level
+            && world.TakeTaxGold() == 50L * level && castle.StartPoints.Any(point => point.X == arrival.Position.X && point.Z == arrival.Position.Z),
+            "the castle teleport did not charge the level's price with the tax, gather the tax and move onto a start point of the castle");
     }
 
     private static async Task MilterAsync()
@@ -564,7 +595,7 @@ internal static class NpcServiceTests
             var warehouses = new MemoryWarehouses(characters);
             var stock = new NpcShopStock([AxeCode], [], [PotionCode]);
             var npc = new NpcDefinition(1, "Merchant", "merchant.inx", services) { DisplayName = "Merchant", Dialog = Lines, Shop = stock };
-            var items = new ItemCatalog([Axe(), Potion(), new ItemDefinition(QuestCode, "Letter", ItemKind.Quest)]);
+            var items = new ItemCatalog([Axe(), Potion() with { MaxStack = 20 }, new ItemDefinition(QuestCode, "Letter", ItemKind.Quest)]);
             var empty = WorldData.Empty;
             var holder = new WorldDataHolder
             {

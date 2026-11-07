@@ -22,7 +22,9 @@ public static class NpcShopRules
         return (int)(intact + (price - intact) * WornShareValue);
     }
 
-    public static long BuyPrice(ItemDefinition definition, int count) => (long)Math.Max(0, definition.Price) * count;
+    // The castle's tax is on each unit, as the catalog offers it.
+    public static long BuyPrice(ItemDefinition definition, int count, int tax = 0) =>
+        Social.Castle.CastleRules.WithTax(Math.Max(0, definition.Price), tax) * count;
 
     // What count units of the item sell for (a stack's units; an item sells whole).
     public static long SellPrice(ItemInstance item, int count)
@@ -55,7 +57,7 @@ public static class NpcShopRules
     public static bool IsValidCount(ItemDefinition definition, int count) =>
         count >= 1 && (definition.IsStackable ? count <= definition.MaxStack : count == 1);
 
-    public static NpcServiceStatus TryBuy(PlayerCharacter character, ItemDefinition definition, int count, int anchor, out long cost)
+    public static NpcServiceStatus TryBuy(PlayerCharacter character, ItemDefinition definition, int count, int anchor, out long cost, int tax = 0)
     {
         cost = 0;
         if (!IsValidCount(definition, count))
@@ -63,7 +65,7 @@ public static class NpcShopRules
             return NpcServiceStatus.Rejected;
         }
 
-        cost = BuyPrice(definition, count);
+        cost = BuyPrice(definition, count, tax);
         if (character.Money < cost)
         {
             return NpcServiceStatus.NotEnoughGold;

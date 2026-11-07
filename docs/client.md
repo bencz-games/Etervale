@@ -455,6 +455,10 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   32 walking (8 ahead), 16 running (14 ahead), attacking or casting. Out of the water, each step in an ice field leaves a
   footprint on an ice floor (`image/mk-r.tga` 3 units right and 5 ahead, `mk-l.tga` left), 12 x 12 units, tilted with
   the ice, fading to a fifth over five seconds; at most 20 lie at a time. Local player only, as in the original.
+- Bless Castle's tax (from `CastleState`) is added to the prices the client works out itself: the skill window's
+  training price (`HudSkillsPanel.Tax`), the wing warp map's fees and fee table (`HudWingGate.Tax`, the table made
+  again for a new tax) and the aging and mixing benches' prices after their percents (`HudWorkbench.Tax`); the shop
+  and teleport prices come from the server with it.
 - The butler's window (`HudCastleWindow`, in the NPC panel; the NPC's Bless Castle service opens it and asks the
   server for it): the treasury, the tax and the clan skill now and from the next day, the crystal towers bought and the
   mercenaries, and, for the chief, pages to pick the tax, the skill, each tower's element (a click gives the next one)

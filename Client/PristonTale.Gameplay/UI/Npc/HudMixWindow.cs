@@ -65,10 +65,10 @@ public sealed class HudMixWindow : HudWorkbench
     {
         if (!Alchemy)
         {
-            return MainItem(state) is { Details: { } details } ? MixingWork.Price(details.Roll.Price, new MixingSettings(PricePercent)) : 0;
+            return MainItem(state) is { Details: { } details } ? MixingWork.Price(details.Roll.Price, new MixingSettings(PricePercent, Tax: Tax)) : 0;
         }
 
-        var settings = new MixingSettings(AlchemyPricePercent: PricePercent);
+        var settings = new MixingSettings(AlchemyPricePercent: PricePercent, Tax: Tax);
         long total = 0;
         var items = state?.Items ?? [];
         for (var index = 0; index < items.Count; index++)
@@ -80,7 +80,7 @@ public sealed class HudMixWindow : HudWorkbench
             }
         }
 
-        return total;
+        return MixingWork.AlchemyTotal(total, settings);
     }
 
     public MixFormula Formula(OwnerState state)

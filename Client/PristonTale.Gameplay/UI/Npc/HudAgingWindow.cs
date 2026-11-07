@@ -53,7 +53,7 @@ public sealed class HudAgingWindow : HudWorkbench
     }
 
     public override long Price(OwnerState state) =>
-        MainItem(state) is { Details: { } details } ? AgingRules.Price(details.UpgradeLevel, details.Roll.Price, PricePercent) : 0;
+        MainItem(state) is { Details: { } details } ? AgingRules.Price(details.UpgradeLevel, details.Roll.Price, PricePercent, Tax) : 0;
 
     protected override string PlaceItem(OwnedItemView item, Point origin, Point pointer, OwnerState state)
     {

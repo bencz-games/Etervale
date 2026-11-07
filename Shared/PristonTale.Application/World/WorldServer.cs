@@ -22,6 +22,8 @@ using PristonTale.Simulation.World.Fields;
 using PristonTale.Contracts.Skills;
 using PristonTale.Contracts.Texts;
 
+using PristonTale.Simulation.Social.Castle;
+
 namespace PristonTale.Application.World;
 
 public sealed partial class WorldServer
@@ -128,7 +130,7 @@ public sealed partial class WorldServer
             terrain: _terrain.Get(fieldId));
         ConfigureQuests(field);
         field.State = _catalog.TryGetFieldByCode(fieldId, out var definition) ? definition.State : FieldState.Forest;
-        ApplyOptions(field, _options);
+        ApplyOptions(field, _options, CastleTax);
         field.Event = _catalog.TryGetFieldByCode(fieldId, out var described) ? described.FieldEvent : FieldEventKind.None;
         field.Rains = described is not null && WeatherSchedule.Rains(described);
         field.DropLedger = DropLedgerFor(_worldData.Current.Items);
@@ -147,20 +149,21 @@ public sealed partial class WorldServer
             Volatile.Write(ref _options, validated);
             foreach (var field in _fields.Values)
             {
-                ApplyOptions(field, validated);
+                ApplyOptions(field, validated, CastleTax);
             }
 
             return true;
         }, waitForCapacity: true);
     }
 
-    private static void ApplyOptions(FieldInstance field, WorldServerOptions options)
+    private static void ApplyOptions(FieldInstance field, WorldServerOptions options, int tax)
     {
         field.ItemEventRates = options.ItemEvents;
         field.ExperienceMultiplier = options.ExperienceMultiplier;
         field.ExperienceEventPercent = options.ExperienceEventPercent;
-        field.Aging = options.Aging;
-        field.Mixing = options.Mixing;
+        field.CastleTax = tax;
+        field.Aging = options.Aging with { Tax = tax };
+        field.Mixing = options.Mixing with { Tax = tax };
         field.PlayersFight = field.State == FieldState.Castle && !options.CastleLeague;
     }
 
@@ -417,10 +420,10 @@ public sealed partial class WorldServer
 
     internal FieldInstance? FieldFor(int fieldId) => _fields.GetValueOrDefault(fieldId);
 
-    public Task<PreparedCharacterOperation<ProgressionOutcome>?> PrepareProgressionAsync(
+    public Task<PreparedProgressionOperation?> PrepareProgressionAsync(
         PlayerSession session, ProgressionCommand command)
     {
-        return EnqueueAsync<PreparedCharacterOperation<ProgressionOutcome>?>(session.EntityId, () =>
+        return EnqueueAsync<PreparedProgressionOperation?>(session.EntityId, () =>
         {
             if (session.Loaded is null || !TryGetPlaying(session, out var connection))
             {
@@ -432,18 +435,19 @@ public sealed partial class WorldServer
     }
 
     public Task<bool> CommitProgressionAsync(PlayerSession session,
-        PreparedCharacterOperation<ProgressionOutcome> operation)
+        PreparedProgressionOperation operation)
     {
         return EnqueueAsync(NoOwner, () =>
         {
             var moneyBefore = operation.Original.Money;
             if (!ReferenceEquals(session.Character, operation.Original) || operation.Candidate is null
-                || !operation.Original.ApplyProgression(operation.Candidate.ProgressionOperations[^1].Command))
+                || !operation.Original.ApplyProgression(operation.Candidate.ProgressionOperations[^1].Command, operation.Tax))
             {
                 throw new CommitInvariantException("Character ownership changed during progression commit.");
             }
 
-            Currency.Record(GameMasters.CurrencySink.SkillTraining, moneyBefore - operation.Original.Money);
+            var spent = moneyBefore - operation.Original.Money;
+            RecordSpending(GameMasters.CurrencySink.SkillTraining, spent, CastleRules.TaxIn(spent, operation.Tax));
 
             return true;
         }, waitForCapacity: true);
@@ -728,6 +732,7 @@ public sealed partial class WorldServer
         LastPhases = new TickPhases(processed, Stopwatch.GetElapsedTime(started, commandsDone).TotalMilliseconds,
             Stopwatch.GetElapsedTime(commandsDone).TotalMilliseconds);
         PublishSiege(nowSeconds);
+        ApplyCastleTax();
         RenewClanSkill(nowSeconds);
         ApplyQuestTravels();
         Checkpoint(serverTick);

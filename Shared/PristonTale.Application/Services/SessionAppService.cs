@@ -214,10 +214,11 @@ public sealed class SessionAppService
             text => new ProgressionOutcome(false, 0, text), ct);
     }
 
-    private async Task<TOutcome> ApplyDurableAsync<TOutcome>(string token,
-        Func<PlayerSession, Task<PreparedCharacterOperation<TOutcome>?>> prepare,
-        Func<PlayerSession, PreparedCharacterOperation<TOutcome>, Task<bool>> commit,
+    private async Task<TOutcome> ApplyDurableAsync<TPrepared, TOutcome>(string token,
+        Func<PlayerSession, Task<TPrepared?>> prepare,
+        Func<PlayerSession, TPrepared, Task<bool>> commit,
         Func<GameText, TOutcome> rejected, CancellationToken ct)
+        where TPrepared : PreparedCharacterOperation<TOutcome>
     {
         if (_host is null)
         {

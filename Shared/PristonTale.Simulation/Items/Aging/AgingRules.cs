@@ -5,8 +5,8 @@ namespace PristonTale.Simulation.Items.Aging;
 // The stone is kept because some stones keep the level requirement when the level comes.
 public sealed record AgingMaturity(int Count, int Goal, AgingStone Stone);
 
-// Percentages of the original price, failure chances and double chances.
-public sealed record AgingSettings(int PricePercent = 100, int FailurePercent = 100, int DoublePercent = 100)
+// Percentages of the original price, failure chances and double chances; Tax is the castle's tax on the price.
+public sealed record AgingSettings(int PricePercent = 100, int FailurePercent = 100, int DoublePercent = 100, int Tax = 0)
 {
     public static readonly AgingSettings Default = new();
 }
@@ -209,9 +209,11 @@ public static class AgingRules
         _ => AgingStone.None
     };
 
-    public static long Price(ItemInstance item, AgingSettings settings = null) => Price(item.UpgradeLevel, item.Roll.Price, settings?.PricePercent ?? 100);
+    public static long Price(ItemInstance item, AgingSettings settings = null) =>
+        Price(item.UpgradeLevel, item.Roll.Price, settings?.PricePercent ?? 100, settings?.Tax ?? 0);
 
-    public static long Price(int level, long price, int percent = 100) => (level + 1) * price / 2 * Math.Max(0, percent) / 100;
+    public static long Price(int level, long price, int percent = 100, int tax = 0) =>
+        Social.Castle.CastleRules.WithTax((level + 1) * price / 2 * Math.Max(0, percent) / 100, tax);
 
     public static bool SheltomsMatch(int level, IEnumerable<int> ordinals)
     {

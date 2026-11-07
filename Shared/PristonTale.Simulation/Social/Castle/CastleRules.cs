@@ -28,7 +28,8 @@ public enum CastleClanSkill : byte
 
 // Bless Castle's rules. A siege lasts SiegeMinutes; the clan whose members dealt the most damage to the Tower of
 // Valhalla when it falls takes the castle, and the owner keeps it when the time runs out. Notices go out an hour and
-// half an hour before a weekly siege. The owner's tax rate and clan skill take effect each day at TaxHour.
+// half an hour before a weekly siege. The owner's tax rate and clan skill take effect each day at TaxHour; the tax is
+// added to the fees players pay while the castle has an owner, and what it adds goes to the castle's treasury.
 public static class CastleRules
 {
     public const int TaxHour = 4;
@@ -38,4 +39,25 @@ public static class CastleRules
     public const int OverSeconds = 5;
     public const int FountainMaxPotions = 1440;
     public const int FountainPotionSeconds = 60;
+
+    // The tax in force: the owner's rate, 0 to CastleOwnerRules.MaxTaxRate percent, and none without an owner.
+    public static int TaxInForce(long ownerClanId, int tax) => ownerClanId == 0 ? 0 : Math.Clamp(tax, 0, CastleOwnerRules.MaxTaxRate);
+
+    // A fee with the castle's tax added, whole gold rounded down, on the final price: one shop unit, an aging, a mix, an
+    // alchemy's force orbs together, a teleport, a wing warp gate and a skill's training.
+    public static long WithTax(long fee, int tax) => fee + fee * Math.Clamp(tax, 0, CastleOwnerRules.MaxTaxRate) / 100;
+
+    // The tax part of a charge of units fees, each made with WithTax: a fee less its share without the tax rounded up
+    // (exact, since WithTax rounds the tax down), times units.
+    public static long TaxIn(long charged, int tax, int units = 1)
+    {
+        if (units < 1 || charged % units != 0)
+        {
+            return 0;
+        }
+
+        var fee = charged / units;
+        var rate = 100 + Math.Clamp(tax, 0, CastleOwnerRules.MaxTaxRate);
+        return (fee - (fee * 100 + rate - 1) / rate) * units;
+    }
 }

@@ -37,6 +37,8 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
     private int _trainingIndex = -1;
     private string _trainingName = "";
     private string _trainingPrice = "";
+
+    public int Tax { get; set; }
     private IReadOnlyList<OwnedSkillView> _displayedSkills;
     private Entry _hovered;
     private bool _hoveredBasic;
@@ -170,7 +172,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
 
             _trainingIndex = index;
             _trainingName = DataText.SkillName(entry.Skill);
-            _trainingPrice = ClientText.Format("SkillWindow.TrainPrice", rank + 1, SkillLearning.Price(index, rank).ToString("N0", System.Globalization.CultureInfo.InvariantCulture));
+            _trainingPrice = ClientText.Format("SkillWindow.TrainPrice", rank + 1, SkillLearning.Price(index, rank, Tax).ToString("N0", System.Globalization.CultureInfo.InvariantCulture));
         }
     }
 
@@ -444,7 +446,7 @@ public sealed class HudSkillsPanel(SpriteFont font, HudSprites sprites)
 
         var skills = Classes.Get(_class).Skills;
         return SkillLearning.CanTrain(skills, index, code => Rank(state, code), state.Level, state.Tier, state.SkillPoints, state.EliteSkillPoints)
-            && state.Money >= SkillLearning.Price(index, Rank(state, skills[index].Code));
+            && state.Money >= SkillLearning.Price(index, Rank(state, skills[index].Code), Tax);
     }
 
     private static int Rank(OwnerState state, uint code) => Owned(state, code) is var at and >= 0 ? state.Skills[at].Rank : 0;
