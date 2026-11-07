@@ -204,7 +204,7 @@ Correlation rules (requests without an operation id):
   throw `IOException`.
 
 Sends from any thread take `_sendGate` only to serialise into the shared scratch buffer; `FrameConnection` appends to
-a pending buffer flushed by a single writer task (a backlog above 512 KiB closes the connection).
+a pending buffer flushed by a single writer task (a backlog above 576 KiB closes the connection).
 
 ### Presence decoding
 

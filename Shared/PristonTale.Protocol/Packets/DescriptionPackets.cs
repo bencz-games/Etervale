@@ -7,10 +7,13 @@ namespace PristonTale.Protocol.Packets;
 
 internal static class DescriptionWire
 {
-    // Version 2 carries the player's shop sign after the fields of version 1.
-    public const ushort Version = 2;
+    // Version 2 carries the player's shop sign after the fields of version 1; version 3 then the player's clan.
+    public const ushort Version = 3;
     public const int MaxNameBytes = 64;
     public const int MaxModelBytes = 160;
+
+    // A clan name: 16 characters of at most three UTF-8 bytes (ClanRules).
+    public const int MaxClanBytes = 48;
 
     public static void Header(ref PacketWriter writer) => WireHeader.Write(ref writer, Version);
 
@@ -60,6 +63,11 @@ public sealed record DescribedPlayer(
 
     // The sign of the personal shop the player sells from; empty when it sells nothing.
     public string ShopSign { get; init; } = "";
+
+    // The player's clan (0 for none), its name and its mark's version (0 the default mark).
+    public ulong ClanId { get; init; }
+    public string ClanName { get; init; } = "";
+    public int ClanMark { get; init; }
 }
 
 // A held item's glow: {int8 Blink (0 none, below 0 steady), int16 R, G, B, A, float32 Scale, int8 Mix (-1 none), uint8
@@ -131,8 +139,9 @@ public sealed record EntityDescriptionPacket(
     DescribedPlayer? Player = null,
     DescribedTemplate? Template = null)
 {
-    // The player part (four varuints, the head model, three codes, three bytes, two glows, the sign) is the larger tail.
-    private const int PlayerPart = 5 * 4 + 2 + DescriptionWire.MaxModelBytes + 4 * 3 + 3 + 2 * DescribedGlow.Size + 2 + PersonalShopLimits.MaxSignBytes;
+    // The player part (four varuints, the head model, three codes, three bytes, two glows, the sign, the clan) is the larger tail.
+    private const int PlayerPart = 5 * 4 + 2 + DescriptionWire.MaxModelBytes + 4 * 3 + 3 + 2 * DescribedGlow.Size + 2 + PersonalShopLimits.MaxSignBytes
+        + VarInt.MaxBytes64 + 2 + DescriptionWire.MaxClanBytes + 5;
     public const int MaximumSize = 8 + 4 + VarInt.MaxBytes64 + 2 + 5 * 2 + 4 + (2 + DescriptionWire.MaxNameBytes) + (2 + DescriptionWire.MaxModelBytes)
         + PlayerPart;
 
@@ -165,6 +174,9 @@ public sealed record EntityDescriptionPacket(
             player.WeaponGlow.Write(ref writer);
             player.OffHandGlow.Write(ref writer);
             NpcWire.Text(ref writer, player.ShopSign, PersonalShopLimits.MaxSignBytes);
+            writer.VarUInt(player.ClanId);
+            NpcWire.Text(ref writer, player.ClanName, DescriptionWire.MaxClanBytes);
+            writer.VarUInt((ulong)Math.Max(0, player.ClanMark));
         }
         else
         {
@@ -215,12 +227,18 @@ public sealed record EntityDescriptionPacket(
                 var weaponGlow = DescribedGlow.Read(ref reader);
                 var offHandGlow = DescribedGlow.Read(ref reader);
                 var sign = version >= 2 ? NpcWire.Text(ref reader, PersonalShopLimits.MaxSignBytes) : "";
+                var clanId = version >= 3 ? reader.VarUInt() : 0UL;
+                var clanName = version >= 3 ? NpcWire.Text(ref reader, DescriptionWire.MaxClanBytes) : "";
+                var clanMark = version >= 3 ? reader.VarUInt31() : 0;
                 return new EntityDescriptionPacket(entityId, revision, kind, level, moveSpeed, attackRate, name, model,
                     new DescribedPlayer(playerClass, tier, face, hair, head, weapon, armor, offHand, (flags & 1) != 0, (flags & 2) != 0, pet, bigHead)
                     {
                         WeaponGlow = weaponGlow,
                         OffHandGlow = offHandGlow,
-                        ShopSign = sign
+                        ShopSign = sign,
+                        ClanId = clanId,
+                        ClanName = clanName,
+                        ClanMark = clanMark
                     });
             }
             case EntityKind.Monster or EntityKind.Npc:

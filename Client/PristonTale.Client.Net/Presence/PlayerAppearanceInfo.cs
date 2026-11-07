@@ -24,4 +24,9 @@ public sealed record PlayerAppearanceInfo(
 
     // The sign of the personal shop the player sells from; empty when it sells nothing.
     public string ShopSign { get; init; } = "";
+
+    // The player's clan (0 for none), its name and its mark's version (0 the default mark).
+    public long ClanId { get; init; }
+    public string ClanName { get; init; } = "";
+    public int ClanMark { get; init; }
 }

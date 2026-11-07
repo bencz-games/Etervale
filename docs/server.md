@@ -163,7 +163,7 @@ that limit; negative values stop startup. The game settings live in the database
 | `Logging:LogLevel:Default` | `Information` | host | Standard .NET logging filter. |
 
 Fixed values that are not settings: idle timeout 60 s, housekeeping period 5 s, report period 30 s,
-tick rate 20 Hz, send backlog limit 512 KiB per connection (`FrameConnectionOptions.MaxPendingSendBytes`), presence
+tick rate 20 Hz, send backlog limit 576 KiB per connection (`FrameConnectionOptions.MaxPendingSendBytes`), presence
 backlog 64 KiB (`ClientSession.PresenceBacklogBytes`) and its stall time 30 s. The send limit holds the presence backlog,
 a full outbox's events and a full crowd's entries (`NetworkHardeningTests.SendLimitAsync`).
 
@@ -353,7 +353,7 @@ of the regression suite ([testing.md](testing.md#multiplayer-propagation)):
 | Second login | per connection | `Login` after a successful login gets `LoginResult` 3 (already logged in). |
 | World quota | per player | `WorldServer` refuses more than `MaxPendingCommandsPerPlayer` queued commands with `WorldBusyException`; the shared queue holds 65536. |
 | Presence backlog | per connection | Past 64 KiB unsent the pump waits, and the outbox joins the snapshots meanwhile; still past it after 30 s closes the connection (`send stalled`). |
-| Send backlog | per connection | More than 512 KiB unsent closes the connection (`send backlog exceeded ...`). |
+| Send backlog | per connection | More than 576 KiB unsent closes the connection (`send backlog exceeded ...`). |
 
 `LoginResult` statuses: 1 bad credentials (unknown account, wrong or empty password), 2 account blocked, 3 already
 logged in on this connection, 4 busy (throttled, full or storage failure), 5 outdated client protocol.

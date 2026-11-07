@@ -65,6 +65,10 @@ public static class EtervaleOpcodes
     public const uint ContactChange = 0x45541000;
     public const uint ContactRefresh = 0x45541001;
     public const uint ContactList = 0x45541002;
+    public const uint ClanRequest = 0x45541100;
+    public const uint ClanState = 0x45541101;
+    public const uint ClanInvite = 0x45541102;
+    public const uint ClanResult = 0x45541103;
 
     public const uint PresenceEntries = 0x45540900;
     public const uint DescribeEntity = 0x45540901;

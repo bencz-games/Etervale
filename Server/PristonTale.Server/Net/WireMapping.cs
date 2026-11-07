@@ -42,7 +42,10 @@ internal static class WireMapping
                 {
                     WeaponGlow = Glow(appearance.WeaponGlow),
                     OffHandGlow = Glow(appearance.OffHandGlow),
-                    ShopSign = appearance.ShopSign
+                    ShopSign = appearance.ShopSign,
+                    ClanId = (ulong)Math.Max(0, appearance.ClanId),
+                    ClanName = appearance.ClanName,
+                    ClanMark = appearance.ClanMark
                 };
                 return new EntityDescriptionPacket(view.EntityId, revision, EntityKind.Player, view.Level, view.MoveSpeed, view.AttackRate,
                     appearance.Name ?? "", appearance.ModelName ?? "", looks);

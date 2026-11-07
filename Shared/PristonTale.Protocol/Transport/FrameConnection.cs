@@ -9,7 +9,7 @@ namespace PristonTale.Protocol.Transport;
 public sealed record FrameConnectionOptions
 {
     // Bytes waiting for the stream before the peer is treated as too slow and disconnected.
-    public int MaxPendingSendBytes { get; init; } = 512 * 1024;
+    public int MaxPendingSendBytes { get; init; } = 576 * 1024;
 }
 
 // One connection: frames {int32 Size, uint32 Code, body} of at most 8192 bytes over an authenticated TLS stream.

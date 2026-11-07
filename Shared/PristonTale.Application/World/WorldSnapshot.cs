@@ -41,6 +41,11 @@ public readonly struct PlayerAppearanceView
     // The sign of the personal shop the player sells from, empty when it sells nothing.
     public string ShopSign { get; init; } = "";
 
+    // The player's clan (0 for none), its name and its mark's version.
+    public long ClanId { get; init; }
+    public string ClanName { get; init; } = "";
+    public int ClanMark { get; init; }
+
     public string Name { get; }
     public PlayerClass Class { get; }
     public int Tier { get; init; }

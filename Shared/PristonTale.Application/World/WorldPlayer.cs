@@ -375,8 +375,14 @@ public sealed class WorldPlayer
         HelperPet = HelpPets.Active(_character) is { } pet ? HelpPets.KindOf(pet) : 0,
         Phoenix = _character.Premium.IsActive(PremiumEffectKind.PhoenixPet),
         BigHead = _character.Premium.BigHeadMode,
-        ShopSign = Shop?.Sign ?? ""
+        ShopSign = Shop?.Sign ?? "",
+        ClanId = Clan?.ClanId ?? 0,
+        ClanName = Clan?.Name ?? "",
+        ClanMark = Clan?.MarkVersion ?? 0
     };
+
+    // The clan the player shows over its head (ClanAppService keeps it), null for none.
+    public Simulation.Social.Clans.ClanTag? Clan { get; set; }
 
     // A hair tint changes the head every viewer draws.
     public void ChangeHair(int hairIndex)

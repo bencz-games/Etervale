@@ -53,6 +53,7 @@ progression, regeneration and movement rates. `World/`, `Physics/` and `Skills/`
 | `Items/Usable/` | Usable item rules, premium timers and their effects, pets, scrolls, force orbs ([special-items.md](special-items.md)) |
 | `Trades/` | Trades: `TradeRules` (what may pass, the 9x4 grid, an offer's check and the exchange of two offers on candidates), `TradeOffer`, `TradeStatus` and the original's `TradeMessages` |
 | `Social/ContactBook.cs` | A character's friends and ignored players: the lists' rules (`ContactLimits`), `ContactStatus` and `ContactMessages` |
+| `Social/Clans/Clan.cs`, `Social/Clans/ClanRules.cs` | A clan, its members (`ClanMember`, `ClanRank`), state (`ClanState`) and tag (`ClanTag`); the rules: founding at level 40 for 500,000 gold, capacity by the chief's level (20 at 40, one per level, at most 80), registration at six members within ten days (`Recount`, `Expired`), entrusting (`CheckEntrust`), names, `ClanStatus` |
 | `Parties/` | Parties: `PartyRules` (level gap, experience shares, share range, gold split, request time) and the original's `PartyMessages` |
 | `PersonalShops/` | Personal shops: `PersonalShopRules` (listing, opening, a sale on candidates), `PersonalShop` (an open listing), purchases, outcomes, listings and texts |
 | [`Combat/CombatResolver.cs`](../Shared/PristonTale.Simulation/Combat/CombatResolver.cs) | Hit, block, damage, critical, element and absorption resolution |

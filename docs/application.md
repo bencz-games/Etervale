@@ -30,6 +30,7 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | `Services/TradeAppService.cs`, `World/WorldServer.Trades.cs`, `World/Trades/Trade.cs` | Trades between players: requests, offers, locks and the exchange that holds and stores two characters (below) |
 | `World/WorldServer.Notices.cs`, `World/WorldNotice.cs`, `Services/WorldNoticeRequests.cs` | The lines a party or trade change answers, delivered through the chat (`ChatDirectory.Deliver`) |
 | `Contacts/ContactAppService.cs` | The friends page: each character's friends and ignored players, stored, with the friends' presence (below) |
+| `Clans/ClanAppService.cs`, `Clans/ClanTexts.cs`, `World/WorldServer.Clans.cs` | The clans: founding, invitations, ranks, leaving, expelling, entrusting, dissolution and the chat roster (below) |
 | `Chat/`, `GameMasters/` | Chat routing, whispers and notices; game-master commands, levels and audit ([chat-and-gm.md](chat-and-gm.md)) |
 | `World/WorldServer.Chat.cs`, `World/WorldServer.GameMasters.cs` | Players in hearing range; tick-side game-master reads and changes (kill, hide, move, spawn, drop, gifts) |
 | `Shared/PristonTale.Contracts/Sessions/*Outcome.cs`, `CharacterSummary.cs`; `Contracts/World/Restart.cs`, `WingGateTrip.cs` | Result records returned to the edge and read by the client (login, characters, world entry, restart, wing trips); failure enums carry stable codes |
@@ -608,6 +609,29 @@ change and refresh answers both lists, each friend with whether a player of that
 refuses answers the lists as they were and "The lists cannot be changed now". A whisper from an ignored player is
 refused ([chat-and-gm.md](chat-and-gm.md)). The recent players are the client's
 ([client.md](client.md)).
+
+## Clans
+
+The clans live on the game server (`ClanAppService`, rules in `ClanRules`, [simulation.md](simulation.md); storage
+`IClanRepository`, [persistence.md](persistence.md)). `ClanService` reads them before the game server opens (a failure
+leaves the service unavailable, refusing every request) and dissolves those past their deadline once a minute. The
+service keeps them in memory and runs one change at a time, stored before it applies (a refused storage changes nothing
+and answers "The clan service is unavailable"); the chat reads `ClanOf` without waiting (clan chat, `IClanRoster`).
+
+- A player entering the world attaches a link (`IClanLink`): its clan's member row takes its name, class and level, it
+  gets its clan's view (`ClanState`) and its tag (`WorldPlayer.Clan`: id, name, mark version, part of its looks and of
+  `EntityDescription`). Leaving the world detaches it and the clan sees it offline.
+- Founding (`FoundAsync`, at a Clan Master): not in a clan nor in a join cooldown, no other chief on the account, a free
+  valid name; the world checks reach, level 40 and 500,000 gold (`PrepareClanPaymentAsync`) and the clan row is stored
+  with the paying character (`DurableOperations`). The clan starts registering with a ten-day deadline.
+- Invitations: the chief or vice asks an online player without a clan (room under the chief's capacity, no cooldown);
+  the invitation lasts 30 seconds; a yes joins (checked again), a no tells the recruiter. Six members register the clan.
+- The chief appoints or discharges the one vice chief, expels members (online or not), hands the clan to a member at a
+  Clan Master (registered clans only, a member of at least his level whose capacity holds the clan, 300,000 gold stored
+  with the character) and disbands it; members leave (the chief cannot). Below six members a registered clan gets ten
+  days; a passed deadline dissolves the clan, and its members cannot join one for four days.
+- Every change sends each online member the clan's view and a line in the chat (joined, left, expelled, registered,
+  below six, chief changed, vice appointed or discharged, disbanded). A character in a clan cannot be deleted.
 
 ## Published outcomes and events
 

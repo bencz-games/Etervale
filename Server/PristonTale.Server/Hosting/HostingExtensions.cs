@@ -46,6 +46,7 @@ public static class HostingExtensions
         builder.Services.AddSingleton<PartyAppService>();
         builder.Services.AddSingleton<TradeAppService>();
         builder.Services.AddSingleton<ContactAppService>();
+        builder.Services.AddSingleton<PristonTale.Application.Clans.ClanAppService>();
         builder.Services.AddSingleton<StarterGiftAppService>();
 
         var provider = builder.Configuration["Database:Provider"] ?? "Sqlite";
@@ -103,6 +104,8 @@ public static class HostingExtensions
         });
         // After the world tick (settings apply on it) and before the game server opens.
         builder.Services.AddHostedService<ServerSettingsService>();
+        // The clans are read before the game server opens.
+        builder.Services.AddHostedService<PristonTale.Server.World.ClanService>();
         builder.Services.AddHostedService<GameTcpServer>();
         builder.Services.AddHostedService<PristonTale.Server.World.QuestUpkeepService>();
         builder.Services.AddHostedService<PristonTale.Server.World.StarterGiftService>();
@@ -172,6 +175,7 @@ public static class HostingExtensions
             };
         });
         builder.Services.AddSingleton(services => new ChatAppService(services.GetRequiredService<ChatDirectory>(),
-            services.GetRequiredService<WorldServer>(), services.GetRequiredService<GameMasterCommands>()));
+            services.GetRequiredService<WorldServer>(), services.GetRequiredService<GameMasterCommands>(),
+            clans: services.GetRequiredService<PristonTale.Application.Clans.ClanAppService>()));
     }
 }

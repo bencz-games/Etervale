@@ -49,6 +49,7 @@ internal sealed record SessionServices(
     TradeAppService Trades,
     ContactAppService Contacts,
     ChatAppService Chat,
+    Application.Clans.ClanAppService Clans,
     GameServerControl Control)
 {
     // Shared by every connection so a flood from many peers still yields one warning per interval.
@@ -298,6 +299,9 @@ internal sealed partial class ClientSession : IMovementVerdictSink
                 case EtervaleOpcodes.TradeLock or EtervaleOpcodes.TradeCancel:
                     await SignalTradeAsync(TradeSignalPacket.Read(memory.Span));
                     break;
+                case EtervaleOpcodes.ClanRequest:
+                    await ClanRequestAsync(ClanRequestPacket.Read(memory.Span));
+                    break;
                 case EtervaleOpcodes.ContactChange:
                     await ChangeContactAsync(ContactChangePacket.Read(memory.Span));
                     break;
@@ -508,6 +512,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         _pump = PumpAsync(outbox, _encoder);
         JoinChat(session, contacts);
         RefreshContacts();
+        await JoinClansAsync(session);
     }
 
     private async Task PumpAsync(WorldOutbox outbox, PresenceEncoder encoder)
@@ -887,6 +892,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
         _player = null;
         _pump = null;
         LeaveChat(session);
+        LeaveClans(session);
         outbox.Writer.TryComplete();
         var leave = await _services.World.LeaveAsync(session.FieldId, session.EntityId, outbox.Writer);
         _services.Chat.Directory.Deliver(leave.Notices);

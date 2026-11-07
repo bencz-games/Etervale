@@ -82,7 +82,41 @@
   <data name="Game.CannotUseYet" xml:space="preserve"><value>Item cannot be used yet</value></data>
   <data name="Game.CharacterBusy" xml:space="preserve"><value>A save or another character operation is pending; try again</value></data>
   <data name="Game.CharacterUnchanged" xml:space="preserve"><value>Storage rejected the operation; character unchanged</value></data>
+  <data name="Game.ClanAlreadyInClan" xml:space="preserve"><value>You are already in a clan.</value></data>
+  <data name="Game.ClanBelowSix" xml:space="preserve"><value>The clan has fewer than 6 members. Recruit more within {0} days or it will be disbanded.</value></data>
+  <data name="Game.ClanCapacityTooLow" xml:space="preserve"><value>At that level the new chief could not keep all the members.</value></data>
+  <data name="Game.ClanChiefCannotLeave" xml:space="preserve"><value>The clan chief cannot leave: entrust the clan or disband it.</value></data>
+  <data name="Game.ClanChiefChanged" xml:space="preserve"><value>The clan chief has changed from {0} to {1}.</value></data>
+  <data name="Game.ClanChiefOnAccount" xml:space="preserve"><value>You already have a clan chief on this account. There can only be one clan chief per account.</value></data>
+  <data name="Game.ClanDisbanded" xml:space="preserve"><value>The clan {0} has been disbanded.</value></data>
+  <data name="Game.ClanExpelled" xml:space="preserve"><value>{0} has been expelled from the clan.</value></data>
+  <data name="Game.ClanFounded" xml:space="preserve"><value>The clan [{0}] was founded. Recruit 6 members (the chief included) within 10 days to register it.</value></data>
+  <data name="Game.ClanFull" xml:space="preserve"><value>You cannot recruit any more members.</value></data>
+  <data name="Game.ClanInviteRefused" xml:space="preserve"><value>{0} has refused to join the clan.</value></data>
+  <data name="Game.ClanInviteSent" xml:space="preserve"><value>The clan invitation was sent to {0}.</value></data>
+  <data name="Game.ClanJoinCooldown" xml:space="preserve"><value>A character cannot join a clan for 4 days after its clan was disbanded.</value></data>
+  <data name="Game.ClanJoined" xml:space="preserve"><value>{0} has joined the clan.</value></data>
+  <data name="Game.ClanLeft" xml:space="preserve"><value>{0} has left the clan.</value></data>
+  <data name="Game.ClanLevelTooLow" xml:space="preserve"><value>You must be level 40 to found a clan.</value></data>
+  <data name="Game.ClanNameInvalid" xml:space="preserve"><value>Clan names have 2 to 16 letters, digits, spaces, '-' or '_'.</value></data>
+  <data name="Game.ClanNameTaken" xml:space="preserve"><value>This clan name already exists. Please try something else.</value></data>
+  <data name="Game.ClanNoInvitation" xml:space="preserve"><value>The clan invitation is no longer valid.</value></data>
+  <data name="Game.ClanNotChief" xml:space="preserve"><value>Only the clan chief can do that.</value></data>
+  <data name="Game.ClanNotInClan" xml:space="preserve"><value>You are not in a clan.</value></data>
+  <data name="Game.ClanNotMember" xml:space="preserve"><value>That character is not a member of the clan.</value></data>
+  <data name="Game.ClanNotRecruiter" xml:space="preserve"><value>Only the clan chief or vice chief can recruit.</value></data>
+  <data name="Game.ClanNotRegistered" xml:space="preserve"><value>The clan must be officially registered first.</value></data>
+  <data name="Game.ClanNotVice" xml:space="preserve"><value>That member is not the vice chief.</value></data>
   <data name="Game.ClanOnly" xml:space="preserve"><value>Only members of a regular clan can use this item</value></data>
+  <data name="Game.ClanRegistered" xml:space="preserve"><value>Congratulations! The clan [{0}] is now officially registered.</value></data>
+  <data name="Game.ClanTargetInClan" xml:space="preserve"><value>That player is already in a clan.</value></data>
+  <data name="Game.ClanTargetLevelTooLow" xml:space="preserve"><value>The new chief must be of your level or higher.</value></data>
+  <data name="Game.ClanTargetNotFound" xml:space="preserve"><value>That player is not available.</value></data>
+  <data name="Game.ClanUnavailable" xml:space="preserve"><value>The clan service is unavailable. Please try again later.</value></data>
+  <data name="Game.ClanViceAppointed" xml:space="preserve"><value>{0} has been appointed vice chief.</value></data>
+  <data name="Game.ClanViceDischarged" xml:space="preserve"><value>{0} has been discharged from vice chief.</value></data>
+  <data name="Game.ClanViceExists" xml:space="preserve"><value>The clan already has a vice chief.</value></data>
+  <data name="Game.ClanYouWereExpelled" xml:space="preserve"><value>You have been expelled from the clan {0}.</value></data>
   <data name="Game.CloseShopFirst" xml:space="preserve"><value>Close your personal shop first</value></data>
   <data name="Game.CloseTradeFirst" xml:space="preserve"><value>Close the trade window first</value></data>
   <data name="Game.ConfirmAcceptQuest" xml:space="preserve"><value>Accept quest</value></data>

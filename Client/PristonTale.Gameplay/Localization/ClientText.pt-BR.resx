@@ -82,7 +82,41 @@
   <data name="Game.CannotUseYet" xml:space="preserve"><value>O item ainda não pode ser usado</value></data>
   <data name="Game.CharacterBusy" xml:space="preserve"><value>Um salvamento ou outra operação do personagem está pendente; tente de novo</value></data>
   <data name="Game.CharacterUnchanged" xml:space="preserve"><value>O armazenamento recusou a operação; o personagem não mudou</value></data>
+  <data name="Game.ClanAlreadyInClan" xml:space="preserve"><value>Você já está em um clã.</value></data>
+  <data name="Game.ClanBelowSix" xml:space="preserve"><value>O clã tem menos de 6 membros. Recrute mais em até {0} dias ou ele será dissolvido.</value></data>
+  <data name="Game.ClanCapacityTooLow" xml:space="preserve"><value>Nesse nível o novo líder não conseguiria manter todos os membros.</value></data>
+  <data name="Game.ClanChiefCannotLeave" xml:space="preserve"><value>O líder não pode sair do clã: passe a liderança ou dissolva o clã.</value></data>
+  <data name="Game.ClanChiefChanged" xml:space="preserve"><value>A liderança do clã passou de {0} para {1}.</value></data>
+  <data name="Game.ClanChiefOnAccount" xml:space="preserve"><value>Você já tem um líder de clã nesta conta. Só pode haver um líder de clã por conta.</value></data>
+  <data name="Game.ClanDisbanded" xml:space="preserve"><value>O clã {0} foi dissolvido.</value></data>
+  <data name="Game.ClanExpelled" xml:space="preserve"><value>{0} foi expulso do clã.</value></data>
+  <data name="Game.ClanFounded" xml:space="preserve"><value>O clã [{0}] foi fundado. Recrute 6 membros (contando o líder) em até 10 dias para registrá-lo.</value></data>
+  <data name="Game.ClanFull" xml:space="preserve"><value>Não é possível recrutar mais membros.</value></data>
+  <data name="Game.ClanInviteRefused" xml:space="preserve"><value>{0} recusou entrar no clã.</value></data>
+  <data name="Game.ClanInviteSent" xml:space="preserve"><value>O convite do clã foi enviado para {0}.</value></data>
+  <data name="Game.ClanJoinCooldown" xml:space="preserve"><value>Um personagem não pode entrar em um clã por 4 dias depois que o clã dele foi dissolvido.</value></data>
+  <data name="Game.ClanJoined" xml:space="preserve"><value>{0} entrou no clã.</value></data>
+  <data name="Game.ClanLeft" xml:space="preserve"><value>{0} saiu do clã.</value></data>
+  <data name="Game.ClanLevelTooLow" xml:space="preserve"><value>É preciso ter nível 40 para fundar um clã.</value></data>
+  <data name="Game.ClanNameInvalid" xml:space="preserve"><value>O nome do clã tem de 2 a 16 letras, números, espaços, '-' ou '_'.</value></data>
+  <data name="Game.ClanNameTaken" xml:space="preserve"><value>Esse nome de clã já existe. Escolha outro.</value></data>
+  <data name="Game.ClanNoInvitation" xml:space="preserve"><value>O convite do clã não é mais válido.</value></data>
+  <data name="Game.ClanNotChief" xml:space="preserve"><value>Só o líder do clã pode fazer isso.</value></data>
+  <data name="Game.ClanNotInClan" xml:space="preserve"><value>Você não está em um clã.</value></data>
+  <data name="Game.ClanNotMember" xml:space="preserve"><value>Esse personagem não é membro do clã.</value></data>
+  <data name="Game.ClanNotRecruiter" xml:space="preserve"><value>Só o líder ou o vice-líder do clã pode recrutar.</value></data>
+  <data name="Game.ClanNotRegistered" xml:space="preserve"><value>O clã precisa estar oficialmente registrado primeiro.</value></data>
+  <data name="Game.ClanNotVice" xml:space="preserve"><value>Esse membro não é o vice-líder.</value></data>
   <data name="Game.ClanOnly" xml:space="preserve"><value>Só membros de um clã regular podem usar este item</value></data>
+  <data name="Game.ClanRegistered" xml:space="preserve"><value>Parabéns! O clã [{0}] agora está oficialmente registrado.</value></data>
+  <data name="Game.ClanTargetInClan" xml:space="preserve"><value>Esse jogador já está em um clã.</value></data>
+  <data name="Game.ClanTargetLevelTooLow" xml:space="preserve"><value>O novo líder precisa ter o seu nível ou mais.</value></data>
+  <data name="Game.ClanTargetNotFound" xml:space="preserve"><value>Esse jogador não está disponível.</value></data>
+  <data name="Game.ClanUnavailable" xml:space="preserve"><value>O serviço de clãs está indisponível. Tente novamente mais tarde.</value></data>
+  <data name="Game.ClanViceAppointed" xml:space="preserve"><value>{0} foi nomeado vice-líder.</value></data>
+  <data name="Game.ClanViceDischarged" xml:space="preserve"><value>{0} deixou de ser vice-líder.</value></data>
+  <data name="Game.ClanViceExists" xml:space="preserve"><value>O clã já tem um vice-líder.</value></data>
+  <data name="Game.ClanYouWereExpelled" xml:space="preserve"><value>Você foi expulso do clã {0}.</value></data>
   <data name="Game.CloseShopFirst" xml:space="preserve"><value>Feche sua loja pessoal primeiro</value></data>
   <data name="Game.CloseTradeFirst" xml:space="preserve"><value>Feche a janela de troca primeiro</value></data>
   <data name="Game.ConfirmAcceptQuest" xml:space="preserve"><value>Aceitar a quest</value></data>

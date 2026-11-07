@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using PristonTale.Persistence.Abstractions;
 using PristonTale.Persistence.Abstractions.Accounts;
 using PristonTale.Persistence.Abstractions.Characters;
+using PristonTale.Persistence.Abstractions.Clans;
 using PristonTale.Persistence.Abstractions.Contacts;
 using PristonTale.Persistence.Abstractions.GameMasters;
 using PristonTale.Persistence.Abstractions.GameLogs;
@@ -26,6 +27,7 @@ public static class PersistenceServiceCollectionExtensions
         services.AddSingleton<IWorldDataRepository, DapperWorldDataRepository>();
         services.AddSingleton<IWarehouseRepository, DapperWarehouseRepository>();
         services.AddSingleton<IContactRepository, DapperContactRepository>();
+        services.AddSingleton<IClanRepository, DapperClanRepository>();
         services.AddSingleton<IGameMasterRepository, DapperGameMasterRepository>();
         services.AddSingleton<IGameLogRepository, DapperGameLogRepository>();
         services.AddSingleton<IServerSettingsRepository, DapperServerSettingsRepository>();

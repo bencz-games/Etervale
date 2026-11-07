@@ -702,7 +702,10 @@ internal sealed class PresenceDecoder : IEventHandleReader
                 BigHead = looks.BigHead,
                 WeaponGlow = Glow(looks.WeaponGlow),
                 OffHandGlow = Glow(looks.OffHandGlow),
-                ShopSign = looks.ShopSign
+                ShopSign = looks.ShopSign,
+                ClanId = (long)looks.ClanId,
+                ClanName = looks.ClanName,
+                ClanMark = looks.ClanMark
             };
         }
 
