@@ -318,12 +318,12 @@ registry the authored identity remains only in the source preservation tables (`
 | Kind | Catalog entry among files sharing an identity | Unkeyed file |
 | --- | --- | --- |
 | Item | File whose name equals the code (case-insensitive), else first in path order | Variant only, warning |
-| Monster | First in path order | Variant only, warning |
+| Monster | The first file of its `*이름` in the server's load order (file names compared upper-cased, as NTFS lists them, so `_` sorts after the letters); a boss line's master and escort take the last file of their name, which joins the catalog under its file name (identity source) and the first file's English name when it is not the first | Variant only, warning |
 | NPC | Every file | - |
 
 Every parsed file is a `world_entity_variants` row (`is_catalog_entry` marks the winner); the other item and monster
 files also produce a "retained outside the catalog" warning. Parse exceptions skip the file with a warning. The original server also resolves
-a monster identity to the first file in path order, so the source must not carry another release's files ahead of the
+a spawn's monster to the first file of its name (and a boss line's to the last), so the source must not carry another release's files ahead of the
 original ones: a second data set's variant of an identity replaces the original monster's stats, drops and quest items.
 
 Names follow Etervale's English standard. `EnglishNames` holds the names the data gives only in Portuguese or Korean,

@@ -97,9 +97,8 @@ the Land of Nurwn. The action fields are reached by no gate; a kill in `fall_gam
 | `ActionCamera` | An action field's camera: fixed-point height (the camera rises 80 units above it), depth `Z` and the `LeftX`-`RightX` range it follows the player along x; it looks along +z |
 | `Center`, `StartPoints` | `StartPoints[0]` is the NPC teleport arrival; a field restart stands up at the start point nearest to the fall, a town restart at a random one; `Center` is the fallback |
 | `Gates` | Seamless boundaries to an adjacent field (`DestinationFieldId`, X/Z, angle) |
-| `WarpGates` | Portals: trigger X/Z/Y and Width/Height, destination field and X/Z/Y, `MoreExits` (further destination points: the traveller comes out at one of them, picked at random; Cursed Temple 1F to 2F, 2F to 3F and back, Ancient Prison 3F to 2F, Endless Tower 2F to 3F, Kelvezu's Lair to the Heart of Fire, Stemple to the Sea of Abyss), `LimitLevel`, `SpecialEffect` (1: a delayed warp with the return sparkle; 2: a wing warp stone, its destination point the stone's exit in its own field; see [Wing warp gates](#wing-warp-gates)) |
-| `LimitLevel` | Minimum character level to walk in through a gate: Desert 3 (11) 55, Greedy Lake (34) 70, Iron 1 (27) 80, Iron 2 (28) 85, Eura (29), Ice 1 (31) and Ice 2 (35) 90, the Lost Temple (38) and the Endless Tower's first two floors (40, 41) 100, the deep fields 46-53 108 to 132 |
-| `TravelLevel` | Minimum level to be sent there by a wing stone or a teleporter: `LimitLevel` unless the field sets its own: Forbidden Land (12) 55, Ancient Prison 1F-3F (13-15) 40, 50, 60, the office (16) 1000, Cursed Temple 1F-3F (22, 23, 42) 70, 75, 80, the caves (24-26) 55, 55, 65, Kelvezu's Lair (36) 90, Lost Island (37) 95, Endless Tower 3F (43) 102, Ice Mine (44) 105 |
+| `WarpGates` | Portals: trigger X/Z/Y and Width/Height, destination field and X/Z/Y, `MoreExits` (further destination points: the traveller comes out at one of them, picked at random; Cursed Temple 1F to 2F, 2F to 3F and back, Ancient Prison 3F to 2F, Endless Tower 2F to 3F, Kelvezu's Lair to the Heart of Fire, Stemple to the Sea of Abyss), `LimitLevel` (set by `WorldCatalog`: the destination field's), `SpecialEffect` (1: a delayed warp with the return sparkle; 2: a wing warp stone, its destination point the stone's exit in its own field; see [Wing warp gates](#wing-warp-gates)) |
+| `LimitLevel` | Minimum character level to walk, warp or be sent (a wing stone, a teleporter, a Teleport Core) into the field, from one table, `FieldEntryLevels` by field code, which `WorldCatalog` gives the shipped fields: Desert 3 and 4 (11, 12) 55, Ancient Prison 1F-3F (13-15) 40, 50, 60, the office (16) 1000 (`Closed`), Cursed Temple 1F-3F (22, 23, 42) 70, 75, 80, the caves (24-26) 55, 55, 65, Iron 1 (27) 80, Iron 2 (28) 85, Eura (29), Ice 1 (31), Ice 2 (35) and Kelvezu's Lair (36) 90, Greedy Lake (34) 70, Lost Island (37) 95, the Lost Temple (38) and the Endless Tower's first two floors (40, 41) 100, its third (43) 102, Ice Mine (44) 105, Secret Laboratory (46) 108, Ancient Weapons (48) 110; the later fields follow their monsters' levels stretched to the cap of 180: Sea of Abyss (49) 115, Deep Sea Temple (50) 124, Heart of Fire (51) 129, Crystal Nest (52) 133, Land of Nurwn (53) 143. `SendsAway(level)`: a character of a lower level saved in the field logs in at its home town (`SessionAppService.EnterWorldAsync`); a `Closed` field keeps one a game master placed there |
 | `Ambients`, `Lighting`, `Camera`, `DayNight`, `Backdrop`, `BackMusicCode` | Client presentation |
 | `FieldEvent` | `Nightmare` (Navisko): see Night and day |
 | `HazeReduction`, `SightCells` | The share of the distance haze the field clears (Ricarten 0.2) and the 64-unit cells of sight added before it starts (Ice Ura 1); client presentation |
@@ -116,7 +115,7 @@ server position; the requested position only chooses among a warp's authored exi
 
 - Refused for an invalid origin or the same field.
 - Warp: a source warp gate to the destination, not a wing warp stone, `level >= warp.LimitLevel` (the destination's
-  `LimitLevel` is not asked), origin within `FieldWarpGate.ServerReach` (`max(Width, 48) + 64`) planar units of the
+  level, on the gate), origin within `FieldWarpGate.ServerReach` (`max(Width, 48) + 64`) planar units of the
   trigger. The client picks one of the gate's exits at random and arrives there; the server takes the exit nearest the
   reported position, settled on the floor within 64 units.
 - Gate: `level >= destination.LimitLevel` and a gate between the two fields (either direction) within 1810 planar units
@@ -313,8 +312,10 @@ like skill statuses.
 
 Generic skill: `SkillRange == 0` strikes the swing's target only (within 460 units); otherwise a circle of radius
 `SkillRange` around the caster (3D distance, height below 140) or, with `SkillDistance`, a square of half-size
-`SkillRange` centred `SkillDistance` ahead. A skill blow never misses and is not blocked: the power roll less the
-player's absorption, at least 1 (a curse skill with no damage strikes for 1). The mystic's skill deals none.
+`SkillRange` centred `SkillDistance` ahead. A skill blow never misses, but the player evades and blocks it as a normal
+blow (evasion, then the shield's block, at most 50%; a block plays the block reactions and deals nothing): otherwise the
+power roll less the player's absorption, at least 1 (a curse skill with no damage strikes for 1). The mystic's skill
+deals none.
 
 Statuses on struck players (durations in 70 Hz frames; a resisted one lasts `frames x (100 - resistance) / 100`, at
 least 4 frames):
@@ -456,10 +457,10 @@ shape; unresolved bonus drops are omitted.
 Quest and ingredient items (`QuestItems.IsQuestDrop`) are flagged `ToInventory` with `FromMainTable` set for main-table
 picks; the field hands them to the credited player's quest upkeep instead of the ground ([quests.md](quests.md)).
 
-`KillReward.ExpForKill(baseExp, monsterLevel, playerLevel, multiplier)`: `baseExp * multiplier`, then 100 / 85 / 70 /
-55 percent for a level gap of at most 10 / 20 / 30 / more, computed in 128 bits and saturated at `ulong.MaxValue` (no
-award wraps or throws). The server passes `experience.multiplier` and the experience event (`experience.event_percent`: +100% up to 199, then
-+200%, +300%, +400% from 400).
+`KillReward.ExpForKill(baseExp, monsterLevel, playerLevel, multiplier, eventPercent)`: `baseExp * multiplier`, then the
+experience event's percent (`experience.event_percent`: 100 = x1, 500 = x5; a value that is not positive is x1), then
+100 / 85 / 70 / 55 percent for a level gap of at most 10 / 20 / 30 / more, computed in 128 bits and saturated at
+`ulong.MaxValue` (no award wraps or throws).
 `FirstAttackerStealsCredit`: the first attacker gets the kill over another killer if it dealt at least 40% of max life
 and hit within the last 15 s (`FirstAttackerDisengageMs`).
 
@@ -539,7 +540,7 @@ or the client's view was stale), the covered one going to the moved item's cell 
 
 Teleport routes (`TeleportRoutes`): route 0 means route 1. Route 1: index 1 field 0 "Mushroom Cave" 100 gold, 2 field 18
 "Beehive Cave" 100, 3 field 7 "Cursed Land" 500, 4 field 12 "Forbidden Land" 1000. The destination field's
-`TravelLevel` applies; arrival is its first start point (or `Center`) placed on the floor. The cave destinations are the
+`LimitLevel` applies; arrival is its first start point (or `Center`) placed on the floor. The cave destinations are the
 fields that hold the cave entrances: field 0 (`fore-3`) has the warp gate to `Tcave`, field 18 (`forever-fall-03`) the
 one to `Mcave`.
 
@@ -609,7 +610,7 @@ Ruinen Village (6), Navisko (9), Forbidden Land (12), Eura (29), Land of Chaos (
 
 - Stepping on a stone opens the wing warp map. Its destinations, in order: Ricarten, Pillai, Land of Dusk, Bamboo
   Forest, Ruinen Village, Navisko Town, Forbidden Land (level 55), Eura Village (90), Land of Chaos (95); the
-  destination field's `TravelLevel` applies as well.
+  destination field's `LimitLevel` applies as well.
 - Reach: without a wing the first two; with a wing in the pack the best one counts: Metal (`QW101`) 4, Silver 5,
   Gold 6, Dia 7, Chaos 8, Extreme (`QW106`) 9.
 - Fee: Ricarten, Pillai and the field the player stands in are free; elsewhere the wing's fee: 100, 300, 500, 1000,
@@ -626,8 +627,8 @@ with rules of their own); `CharacterSoundCodes.Resolve(key)` maps the authored s
 sound family code. The
 importer stores it; the client audio library and the AI rules key on it. The keywords of monsters newer than the
 original sound table (Greedy, Hestian, the invaders, the lizards, the mine and laboratory monsters, Soldier_D, and the
-ChinaPT client's later monsters Adevayo to Ziddane, whose folders come from that client) have Etervale's own codes from
-0x6000, one per sound folder; Furia, the red gladiator's keyword, names the Fury's sounds. MapleFairy, MapleTree,
+ChinaPT client's later monsters Adevayo to Ziddane, whose folders come from that client, and the Heart of Fire's
+Igniculus to Flame Maiden) have Etervale's own codes from 0x6000, one per sound folder; Furia, the red gladiator's keyword, names the Fury's sounds. MapleFairy, MapleTree,
 Lucifer, KhanDoor, LizardDoor and Sakura have no sound folder in any client and stay silent. Hopy's and DeadZone's
 files name their sounds (HOPT, DeadZone) as the later servers do.
 

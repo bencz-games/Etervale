@@ -36,7 +36,9 @@ internal static class WorldRewardsTests
         player.AwardExperience(525);
         Assert.True(player.Level == 1, "first Hopy granted an extra level");
         player.AwardExperience(525);
-        Assert.True(player.Level == 2 && player.Experience == 1050 && ExperienceTable.ForLevel(2) == 1000, "second Hopy failed to level up");
+        Assert.True(player.Level == 1 && ExperienceTable.ForLevel(2) == 1100, "the second Hopy reached level 2 before its threshold");
+        player.AwardExperience(525);
+        Assert.True(player.Level == 2 && player.Experience == 1575, "the third Hopy failed to level up");
         return Task.CompletedTask;
     }
 

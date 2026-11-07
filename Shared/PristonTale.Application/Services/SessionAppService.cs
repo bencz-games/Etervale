@@ -107,8 +107,10 @@ public sealed class SessionAppService
                 character.Stamina = Math.Clamp(record.Stamina, 0, character.MaxStamina);
             }
 
+            // A character saved in a field its level does not open (one whose entry level rose) starts at its home town.
             var spawn = ResolveSpawn(record, field);
-            if (WorldServer.StartsAway(field.FieldCode) && _world.TryGetFieldByCode(QuestClasses.HomeField(character), out var home))
+            if ((WorldServer.StartsAway(field.FieldCode) || field.SendsAway(character.Level))
+                && _world.TryGetFieldByCode(QuestClasses.HomeField(character), out var home))
             {
                 field = home;
                 spawn = WorldServer.HomeStart(_world, home.FieldCode);

@@ -49,7 +49,6 @@ public static class RicartenField
                 822,
                 -19956,
                 254,
-                0,
                 2)
         ],
         Ambients =

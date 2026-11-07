@@ -72,9 +72,11 @@ public sealed record FieldWarpGate(
     int DestinationX,
     int DestinationZ,
     int DestinationY,
-    int LimitLevel,
     int SpecialEffect)
 {
+    // The level the gate opens at: its destination's (WorldCatalog).
+    public int LimitLevel { get; init; }
+
     private const float MinimumRadius = 48f;
     // The server answers a gate (a warp or a wing stone) this far past its radius, for a report a step late.
     private const float ServerTolerance = 64f;
@@ -217,17 +219,11 @@ public sealed record FieldDef(
     public bool Snows => Backdrop == FieldBackdrops.Snow;
     public int SightCells { get; init; }
 
-    // The level a character needs to walk into the field.
+    // The level a character needs to walk, warp or be sent into the field (the shipped fields': FieldEntryLevels).
     public int LimitLevel { get; init; }
 
-    // The level a character needs to be sent there (wings, teleporters): the walking level unless the field sets its own.
-    public int TravelLevel
-    {
-        get => _travelLevel ?? LimitLevel;
-        init => _travelLevel = value;
-    }
-
-    private readonly int? _travelLevel;
+    // A character of this level saved here logs in at its home town; a Closed field keeps one a game master placed there.
+    public bool SendsAway(int level) => LimitLevel > level && LimitLevel != FieldEntryLevels.Closed;
 
     // Dungeon state disables sky and daylight in favor of stage lighting.
     public bool Underground => State == FieldState.Dungeon;
@@ -297,15 +293,27 @@ public sealed class WorldCatalog
             LandOfNurwnField.Definition
         ];
 
+        AllFields = AllFields.Select(static field => field with { LimitLevel = FieldEntryLevels.Of(field.FieldCode) }).ToList();
+        AllFields = WithGateLevels(AllFields);
         _fieldsById = AllFields.ToDictionary(static field => field.Id);
         _fieldsByCode = AllFields.ToDictionary(static field => field.FieldCode);
     }
 
     public WorldCatalog(IEnumerable<FieldDef> fields)
     {
-        AllFields = fields.ToList();
+        AllFields = WithGateLevels(fields.ToList());
         _fieldsById = AllFields.ToDictionary(static field => field.Id);
         _fieldsByCode = AllFields.ToDictionary(static field => field.FieldCode);
+    }
+
+    // Every warp gate opens at its destination's level (0 for a destination the catalog lacks).
+    private static List<FieldDef> WithGateLevels(IReadOnlyList<FieldDef> fields)
+    {
+        var levels = fields.ToDictionary(static field => field.Id, static field => field.LimitLevel);
+        return fields.Select(field => field with
+        {
+            WarpGates = field.WarpGates.Select(gate => gate with { LimitLevel = levels.GetValueOrDefault(gate.DestinationFieldId) }).ToList()
+        }).ToList();
     }
 
     private readonly Dictionary<string, FieldDef> _fieldsById;
@@ -313,7 +321,7 @@ public sealed class WorldCatalog
 
     public IReadOnlyList<FieldDef> AllFields { get; }
 
-    public FieldDef Ricarten => RicartenField.Definition;
+    public FieldDef Ricarten => _fieldsById.GetValueOrDefault(RicartenField.Definition.Id, RicartenField.Definition);
 
     public FieldDef GetField(string id) => _fieldsById[id];
 

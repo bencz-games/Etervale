@@ -21,7 +21,7 @@ internal static class ServerSettingsTests
         yield return ("server settings read typed values, keep defaults for missing rows and report refused values", CatalogAsync);
         yield return ("the settings table seeds missing rows, keeps edited values and writes one setting", RepositoryAsync);
         yield return ("a settings reading applies the world, game-master, name and player-limit settings", ApplyAsync);
-        yield return ("the experience event adds 100% steps up to 400% and the aging settings scale price and chances", RulesAsync);
+        yield return ("the experience event is a plain percent of each kill and the aging settings scale price and chances", RulesAsync);
         yield return ("the server hello carries the server name", HelloAsync);
     }
 
@@ -120,9 +120,10 @@ internal static class ServerSettingsTests
 
     private static Task RulesAsync()
     {
-        Assert.True(KillReward.ExpForKill(100, 10, 10) == 100 && KillReward.ExpForKill(100, 10, 10, 1, 150) == 200
-            && KillReward.ExpForKill(100, 10, 10, 1, 250) == 300 && KillReward.ExpForKill(100, 10, 10, 1, 30_000) == 500
-            && KillReward.ExpForKill(100, 10, 10, 2, 50) == 400, "the experience event steps differ");
+        Assert.True(KillReward.ExpForKill(100, 10, 10) == 100 && KillReward.ExpForKill(100, 10, 10, 1, 150) == 150
+            && KillReward.ExpForKill(100, 10, 10, 1, 500) == 500 && KillReward.ExpForKill(100, 10, 10, 1, 30_000) == 30_000
+            && KillReward.ExpForKill(100, 10, 10, 1, 0) == 100 && KillReward.ExpForKill(100, 10, 10, 1, -5) == 100
+            && KillReward.ExpForKill(100, 10, 10, 2, 50) == 100, "the experience event is not a plain percent of the kill");
 
         Assert.True(AgingRules.Price(3, 1000, 0) == 0 && AgingRules.Price(3, 1000, 50) == 1000, "the aging price does not follow its percent");
         var sure = new AgingSettings(FailurePercent: 0);

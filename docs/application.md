@@ -519,7 +519,7 @@ original's texts (`PartyMessages`, [simulation.md](simulation.md)).
   changed. `WorldServer.Parties` (`PartyRoster`) is the chat's `IPartyRoster`.
 - Shares: a kill's experience is taken at the party's average level and split by size (`FieldCombat.AwardParty`); a
   dead player, alone or in a party, gains no experience (its summons may still kill, and a level gained lying dead
-  would fill its life); gold
+  would fill its life); gold a monster dropped (`FieldGroundLoot.FromMonster`), at any amount, and other gold
   under `PartyRules.SharedGoldBelow` picked up is split with the members in the picker's field and share range
   (`GroundPickupTransactions`; one who cannot carry its part within `MoneyLimits.CarryLimit` is left out). Only the
   picker's part is stored with its pickup: the members' parts are rewards, as experience is, given at the commit to

@@ -20,7 +20,6 @@ public static class Ice1Field
         ])
     {
         FieldCode = 31,
-        LimitLevel = 90,
         Center = new FieldPoint(32313, 28529),
         Gates = [new FieldGate("ice2", 33729, 38029, 0)],
         BackMusicCode = "BGM_CODE_ICE",
@@ -39,10 +38,9 @@ public static class Ice2Field
         [])
     {
         FieldCode = 35,
-        LimitLevel = 90,
         Center = new FieldPoint(36264, 40182),
         Gates = [new FieldGate("ice1", 35364, 39518, 0)],
-        WarpGates = [new FieldWarpGate(37981, 50790, 1216, 64, 32, "Boss", 33000, 50036, 1512, 0, 0)],
+        WarpGates = [new FieldWarpGate(37981, 50790, 1216, 64, 32, "Boss", 33000, 50036, 1512, 0)],
         BackMusicCode = "BGM_CODE_ICE",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"
     };
@@ -61,9 +59,8 @@ public static class IceUraField
         ])
     {
         FieldCode = FieldCodes.InnerIce,
-        LimitLevel = 90,
         SightCells = 1,
-        WarpGates = [new FieldWarpGate(30407, 22232, 1349, 64, 32, "ice_ura", 30610, 22164, 1304, 0, 2)],
+        WarpGates = [new FieldWarpGate(30407, 22232, 1349, 64, 32, "ice_ura", 30610, 22164, 1304, 2)],
         Center = new FieldPoint(32621, 23865),
         Gates = [new FieldGate("ice1", 31848, 27225, 0)],
         BackMusicCode = "BGM_CODE_DESERT",

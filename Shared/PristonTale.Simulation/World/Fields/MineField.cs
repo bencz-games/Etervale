@@ -8,12 +8,11 @@ public static class Mine1Field
     {
         FieldCode = 44,
         Ambience = FieldAmbience.Cave,
-        TravelLevel = 105,
         Center = new FieldPoint(18006, -34740),
         WarpGates =
         [
-            new FieldWarpGate(17944, -34641, 246, 64, 32, "ice1", 35352, 31928, 829, 105, 0),
-            new FieldWarpGate(20396, -36690, 250, 64, 32, "CrystalNest", 35235, -93821, 530, 130, 0)
+            new FieldWarpGate(17944, -34641, 246, 64, 32, "ice1", 35352, 31928, 829, 0),
+            new FieldWarpGate(20396, -36690, 250, 64, 32, "CrystalNest", 35235, -93821, 530, 0)
         ],
         BackMusicCode = "BGM_CODE_DUNGEON",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"
@@ -29,7 +28,6 @@ public static class CrystalNestField
     {
         FieldCode = 52,
         Ambience = FieldAmbience.IceWind,
-        LimitLevel = 130,
         Center = new FieldPoint(35235, -93821),
         StartPoints = [new FieldPoint(35235, -93821)],
         BackMusicCode = "BGM_CODE_DUNGEON",

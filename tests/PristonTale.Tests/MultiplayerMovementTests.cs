@@ -123,8 +123,9 @@ internal static class MultiplayerMovementTests
         var gate = new Vector3(118869f, 0f, 26017f);
         var exit = new Vector3(-16490f, 0f, -6930f);
         await using var server = await MultiplayerServer.StartAsync(MultiplayerServer.WorldWith());
-        await using var a = await Enter(server, "Warper", gate, cave);
-        await using var caveViewer = await Enter(server, "CaveMate", gate + new Vector3(120f, 0f, 0f), cave);
+        // The cave opens at level 55: a character below it would log in at its home town.
+        await using var a = await Enter(server, "Warper", gate, cave, level: 55);
+        await using var caveViewer = await Enter(server, "CaveMate", gate + new Vector3(120f, 0f, 0f), cave, level: 55);
         await using var exitViewer = await Enter(server, "ExitMate", exit + new Vector3(120f, 0f, 0f), forest);
         await caveViewer.WaitUntilAsync(world => world.Entities.ContainsKey(a.EntityId), "the warper at the gate");
 

@@ -10,7 +10,6 @@ public static class OfficeField
         "Field\\Room\\office.smd", [])
     {
         FieldCode = FieldCodes.OfficeRoom,
-        TravelLevel = 1000,
         Center = new FieldPoint(-200000, 200000),
         BackMusicCode = "BGM_CODE_FOREST",
         ServerCode = "PLAY_SERVER_CODE_MAIN"

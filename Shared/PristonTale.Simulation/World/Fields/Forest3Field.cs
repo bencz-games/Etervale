@@ -38,7 +38,7 @@ public static class Forest3Field
         ],
         WarpGates =
         [
-            new FieldWarpGate(-16638, -6737, 267, 64, 32, "Tcave", 119112, 26028, 510, 55, 0)
+            new FieldWarpGate(-16638, -6737, 267, 64, 32, "Tcave", 119112, 26028, 510, 0)
         ],
         Ambients =
         [

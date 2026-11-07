@@ -252,8 +252,12 @@ public static class WorldDataFactory
         _ => MonsterActiveHour.Any,
     };
 
-    // A line of items splits its weight evenly among them with integer division, as the original does; an item the
-    // catalog lacks keeps its share as an empty slot. Bonus drops have no probability slot.
+    // The bonus drop lines a monster rolls: the first ones whose item the catalog knows.
+    public const int BonusDropLines = 3;
+
+    // A line of items keeps its whole weight among the items the catalog knows (weight / count each, the remainder to the
+    // first ones); a line none of whose items it knows weighs nothing, so its weight is never rolled. Bonus drops have
+    // no probability slot.
     private static DropTable ToDropTable(MonsterRecord r, IReadOnlyDictionary<string, uint>? itemCodes)
     {
         if (r.DropLines.Count == 0 && r.BonusDrops.Count == 0 && r.MaxDropsPerKill == 0 && !r.DropsSeenByAll)
@@ -269,13 +273,20 @@ public static class WorldDataFactory
                 case DropKind.Gold:
                     entries.Add(DropEntry.GoldSlot(line.Weight, line.GoldMin, line.GoldMax));
                     break;
-                case DropKind.Item when line.Items.Count > 0:
-                    var share = line.Weight / line.Items.Count;
+                case DropKind.Item:
+                    var known = new List<uint>(line.Items.Count);
                     foreach (var item in line.Items)
                     {
-                        entries.Add(TryResolveDrop(item, itemCodes, out var code)
-                            ? new DropEntry(DropKind.Item, share, code, 0, 0, IsBonus: false)
-                            : DropEntry.NothingSlot(share));
+                        if (TryResolveDrop(item, itemCodes, out var code))
+                        {
+                            known.Add(code);
+                        }
+                    }
+
+                    for (var i = 0; i < known.Count; i++)
+                    {
+                        var weight = line.Weight / known.Count + (i < line.Weight % known.Count ? 1 : 0);
+                        entries.Add(new DropEntry(DropKind.Item, weight, known[i], 0, 0, IsBonus: false));
                     }
 
                     break;
@@ -285,11 +296,13 @@ public static class WorldDataFactory
             }
         }
 
+        var bonusLines = 0;
         foreach (var bonus in r.BonusDrops)
         {
-            if (TryResolveDrop(bonus.ItemCode, itemCodes, out var code))
+            if (bonusLines < BonusDropLines && TryResolveDrop(bonus.ItemCode, itemCodes, out var code))
             {
                 entries.Add(new DropEntry(DropKind.Item, bonus.Chance, code, 0, 0, IsBonus: true));
+                bonusLines++;
             }
         }
 

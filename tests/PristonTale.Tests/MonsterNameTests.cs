@@ -55,9 +55,9 @@ internal static class MonsterNameTests
             var definitions = WorldDataFactory.ToMonsterDefinitions(records);
             Assert.True(definitions[0] is { Code: 196, Key: "HOPY", Name: "Hopy" } && definitions[1].Name == "Nameless",
                 "the runtime code is not the id, the key or name differs, or a monster without a name does not show its key");
-            // A line of two items splits its weight 9 into two slots of 4, as the original does; neither item exists here.
-            Assert.True(definitions[0].Drops.MainEntries.Count() == 2 && definitions[0].Drops.MainEntries.All(static entry => entry.Weight == 4),
-                "the drop line was not split among its items");
+            // A line of two items the catalog lacks weighs nothing, so its weight is never rolled.
+            Assert.True(!definitions[0].Drops.MainEntries.Any() && definitions[0].Drops.MainWeightTotal == 0,
+                "a line of unknown items kept its weight");
             var fields = await repository.GetAllFieldSpawnsAsync();
             Assert.True(fields.Single().Stage == "fore-1", "a stage no field uses reached the runtime");
             var spawns = WorldDataFactory.ToFieldSpawnData(fields.Single());

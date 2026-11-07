@@ -22,6 +22,7 @@ internal static class DomainTests
     {
         yield return ("saved attributes survive entry/save and level-up grants allocation points", AttributesAsync);
         yield return ("session and character ownership are exclusive", SessionsAsync);
+        yield return ("a character saved in a field its level does not open logs in at its home town", EntryLevelAsync);
         yield return ("monster ids are 64-bit and start above every player id", MonsterIdsAsync);
         yield return ("world mailbox defers mutations and protects writer ownership", MailboxAsync);
         yield return ("field transfers use catalog placement and refresh respawn/village", TransfersAsync);
@@ -59,6 +60,21 @@ internal static class DomainTests
         var character = session.Character!;
         character.LevelUp();
         Assert.True(character.Attributes.Strength == 123 && character.StatPoints == 5, "level up redistributed attributes instead of granting points");
+    }
+
+    private static async Task EntryLevelAsync()
+    {
+        var classes = new CharacterClassRegistry();
+        foreach (var (field, expected) in new[] { (11, FieldCodes.Ricarten), (0, 0) })
+        {
+            var record = CharacterRecordFactory.NewStarter(classes, 1, "Wanderer", 0, PlayerClass.Fighter, 3) with { Id = 1, FieldId = field };
+            var repository = new MemoryCharacters(record);
+            var registry = new SessionRegistry();
+            var session = registry.Create(1, "test");
+            var service = new SessionAppService(registry, classes, repository, new ImmediateSaves(repository), new WorldCatalog());
+            var entry = await service.EnterWorldAsync(session.SessionToken, record.Name);
+            Assert.True(entry.Ok && entry.FieldId == expected, $"a level 1 character saved in field {field} entered field {entry.FieldId}");
+        }
     }
 
     private static Task MonsterIdsAsync()
@@ -158,7 +174,6 @@ internal static class DomainTests
                 9000,
                 8000,
                 77,
-                10,
                 0)]
         };
         var second = first with

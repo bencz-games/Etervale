@@ -9,11 +9,10 @@ public static class Dungeon7Field
         FieldCode = 40,
         Ambience = FieldAmbience.Dungeon,
         Center = new FieldPoint(14255, -39099),
-        LimitLevel = 100,
         WarpGates =
         [
-            new FieldWarpGate(14242, -40988, 259, 64, 32, "dun-8", 5255, -37897, 86, 0, 0),
-            new FieldWarpGate(14246, -38912, 220, 64, 32, "Losttemple", -12272, 11299, 509, 100, 0)
+            new FieldWarpGate(14242, -40988, 259, 64, 32, "dun-8", 5255, -37897, 86, 0),
+            new FieldWarpGate(14246, -38912, 220, 64, 32, "Losttemple", -12272, 11299, 509, 0)
         ],
         BackMusicCode = "BGM_CODE_DUNGEON",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"
@@ -29,11 +28,10 @@ public static class Dungeon8Field
         FieldCode = 41,
         Ambience = FieldAmbience.Dungeon,
         Center = new FieldPoint(5255, -37897),
-        LimitLevel = 100,
         WarpGates =
         [
-            new FieldWarpGate(5253, -37708, 69, 64, 32, "dun-7", 14242, -41199, 220, 100, 0),
-            new FieldWarpGate(5254, -41500, 139, 64, 32, "dun-9", 4896, -42220, 202, 102, 0) { MoreExits = [new FieldVector(6408, 202, -42220)] }
+            new FieldWarpGate(5253, -37708, 69, 64, 32, "dun-7", 14242, -41199, 220, 0),
+            new FieldWarpGate(5254, -41500, 139, 64, 32, "dun-9", 4896, -42220, 202, 0) { MoreExits = [new FieldVector(6408, 202, -42220)] }
         ],
         BackMusicCode = "BGM_CODE_DUNGEON",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"
@@ -48,13 +46,12 @@ public static class Dungeon9Field
     {
         FieldCode = 43,
         Ambience = FieldAmbience.Dungeon,
-        TravelLevel = 102,
         Center = new FieldPoint(4896, -42330),
         StartPoints = [new FieldPoint(4896, -42330), new FieldPoint(6418, -42330)],
         WarpGates =
         [
-            new FieldWarpGate(4896, -42090, 230, 64, 32, "dun-8", 5254, -41361, 139, 100, 0),
-            new FieldWarpGate(6408, -42090, 230, 64, 32, "dun-8", 5254, -41361, 139, 100, 0)
+            new FieldWarpGate(4896, -42090, 230, 64, 32, "dun-8", 5254, -41361, 139, 0),
+            new FieldWarpGate(6408, -42090, 230, 64, 32, "dun-8", 5254, -41361, 139, 0)
         ],
         BackMusicCode = "BGM_CODE_DUNGEON",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"
@@ -90,11 +87,10 @@ public static class Dungeon6Field
     {
         FieldCode = 42,
         Ambience = FieldAmbience.Dungeon,
-        TravelLevel = 80,
         Center = new FieldPoint(-3660, -45200),
         WarpGates =
         [
-            new FieldWarpGate(-3655, -50603, 3, 64, 32, "dun-5", -2851, -43792, 642, 75, 0) { MoreExits = [new FieldVector(-4422, 642, -43801)] }
+            new FieldWarpGate(-3655, -50603, 3, 64, 32, "dun-5", -2851, -43792, 642, 0) { MoreExits = [new FieldVector(-4422, 642, -43801)] }
         ],
         Ambients =
         [

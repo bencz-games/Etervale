@@ -21,13 +21,12 @@ public static class SeaOfAbyssField
     {
         FieldCode = 49,
         Ambience = FieldAmbience.Cave,
-        LimitLevel = 112,
         Center = new FieldPoint(-19925, -3858),
         WarpGates =
         [
-            new FieldWarpGate(-21970, -5959, 157, 64, 32, "lost", -14250, -1548, 196, 95, 0),
-            new FieldWarpGate(-23511, 7571, 859, 64, 32, "Stemple", -29930, 17161, 828, 116, 0),
-            new FieldWarpGate(-22392, 7587, 859, 64, 32, "Stemple", -29930, 17161, 828, 116, 0)
+            new FieldWarpGate(-21970, -5959, 157, 64, 32, "lost", -14250, -1548, 196, 0),
+            new FieldWarpGate(-23511, 7571, 859, 64, 32, "Stemple", -29930, 17161, 828, 0),
+            new FieldWarpGate(-22392, 7587, 859, 64, 32, "Stemple", -29930, 17161, 828, 0)
         ],
         BackMusicCode = "BGM_CODE_DUNGEON",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"
@@ -42,11 +41,10 @@ public static class StempleField
     {
         FieldCode = 50,
         Ambience = FieldAmbience.Temple,
-        LimitLevel = 116,
         Center = new FieldPoint(-28284, 27144),
         WarpGates =
         [
-            new FieldWarpGate(-29805, 16913, 853, 64, 32, "SeaA", -23811, 7571, 859, 0, 0)
+            new FieldWarpGate(-29805, 16913, 853, 64, 32, "SeaA", -23811, 7571, 859, 0)
             {
                 MoreExits = [new FieldVector(-22092, 859, 7587)]
             }

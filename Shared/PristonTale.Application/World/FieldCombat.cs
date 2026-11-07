@@ -120,6 +120,7 @@ internal sealed class FieldCombat
 
         var damage = ModifierRules.ScaleDamage(result.Damage, player.Character.Effects.Totals, monster.Effects.Totals);
         damage = SkillCombat?.BasicStrike(player, monster, damage) ?? damage;
+        damage = CombatResolver.CutHit(_rng, damage, monster.Def.Combat.MaxLife, monster.Def.Combat.Level, player.Character.Level);
         return ApplyPlayerDamage(player, monster, damage, result.Crit, nowMs);
     }
 

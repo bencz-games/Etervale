@@ -370,6 +370,15 @@ public static class CharacterSoundCodes
             "TOOS" => 0x6470,
             "UNDEADSLAVE" => 0x6480,
             "ZIDDANE" => 0x6490,
+            // The Heart of Fire's monsters.
+            "IGNICULUS" => 0x64A0,
+            "LAVAARMOR" => 0x64B0,
+            "LAVAARCHER" => 0x64C0,
+            "INSEC" => 0x64D0,
+            "LAVAGOLEM" => 0x64E0,
+            "LAVAGIANT" => 0x64F0,
+            "FLAMO" => 0x6500,
+            "FLAMEMAIDEN" => 0x6510,
             _ => 0,
         };
     }

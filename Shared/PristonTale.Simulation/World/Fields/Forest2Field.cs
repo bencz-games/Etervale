@@ -23,7 +23,7 @@ public static class Forest2Field
         ],
         WarpGates =
         [
-            new FieldWarpGate(-3408, -12447, 251, 64, 32, "fore-2", -3265, -12583, 214, 0, 2)
+            new FieldWarpGate(-3408, -12447, 251, 64, 32, "fore-2", -3265, -12583, 214, 2)
         ],
         Ambients =
         [

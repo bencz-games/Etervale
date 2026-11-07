@@ -35,8 +35,8 @@ internal static class ProgressionAndOwnershipTests
     {
         var character = new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Progress");
         var attributes = character.Attributes;
-        Assert.True(ExperienceTable.ForLevel(2) == 1000 && ExperienceTable.ForLevel(3) == 2500, "original XP thresholds changed");
-        Assert.True(character.AwardExperience(2500) == 2 && character.Level == 3, "multi-level award did not resolve all thresholds");
+        Assert.True(ExperienceTable.ForLevel(2) == 1100 && ExperienceTable.ForLevel(3) == 2620, "the curve's first thresholds changed");
+        Assert.True(character.AwardExperience(2620) == 2 && character.Level == 3, "multi-level award did not resolve all thresholds");
         Assert.True(character.StatPoints == 10 && character.Attributes == attributes, "level-up silently redistributed attributes");
         Assert.True(character.TryAllocateAttribute(CharacterAttribute.Strength, 5), "available points rejected");
         Assert.True(!character.TryAllocateAttribute(CharacterAttribute.Health, 6), "unavailable points spent");
@@ -52,12 +52,12 @@ internal static class ProgressionAndOwnershipTests
         Assert.True(character.Experience == ulong.MaxValue, "overflow or loss of saved XP above cap");
         character.RestoreProgress(ExperienceTable.ForLevel(110), 0, tier: 3);
         character.AwardExperience(ulong.MaxValue);
-        Assert.True(character.Experience == ExperienceTable.Ceiling && character.Level == ExperienceTable.MaximumLevel && ExperienceTable.MaximumLevel == 285,
-            "a 64-bit award wrapped or the 285 levels are not reachable");
-        Assert.True(ExperienceTable.ForLevel(121) == 1_632_547_885_967UL && ExperienceTable.ForLevel(285) == long.MaxValue,
+        Assert.True(character.Experience == ExperienceTable.Ceiling && character.Level == ExperienceTable.MaximumLevel && ExperienceTable.MaximumLevel == 180,
+            "a 64-bit award wrapped or the 180 levels are not reachable");
+        Assert.True(ExperienceTable.ForLevel(121) == 21_744_927_060UL && ExperienceTable.ForLevel(180) == 8_127_624_927_060UL,
             "the level table past 120 differs");
         var lost = character.LoseExperience(ulong.MaxValue);
-        Assert.True(character.Experience == ExperienceTable.ForLevel(285) && lost == ExperienceTable.Ceiling - ExperienceTable.ForLevel(285),
+        Assert.True(character.Experience == ExperienceTable.ForLevel(180) && lost == ExperienceTable.Ceiling - ExperienceTable.ForLevel(180),
             "a loss went below the level's start or wrapped");
         Assert.True(KillReward.ExpForKill(ulong.MaxValue, 1, 1, 5) == ulong.MaxValue
             && PremiumRules.BoostExperience(ulong.MaxValue / 2, new PremiumTimers()) == ulong.MaxValue / 2, "kill experience wrapped");
@@ -314,7 +314,7 @@ internal static class ProgressionAndOwnershipTests
         var character = classes.CreatePlayer(PlayerClass.Fighter, record.Name);
         var definition = new ItemDefinition(1, "Potion", ItemKind.Potion, MaxStack: 10);
         var catalog = new ItemCatalog([definition]);
-        character.AwardExperience(2500);
+        character.AwardExperience(2620);
         character.TryChangeMoney(37);
         character.Inventory.TryPlace(new ItemInstance(definition, 4), 5);
         var captured = CharacterRecordFactory.Capture(record, character, 3, Vector3.Zero);
@@ -324,7 +324,7 @@ internal static class ProgressionAndOwnershipTests
         var restored = new PlayerCharacter(classes.Get(PlayerClass.Fighter), record.Name, encoded.Level,
             new CharacterAttributes(encoded.Strength, encoded.Spirit, encoded.Talent, encoded.Agility, encoded.Health));
         CharacterStateCodec.Restore(restored, encoded, catalog);
-        Assert.True(restored.Experience == 2500 && restored.Money == 37 && restored.StatPoints == 10, "saved progression lost");
+        Assert.True(restored.Experience == 2620 && restored.Money == 37 && restored.StatPoints == 10, "saved progression lost");
         var veteran = encoded with { Exp = unchecked((long)ExperienceTable.Ceiling) };
         var reloaded = new PlayerCharacter(classes.Get(PlayerClass.Fighter), record.Name, ExperienceTable.MaximumLevel, restored.Attributes);
         CharacterStateCodec.Restore(reloaded, veteran, catalog);

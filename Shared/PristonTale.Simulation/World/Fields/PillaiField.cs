@@ -60,8 +60,8 @@ public static class PillaiField
         StartPoints = [new FieldPoint(2287, 74131), new FieldPoint(3547, 75500)],
         WarpGates =
         [
-            new FieldWarpGate(2000, 72907, 474, 64, 32, "forever-fall-01", 1958, 70922, 536, 0, 1),
-            new FieldWarpGate(2245, 78259, 745, 64, 32, "pilai", 2252, 78041, 754, 0, 2)
+            new FieldWarpGate(2000, 72907, 474, 64, 32, "forever-fall-01", 1958, 70922, 536, 1),
+            new FieldWarpGate(2245, 78259, 745, 64, 32, "pilai", 2252, 78041, 754, 2)
         ],
         Ambients =
         [

@@ -6,9 +6,10 @@ namespace PristonTale.Simulation.Parties;
 
 // The original's party rules. Two players group when their levels (a party's average level stands for its members) are
 // less than LevelGap apart. A kill's experience is taken at the party's average level and shared by the party's size:
-// the killer always gets its share, every other member its own while within ShareRange of the killer. Gold under
-// SharedGoldBelow picked up by a member is split evenly among the members within ShareRange of the picker, the picker
-// keeping the remainder. A request to join waits InviteMs for its answer.
+// the killer always gets its share, every other member its own while within ShareRange of the killer. Gold a monster
+// dropped, at any amount, and gold a player threw under SharedGoldBelow, picked up by a member, is split evenly among
+// the members within ShareRange of the picker, the picker keeping the remainder. A request to join waits InviteMs for
+// its answer.
 public static class PartyRules
 {
     public const int LevelGap = 15;
@@ -44,7 +45,7 @@ public static class PartyRules
 
     public static bool InShareRange(Vector3 from, Vector3 member) => Planar.Within(member, from, PartyLimits.ShareRange);
 
-    public static bool SharesGold(long amount) => amount > 0 && amount < SharedGoldBelow;
+    public static bool SharesGold(long amount, bool monsterGold) => amount > 0 && (monsterGold || amount < SharedGoldBelow);
 
     // The picker's part and every other sharer's, for count players sharing amount.
     public static (long Picker, long Each) SplitGold(long amount, int count)

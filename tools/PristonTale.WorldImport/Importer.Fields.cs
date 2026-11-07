@@ -6,9 +6,10 @@ namespace PristonTale.WorldImport;
 
 public sealed partial class Importer
 {
+    // A spawn's actor is the catalog entry of its name; a boss line's master and escort are bossIds' (ParseMonsters).
     private static async Task WriteFieldsAsync(DbConnection conn, DbTransaction tx, IReadOnlyList<ParsedField> fields,
-        IReadOnlyDictionary<string, IdentityRegistry.Entry> monsterIds, IReadOnlyDictionary<string, IdentityRegistry.Entry> npcIds, ImportReport report,
-        CancellationToken ct)
+        IReadOnlyDictionary<string, IdentityRegistry.Entry> monsterIds, IReadOnlyDictionary<string, IdentityRegistry.Entry> bossIds,
+        IReadOnlyDictionary<string, IdentityRegistry.Entry> npcIds, ImportReport report, CancellationToken ct)
     {
         foreach (var f in fields)
         {
@@ -50,7 +51,7 @@ public sealed partial class Importer
 
             for (var ordinal = 0; ordinal < f.Bosses.Count; ordinal++)
             {
-                await WriteBossAsync(conn, tx, f.AseBase, ordinal, f.Bosses[ordinal], monsterIds, report, ct);
+                await WriteBossAsync(conn, tx, f.AseBase, ordinal, f.Bosses[ordinal], bossIds, report, ct);
             }
 
             foreach (var placement in f.FixedNpcs)

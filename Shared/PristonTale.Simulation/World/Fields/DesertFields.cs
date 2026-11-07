@@ -34,14 +34,13 @@ public static class Desert3Field
     public static readonly FieldDef Definition = new("De-3", "Desert 3", FieldState.Desert, FieldBackdrops.Desert, "Field\\desert\\De-3.smd", [])
     {
         FieldCode = 11,
-        LimitLevel = 55,
         Center = new FieldPoint(34758, -1323),
         StartPoints = [new FieldPoint(34758, -1323), new FieldPoint(29424, 322)],
         Gates = [new FieldGate("De-4", 34372, 4277, 0)],
         WarpGates =
         [
-            new FieldWarpGate(29559, 2499, 828, 64, 32, "Slab", -11975, -62457, 209, 0, 0),
-            new FieldWarpGate(36128, -2162, 804, 64, 32, "dun-4", -11088, -41570, 343, 70, 0)
+            new FieldWarpGate(29559, 2499, 828, 64, 32, "Slab", -11975, -62457, 209, 0),
+            new FieldWarpGate(36128, -2162, 804, 64, 32, "dun-4", -11088, -41570, 343, 0)
         ],
         BackMusicCode = "BGM_CODE_DESERT",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"
@@ -59,8 +58,7 @@ public static class Desert4Field
         ["Field\\desert\\d4-ani01.smd"])
     {
         FieldCode = FieldCodes.Desert4,
-        TravelLevel = 55,
-        WarpGates = [new FieldWarpGate(33979, 6080, 969, 64, 32, "De-4", 34100, 6214, 940, 0, 2)],
+        WarpGates = [new FieldWarpGate(33979, 6080, 969, 64, 32, "De-4", 34100, 6214, 940, 2)],
         Center = new FieldPoint(43988, 12053),
         StartPoints = [new FieldPoint(33740, 6491), new FieldPoint(40691, 11056)],
         Gates = [new FieldGate("iron-1", 44545, 13063, 0)],

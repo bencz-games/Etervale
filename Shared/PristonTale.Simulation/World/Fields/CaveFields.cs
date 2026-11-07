@@ -25,13 +25,12 @@ public static class TcaveField
         ])
     {
         FieldCode = 24,
-        TravelLevel = 55,
         Center = new FieldPoint(120126, 26064),
         StartPoints = [new FieldPoint(119319, 26034), new FieldPoint(125606, 24541)],
         WarpGates =
         [
-            new FieldWarpGate(125581, 25086, 480, 80, 32, "Dcave", 158627, 20504, 240, 65, 0),
-            new FieldWarpGate(118869, 26017, 538, 80, 32, "fore-3", -16490, -6930, 298, 0, 0)
+            new FieldWarpGate(125581, 25086, 480, 80, 32, "Dcave", 158627, 20504, 240, 0),
+            new FieldWarpGate(118869, 26017, 538, 80, 32, "fore-3", -16490, -6930, 298, 0)
         ],
         BackMusicCode = "BGM_CODE_DUNGEON",
         ServerCode = "PLAY_SERVER_CODE_MAIN"
@@ -64,13 +63,12 @@ public static class McaveField
         ])
     {
         FieldCode = 25,
-        TravelLevel = 55,
         Center = new FieldPoint(119966, 35466),
         StartPoints = [new FieldPoint(119320, 35680), new FieldPoint(124380, 33260)],
         WarpGates =
         [
-            new FieldWarpGate(124391, 32913, 37, 80, 32, "Dcave", 158543, 19557, 290, 65, 0),
-            new FieldWarpGate(118808, 35686, 520, 80, 32, "forever-fall-03", -6056, 43245, 787, 0, 0)
+            new FieldWarpGate(124391, 32913, 37, 80, 32, "Dcave", 158543, 19557, 290, 0),
+            new FieldWarpGate(118808, 35686, 520, 80, 32, "forever-fall-03", -6056, 43245, 787, 0)
         ],
         BackMusicCode = "BGM_CODE_DUNGEON",
         ServerCode = "PLAY_SERVER_CODE_MAIN"
@@ -99,12 +97,11 @@ public static class DcaveField
         ])
     {
         FieldCode = 26,
-        TravelLevel = 65,
         Center = new FieldPoint(158814, 20070),
         WarpGates =
         [
-            new FieldWarpGate(158042, 19525, 330, 120, 32, "Mcave", 124396, 33291, 37, 0, 0),
-            new FieldWarpGate(158023, 20453, 240, 120, 32, "Tcave", 125566, 24825, 480, 0, 0)
+            new FieldWarpGate(158042, 19525, 330, 120, 32, "Mcave", 124396, 33291, 37, 0),
+            new FieldWarpGate(158023, 20453, 240, 120, 32, "Tcave", 125566, 24825, 480, 0)
         ],
         BackMusicCode = "BGM_CODE_DUNGEON",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"

@@ -22,11 +22,16 @@ public static class CombatProfileFactory
             damage = (damage.Min + stats.DamageMin * both / 100, max);
         }
 
-        return new AttackProfile(character.Derived.AttackRating, damage.Min, damage.Max, character.Level, Element.Bionic, CriticalChance(character), 0, 0)
+        var critical = WeaponCanCritical(character) ? CriticalChance(character) : 0;
+        return new AttackProfile(character.Derived.AttackRating, damage.Min, damage.Max, character.Level, Element.Bionic, critical, 0, 0)
         {
             CritBonusPercent = totals.Flat(StatKind.CriticalDamage)
         };
     }
+
+    // A staff or a phantom in hand never deals a critical hit (its wielder's normal attacks, weapon skills and spells).
+    public static bool WeaponCanCritical(PlayerCharacter character) =>
+        character.GetEquipped(EquipmentSlot.Weapon) is not { Definition.Kind: ItemKind.Staff or ItemKind.Phantom };
 
     // Items, specializations and the critical passives share one cap; buffs add beyond it.
     public static int CriticalChance(PlayerCharacter character)

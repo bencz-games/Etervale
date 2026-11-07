@@ -379,7 +379,7 @@ internal static class NpcServiceTests
 
     private static async Task TeleportAsync()
     {
-        var catalog = new WorldCatalog(new WorldCatalog().AllFields.Select(field => field.FieldCode == 12 ? field with { TravelLevel = 70 } : field));
+        var catalog = new WorldCatalog(new WorldCatalog().AllFields.Select(field => field.FieldCode == 12 ? field with { LimitLevel = 70 } : field));
         var fixture = await Fixture.CreateAsync(1000, [new NpcService(NpcServiceKind.Teleporter, 1)], catalog);
         var (world, npc, session, service) = (fixture.World, fixture.NpcId, fixture.Session, fixture.Npc);
         var open = await WorldPump.RunAsync(world, service.RequestAsync(session.SessionToken, new NpcServiceCommand(Guid.NewGuid(), npc, NpcServiceKind.Teleporter,

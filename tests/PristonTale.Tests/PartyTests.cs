@@ -16,6 +16,8 @@ using PristonTale.Simulation.World.Fields;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Simulation.World.Npcs;
 using PristonTale.Simulation.World.Spawning;
+using PristonTale.Simulation.World.Loot;
+using PristonTale.Simulation.World.Ai;
 
 namespace PristonTale.Tests;
 
@@ -31,7 +33,7 @@ internal static class PartyTests
         yield return ("the leader delegates, kicks and disbands, a member only leaves, and a party of two is released", CommandsAsync);
         yield return ("a player leaving the world leaves its party: its leader hands over, a party of two is released", LeaveWorldAsync);
         yield return ("a kill's experience is taken at the party's average level and shared by size with the living members in range", ExperienceAsync);
-        yield return ("gold under 10000 picked up is split with the members in range, the picker's part stored; a member who cannot carry its part or whose save gate is held is left out", GoldAsync);
+        yield return ("a monster's gold at any amount and other gold under 10000 picked up is split with the members in range, the picker's part stored; a member who cannot carry its part or whose save gate is held is left out", GoldAsync);
         yield return ("party rules: shares by size, the average level, the level gap, the share range and the gold split", RulesAsync);
         yield return ("party messages round-trip on the wire and refuse unknown commands and answers", WireAsync);
     }
@@ -294,9 +296,13 @@ internal static class PartyTests
         var field = fixture.World.FieldFor(ChatFixture.Field)!;
 
         // betweenTicks runs after the tick that prepares the pickup and before the one that commits it.
-        async Task<long> PickUp(int gold, Func<Task>? betweenTicks = null, long thrownBy = FieldGroundLoot.NoThrower)
+        async Task<long> PickUp(int gold, Func<Task>? betweenTicks = null, long thrownBy = FieldGroundLoot.NoThrower, bool monster = false)
         {
-            if (thrownBy == FieldGroundLoot.NoThrower)
+            if (monster)
+            {
+                field.GroundLoot.Place(new KillPayout(1, ann.Id, 0, [RolledDrop.Gold(gold)]), Vector3.Zero, true, field.NowMs, new SeededSimRng(1));
+            }
+            else if (thrownBy == FieldGroundLoot.NoThrower)
             {
                 Assert.True(field.GroundLoot.PlaceCreated(null, gold, Vector3.Zero, ann.Id, field.NowMs), "fixture gold not placed");
             }
@@ -329,6 +335,10 @@ internal static class PartyTests
 
         await PickUp(10_000);
         Assert.True(ann.Session.Character!.Money == 10_501 && bob.Session.Character!.Money == 500, "gold of 10000 was split");
+
+        await PickUp(20_000, monster: true);
+        Assert.True(ann.Session.Character!.Money == 20_501 && bob.Session.Character!.Money == 10_500, "a monster's gold of 20000 was not split");
+        Assert.True(bob.Session.Character!.TryChangeMoney(-10_000) && ann.Session.Character.TryChangeMoney(-10_000), "fixture gold not taken");
 
         // Bob's save gate is busy (a trade being stored): Bob is left out and Ann takes the whole gold.
         await bob.Session.SaveGate.WaitAsync();
@@ -366,7 +376,8 @@ internal static class PartyTests
         Assert.True(PartyRules.LevelsMatch(10, 24) && !PartyRules.LevelsMatch(10, 25), "level gap");
         Assert.True(PartyRules.InShareRange(Vector3.Zero, new Vector3(1151, 900, 0)) && !PartyRules.InShareRange(Vector3.Zero, new Vector3(0, 0, 1152)),
             "the share range is planar and short of 18 x 64");
-        Assert.True(PartyRules.SplitGold(1001, 2) == (501, 500) && PartyRules.SharesGold(9999) && !PartyRules.SharesGold(10_000), "gold split");
+        Assert.True(PartyRules.SplitGold(1001, 2) == (501, 500) && PartyRules.SharesGold(9999, false) && !PartyRules.SharesGold(10_000, false)
+            && PartyRules.SharesGold(10_000, true) && !PartyRules.SharesGold(0, true), "gold split");
         return Task.CompletedTask;
     }
 

@@ -74,6 +74,7 @@ internal sealed partial class FieldSkills
         }
 
         damage = ModifierRules.ScaleDamage(damage, character.Effects.Totals, monster.Effects.Totals);
+        damage = CombatResolver.CutHit(_rng, damage, monster.Def.Combat.MaxLife, monster.Def.Combat.Level, character.Level);
         var lifeCost = SkillFormulas.LifeCostPerHit(cast.Rule, cast.Rank, character.MaxLife);
         if (lifeCost > 0)
         {

@@ -31,7 +31,7 @@ internal static class GroundPickupTransactions
             }
 
             long gold = drop!.Gold ? drop.Amount : 0;
-            var shares = PartyRules.SharesGold(gold) ? Shares(gold, sharers, out gold) : [];
+            var shares = PartyRules.SharesGold(gold, field.GroundLoot.FromMonster(dropId)) ? Shares(gold, sharers, out gold) : [];
             if (!candidate.ReceiveGroundLoot(item, (int)gold, command.Destination == InventoryCommand.PickupToBag))
             {
                 return new(original, null, null, new(false, original.InventoryRevision, GameText.Of(GameTextId.PickupNoRoom)));

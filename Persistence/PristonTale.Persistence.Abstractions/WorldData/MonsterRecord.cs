@@ -70,8 +70,8 @@ public sealed record MonsterRecord(
     public IReadOnlyList<MonsterBonusDropRecord> BonusDrops { get; init; } = [];
 }
 
-// One authored drop line: its weight and nothing, gold (GoldMin..GoldMax) or items (Items, the weight split evenly
-// among them; a null code is an item the catalog lacks, which keeps its share and drops nothing).
+// One authored drop line: its weight and nothing, gold (GoldMin..GoldMax) or items (Items, the weight shared by those
+// the catalog knows; a null code is an item the catalog lacks, which takes no share).
 public sealed record MonsterDropLineRecord(
     int MonsterId,
     int Line,

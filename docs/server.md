@@ -187,7 +187,7 @@ show or write one row with `/setting name [value]` ([chat-and-gm.md](chat-and-gm
 | `players.starter_gifts` | true | A new character receives its starter gifts ([application.md](application.md#starter-gifts)). |
 | `gm.potion_monitor` | true | Enables `/get_potion`. |
 | `experience.multiplier` | 5 | Times the monsters' experience, 1 to 1000. |
-| `experience.event_percent` | 0 | Experience event: 0 off, else +100% (any value up to 199), +200%, +300% or +400% (400 and above) on each kill. |
+| `experience.event_percent` | 100 | Experience event: the percent of each monster's experience a kill gives (100 = x1, 500 = x5; 0 is x1). |
 | `world.clock_offset_minutes` | 0 | Game minutes added to the game clock (`WorldServer.GameClockMs` = Unix ms + offset x 800), -1440 to 1440. |
 | `world.weather` | true | Rain over the fields that take it on the original's schedule ([world.md](world.md#weather)). |
 | `world.weather_cycle_minutes` | 8192 | Game minutes from one rain to the next, 933 to 1000000. |

@@ -38,7 +38,7 @@ internal static class DeathPenaltyTests
         Assert.True(DeathPenalty.ExperienceShare(10, DeathPenalty.StandardDivisor) == 0 && DeathPenalty.GoldShare(10, 3300, 33) == 0,
             "a player below level 11 paid for dying");
         Assert.True(DeathPenalty.ExperienceShare(20, 33) == Span(20) / 33 && DeathPenalty.GoldShare(20, 3300, 33) == 100, "the death's share differs");
-        Assert.True(DeathPenalty.ExperienceShare(ExperienceTable.MaximumLevel, 100) == (ExperienceTable.Ceiling - ExperienceTable.ForLevel(285)) / 100,
+        Assert.True(DeathPenalty.ExperienceShare(ExperienceTable.MaximumLevel, 100) == (ExperienceTable.Ceiling - ExperienceTable.ForLevel(ExperienceTable.MaximumLevel)) / 100,
             "the last level's span does not reach the ceiling");
         var fighter = At(85);
         Assert.True(DeathPenalty.Divisor(fighter, FieldState.Forest) == 33 && DeathPenalty.Divisor(fighter, FieldState.Castle) == 0, "divisors differ");

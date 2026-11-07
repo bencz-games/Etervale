@@ -22,7 +22,6 @@ internal static class MonsterSkillTests
         yield return ("every monster with a skill rating and a skill clip casts, from any family", SelectionAsync);
         yield return ("monster swings draw their clip among the model's clips and keep its timing", VariantsAsync);
         yield return ("monster skills preserve spherical and forward square boundaries", ShapesAsync);
-        yield return ("ordinary monster skills bypass precision and block while preserving flat absorption", DamageAsync);
         yield return ("monster skill impact is single-use, interruptible and independent of target movement", ImpactAsync);
         yield return ("single-target monster skill cannot hit bystanders or escaping prey", SingleTargetAsync);
         yield return ("field swings carry the clip slot and the skill flag through presence", PresenceAsync);
@@ -110,20 +109,6 @@ internal static class MonsterSkillTests
         skill = skill with { SkillRange = 0 };
         Assert.True(!MonsterOffensiveSkill.Contains(skill, Vector3.Zero, Vector3.Zero, new Vector3(460, 0, 0)), "single-target skill has unlimited reach");
         Assert.True(MonsterOffensiveSkill.QueryRadius(skill with { SkillRange = int.MaxValue }) < 1087, "query can scan unbounded grid cells");
-        return Task.CompletedTask;
-    }
-
-    private static Task DamageAsync()
-    {
-        var defender = new DefenderProfile(int.MaxValue, 7, 100, 200, ResistanceBlock.Zero, 1000, 1000, false);
-        var rng = new CombatRng(1);
-        for (int index = 0; index < 100; index++)
-        {
-            var result = CombatResolver.ResolveMonsterSkill(rng, new MonsterRange(30, 30), defender);
-            Assert.True(result.Hit && !result.Blocked && !result.Crit && result.Damage == 23, "skill used basic precision/block/critical rules");
-        }
-
-        Assert.True(CombatResolver.ResolveMonsterSkill(rng, new MonsterRange(1, 1), defender).Damage == 1, "absorption lost its damage floor");
         return Task.CompletedTask;
     }
 

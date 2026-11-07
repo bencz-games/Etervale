@@ -9,12 +9,11 @@ public static class SlabField
     {
         FieldCode = 46,
         Ambience = FieldAmbience.Iron,
-        LimitLevel = 108,
         Center = new FieldPoint(-11975, -62457),
         WarpGates =
         [
-            new FieldWarpGate(-12003, -54164, 374, 64, 32, "ancientW", 12795, -73112, 458, 110, 0),
-            new FieldWarpGate(-11973, -62662, 173, 64, 32, "De-3", 29551, 2366, 826, 55, 0)
+            new FieldWarpGate(-12003, -54164, 374, 64, 32, "ancientW", 12795, -73112, 458, 0),
+            new FieldWarpGate(-11973, -62662, 173, 64, 32, "De-3", 29551, 2366, 826, 0)
         ],
         BackMusicCode = "BGM_CODE_DUNGEON",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"
@@ -41,15 +40,14 @@ public static class AncientWeaponsField
     {
         FieldCode = 48,
         Ambience = FieldAmbience.Temple,
-        LimitLevel = 110,
         Center = new FieldPoint(12795, -73112),
         WarpGates =
         [
-            new FieldWarpGate(12796, -74250, 458, 64, 32, "Slab", -11998, -55120, 393, 108, 0),
-            new FieldWarpGate(12567, -53797, 794, 64, 32, "LandofNurwn", -11702, -87663, 1411, 132, 0),
-            new FieldWarpGate(12695, -53794, 794, 64, 32, "LandofNurwn", -11702, -87664, 1411, 132, 0),
-            new FieldWarpGate(12858, -53796, 794, 64, 32, "LandofNurwn", -11702, -87663, 1411, 132, 0),
-            new FieldWarpGate(12982, -53801, 794, 64, 32, "LandofNurwn", -11702, -87664, 1411, 132, 0)
+            new FieldWarpGate(12796, -74250, 458, 64, 32, "Slab", -11998, -55120, 393, 0),
+            new FieldWarpGate(12567, -53797, 794, 64, 32, "LandofNurwn", -11702, -87663, 1411, 0),
+            new FieldWarpGate(12695, -53794, 794, 64, 32, "LandofNurwn", -11702, -87664, 1411, 0),
+            new FieldWarpGate(12858, -53796, 794, 64, 32, "LandofNurwn", -11702, -87663, 1411, 0),
+            new FieldWarpGate(12982, -53801, 794, 64, 32, "LandofNurwn", -11702, -87664, 1411, 0)
         ],
         BackMusicCode = "BGM_CODE_DUNGEON",
         ServerCode = "PLAY_SERVER_CODE_EXTEND"
@@ -65,7 +63,6 @@ public static class LandOfNurwnField
     {
         FieldCode = 53,
         Ambience = FieldAmbience.IceWind,
-        LimitLevel = 132,
         Center = new FieldPoint(-11702, -87663),
         StartPoints = [new FieldPoint(-11702, -87663)],
         BackMusicCode = "BGM_CODE_DUNGEON",

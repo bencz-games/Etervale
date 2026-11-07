@@ -59,8 +59,8 @@ public static class ForeverFall3Field
         Gates = [new FieldGate("forever-fall-02", -2349, 49830, 0)],
         WarpGates =
         [
-            new FieldWarpGate(-4730, 48107, 1173, 64, 32, "forever-fall-03", -4615, 48002, 1146, 0, 2),
-            new FieldWarpGate(-6306, 43241, 779, 64, 32, "Mcave", 119025, 35680, 499, 55, 0)
+            new FieldWarpGate(-4730, 48107, 1173, 64, 32, "forever-fall-03", -4615, 48002, 1146, 2),
+            new FieldWarpGate(-6306, 43241, 779, 64, 32, "Mcave", 119025, 35680, 499, 0)
         ],
         Ambients =
         [
@@ -146,7 +146,7 @@ public static class ForeverFall1Field
         Center = new FieldPoint(2032, 71183),
         StartPoints = [new FieldPoint(1875, 69871), new FieldPoint(2637, 60219)],
         Gates = [new FieldGate("pilai", -8508, -10576, 0)],
-        WarpGates = [new FieldWarpGate(1962, 71184, 559, 64, 32, "pilai", 1993, 73134, 449, 0, 1)],
+        WarpGates = [new FieldWarpGate(1962, 71184, 559, 64, 32, "pilai", 1993, 73134, 449, 1)],
         Ambients =
         [
             new FieldAmbient(new FieldVector(2849, 577, 67330), 30, 18),

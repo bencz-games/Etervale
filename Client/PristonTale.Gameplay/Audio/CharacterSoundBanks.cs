@@ -245,6 +245,14 @@ public static class CharacterSoundBanks
         (0x6460, "wav/Effects/Tees"),
         (0x6470, "wav/Effects/Toos"),
         (0x6480, "wav/Effects/monster/UndeadSlave"),
-        (0x6490, "wav/Effects/monster/Ziddane")
+        (0x6490, "wav/Effects/monster/Ziddane"),
+        (0x64A0, "wav/Effects/monster/Igniculus"),
+        (0x64B0, "wav/Effects/monster/LavaArmor"),
+        (0x64C0, "wav/Effects/monster/LavaArcher"),
+        (0x64D0, "wav/Effects/monster/Insec"),
+        (0x64E0, "wav/Effects/monster/LavaGolem"),
+        (0x64F0, "wav/Effects/monster/LavaGiant"),
+        (0x6500, "wav/Effects/monster/Flamo"),
+        (0x6510, "wav/Effects/monster/FlameMaiden")
     ];
 }

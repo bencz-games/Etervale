@@ -65,7 +65,7 @@ progression, regeneration and movement rates. `World/`, `Physics/` and `Skills/`
 | [`Modifiers/ModifierTypes.cs`](../Shared/PristonTale.Simulation/Modifiers/ModifierTypes.cs) | `StatKind`, `StatModifier`, `EffectSourceKind`, `ControlFlags`, `StackRule`, `PeriodicEffect` |
 | `Modifiers/EffectContainer.cs` | `EffectSpec`, `ActiveEffect`, `EffectContainer`, `ModifierTotals` |
 | `Modifiers/ModifierRules.cs` | How totals change derived stats, damage, resistances, dealt/taken scaling |
-| `Progression/ExperienceTable.cs` | 285-level cumulative experience thresholds and the saturation ceiling |
+| `Progression/ExperienceTable.cs` | 180-level cumulative experience thresholds (the designed curve) and the saturation ceiling |
 | `Progression/SkillLearning.cs` | Skill-master training: window, prerequisites, prices, point kinds |
 | `Progression/ProgressionCommand.cs` | `ProgressionCommand` (allocate attribute, learn skill) |
 
@@ -286,7 +286,8 @@ Profiles decouple the formulas from entities. `CombatProfileFactory` builds them
 
 - `ForPlayerBasicAttack(character, normalAttack)`: weapon damage range, derived attack rating, element Bionic,
   critical chance `CriticalChance(character)` (worn items, specializations and critical passives capped at 50 together,
-  then the `CriticalChance` totals), `CritBonusPercent` from `CriticalDamage`. With
+  then the `CriticalChance` totals; none with a staff or a phantom in hand, `WeaponCanCritical`, so their wielders'
+  normal attacks, weapon skills and spells never crit), `CritBonusPercent` from `CriticalDamage`. With
   `normalAttack`, `NormalAttackWeaponDamage`/`NormalAttackWeaponMax` add a share of the weapon's own damage.
   `SkillFormulas.NormalAttack` wraps it and adds `HitDamage` as the flat add.
 - `ForPlayerDefender`: derived defence and absorption; block from every worn item's block rating (weapons included)
@@ -297,11 +298,13 @@ Profiles decouple the formulas from entities. `CombatProfileFactory` builds them
 
 ### Player attacking (`CombatResolver.Resolve`)
 
-1. Hit chance: `acR = trunc((AR - defence) * 1.4)`; below -190 gives 50, above 2100 gives 95, else the step table
-   value of the highest threshold `<= acR`. Then `chance = trunc(acc - (defLevel - atkLevel) / 100 * 28)`, clamped
+1. Hit chance: `acR = trunc((AR - defence) * 1.4)`; below -190 gives 50, above 2100 gives 95, else the step table's
+   `AccuracyChance`: the first entry's hit below its threshold, else that of the first later entry whose threshold
+   `acR` does not pass (the bracket's upper end), the last's above the table. Then `chance = trunc(acc - (defLevel - atkLevel) / 100 * 28)`, clamped
    30..95. Hit when `RollPercent() < chance` (skipped with `alwaysHit`).
-2. Block (player defenders only; a monster's authored block rating never stops a hit):
-   `trunc(block + (defLevel - atkLevel) / 100 * 25)`, capped at 50 only while a shield is held; blocked hits deal 0.
+2. Block (player defenders only; a monster's authored block rating never stops a hit), only with a block chance of
+   the player's own: `trunc(block + (defLevel - atkLevel) / 100 * 25)`, capped at 50 only while a shield is held;
+   blocked hits deal 0.
 3. Damage: `Range(min, max)`, then `+ dmg * SkillMultiplierPercent / 100 + SkillFlatAdd`, then `+ ExtraPercent`.
 4. Critical: `chance = CritChance + (atkLevel - defLevel) * 25 / 100 (+ CritChanceTaken if CritChance > 0)`, capped
    at 70; damage `* (170 + CritBonusPercent) / 100`.
@@ -309,15 +312,19 @@ Profiles decouple the formulas from entities. `CombatProfileFactory` builds them
    reduced.
 6. Absorption as a percent (`ApplyAbsorbMonster`): `dmg - dmg * absorption / 100`, min 1.
 
-The Application then applies `ModifierRules.ScaleDamage` and skill hooks (`FieldCombat.ResolvePlayerSwingHit`).
+The Application then applies `ModifierRules.ScaleDamage` and skill hooks (`FieldCombat.ResolvePlayerSwingHit`). The
+final damage of a normal attack, a weapon skill's hit and a spell's main target is cut (`CutHit`): more than a quarter
+of the maximum life of a monster above the attacker's level is rolled again between an eighth and a quarter of it, at
+least 1.
 
 ### Monster attacking a player
 
 - `ResolveMonsterAttack`: block roll first (the player's block chance, capped at 50 only with a shield; no cap
-  without one), then hit with `MonsterHitChance` (difference `(AR - defence) * 2`, the
-  first table entry whose threshold is `>=` it, level term `* 50`, clamp 30..95, miss only when roll `>` chance),
-  damage roll, element, then absorption subtracted as flat points (min 1).
-- `ResolveMonsterSkill`: no hit or block roll; `Range(min, max) - absorption`, min 1, Bionic.
+  without one), then hit with `MonsterHitChance` (difference `(AR - defence) * 2` through `AccuracyChance`, level
+  term `* 50`, clamp 30..95, miss only when roll `>` chance), damage roll, element, then absorption subtracted as flat
+  points (min 1).
+- A skill blow (`FieldMonsterSkills.SkillOnPlayer`) has no hit roll but meets the player's evasion and `RollBlock`;
+  then the power roll less absorption, min 1 ([world.md](world.md)).
 - Afterwards the Application applies `ScaleDamage`, `AgainstUndead`, evasion and defensive skills.
 - Reach: `MonsterAttackReach.CanBegin` (planar distance below `MeleeRange`, vertical gap <= 64) and `CanLandBasic`
   (squared planar distance below `48 * 256`, or `460^2` for sound families with a ranged basic attack).
@@ -499,8 +506,10 @@ totals.
 - Experience is `ulong` everywhere (character, table, kill rewards, premium boosts, owner state, wire); thresholds pass
   2^32 from level 84. Sums saturate instead of wrapping; persistence stores it as a signed 64-bit integer (the cap is far
   below 2^63) and refuses a negative stored value.
-- `ExperienceTable` holds 285 cumulative thresholds (level 285 starts at 2^63 - 1); `ForLevel(1) = 0`, `LevelFor`
-  returns the highest level whose threshold is reached.
+- `ExperienceTable` holds 180 cumulative thresholds on the designed curve (at a normal kill of the player's level and
+  360 kills an hour: 2 h to level 30, 40 h to 80, 200 h to 120, 1700 h to 180, each level longer than the one before;
+  level 180 starts at 8,127,624,927,060 and is open up to the ceiling); `ForLevel(1) = 0`, `LevelFor` returns the
+  highest level whose threshold is reached.
 - `AwardExperience(amount)`: ignores zero and saturates at `ExperienceTable.Ceiling` (2^64 - 2: no wrap, not a level
   cap). `LoseExperience(amount)` (death penalties) never goes below the current level's threshold. Below tier 3, an award that
   would pass `ForLevel(100)` is rejected entirely (not clamped). Levels are applied one `LevelUp` at a time.

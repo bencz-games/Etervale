@@ -57,10 +57,13 @@ public sealed partial class Importer
             report.Warnings.Add($"Item keys that are not two letters, a letter or digit and two digits are kept and left out of the runtime catalog: {string.Join(", ", invalidKeys)}.");
         }
 
-        var monsters = ParseMonsters(report);
+        var fields = ParseFields(report);
+        var bossNames = fields.SelectMany(static field => field.Bosses)
+            .SelectMany(static boss => boss.SlaveName is { } slave ? [boss.MasterName, slave] : new[] { boss.MasterName })
+            .ToHashSet(StringComparer.Ordinal);
+        var (monsters, bossSources) = ParseMonsters(bossNames, report);
         var npcs = ParseNpcs(report);
         ReportUnknownKeys(report);
-        var fields = ParseFields(report);
         TakePlacements(npcs, fields, report);
 
         // Drops and shops name items in any case ("pm104"); references resolve to the code as its file spells it.
@@ -70,7 +73,8 @@ public sealed partial class Importer
             itemCodes[item.Code] = item.Code;
         }
 
-        var monsterIds = monsters.ToDictionary(static m => m.Name, m => _monsterIds.Resolve(m.Name, m.DisplayName), StringComparer.Ordinal);
+        var monsterIds = monsters.ToDictionary(static m => m.Source, m => _monsterIds.Resolve(m.Source, m.DisplayName), StringComparer.Ordinal);
+        var bossIds = bossSources.ToDictionary(static boss => boss.Key, boss => monsterIds[boss.Value], StringComparer.Ordinal);
         var npcIds = npcs.ToDictionary(static n => n.File, n => _npcIds.Resolve(n.File, n.DisplayName), StringComparer.OrdinalIgnoreCase);
         ReportUnregistered(_monsterIds, report);
         ReportUnregistered(_npcIds, report);
@@ -83,7 +87,7 @@ public sealed partial class Importer
         await WriteItemsAsync(conn, tx, items, footprints, report, ct);
         await WriteMonstersAsync(conn, tx, monsters, monsterIds, itemCodes, report, ct);
         await WriteNpcsAsync(conn, tx, npcs, npcIds, itemCodes, report, ct);
-        await WriteFieldsAsync(conn, tx, fields, monsterIds, npcIds, report, ct);
+        await WriteFieldsAsync(conn, tx, fields, monsterIds, bossIds, npcIds, report, ct);
         await WriteMotionTimingAsync(conn, tx, monsters, npcs, monsterIds, npcIds, report, ct);
         await WriteSourceFilesAsync(conn, tx, report, ct);
         await WriteEntityVariantsAsync(conn, tx, report, ct);
@@ -269,7 +273,7 @@ public sealed partial class Importer
     private async Task WriteMotionTimingAsync(
         DbConnection conn,
         DbTransaction tx,
-        IReadOnlyList<ParsedMonster> monsters,
+        IReadOnlyList<CatalogMonster> monsters,
         IReadOnlyList<ParsedNpc> npcs,
         IReadOnlyDictionary<string, IdentityRegistry.Entry> monsterIds,
         IReadOnlyDictionary<string, IdentityRegistry.Entry> npcIds,
@@ -283,12 +287,12 @@ public sealed partial class Importer
 
         var extractor = new MotionTableExtractor(_assetRoot);
 
-        foreach (var m in monsters)
+        foreach (var (m, source, _) in monsters)
         {
             if (!extractor.TryExtract(m.Model, out var failure))
             {
                 report.MotionUnresolvedModels++;
-                report.Warnings.Add($"motion: {monsterIds[m.Name].Key}: {failure}");
+                report.Warnings.Add($"motion: {monsterIds[source].Key}: {failure}");
             }
         }
 
@@ -475,38 +479,77 @@ public sealed partial class Importer
         }
     }
 
-    private IReadOnlyList<ParsedMonster> ParseMonsters(ImportReport report)
+    // A catalog monster and its registry identity: its *이름, or the file name of a boss definition that is not its
+    // name's first file, which shows the first file's English name (the variants' files spell other languages).
+    private sealed record CatalogMonster(ParsedMonster Definition, string Source, string DisplayName);
+
+    // The server loads the monster files in the order NTFS lists them (names compared upper-cased, so "_" sorts after the
+    // letters). A spawn's actor is the first file with its *이름, the catalog entry of that name; a boss line's master and
+    // escort are the last, which joins the catalog under its file name when it is not the first. Answers the catalog and,
+    // per boss line name, its definition's source.
+    private (IReadOnlyList<CatalogMonster> Monsters, IReadOnlyDictionary<string, string> BossSources) ParseMonsters(
+        IReadOnlySet<string> bossNames, ImportReport report)
     {
         var parser = new MonsterInfParser();
-        var result = new List<ParsedMonster>();
-        var seen = new HashSet<string>(StringComparer.Ordinal);
-        foreach (var path in EnumerateFiles("Monster", "*.inf"))
+        var parsed = new List<(string Path, ParsedMonster Monster)>();
+        foreach (var path in EnumerateFiles("Monster", "*.inf").OrderBy(Path.GetFileName, StringComparer.OrdinalIgnoreCase))
         {
             report.MonsterFilesParsed++;
-            ParsedMonster m;
-            try { m = parser.Parse(path); }
-            catch (Exception ex) { report.Warnings.Add($"monster parse failed {Path.GetFileName(path)}: {ex.Message}"); continue; }
-            NoteUnknownKeys("monster", path, m.UnknownKeys);
-            var selected = !string.IsNullOrWhiteSpace(m.Name) && seen.Add(m.Name);
-            _entityVariants.Add(CreateVariant(path, "monster", m.Name, selected, m));
+            try
+            {
+                var m = parser.Parse(path);
+                NoteUnknownKeys("monster", path, m.UnknownKeys);
+                parsed.Add((path, m));
+            }
+            catch (Exception ex)
+            {
+                report.Warnings.Add($"monster parse failed {Path.GetFileName(path)}: {ex.Message}");
+            }
+        }
 
+        var first = new Dictionary<string, (string Path, ParsedMonster Monster)>(StringComparer.Ordinal);
+        var last = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (path, m) in parsed.Where(static entry => !string.IsNullOrWhiteSpace(entry.Monster.Name)))
+        {
+            first.TryAdd(m.Name, (path, m));
+            last[m.Name] = path;
+        }
+
+        var result = new List<CatalogMonster>();
+        var bossSources = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var (path, m) in parsed)
+        {
             if (string.IsNullOrWhiteSpace(m.Name))
             {
+                _entityVariants.Add(CreateVariant(path, "monster", m.Name, false, m));
                 report.Warnings.Add($"monster {Path.GetFileName(path)} has no *이름 — retained as an unkeyed variant");
                 continue;
             }
-            if (!selected)
+
+            var actor = first[m.Name].Path == path;
+            var boss = bossNames.Contains(m.Name) && last[m.Name] == path;
+            var source = actor ? m.Name : Path.GetFileName(path);
+            _entityVariants.Add(CreateVariant(path, "monster", source, actor || boss, m));
+            if (boss)
+            {
+                bossSources[m.Name] = source;
+            }
+
+            if (!actor && !boss)
             {
                 report.Warnings.Add($"monster variant '{m.DisplayName}' ({Path.GetFileName(path)}) — retained outside the catalog");
                 continue;
             }
+
             if (string.IsNullOrWhiteSpace(m.DisplayName))
             {
                 report.Warnings.Add($"monster {Path.GetFileName(path)} has no English name; its key is shown");
             }
-            result.Add(m);
+
+            result.Add(new CatalogMonster(m, source, first[m.Name].Monster.DisplayName));
         }
-        return result;
+
+        return (result, bossSources);
     }
 
     // Every NPC definition file is an NPC, as the original opens each placement from its own file.

@@ -1,5 +1,3 @@
-using PristonTale.Simulation.World.Monsters;
-
 namespace PristonTale.Simulation.Combat;
 
 public readonly record struct HitResult(bool Hit, bool Blocked, bool Crit, int Damage, Element Element);
@@ -8,17 +6,7 @@ public static class CombatResolver
 {
     public static int MonsterHitChance(in AttackProfile attack, in DefenderProfile defender)
     {
-        var difference = ((long)attack.AttackRating - defender.Defence) * 2;
-        var accuracy = AccuracyTable[^1].Hit;
-        foreach (var entry in AccuracyTable)
-        {
-            if (difference <= entry.Threshold)
-            {
-                accuracy = entry.Hit;
-                break;
-            }
-        }
-
+        var accuracy = AccuracyChance(((long)attack.AttackRating - defender.Defence) * 2);
         var chance = (int)(accuracy - ((defender.Level - attack.AttackerLevel) / 100f) * 50f);
         return Math.Clamp(chance, 30, 95);
     }
@@ -42,15 +30,7 @@ public static class CombatResolver
         return new HitResult(true, false, false, damage, attack.Element);
     }
 
-    public static HitResult ResolveMonsterSkill(CombatRng rng, MonsterRange damageRange, in DefenderProfile defender)
-    {
-        int damage = rng.Range(damageRange.Min, damageRange.Max);
-        damage = (int)Math.Clamp((long)damage - defender.Absorption, 1, int.MaxValue);
-        return new HitResult(true, false, false, damage, Element.Bionic);
-    }
-
-    // Accuracy step table {accuracy-rating threshold, hit%} ascending — the lookup walks to the bracket and takes
-    // the matched entry's hit%, as in the original client.
+    // Accuracy step table {accuracy-rating threshold, hit%} ascending (AccuracyChance).
     private static readonly (int Threshold, int Hit)[] AccuracyTable =
     {
         (-380, 50), (-360, 51), (-340, 52), (-320, 53), (-300, 54), (-280, 55), (-260, 56), (-240, 57),
@@ -71,7 +51,7 @@ public static class CombatResolver
         else if (acR > 2100)
             realAc = 95;
         else
-            realAc = LookupAccuracy(acR);
+            realAc = AccuracyChance(acR);
 
         int result = (int)(realAc - ((d.Level - a.AttackerLevel) / 100.0f) * 28f);
         if (result < 30) result = 30;
@@ -79,20 +59,32 @@ public static class CombatResolver
         return result;
     }
 
-    // Walk the ascending step table to the bracket the threshold falls in. The hit% is that of the last entry
-    // whose threshold acR has reached; below the first threshold it is the table floor (50).
-    private static int LookupAccuracy(int acR)
+    // The hit% of a rating difference (the caller scales it): the first entry's below its threshold, else that of the
+    // first later entry whose threshold the difference does not pass (the bracket's upper end), the last's above the
+    // table. The player's and the monster's chances share it.
+    private static int AccuracyChance(long difference)
     {
-        int hit = AccuracyTable[0].Hit;
-        foreach (var (threshold, h) in AccuracyTable)
+        if (difference < AccuracyTable[0].Threshold)
         {
-            if (acR >= threshold)
-                hit = h;
-            else
-                break;
+            return AccuracyTable[0].Hit;
         }
-        return hit;
+
+        for (var i = 1; i < AccuracyTable.Length; i++)
+        {
+            if (difference <= AccuracyTable[i].Threshold)
+            {
+                return AccuracyTable[i].Hit;
+            }
+        }
+
+        return AccuracyTable[^1].Hit;
     }
+
+    // A hit of more than a quarter of the life of a monster above the attacker's level is rolled again between an eighth
+    // and a quarter of that life, at least 1: the final damage of a normal attack, a weapon skill's hit and a spell's
+    // main target.
+    public static int CutHit(CombatRng rng, int damage, int maxLife, int targetLevel, int attackerLevel) =>
+        maxLife / 4 < damage && targetLevel > attackerLevel ? Math.Max(1, rng.Range(maxLife / 8, maxLife / 4)) : damage;
 
     public static bool RollHit(CombatRng rng, int hitChance) => rng.RollPercent() < hitChance;
 
@@ -127,8 +119,10 @@ public static class CombatResolver
 
     public static int Shortened(int value, int resistance) => value * (100 - Math.Clamp(resistance, 0, 100)) / 100;
 
+    // A player blocks only with a block chance of its own, which the level difference then raises or lowers.
     public static bool RollBlock(CombatRng rng, in DefenderProfile d, int attackerLevel, bool hasShield)
     {
+        if (d.BlockChance <= 0) return false;
         int block = (int)(d.BlockChance + ((d.Level - attackerLevel) / 100.0f) * 25f);
         if (hasShield && block > 50) block = 50;
         if (block <= 0) return false;

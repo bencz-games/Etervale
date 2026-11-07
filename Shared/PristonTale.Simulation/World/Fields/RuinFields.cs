@@ -39,7 +39,7 @@ public static class Ruin2Field
             new FieldGate("forever-fall-04", 4470, 27774, 0),
             new FieldGate("Greedy", 12713, 23409, 0)
         ],
-        WarpGates = [new FieldWarpGate(4428, 22511, 845, 64, 32, "ruin-2", 4547, 22616, 817, 0, 2)],
+        WarpGates = [new FieldWarpGate(4428, 22511, 845, 64, 32, "ruin-2", 4547, 22616, 817, 2)],
         BackMusicCode = "BGM_CODE_DESERT",
         ServerCode = "PLAY_SERVER_CODE_MAIN"
     };
@@ -59,7 +59,7 @@ public static class Ruin1Field
         Center = new FieldPoint(16362, 14959),
         StartPoints = [new FieldPoint(12242, 16034), new FieldPoint(12194, 8969)],
         Gates = [new FieldGate("De-1", 13319, 7102, 0)],
-        WarpGates = [new FieldWarpGate(16809, 15407, 501, 128, 32, "dun-1", -15395, -24185, 0, 40, 0)],
+        WarpGates = [new FieldWarpGate(16809, 15407, 501, 128, 32, "dun-1", -15395, -24185, 0, 0)],
         BackMusicCode = "BGM_CODE_DESERT",
         ServerCode = "PLAY_SERVER_CODE_MAIN"
     };

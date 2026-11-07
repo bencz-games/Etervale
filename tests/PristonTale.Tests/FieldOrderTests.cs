@@ -23,7 +23,7 @@ internal static class FieldOrderTests
     {
         yield return ("the fields after the action field keep the authored codes, and the Teleport Core reaches them", CodesAsync);
         yield return ("a warp with several exits lands where the client came out and asks only its own level", ExitsAsync);
-        yield return ("wings and teleporters ask a field's travel level, walking in its own", TravelLevelAsync);
+        yield return ("every field opens at its entry level, every warp gate at its destination's, and a Teleport Core row at its field's", EntryLevelsAsync);
         yield return ("stored characters, logged transfers and imported fields follow the fields that moved up", MigrationAsync);
         yield return ("the action fields and the deep fields hold their codes and levels, the warps into them ask their levels, and every warp leads to a defined field", NewFieldsAsync);
         yield return ("an action field's camera stands at its height and depth and follows the player within its bounds", ActionCameraAsync);
@@ -46,14 +46,15 @@ internal static class FieldOrderTests
         }
 
         var dungeon = world.GetField("dun-6");
-        Assert.True(dungeon.TravelLevel == 80 && dungeon.LimitLevel == 0, "Cursed Temple 3F's travel level is not 80 with free walking");
+        Assert.True(dungeon.LimitLevel == 80, "Cursed Temple 3F does not open at 80");
         return Task.CompletedTask;
     }
 
     private static Task ExitsAsync()
     {
-        var gate = new FieldWarpGate(100, 100, 0, 48, 0, "second", 1000, 1000, 5, 20, 0)
+        var gate = new FieldWarpGate(100, 100, 0, 48, 0, "second", 1000, 1000, 5, 0)
         {
+            LimitLevel = 20,
             MoreExits = [new FieldVector(3000, 7, 3000), new FieldVector(5000, 9, 5000)]
         };
         var first = Field("first", 1, 0) with { WarpGates = [gate] };
@@ -72,12 +73,29 @@ internal static class FieldOrderTests
         return Task.CompletedTask;
     }
 
-    private static Task TravelLevelAsync()
+    private static Task EntryLevelsAsync()
     {
-        var plain = Field("plain", 1, 55);
-        var travelled = Field("travelled", 2, 0) with { TravelLevel = 40 };
-        Assert.True(plain.TravelLevel == 55 && travelled.TravelLevel == 40 && travelled.LimitLevel == 0,
-            "a field without its own travel level does not travel at its walking level");
+        var world = new WorldCatalog();
+        foreach (var field in world.AllFields)
+        {
+            Assert.True(field.LimitLevel == FieldEntryLevels.Of(field.FieldCode), $"{field.Id} opens at {field.LimitLevel}");
+            foreach (var warp in field.WarpGates)
+            {
+                Assert.True(warp.LimitLevel == world.GetField(warp.DestinationFieldId).LimitLevel,
+                    $"the warp from {field.Id} to {warp.DestinationFieldId} asks {warp.LimitLevel}");
+            }
+        }
+
+        Assert.True(world.GetField("Tcave").LimitLevel == 55 && world.GetField("dun-1").LimitLevel == 40 && world.GetField("office").LimitLevel == FieldEntryLevels.Closed,
+            "a dungeon or the office lost its entry level");
+        Assert.True(TeleportCoreDestinations.TryGet(36, out var sea) && sea.RequiredLevel == 115 && TeleportCoreDestinations.TryGet(15, out var prison)
+            && prison.RequiredLevel == 40, "a Teleport Core row does not ask its field's level");
+        Assert.True(world.GetField("SeaA").SendsAway(114) && !world.GetField("SeaA").SendsAway(115) && !world.GetField("office").SendsAway(1)
+            && !world.GetFieldByCode(0).SendsAway(1), "a field sends away the wrong levels");
+
+        var low = Field("low", 1, 0) with { WarpGates = [new FieldWarpGate(0, 0, 0, 48, 0, "high", 0, 0, 0, 0)] };
+        var custom = new WorldCatalog([low, Field("high", 2, 30)]);
+        Assert.True(custom.GetField("low").WarpGates.Single().LimitLevel == 30, "a catalog's gate does not open at its destination's level");
         return Task.CompletedTask;
     }
 
@@ -138,8 +156,8 @@ internal static class FieldOrderTests
         var world = new WorldCatalog();
         var codes = new (string Id, int Code, int Level)[]
         {
-            ("fall_game", ActionField, 0), ("Slab", 46, 108), ("swamp", 47, 0), ("ancientW", 48, 110), ("SeaA", 49, 112),
-            ("Stemple", 50, 116), ("HeartOfFire", 51, 125), ("CrystalNest", 52, 130), ("LandofNurwn", 53, 132)
+            ("fall_game", ActionField, 0), ("Slab", 46, 108), ("swamp", 47, 0), ("ancientW", 48, 110), ("SeaA", 49, 115),
+            ("Stemple", 50, 124), ("HeartOfFire", 51, 129), ("CrystalNest", 52, 133), ("LandofNurwn", 53, 143)
         };
         foreach (var (id, code, level) in codes)
         {
@@ -149,7 +167,7 @@ internal static class FieldOrderTests
 
         Assert.True(world.GetField("fall_game").State == FieldState.Action && world.GetField("swamp").ActionCamera is not null,
             "the action fields are not side-scrolling");
-        foreach (var (from, to, level) in new[] { ("De-3", "Slab", 0), ("Boss", "HeartOfFire", 125), ("lost", "SeaA", 112), ("mine-1", "CrystalNest", 130) })
+        foreach (var (from, to, level) in new[] { ("De-3", "Slab", 108), ("Boss", "HeartOfFire", 129), ("lost", "SeaA", 115), ("mine-1", "CrystalNest", 133) })
         {
             var warp = world.GetField(from).WarpGates.Single(gate => gate.DestinationFieldId == to);
             Assert.True(warp.LimitLevel == level, $"the warp from {from} to {to} asks {warp.LimitLevel}");

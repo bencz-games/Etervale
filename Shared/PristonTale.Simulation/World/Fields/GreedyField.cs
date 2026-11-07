@@ -39,7 +39,6 @@ public static class GreedyField
         ])
     {
         FieldCode = 34,
-        LimitLevel = 70,
         Center = new FieldPoint(13930, 23206),
         BackMusicCode = "BGM_CODE_DESERT",
         ServerCode = "PLAY_SERVER_CODE_MAIN"

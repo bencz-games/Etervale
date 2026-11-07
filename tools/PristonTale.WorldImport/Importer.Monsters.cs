@@ -27,13 +27,13 @@ public sealed partial class Importer
             @MaxItemsPerKill, @AllPlayersSee)
         """;
 
-    private static async Task WriteMonstersAsync(DbConnection conn, DbTransaction tx, IReadOnlyList<ParsedMonster> monsters,
+    private static async Task WriteMonstersAsync(DbConnection conn, DbTransaction tx, IReadOnlyList<CatalogMonster> monsters,
         IReadOnlyDictionary<string, IdentityRegistry.Entry> monsterIds, IReadOnlyDictionary<string, string> itemCodes, ImportReport report,
         CancellationToken ct)
     {
-        foreach (var m in monsters)
+        foreach (var (m, source, displayName) in monsters)
         {
-            var identity = monsterIds[m.Name];
+            var identity = monsterIds[source];
             var eventItem = await ResolveItemAsync(conn, tx, m.EventItem, "monster_event_item", identity.Key, new { }, itemCodes, report, ct);
             await conn.ExecuteAsync(new CommandDefinition(MonsterInsert, new
             {
@@ -49,7 +49,7 @@ public sealed partial class Importer
             }, tx, cancellationToken: ct));
             await conn.ExecuteAsync(new CommandDefinition(
                 "INSERT INTO monster_texts (monster_id, language, name) VALUES (@Id, @Language, @Name)",
-                new { identity.Id, Language = CatalogLanguages.English, Name = m.DisplayName.Length > 0 ? m.DisplayName : identity.Key }, tx,
+                new { identity.Id, Language = CatalogLanguages.English, Name = displayName.Length > 0 ? displayName : identity.Key }, tx,
                 cancellationToken: ct));
             report.MonsterRows++;
 

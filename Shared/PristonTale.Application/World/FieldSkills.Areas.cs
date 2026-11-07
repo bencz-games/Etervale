@@ -279,7 +279,9 @@ internal sealed partial class FieldSkills
         }
 
         var damage = SkillFormulas.MainSpellPowerAgainst(power, main, cast.Rank, monster.Def, character.Effects.Totals, monster.Effects.Totals);
-        Pay(caster, monster, SkillFormulas.WithUndeadBonus(damage, character.Effects.Totals, monster.Def), crit);
+        damage = CombatResolver.CutHit(_rng, SkillFormulas.WithUndeadBonus(damage, character.Effects.Totals, monster.Def), monster.Def.Combat.MaxLife,
+            monster.Def.Combat.Level, character.Level);
+        Pay(caster, monster, damage, crit);
     }
 
     // The main target's weapon-rolled hit of an area skill (MainHit), besides its area share.

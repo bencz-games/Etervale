@@ -15,7 +15,7 @@ internal static class WorldImportTests
 {
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
-        yield return ("world import follows linked data, retains variants and unresolved references", ImportAsync);
+        yield return ("world import follows linked data, retains variants and unresolved references; a drop line's weight is shared by the items the catalog knows, three bonus lines roll, and a boss line takes the last file of its name", ImportAsync);
         yield return ("every key of the monster, item and NPC files reaches the world data, and unknown keys are reported", EveryKeyAsync);
         yield return ("set bonuses are read from the comment that states them", SetBonusAsync);
         yield return ("names the data gives only in Portuguese are imported in English", EnglishNamesAsync);
@@ -138,7 +138,12 @@ internal static class WorldImportTests
         await WriteCp949Async(Path.Combine(nameDirectory, "wa101.ZHOON"),
             "*NAME \"Linked Axe\"\n*최대수량 20\n*보유공간 3\n*마법기술숙련도 1.5\n");
         await WriteCp949Async(Path.Combine(monsterDirectory, "Wolf.inf"),
-            "*이름 \"Wolf\"\n*Name \"WOLF\"\n*화면보정 -3 30\n*모델 \"wolf.ini\"\n*효과음 WOLVERLIN\n*모델크기 1.4\n*이동속도 12\n*아이템 100 ZZ999\n*아이템 100 BI319\n");
+            "*이름 \"Wolf\"\n*Name \"WOLF\"\n*화면보정 -3 30\n*모델 \"wolf.ini\"\n*효과음 WOLVERLIN\n*모델크기 1.4\n*이동속도 12\n*아이템 100 ZZ999\n*아이템 100 BI319\n"
+            + "*아이템 7 BI319 ZZ999 WA101\n*추가아이템 10 BI319\n*추가아이템 20 ZZ999\n*추가아이템 30 BI319\n*추가아이템 40 WA101\n*추가아이템 50 BI319\n");
+        // A second file of the name, loaded after the first ("_" sorts after the letters): the boss line's master and escort.
+        await WriteCp949Async(Path.Combine(monsterDirectory, "Wolf_Alpha.inf"), "*이름 \"Wolf\"\n*Name \"Lobo\"\n*모델 \"wolf.ini\"\n*레벨 30\n");
+        Directory.CreateDirectory(Path.Combine(source, "Field"));
+        await WriteCp949Async(Path.Combine(source, "Field", "den.ase.spm"), "*출연자 \"Wolf\" 10\n*출연자두목 \"Wolf\" \"Wolf\" 2 12\n");
         await WriteCp949Async(Path.Combine(npcDirectory, "Merchant.npc"),
             "*이름 \"상인\"\n*모델 \"merchant.ini\"\n*화면보정 0 70\n*효과음 WOLVERLIN\n*무기판매 WA101 BI319 ZZ999\n*연결파일 name\\missing.zhoon\n");
         // A variant with the same authored name whose linked text supplies the localized name.
@@ -166,8 +171,8 @@ internal static class WorldImportTests
             var second = await importer.RunAsync();
 
             Assert.True(first.ItemRows == 2 && second.ItemRows == 2, "the base items were not selected consistently");
-            Assert.True(first.SourceFiles == 8 && first.EntityVariants == 6, "an authored file or variant was omitted");
-            Assert.True(first.UnresolvedReferenceRows == 2 && second.UnresolvedReferenceRows == 2,
+            Assert.True(first.SourceFiles == 10 && first.EntityVariants == 7, "an authored file or variant was omitted");
+            Assert.True(first.UnresolvedReferenceRows == 4 && second.UnresolvedReferenceRows == 4,
                 "unresolved references were dropped or duplicated");
 
             await using var connection = await connections.OpenAsync();
@@ -189,7 +194,7 @@ internal static class WorldImportTests
             Assert.True(Math.Abs(monster.ModelScale - 1.4f) < 0.001f && monster.MoveSpeed == 12,
                 "monster scale or movement was not imported");
             Assert.True(await connection.ExecuteScalarAsync<int>(
-                "SELECT COUNT(*) FROM world_import_unresolved_refs WHERE raw_reference = 'ZZ999'") == 2,
+                "SELECT COUNT(*) FROM world_import_unresolved_refs WHERE raw_reference = 'ZZ999'") == 4,
                 "unresolved source references were not preserved");
             Assert.True(await connection.ExecuteScalarAsync<int>(
                 "SELECT COUNT(*) FROM world_entity_variants WHERE kind = 'item' AND is_catalog_entry = 0") == 1,
@@ -202,6 +207,15 @@ internal static class WorldImportTests
                 "world import broke foreign keys");
             Assert.True(await connection.ExecuteScalarAsync<int>("SELECT COUNT(*) FROM monsters WHERE id = 9999") == 0,
                 "a monster the source no longer defines stayed in the catalog");
+            var den = await connection.QuerySingleAsync<(string Spawned, string Boss, string Escort)>(
+                """
+                SELECT s.key, b.key, e.key FROM field_monster_spawns f JOIN monsters s ON s.id = f.monster_id
+                JOIN field_bosses fb ON fb.stage = f.stage JOIN monsters b ON b.id = fb.monster_id JOIN monsters e ON e.id = fb.escort_monster_id
+                WHERE f.stage = 'den'
+                """);
+            Assert.True(den == ("WOLF", "WOLF 2", "WOLF 2")
+                && await connection.ExecuteScalarAsync<string>("SELECT t.name FROM monster_texts t JOIN monsters m ON m.id = t.monster_id WHERE m.key = 'WOLF 2'") == "WOLF",
+                $"the spawn did not take the first file of its name, or the boss line the last, under the first file's English name: {den}");
 
             var repository = provider.GetRequiredService<IWorldDataRepository>();
             var items = WorldDataFactory.ToItemDefinitions(await repository.GetAllItemTemplatesAsync());
@@ -212,18 +226,23 @@ internal static class WorldImportTests
             var npcs = WorldDataFactory.ToNpcDefinitions(await repository.GetAllNpcsAsync());
             Assert.True(items.Count == 2 && items.Single(static item => item.CatalogKey == "WA101").MaxStack == 20,
                 "runtime item catalog lost the imported stack size or an item family");
-            Assert.True(monsters.Single().SoundCode == CharacterSoundCodes.Wolverine,
+            var wolf = monsters.Single(static monster => monster.Key == "WOLF");
+            Assert.True(monsters.Count == 2 && wolf.SoundCode == CharacterSoundCodes.Wolverine,
                 "runtime monster catalog lost the imported sound code");
-            Assert.True(Math.Abs(monsters.Single().ModelScale - 1.4f) < 0.001f,
+            Assert.True(Math.Abs(wolf.ModelScale - 1.4f) < 0.001f,
                 "runtime monster catalog lost the imported model scale");
-            Assert.True(monstersWithCatalog.Single().Drops.MainEntries.Where(static entry => entry.Kind == PristonTale.Simulation.World.Loot.DropKind.Item)
-                    .Select(static entry => entry.ItemCode).SequenceEqual([ItemCodes.Parse("BI319")]),
-                "an unknown authored item leaked into the runtime drop table");
+            var drops = monstersWithCatalog.Single(static monster => monster.Key == "WOLF").Drops;
+            Assert.True(drops.MainEntries.Select(static entry => (entry.ItemCode, entry.Weight))
+                    .SequenceEqual([(ItemCodes.Parse("BI319"), 100), (ItemCodes.Parse("BI319"), 4), (ItemCodes.Parse("WA101"), 3)])
+                && drops.MainWeightTotal == 107,
+                "an unknown authored item leaked into the runtime drop table, or a line did not keep its weight among the known items");
+            Assert.True(drops.BonusEntries.Select(static entry => entry.Weight).SequenceEqual([10, 30, 40]),
+                "the bonus drops are not the first three whose item the catalog knows");
             Assert.True(npcs[0].Shop.WeaponItemCodes.SequenceEqual([ItemCodes.Parse("WA101"), ItemCodes.Parse("BI319")]),
                 "runtime NPC shop uses a different item identity from the catalog");
             Assert.True(npcs.Count == 2 && npcs[0].Label == "Travelling Merchant" && npcs[0].PortraitOffsetZ == 70,
                 "a file without a name did not take its identity's English name, or lost its portrait correction");
-            Assert.True(monsters.Single().PortraitOffsetY == -3 && monsters.Single().PortraitOffsetZ == 30,
+            Assert.True(wolf.PortraitOffsetY == -3 && wolf.PortraitOffsetZ == 30,
                 "the monster portrait correction was not imported");
         }
         finally
