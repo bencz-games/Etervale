@@ -71,7 +71,14 @@ public static class ServerSettingCatalog
         Int("mixing.price_percent", 100, 0, 10_000, "Price of a mix or a reconstruction in percent of the item's price; 0 makes it free.",
             static (s, v) => World(s, s.World with { Mixing = s.World.Mixing with { PricePercent = v } })),
         Int("alchemy.price_percent", 100, 0, 10_000, "Price of turning sheltoms into force orbs, in percent of the original's price per sheltom.",
-            static (s, v) => World(s, s.World with { Mixing = s.World.Mixing with { AlchemyPricePercent = v } }))
+            static (s, v) => World(s, s.World with { Mixing = s.World.Mixing with { AlchemyPricePercent = v } })),
+        Int("castle.mode", (int)Application.Castle.CastleOptions.Default.Mode, 0, 2,
+            "Bless Castle: 0 no sieges, 1 a weekly siege at castle.siege_day and castle.siege_hour, 2 the open league (sieges one after another for two hours from then).",
+            static (s, v) => s with { Castle = s.Castle with { Mode = (Simulation.Social.Castle.CastleMode)v } }),
+        Int("castle.siege_day", Application.Castle.CastleOptions.Default.SiegeDay, 0, 6, "Bless Castle: the siege's day of the week, 0 Sunday to 6 Saturday (server time).",
+            static (s, v) => s with { Castle = s.Castle with { SiegeDay = v } }),
+        Int("castle.siege_hour", Application.Castle.CastleOptions.Default.SiegeHour, 0, 23, "Bless Castle: the siege's starting hour, 0 to 23 (server time).",
+            static (s, v) => s with { Castle = s.Castle with { SiegeHour = v } })
     ];
 
     // The definition of a setting by name, in any case; null for none.

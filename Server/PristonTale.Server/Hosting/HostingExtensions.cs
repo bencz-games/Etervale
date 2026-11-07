@@ -47,6 +47,9 @@ public static class HostingExtensions
         builder.Services.AddSingleton<TradeAppService>();
         builder.Services.AddSingleton<ContactAppService>();
         builder.Services.AddSingleton<PristonTale.Application.Clans.ClanAppService>();
+        builder.Services.AddSingleton<PristonTale.Application.Clans.IClanDirectory>(services =>
+            services.GetRequiredService<PristonTale.Application.Clans.ClanAppService>());
+        builder.Services.AddSingleton<PristonTale.Application.Castle.CastleAppService>();
         builder.Services.AddSingleton<StarterGiftAppService>();
 
         var provider = builder.Configuration["Database:Provider"] ?? "Sqlite";
@@ -100,12 +103,15 @@ public static class HostingExtensions
             var settings = new ServerSettingsAppService(services.GetRequiredService<IServerSettingsRepository>(),
                 services.GetRequiredService<WorldServer>(), gameMasters, services.GetRequiredService<GameServerControl>(), worldOptions);
             gameMasters.Settings = settings;
+            gameMasters.Castle = services.GetRequiredService<PristonTale.Application.Castle.CastleAppService>();
             return settings;
         });
         // After the world tick (settings apply on it) and before the game server opens.
         builder.Services.AddHostedService<ServerSettingsService>();
         // The clans are read before the game server opens.
         builder.Services.AddHostedService<PristonTale.Server.World.ClanService>();
+        // The castle is read after the clans (its owner must still exist).
+        builder.Services.AddHostedService<PristonTale.Server.World.CastleService>();
         builder.Services.AddHostedService<GameTcpServer>();
         builder.Services.AddHostedService<PristonTale.Server.World.QuestUpkeepService>();
         builder.Services.AddHostedService<PristonTale.Server.World.StarterGiftService>();

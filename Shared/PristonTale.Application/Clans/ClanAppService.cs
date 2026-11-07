@@ -35,7 +35,7 @@ public interface IClanLink
 // those readers take it instead. A fee goes through the world's durable path with the clan row in the same transaction.
 // An online member's level is its character's live level. Online members get their clan's view after each change, the
 // clan's line in the chat, and their tag over the head.
-public sealed class ClanAppService : IClanRoster
+public sealed class ClanAppService : IClanDirectory
 {
     private readonly IClanRepository _repository;
     private readonly WorldServer _world;
@@ -69,6 +69,22 @@ public sealed class ClanAppService : IClanRoster
     private long Now => _clock.GetUtcNow().ToUnixTimeSeconds();
 
     public long ClanOf(ulong entityId) => _online.TryGetValue(entityId, out var online) ? online.ClanId : 0;
+
+    public string? NameOf(long clanId)
+    {
+        lock (_state)
+        {
+            return _clans.TryGetValue(clanId, out var clan) ? clan.Name : null;
+        }
+    }
+
+    public long IdOf(string name)
+    {
+        lock (_state)
+        {
+            return _clans.Values.FirstOrDefault(clan => clan.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Id ?? 0;
+        }
+    }
 
     public async Task LoadAsync(CancellationToken ct = default)
     {
@@ -188,7 +204,7 @@ public sealed class ClanAppService : IClanRoster
             var refusal = !Available ? ClanStatus.Unavailable
                 : _byCharacter.ContainsKey(online.CharacterId) ? ClanStatus.AlreadyInClan
                 : !ClanRules.IsValidName(name) ? ClanStatus.NameInvalid
-                : _clans.Values.Any(clan => clan.Name.Equals(name, StringComparison.OrdinalIgnoreCase)) ? ClanStatus.NameTaken
+                : IdOf(name) != 0 ? ClanStatus.NameTaken
                 : ChiefOnAccount(online.AccountId) ? ClanStatus.ChiefOnAccount
                 : await CooldownAsync(online.CharacterId);
             if (refusal != ClanStatus.Ok)

@@ -20,4 +20,6 @@ public sealed record ServerSettings
     public WorldServerOptions World { get; init; } = WorldServerOptions.Default;
 
     public GameMasterOptions GameMasters { get; init; } = GameMasterOptions.Default;
+
+    public PristonTale.Application.Castle.CastleOptions Castle { get; init; } = PristonTale.Application.Castle.CastleOptions.Default;
 }

@@ -59,9 +59,11 @@ registration order. An exception from any `StartAsync` stops the host before the
 | 5 | `FieldTerrainLoadService` | Loads the collision of all 43 fields of `WorldCatalog.AllFields` (the quest arena included) (`FieldDef.StageSmd`). | No assets directory, or any stage missing or unreadable, unless `Assets:AllowMissingTerrain=true`. |
 | 6 | `WorldTickService` | Starts the 20 Hz tick loop. | Never; a throwing tick is logged and the loop continues. |
 | 7 | `ServerSettingsService` | Adds the missing `server_settings` rows with their defaults, reads the table and applies it on the tick, then reads it again every `server.settings_reload_minutes`. | The table cannot be read at start; later failures keep the settings in force. |
-| 8 | `GameTcpServer` | Loads the TLS certificate, binds `[::]:<Network:Port>` (10009) dual-stack, backlog 512, and accepts. | The port is in use (the host stops). |
-| 9 | `QuestUpkeepService` | Applies the quest work the tick queues (quest drops, quest weapon growth and expiry) and queues the character for storage. | Never; a failed upkeep is logged and retried on the field's next check. |
-| 10 | `StarterGiftService` | Gives the starter gifts the tick finds due ([application.md](application.md#starter-gifts)). | Never; a failed gift is logged and offered again after the interval. |
+| 8 | `ClanService` | Loads the clans before the game server opens, then dissolves the clans past their deadline and forgets unanswered invitations once a minute ([application.md](application.md#clans)). | Never; a failed load leaves the clans unavailable. |
+| 9 | `CastleService` | Loads Bless Castle, then ticks its schedule, siege clock and fountain every second with the settings in force ([application.md](application.md#bless-castle)). | Never; a failed load leaves the castle unavailable. |
+| 10 | `GameTcpServer` | Loads the TLS certificate, binds `[::]:<Network:Port>` (10009) dual-stack, backlog 512, and accepts. | The port is in use (the host stops). |
+| 11 | `QuestUpkeepService` | Applies the quest work the tick queues (quest drops, quest weapon growth and expiry) and queues the character for storage. | Never; a failed upkeep is logged and retried on the field's next check. |
+| 12 | `StarterGiftService` | Gives the starter gifts the tick finds due ([application.md](application.md#starter-gifts)). | Never; a failed gift is logged and offered again after the interval. |
 
 Shutdown runs the services in reverse: the game server closes every connection and awaits their leave saves while the
 tick still runs, and the character store stops last. Once the host is stopping, the first write storage refuses sends
@@ -199,6 +201,9 @@ show or write one row with `/setting name [value]` ([chat-and-gm.md](chat-and-gm
 | `aging.double_percent` | 100 | Chance of a level at once below +10, in percent of each level's chance. |
 | `mixing.price_percent` | 100 | Price of a mix or a reconstruction in percent of the item's price; carried to the client in the mixer's offer. |
 | `alchemy.price_percent` | 100 | Price of turning sheltoms into force orbs, in percent of the price per sheltom. |
+| `castle.mode` | 1 | Bless Castle siege: 0 off, 1 weekly, 2 league ([application.md](application.md#bless-castle)). |
+| `castle.siege_day` | 0 | Day of the scheduled siege, 0 Sunday to 6 Saturday, server local time. |
+| `castle.siege_hour` | 20 | Hour of the scheduled siege, 0 to 23, server local time. |
 
 Settings apply on the tick (`WorldServer.ApplyOptionsAsync`): every open field and the fields opened later take the
 experience, item event and aging values.

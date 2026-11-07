@@ -646,8 +646,8 @@ Ruinen Village (6), Navisko (9), Forbidden Land (12), Eura (29), Land of Chaos (
   units of a stone of its field, the reach, the level and the gold. The candidate pays the fee and is stored at the
   destination, then the commit takes the gold and moves the player (`Arrive`, also within the same field) to the
   destination stone's exit (its first start point when it has no stone).
-- Bless Castle's stone has no map entry: the castle destination belongs to the castle's owner clan, and there is no
-  castle ownership yet.
+- Bless Castle's stone has no map entry: the castle destination belongs to the castle's owner clan; the owner is
+  kept by `CastleAppService` ([application.md](application.md#bless-castle)), and the stone does not read it yet.
 
 `CharacterSoundCodes` names every sound family code a rule or sound reads (NPCs, castle objects, and the monsters
 with rules of their own); `CharacterSoundCodes.Resolve(key)` maps the authored sound keyword of a monster or NPC to its

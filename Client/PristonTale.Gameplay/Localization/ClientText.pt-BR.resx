@@ -291,6 +291,12 @@
   <data name="Game.ShopSold" xml:space="preserve"><value>{0} comprou {1} de {2} por {3} de ouro</value></data>
   <data name="Game.ShopSoldOut" xml:space="preserve"><value>O item já foi vendido</value></data>
   <data name="Game.ShopTradePending" xml:space="preserve"><value>Uma troca ainda está pendente; tente de novo</value></data>
+  <data name="Game.SiegeInAnHour" xml:space="preserve"><value>O cerco ao Bless Castle começa em 1 hora. Preparem-se.</value></data>
+  <data name="Game.SiegeInHalfAnHour" xml:space="preserve"><value>O cerco ao Bless Castle começa em 30 minutos. Preparem-se.</value></data>
+  <data name="Game.SiegeLeague" xml:space="preserve"><value>A liga do Bless Castle começou: os cercos se seguem por duas horas.</value></data>
+  <data name="Game.SiegeOver" xml:space="preserve"><value>O cerco ao Bless Castle terminou. Obrigado por participarem.</value></data>
+  <data name="Game.SiegeRestartsSoon" xml:space="preserve"><value>O cerco ao Bless Castle vai recomeçar. Preparem-se para participar.</value></data>
+  <data name="Game.SiegeStarted" xml:space="preserve"><value>O cerco ao Bless Castle começou. Boa sorte a todos os jogadores.</value></data>
   <data name="Game.SkillMasterAway" xml:space="preserve"><value>Aproxime-se, vivo, do mestre de habilidades da sua cidade</value></data>
   <data name="Game.SkillPointName" xml:space="preserve"><value>Pontos de habilidade</value></data>
   <data name="Game.SkillPointOne" xml:space="preserve"><value>pontos de habilidade aumentados em 1</value></data>

@@ -291,6 +291,12 @@
   <data name="Game.ShopSold" xml:space="preserve"><value>{0} player has bought {1} number of {2} by {3} Gold</value></data>
   <data name="Game.ShopSoldOut" xml:space="preserve"><value>The item was sold already</value></data>
   <data name="Game.ShopTradePending" xml:space="preserve"><value>A trade is still pending; try again</value></data>
+  <data name="Game.SiegeInAnHour" xml:space="preserve"><value>Bless Castle will be started after 1 hour. Please prepare yourselves.</value></data>
+  <data name="Game.SiegeInHalfAnHour" xml:space="preserve"><value>Bless Castle will be started after 30 mins. Please prepare yourselves.</value></data>
+  <data name="Game.SiegeLeague" xml:space="preserve"><value>The Bless Castle league has begun: sieges follow one another for two hours.</value></data>
+  <data name="Game.SiegeOver" xml:space="preserve"><value>Bless Castle is now over. Thank you for joining Bless Castle.</value></data>
+  <data name="Game.SiegeRestartsSoon" xml:space="preserve"><value>Bless Castle is about to begin. Please be ready to participate.</value></data>
+  <data name="Game.SiegeStarted" xml:space="preserve"><value>Bless Castle is now in progress. We wish all players good luck.</value></data>
   <data name="Game.SkillMasterAway" xml:space="preserve"><value>Approach your town's skill master while alive</value></data>
   <data name="Game.SkillPointName" xml:space="preserve"><value>Skill Point</value></data>
   <data name="Game.SkillPointOne" xml:space="preserve"><value>skill point increased by 1</value></data>

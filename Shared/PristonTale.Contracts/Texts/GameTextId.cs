@@ -278,5 +278,11 @@ public enum GameTextId : ushort
     UnionCoreWrongClan = 768,
     UnionCoreBound = 769,
     ClanPetOwned = 770,
-    ClanPetsNearby = 771
+    ClanPetsNearby = 771,
+    SiegeInAnHour = 772,
+    SiegeInHalfAnHour = 773,
+    SiegeStarted = 774,
+    SiegeOver = 775,
+    SiegeRestartsSoon = 776,
+    SiegeLeague = 777
 }

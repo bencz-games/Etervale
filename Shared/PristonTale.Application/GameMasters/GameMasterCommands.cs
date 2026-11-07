@@ -104,7 +104,10 @@ public sealed class GameMasterCommands
         set => Volatile.Write(ref _options, value ?? GameMasterOptions.Default);
     }
 
+    internal const string StorageFailed = "> Storage failed, try again";
+
     public Settings.ServerSettingsAppService? Settings { get; set; }
+    public Castle.CastleAppService? Castle { get; set; }
     public IServerOperations Server { get; }
     public IGameMasterRepository? Repository { get; }
     public IAccountRepository? Accounts { get; init; }
@@ -171,7 +174,15 @@ public sealed class GameMasterCommands
         new("/get_money", GameMasterLevel.Operator, GmInformationCommands.Gold),
         new("/dm_info", GameMasterLevel.Guide, GmInformationCommands.DamageLimits),
         new("/get_guid", GameMasterLevel.Guide, GmInformationCommands.Session),
-        new("/grant", GameMasterLevel.Guide, GmPlayerCommands.Grant)
+        new("/grant", GameMasterLevel.Guide, GmPlayerCommands.Grant),
+        new("/start_castle", GameMasterLevel.Guide, GmCastleCommands.Start),
+        new("/end_castle", GameMasterLevel.Guide, GmCastleCommands.End),
+        new("/set_castle_time", GameMasterLevel.Guide, GmCastleCommands.Time),
+        new("/set_castle_master", GameMasterLevel.Guide, GmCastleCommands.Master),
+        new("/get_castle_info", GameMasterLevel.Guide, GmCastleCommands.Info),
+        new("/get_fountain_info", GameMasterLevel.Guide, GmCastleCommands.Fountain),
+        new("/reset_fountain_time", GameMasterLevel.Guide, GmCastleCommands.ResetFountain),
+        new("/set_castle_tax", GameMasterLevel.Guide, GmCastleCommands.Tax)
     ];
 
     // The commands a level may use, in table order (for the documentation and tests).
@@ -205,7 +216,7 @@ public sealed class GameMasterCommands
                 catch (Exception exception) when (exception is System.Data.Common.DbException or InvalidDataException or System.Text.Json.JsonException)
                 {
                     // Storage refused or held unreadable data: the command fails with a reply and is still audited.
-                    context.Reply("> Storage failed, try again");
+                    context.Reply(StorageFailed);
                 }
             }
             else if (issuer.GmLevel >= GameMasterLevel.Guide)

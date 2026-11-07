@@ -31,6 +31,7 @@ into it is described in [server.md](server.md); skill resolution details are in 
 | `World/WorldServer.Notices.cs`, `World/WorldNotice.cs`, `Services/WorldNoticeRequests.cs` | The lines a party or trade change answers, delivered through the chat (`ChatDirectory.Deliver`) |
 | `Contacts/ContactAppService.cs` | The friends page: each character's friends and ignored players, stored, with the friends' presence (below) |
 | `Clans/ClanAppService.cs`, `Clans/ClanTexts.cs`, `Clans/IClanMarkStore.cs`, `World/WorldServer.Clans.cs` | The clans: founding, invitations, ranks, leaving, expelling, entrusting, the chief's mark upload, dissolution and the chat roster (below) |
+| `Clans/IClanDirectory.cs`, `Castle/CastleAppService.cs` | Bless Castle: the owner clan, the tax, the soul fountain and the siege's schedule and clock (below); the clans it reads through `IClanDirectory` |
 | `Chat/`, `GameMasters/` | Chat routing, whispers and notices; game-master commands, levels and audit ([chat-and-gm.md](chat-and-gm.md)) |
 | `World/WorldServer.Chat.cs`, `World/WorldServer.GameMasters.cs` | Players in hearing range; tick-side game-master reads and changes (kill, hide, move, spawn, drop, gifts) |
 | `Shared/PristonTale.Contracts/Sessions/*Outcome.cs`, `CharacterSummary.cs`; `Contracts/World/Restart.cs`, `WingGateTrip.cs` | Result records returned to the edge and read by the client (login, characters, world entry, restart, wing trips); failure enums carry stable codes |
@@ -640,6 +641,32 @@ live level (views, the chief's capacity, entrusting).
   days; a passed deadline dissolves the clan, and its members cannot join one for four days.
 - Every change sends each online member the clan's view and a line in the chat (joined, left, expelled, registered,
   below six, chief changed, vice appointed or discharged, disbanded). A character in a clan cannot be deleted.
+
+## Bless Castle
+
+`CastleAppService` keeps the castle (rules in `CastleRules`, [simulation.md](simulation.md); storage
+`ICastleRepository`, [persistence.md](persistence.md)): the owner clan, the tax in force and the next one, the owner's
+setup (tower elements, mercenaries, the clan skill chosen), the clan skill in force, the soul fountain's potions and
+the treasury. `CastleService` loads it at start (a database error leaves it unavailable: game masters are told so)
+and ticks it every second with the settings in force (`castle.mode`, `castle.siege_day`, `castle.siege_hour`,
+[server.md](server.md#server-settings-table)). Changes run one at a time under its gate and are stored before they
+apply; a refused storage changes nothing, is logged once and is tried again on a later minute. It reads the clans
+through `IClanDirectory`; while the clans are not loaded no owner is dropped, and once they are an owner clan that no
+longer exists (a dissolved one) is dropped at load and on the next minute.
+
+- The schedule runs minute by minute in local time; a late tick catches up the minutes it missed (at most 60).
+- Each day at 04:00 the next tax and the clan skill chosen take effect (`/set_castle_tax` does it now).
+- Weekly mode: the siege is announced an hour and half an hour before its day and hour and starts then; it lasts 120
+  minutes, is over for 5 seconds and then closes with a notice. A siege hour that a daylight-saving change skips does
+  not come that week.
+- League mode: the siege starts at the same hour and the league lasts 120 minutes; each siege runs at most to the
+  league's end, and one that ends sooner restarts 3 minutes later (announced) while the league goes on. A game
+  master's `/end_castle` ends the league too, and so does turning the mode away from League.
+- Off: no scheduled siege; a game master may still start one.
+- In peace with an owner, the fountain gains a potion a minute, up to 1440.
+- The siege's clock lives in memory: a restart during a siege ends it, and the owner stays.
+- Not yet in the world: the siege's objects and scoring, PvP in the battle zone, the owner's window, the tax on fees
+  and the treasury's movements, the siege's client state.
 
 ## Published outcomes and events
 
