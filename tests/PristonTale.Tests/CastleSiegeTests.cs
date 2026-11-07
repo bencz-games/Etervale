@@ -6,6 +6,7 @@ using PristonTale.Contracts.Skills;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Combat;
 using PristonTale.Simulation.Items;
+using PristonTale.Simulation.Items.Usable;
 using PristonTale.Simulation.Skills;
 using PristonTale.Simulation.Social.Castle;
 using PristonTale.Simulation.Social.Clans;
@@ -35,6 +36,8 @@ internal static class CastleSiegeTests
             PvpAsync);
         yield return ("damage skills reach players in the battle zone: a bolt on a foe, a ball on the foes around it, never a clan mate or the north",
             SkillsAsync);
+        yield return ("a member of the owner clan calls one mercenary with a crystal during a siege, a relog too, five of a kind, and they leave with the siege",
+            CalledMercenariesAsync);
         yield return ("the soul fountain's turns go round the owner clan's members at it, and a recipient that left gets nothing", FountainTurnsAsync);
         yield return ("the owner clan's members hold the clan skill in force, renewed every minute; others and an old skill lose it", ClanSkillAsync);
         yield return ("the easy siege weakens the defenders, closing a siege removes them, ending it sends players outside the owner clan to the arrival area",
@@ -321,6 +324,67 @@ internal static class CastleSiegeTests
         fighter.Run(20 * 4, () => struck.Life < struckLife);
         Assert.True(struck.Life < struckLife, "the weapon skill did not hurt the foe");
         return Task.CompletedTask;
+    }
+
+    private static async Task CalledMercenariesAsync()
+    {
+        var harness = await SpecialItemTests.Harness.CreateAsync(FieldCodes.Castle, Defenders(), [], "GP114", "GP115");
+        harness.World.TryGetOpenField(FieldCodes.Castle, out var field);
+        var character = harness.Session.Character!;
+        harness.Player.Clan = new ClanTag(7, "Lions", 0, Registered: true);
+        var early = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("GP114")));
+        await harness.AdvanceAsync(early);
+        Assert.True((await early).Outcome.Status == ItemUseStatus.CrystalRefused && harness.Item("GP114") is not null, "a mercenary was called without a siege");
+        await harness.AdvanceAsync(harness.World.OpenSiegeAsync(new CastleSiegeOrder(7, [], [])));
+        harness.Tick(1);
+        var called = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("GP114")));
+        await harness.AdvanceAsync(called);
+        harness.Clock.Now = harness.Clock.Now.AddSeconds(2);
+        harness.Tick(1);
+        var mercenary = field.MonstersForInspection.Single(static monster => monster.CastleRole == CastleObject.Mercenary);
+        Assert.True((await called).Outcome.Ok && harness.Item("GP114") is null && mercenary.ClanId == 7 && mercenary.Def.Key == CastleSiegeRules.MercenaryKeys[0]
+            && mercenary.Potions == mercenary.Def.PotionCount && System.Numerics.Vector3.Distance(mercenary.Position, harness.Player.Position) < 64
+            && harness.World.Siege.Mercenaries is [1, 0, 0], "the owner clan's member did not call a militia where it stands, counted with the siege");
+        var second = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("GP115")));
+        await harness.AdvanceAsync(second);
+        Assert.True((await second).Outcome.Status == ItemUseStatus.MercenaryLimit && harness.Item("GP115") is not null,
+            "a member called a second mercenary");
+        Simulation.World.Monsters.MonsterDefinition Mercenary(int kind) => field.TryFindMonsterKey(CastleSiegeRules.MercenaryKeys[kind], out var found)
+            ? found
+            : throw new AssertionException("a mercenary is not in the catalog");
+        var (militia, guard) = (Mercenary(0), Mercenary(1));
+        var relogged = await harness.JoinAsync(character.Name, FieldCodes.Castle, 9);
+        relogged.Clan = new ClanTag(7, "Lions", 0, Registered: true);
+        Assert.True(field.MercenaryRoom(relogged, guard) == ItemUseStatus.MercenaryLimit, "a relog called a second mercenary");
+        var members = new List<WorldPlayer>();
+        for (var account = 2; account <= 6; account++)
+        {
+            var member = await harness.JoinAsync("Member" + account, FieldCodes.Castle, account);
+            member.Clan = new ClanTag(7, "Lions", 0, Registered: true);
+            members.Add(member);
+            var room = field.MercenaryRoom(member, militia);
+            Assert.True(account < 6 ? room == ItemUseStatus.Used && field.CallMercenary(member, militia) is not null
+                    : room == ItemUseStatus.MercenaryLimit && field.MercenaryRoom(member, guard) == ItemUseStatus.Used,
+                "the kind's limit of five called mercenaries differs");
+        }
+
+        mercenary.Life = 0;
+        Assert.True(field.MercenaryRoom(members[^1], militia) == ItemUseStatus.Used, "a fallen called mercenary still held its place");
+        var outsider = await harness.JoinAsync("Outsider", FieldCodes.Castle, 7);
+        outsider.Clan = new ClanTag(8, "Tigers", 0, Registered: true);
+        Assert.True(field.MercenaryRoom(outsider, guard) == ItemUseStatus.CrystalRefused, "a player outside the owner clan may call a mercenary");
+        await harness.AdvanceAsync(harness.World.WeakenSiegeAsync());
+        var weak = field.CallMercenary(members[^1], guard);
+        var easy = field.MonstersForInspection.Last(static monster => monster.CastleRole == CastleObject.Mercenary);
+        Assert.True(weak is not null && easy.Def.Key == CastleSiegeRules.MercenaryKeys[1] && easy.Life == 1 && easy.Potions == 0,
+            "a mercenary called in an easy siege kept its life");
+        await harness.AdvanceAsync(harness.World.CloseSiegeAsync());
+        harness.Tick(1);
+        Assert.True(!field.MonstersForInspection.Any(static monster => monster.CastleRole == CastleObject.Mercenary)
+            && field.CallMercenary(members[^1], guard) is null, "the called mercenaries outlived the siege");
+        await harness.AdvanceAsync(harness.World.OpenSiegeAsync(new CastleSiegeOrder(0, [], [])));
+        harness.Tick(1);
+        Assert.True(field.MercenaryRoom(members[^1], guard) == ItemUseStatus.CrystalRefused, "a mercenary was called for a castle without an owner");
     }
 
     private static async Task FountainTurnsAsync()

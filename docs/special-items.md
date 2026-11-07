@@ -86,8 +86,9 @@ and draws the result.
 | `NoSpace`, `OverWeight` | A gift box without room for a 2 x 2 item or within ten weight (five for the capsule) of the limit |
 | `MaleCannotUse`, `FemaleCannotUse` | A chocolate meant for the other gender |
 | `NotEnoughGold` | A lucky bag without 1000 gold |
-| `CrystalRefused` | Castle mercenaries outside a siege of the castle-master clan (Etervale runs no siege) |
+| `CrystalRefused` | Castle mercenaries outside a running siege (until the Tower of Valhalla falls) or for a player outside the clan holding the castle |
 | `SummonLimit` | A pet crystal while the user keeps ten pets ("You can only have 10 crystal summons at a time") |
+| `MercenaryLimit` | A castle mercenary while the caller's own stands, five of its kind or twenty of the clan's called mercenaries stand ("You have exceeded your summon limit") |
 
 ## Items and effects
 
@@ -131,7 +132,7 @@ from the inventory. Items without a rule keep the generic tooltip.
 | GP117-119 | One of four skeletons, chaos or Inferna monsters, uniformly |
 | GP120 Extreme | Omicron 35, Spider Trooper 30, Mountain 20, Omega 15 |
 | GP110, GP122 | Guardian Saint, Guardian Divine for a registered clan's member: one a member (`ClanPetOwned`), refused while three of the clan's monsters stand near (`ClanPetsNearby`, `ClanRules.NearbyMonsters`), within the pet slots; the pet belongs to the caller's clan (`MonsterInstance.ClanId`) and never picks that clan's players |
-| GP114-116 | Ricarten militia, Ricarten guard, Bless royal guard as castle mercenaries; refused (`CrystalRefused`) |
+| GP114-116 | Ricarten militia, Ricarten guard, Bless royal guard as castle mercenaries, of the kind of the crystal's monster: during a siege until the Tower of Valhalla falls, for a member of the clan holding the castle (`CrystalRefused` otherwise), one a character (a relog keeps it), five of a kind, twenty of the clan (`MercenaryLimit`; `CastleSiegeRules.MayCall`, `FieldInstance.MercenaryRoom`). The mercenary stands where its caller stands as one of the siege's defenders with all its potions (one life in an easy siege), counts with the siege's mercenaries and leaves with the siege. At the use's commit only the siege is checked again: two calls prepared together may pass a limit by one, and a siege that ended meanwhile takes the crystal without a mercenary |
 | GP201-209 | Soul stones: a hostile "soul of" monster for 4 min from seven per stone, uniformly |
 
 Monsters are named by their key (`MonsterDefinition.Key`, the unique English name; a crystal pet is the crystal

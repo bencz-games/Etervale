@@ -43,6 +43,7 @@ Default case files by area (all `tests/PristonTale.Tests/<Name>.cs`):
 | Usable items | `SpecialItemTests` | Item rules, premium timers and formulas, use flow, pets, persistence, wire |
 | Crystals | `MonsterCrystalTests` | Crystal tables, pet summon and hunt, the pet following and recalled, its own status per pet and the crystal it shows, dismissal box and wire, its end with a dismissal, its death, the owner's death or field change, pets parting from one spot, the shared delay, clan, mercenary, soul and town refusals |
 | Castle items | `CastleItemTests` | Castle-only scrolls and stones, scroll exclusions and replacement, leaving the castle, Restoration |
+| Bless Castle | `CastleTests`, `CastleSiegeTests` | The schedule, league, tax day, owner, storage and its refusals, conquest, the wire and announcements, the owner's window, setup and treasury, the tax on fees and its credit, the soul fountain; the siege's defenders, damage board, PvP, fall, end and easy siege, the clan skill, the fountain's turns, mercenaries called with crystals |
 | Death and restart | `DeathPenaltyTests` | Death shares, the level 85 reduction, castle exemption, field rule, towns; town and field restarts stored and applied; the Resurrection Scroll; a refused field restart; saving while dead; the restart window's timing |
 | Event items | `EventItemTests` | Foods, gift boxes, chocolates, the soccer-ball head, boosters (offline pause), skill delay, item events |
 | Puzzles | `PuzzleTests` | Lucky bag seal and reveal, board completion and exchange, sealed ground drops |

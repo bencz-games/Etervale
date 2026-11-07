@@ -13,6 +13,10 @@ internal sealed class CastleSiege(CastleSiegeOrder order)
 
     public List<ulong> Defenders { get; } = [];
 
+    // The mercenaries called with a crystal, by monster, with the caller's character name: kept here, not as the monster's
+    // owner, which would make it a summon, and by name, which a caller keeps across a relog.
+    public Dictionary<ulong, string> Called { get; } = [];
+
     public bool Placed { get; set; }
 
     // A game master's easy siege: the tower keeps one life, not its whole life, while a crystal tower stands.

@@ -57,10 +57,7 @@ public sealed partial class FieldInstance
         {
             for (var post = 0; post < mercenaries[kind]; post++)
             {
-                if (PlaceDefender(siege, CastleSiegeRules.MercenaryKeys[kind], CastleSiegeRules.MercenaryPost(kind, post), CastleObject.Mercenary) is { } mercenary)
-                {
-                    mercenary.Potions = mercenary.Def.PotionCount;
-                }
+                PlaceDefender(siege, CastleSiegeRules.MercenaryKeys[kind], CastleSiegeRules.MercenaryPost(kind, post), CastleObject.Mercenary);
             }
         }
 
@@ -85,6 +82,7 @@ public sealed partial class FieldInstance
         }
 
         siege.Defenders.Clear();
+        siege.Called.Clear();
         _siege = null;
     }
 
@@ -102,11 +100,65 @@ public sealed partial class FieldInstance
         {
             if (_monsters.TryGetValue(defender, out var monster) && monster.IsAlive)
             {
-                monster.VirtualLives = 0;
-                monster.Potions = 0;
-                monster.Life = 1;
+                Weaken(monster);
             }
         }
+    }
+
+    private static void Weaken(MonsterInstance defender)
+    {
+        defender.VirtualLives = 0;
+        defender.Potions = 0;
+        defender.Life = 1;
+    }
+
+    // The kind is the mercenary's, by its sound code; a crystal whose monster is missing or no mercenary is not usable.
+    internal Simulation.Items.Usable.ItemUseStatus MercenaryRoom(WorldPlayer player, MonsterDefinition? mercenary)
+    {
+        if (_siege is not { ValhallaFallen: false } siege || !CastleSiegeRules.HoldsCastle(player.Clan?.ClanId ?? 0, siege.Order.OwnerClanId))
+        {
+            return Simulation.Items.Usable.ItemUseStatus.CrystalRefused;
+        }
+
+        var kind = mercenary is null ? -1 : CastleSiegeRules.MercenaryKind(mercenary.SoundCode);
+        if (kind < 0)
+        {
+            return Simulation.Items.Usable.ItemUseStatus.NotUsable;
+        }
+
+        var (clan, own, ofKind) = (0, 0, 0);
+        foreach (var (monsterId, caller) in siege.Called)
+        {
+            if (!_monsters.TryGetValue(monsterId, out var monster) || !monster.IsAlive)
+            {
+                continue;
+            }
+
+            clan++;
+            own += caller == player.Character.Name ? 1 : 0;
+            ofKind += CastleSiegeRules.MercenaryKind(monster.Def.SoundCode) == kind ? 1 : 0;
+        }
+
+        return CastleSiegeRules.MayCall(clan, own, ofKind) ? Simulation.Items.Usable.ItemUseStatus.Used : Simulation.Items.Usable.ItemUseStatus.MercenaryLimit;
+    }
+
+    // At the use's commit only the siege is checked again: two calls prepared together may pass a limit by one, rather
+    // than lose a crystal; a siege that ended since takes the crystal without a mercenary (null).
+    internal Vector3? CallMercenary(WorldPlayer player, MonsterDefinition definition)
+    {
+        if (_siege is not { ValhallaFallen: false } siege || CastleSiegeRules.MercenaryKind(definition.SoundCode) < 0
+            || PlaceDefender(siege, definition.Key, player.Position, CastleObject.Mercenary) is not { } mercenary)
+        {
+            return null;
+        }
+
+        if (siege.Weakened)
+        {
+            Weaken(mercenary);
+        }
+
+        siege.Called[mercenary.EntityId] = player.Character.Name;
+        return mercenary.Position;
     }
 
     private MonsterInstance? PlaceDefender(CastleSiege siege, string key, Vector3 position, CastleObject role)
@@ -119,6 +171,11 @@ public sealed partial class FieldInstance
         var monster = Place(definition, role == CastleObject.Mercenary ? Terrain.SettleNear(position, FieldTerrain.ArrivalTolerance) : position, -1, 0f);
         monster.ClanId = siege.Order.OwnerClanId;
         monster.CastleRole = role;
+        if (role == CastleObject.Mercenary)
+        {
+            monster.Potions = monster.Def.PotionCount;
+        }
+
         siege.Defenders.Add(monster.EntityId);
         return monster;
     }

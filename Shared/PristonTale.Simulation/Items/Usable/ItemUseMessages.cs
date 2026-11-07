@@ -39,6 +39,7 @@ public static class ItemUseMessages
         ItemUseStatus.FemaleCannotUse => GameTextId.FemaleCannotUse,
         ItemUseStatus.NotEnoughGold => GameTextId.NotEnoughGold,
         ItemUseStatus.CrystalRefused => GameTextId.CrystalRefused,
+        ItemUseStatus.MercenaryLimit => GameTextId.MercenaryLimit,
         _ => GameTextId.ItemNotUsed
     };
 }

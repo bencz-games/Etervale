@@ -271,6 +271,7 @@
   <data name="Game.LifeFifteen" xml:space="preserve"><value>HP aumentado em +15</value></data>
   <data name="Game.LuckyBagHeld" xml:space="preserve"><value>A lucky bag continha {0}</value></data>
   <data name="Game.MaleCannotUse" xml:space="preserve"><value>O personagem masculino não pode usar</value></data>
+  <data name="Game.MercenaryLimit" xml:space="preserve"><value>Você excedeu o limite de invocações</value></data>
   <data name="Game.MissionTimedOut" xml:space="preserve"><value>A missão falhou por tempo esgotado.</value></data>
   <data name="Game.Name" xml:space="preserve"><value>{0}</value></data>
   <data name="Game.NoClassChange" xml:space="preserve"><value>O mestre não tem mudança de classe para você agora</value></data>

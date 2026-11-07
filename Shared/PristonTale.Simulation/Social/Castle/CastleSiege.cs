@@ -63,6 +63,14 @@ public static class CastleSiegeRules
     // Ricarten militia, Ricarten guard and Bless royal guard.
     public static ImmutableArray<string> MercenaryKeys { get; } = ["ricarten militia", "ricarten guard", "bless royal guard"];
 
+    public const int CalledClanMax = 20;
+    public const int CalledOwnMax = 1;
+    public const int CalledKindMax = 5;
+
+    // A member of the owner clan calls a mercenary with a crystal while the clan's called mercenaries standing number
+    // fewer than CalledClanMax, the member's fewer than CalledOwnMax and those of the kind fewer than CalledKindMax.
+    public static bool MayCall(int clan, int own, int ofKind) => clan < CalledClanMax && own < CalledOwnMax && ofKind < CalledKindMax;
+
     // Each kind's posts: two rows of five on the west side and two on the east side.
     private static readonly MercenaryRows[] Rows =
     [

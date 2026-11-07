@@ -119,7 +119,7 @@ internal static class MonsterCrystalTests
         harness.Player.Clan = null;
         var mercenary = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("GP114")));
         await harness.AdvanceAsync(mercenary);
-        Assert.True((await mercenary).Outcome.Status == ItemUseStatus.CrystalRefused && harness.Item("GP114") is not null, "mercenary without a siege");
+        Assert.True((await mercenary).Outcome.Status == ItemUseStatus.CrystalRefused && harness.Item("GP114") is not null, "a mercenary was called without a siege");
         harness.Clock.Now = harness.Clock.Now.AddSeconds(3);
         var soul = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("GP201")));
         await harness.AdvanceAsync(soul);

@@ -66,6 +66,11 @@ public sealed partial class FieldInstance
             return null;
         }
 
+        if (crystal.Kind == CrystalKind.CastleMercenary)
+        {
+            return CallMercenary(owner, definition);
+        }
+
         if (crystal.Kind != CrystalKind.SoulStone)
         {
             return _skills.CallCrystalPet(owner, crystal, definition);
