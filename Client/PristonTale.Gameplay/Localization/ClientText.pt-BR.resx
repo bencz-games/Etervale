@@ -15,6 +15,10 @@
   <data name="Attribute.Spirit" xml:space="preserve"><value>Espírito</value></data>
   <data name="Attribute.Strength" xml:space="preserve"><value>Força</value></data>
   <data name="Attribute.Talent" xml:space="preserve"><value>Talento</value></data>
+  <data name="Bellatra.AdvanceOne" xml:space="preserve"><value>{0}
+segue para a torre alta.</value></data>
+  <data name="Bellatra.AdvanceTwo" xml:space="preserve"><value>{0} e {1}
+seguem para a torre alta.</value></data>
   <data name="Bellatra.Back" xml:space="preserve"><value>Voltar</value></data>
   <data name="Bellatra.Chief" xml:space="preserve"><value>Chefe: {0}</value></data>
   <data name="Bellatra.ChiefOnly" xml:space="preserve"><value>Só o chefe do clã resgata a renda.</value></data>
@@ -33,6 +37,13 @@
   <data name="Bellatra.Ranking" xml:space="preserve"><value>Ranking</value></data>
   <data name="Bellatra.Redeem" xml:space="preserve"><value>Resgatar</value></data>
   <data name="Bellatra.Round" xml:space="preserve"><value>Rodada {0}</value></data>
+  <data name="Bellatra.Seal.Freeze" xml:space="preserve"><value>Selo do Gelo</value></data>
+  <data name="Bellatra.Seal.Guardian" xml:space="preserve"><value>Selo do Guardião</value></data>
+  <data name="Bellatra.Seal.Points" xml:space="preserve"><value>{0} pontos a mais</value></data>
+  <data name="Bellatra.Seal.Quake" xml:space="preserve"><value>Selo do Tremor</value></data>
+  <data name="Bellatra.Seal.Rabbit" xml:space="preserve"><value>Selo do Coelho</value></data>
+  <data name="Bellatra.Seal.Stun" xml:space="preserve"><value>Selo do Atordoamento</value></data>
+  <data name="Bellatra.Seal.Stygian" xml:space="preserve"><value>Selo Estígio</value></data>
   <data name="Bellatra.Secretary" xml:space="preserve"><value>Secretária da Bellatra</value></data>
   <data name="Bellatra.Status.Busy" xml:space="preserve"><value>Você está ocupado com outra coisa.</value></data>
   <data name="Bellatra.Status.NotChief" xml:space="preserve"><value>Só o chefe do clã resgata a renda.</value></data>

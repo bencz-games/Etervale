@@ -15,6 +15,10 @@
   <data name="Attribute.Spirit" xml:space="preserve"><value>Spirit</value></data>
   <data name="Attribute.Strength" xml:space="preserve"><value>Strength</value></data>
   <data name="Attribute.Talent" xml:space="preserve"><value>Talent</value></data>
+  <data name="Bellatra.AdvanceOne" xml:space="preserve"><value>{0}
+goes on to the high tower.</value></data>
+  <data name="Bellatra.AdvanceTwo" xml:space="preserve"><value>{0} and {1}
+go on to the high tower.</value></data>
   <data name="Bellatra.Back" xml:space="preserve"><value>Back</value></data>
   <data name="Bellatra.Chief" xml:space="preserve"><value>Chief: {0}</value></data>
   <data name="Bellatra.ChiefOnly" xml:space="preserve"><value>Only the clan's chief redeems its income.</value></data>
@@ -33,6 +37,13 @@
   <data name="Bellatra.Ranking" xml:space="preserve"><value>Ranking</value></data>
   <data name="Bellatra.Redeem" xml:space="preserve"><value>Redeem</value></data>
   <data name="Bellatra.Round" xml:space="preserve"><value>Round {0}</value></data>
+  <data name="Bellatra.Seal.Freeze" xml:space="preserve"><value>Freeze Seal</value></data>
+  <data name="Bellatra.Seal.Guardian" xml:space="preserve"><value>Guardian Seal</value></data>
+  <data name="Bellatra.Seal.Points" xml:space="preserve"><value>{0} Points Up</value></data>
+  <data name="Bellatra.Seal.Quake" xml:space="preserve"><value>Quake Seal</value></data>
+  <data name="Bellatra.Seal.Rabbit" xml:space="preserve"><value>Rabbit Seal</value></data>
+  <data name="Bellatra.Seal.Stun" xml:space="preserve"><value>Stun Seal</value></data>
+  <data name="Bellatra.Seal.Stygian" xml:space="preserve"><value>Stygian Seal</value></data>
   <data name="Bellatra.Secretary" xml:space="preserve"><value>Bellatra's secretary</value></data>
   <data name="Bellatra.Status.Busy" xml:space="preserve"><value>You are busy with something else.</value></data>
   <data name="Bellatra.Status.NotChief" xml:space="preserve"><value>Only the clan's chief redeems its income.</value></data>

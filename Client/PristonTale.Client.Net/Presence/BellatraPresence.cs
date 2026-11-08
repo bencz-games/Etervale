@@ -3,8 +3,10 @@ using PristonTale.Contracts.Social;
 namespace PristonTale.Client.Net.Presence;
 
 // The local player's Bellatra board as the server last sent it (Hidden outside the arena): the round (0 between rounds),
-// its team (0 to 3), its score, the teams' scores and how its last round start or the end went.
-public sealed record BellatraBoardInfo(bool Shown, int Round, int Team, long Score, IReadOnlyList<long> TeamScores, BellatraOutcome Outcome)
+// its team (0 to 3), its score, the teams' scores, how its last round start or the end went, and at the last start that
+// sent teams on, the teams that played it and those going on (a bit a team).
+public sealed record BellatraBoardInfo(bool Shown, int Round, int Team, long Score, IReadOnlyList<long> TeamScores, BellatraOutcome Outcome,
+    int StageTeams = 0, int GoingOn = 0)
 {
     public static readonly BellatraBoardInfo Hidden = new(false, 0, 0, 0, new long[BellatraLimits.Teams], BellatraOutcome.Playing);
 }

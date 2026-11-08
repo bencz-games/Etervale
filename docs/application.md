@@ -797,14 +797,14 @@ characters, so a relog keeps a player's place and score.
   as the lightning stun and the ice's slow), the rabbit turns about half the room's round monsters but its bosses into
   Rabies and opens a Mutant Rabie boss of the round at the room's centre, the Stygian Lord (level 85) and the Guardian
   Saint fight for the picker 4 minutes from the room's centre, and the points add 5,000 to the picker and its team.
-- Teams: before round 4 the two best teams with somebody left go on (the best to the fifth room, the second to the
-  sixth), before round 7 the best to the top room, `BellatraRules.BannerMs` after the round's start; the others are
-  paid and go to Navisko's centre as long. A move waits while its player lies dead, and is dropped once the player
-  left the arena.
-- The end: every entrant in the arena is paid its score less `bellatra.tax` percent (`BellatraRules.Prize`), and 30 s
-  later every entrant still there goes to Navisko and the game resets. When the game ends after its last round (the final
-  skipped too) every round monster still standing falls leaving a Mystic mana potion (PM104, `BellatraRules.EndPotion`);
-  a game ending with nobody left leaves none.
+- Teams: before round 4 the two best teams with somebody left cheer (`WorldPlayer.QueueYahoo`, a cheer that heals no
+  clan monster) and go on (the best to the fifth room, the second to the sixth), before round 7 the best to the top
+  room, `BellatraRules.BannerMs` after the round's start; the others are paid and go to Navisko's centre as long. A move
+  waits while its player lies dead, and is dropped once the player left the arena.
+- The end: every entrant in the arena cheers and is paid its score less `bellatra.tax` percent (`BellatraRules.Prize`),
+  and 30 s later every entrant still there goes to Navisko and the game resets. When the game ends after its last round
+  (the final skipped too) every round monster still standing falls leaving a Mystic mana potion (PM104,
+  `BellatraRules.EndPotion`); a game ending with nobody left leaves none.
 - The operating clan (`BellatraClanAppService`, `IBellatraRepository`), by the server's local day (`BellatraDays`):
   every paid prize gives its entrant's registered clan the score as the points of the day it was won and the clan
   operating Bellatra the prize's tax as income (a `castle_treasury` movement of kind `Bellatra`); the paid prizes wait
@@ -821,10 +821,12 @@ characters, so a relog keeps a player's place and score.
   name, class, score and kills, `BellatraGame.Final`) until the game resets, and answers it to an entrant who asks for its
   own game; otherwise a request answers the live result of every team, or of a team booth's team (1 to 4), among the
   entrants in the arena.
-- Boards: a player in the arena is sent its board in its snapshot (`WorldSnapshot.Bellatra`, `BellatraView`: the
-  round, its team, its score, the teams' scores and how its last round start or the end went), made again only when
-  the game's revision changed (`BellatraGame.ViewOf`); a player who left the game keeps its last board until it leaves
-  the arena (`BellatraGame.Leaving`). Each round start sets every entrant playing, and those going on to a new room.
+- Boards: a player in the arena is sent its board in its snapshot (`WorldSnapshot.Bellatra`, `BellatraView`: the round,
+  its team, its score, the teams' scores and how its last round start or the end went, and at the last round start that
+  sent teams on, the teams that played the stage and those going on, `BellatraGame.StageTeams`, `GoingOn`), made again
+  only when the game's revision changed (`BellatraGame.ViewOf`); a player who left the game keeps its last board until
+  it leaves the arena (`BellatraGame.Leaving`). Each round start sets every entrant playing, and those going on to a new
+  room.
 - Prizes are paid off the tick (`WorldServer.BellatraPrizes`, `BellatraAppService`, `BellatraService`) through the
   path of every character change, a fixed gold amount, tried again a few times while the player is busy with another
   change; the player is told the prize, the gold limit that refused it or why it failed. A prize still waiting when the

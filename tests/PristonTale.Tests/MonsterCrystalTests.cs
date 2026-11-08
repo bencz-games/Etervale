@@ -160,7 +160,11 @@ internal static class MonsterCrystalTests
         var pet = pets.Single(monster => monster.ClanId == 0);
         clanPet.Life = 1;
         pet.Life = 1;
-        scenario.Player.QueueYahoo();
+        scenario.Player.QueueYahoo(heals: false);
+        scenario.Run(1);
+        Assert.True(clanPet.Life == 1 && scenario.Player.MoveState == Contracts.Motion.MotionState.Yahoo, "a cheer the world played healed the clan pet");
+        scenario.Run(60);
+        scenario.Player.QueueYahoo(heals: true);
         scenario.Run(1);
         Assert.True(clanPet.Life == 1 + Simulation.Social.YahooRules.ClanMonsterHeal(20, 1) && pet.Life == 1,
             $"the cheer did not heal the clan pet alone ({clanPet.Life}, {pet.Life})");

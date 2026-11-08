@@ -143,12 +143,14 @@ public readonly record struct BellatraClanResultPacket(BellatraClanAction Action
 
 // S->C a Bellatra entrant's board while it is in the arena: {header, uint8 Shown (0 hides it), then uint8 Round (0
 // between rounds), uint8 Team (0 to 3), uint8 Outcome (0 playing, 1 the team goes on, 2 the team is out, 3 the game is
-// over), varuint Score, varuint x BellatraLimits.Teams TeamScores}.
-public sealed record BellatraBoardPacket(bool Shown, byte Round, byte Team, byte Outcome, ulong Score, IReadOnlyList<ulong> TeamScores) : IFramePacket
+// over), uint8 StageTeams and uint8 GoingOn (at the last start that sent teams on, the teams that played it and those
+// going on, a bit a team), varuint Score, varuint x BellatraLimits.Teams TeamScores}.
+public sealed record BellatraBoardPacket(bool Shown, byte Round, byte Team, byte Outcome, byte StageTeams, byte GoingOn, ulong Score,
+    IReadOnlyList<ulong> TeamScores) : IFramePacket
 {
-    public const int MaxSize = 8 + WireHeader.Size + 4 + (1 + BellatraLimits.Teams) * VarInt.MaxBytes64;
+    public const int MaxSize = 8 + WireHeader.Size + 6 + (1 + BellatraLimits.Teams) * VarInt.MaxBytes64;
 
-    public static readonly BellatraBoardPacket Hidden = new(false, 0, 0, 0, 0, new ulong[BellatraLimits.Teams]);
+    public static readonly BellatraBoardPacket Hidden = new(false, 0, 0, 0, 0, 0, 0, new ulong[BellatraLimits.Teams]);
 
     public int Write(Span<byte> destination)
     {
@@ -165,6 +167,8 @@ public sealed record BellatraBoardPacket(bool Shown, byte Round, byte Team, byte
             writer.Byte(Round);
             writer.Byte(Team);
             writer.Byte(Outcome);
+            writer.Byte(StageTeams);
+            writer.Byte(GoingOn);
             writer.VarUInt(Score);
             foreach (var score in TeamScores)
             {
@@ -184,14 +188,15 @@ public sealed record BellatraBoardPacket(bool Shown, byte Round, byte Team, byte
             return Hidden;
         }
 
-        var (round, team, outcome, score) = (reader.Byte(), reader.Byte(), reader.Byte(), reader.VarUInt());
+        var (round, team, outcome) = (reader.Byte(), reader.Byte(), reader.Byte());
+        var (stage, goingOn, score) = (reader.Byte(), reader.Byte(), reader.VarUInt());
         var teams = new ulong[BellatraLimits.Teams];
         for (var index = 0; index < teams.Length; index++)
         {
             teams[index] = reader.VarUInt();
         }
 
-        return new BellatraBoardPacket(true, round, team, outcome, score, teams);
+        return new BellatraBoardPacket(true, round, team, outcome, stage, goingOn, score, teams);
     }
 }
 

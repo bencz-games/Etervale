@@ -29,7 +29,7 @@ internal sealed class FirecrackerUse : ItemUseAction
 {
     public override ItemUseEffect Apply(in ItemUseInWorld use)
     {
-        use.Player.QueueYahoo();
+        use.Player.QueueYahoo(heals: true);
         return new ItemUseEffect(ItemEffectKind.Firecracker);
     }
 }

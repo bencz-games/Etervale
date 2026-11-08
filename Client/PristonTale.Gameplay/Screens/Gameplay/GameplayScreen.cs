@@ -62,6 +62,7 @@ public sealed class GameplayScreen : GameScreen
         _hud.SendCastleOwner = _scene.SendCastleOwner;
         _hud.SendBellatraClan = _scene.SendBellatraClan;
         _hud.SendBellatraResult = _scene.SendBellatraResult;
+        _hud.BellatraStage = _scene;
         _hud.SendClanMark = _scene.SendClanMark;
         _scene.PresenceObserved += _hud.ObserveTrade;
         _hud.Trades = _scene;

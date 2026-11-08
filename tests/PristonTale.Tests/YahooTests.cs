@@ -64,7 +64,7 @@ internal static class YahooTests
         var character = new CharacterClassRegistry().CreatePlayer(PlayerClass.Fighter, "Cheer");
         var player = new WorldPlayer(1, Vector3.Zero, character, false, default);
         player.BeginSwing(2, Vector3.One, 100, 50);
-        player.QueueYahoo();
+        player.QueueYahoo(heals: true);
         Assert.True(!player.BeginPendingYahoo(800), "a firecracker cheer cut the swing");
         player.TickAction(100, out _);
         Assert.True(player.BeginPendingYahoo(800) && player.MoveState == MotionState.Yahoo, "the queued cheer did not start after the swing");
@@ -83,7 +83,7 @@ internal static class YahooTests
         Assert.True(player.BeginPendingYahoo(800), "the capsule cheer did not start");
 
         player.TickAction(800, out _);
-        player.QueueYahoo();
+        player.QueueYahoo(heals: true);
         player.ApplyDamage(100000);
         Assert.True(player.IsDead && !player.HasPendingYahoo && !player.AskYahoo(false, 0), "a dead player kept or started a cheer");
         return Task.CompletedTask;

@@ -24,7 +24,8 @@ internal static class BellatraGameTests
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
         yield return ("a Bellatra team booth sells a ticket at dawn into its team's room; rounds open monsters by the game clock, kills score, the best "
-            + "team goes on, the live and the final results list the entrant's score and kills, the game ends with the prize less the tax and a potion for each monster standing, and the entrants return to Navisko", GameAsync);
+            + "team cheers and goes on, the live and the final results list the entrant's score and kills, the game ends with the prize less the tax, a "
+            + "cheer and a potion for each monster standing, and the entrants return to Navisko", GameAsync);
         yield return ("a Bellatra booth refuses a closed Bellatra, a low level and the hours past dawn, and the ticket's gold is in the currency report",
             RefusalsAsync);
         yield return ("a Bellatra booth refuses a full team, a second ticket and a game still ending", BoothAsync);
@@ -67,8 +68,11 @@ internal static class BellatraGameTests
             game.AtHour(hour);
         }
 
+        Assert.True(game.Player.HasPendingYahoo, "the team going on did not cheer");
+
         game.Seconds(10);
-        Assert.True(game.LastBoard() is { Round: 4, Outcome: BellatraOutcome.GoesOn }, "the board did not show the team going on");
+        Assert.True(game.LastBoard() is { Round: 4, Outcome: BellatraOutcome.GoesOn, StageTeams: 0b0001, GoingOn: 0b0001 },
+            "the board did not show the team going on, the teams that played the stage or those going on");
         Assert.True(BellatraTests.Inside(BellatraArena.Rooms[4], game.Player.Position) && !arena.MonstersForInspection.Any(monster => monster.BellatraRoom is >= 0 and < 4 && monster.IsAlive)
             && Potions(arena) == 0, "the best team did not go on to room 5 before round 4, or round 3's monsters still stand or left potions");
         foreach (var hour in new[] { 15, 18, 21 })
@@ -86,6 +90,7 @@ internal static class BellatraGameTests
         }
 
         game.AtHour(0);
+        Assert.True(game.Player.HasPendingYahoo, "the entrant did not cheer at the end");
         Assert.True(standing > 0 && Potions(arena) == standing && !arena.MonstersForInspection.Any(static monster => monster.BellatraRoom >= 0 && monster.IsAlive),
             "the end after round 7, the final skipped, did not leave a potion for each round monster standing");
         var final = await WorldPump.RunAsync(game.World, game.World.BellatraResultAsync(game.Player.EntityId, 0));

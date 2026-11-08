@@ -90,8 +90,8 @@ public sealed partial class WorldServer
 
     // Every round's monster still standing falls and entrants away from the arena lose their place; the round after
     // starts, skipping the final when no player reached its need, or the game finishes after the last or with nobody
-    // left. Before rounds 4 and 7 the best teams with somebody left go on to their rooms, the others are paid and leave.
-    // False when the day's game has no entrant to start with.
+    // left. Before rounds 4 and 7 the best teams with somebody left cheer and go on to their rooms, the others are paid
+    // and leave. False when the day's game has no entrant to start with.
     private bool StartBellatraRound(long nowMs)
     {
         var game = _bellatra;
@@ -138,6 +138,17 @@ public sealed partial class WorldServer
         if (BellatraArena.GoOn(round) < BellatraArena.Teams)
         {
             var ranks = BellatraRules.Rank(game.TeamScores, present);
+            (game.StageTeams, game.GoingOn) = (0, 0);
+            for (var rank = 0; rank < ranks.Length; rank++)
+            {
+                if (present[ranks[rank]])
+                {
+                    game.StageTeams |= 1 << ranks[rank];
+                    game.GoingOn |= rank < BellatraArena.GoOn(round) ? 1 << ranks[rank] : 0;
+                }
+            }
+
+            game.Revision++;
             foreach (var (name, entrant) in game.Entrants.ToList())
             {
                 var rank = Array.IndexOf(ranks, entrant.Team);
@@ -145,6 +156,7 @@ public sealed partial class WorldServer
                 if (rank < BellatraArena.GoOn(round))
                 {
                     entrant.Outcome = BellatraOutcome.GoesOn;
+                    connection.Player.QueueYahoo(heals: false);
                     game.Moves.Add(new BellatraGame.Move(name, BellatraArena.Field, BellatraArena.Rooms[BellatraArena.AdvanceRoom(rank, round)].Centre,
                         nowMs + BellatraRules.BannerMs));
                 }
@@ -165,7 +177,7 @@ public sealed partial class WorldServer
         return true;
     }
 
-    // Every entrant still in the arena is paid its score less the tax; all go to the village OutSeconds later.
+    // Every entrant still in the arena is paid its score less the tax and cheers; all go to the village OutSeconds later.
     private void FinishBellatra(long nowMs)
     {
         var game = _bellatra;
@@ -175,6 +187,7 @@ public sealed partial class WorldServer
             if (InBellatra(name, out var connection))
             {
                 PayBellatra(connection, entrant, GameText.Of(GameTextId.BellatraCleared, BellatraRules.Prize(entrant.Score, _options.Bellatra.Tax)));
+                connection.Player.QueueYahoo(heals: false);
             }
 
             entrant.Outcome = BellatraOutcome.Cleared;
@@ -251,25 +264,16 @@ public sealed partial class WorldServer
             {
                 if (entrant.Team == team && InBellatra(name, out var member))
                 {
-                    Notify(member.Player.EntityId, ChatKind.System, seal == BellatraSeal.Points
-                        ? GameText.Of(GameTextId.BellatraPoints, picker, BellatraRules.PointsBonus.ToString(CultureInfo.InvariantCulture)) : GameText.Of(SealText(seal), picker));
+                    var notice = seal == BellatraSeal.Points
+                        ? GameText.Of(GameTextId.BellatraPoints, picker, BellatraRules.PointsBonus.ToString(CultureInfo.InvariantCulture))
+                        : GameText.Of(BellatraRules.NoticeOf(seal), picker);
+                    Notify(member.Player.EntityId, ChatKind.System, notice);
                 }
             }
         }
 
         arena.BellatraSeals.Clear();
     }
-
-    private static GameTextId SealText(BellatraSeal seal) => seal switch
-    {
-        BellatraSeal.Quake => GameTextId.BellatraQuake,
-        BellatraSeal.Stun => GameTextId.BellatraStun,
-        BellatraSeal.Freeze => GameTextId.BellatraFreeze,
-        BellatraSeal.Rabbit => GameTextId.BellatraRabbit,
-        BellatraSeal.Stygian => GameTextId.BellatraStygian,
-        BellatraSeal.Guardian => GameTextId.BellatraGuardian,
-        _ => GameTextId.BellatraPoints
-    };
 
     // The board of a player in the arena: its own while it plays, its last one after it left the game until it leaves the
     // arena; none elsewhere.

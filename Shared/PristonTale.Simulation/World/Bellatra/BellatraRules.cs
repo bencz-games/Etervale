@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using PristonTale.Contracts.Texts;
 using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.World.Monsters.Skills;
 
@@ -147,6 +148,33 @@ public static class BellatraRules
     // round monsters into Rabies and opens a Mutant Rabie boss at its centre, the Stygian lord (level StygianLevel) and the
     // Guardian Saint fight for the picker SummonMs from the room's centre, and the points add PointsBonus to the picker
     // and its team.
+    // The notice telling a seal's breaking to the picker's team.
+    public static GameTextId NoticeOf(BellatraSeal seal) => seal switch
+    {
+        BellatraSeal.Quake => GameTextId.BellatraQuake,
+        BellatraSeal.Stun => GameTextId.BellatraStun,
+        BellatraSeal.Freeze => GameTextId.BellatraFreeze,
+        BellatraSeal.Rabbit => GameTextId.BellatraRabbit,
+        BellatraSeal.Stygian => GameTextId.BellatraStygian,
+        BellatraSeal.Guardian => GameTextId.BellatraGuardian,
+        _ => GameTextId.BellatraPoints
+    };
+
+    public static bool TrySealOfNotice(GameTextId text, out BellatraSeal seal)
+    {
+        foreach (var candidate in Enum.GetValues<BellatraSeal>())
+        {
+            if (NoticeOf(candidate) == text)
+            {
+                seal = candidate;
+                return true;
+            }
+        }
+
+        seal = default;
+        return false;
+    }
+
     public const int QuakeShare = 3;
     public static readonly EffectSpec StunSeal = MonsterStatuses.StunSpec(MonsterStatuses.LightningStun);
     public static readonly EffectSpec FreezeSeal = MonsterStatuses.StunSpec(MonsterStatuses.IceSlow);

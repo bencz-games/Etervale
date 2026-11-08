@@ -7,6 +7,9 @@ namespace PristonTale.Gameplay.Audio;
 public sealed class FieldAudioController : IDisposable
 {
     internal const float MusicVolume = 0.6f;
+
+    // The original's 360 of 400: the whisper chime and Bellatra's seal pickup.
+    internal const float SoftVolume = 0.9f;
     internal const float FieldAmbientVolume = 0.65f;
     internal const float PositionalAmbientVolume = 1f;
     internal const float MusicFadeSeconds = 3.6f;
@@ -116,12 +119,11 @@ public sealed class FieldAudioController : IDisposable
         }
     }
 
-    // The whisper chime plays at nine tenths of full volume, as the original's 360 of 400.
     public void PlayWhisper()
     {
         if (_library.SoundEnabled)
         {
-            _library.WhisperSound.Play(0.9f, 0f, 0f);
+            _library.WhisperSound.Play(SoftVolume, 0f, 0f);
         }
     }
 
@@ -150,6 +152,29 @@ public sealed class FieldAudioController : IDisposable
         {
             _library.QuestFanfareSound.Play(1f, 0f, 0f);
         }
+    }
+
+    public void PlayBellatra(BellatraCue cue)
+    {
+        if (_library.SoundEnabled && _library.Bellatra(cue) is { } sound)
+        {
+            sound.Play(BellatraSounds.Volume(cue), 0f, 0f);
+        }
+    }
+
+    // Bellatra's music over its arena, whose own is custom (empty: none, stopped at once); the next field's music
+    // replaces it.
+    public void SetEventMusic(string code)
+    {
+        if (string.IsNullOrEmpty(code))
+        {
+            StopMusic();
+            _selectedMusicCode = string.Empty;
+            _selectedMusic = null;
+            return;
+        }
+
+        SelectMusic(code);
     }
 
     public void PlayCraftResult(bool success)

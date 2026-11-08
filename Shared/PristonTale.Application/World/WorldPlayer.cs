@@ -92,6 +92,10 @@ public sealed class WorldPlayer
 
     public bool HasPendingYahoo => _yahooPending;
 
+    // Whether the cheer begun last heals the player's clan's monsters (a cheer the player asked for); one the world
+    // plays for it does not.
+    public bool YahooHeals { get; private set; }
+
     // Quest work waiting for the next upkeep, notices and dialogs for the owner, and duel bookkeeping.
     public PlayerQuestState QuestState { get; } = new();
 
@@ -109,13 +113,16 @@ public sealed class WorldPlayer
         }
     }
 
-    public void QueueYahoo()
+    public void QueueYahoo(bool heals)
     {
         if (!IsDead)
         {
             _yahooPending = true;
+            _yahooQueuedHeals = heals;
         }
     }
+
+    private bool _yahooQueuedHeals;
 
     // A yahoo word in the chat (key false) opens the Space window and cheers; Space (key true) cheers inside the window
     // for its stamina. Either one cheers only from standing, walking or running.
@@ -146,7 +153,7 @@ public sealed class WorldPlayer
             _character.Stamina -= cost;
         }
 
-        _yahooPending = true;
+        QueueYahoo(heals: true);
         return true;
     }
 
@@ -158,6 +165,7 @@ public sealed class WorldPlayer
         }
 
         _yahooPending = false;
+        YahooHeals = _yahooQueuedHeals;
         Action = PlayerActionState.Yahoo;
         MoveState = MotionState.Yahoo;
         _timeline = ActionTimeline.Start(durationMs);
@@ -193,7 +201,7 @@ public sealed class WorldPlayer
             if (_potionCheers)
             {
                 _timeline.End();
-                _yahooPending = true;
+                QueueYahoo(heals: true);
             }
         }
 

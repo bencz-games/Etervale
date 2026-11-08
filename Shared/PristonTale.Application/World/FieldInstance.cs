@@ -288,7 +288,8 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
                     timing.DurationMs, timing.HitAtMs));
             }
 
-            if (player.HasPendingYahoo && !player.IsBusy && player.BeginPendingYahoo(PlayerActionTiming(player, MotionCode.Yahoo, 1f).DurationMs))
+            if (player.HasPendingYahoo && !player.IsBusy && player.BeginPendingYahoo(PlayerActionTiming(player, MotionCode.Yahoo, 1f).DurationMs)
+                && player.YahooHeals)
             {
                 HealClanMonsters(player);
             }
