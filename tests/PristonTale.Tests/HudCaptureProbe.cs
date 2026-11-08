@@ -234,7 +234,9 @@ internal sealed class HudCaptureProbe : Game
         new("bellatra-show-closed-800", 800, 600, BellatraShow: ProbeBellatraShow.Closed),
         new("bellatra-show-closed-1280x720", 1280, 720, BellatraShow: ProbeBellatraShow.Closed),
         new("bellatra-show-quake-800", 800, 600, BellatraShow: ProbeBellatraShow.Quake),
+        new("bellatra-show-stun-800", 800, 600, BellatraShow: ProbeBellatraShow.Stun),
         new("bellatra-show-freeze-800", 800, 600, BellatraShow: ProbeBellatraShow.Freeze),
+        new("bellatra-show-rabbit-800", 800, 600, BellatraShow: ProbeBellatraShow.Rabbit),
         new("bellatra-show-points-800", 800, 600, BellatraShow: ProbeBellatraShow.Points),
         new("bellatra-show-congratulations-1280x720", 1280, 720, BellatraShow: ProbeBellatraShow.Congratulations),
         new("system-menu-800", 800, 600, SystemMenu: true),
@@ -833,12 +835,14 @@ internal sealed class HudCaptureProbe : Game
                 Board(3, Contracts.Social.BellatraOutcome.Out);
                 Wait(1.4);
                 break;
-            case ProbeBellatraShow.Quake or ProbeBellatraShow.Freeze or ProbeBellatraShow.Points:
+            case ProbeBellatraShow.Quake or ProbeBellatraShow.Stun or ProbeBellatraShow.Freeze or ProbeBellatraShow.Rabbit or ProbeBellatraShow.Points:
                 Board(2, Contracts.Social.BellatraOutcome.Playing);
                 Seal(show switch
                 {
                     ProbeBellatraShow.Quake => GameTextId.BellatraQuake,
+                    ProbeBellatraShow.Stun => GameTextId.BellatraStun,
                     ProbeBellatraShow.Freeze => GameTextId.BellatraFreeze,
+                    ProbeBellatraShow.Rabbit => GameTextId.BellatraRabbit,
                     _ => GameTextId.BellatraPoints
                 });
                 Wait(0.6);
@@ -977,7 +981,9 @@ internal enum ProbeBellatraShow
     Fail,
     Closed,
     Quake,
+    Stun,
     Freeze,
+    Rabbit,
     Points,
     Congratulations
 }

@@ -581,9 +581,10 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   offset, half size, angle and alpha, a key held until the effect stops or looping; 40 effects of layered tracks) and
   drawn over the screen in its 800x600 space, scaled evenly and centred, over black bars while a screen-sized image
   shows (its black is see-through). The table's screen images keep a slot at index 1 that no effect draws; a seal's name
-  is the localized text twice the HUD's size. The art is asked when the player first stands in the arena. From the
-  board: a ticket's arrival shows the loading screen 3 s, while coming back to a game in play (a relog) only plays its
-  music; a round's start shows ROUND n and START 3 s later with its call, the music (`IBellatraStage`,
+  is the localized text twice the HUD's size (the four room seals' name effects name textures 21 to 24, images that are
+  not their art, which are not drawn). The art is asked when the player first stands in the arena. From the board: a
+  ticket's arrival shows the loading screen 3 s, while coming back to a game in play (a relog) only plays its music; a
+  round's start shows ROUND n and START 3 s later with its call, the music (`IBellatraStage`,
   `FieldAudioController.SetEventMusic`, played only in the arena) changing at rounds 1, 4 and 7 (`BGM_CODE_SOD1` to
   `SOD3`, the arena's own music being custom); a team going on hears its fanfare under STAGE COMPLETE, the screen closes
   3 s before the server's move (`BellatraRules.BannerMs`) over the scores of the teams that played the stage and who
@@ -591,7 +592,7 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   its fall under STAGE FAIL and the screen closes 2 s before its move and stays closed until it leaves the arena; the
   end plays the ending under CONGRATULATIONS. A seal notice of the team (`BellatraRules.TrySealOfNotice`) shows the
   seal's emblem and name over an earlier seal's, with the pickup sound, the room's seals shaking the camera (50, every 4
-  frames) with the quake's sound. The sounds are `wav/Sod` (`BellatraSounds`).
+  frames) with the Diastrophism skill's impact sound, taken from its rule. The sounds are `wav/Sod` (`BellatraSounds`).
 - Status window: attribute buttons send `ProgressionCommand` with `ProgressionRevision`; the organic, poison, fire,
   lightning and ice resistance boxes show the owner's resistances; the Clan box shows the owner's clan mark and name.
 - Block feedback (`HudStringEffect`): when the player blocks a blow, the original `block.tga` word shows at (354, 488)

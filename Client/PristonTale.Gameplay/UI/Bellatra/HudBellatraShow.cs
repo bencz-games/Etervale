@@ -10,14 +10,14 @@ using PristonTale.Simulation.World.Bellatra;
 
 namespace PristonTale.Gameplay.UI.Bellatra;
 
-// What Bellatra's show asks of the scene: a sound, the arena's music (empty: none, at once) and a shake of the camera.
+// What Bellatra's show asks of the scene: a sound, the arena's music (empty: none, at once) and a room seal's quake.
 public interface IBellatraStage
 {
     void Play(BellatraCue cue);
 
     void Music(string code);
 
-    void Shake();
+    void Quake();
 }
 
 // Bellatra's show on the screen, as the board and the team's notices tell it. Entering the arena with a ticket shows its
@@ -26,7 +26,7 @@ public interface IBellatraStage
 // fanfare under STAGE COMPLETE, the screen closes over the scores of the teams that played and who goes on, and opens
 // again after the server's move (BellatraRules.BannerMs) for the round's start; a team out hears its fall under STAGE
 // FAIL and the screen stays closed until it leaves the arena; the end shows CONGRATULATIONS. A seal broken in the team
-// shows its emblem and name (the latest over an earlier one), the room's seals shaking the camera.
+// shows its emblem and name (the latest over an earlier one), the room's seals quaking.
 public sealed class HudBellatraShow
 {
     private const double RoundDelay = 3;
@@ -120,8 +120,7 @@ public sealed class HudBellatraShow
         Stage?.Play(BellatraCue.Item);
         if (seal is BellatraSeal.Quake or BellatraSeal.Stun or BellatraSeal.Freeze or BellatraSeal.Rabbit)
         {
-            Stage?.Shake();
-            Stage?.Play(BellatraCue.Quake);
+            Stage?.Quake();
         }
     }
 

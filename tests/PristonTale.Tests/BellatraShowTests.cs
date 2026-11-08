@@ -19,7 +19,7 @@ internal static class BellatraShowTests
         yield return ("Bellatra's show: a ticket's arrival shows the loading screen, a round's call three seconds after its start with round 1's "
             + "music, coming back to a game in play only plays its music, a team going on hears its fanfare, the screen closes at five seconds and opens "
             + "at nine for round 4's call and music, a team out hears its fall and its screen opens only when it leaves, the end its ending, and a "
-            + "room's seal shakes the camera", ShowAsync);
+            + "room's seal quakes", ShowAsync);
     }
 
     private static Task TableAsync()
@@ -95,8 +95,7 @@ internal static class BellatraShowTests
         show.Observe(GameTextId.BellatraQuake);
         show.Observe(GameTextId.BellatraPoints);
         show.Observe(GameTextId.BellatraCleared);
-        Assert.True(stage.Take() is [BellatraCue.Item, BellatraCue.Quake, BellatraCue.Item] && stage.Shakes == 1,
-            "a room's seal did not shake the camera with its quake, or another seal or line did");
+        Assert.True(stage.Take() is [BellatraCue.Item, BellatraCue.Item] && stage.Quakes == 1, "a room's seal did not quake, or another seal or line did");
 
         show.Observe(Board(4, BellatraOutcome.GoesOn), Board(6, BellatraOutcome.Out));
         show.Update(6.1);
@@ -158,13 +157,13 @@ internal static class BellatraShowTests
     {
         public List<BellatraCue> Cues { get; } = [];
         public List<string> Music { get; } = [];
-        public int Shakes { get; private set; }
+        public int Quakes { get; private set; }
 
         public void Play(BellatraCue cue) => Cues.Add(cue);
 
         void IBellatraStage.Music(string code) => Music.Add(code);
 
-        public void Shake() => Shakes++;
+        public void Quake() => Quakes++;
 
         public BellatraCue[] Take()
         {

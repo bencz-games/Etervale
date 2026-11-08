@@ -23,8 +23,8 @@ public enum BellatraEffect
 
 // The running Bellatra effects: each effect once at a time, its tracks stepped at 70 frames a second and drawn over the
 // screen in the original's 800x600 space, scaled evenly and centred over black bars when a screen image as large as that
-// space shows (its black is see-through). An effect with a text (TextOf) shows it in place of its tracks' images, while
-// a key has one. An effect ends when all its tracks have, or when it is stopped.
+// space shows (its black is see-through). An effect with a text (TextOf) shows it over its tracks' images, while a key
+// has one. An effect ends when all its tracks have, or when it is stopped.
 public sealed class BellatraEffects
 {
     private const int DesignWidth = HudLayout.DesignWidth;
@@ -41,6 +41,9 @@ public sealed class BellatraEffects
         }.Select(static name => name is null ? null : Directory + name)
     ];
 
+    // The textures end at the seals' emblems: the name effects of the quake, stun, freeze and rabbit seals name textures
+    // 21 to 24, but the images in those places (effect_item08 to 11: a sword, dark glasses, a figure, armour) are not those
+    // seals' art and would cover their emblems, so those names show as text like the others.
     private static readonly string[] Textures =
     [
         .. new[]
@@ -78,7 +81,7 @@ public sealed class BellatraEffects
 
     public BellatraEffects(BellatraEffectTable table) => _table = table;
 
-    // The text a Text track shows for its effect; set by the HUD.
+    // The text an effect shows over its tracks; set by the HUD.
     public Func<BellatraEffect, string> TextOf { get; set; }
 
     public bool Running => _running.Count > 0;
@@ -200,16 +203,6 @@ public sealed class BellatraEffects
     private void DrawTrack(SpriteBatch batch, Playing running, Func<string, Texture2D> texture, SpriteFont font, float textScale, float scale, Vector2 offset)
     {
         var image = running.Track.Keys[running.Key].Image;
-        if (TextOf?.Invoke(running.Effect) is { Length: > 0 } text)
-        {
-            if (running.Track.Kind == BellatraImageKind.Text || image >= 0)
-            {
-                DrawText(batch, text, running.Alpha, font, textScale, scale, offset);
-            }
-
-            return;
-        }
-
         var at = offset + (new Vector2(running.Layer.Origin.X, running.Layer.Origin.Y) + new Vector2(MathF.Truncate(running.Offset.X), MathF.Truncate(running.Offset.Y))) * scale;
         switch (running.Track.Kind)
         {
@@ -232,6 +225,11 @@ public sealed class BellatraEffects
                     new Vector2(2f * half.X / art.Width, 2f * half.Y / art.Height) * scale, SpriteEffects.None, 0f);
                 break;
             }
+        }
+
+        if (TextOf?.Invoke(running.Effect) is { Length: > 0 } text && (running.Track.Kind == BellatraImageKind.Text || image >= 0))
+        {
+            DrawText(batch, text, running.Alpha, font, textScale, scale, offset);
         }
     }
 
