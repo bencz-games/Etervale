@@ -199,9 +199,17 @@
   <data name="Game.BellatraCleared" xml:space="preserve"><value>Parabéns! A Bellatra terminou. Você ganhou {0} de ouro.</value></data>
   <data name="Game.BellatraClosed" xml:space="preserve"><value>Você não pode entrar na Bellatra agora. Volte mais tarde.</value></data>
   <data name="Game.BellatraEntered" xml:space="preserve"><value>Você já está nesta partida da Bellatra.</value></data>
+  <data name="Game.BellatraFreeze" xml:space="preserve"><value>{0} quebrou o Selo do Gelo: os monstros da sala estão congelados.</value></data>
+  <data name="Game.BellatraGuardian" xml:space="preserve"><value>{0} quebrou o Selo do Guardião: um Guardian Saint luta ao lado dele.</value></data>
   <data name="Game.BellatraLevel" xml:space="preserve"><value>Você ainda não é forte o bastante para entrar na Bellatra (nível {0}). Treine mais e volte.</value></data>
   <data name="Game.BellatraNoTickets" xml:space="preserve"><value>Os ingressos da Bellatra são vendidos ao amanhecer (horas {0} e {1} do jogo), antes de uma partida. Volte nesse horário.</value></data>
   <data name="Game.BellatraOut" xml:space="preserve"><value>Sua equipe foi eliminada ({0}º lugar). Você ganhou {1} de ouro.</value></data>
+  <data name="Game.BellatraPoints" xml:space="preserve"><value>{0} quebrou o Selo dos Pontos: {1} pontos a mais.</value></data>
+  <data name="Game.BellatraQuake" xml:space="preserve"><value>{0} quebrou o Selo do Tremor: os monstros da sala tremem.</value></data>
+  <data name="Game.BellatraRabbit" xml:space="preserve"><value>{0} quebrou o Selo do Coelho: monstros viram Rabies.</value></data>
+  <data name="Game.BellatraSealIdle" xml:space="preserve"><value>Um selo só se quebra numa das salas da arena durante uma rodada.</value></data>
+  <data name="Game.BellatraStun" xml:space="preserve"><value>{0} quebrou o Selo do Atordoamento: os monstros da sala estão atordoados.</value></data>
+  <data name="Game.BellatraStygian" xml:space="preserve"><value>{0} quebrou o Selo Estígio: um Stygian Lord luta ao lado dele.</value></data>
   <data name="Game.BellatraTeamFull" xml:space="preserve"><value>Todos os ingressos desta equipe estão esgotados.</value></data>
   <data name="Game.BellatraTicket" xml:space="preserve"><value>Os ingressos da Bellatra estão à venda: {0} de ouro.</value></data>
   <data name="Game.BossTime" xml:space="preserve"><value>Hora do chefe: XX:{0}</value></data>

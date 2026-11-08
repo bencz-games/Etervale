@@ -8,6 +8,8 @@ namespace PristonTale.Simulation.World.Bellatra;
 // floor at Corner0's height; teams enter at its Centre.
 public sealed record BellatraRoom(Vector3 Corner0, Vector3 Corner1, Vector3 Centre)
 {
+    public bool Holds(Vector3 position) => position.X > Corner0.X && position.X < Corner1.X && position.Z > Corner1.Z && position.Z < Corner0.Z;
+
     // A monster's spawn point: anywhere inside the rectangle, at the room's height.
     public Vector3 RandomPoint(ISimRng rng) =>
         new(Corner0.X + rng.NextExclusive(1, (int)(Corner1.X - Corner0.X)), Corner0.Y, Corner0.Z - rng.NextExclusive(1, (int)(Corner0.Z - Corner1.Z)));
@@ -52,6 +54,20 @@ public static class BellatraArena
         7 => 1,
         _ => Teams
     };
+
+    // The room holding the position (none: -1).
+    public static int RoomAt(Vector3 position)
+    {
+        for (var room = 0; room < Rooms.Length; room++)
+        {
+            if (Rooms[room].Holds(position))
+            {
+                return room;
+            }
+        }
+
+        return -1;
+    }
 
     public static bool InArea(Vector3 position) =>
         position.Y >= Rooms[0].Corner0.Y - 32 && position.X > 18516 && position.X < 25715 && position.Z > 1541 && position.Z < 7178;

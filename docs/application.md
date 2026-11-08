@@ -786,12 +786,25 @@ characters, so a relog keeps a player's place and score.
 - Score: an entrant's kill of a round's monster during a round scores the monster's experience by
   `bellatra.score_divisor`, a round boss's times twice the round (the killer is whispered it), to the entrant and its
   team. Monsters a round monster calls are not round monsters.
+- Surprises: a scored kill drops a surprise 20 times in a thousand (`BellatraRules.SurprisePerMille`), SD201 to SD207
+  by cumulative chance (`BellatraRules.Surprises`). In the arena only entrants take what lies on the ground
+  (`FieldInstance.MayTakeBellatraLoot`, refused as out of reach), and a surprise an entrant picks up never reaches the
+  bag: it breaks its seal at once in the room the entrant stands in while a round is played
+  (`FieldInstance.BreakBellatraSeal`) and every team member in the arena is told who broke which. One that cannot break
+  (outside a room, between rounds, a monster the catalog lacks) is refused (`BellatraSealIdle`) and stays on the
+  ground. The quake takes a third of the whole life of every round monster of the room but its bosses (never its last
+  point), the stun holds the room's round monsters 10 s and the freeze 15 s (stuns started with the next step, shown
+  as the lightning stun and the ice's slow), the rabbit turns about half the room's round monsters but its bosses into
+  Rabies and opens a Mutant Rabie boss of the round at the room's centre, the Stygian Lord (level 85) and the Guardian
+  Saint fight for the picker 4 minutes from the room's centre, and the points add 5,000 to the picker and its team.
 - Teams: before round 4 the two best teams with somebody left go on (the best to the fifth room, the second to the
   sixth), before round 7 the best to the top room, `BellatraRules.BannerMs` after the round's start; the others are
   paid and go to Navisko's centre as long. A move waits while its player lies dead, and is dropped once the player
   left the arena.
 - The end: every entrant in the arena is paid its score less `bellatra.tax` percent (`BellatraRules.Prize`), and 30 s
-  later every entrant still there goes to Navisko and the game resets.
+  later every entrant still there goes to Navisko and the game resets. When the game ends after its last round (the final
+  skipped too) every round monster still standing falls leaving a Mystic mana potion (PM104, `BellatraRules.EndPotion`);
+  a game ending with nobody left leaves none.
 - The operating clan (`BellatraClanAppService`, `IBellatraRepository`), by the server's local day (`BellatraDays`):
   every paid prize gives its entrant's registered clan the score as the points of the day it was won and the clan
   operating Bellatra the prize's tax as income (a `castle_treasury` movement of kind `Bellatra`); the paid prizes wait

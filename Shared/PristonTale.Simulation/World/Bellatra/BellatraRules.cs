@@ -1,3 +1,7 @@
+using System.Collections.Immutable;
+using PristonTale.Simulation.Modifiers;
+using PristonTale.Simulation.World.Monsters.Skills;
+
 namespace PristonTale.Simulation.World.Bellatra;
 
 public enum BellatraMode : byte
@@ -98,4 +102,71 @@ public static class BellatraRules
         var ahead = (target - from + 24) % 24;
         return moved > 0 && ahead > 0 && ahead <= moved;
     }
+
+    // A scored kill drops a surprise (SurprisePerMille kills in a thousand), chosen by cumulative percent; an entrant
+    // picking one up in a room breaks its seal there at once.
+    public const int SurprisePerMille = 20;
+
+    public static ImmutableArray<(string Key, BellatraSeal Seal, int Cumulative)> Surprises { get; } =
+    [
+        ("SD201", BellatraSeal.Quake, 20), ("SD202", BellatraSeal.Stun, 40), ("SD203", BellatraSeal.Freeze, 60), ("SD204", BellatraSeal.Rabbit, 68),
+        ("SD205", BellatraSeal.Stygian, 80), ("SD206", BellatraSeal.Guardian, 95), ("SD207", BellatraSeal.Points, 100)
+    ];
+
+    public static string SurpriseFor(int percentRoll)
+    {
+        foreach (var (key, _, cumulative) in Surprises)
+        {
+            if (percentRoll < cumulative)
+            {
+                return key;
+            }
+        }
+
+        return Surprises[^1].Key;
+    }
+
+    public static bool TrySeal(string catalogKey, out BellatraSeal seal)
+    {
+        foreach (var surprise in Surprises)
+        {
+            if (surprise.Key.Equals(catalogKey, StringComparison.OrdinalIgnoreCase))
+            {
+                seal = surprise.Seal;
+                return true;
+            }
+        }
+
+        seal = default;
+        return false;
+    }
+
+    // The seals: the quake takes a third of every non-boss round monster's whole life in the room (never its last), the
+    // stun holds the room's round monsters StunMs and the freeze FreezeMs (held as stunned, shown with the ice's tint), the
+    // rabbit turns about half the room's non-boss
+    // round monsters into Rabies and opens a Mutant Rabie boss at its centre, the Stygian lord (level StygianLevel) and the
+    // Guardian Saint fight for the picker SummonMs from the room's centre, and the points add PointsBonus to the picker
+    // and its team.
+    public const int QuakeShare = 3;
+    public static readonly EffectSpec StunSeal = MonsterStatuses.StunSpec(MonsterStatuses.LightningStun);
+    public static readonly EffectSpec FreezeSeal = MonsterStatuses.StunSpec(MonsterStatuses.IceSlow);
+    public const int StunMs = 10_000;
+    public const int FreezeMs = 15_000;
+    public const int StygianLevel = 85;
+    public const int SummonMs = 4 * 60_000;
+    public const long PointsBonus = 5_000;
+
+    // At the end after the last round, every round monster still standing leaves a Mystic mana potion.
+    public static readonly uint EndPotion = Items.ItemCodes.MysticManaPotion;
+}
+
+public enum BellatraSeal : byte
+{
+    Quake = 0,
+    Stun = 1,
+    Freeze = 2,
+    Rabbit = 3,
+    Stygian = 4,
+    Guardian = 5,
+    Points = 6
 }

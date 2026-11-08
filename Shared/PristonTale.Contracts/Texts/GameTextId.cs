@@ -296,5 +296,15 @@ public enum GameTextId : ushort
     BellatraTicket = 786,
     BellatraOut = 787,
     BellatraCleared = 788,
-    BellatraBossDown = 789
+    BellatraBossDown = 789,
+
+    // A seal an entrant broke.
+    BellatraQuake = 790,
+    BellatraStun = 791,
+    BellatraFreeze = 792,
+    BellatraRabbit = 793,
+    BellatraStygian = 794,
+    BellatraGuardian = 795,
+    BellatraPoints = 796,
+    BellatraSealIdle = 797
 }

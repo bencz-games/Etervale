@@ -84,6 +84,11 @@ public sealed class FieldGroundLoot(ItemCatalog catalog, FieldTerrain? terrain =
         return true;
     }
 
+    // One unit of a catalog item made at a position for anyone, as a monster drop lasts (none for an item the catalog
+    // lacks).
+    public bool PlaceItem(uint code, Vector3 position, long nowMs, ISimRng rng) =>
+        catalog.TryGet(code, out var definition) && PlaceCreated(ItemRoller.Create(definition, 1, rng), 0, position, 0, nowMs);
+
     // The character id a drop nobody threw names (ThrownBy).
     public const long NoThrower = 0;
 

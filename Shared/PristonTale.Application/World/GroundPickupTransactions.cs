@@ -21,6 +21,23 @@ internal static class GroundPickupTransactions
             return new(original, null, null, new(false, original.InventoryRevision, GameText.Of(GameTextId.DropOutOfReach)));
         }
 
+        // In Bellatra's arena only entrants take what lies there, and a surprise breaks its seal at once instead of
+        // reaching the bag; one that cannot break stays on the ground. The broken seal changes no character, so it is not
+        // remembered as an inventory operation: a retry finds the drop gone.
+        if (!field.MayTakeBellatraLoot(player))
+        {
+            field.GroundLoot.Resolve(dropId, command.OperationId, committed: false);
+            return new(original, null, null, new(false, original.InventoryRevision, GameText.Of(GameTextId.DropOutOfReach)));
+        }
+
+        if (field.Bellatra is not null && item is not null && Simulation.World.Bellatra.BellatraRules.TrySeal(item.Definition.CatalogKey, out var seal))
+        {
+            var broken = field.BreakBellatraSeal(player, seal);
+            field.GroundLoot.Resolve(dropId, command.OperationId, committed: broken);
+            return new(original, null, null, broken ? new(true, original.InventoryRevision, GameText.None)
+                : new(false, original.InventoryRevision, GameText.Of(GameTextId.BellatraSealIdle)));
+        }
+
         bool prepared = false;
         try
         {

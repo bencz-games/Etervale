@@ -39,7 +39,7 @@ How the tick calls these rules belongs to [application.md](application.md).
 | `World/Loot/` | `DropTable`, `DropRoller`, `KillReward` (experience and kill credit), `GroundDropView` |
 | `World/Motion/` | `MotionClip`, `MotionTiming`, `MotionTimingSet`/`MotionTimingCatalog`, player fallbacks |
 | `World/Motion/PlayerEquipmentTiming.cs`, `World/Motion/Data/PlayerEquipmentTiming.json` | Player attack clips by class and weapon key, loaded from the generated embedded JSON (one entry per class and clip with its keys); do not hand-edit |
-| `World/Bellatra/` | Bellatra's rules: the arena and its rooms (`BellatraArena`), the rounds' tables (`BellatraRounds`), the open hours, tickets, score, prize, ranking and hours reached (`BellatraRules`) ([application.md](application.md#bellatra)) |
+| `World/Bellatra/` | Bellatra's rules: the arena and its rooms (`BellatraArena`), the rounds' tables (`BellatraRounds`), the open hours, tickets, score, prize, ranking, hours reached, the surprises and their seals (`BellatraRules`, `BellatraSeal`) ([application.md](application.md#bellatra)) |
 | `World/Npcs/` | `NpcDefinition`, `NpcCatalog`, typed services (`NpcServiceKind`), service commands and replies, shop and warehouse rules, teleport routes, sound code map |
 | `Physics/EntityCollision.cs` | Circle-vs-circle blocking between bodies (players, monsters, NPCs) along a swept segment |
 | `Physics/EntityCollisionRadii.cs`, `EntityNeighbour.cs` | Body radii (by `EntityKind`) and neighbour records |

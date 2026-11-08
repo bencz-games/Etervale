@@ -199,9 +199,17 @@
   <data name="Game.BellatraCleared" xml:space="preserve"><value>Congratulations! Bellatra is over. You gained {0} gold.</value></data>
   <data name="Game.BellatraClosed" xml:space="preserve"><value>You cannot enter Bellatra at this time. Please come back later.</value></data>
   <data name="Game.BellatraEntered" xml:space="preserve"><value>You are already in this Bellatra game.</value></data>
+  <data name="Game.BellatraFreeze" xml:space="preserve"><value>{0} broke the Freeze Seal: the room's monsters are frozen.</value></data>
+  <data name="Game.BellatraGuardian" xml:space="preserve"><value>{0} broke the Guardian Seal: a Guardian Saint fights for them.</value></data>
   <data name="Game.BellatraLevel" xml:space="preserve"><value>You are not strong enough to enter Bellatra yet (level {0}). Train more and come back.</value></data>
   <data name="Game.BellatraNoTickets" xml:space="preserve"><value>Bellatra's tickets are sold at dawn (game hours {0} and {1}), before a game. Please come back then.</value></data>
   <data name="Game.BellatraOut" xml:space="preserve"><value>Your team is out (rank {0}). You gained {1} gold.</value></data>
+  <data name="Game.BellatraPoints" xml:space="preserve"><value>{0} broke the Point Seal: {1} more points.</value></data>
+  <data name="Game.BellatraQuake" xml:space="preserve"><value>{0} broke the Quake Seal: the room's monsters shake.</value></data>
+  <data name="Game.BellatraRabbit" xml:space="preserve"><value>{0} broke the Rabbit Seal: monsters turn into Rabies.</value></data>
+  <data name="Game.BellatraSealIdle" xml:space="preserve"><value>A seal breaks only in one of the arena's rooms while a round is played.</value></data>
+  <data name="Game.BellatraStun" xml:space="preserve"><value>{0} broke the Stun Seal: the room's monsters are stunned.</value></data>
+  <data name="Game.BellatraStygian" xml:space="preserve"><value>{0} broke the Stygian Seal: a Stygian Lord fights for them.</value></data>
   <data name="Game.BellatraTeamFull" xml:space="preserve"><value>All of this team's tickets are sold out.</value></data>
   <data name="Game.BellatraTicket" xml:space="preserve"><value>Bellatra's tickets are on sale: {0} gold.</value></data>
   <data name="Game.BossTime" xml:space="preserve"><value>Boss Time: XX:{0}</value></data>

@@ -14,6 +14,9 @@ public static class ItemCodes
     public const string GoldName = "Gold";
     public static readonly uint GoldCode = Parse(GoldKey);
 
+    // The Mystic mana potion, which Bless Castle's fountain and Bellatra's end give.
+    public static readonly uint MysticManaPotion = Parse("PM104");
+
     public static bool TryParse(string key, out uint code)
     {
         code = 0;

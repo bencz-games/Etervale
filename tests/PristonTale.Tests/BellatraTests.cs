@@ -14,7 +14,7 @@ internal static class BellatraTests
         yield return ("Bellatra's rooms hold their rectangles, rounds fill their rooms, the best teams go on and the arena bounds the game", ArenaAsync);
         yield return ("Bellatra's three tables play eight rounds of four monsters by cumulative chance, bosses, caps, delays and the final's need",
             RoundsAsync);
-        yield return ("Bellatra's kill score, the boss's bonus, the prize less the tax and the teams' ranking", ScoreAsync);
+        yield return ("Bellatra's kill score, the boss's bonus, the prize less the tax, the teams' ranking and the surprises' seals", ScoreAsync);
         yield return ("Bellatra's settings are read from the server settings table and refused when out of range", SettingsAsync);
     }
 
@@ -74,6 +74,9 @@ internal static class BellatraTests
             "the kill score differs");
         Assert.True(BellatraRules.Prize(10_000, 5) == 9_500 && BellatraRules.TaxOf(10_000, 5) == 500 && BellatraRules.Prize(-5, 5) == -5 && BellatraRules.TaxOf(99, 5) == 4,
             "the prize or its tax differs");
+        Assert.True(BellatraRules.SurpriseFor(0) == "SD201" && BellatraRules.SurpriseFor(19) == "SD201" && BellatraRules.SurpriseFor(60) == "SD204"
+            && BellatraRules.SurpriseFor(99) == "SD207" && BellatraRules.TrySeal("sd205", out var seal) && seal == BellatraSeal.Stygian && !BellatraRules.TrySeal("PM104", out _),
+            "the surprises or their seals differ");
         Assert.True(BellatraRules.Rank([10, 40, 40, 5], [true, true, true, true]) is [1, 2, 0, 3] && BellatraRules.Rank([0, 0, 0, 0], [true, true, true, true]) is [0, 1, 2, 3]
             && BellatraRules.Rank([1000, 500, 300, 0], [false, true, true, false]) is [1, 2, 0, 3], "the teams' ranking differs, or a team with nobody left ranks");
         Assert.True(BellatraRules.HourReached(5, 6, 6) && !BellatraRules.HourReached(6, 6, 6) && BellatraRules.HourReached(3, 9, 8) && BellatraRules.HourReached(23, 1, 0)

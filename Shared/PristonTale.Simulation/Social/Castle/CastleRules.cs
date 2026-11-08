@@ -42,7 +42,7 @@ public static class CastleRules
 
     // The soul fountain gives one of its potions (FountainPotion) every FountainGiveSeconds to the next member of the
     // owner clan standing at it, in turn.
-    public static readonly uint FountainPotion = Items.ItemCodes.Parse("PM104");
+    public static readonly uint FountainPotion = Items.ItemCodes.MysticManaPotion;
     public const int FountainGiveSeconds = 1;
 
     public static bool AtFountain(System.Numerics.Vector3 position) =>

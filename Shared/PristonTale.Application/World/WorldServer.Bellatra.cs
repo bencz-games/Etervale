@@ -52,7 +52,7 @@ public sealed partial class WorldServer
     {
         var game = _bellatra;
         StepBellatraMoves(nowMs);
-        DeliverBellatraBossKills();
+        DeliverBellatraNotices();
         var hour = GameHour;
         // A jump of the clock reaches several hours at once; each reached starts its round in turn.
         var started = 0;
@@ -101,7 +101,6 @@ public sealed partial class WorldServer
         }
 
         var arena = GetField(BellatraArena.Field);
-        arena.KillBellatraMonsters();
         Span<bool> present = stackalloc bool[BellatraArena.Teams];
         foreach (var (name, entrant) in game.Entrants.ToList())
         {
@@ -122,6 +121,7 @@ public sealed partial class WorldServer
             game.Next++;
         }
 
+        arena.KillBellatraMonsters(potions: game.Next >= BellatraRounds.Count);
         if (game.Next >= BellatraRounds.Count || game.Entrants.Count == 0)
         {
             FinishBellatra(nowMs);
@@ -231,7 +231,7 @@ public sealed partial class WorldServer
         }
     }
 
-    private void DeliverBellatraBossKills()
+    private void DeliverBellatraNotices()
     {
         if (!_fields.TryGetValue(BellatraArena.Field, out var arena))
         {
@@ -244,7 +244,31 @@ public sealed partial class WorldServer
         }
 
         arena.BellatraBossKills.Clear();
+        foreach (var (picker, team, seal) in arena.BellatraSeals)
+        {
+            foreach (var (name, entrant) in _bellatra.Entrants)
+            {
+                if (entrant.Team == team && InBellatra(name, out var member))
+                {
+                    Notify(member.Player.EntityId, ChatKind.System, seal == BellatraSeal.Points
+                        ? GameText.Of(GameTextId.BellatraPoints, picker, BellatraRules.PointsBonus.ToString(CultureInfo.InvariantCulture)) : GameText.Of(SealText(seal), picker));
+                }
+            }
+        }
+
+        arena.BellatraSeals.Clear();
     }
+
+    private static GameTextId SealText(BellatraSeal seal) => seal switch
+    {
+        BellatraSeal.Quake => GameTextId.BellatraQuake,
+        BellatraSeal.Stun => GameTextId.BellatraStun,
+        BellatraSeal.Freeze => GameTextId.BellatraFreeze,
+        BellatraSeal.Rabbit => GameTextId.BellatraRabbit,
+        BellatraSeal.Stygian => GameTextId.BellatraStygian,
+        BellatraSeal.Guardian => GameTextId.BellatraGuardian,
+        _ => GameTextId.BellatraPoints
+    };
 
     // The board of a player in the arena: its own while it plays, its last one after it left the game until it leaves the
     // arena; none elsewhere.

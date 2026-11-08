@@ -345,7 +345,7 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
             if (reward.CreditedPlayerId != 0)
             {
                 CallKillSummons(killed, reward.CreditedPlayerId);
-                ScoreBellatra(killed, reward.CreditedPlayerId);
+                ScoreBellatra(killed, reward.CreditedPlayerId, dropPosition);
             }
         }
     }
