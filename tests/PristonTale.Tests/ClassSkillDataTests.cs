@@ -31,6 +31,9 @@ internal static class ClassSkillDataTests
         ["Bum shot"] = "Bomb Shot"
     };
 
+    // Skills the snapshot lets either button use that the class's own client takes on the right button only.
+    private static readonly HashSet<string> RightOnly = ["Stinger", "Running Hit", "Wisp", "Dark Wave"];
+
     private static readonly Dictionary<string, ItemKind> WeaponCodes = new()
     {
         ["WA1"] = ItemKind.Axe, ["WC1"] = ItemKind.Claw, ["WD1"] = ItemKind.Dagger, ["WH1"] = ItemKind.Hammer, ["WM1"] = ItemKind.Staff,
@@ -213,7 +216,7 @@ internal static class ClassSkillDataTests
                 "None" => SkillMouseUse.None,
                 _ => throw new InvalidDataException(source.Use)
             };
-            Assert.True(skill.MouseUse == mouseUse, $"{name} mouse use changed");
+            Assert.True(skill.MouseUse == (RightOnly.Contains(name) ? SkillMouseUse.Right : mouseUse), $"{name} mouse use changed");
             var mask = source.Weapons.Aggregate(0u, (current, code) => current | 1u << (int)WeaponCodes[code]);
             Assert.True(skill.AllowedWeaponsMask == mask, $"{name} weapons changed");
             for (var rank = 1; rank <= 10; rank++)
