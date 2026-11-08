@@ -194,3 +194,83 @@ public sealed record BellatraBoardPacket(bool Shown, byte Round, byte Team, byte
         return new BellatraBoardPacket(true, round, team, outcome, score, teams);
     }
 }
+
+// C->S a Bellatra result window: {header, uint8 Team (OwnGame the player's game or every team, 1 to 4 a team booth's)}.
+public readonly record struct BellatraResultRequestPacket(byte Team) : IFramePacket
+{
+    public const int Size = 8 + WireHeader.Size + 1;
+    public const byte OwnGame = 0;
+
+    public int Write(Span<byte> destination)
+    {
+        var writer = new PacketWriter(destination, EtervaleOpcodes.BellatraResultRequest);
+        BellatraWire.Header(ref writer);
+        writer.Byte(Team);
+        return writer.Finish();
+    }
+
+    public static BellatraResultRequestPacket Read(ReadOnlySpan<byte> packet)
+    {
+        var reader = new PacketReader(packet, Size);
+        BellatraWire.ReadHeader(ref reader);
+        var team = reader.Byte();
+        if (team > BellatraLimits.Teams)
+        {
+            throw new InvalidDataException("Bellatra result request names an unknown team.");
+        }
+
+        return new BellatraResultRequestPacket(team);
+    }
+}
+
+public readonly record struct BellatraResultLineWire(string Name, byte Class, ulong Score, uint Kills);
+
+// S->C a Bellatra result window, best score first: {header, uint8 Final (0 live), uint8 Count (at most
+// BellatraLimits.ResultLines), {text Name, uint8 Class, varuint Score, varuint Kills} x Count}.
+public sealed record BellatraResultPacket(bool Final, IReadOnlyList<BellatraResultLineWire> Lines) : IFramePacket
+{
+    public const int MaxSize = 8 + WireHeader.Size + 2 + BellatraLimits.ResultLines * (2 + AccountWire.MaxNameBytes + 1 + 2 * VarInt.MaxBytes64);
+
+    public int Write(Span<byte> destination)
+    {
+        if (Lines.Count > BellatraLimits.ResultLines)
+        {
+            throw new InvalidOperationException("Bellatra's result lists at most ten players.");
+        }
+
+        var writer = new PacketWriter(destination, EtervaleOpcodes.BellatraResult);
+        BellatraWire.Header(ref writer);
+        writer.Byte(Final ? (byte)1 : (byte)0);
+        writer.Byte((byte)Lines.Count);
+        foreach (var line in Lines)
+        {
+            Utf8Text.Write(ref writer, line.Name, AccountWire.MaxNameBytes);
+            writer.Byte(line.Class);
+            writer.VarUInt(line.Score);
+            writer.VarUInt(line.Kills);
+        }
+
+        return writer.Finish();
+    }
+
+    public static BellatraResultPacket Read(ReadOnlySpan<byte> packet)
+    {
+        var reader = new PacketReader(packet, 8 + WireHeader.Size + 2);
+        BellatraWire.ReadHeader(ref reader);
+        var final = reader.Byte() != 0;
+        var count = reader.Byte();
+        if (count > BellatraLimits.ResultLines)
+        {
+            throw new InvalidDataException("Bellatra's result lists too many players.");
+        }
+
+        var lines = new BellatraResultLineWire[count];
+        for (var index = 0; index < count; index++)
+        {
+            lines[index] = new BellatraResultLineWire(Utf8Text.Read(ref reader, AccountWire.MaxNameBytes, "Bellatra result"), reader.Byte(), reader.VarUInt(),
+                (uint)Math.Min(reader.VarUInt(), uint.MaxValue));
+        }
+
+        return new BellatraResultPacket(final, lines);
+    }
+}

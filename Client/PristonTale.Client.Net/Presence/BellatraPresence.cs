@@ -20,4 +20,9 @@ public sealed record BellatraClanInfo(bool HasView, long OperatingClanId, string
     public static readonly BellatraClanInfo None = new(false, 0, "", "", 0, 0, false, []);
 }
 
+public sealed record BellatraResultLineInfo(string Name, Contracts.Characters.PlayerClass Class, long Score, int Kills);
+
+// A Bellatra result window, best score first: the player's game's final result, or a team's live one.
+public sealed record BellatraResultInfo(bool Final, IReadOnlyList<BellatraResultLineInfo> Lines);
+
 public sealed record BellatraClanResultInfo(Protocol.Packets.BellatraClanAction Action, BellatraClanStatus Status);

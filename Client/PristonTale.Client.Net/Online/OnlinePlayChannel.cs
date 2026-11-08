@@ -164,6 +164,12 @@ internal sealed class OnlinePlayChannel : IPlayChannel
         _connection.SendSocial(new BellatraClanRequestPacket(action, npcId, (ulong)Math.Max(0, amount)));
     }
 
+    public async Task SendBellatraResultAsync(int team, CancellationToken ct = default)
+    {
+        await _start.WaitAsync(ct);
+        _connection.SendSocial(new BellatraResultRequestPacket((byte)Math.Clamp(team, 0, Contracts.Social.BellatraLimits.Teams)));
+    }
+
     public async Task SendClanMarkAsync(byte[] pixels, CancellationToken ct = default)
     {
         await _start.WaitAsync(ct);

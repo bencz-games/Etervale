@@ -12,4 +12,7 @@ public sealed partial class GameScene
 
     public void SendBellatraClan(BellatraClanAction action, ulong npcId, long amount) =>
         SendSocial(_playChannel?.SendBellatraClanAsync(action, npcId, amount, _presenceCts.Token), "Bellatra secretary request");
+
+    public void SendBellatraResult(int team) =>
+        SendSocial(_playChannel?.SendBellatraResultAsync(team, _presenceCts.Token), "Bellatra result request");
 }

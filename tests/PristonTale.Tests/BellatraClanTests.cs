@@ -26,7 +26,7 @@ internal static class BellatraClanTests
         yield return ("yesterday's best clan operates Bellatra and gains the tax of today's prizes; nobody operates after a day without games, and no day turns before the clans are loaded", OperatingAsync);
         yield return ("the operating clan's chief redeems its income at the secretary alone into its gold; others, a team booth and more than the balance are refused",
             RedeemAsync);
-        yield return ("the secretary's request, state and result and an entrant's board cross the wire whole", WireAsync);
+        yield return ("the secretary's request, state and result, an entrant's board and a result window and its request cross the wire whole", WireAsync);
     }
 
     private static Task DaysAsync()
@@ -150,6 +150,21 @@ internal static class BellatraClanTests
     private static Task WireAsync()
     {
         var buffer = new byte[BellatraClanStatePacket.MaxSize];
+        var resultBuffer = new byte[BellatraResultPacket.MaxSize];
+        var window = new BellatraResultPacket(true, [.. Enumerable.Range(0, BellatraLimits.ResultLines).Select(static index =>
+            new BellatraResultLineWire(new string('n', 32), 11, 9_000_000_000, 70 + (uint)index))]);
+        var readResult = BellatraResultPacket.Read(resultBuffer.AsSpan(0, window.Write(resultBuffer)));
+        var team = new BellatraResultRequestPacket(4);
+        Assert.True(readResult.Final && readResult.Lines.SequenceEqual(window.Lines)
+            && BellatraResultRequestPacket.Read(resultBuffer.AsSpan(0, team.Write(resultBuffer))) == team, "a Bellatra result or its request did not cross the wire");
+        var unknown = new byte[BellatraResultRequestPacket.Size];
+        new BellatraResultRequestPacket(4).Write(unknown);
+        unknown[^1] = BellatraLimits.Teams + 1;
+        Assert.Throws<InvalidDataException>(() => BellatraResultRequestPacket.Read(unknown), "a result request for a fifth team was read");
+        var accented = new string('é', 40);
+        var trimmed = BellatraResultPacket.Read(resultBuffer.AsSpan(0, new BellatraResultPacket(false, [new(accented, 1, 1, 1)]).Write(resultBuffer)));
+        Assert.True(trimmed.Lines is [{ Name: var name }] && accented.StartsWith(name, StringComparison.Ordinal)
+            && System.Text.Encoding.UTF8.GetByteCount(name) <= Protocol.Packets.AccountWire.MaxNameBytes, "a long accented name did not cross trimmed to its byte limit");
         var request = new BellatraClanRequestPacket(BellatraClanAction.Redeem, 42, 1_000);
         Assert.True(BellatraClanRequestPacket.Read(buffer.AsSpan(0, request.Write(buffer))) == request, "the request did not cross the wire");
         var state = new BellatraClanStatePacket(true, 7, "Lions", "Chief", 5, 9_000_000_000, true, [new("Lions", 300), new("Tigers", 100)]);

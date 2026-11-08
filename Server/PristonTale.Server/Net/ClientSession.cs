@@ -313,6 +313,9 @@ internal sealed partial class ClientSession : IMovementVerdictSink
                 case EtervaleOpcodes.BellatraClanRequest:
                     await BellatraClanAsync(BellatraClanRequestPacket.Read(memory.Span));
                     break;
+                case EtervaleOpcodes.BellatraResultRequest:
+                    await BellatraResultAsync(BellatraResultRequestPacket.Read(memory.Span));
+                    break;
                 case EtervaleOpcodes.ContactChange:
                     await ChangeContactAsync(ContactChangePacket.Read(memory.Span));
                     break;

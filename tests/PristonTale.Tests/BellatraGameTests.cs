@@ -24,7 +24,7 @@ internal static class BellatraGameTests
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
         yield return ("a Bellatra team booth sells a ticket at dawn into its team's room; rounds open monsters by the game clock, kills score, the best "
-            + "team goes on, the game ends with the prize less the tax and a potion for each monster standing, and the entrants return to Navisko", GameAsync);
+            + "team goes on, the live and the final results list the entrant's score and kills, the game ends with the prize less the tax and a potion for each monster standing, and the entrants return to Navisko", GameAsync);
         yield return ("a Bellatra booth refuses a closed Bellatra, a low level and the hours past dawn, and the ticket's gold is in the currency report",
             RefusalsAsync);
         yield return ("a Bellatra booth refuses a full team, a second ticket and a game still ending", BoothAsync);
@@ -56,6 +56,11 @@ internal static class BellatraGameTests
         game.Seconds(1);
         Assert.True(game.LastBoard() is { Round: 1, Team: 0, Score: 100, Outcome: BellatraOutcome.Playing } board && board.TeamScores is [100, 0, 0, 0],
             "the entrant's board did not show the round, its score and the teams'");
+        var live = await WorldPump.RunAsync(game.World, game.World.BellatraResultAsync(game.Player.EntityId, 1));
+        var otherTeam = await WorldPump.RunAsync(game.World, game.World.BellatraResultAsync(game.Player.EntityId, 2));
+        var everyTeam = await WorldPump.RunAsync(game.World, game.World.BellatraResultAsync(game.Player.EntityId, 0));
+        Assert.True(live is { Final: false, Lines: [{ Name: "Entrant", Class: PlayerClass.Fighter, Score: 100, Kills: 1 }] } && otherTeam.Lines.Count == 0
+            && everyTeam is { Final: false, Lines: [{ Name: "Entrant" }] }, "a team's live result did not list its entrant's score and kills, or another team's listed it");
 
         foreach (var hour in new[] { 8, 10, 12 })
         {
@@ -83,6 +88,10 @@ internal static class BellatraGameTests
         game.AtHour(0);
         Assert.True(standing > 0 && Potions(arena) == standing && !arena.MonstersForInspection.Any(static monster => monster.BellatraRoom >= 0 && monster.IsAlive),
             "the end after round 7, the final skipped, did not leave a potion for each round monster standing");
+        var final = await WorldPump.RunAsync(game.World, game.World.BellatraResultAsync(game.Player.EntityId, 0));
+        var booth = await WorldPump.RunAsync(game.World, game.World.BellatraResultAsync(game.Player.EntityId, 1));
+        Assert.True(final is { Final: true, Lines: [{ Name: "Entrant", Score: 100, Kills: 1 }] } && booth is { Final: false },
+            "the end did not keep the game's final result for its entrant, or a team booth answered it");
         Assert.True(game.World.BellatraPrizes.TryRead(out var prize) && prize.Gold == BellatraRules.Prize(100, BellatraRules.DefaultTax)
             && prize.Text == GameText.Of(GameTextId.BellatraCleared, prize.Gold), "the game did not skip the final below its need and pay the score less the tax");
         var money = game.Session.Character!.Money;
@@ -92,6 +101,8 @@ internal static class BellatraGameTests
         Assert.True(game.LastBoard() is { Round: 0, Outcome: BellatraOutcome.Cleared }, "the board did not show the game over");
         game.Seconds(BellatraRules.OutSeconds + 1);
         Assert.True(game.Session.FieldId == BellatraArena.Village && game.LastBoard() is null, "the entrants did not go back to Navisko, or kept the board");
+        var reset = await WorldPump.RunAsync(game.World, game.World.BellatraResultAsync(game.Player.EntityId, 0));
+        Assert.True(reset is { Final: false, Lines.Count: 0 }, "the game's reset kept its final result");
     }
 
     private static async Task SealsAsync()
@@ -156,7 +167,7 @@ internal static class BellatraGameTests
         Assert.True(booth.Refusal(character, 0) == NpcServiceStatus.Ok, "an open booth refused at dawn");
         game.TeamLevels[0] = BellatraRules.TeamLevels + 1;
         Assert.True(booth.Refusal(character, 0) == NpcServiceStatus.BellatraTeamFull && booth.Refusal(character, 1) == NpcServiceStatus.Ok, "a full team still sold");
-        game.Entrants[character.Name] = new BellatraGame.Entrant(1);
+        game.Entrants[character.Name] = new BellatraGame.Entrant(1, PlayerClass.Fighter);
         Assert.True(booth.Refusal(character, 1) == NpcServiceStatus.BellatraEntered, "an entrant bought a second ticket");
         game.Entrants.Clear();
         game.OutAtMs = 1;

@@ -8,17 +8,25 @@ using PristonTale.Protocol.Packets;
 namespace PristonTale.Gameplay.UI;
 
 // Bellatra on the HUD: the board while the server shows it, a notice when a round starts, when the player's team goes on
-// or is out and when the game is over, and the secretary's window (a refused request shows its reason in the notice
-// strip). A team booth offers its ticket as the NPC panel's one destination.
+// or is out and when the game is over, the secretary's window (a refused request shows its reason in the notice strip)
+// and the result window: the game's final result once it is over, and a team's live result beside its booth, whose
+// ticket is the NPC panel's one destination.
 public sealed partial class GameplayHud
 {
     private readonly HudBellatraBoard _bellatraBoard = new();
     private readonly HudBellatraWindow _bellatraWindow = new();
+    private readonly HudBellatraResult _bellatraResult = new();
 
     // Sends the secretary window's requests; set by the screen.
     public Action<BellatraClanAction, ulong, long> SendBellatraClan
     {
         set => _bellatraWindow.Send = value;
+    }
+
+    // Asks a result window (BellatraResultRequestPacket.OwnGame the player's game, 1 to 4 a team booth's); set by the screen.
+    public Action<int> SendBellatraResult
+    {
+        set => _bellatraResult.Ask = value;
     }
 
     public void ObserveBellatra(PresenceUpdate update)
@@ -37,6 +45,11 @@ public sealed partial class GameplayHud
             }
         }
 
+        if (update.BellatraResult is { } shown)
+        {
+            _bellatraResult.Observe(shown);
+        }
+
         if (update.Bellatra is not { } board)
         {
             return;
@@ -47,6 +60,10 @@ public sealed partial class GameplayHud
         if (board.Shown && board.Outcome != was.Outcome && board.Outcome != Contracts.Social.BellatraOutcome.Playing)
         {
             _notice.Show(ClientText.Get("Bellatra.Outcome." + board.Outcome));
+            if (board.Outcome == Contracts.Social.BellatraOutcome.Cleared)
+            {
+                _bellatraResult.RequestFinal(_clock.Elapsed.TotalMilliseconds);
+            }
         }
         else if (board.Shown && board.Round > 0 && board.Round != was.Round)
         {
@@ -63,7 +80,14 @@ public sealed partial class GameplayHud
     private void AskRedemption(long maximum, Action<int> accepted) =>
         _countBox.Open(ClientText.Get("Bellatra.HowMuch"), ClientText.Get("Bellatra.ToRedeem"), maximum, accepted);
 
-    private bool ClickBellatra(Point pointer) => _bellatraWindow.Click(pointer);
+    // A team booth's panel shows its team's live result beside it while a game is played.
+    private void OpenBellatraBooth(int team)
+    {
+        _npc.ShowDestinations(_services.Destinations);
+        _bellatraResult.RequestLive(team, _clock.Elapsed.TotalMilliseconds);
+    }
 
-    private bool CapturesBellatra(Point pointer) => _bellatraWindow.Contains(pointer);
+    private bool ClickBellatra(Point pointer) => _bellatraWindow.Click(pointer) || _bellatraResult.Click(pointer);
+
+    private bool CapturesBellatra(Point pointer) => _bellatraWindow.Contains(pointer) || _bellatraResult.Contains(pointer);
 }

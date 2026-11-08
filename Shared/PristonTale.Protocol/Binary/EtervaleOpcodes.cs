@@ -78,6 +78,8 @@ public static class EtervaleOpcodes
     public const uint BellatraClanState = 0x45541301;
     public const uint BellatraClanResult = 0x45541302;
     public const uint BellatraBoard = 0x45541303;
+    public const uint BellatraResultRequest = 0x45541304;
+    public const uint BellatraResult = 0x45541305;
 
     public const uint PresenceEntries = 0x45540900;
     public const uint DescribeEntity = 0x45540901;

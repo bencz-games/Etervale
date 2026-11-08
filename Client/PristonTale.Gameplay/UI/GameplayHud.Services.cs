@@ -205,7 +205,7 @@ public sealed partial class GameplayHud
                 OpenBellatra(_services.NpcId);
                 break;
             case NpcServiceKind.EventBooth:
-                _npc.ShowDestinations(_services.Destinations);
+                OpenBellatraBooth(_npc.Current?.Services.FirstOrDefault(static offer => offer.Kind == NpcServiceKind.EventBooth)?.Value ?? 0);
                 break;
             case NpcServiceKind.Smelting:
                 OpenBench(_smelting.Show);

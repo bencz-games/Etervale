@@ -1,4 +1,5 @@
 using System.Numerics;
+using PristonTale.Contracts.Characters;
 using PristonTale.Contracts.Social;
 using PristonTale.Simulation.World.Bellatra;
 using PristonTale.Simulation.World.Monsters;
@@ -9,6 +10,12 @@ namespace PristonTale.Application.World;
 // start or the end went for it.
 public sealed record BellatraView(int Round, int Team, long Score, IReadOnlyList<long> TeamScores, BellatraOutcome Outcome);
 
+public sealed record BellatraResultLine(string Name, PlayerClass Class, long Score, int Kills);
+
+// What a Bellatra result window lists, best score first: the game's final result, or the live one of the players still in
+// the arena.
+public sealed record BellatraResult(bool Final, IReadOnlyList<BellatraResultLine> Lines);
+
 // One Bellatra game, owned by the world: changed by commands and the serial part of the tick, and by the Bellatra
 // field's step (scores) and its publish (the entrants' boards, ViewOf) while no other part runs; only the arena
 // field's thread reaches it during the parallel step. Next is the round that starts next (0 before the first; past the last
@@ -16,10 +23,12 @@ public sealed record BellatraView(int Round, int Team, long Score, IReadOnlyList
 // characters, which a player keeps across a relog.
 internal sealed class BellatraGame
 {
-    internal sealed class Entrant(int team)
+    internal sealed class Entrant(int team, PlayerClass playerClass)
     {
         public int Team { get; } = team;
+        public PlayerClass Class { get; } = playerClass;
         public long Score { get; set; }
+        public int Kills { get; set; }
         public BellatraOutcome Outcome { get; set; }
 
         // The board last made for the entrant and the game's revision it was made at.
@@ -50,6 +59,9 @@ internal sealed class BellatraGame
 
     // The game clock's hour the last tick saw (none yet: -1).
     public int LastHour { get; set; } = -1;
+
+    // The result of the game that ended, kept until the game resets.
+    public BellatraResult? Final { get; set; }
 
     // The round's monsters as the arena's catalog holds them (null for a name it lacks), and its boss.
     public MonsterDefinition?[] Monsters { get; set; } = [];
@@ -96,5 +108,6 @@ internal sealed class BellatraGame
         Array.Clear(TeamLevels);
         Next = 0;
         OutAtMs = 0;
+        Final = null;
     }
 }

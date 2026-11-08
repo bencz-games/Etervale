@@ -571,7 +571,11 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   the team going on, the team out and the game over. The secretary (`EventBooth` value 5) opens `HudBellatraWindow`:
   the operating clan, its chief, the tax, the clan's income with Redeem for its chief (the count box asks how much),
   and the Ranking page of yesterday's best clans; a refused request shows its reason. The butler's and the secretary's
-  windows share their frame, lines and buttons (`HudPanelPage`).
+  windows share their frame, lines and buttons (`HudPanelPage`). `HudBellatraResult` shows a result in a help box
+  (rank, class face, name, score and kills, the original's list art): the game's final result opens when the board
+  says the game is over, and a team booth asks its team's live result, shown beside the NPC panel while a game is
+  played, asked again every 12 s and closed with the panel or once nobody is left in the game. Only the answer the
+  window still waits for opens it, a live answer never replaces the final result, and Escape closes it.
 - Status window: attribute buttons send `ProgressionCommand` with `ProgressionRevision`; the organic, poison, fire,
   lightning and ice resistance boxes show the owner's resistances; the Clan box shows the owner's clan mark and name.
 - Block feedback (`HudStringEffect`): when the player blocks a blow, the original `block.tga` word shows at (354, 488)

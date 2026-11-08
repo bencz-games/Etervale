@@ -147,6 +147,7 @@ internal sealed class PresenceDecoder : IEventHandleReader
             EtervaleOpcodes.CastleState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Castle = Castle(CastleStatePacket.Read(packet)) },
             EtervaleOpcodes.CastleOwnerState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { CastleOwner = CastleOwner(CastleOwnerStatePacket.Read(packet)) },
             EtervaleOpcodes.BellatraBoard => new PresenceUpdate(_tick, [], [], [], [], FieldId) { Bellatra = Bellatra(BellatraBoardPacket.Read(packet)) },
+            EtervaleOpcodes.BellatraResult => new PresenceUpdate(_tick, [], [], [], [], FieldId) { BellatraResult = BellatraResult(BellatraResultPacket.Read(packet)) },
             EtervaleOpcodes.BellatraClanState => new PresenceUpdate(_tick, [], [], [], [], FieldId) { BellatraClan = BellatraClan(BellatraClanStatePacket.Read(packet)) },
             EtervaleOpcodes.BellatraClanResult => new PresenceUpdate(_tick, [], [], [], [], FieldId)
             {
@@ -257,6 +258,10 @@ internal sealed class PresenceDecoder : IEventHandleReader
     private static BellatraBoardInfo Bellatra(BellatraBoardPacket packet) => !packet.Shown ? BellatraBoardInfo.Hidden
         : new BellatraBoardInfo(true, packet.Round, packet.Team, (long)Math.Min(packet.Score, long.MaxValue),
             [.. packet.TeamScores.Select(static score => (long)Math.Min(score, long.MaxValue))], (Contracts.Social.BellatraOutcome)packet.Outcome);
+
+    private static BellatraResultInfo BellatraResult(BellatraResultPacket packet) =>
+        new(packet.Final, [.. packet.Lines.Select(static line => new BellatraResultLineInfo(line.Name, (Contracts.Characters.PlayerClass)line.Class,
+            (long)Math.Min(line.Score, long.MaxValue), (int)Math.Min(line.Kills, int.MaxValue)))]);
 
     private static BellatraClanInfo BellatraClan(BellatraClanStatePacket packet) => !packet.HasView ? BellatraClanInfo.None
         : new BellatraClanInfo(true, (long)Math.Min(packet.OperatingClanId, long.MaxValue), packet.OperatingName, packet.Chief, packet.Tax,

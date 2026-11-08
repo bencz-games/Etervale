@@ -816,6 +816,11 @@ characters, so a relog keeps a player's place and score.
   payment of that service value), the redemption stored with the character and a `BellatraRedemption` movement
   before the gold reaches it. Storage runs off the tick under one gate; a refused storage loses a prize's points and
   income (logged).
+- Results (`WorldServer.BellatraResultAsync`, `BellatraResult`): every entrant counts its kills with its score. When
+  the game ends the world keeps its final result (the entrants in the arena, best score first, at most ten:
+  name, class, score and kills, `BellatraGame.Final`) until the game resets, and answers it to an entrant who asks for its
+  own game; otherwise a request answers the live result of every team, or of a team booth's team (1 to 4), among the
+  entrants in the arena.
 - Boards: a player in the arena is sent its board in its snapshot (`WorldSnapshot.Bellatra`, `BellatraView`: the
   round, its team, its score, the teams' scores and how its last round start or the end went), made again only when
   the game's revision changed (`BellatraGame.ViewOf`); a player who left the game keeps its last board until it leaves

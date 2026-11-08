@@ -44,7 +44,7 @@ public sealed partial class WorldServer
             return;
         }
 
-        _bellatra.Entrants[character.Name] = new BellatraGame.Entrant(team);
+        _bellatra.Entrants[character.Name] = new BellatraGame.Entrant(team, character.Class.Class);
         _bellatra.TeamLevels[team] += character.Level;
     }
 
@@ -169,6 +169,7 @@ public sealed partial class WorldServer
     private void FinishBellatra(long nowMs)
     {
         var game = _bellatra;
+        game.Final = new BellatraResult(true, BellatraResultLines(-1));
         foreach (var (name, entrant) in game.Entrants)
         {
             if (InBellatra(name, out var connection))
@@ -281,6 +282,29 @@ public sealed partial class WorldServer
 
         var name = connection.Player.Character.Name;
         return _bellatra.Entrants.TryGetValue(name, out var entrant) ? _bellatra.ViewOf(entrant) : _bellatra.Leaving.GetValueOrDefault(name);
+    }
+
+    // The result window of a player asking for its own game (team 0): the game's final result while its entrant waits
+    // after the end, otherwise every team's live result; a team booth's (team 1 to 4) is that team's live result.
+    public Task<BellatraResult> BellatraResultAsync(ulong entityId, int team) =>
+        EnqueueAsync(entityId, () => team == 0 && _bellatra.Final is { } final && _connections.TryGetValue(entityId, out var connection)
+            && _bellatra.Entrants.ContainsKey(connection.Player.Character.Name)
+            ? final
+            : new BellatraResult(false, BellatraResultLines(BellatraRules.TeamOfBooth(team))));
+
+    // The entrants in the arena of a team (-1 every team), best score first.
+    private BellatraResultLine[] BellatraResultLines(int team)
+    {
+        var lines = new List<BellatraResultLine>();
+        foreach (var (name, entrant) in _bellatra.Entrants)
+        {
+            if ((team < 0 || entrant.Team == team) && InBellatra(name, out var connection))
+            {
+                lines.Add(new BellatraResultLine(connection.Player.Character.Name, entrant.Class, entrant.Score, entrant.Kills));
+            }
+        }
+
+        return [.. lines.OrderByDescending(static line => line.Score).Take(BellatraLimits.ResultLines)];
     }
 
     // Whether the entrant plays in the arena now.

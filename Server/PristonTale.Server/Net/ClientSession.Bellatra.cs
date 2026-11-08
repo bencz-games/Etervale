@@ -27,4 +27,17 @@ internal sealed partial class ClientSession
                 (ulong)Math.Max(0, view.Balance), view.CanRedeem, [.. view.Top.Select(static clan => new BellatraClanRankWire(clan.Name, (ulong)Math.Max(0, clan.Points)))]);
         SendLarge(packet.Write, BellatraClanStatePacket.MaxSize);
     }
+
+    private async Task BellatraResultAsync(BellatraResultRequestPacket request)
+    {
+        if (_player is null || _session is not { } session)
+        {
+            return;
+        }
+
+        var result = await _services.World.BellatraResultAsync(session.EntityId, request.Team);
+        var packet = new BellatraResultPacket(result.Final, [.. result.Lines.Select(static line =>
+            new BellatraResultLineWire(line.Name, (byte)line.Class, (ulong)Math.Max(0, line.Score), (uint)Math.Max(0, line.Kills)))]);
+        SendLarge(packet.Write, BellatraResultPacket.MaxSize);
+    }
 }

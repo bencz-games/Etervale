@@ -144,6 +144,7 @@ public sealed partial class GameplayHud : IDisposable
         _sprites.Request(HudCraftArt.All);
         _sprites.Request(HudArt.BlockText);
         _sprites.Request(HudQuestArt.All);
+        _sprites.Request(Bellatra.HudBellatraResult.Art);
         _painter = new HudPainter(context.SpriteBatch, context.Font, _sprites);
         _icons = new HudItemIcons(context.GraphicsDevice, context.AssetRoot, context.Log);
         _personalShop = new HudPersonalShopController(context.Log) { Notify = _notice.Show, AskCount = (first, second, maximum, accepted) => _countBox.Open(first, second, maximum, accepted) };
@@ -360,7 +361,7 @@ public sealed partial class GameplayHud : IDisposable
         }
 
         _npc.Dismiss();
-        var closed = _clanWindow.IsOpen || _castleWindow.IsOpen || _bellatraWindow.IsOpen || _npcOpen || _settingsOpen || _systemMenu || _skills.TrainingPending
+        var closed = _clanWindow.IsOpen || _castleWindow.IsOpen || _bellatraWindow.IsOpen || _bellatraResult.IsOpen || _npcOpen || _settingsOpen || _systemMenu || _skills.TrainingPending
             || _inventorySlide.Open || _statusSlide.Open || _skillSlide.Open || ServiceWindowOpen(blockingOnly: false)
             || _questWindow.Open || _partyWindow.Open || _quests.Dialog is not null || _quests.SkillResetBox;
         closed |= _personalShop.Close();
@@ -371,6 +372,7 @@ public sealed partial class GameplayHud : IDisposable
         _clanWindow.Close();
         _castleWindow.Close();
         _bellatraWindow.Close();
+        _bellatraResult.Close();
         _itemUse.Close();
         _wingGate.Close();
         _puzzle.Close();
@@ -431,6 +433,7 @@ public sealed partial class GameplayHud : IDisposable
         _clanRequest.Update(_clock.Elapsed.TotalMilliseconds);
         _tradeRequest.Update(_clock.Elapsed.TotalMilliseconds);
         UpdateContacts(_clock.Elapsed.TotalMilliseconds);
+        _bellatraResult.Update(_clock.Elapsed.TotalMilliseconds, _npcOpen);
         ForwardMessages();
         ApplyQuests();
         ApplyServices(state);
@@ -775,6 +778,12 @@ public sealed partial class GameplayHud : IDisposable
         {
             _painter.Flush();
             _npc.Draw(_painter, pointer);
+        }
+
+        if (_bellatraResult.IsOpen)
+        {
+            _painter.Flush();
+            _bellatraResult.Draw(_painter, pointer);
         }
 
         if (_itemUse.Teleport.IsOpen || _itemUse.Confirming)

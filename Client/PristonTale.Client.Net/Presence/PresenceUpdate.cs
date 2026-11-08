@@ -62,8 +62,9 @@ public sealed record PresenceUpdate(
     public CastleOwnerInfo? CastleOwner { get; init; }
     public CastleOwnerResultInfo? CastleOwnerResult { get; init; }
 
-    // The local player's Bellatra board, the secretary's window and how a request of it ended.
+    // The local player's Bellatra board, the secretary's window and how a request of it ended, and a result window.
     public BellatraBoardInfo? Bellatra { get; init; }
+    public BellatraResultInfo? BellatraResult { get; init; }
     public BellatraClanInfo? BellatraClan { get; init; }
     public BellatraClanResultInfo? BellatraClanResult { get; init; }
 

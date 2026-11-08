@@ -108,6 +108,7 @@ internal sealed class HudCaptureProbe : Game
     private const uint ClanMasterNpc = 16;
     private const uint ButlerNpc = 17;
     private const uint SecretaryNpc = 18;
+    private const uint TeamBoothNpc = 19;
 
     private enum ProbePlates
     {
@@ -130,7 +131,8 @@ internal sealed class HudCaptureProbe : Game
         int ServiceButton = -1, bool SellMode = false, int ServiceCount = 2, int RightSelect = -1, bool Buffs = false, bool Block = false,
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
         ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false, ProbePlates Plates = ProbePlates.None, bool ClanPage = false,
-        bool Siege = false, int CastleButton = -1, bool CastleChief = true, bool Bellatra = false, int BellatraButton = -1);
+        bool Siege = false, int CastleButton = -1, bool CastleChief = true, bool Bellatra = false, int BellatraButton = -1,
+        ProbeBellatraResult BellatraResult = ProbeBellatraResult.None);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -221,6 +223,9 @@ internal sealed class HudCaptureProbe : Game
         new("bellatra-board-1280x720", 1280, 720, Bellatra: true),
         new("bellatra-secretary-800", 800, 600, Npc: true, NpcId: SecretaryNpc, ServiceButton: 0, ServiceCount: 1),
         new("bellatra-ranking-800", 800, 600, Npc: true, NpcId: SecretaryNpc, ServiceButton: 0, ServiceCount: 1, BellatraButton: 1),
+        new("bellatra-result-800", 800, 600, Bellatra: true, BellatraResult: ProbeBellatraResult.Final),
+        new("bellatra-result-live-800", 800, 600, Npc: true, NpcId: TeamBoothNpc, ServiceButton: 0, ServiceCount: 1, BellatraResult: ProbeBellatraResult.Live),
+        new("bellatra-result-1280x720", 1280, 720, Bellatra: true, BellatraResult: ProbeBellatraResult.Final),
         new("system-menu-800", 800, 600, SystemMenu: true),
         new("settings-800", 800, 600, Hover: Hover.SettingsRow, Settings: true),
         new("settings-1600x1200-scale2", 1600, 1200, Settings: true),
@@ -501,6 +506,25 @@ internal sealed class HudCaptureProbe : Game
                 }
             }
 
+            if (scenario.BellatraResult != ProbeBellatraResult.None)
+            {
+                var final = scenario.BellatraResult == ProbeBellatraResult.Final;
+                if (final)
+                {
+                    _hud.ObserveBellatra(new PresenceUpdate(1, [], [], [], [])
+                    {
+                        Bellatra = new BellatraBoardInfo(true, 0, 1, 96_400, [31_200, 96_400, 12_050, 0], Contracts.Social.BellatraOutcome.Cleared)
+                    });
+                }
+
+                string[] names = ["Valkyrie", "Hammer", "Ann", "Bob", "Cid", "Dorothea", "Eve", "Fang", "Gil", "Hilda"];
+                _hud.ObserveBellatra(new PresenceUpdate(1, [], [], [], [])
+                {
+                    BellatraResult = new BellatraResultInfo(final, [.. names.Take(final ? 10 : 3).Select(static (name, index) =>
+                        new BellatraResultLineInfo(name, (PlayerClass)(index % 11 + 1), 96_400 - index * 9_100, 120 - index * 11))])
+                });
+            }
+
             if (scenario.SellMode)
             {
                 Click(state, layout, HudStoreLayout.Sell(HudStoreLayout.Origin(0)).Center);
@@ -734,6 +758,8 @@ internal sealed class HudCaptureProbe : Game
                 ["All matters of clans are handled by me!"], GameText.None),
             ButlerNpc => new NpcInteraction(true, id, "Butler Anders", [Offer(NpcServiceKind.BlessCastle, 0, true)],
                 ["How may I serve the lords of Bless Castle?"], GameText.None),
+            TeamBoothNpc => new NpcInteraction(true, id, "Ticket booth Ariel", [Offer(NpcServiceKind.EventBooth, 2, true)],
+                ["Team 2's tickets are sold here."], GameText.None),
             SecretaryNpc => new NpcInteraction(true, id, "Secretary Karina", [Offer(NpcServiceKind.EventBooth, Simulation.World.Bellatra.BellatraRules.SecretaryBooth, true)],
                 ["I manage Bellatra's operation."], GameText.None),
             SmelterNpc => new NpcInteraction(true, id, "Smelter Ruby", [Offer(NpcServiceKind.QuestGiver, 1019, false), Offer(NpcServiceKind.Smelting, 0, true)],
@@ -861,4 +887,11 @@ internal sealed class HudCaptureProbe : Game
             ? _owner with { Life = 1, Mana = 0, Stamina = 2 }
             : _owner with { Life = _owner.MaxLife * scenario.HealthPercent / 100, Experience = (_owner.LevelStart + _owner.NextLevel) / 2 };
     }
+}
+
+internal enum ProbeBellatraResult
+{
+    None,
+    Final,
+    Live
 }
