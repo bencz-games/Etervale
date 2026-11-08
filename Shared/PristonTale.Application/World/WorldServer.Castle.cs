@@ -18,6 +18,10 @@ public sealed partial class WorldServer : ICastleWorld
     private long _castleTaxGold;
     private long _clanSkillRenewAt;
 
+    // The clan holding the castle as its siege closed, whose living members in the castle cheer one cheer after another
+    // until the siege's end is over (CastleRules.OverSeconds).
+    private (long ClanId, long UntilMs) _castleCheer;
+
     public CastleSiegeView Siege => Volatile.Read(ref _castleSiegeView);
 
     // The castle's tax in force on the fees players pay (0 without an owner).
@@ -76,11 +80,12 @@ public sealed partial class WorldServer : ICastleWorld
         }, waitForCapacity: true);
     }
 
-    public Task CloseSiegeAsync() =>
+    public Task CloseSiegeAsync(long ownerClanId) =>
         EnqueueAsync(NoOwner, () =>
         {
             if (_castleSiege is { } siege)
             {
+                _castleCheer = (ownerClanId, UnixNowMs + CastleRules.OverSeconds * 1000L);
                 if (_fields.TryGetValue(FieldCodes.Castle, out var field))
                 {
                     field.CloseSiege();
@@ -222,6 +227,25 @@ public sealed partial class WorldServer : ICastleWorld
         if (field.FieldId == FieldCodes.Castle && _castleSiege is { } siege)
         {
             field.OpenSiege(siege);
+        }
+    }
+
+    // Every member of the clan in the castle that may start a cheer, standing or moving alike, as the world's cheers do.
+    private void CheerCastleOwners(long nowMs)
+    {
+        if (_castleCheer.ClanId == 0 || nowMs >= _castleCheer.UntilMs)
+        {
+            return;
+        }
+
+        foreach (var connection in _connections.Values)
+        {
+            var player = connection.Player;
+            if (connection.FieldId == FieldCodes.Castle && !player.IsBusy && !player.HasPendingYahoo
+                && CastleSiegeRules.HoldsCastle(player.Clan?.ClanId ?? 0, _castleCheer.ClanId))
+            {
+                player.QueueYahoo(heals: false);
+            }
         }
     }
 

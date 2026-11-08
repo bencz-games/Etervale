@@ -738,6 +738,7 @@ public sealed partial class WorldServer
         LastPhases = new TickPhases(processed, Stopwatch.GetElapsedTime(started, commandsDone).TotalMilliseconds,
             Stopwatch.GetElapsedTime(commandsDone).TotalMilliseconds);
         PublishSiege(nowSeconds);
+        CheerCastleOwners(UnixNowMs);
         ApplyCastleTax();
         RenewClanSkill(nowSeconds);
         StepBellatra(UnixNowMs);

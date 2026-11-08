@@ -13,7 +13,7 @@ namespace PristonTale.Gameplay.UI.Bellatra;
 // What Bellatra's show asks of the scene: a sound, the arena's music (empty: none, at once) and a room seal's quake.
 public interface IBellatraStage
 {
-    void Play(BellatraCue cue);
+    void Play(EventCue cue);
 
     void Music(string code);
 
@@ -88,7 +88,7 @@ public sealed class HudBellatraShow
                     return;
                 case BellatraOutcome.Cleared:
                     Stage?.Music("");
-                    Stage?.Play(BellatraCue.Ending);
+                    Stage?.Play(EventCue.Ending);
                     _effects.Start(BellatraEffect.Congratulations);
                     return;
             }
@@ -117,7 +117,7 @@ public sealed class HudBellatraShow
 
         _effects.Start(BellatraEffect.QuakeSeal + (int)seal);
         _effects.Start(BellatraEffect.QuakeSealName + (int)seal);
-        Stage?.Play(BellatraCue.Item);
+        Stage?.Play(EventCue.Item);
         if (seal is BellatraSeal.Quake or BellatraSeal.Stun or BellatraSeal.Freeze or BellatraSeal.Rabbit)
         {
             Stage?.Quake();
@@ -174,7 +174,7 @@ public sealed class HudBellatraShow
         _effects.Start(BellatraEffect.Round);
         _effects.Start(BellatraEffect.Count1 + count);
         _effects.Start(BellatraEffect.Start);
-        Stage?.Play(BellatraCue.Round1 + count);
+        Stage?.Play(EventCue.Round1 + count);
     }
 
     // Rounds 1 to 3 play the first stage's music, 4 to 6 the second's and 7 and 8 the top room's.
@@ -183,7 +183,7 @@ public sealed class HudBellatraShow
     private void GoOn(BellatraBoardInfo board)
     {
         Stage?.Music("");
-        Stage?.Play(BellatraCue.StageComplete);
+        Stage?.Play(EventCue.StageComplete);
         _effects.Start(BellatraEffect.Stage);
         _effects.Start(BellatraEffect.Complete);
         Tabulate(board);
@@ -196,7 +196,7 @@ public sealed class HudBellatraShow
     private void Fall(BellatraBoardInfo board)
     {
         Stage?.Music("");
-        Stage?.Play(BellatraCue.StageFail);
+        Stage?.Play(EventCue.StageFail);
         _effects.Start(BellatraEffect.Stage);
         _effects.Start(BellatraEffect.Fail);
         Tabulate(board);
@@ -206,7 +206,7 @@ public sealed class HudBellatraShow
     private void Close()
     {
         _effects.Start(BellatraEffect.CloseScreen);
-        Stage?.Play(BellatraCue.Turn);
+        Stage?.Play(EventCue.Turn);
     }
 
     private void OpenScreen()
@@ -218,7 +218,7 @@ public sealed class HudBellatraShow
 
         _effects.Stop(BellatraEffect.CloseScreen);
         _effects.Start(BellatraEffect.OpenScreen);
-        Stage?.Play(BellatraCue.Turn);
+        Stage?.Play(EventCue.Turn);
     }
 
     // Leaving the arena drops what was still to come and what plays, opening a closed screen.
@@ -230,7 +230,7 @@ public sealed class HudBellatraShow
         if (closed)
         {
             _effects.Start(BellatraEffect.OpenScreen);
-            Stage?.Play(BellatraCue.Turn);
+            Stage?.Play(EventCue.Turn);
         }
     }
 

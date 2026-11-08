@@ -154,11 +154,11 @@ public sealed class FieldAudioController : IDisposable
         }
     }
 
-    public void PlayBellatra(BellatraCue cue)
+    public void PlayEvent(EventCue cue)
     {
-        if (_library.SoundEnabled && _library.Bellatra(cue) is { } sound)
+        if (_library.SoundEnabled && _library.Event(cue) is { } sound)
         {
-            sound.Play(BellatraSounds.Volume(cue), 0f, 0f);
+            sound.Play(EventSounds.Volume(cue), 0f, 0f);
         }
     }
 
@@ -175,6 +175,15 @@ public sealed class FieldAudioController : IDisposable
         }
 
         SelectMusic(code);
+    }
+
+    // The field's own music again after an event's.
+    public void RestoreFieldMusic()
+    {
+        if (_field is not null)
+        {
+            SelectMusic(_field.BackMusicCode);
+        }
     }
 
     public void PlayCraftResult(bool success)

@@ -658,7 +658,7 @@ public sealed class CastleAppService
         }
 
         Publish(_siege with { State = SiegeState.Over, OverUntil = _clock.GetUtcNow().AddSeconds(CastleRules.OverSeconds) });
-        await _world.CloseSiegeAsync();
+        await _world.CloseSiegeAsync(OwnerClanId);
     }
 
     // The clan that dealt the most damage takes the castle (none when no clan dealt any), with a notice naming it.

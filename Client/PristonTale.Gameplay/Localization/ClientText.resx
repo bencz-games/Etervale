@@ -732,11 +732,13 @@ go on to the high tower.</value></data>
   <data name="Siege.DoorDown" xml:space="preserve"><value>Castle door broken</value></data>
   <data name="Siege.DoorStands" xml:space="preserve"><value>Castle door standing</value></data>
   <data name="Siege.Ended" xml:space="preserve"><value>The siege of Bless Castle is over.</value></data>
+  <data name="Siege.EndedText" xml:space="preserve"><value>In a moment, everyone whose clan does not hold Bless Castle goes back to the start of the castle's field.</value></data>
   <data name="Siege.HeldBy" xml:space="preserve"><value>Held by {0}</value></data>
   <data name="Siege.League" xml:space="preserve"><value>BLESS CASTLE LEAGUE</value></data>
   <data name="Siege.NoOwner" xml:space="preserve"><value>No clan holds the castle</value></data>
   <data name="Siege.Title" xml:space="preserve"><value>BLESS CASTLE</value></data>
   <data name="Siege.Won" xml:space="preserve"><value>Your clan holds Bless Castle!</value></data>
+  <data name="Siege.WonText" xml:space="preserve"><value>Congratulations on your victory! The castle is your clan's until the next siege. The clan's chief sets the tax and the clan skill with the castle's butler.</value></data>
   <data name="Skill.AlreadyActive" xml:space="preserve"><value>That effect is still active.</value></data>
   <data name="Skill.CannotUse" xml:space="preserve"><value>The skill cannot be used now.</value></data>
   <data name="Skill.InVillage" xml:space="preserve"><value>Skills cannot be used in town.</value></data>

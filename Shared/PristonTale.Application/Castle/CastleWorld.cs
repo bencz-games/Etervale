@@ -35,7 +35,8 @@ public interface ICastleWorld
 
     Task OpenSiegeAsync(CastleSiegeOrder order);
 
-    Task CloseSiegeAsync();
+    // ownerClanId: the clan holding the castle as the siege closes, whose members in the castle cheer while it is over.
+    Task CloseSiegeAsync(long ownerClanId);
 
     Task<IReadOnlyList<CastleArrival>> EndSiegeAsync(long ownerClanId);
 

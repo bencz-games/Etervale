@@ -732,11 +732,13 @@ seguem para a torre alta.</value></data>
   <data name="Siege.DoorDown" xml:space="preserve"><value>Portão do castelo derrubado</value></data>
   <data name="Siege.DoorStands" xml:space="preserve"><value>Portão do castelo de pé</value></data>
   <data name="Siege.Ended" xml:space="preserve"><value>O cerco ao Bless Castle terminou.</value></data>
+  <data name="Siege.EndedText" xml:space="preserve"><value>Em instantes, todos cujo clã não domina o Bless Castle voltam ao início do campo do castelo.</value></data>
   <data name="Siege.HeldBy" xml:space="preserve"><value>Defendido por {0}</value></data>
   <data name="Siege.League" xml:space="preserve"><value>LIGA DO BLESS CASTLE</value></data>
   <data name="Siege.NoOwner" xml:space="preserve"><value>Nenhum clã domina o castelo</value></data>
   <data name="Siege.Title" xml:space="preserve"><value>BLESS CASTLE</value></data>
   <data name="Siege.Won" xml:space="preserve"><value>Seu clã domina o Bless Castle!</value></data>
+  <data name="Siege.WonText" xml:space="preserve"><value>Parabéns pela vitória! O castelo é do seu clã até o próximo cerco. O chefe do clã define o imposto e a habilidade do clã com o mordomo do castelo.</value></data>
   <data name="Skill.AlreadyActive" xml:space="preserve"><value>Esse efeito ainda está ativo.</value></data>
   <data name="Skill.CannotUse" xml:space="preserve"><value>A habilidade não pode ser usada agora.</value></data>
   <data name="Skill.InVillage" xml:space="preserve"><value>Habilidades não podem ser usadas na cidade.</value></data>

@@ -77,39 +77,39 @@ internal static class BellatraShowTests
         show.Update(2.9);
         Assert.True(stage.Cues.Count == 0, "a round's call came before three seconds");
         show.Update(0.2);
-        Assert.True(stage.Take() is [BellatraCue.Round1] && stage.Music is ["BGM_CODE_SOD1"], "round 1's call or music did not come");
+        Assert.True(stage.Take() is [EventCue.Round1] && stage.Music is ["BGM_CODE_SOD1"], "round 1's call or music did not come");
         show.Observe(Board(1, BellatraOutcome.Playing), BellatraBoardInfo.Hidden);
         show.Observe(BellatraBoardInfo.Hidden, Board(3, BellatraOutcome.Playing));
         show.Update(5);
         Assert.True(stage.Cues.Count == 0 && stage.Music[^1] == "BGM_CODE_SOD1" && !show.Showing, "coming back to a game in play replayed its round");
 
         show.Observe(Board(3, BellatraOutcome.Playing), Board(4, BellatraOutcome.GoesOn));
-        Assert.True(stage.Take() is [BellatraCue.StageComplete] && stage.Music[^1] == "", "a team going on did not hear its fanfare over silence");
+        Assert.True(stage.Take() is [EventCue.StageComplete] && stage.Music[^1] == "", "a team going on did not hear its fanfare over silence");
         show.Update(5.1);
-        Assert.True(stage.Take() is [BellatraCue.Turn] && show.Showing, "the screen did not close at five seconds");
+        Assert.True(stage.Take() is [EventCue.Turn] && show.Showing, "the screen did not close at five seconds");
         show.Update(4);
-        Assert.True(stage.Take() is [BellatraCue.Turn], "the screen did not open at nine seconds");
+        Assert.True(stage.Take() is [EventCue.Turn], "the screen did not open at nine seconds");
         show.Update(1);
-        Assert.True(stage.Take() is [BellatraCue.Round4] && stage.Music[^1] == "BGM_CODE_SOD2", "round 4's call or music did not follow the opening");
+        Assert.True(stage.Take() is [EventCue.Round4] && stage.Music[^1] == "BGM_CODE_SOD2", "round 4's call or music did not follow the opening");
 
         show.Observe(GameTextId.BellatraQuake);
         show.Observe(GameTextId.BellatraPoints);
         show.Observe(GameTextId.BellatraCleared);
-        Assert.True(stage.Take() is [BellatraCue.Item, BellatraCue.Item] && stage.Quakes == 1, "a room's seal did not quake, or another seal or line did");
+        Assert.True(stage.Take() is [EventCue.Item, EventCue.Item] && stage.Quakes == 1, "a room's seal did not quake, or another seal or line did");
 
         show.Observe(Board(4, BellatraOutcome.GoesOn), Board(6, BellatraOutcome.Out));
         show.Update(6.1);
-        Assert.True(stage.Take() is [BellatraCue.StageFail, BellatraCue.Turn], "a team out did not hear its fall, or the screen did not close at six seconds");
+        Assert.True(stage.Take() is [EventCue.StageFail, EventCue.Turn], "a team out did not hear its fall, or the screen did not close at six seconds");
         show.Update(5);
         Assert.True(stage.Cues.Count == 0, "the screen of a team out opened before it left the arena");
         show.Observe(Board(6, BellatraOutcome.Out), BellatraBoardInfo.Hidden);
-        Assert.True(stage.Take() is [BellatraCue.Turn], "leaving the arena did not open the closed screen");
+        Assert.True(stage.Take() is [EventCue.Turn], "leaving the arena did not open the closed screen");
         show.Update(10);
         Assert.True(stage.Cues.Count == 0, "what was still to come played after leaving the arena");
 
         show.Observe(BellatraBoardInfo.Hidden, Board(8, BellatraOutcome.Playing));
         show.Observe(Board(8, BellatraOutcome.Playing), Board(0, BellatraOutcome.Cleared));
-        Assert.True(stage.Take() is [BellatraCue.Ending] && stage.Music[^1] == "", "the end did not play its ending over silence");
+        Assert.True(stage.Take() is [EventCue.Ending] && stage.Music[^1] == "", "the end did not play its ending over silence");
         return Task.CompletedTask;
     }
 
@@ -155,19 +155,19 @@ internal static class BellatraShowTests
 
     private sealed class Stage : IBellatraStage
     {
-        public List<BellatraCue> Cues { get; } = [];
+        public List<EventCue> Cues { get; } = [];
         public List<string> Music { get; } = [];
         public int Quakes { get; private set; }
 
-        public void Play(BellatraCue cue) => Cues.Add(cue);
+        public void Play(EventCue cue) => Cues.Add(cue);
 
         void IBellatraStage.Music(string code) => Music.Add(code);
 
         public void Quake() => Quakes++;
 
-        public BellatraCue[] Take()
+        public EventCue[] Take()
         {
-            BellatraCue[] taken = [.. Cues];
+            EventCue[] taken = [.. Cues];
             Cues.Clear();
             return taken;
         }

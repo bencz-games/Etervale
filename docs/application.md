@@ -732,31 +732,32 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
   the castle has no owner; on shutdown, after the game server, the last of it is stored (`FlushTaxAsync`), and what
   storage then refuses is lost.
 
-The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the
-owner and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its
-spawns and places the defenders (`CastleSiegeRules`): the door, the Tower of Valhalla and six crystal towers of the
-chosen elements stand still at their places with their potion count as lives (`MonsterLifeRules`; the crystal towers
-and the tower strike what comes into their reach without turning), and up to twenty mercenaries of each kind wander
-around their posts with all their potions. A castle without an owner gets twenty of each and crystal towers of random
-elements. The owner clan's members call more mercenaries with crystals during the siege (GP114-116: one a character,
-five of a kind, twenty of the clan; `FieldInstance.CallMercenary`, [special-items.md](special-items.md)), each one a
-defender as the others are; a fallen crystal tower or the door calls guards at the posts near it
+The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner
+and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its spawns
+and places the defenders (`CastleSiegeRules`): the door, the Tower of Valhalla and six crystal towers of the chosen
+elements stand still at their places with their potion count as lives (`MonsterLifeRules`; the crystal towers and the
+tower strike what comes into their reach without turning), and up to twenty mercenaries of each kind wander around their
+posts with all their potions. A castle without an owner gets twenty of each and crystal towers of random elements. The
+owner clan's members call more mercenaries with crystals during the siege (GP114-116: one a character, five of a kind,
+twenty of the clan; `FieldInstance.CallMercenary`, [special-items.md](special-items.md)), each one a defender as the
+others are; a fallen crystal tower or the door calls guards at the posts near it
 ([world.md](world.md#loot-and-kill-rewards)). Every defender belongs to the owner clan (`MonsterInstance.ClanId`,
-`CastleRole`): the defenders and its players never hurt each other (`FieldCombat.OwnClan`, also for clan pets: no
-attack target, no blow or area skill, no skill or summon of theirs on them) and the defenders never pick its players;
-clan pet rules (the cheer, the pets nearby) leave the defenders out. Each player hit (summons' too) on a crystal
-tower, or on the tower once no crystal tower stands, adds the life it took to the player's clan on the damage board
-(`CastleDamageBoard`); while a crystal tower stands the tower is made whole every tick. A player's blow on another
-(see Combat resolution) scores a tenth of the life it took, at least 1 (`CastleSiegeRules.PkScore`), while the tower
-stands, unless the target has no clan and neither side is the owner clan. The world publishes `CastleSiegeView` (door,
-crystal towers and mercenaries standing, the ten best clans and the total) at most once a second while it changes.
-When the tower falls, the castle goes to the board's leader (no owner when no clan dealt damage, and any clan may
-win), with a notice naming the clan; a conquest storage refuses is kept and stored on a later minute (a game master's
-`/end_castle` after the fall still gives it). The siege then closes: its defenders leave. At peace, living players in
-the castle field outside the owner clan are sent to a random start point of the castle, and the owner's towers and
-mercenaries are spent (they serve one siege). While a crystal tower stands no blow takes the tower's life
-(`MonsterInstance.MinimumLife`). `/easy_castle` leaves every defender one life, no lives in reserve and no potions;
-the tower keeps that one life while a crystal tower stands.
+`CastleRole`): the defenders and its players never hurt each other (`FieldCombat.OwnClan`, also for clan pets: no attack
+target, no blow or area skill, no skill or summon of theirs on them) and the defenders never pick its players; clan pet
+rules (the cheer, the pets nearby) leave the defenders out. Each player hit (summons' too) on a crystal tower, or on the
+tower once no crystal tower stands, adds the life it took to the player's clan on the damage board
+(`CastleDamageBoard`); while a crystal tower stands the tower is made whole every tick. A player's blow on another (see
+Combat resolution) scores a tenth of the life it took, at least 1 (`CastleSiegeRules.PkScore`), while the tower stands,
+unless the target has no clan and neither side is the owner clan. The world publishes `CastleSiegeView` (door, crystal
+towers and mercenaries standing, the ten best clans and the total) at most once a second while it changes. When the
+tower falls, the castle goes to the board's leader (no owner when no clan dealt damage, and any clan may win), with a
+notice naming the clan; a conquest storage refuses is kept and stored on a later minute (a game master's `/end_castle`
+after the fall still gives it). The siege then closes: its defenders leave, and the living members of the clan holding
+the castle in its field cheer one cheer after another until its end is over (`WorldServer.CheerCastleOwners`, a cheer
+that heals no clan monster). At peace, living players in the castle field outside the owner clan are sent to a random
+start point of the castle, and the owner's towers and mercenaries are spent (they serve one siege). While a crystal
+tower stands no blow takes the tower's life (`MonsterInstance.MinimumLife`). `/easy_castle` leaves every defender one
+life, no lives in reserve and no potions; the tower keeps that one life while a crystal tower stands.
 
 ## Bellatra
 

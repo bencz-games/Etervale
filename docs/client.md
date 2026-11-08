@@ -560,10 +560,12 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   player is in the castle field, a board on the right under the target frame (below the windows) shows the time left
   (counted down on the HUD clock, set again only when the server's drifts by more than 1.5 s), the clan holding the
   castle, the castle door, the crystal towers standing and the best clans with their share of the damage (the player's
-  own clan in gold). When a siege ends, players in the castle field see a notice that their clan holds the castle or
-  that the siege is over. While the server runs the league mode, clicks on other players never attack
-  (`GameScene.CastleLeague`), as the server lets nobody fight then. The siege board and Bellatra's draw their lines the
-  same way (`HudSideBoard`).
+  own clan in gold). When a siege ends, players in the castle field hear its fanfare over silence
+  (`GameScene.PlaySiegeEnd`, the castle's music back once the siege closes, `RestoreFieldMusic`) and see
+  `HudSiegeResult` in the NPC panel's box: their clan's victory and what its chief may set, or that the siege is over
+  and they go back to the start of the castle's field; another window in that box hides it. While the server runs the
+  league mode, clicks on other players never attack (`GameScene.CastleLeague`), as the server lets nobody fight then.
+  The siege board and Bellatra's draw their lines the same way (`HudSideBoard`).
 - Bellatra (`GameplayHud.Bellatra`): a team booth answers its refusal or the ticket's price in the notice strip and
   offers the ticket as the NPC panel's one destination (a click buys it with `EnterBellatra`). While the server shows
   the board (`BellatraBoard`, the player in the arena), `HudBellatraBoard` on the right under the target frame shows
@@ -592,7 +594,8 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   its fall under STAGE FAIL and the screen closes 2 s before its move and stays closed until it leaves the arena; the
   end plays the ending under CONGRATULATIONS. A seal notice of the team (`BellatraRules.TrySealOfNotice`) shows the
   seal's emblem and name over an earlier seal's, with the pickup sound, the room's seals shaking the camera (50, every 4
-  frames) with the Diastrophism skill's impact sound, taken from its rule. The sounds are `wav/Sod` (`BellatraSounds`).
+  frames) with the Diastrophism skill's impact sound, taken from its rule. The sounds are `wav/Sod` (`EventCue`,
+  `EventSounds`), the castle's siege end sharing the stage's fanfare.
 - Status window: attribute buttons send `ProgressionCommand` with `ProgressionRevision`; the organic, poison, fire,
   lightning and ice resistance boxes show the owner's resistances; the Clan box shows the owner's clan mark and name.
 - Block feedback (`HudStringEffect`): when the player blocks a blow, the original `block.tga` word shows at (354, 488)

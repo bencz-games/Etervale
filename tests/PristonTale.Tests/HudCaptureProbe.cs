@@ -132,7 +132,7 @@ internal sealed class HudCaptureProbe : Game
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
         ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false, ProbePlates Plates = ProbePlates.None, bool ClanPage = false,
         bool Siege = false, int CastleButton = -1, bool CastleChief = true, bool Bellatra = false, int BellatraButton = -1,
-        ProbeBellatraResult BellatraResult = ProbeBellatraResult.None, ProbeBellatraShow BellatraShow = ProbeBellatraShow.None);
+        ProbeBellatraResult BellatraResult = ProbeBellatraResult.None, ProbeBellatraShow BellatraShow = ProbeBellatraShow.None, ProbeSiegeEnd SiegeEnd = ProbeSiegeEnd.None, bool Portuguese = false);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -170,6 +170,9 @@ internal sealed class HudCaptureProbe : Game
         new("plates-clan-classic-800", 800, 600, Clan: true, Plates: ProbePlates.Classic),
         new("siege-board-800", 800, 600, Clan: true, Siege: true),
         new("siege-board-1280x720", 1280, 720, Clan: true, Siege: true),
+        new("siege-won-800", 800, 600, Clan: true, Siege: true, SiegeEnd: ProbeSiegeEnd.Won),
+        new("siege-ended-800", 800, 600, Clan: true, Siege: true, SiegeEnd: ProbeSiegeEnd.Ended),
+        new("siege-ended-pt-800", 800, 600, Clan: true, Siege: true, SiegeEnd: ProbeSiegeEnd.Ended, Portuguese: true),
         new("party-clan-800", 800, 600, Keys.D, Clan: true),
         new("party-clan-page-800", 800, 600, Keys.D, Clan: true, ClanPage: true),
         new("status-arrow-hover-800", 800, 600, Keys.C, Hover.AllocateArrow),
@@ -448,20 +451,27 @@ internal sealed class HudCaptureProbe : Game
                 });
             }
 
+            Gameplay.Localization.ClientText.Use(scenario.Portuguese ? Engine3D.Rendering.ClientSettings.BrazilianPortugueseLanguage : Engine3D.Rendering.ClientSettings.EnglishLanguage);
+
             // Boards of an earlier scenario stay on the shared HUD otherwise.
             _hud.InCastleField = false;
             _hud.ObserveBellatra(new PresenceUpdate(1, [], [], [], []) { Bellatra = BellatraBoardInfo.Hidden });
             if (scenario.Siege)
             {
                 _hud.InCastleField = true;
-                _hud.ObserveCastle(new PresenceUpdate(1, [], [], [], [])
+                var castle = new CastleInfo(8, "Eagles", 5, Simulation.Social.Castle.SiegeState.Running, false, 75 * 60 + 12, true, 4,
+                [
+                    new CastleClanInfo(9, "Tigers", 52_000), new CastleClanInfo(7, "Lions", 31_000), new CastleClanInfo(11, "Wolves", 9_500),
+                    new CastleClanInfo(12, "Hawks", 4_100)
+                ], 96_600);
+                _hud.ObserveCastle(new PresenceUpdate(1, [], [], [], []) { Castle = castle });
+                if (scenario.SiegeEnd != ProbeSiegeEnd.None)
                 {
-                    Castle = new CastleInfo(8, "Eagles", 5, Simulation.Social.Castle.SiegeState.Running, false, 75 * 60 + 12, true, 4,
-                    [
-                        new CastleClanInfo(9, "Tigers", 52_000), new CastleClanInfo(7, "Lions", 31_000), new CastleClanInfo(11, "Wolves", 9_500),
-                        new CastleClanInfo(12, "Hawks", 4_100)
-                    ], 96_600)
-                });
+                    _hud.ObserveCastle(new PresenceUpdate(1, [], [], [], [])
+                    {
+                        Castle = castle with { OwnerClanId = scenario.SiegeEnd == ProbeSiegeEnd.Won ? 7 : 8, Siege = Simulation.Social.Castle.SiegeState.Over }
+                    });
+                }
             }
 
             if (scenario.Bellatra)
@@ -993,4 +1003,11 @@ internal enum ProbeBellatraResult
     None,
     Final,
     Live
+}
+
+internal enum ProbeSiegeEnd
+{
+    None,
+    Won,
+    Ended
 }

@@ -14,11 +14,11 @@ public sealed partial class GameScene : IBellatraStage
 
     private bool InBellatraArena => _activeField?.Definition.FieldCode == Simulation.World.Bellatra.BellatraArena.Field;
 
-    void IBellatraStage.Play(BellatraCue cue)
+    void IBellatraStage.Play(EventCue cue)
     {
         if (InBellatraArena)
         {
-            _fieldAudio?.PlayBellatra(cue);
+            _fieldAudio?.PlayEvent(cue);
         }
     }
 

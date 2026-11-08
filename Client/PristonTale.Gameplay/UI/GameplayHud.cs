@@ -362,7 +362,7 @@ public sealed partial class GameplayHud : IDisposable
         }
 
         _npc.Dismiss();
-        var closed = _clanWindow.IsOpen || _castleWindow.IsOpen || _bellatraWindow.IsOpen || _bellatraResult.IsOpen || _npcOpen || _settingsOpen || _systemMenu || _skills.TrainingPending
+        var closed = _clanWindow.IsOpen || _castleWindow.IsOpen || _siegeResult.IsOpen || _bellatraWindow.IsOpen || _bellatraResult.IsOpen || _npcOpen || _settingsOpen || _systemMenu || _skills.TrainingPending
             || _inventorySlide.Open || _statusSlide.Open || _skillSlide.Open || ServiceWindowOpen(blockingOnly: false)
             || _questWindow.Open || _partyWindow.Open || _quests.Dialog is not null || _quests.SkillResetBox;
         closed |= _personalShop.Close();
@@ -372,6 +372,7 @@ public sealed partial class GameplayHud : IDisposable
         _helpWindow.Close();
         _clanWindow.Close();
         _castleWindow.Close();
+        _siegeResult.Close();
         _bellatraWindow.Close();
         _bellatraResult.Close();
         _itemUse.Close();
@@ -786,6 +787,12 @@ public sealed partial class GameplayHud : IDisposable
         {
             _painter.Flush();
             _bellatraResult.Draw(_painter, pointer);
+        }
+
+        if (SiegeResultShown)
+        {
+            _painter.Flush();
+            _siegeResult.Draw(_painter, pointer);
         }
 
         if (_itemUse.Teleport.IsOpen || _itemUse.Confirming)
