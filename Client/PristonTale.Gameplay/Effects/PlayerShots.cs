@@ -4,6 +4,7 @@ using PristonTale.Effects.Vfx;
 using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Simulation.Items;
+using PristonTale.Simulation.Skills;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.Units;
 using System.Runtime.InteropServices;
@@ -13,10 +14,11 @@ namespace PristonTale.Gameplay.Effects;
 // The basic shots of ranged weapons, thrown as the original throws them at the first event of a player's attack clip:
 // a bow's arrow (weapons/arrow.smd, 8 units a frame of 70 per second), a javelin itself (6 a frame, its front along its
 // length; the held javelin hides while it flies) and, for magicians and priestesses, a staff's fire ball (the Imp's
-// shot); other classes strike with a staff. An arrow or javelin flies
-// from the weapon toward its target's chest (24 above its feet) in a straight line; once within 64 units across and 80
-// up of the target it flies 7 frames more and ends, as it does after 120 frames. A glowing bow or javelin sheds sparks of
-// its glow colour (half of it plus 128, Effect/ImageData/Particle/cc.tga) along its flight, which fade over 0.7 s.
+// shot); other classes strike with a staff. A status naming a shot effect (SkillRule.ShotEffect) throws that effect
+// instead of the javelin, which stays in the hand. An arrow or javelin flies from the weapon toward its target's chest (24 above its feet) in a
+// straight line; once within 64 units across and 80 up of the target it flies 7 frames more and ends, as it does after
+// 120 frames. A glowing bow or javelin sheds sparks of its glow colour (half of it plus 128,
+// Effect/ImageData/Particle/cc.tga) along its flight, which fade over 0.7 s.
 public sealed class PlayerShots
 {
     public const string ArrowModel = "weapons/arrow.smd";
@@ -28,6 +30,7 @@ public sealed class PlayerShots
     private const int FramesAfterHit = 7;
     private const float SparkLife = 0.7f;
     private const float SparksPerFrame = 3.5f;
+    private static readonly Func<SkillRule, string> ShotEffectOf = static rule => rule.ShotEffect;
 
     private readonly Dictionary<ulong, ulong> _targets = new();
     private readonly Dictionary<ulong, ClipEventCursor> _clips = new();
@@ -97,6 +100,12 @@ public sealed class PlayerShots
         }
 
         var javelin = kind == ItemKind.ThrowingWeapon;
+        if (javelin && skills?.StatusEffect(attackerId, ShotEffectOf) is { Length: > 0 } effect)
+        {
+            skills.Spawn(effect, attackerId, targetId, from);
+            return;
+        }
+
         if (javelin && !World.Remote.EquipmentVisuals.HasModel(weaponKey))
         {
             return;

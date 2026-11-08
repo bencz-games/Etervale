@@ -75,7 +75,7 @@
       "reflect": { "percent": [20, 30, 40, 50, 60, 70, 80, 90, 100, 110], "broods": ["Undead"] } },
     "exclusive": ["0x07020003"],
     "motionIndex": 62, "motionFrames": 50, "motionEvents": [30],
-    "castEffect": "vfx.priestess.reflection.cast", "buffEffect": "vfx.priestess.reflection.aura",
+    "castEffect": "vfx.priestess.reflection.cast", "buffEffect": "vfx.priestess.reflection.aura", "defenseEffect": "vfx.priestess.reflection.defense",
     "castSound": "wav/Effects/Skill/Morion/HolyReflection 1.wav", "impactSound": "wav/Effects/Skill/Morion/HolyReflection 2.wav",
     "keepIcon": "Pr2_H_REFLECTION"
   },

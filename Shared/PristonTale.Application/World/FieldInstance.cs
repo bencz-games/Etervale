@@ -364,7 +364,7 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
     Dictionary<ulong, WorldPlayer>.ValueCollection IFieldSkillHost.Players => _players.Values;
 
     KillPayout? IFieldSkillHost.ApplyPlayerDamage(WorldPlayer player, MonsterInstance monster, int damage, bool crit, bool forceFlinch, ulong sourceEntityId) =>
-        _combat.ApplyPlayerDamage(player, monster, damage, crit, NowMs, forceFlinch, sourceEntityId);
+        _combat.ApplyPlayerDamage(player, monster, damage, crit, NowMs, forceFlinch, sourceEntityId, skill: true);
 
     bool IFieldSkillHost.TryFindMonsterDefinition(string name, [MaybeNullWhen(false)] out MonsterDefinition definition) =>
         _catalog.TryFind(name, out definition);

@@ -154,6 +154,10 @@ public sealed partial record SkillBuffRule
     public SkillGuardRule Guard { get; init; }
     public SkillPulseRule Pulse { get; init; }
 
+    // A helpful buff that only changes stats: no shield, reflection, guard, enchant, familiar, counter or pulse.
+    public bool StatsOnly => !Harmful && Absorb is null && Reflect is null && Guard is null && Enchant is null && Companion is null && Counter is null
+        && Pulse is null;
+
     // The resistance that shortens the effect on its target: the rule's element, else bionic for a bionic-resisted one,
     // else none.
     public int ResistanceFrom(in ResistanceBlock resistances)

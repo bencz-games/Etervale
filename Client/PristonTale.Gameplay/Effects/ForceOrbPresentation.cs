@@ -9,8 +9,8 @@ using PristonTale.Contracts.Skills;
 
 namespace PristonTale.Gameplay.Effects;
 
-// A running force orb lights its holder's weapon with flares in the orb's colour, and each hit the holder lands bursts
-// the orb's spark on the target with a white light.
+// A running force orb lights its holder's weapon with flares in the orb's colour, and each basic hit the holder lands
+// bursts the orb's spark on the target with a white light.
 public sealed class ForceOrbPresentation
 {
     private readonly SkillPresentation _skills;
@@ -50,7 +50,7 @@ public sealed class ForceOrbPresentation
 
         foreach (var hit in update.Events)
         {
-            if (hit.Kind == CombatEventKind.Hit && _active.ContainsKey(hit.AttackerId) && position(hit.TargetId) is { } target)
+            if (hit.Kind == CombatEventKind.Hit && !hit.Skill && _active.ContainsKey(hit.AttackerId) && position(hit.TargetId) is { } target)
             {
                 var at = target + Vector3.Up * 22f;
                 _scripts?.Spawn("ShellTomWeaponHit", at, Matrix.Identity);

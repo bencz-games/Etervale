@@ -3,6 +3,7 @@ using PristonTale.Simulation.Modifiers;
 using PristonTale.Simulation.Skills;
 using PristonTale.Simulation.World.Monsters;
 using PristonTale.Contracts.Combat;
+using PristonTale.Contracts.Skills;
 
 namespace PristonTale.Application.World;
 
@@ -34,9 +35,9 @@ internal interface IPlayerSkillCombat
     // The monster's attack reaches the player for this damage; returns what the player's life still loses.
     int Defend(MonsterInstance attacker, WorldPlayer target, int damage, bool skillAttack);
 
-    // Another player's normal attack reaches the player: the absorbing shields take their share (guards answer only
-    // monsters of their broods); returns what the player's life still loses.
-    int DefendFromPlayer(WorldPlayer target, int damage);
+    // A player's blow or skill reaches the player: the absorbing shields take their share and the buffs of stats alone show
+    // their defence (guards answer only monsters of their broods); returns what the player's life still loses.
+    int DefendFromPlayer(WorldPlayer attacker, WorldPlayer target, int damage);
 
     // The element damage the player's enchants add to a normal attack on another player, resisted and absorbed like the
     // hit.
@@ -85,6 +86,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
             if (power > 0)
             {
                 Pay(target, attacker, power, false);
+                Defended(target, attacker.EntityId, code, rule);
             }
         }
     }
@@ -108,16 +110,27 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
             damage = ModifierRules.ChangedBy(damage, target.Character.Effects.Totals, StatKind.SkillDamageTaken, 1);
         }
 
-        damage = Shielded(target, damage);
+        damage = Shielded(target, attacker.EntityId, damage);
         if (!skillAttack)
         {
             Guard(attacker, target, damage, onBlock: false);
         }
 
+        StatsDefended(target, attacker.EntityId, attacker.Def);
         return Math.Max(0, damage);
     }
 
-    int IPlayerSkillCombat.DefendFromPlayer(WorldPlayer target, int damage) => damage <= 0 ? damage : Math.Max(0, Shielded(target, damage));
+    int IPlayerSkillCombat.DefendFromPlayer(WorldPlayer attacker, WorldPlayer target, int damage)
+    {
+        if (damage <= 0)
+        {
+            return damage;
+        }
+
+        damage = Shielded(target, attacker.EntityId, damage);
+        StatsDefended(target, attacker.EntityId, null);
+        return Math.Max(0, damage);
+    }
 
     int IPlayerSkillCombat.EnchantOnPlayer(WorldPlayer player, in DefenderProfile defender)
     {
@@ -133,7 +146,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
     }
 
     // The absorbing shields' share of a blow comes off the player's mana or stamina (a life shield takes nothing off).
-    private int Shielded(WorldPlayer target, int damage)
+    private int Shielded(WorldPlayer target, ulong attackerId, int damage)
     {
         var character = target.Character;
         foreach (var (code, rule) in SkillEffects(target, static buff => buff.Absorb is not null))
@@ -141,6 +154,11 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
             var absorb = rule.Buff.Absorb;
             var absorbed = damage * SkillFormulas.RankValue(absorb.Percent, RankOfEffect(target.EntityId, code)) / 100;
             damage -= absorbed;
+            if (absorbed > 0)
+            {
+                Defended(target, attackerId, code, rule);
+            }
+
             // The shield takes its share even when the resource runs out; the resource stops at zero.
             switch (absorb.Resource)
             {
@@ -178,7 +196,30 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
             if (heal > 0)
             {
                 HealPlayer(target, target, heal);
+                Defended(target, attacker.EntityId, code, rule);
             }
+        }
+    }
+
+    // A buff of stats alone with a defence effect shows it on each hit that reaches its holder: from a monster of its
+    // broods, or from any attacker when it lists none (a null monster is another player).
+    private void StatsDefended(WorldPlayer target, ulong attackerId, MonsterDefinition? monster)
+    {
+        foreach (var (code, rule) in SkillEffects(target, StatsOnly))
+        {
+            if (rule.DefenseBroods.Length == 0 || monster is not null && SkillFormulas.MatchesBrood(rule.DefenseBroods, monster))
+            {
+                Defended(target, attackerId, code, rule);
+            }
+        }
+    }
+
+    private void Defended(WorldPlayer holder, ulong attackerId, uint code, SkillRule rule)
+    {
+        if (rule.DefenseEffect.Length > 0)
+        {
+            _skillEvents.Add(new SkillEventView(holder.EntityId, attackerId, code, SkillEventPhase.Impact, RankOfEffect(holder.EntityId, code),
+                SkillEventFlags.Defended, 0f, 0f, default, holder.Facing, 0, 0f));
         }
     }
 
@@ -238,6 +279,7 @@ internal sealed partial class FieldSkills : IPlayerSkillCombat
 
     private static readonly Func<SkillBuffRule, bool> GuardsOnBlock = static buff => buff.Guard is { OnBlock: true };
     private static readonly Func<SkillBuffRule, bool> GuardsOnHit = static buff => buff.Guard is { OnBlock: false };
+    private static readonly Func<SkillBuffRule, bool> StatsOnly = static buff => buff.StatsOnly;
 
     // The holder's running player-skill effects whose rule's buff matches; walked on the tick for every blow, block and
     // hit, so it allocates nothing.

@@ -86,7 +86,7 @@
         { "element": "Fire", "min": [4, 8, 12, 16, 20, 24, 28, 32, 36, 40], "max": [10, 16, 22, 28, 34, 40, 46, 52, 58, 64] }] } },
     "exclusive": ["0x08020003"],
     "motionIndex": 69, "motionFrames": 50, "motionEvents": [36], "motionSpeed": 70,
-    "castEffect": "vfx.magician.enchant.cast", "buffEffect": "vfx.magician.enchant.aura", "castSound": "wav/Effects/Skill/Morion/EnchantWpn_cast.wav",
+    "castEffect": "vfx.magician.enchant.cast", "buffEffect": "vfx.magician.enchant.aura", "hitEffect": "vfx.magician.enchant.hit", "castSound": "wav/Effects/Skill/Morion/EnchantWpn_cast.wav",
     "keepIcon": "Mg2_E_WEAPON",
       "statusLook": "Frost" },
   {
@@ -108,7 +108,7 @@
     "buff": { "durationTenths": [900, 1100, 1300, 1500, 1700, 1900, 2100, 2300, 2500, 2700],
       "absorb": { "percent": [10, 13, 16, 19, 21, 24, 26, 28, 29, 30], "resource": "Mana" } },
     "motionIndex": 69, "motionFrames": 50, "motionEvents": [36], "motionSpeed": 80,
-    "castEffect": "vfx.magician.energyshield.cast", "buffEffect": "vfx.magician.energyshield.aura",
+    "castEffect": "vfx.magician.energyshield.cast", "buffEffect": "vfx.magician.energyshield.aura", "defenseEffect": "vfx.magician.energyshield.absorb",
     "castSound": "wav/Effects/Skill/Morion/Casting_M.wav", "keepIcon": "Mg3_E_SHIELD"
   },
   {

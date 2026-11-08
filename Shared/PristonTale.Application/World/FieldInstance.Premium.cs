@@ -16,7 +16,7 @@ public sealed partial class FieldInstance : IFieldPremiumHost
 
     void IFieldPremiumHost.PetStrike(WorldPlayer owner, MonsterInstance monster, int damage)
     {
-        if (_combat.ApplyPlayerDamage(owner, monster, damage, false, NowMs) is { } reward)
+        if (_combat.ApplyPlayerDamage(owner, monster, damage, false, NowMs, skill: true) is { } reward)
         {
             PlaceLoot(reward, NowMs);
         }

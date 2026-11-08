@@ -254,7 +254,8 @@ quest arena. Like the Teleport Core, the place is the one the use was checked at
   skill-learn light of hair tints and force orbs (`ItemVfx.Learn`, rising streaks registered in code), the agony glow
   of skill masters, and pet strikes.
 - A running force orb keeps a flare glow in the orb's colour on the holder's weapon bone, renewed every 29 s until the
-  status ends, and each hit the holder lands bursts the weapon-hit spark on the target with a white light.
+  status ends, and each basic hit the holder lands (not a skill's or a pet's) bursts the weapon-hit spark on the target
+  with a white light.
 - The big head replaces the head model with the oversized one of the class (tier-0 head prefix, hair 1..3, look `b`
   or `t`); the descriptor carries it, so every client sees it.
 - Pets are client actors driven by the player's description (the Phoenix flag, the helper pet and the head look);

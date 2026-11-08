@@ -181,7 +181,7 @@ public readonly struct CombatEventView
     public float Facing { get; }
 
     // A monster's swing: the motion-table slot of the clip it plays (-1 for the first clip of the state) and whether it is
-    // its skill. A hit: whether a monster skill dealt it.
+    // its skill. A hit: whether a skill (or a pet's strike) dealt it rather than the attacker's basic attack.
     public int Clip { get; init; } = -1;
     public bool Skill { get; init; }
 }

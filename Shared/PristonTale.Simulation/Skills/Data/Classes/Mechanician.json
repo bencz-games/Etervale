@@ -30,7 +30,7 @@
       "buff": { "durationTenths": [300, 500, 700, 900, 1100, 1300, 1500, 1700, 1900, 2100],
         "modifiers": [{"stat": "Absorption", "op": "Flat", "values": [3, 3, 4, 4, 5, 5, 6, 6, 7, 7], "valuesMax": [4, 5, 6, 7, 8, 9, 10, 11, 12, 13]}] },
       "motionIndex": 69, "motionFrames": 45, "motionEvents": [20], "motionSpeed": 70, "castEffect": "vfx.cast.absorb",
-      "buffEffect": "vfx.buff.absorb", "castSound": "wav/Effects/Skill/Tempskron/Physical_Absorption 01.wav", "keepIcon": "Mc1_P_ABSORB",
+      "buffEffect": "vfx.buff.absorb", "defenseEffect": "vfx.defense.absorb.body", "castSound": "wav/Effects/Skill/Tempskron/Physical_Absorption 01.wav", "keepIcon": "Mc1_P_ABSORB",
       "exclusive": ["0x01010003"], "replaces": ["0x01020002", "0x01020003", "0x01040001"] },
     { "code": "0x01020001", "name": "Great Smash", "tier": "Job2", "category": "AreaAttack", "icon": "TM20 G_Smash",
       "description": "Channels strength into one powerful blow", "requiredLevel": 20, "mouse": "Both",

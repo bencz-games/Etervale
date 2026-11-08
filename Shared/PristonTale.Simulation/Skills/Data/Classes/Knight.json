@@ -25,7 +25,8 @@
       "modifiers": [{ "stat": "AbsorptionVsUndead", "op": "Flat", "values": [8, 12, 16, 19, 22, 25, 27, 29, 31, 33] }] },
     "exclusive": ["0x05010002", "0x05020001", "0x05020004"],
     "motionIndex": 69, "motionFrames": 45, "motionEvents": [20], "motionSpeed": 70,
-    "castEffect": "vfx.knight.holybody.cast", "buffEffect": "vfx.knight.holybody.aura", "castSound": "wav/Effects/Skill/Morion/HolyBody 1.wav", "keepIcon": "Kt1_H_BODY"
+    "castEffect": "vfx.knight.holybody.cast", "buffEffect": "vfx.knight.holybody.aura", "castSound": "wav/Effects/Skill/Morion/HolyBody 1.wav", "keepIcon": "Kt1_H_BODY",
+    "defenseEffect": "vfx.defense.absorb.body", "defenseBroods": ["Undead"]
   },
   {
     "code": "0x05010003", "name": "Physical Training", "tier": "Job1", "category": "Passive", "icon": "MN14 P_Traning",
@@ -109,7 +110,7 @@
       "guard": { "healPercent": [9, 18, 27, 36, 45, 54, 63, 72, 81, 90], "broods": ["Undead"], "onBlock": true } },
     "exclusive": ["0x05040002"], "replaces": ["0x05080002"],
     "motionIndex": 71, "motionFrames": 45, "motionEvents": [22], "motionSpeed": 70,
-    "castEffect": "vfx.knight.divineinhalation.cast", "buffEffect": "vfx.knight.shield.aura",
+    "castEffect": "vfx.knight.divineinhalation.cast", "buffEffect": "vfx.knight.shield.aura", "defenseEffect": "vfx.knight.divineinhalation.defense",
     "castSound": "wav/Effects/Skill/Morion/DivineInhalation 1.wav", "keepIcon": "Kt3_D_INHALATION",
       "shieldModel": "weapons/Nt3_DivineI.smd" },
   {

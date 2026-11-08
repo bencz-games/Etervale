@@ -2750,5 +2750,67 @@
         "carryEffect": "particle.Skill5AtalantaSnippyFearShot"
       }
     ]
+  },
+  {
+    "name": "vfx.atalanta.frost.shot",
+    "duration": 4.0,
+    "parts": [
+      {
+        "shape": "Ribbon",
+        "texture": "Effect/NewEffect/Res/TextureHit/Shield1.tga",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          24,
+          0
+        ],
+        "speed": 560.0,
+        "reach": 10,
+        "color": [
+          100,
+          100,
+          100,
+          100
+        ],
+        "width": [
+          5.0,
+          5.0
+        ],
+        "trailPoints": 20,
+        "trailFade": 5,
+        "carryEffect": "script.SkillFrostJavelin",
+        "endEffect": "vfx.atalanta.frost.hit"
+      }
+    ],
+    "sounds": [
+      {
+        "path": "wav/Effects/Skill/Morion/EnchantWpn_add_C 1.wav",
+        "variants": [
+          "wav/Effects/Skill/Morion/EnchantWpn_add_C 2.wav"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.atalanta.frost.hit",
+    "duration": 2.0,
+    "children": [
+      {
+        "effect": "script.SkillValhallaFrostJavellin1",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "turn": true
+      }
+    ]
   }
 ]

@@ -51,6 +51,11 @@ public sealed partial class GameScene
             _forceOrbs = new ForceOrbPresentation(_skillFx, scripts, _renderer?.TransientLights);
         }
 
+        if (_hits is null && _skillFx is not null)
+        {
+            _hits = new HitEffects(_skillFx);
+        }
+
         if (_pets is null && _renderer is not null)
         {
             _pets = new PremiumPetPresentation(_actorScene, _actorLoader, _assetRoot ?? "", scripts, _renderer.TransientLights, _skillSounds, _log);

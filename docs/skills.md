@@ -248,7 +248,14 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
   shield moves to that body bone and glows during the cast), `weaponOrbit` (two effects, a light and its trail, circling
   the holder's weapon while the status lasts), `cameraShake` (each impact shakes the camera of the players within 400
   of the caster by (400 - distance) / 15 units of view distance, `PristonCameraWave`), `targetEffect` (an effect on
-  each enemy an area struck; the server reports each with a `Struck` impact).
+  each enemy an area struck; the server reports each with a `Struck` impact), `defenseEffect` (an effect on the holder
+  each time its buff defends it: an absorbing shield takes its share, a reflection strikes back, a guard returns life,
+  or, for a buff of stats alone, a hit reaches the holder from a monster of `defenseBroods`, from any attacker when the
+  list is empty; the server reports each with a `Defended` impact: Energy Shield, Holy Reflection, Divine Inhalation,
+  Physical Absorption, and Holy Body against the undead), `hitEffect` (the holder's basic hits show it on the struck
+  target instead of the weapon's spark, `<effect>.<element>` for the element the status drew: Enchant Weapon) and
+  `shotEffect` (the holder's thrown basic attacks fly as it from the weapon to the target instead of the javelin: Frost
+  Javelin). The hit bursts of basic attacks and the blood of players hit are in effects.md (`HitEffects`).
 
 ### Damage rule (`damage`, `mainHit`, `damage.main`)
 

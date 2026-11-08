@@ -991,7 +991,10 @@
     ],
     "sounds": [
       {
-        "path": "wav/Effects/Skill/Morion/EnchantWpn_add_L 1.wav"
+        "path": "wav/Effects/Skill/Morion/EnchantWpn_add_L 1.wav",
+        "variants": [
+          "wav/Effects/Skill/Morion/EnchantWpn_add_L 2.wav"
+        ]
       }
     ],
     "children": [
@@ -1044,7 +1047,10 @@
     ],
     "sounds": [
       {
-        "path": "wav/Effects/Skill/Morion/EnchantWpn_add_F 1.wav"
+        "path": "wav/Effects/Skill/Morion/EnchantWpn_add_F 1.wav",
+        "variants": [
+          "wav/Effects/Skill/Morion/EnchantWpn_add_F 2.wav"
+        ]
       }
     ],
     "children": [
@@ -1120,7 +1126,10 @@
     ],
     "sounds": [
       {
-        "path": "wav/Effects/Skill/Morion/EnchantWpn_add_C 1.wav"
+        "path": "wav/Effects/Skill/Morion/EnchantWpn_add_C 1.wav",
+        "variants": [
+          "wav/Effects/Skill/Morion/EnchantWpn_add_C 2.wav"
+        ]
       }
     ],
     "children": [

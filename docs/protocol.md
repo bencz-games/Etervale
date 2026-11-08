@@ -95,7 +95,7 @@ Bodies start with `uint16 Version = 1`; text is UTF-8 with a `uint16` byte lengt
 | Step | Packet | Notes |
 | --- | --- | --- |
 | Connect | S→C `ServerHello` (`0x45540F00`) | `{uint16 Version, uint16 0, uint32 Protocol, MinimumProtocol, int32 FullPlayers, text ServerName (32 B)}`: `FullPlayers` = players in the world when the player limit (`server.max_users` or `/user_limit`) is reached, else 0 (then only game masters may log in); `ServerName` is `server.name`. |
-| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (24); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
+| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (25); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
 | Result | S→C `CharacterList` (`0x45540F03`), then `LoginResult` (`0x45540F02`) | `LoginResult` = `{uint16 Version, uint8 Status, uint8 0}`: 0 ok, 1 bad credentials (also unknown accounts), 2 account blocked, 3 already logged in on this connection, 4 busy (throttled, full or storage failure), 5 client protocol older than the server's minimum. A failed login sends no list. |
 | Character list | S→C `CharacterList` | `{uint16 Version, uint16 0, int32 Count (at most 6)}`, then `{text Name, uint32 Class (PlayerClass), int32 Level, uint8 Tier, Face, Hair, Flags (1 in a village), uint32 WeaponCode, ArmorCode, OffHandCode, uint32 0, text ClanName (48 B; empty out of a clan)}`. |
 | Create, delete | C→S `CharacterCommand` (`0x45540F04`), S→C `CharacterResult` (`0x45540F05`) | Command `{uint16 Version, uint8 Action (1 create, 2 delete), uint8 0, int32 Class (PlayerClass), FaceIndex, text Name}`; result `{uint16 Version, uint8 Action, uint8 Ok, int32 Failure (CreateCharacterFailure), text Name}`. |
@@ -263,7 +263,7 @@ MoveSpeed, LifeRegen, ManaRegen, StaminaRegen, MagicMastery, SpecAbsorb, SpecMov
 SpecLifeRegen, SpecManaRegen, SpecStaminaRegen, int16 Resistances[8]}` (`ItemDetailEntry`). The client attaches the
 entries to the inventory of the same revision (`OwnedItemView.Details`) and folds the status into the owner state.
 
-A combat entry is `{uint8 Kind, uint8 Flags (1 critical, 2 killed, 4 monster skill), uint8 Fields, entity Attacker}`, then
+A combat entry is `{uint8 Kind, uint8 Flags (1 critical, 2 killed, 4 dealt by a skill or a pet rather than a basic attack), uint8 Fields, entity Attacker}`, then
 what `Fields` names in its bit order: 1 entity Target, 2 time DurationMs and HitAtMs, 4 varint Damage, 8 varint Resources,
 16 varint SoundCode, 32 point X, Y, Z, 64 varint Angle, 128 varint Clip (absent: Target 0, times 0, values 0, Clip -1). `Kind` is
 `CombatEventKind` (Contracts): 1 swing begin, 2 hit, 3 potion begin, 4 potion applied, 5 monster skill impact, 6 heal (amount
@@ -299,7 +299,8 @@ writes 0 in `SkillCastResult.ServerTick`.
 A skill entry is `{uint8 Phase (1 start, 2 impact, 3 cancel, 4 release), uint8 Fields, varuint Flags (1 area, 2
 projectile, 4 self, 8 chain link from X, Y, Z to Target, 16 familiar strike, 32 support reaching another player, 64
 counter strike, 128 full charge, bits 8-9 the resolution mode drawn for the cast, 1024 an enemy an area struck at
-X, Y, Z, for a rule with a `targetEffect`), uint32 SkillCode, uint8 Rank, entity
+X, Y, Z, for a rule with a `targetEffect`, 2048 the caster's buff defended it from Target, for a rule with a
+`defenseEffect`), uint32 SkillCode, uint8 Rank, entity
 Caster}`, then what `Fields` names: 1 entity Target, 2 time DurationMs and HitAtMs, 4 point X, Y, Z, 8 varint Angle, 16
 varuint TargetCount, 32 varint Radius. A release entry gives the shortened remaining motion in `DurationMs` and the time
 to its next hit in `HitAtMs`. A status entry is `{uint8 Op (1 add, 2 refresh, 3 remove, 4 tick), uint8 Fields, uint32

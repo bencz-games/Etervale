@@ -28,7 +28,7 @@ public sealed partial class FieldInstance
 
     bool IFieldSkillHost.PlayersFight => PlayersFight;
 
-    void IFieldSkillHost.HurtPlayer(WorldPlayer attacker, WorldPlayer target, int damage, bool crit) => _combat.HurtPlayer(attacker, target, damage, crit);
+    void IFieldSkillHost.HurtPlayer(WorldPlayer attacker, WorldPlayer target, int damage, bool crit) => _combat.HurtPlayer(attacker, target, damage, crit, skill: true);
 
     internal void OpenSiege(CastleSiege siege)
     {

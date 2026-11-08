@@ -25,8 +25,8 @@ internal static class MultiplayerCombatTests
 
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
-        yield return ("multiplayer: a basic attack's swings, hits, kill, drop, pickup and level up reach a watching player identically", AttackAsync);
-        yield return ("multiplayer: a skill cast on a monster reaches a watching player as the same start, impact and damage", SkillAsync);
+        yield return ("multiplayer: a basic attack's swings, hits (without the skill flag), kill, drop, pickup and level up reach a watching player identically", AttackAsync);
+        yield return ("multiplayer: a skill cast on a monster reaches a watching player as the same start, impact and damage, its hit flagged as a skill's", SkillAsync);
         yield return ("multiplayer: a monster's movement and attacks are the same for every player watching it", MonsterAsync);
     }
 
@@ -66,6 +66,8 @@ internal static class MultiplayerCombatTests
         var seenByB = b.World.Read(world => Blows(world, a.EntityId, dummy.Id))!;
         Assert.True(seenByA.Count > 1 && seenByA.SequenceEqual(seenByB), $"the players saw different blows: {string.Join(",", seenByA)} / {string.Join(",", seenByB)}");
         Assert.True(seenByA.Where(blow => blow.Kind == CombatEventKind.Hit).Sum(blow => blow.Damage) >= 12, "the hits do not add up to the dummy's life");
+        Assert.True(b.World.Read(world => world.Combat.All(entry => entry.Event.AttackerId != a.EntityId || !entry.Event.Skill)),
+            "a basic attack's hit came flagged as a skill's");
         Assert.True(a.World.Read(world => world.Combat.Any(entry => entry.Event.Kind == CombatEventKind.SwingBegin && entry.Event.AttackerId == a.EntityId)),
             "the swings were not shown");
 
@@ -122,6 +124,8 @@ internal static class MultiplayerCombatTests
         var hitA = a.World.Read(world => Blows(world, a.EntityId, dummy.Id))!;
         var hitB = b.World.Read(world => Blows(world, a.EntityId, dummy.Id))!;
         Assert.True(hitA.Count == 1 && hitA.SequenceEqual(hitB) && hitA[0].Damage > 0, "the bolt's damage differs between the players");
+        Assert.True(b.World.Read(world => world.Combat.Any(entry => entry.Event.AttackerId == a.EntityId && entry.Event.Kind == CombatEventKind.Hit && entry.Event.Skill)),
+            "the bolt's hit did not come flagged as a skill's");
         await b.WaitUntilAsync(world => world.Entities[dummy.Id].Life == 20_000 - hitA[0].Damage, "the dummy's life after the bolt");
         await a.WaitUntilAsync(world => world.Entities[dummy.Id].Life == 20_000 - hitA[0].Damage, "the caster's view of the dummy's life");
         await b.WaitUntilAsync(world => world.Entities[a.EntityId].Motion == MotionState.Skill

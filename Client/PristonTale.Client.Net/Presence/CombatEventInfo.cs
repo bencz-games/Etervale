@@ -17,9 +17,9 @@ public sealed record CombatEventInfo(
     Vector3 Position = default,
     float Facing = 0f)
 {
-    // A monster's swing: the motion-table slot of its clip (-1 for the first clip of the state); a swing or hit of a
-    // monster skill.
+    // A monster's swing: the motion-table slot of its clip (-1 for the first clip of the state).
     public int Clip { get; init; } = -1;
 
+    // A monster's skill swing, or a hit dealt by a skill or a pet's strike rather than the attacker's basic attack.
     public bool Skill { get; init; }
 }
