@@ -559,6 +559,33 @@ public sealed partial class RemoteEntityManager
         return found;
     }
 
+    // The nearest living player a step from one point to another walks into: within reach of where it ends along the
+    // ground and height of it, and nearer there than where it starts (0 for none).
+    public ulong FindPlayerBumped(ulong selfId, XnaVector3 from, XnaVector3 to, float reach, float height)
+    {
+        ulong found = 0;
+        var nearest = reach * reach;
+        foreach (var (id, entity) in _entities)
+        {
+            if (id == selfId || entity.IsDead || entity.Kind != EntityKind.Player)
+            {
+                continue;
+            }
+
+            var position = entity.DrawnPosition;
+            var ahead = Planar(position, to);
+            if (MathF.Abs(position.Y - to.Y) < height && ahead < nearest && ahead < Planar(position, from))
+            {
+                nearest = ahead;
+                found = id;
+            }
+        }
+
+        return found;
+
+        static float Planar(XnaVector3 a, XnaVector3 b) => (a.X - b.X) * (a.X - b.X) + (a.Z - b.Z) * (a.Z - b.Z);
+    }
+
     public bool TryPick(Microsoft.Xna.Framework.Ray ray, ulong selfId, out ulong entityId, out EntityKind kind)
     {
         entityId = 0;

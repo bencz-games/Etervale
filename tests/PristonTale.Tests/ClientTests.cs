@@ -30,7 +30,7 @@ internal static class ClientTests
         yield return ("pending actor preparation does not block presence or resurrect removals", PendingActorAsync);
         yield return ("remote height follows the server sample instead of the highest floor", ServerHeightAsync);
         yield return ("NPC, monster and player collision survives pending assets", CollisionRosterAsync);
-        yield return ("an action field draws actors facing left or right and finds the nearest one ahead on the player's line", SideViewAsync);
+        yield return ("an action field draws actors facing left or right, finds the nearest one ahead on the player's line and the player a walk bumps into, never one it walks away from", SideViewAsync);
         yield return ("cursor rays originate at the camera and reject an enclosing NPC pick volume", CursorPickingAsync);
     }
 
@@ -291,6 +291,12 @@ internal static class ClientTests
             && manager.FindAhead(1, origin, facingRight: true, reach: 50, depth: 32, allies: true) == 0
             && manager.FindAhead(1, origin, facingRight: true, reach: 100, depth: 32, allies: false) == 0,
             "the search ahead took one off the line, behind, out of reach or of the wrong side");
+        var behind = new Vector3(-6, 0, 0);
+        Assert.True(manager.FindPlayerBumped(1, origin, new Vector3(-8, 0, 0), reach: 16, height: 16) == 4, "walking into a player did not bump it");
+        Assert.True(manager.FindPlayerBumped(1, origin, new Vector3(8, 0, 0), reach: 16, height: 16) == 0, "a player out of reach was bumped");
+        Assert.True(manager.FindPlayerBumped(1, new Vector3(-14, 0, 0), behind, reach: 16, height: 16) == 0, "walking away from a close player bumped it");
+        Assert.True(manager.FindPlayerBumped(1, new Vector3(-21, 40, 0), new Vector3(-20, 40, 0), reach: 16, height: 16) == 0, "a player at another height was bumped");
+        Assert.True(manager.FindPlayerBumped(4, origin, new Vector3(-8, 0, 0), reach: 16, height: 16) == 0, "a walk bumped its own player");
         return Task.CompletedTask;
     }
 

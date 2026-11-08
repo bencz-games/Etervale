@@ -144,3 +144,24 @@ public readonly record struct YahooKeyPacket : IFramePacket
         WireHeader.ReadVersion(ref reader, "Yahoo key");
     }
 }
+
+// C->S {header, uint16 Version = 1, uint16 0}: Space with nothing ahead in an action field. The server swings at nothing
+// when the player stands free there; the swing shows on the presence timeline.
+public readonly record struct SwingRequestPacket : IFramePacket
+{
+    public const ushort CurrentVersion = 1;
+    public const int Size = 8 + 4;
+
+    public int Write(Span<byte> destination)
+    {
+        var writer = new PacketWriter(destination, EtervaleOpcodes.SwingRequest);
+        WireHeader.Write(ref writer, CurrentVersion);
+        return writer.Finish();
+    }
+
+    public static void Read(ReadOnlySpan<byte> packet)
+    {
+        var reader = new PacketReader(packet, Size);
+        WireHeader.ReadVersion(ref reader, "Swing request");
+    }
+}

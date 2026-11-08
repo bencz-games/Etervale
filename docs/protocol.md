@@ -95,7 +95,7 @@ Bodies start with `uint16 Version = 1`; text is UTF-8 with a `uint16` byte lengt
 | Step | Packet | Notes |
 | --- | --- | --- |
 | Connect | S→C `ServerHello` (`0x45540F00`) | `{uint16 Version, uint16 0, uint32 Protocol, MinimumProtocol, int32 FullPlayers, text ServerName (32 B)}`: `FullPlayers` = players in the world when the player limit (`server.max_users` or `/user_limit`) is reached, else 0 (then only game masters may log in); `ServerName` is `server.name`. |
-| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (23); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
+| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (24); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
 | Result | S→C `CharacterList` (`0x45540F03`), then `LoginResult` (`0x45540F02`) | `LoginResult` = `{uint16 Version, uint8 Status, uint8 0}`: 0 ok, 1 bad credentials (also unknown accounts), 2 account blocked, 3 already logged in on this connection, 4 busy (throttled, full or storage failure), 5 client protocol older than the server's minimum. A failed login sends no list. |
 | Character list | S→C `CharacterList` | `{uint16 Version, uint16 0, int32 Count (at most 6)}`, then `{text Name, uint32 Class (PlayerClass), int32 Level, uint8 Tier, Face, Hair, Flags (1 in a village), uint32 WeaponCode, ArmorCode, OffHandCode, uint32 0, text ClanName (48 B; empty out of a clan)}`. |
 | Create, delete | C→S `CharacterCommand` (`0x45540F04`), S→C `CharacterResult` (`0x45540F05`) | Command `{uint16 Version, uint8 Action (1 create, 2 delete), uint8 0, int32 Class (PlayerClass), FaceIndex, text Name}`; result `{uint16 Version, uint8 Action, uint8 Ok, int32 Failure (CreateCharacterFailure), text Name}`. |
@@ -121,6 +121,7 @@ closing.
 | `CloseRequest` (`0x45540D03`) | S→C | Asks the client to quit (the end of a game master's shutdown countdown). |
 | `WingGateRequest` / `WingGateResult` (`0x45540D04` / `0x45540D05`) | C→S / S→C | A trip from a warp stone to a stone of the wing warp map, correlated by operation id; a trip that warped also sends a forced `FieldWarp` ([world.md](world.md#wing-warp-gates)). |
 | `YahooKey` (`0x45540D06`) | C→S | Space within the minute a yahoo word opened; the server checks the window, the motion and the stamina, and the cheer shows as the presence motion `yahoo` ([chat-and-gm.md](chat-and-gm.md#server-routing)). |
+| `SwingRequest` (`0x45540D07`) | C→S | Space with nothing ahead in an action field; the server swings at nothing, the way the player faces, when it may swing and holds no attack (`WorldServer.SwingAtNothingAsync`), and the swing shows as the presence motion `attack`. |
 
 ### Player actions
 
@@ -133,6 +134,7 @@ Bodies start with `uint16 Version = 1`; positions are fixed point (x256), entity
 | `FieldWarp` | `uint8 Flags (1 forced), uint8 0, int32 Field, int32 X, Y, Z` (the client puts the owner on the floor nearest Y) | 28 |
 | `CloseRequest` | `uint16 0` | 12 |
 | `YahooKey` | `uint16 0` | 12 |
+| `SwingRequest` | `uint16 0` | 12 |
 | `WingGateRequest` | `uint16 0, Guid OperationId, uint8 Destination (map index 0..8), uint8 0, uint16 0` | 32 |
 | `WingGateResult` | `uint16 0, Guid OperationId, uint8 Status (WingGateStatus: 0 warped, 1 rejected, 2 not at a stone, 3 beyond the wing, 4 level too low, 5 not enough gold, 6 busy, 7 storage failed), uint8 Destination, uint16 0, int64 Fee` | 40 |
 

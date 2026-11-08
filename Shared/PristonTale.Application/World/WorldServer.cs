@@ -341,6 +341,11 @@ public sealed partial class WorldServer
         });
     }
 
+    // Space with nothing ahead in an action field (FieldState.Action) swings at nothing; elsewhere it does nothing.
+    public Task<bool> SwingAtNothingAsync(int fieldId, ulong entityId) =>
+        EnqueueAsync(entityId, () => _catalog.TryGetFieldByCode(fieldId, out var definition) && definition.State == FieldState.Action
+            && _fields.TryGetValue(fieldId, out var field) && field.SwingAtNothing(entityId));
+
     public Task<CharacterSaveSnapshot?> CaptureForSaveAsync(PlayerSession session)
     {
         return EnqueueAsync(NoOwner, () => CaptureForSave(session, _connections.GetValueOrDefault(session.EntityId)), waitForCapacity: true);

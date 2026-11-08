@@ -13,6 +13,8 @@ using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Simulation.Physics;
 
+using PristonTale.Simulation.Modifiers;
+
 namespace PristonTale.Application.World;
 
 public enum MovementVerdict
@@ -590,15 +592,27 @@ public sealed class WorldPlayer
         return DistanceSqTo(worldPos) <= range * range && MathF.Abs(worldPos.Y - Position.Y) <= MonsterAttackReach.VerticalEntryLimit;
     }
 
+    // Whether a swing may start now: alive, idle, not stunned and no personal shop open.
+    public bool MaySwing => !IsDead && !IsBusy && !_character.Effects.Has(ControlFlags.Stun) && Shop is null;
+
     public void BeginSwing(ulong targetId, Vector3 targetPos, float durationMs, float hitAtMs)
     {
         Facing = Planar.Heading(Position, targetPos);
+        CombatTargetId = targetId;
+        StartSwing(targetId, durationMs, hitAtMs);
+    }
+
+    // A swing at nothing, the way the player faces: its hit strikes no one, and the monster last attacked stays the one
+    // the player's summons and familiar fight.
+    public void BeginEmptySwing(float durationMs, float hitAtMs) => StartSwing(0, durationMs, hitAtMs);
+
+    private void StartSwing(ulong targetId, float durationMs, float hitAtMs)
+    {
         Action = PlayerActionState.Swing;
         MoveState = MotionState.Attack;
         _timeline = ActionTimeline.Start(durationMs, hitAtMs);
         _swingTargetId = targetId;
         _swingAttackSequence = AttackSequence;
-        CombatTargetId = targetId;
     }
 
     public bool TickAction(float dtMs, out ulong hitTargetId)

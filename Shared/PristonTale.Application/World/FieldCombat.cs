@@ -104,7 +104,7 @@ internal sealed class FieldCombat
     // waits for that position.
     private void SwingAt(WorldPlayer player, ulong targetId, Vector3 target)
     {
-        if (player.IsBusy || player.Character.Effects.Has(ControlFlags.Stun) || !player.InAttackRange(target))
+        if (!player.MaySwing || !player.InAttackRange(target))
         {
             return;
         }

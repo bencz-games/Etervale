@@ -88,7 +88,8 @@ Weapons (110) and its four gates to the Land of Nurwn (132); Lost Island to the 
 Stemple (116); Kelvezu's Lair to the Heart of Fire (125, three exits); the Ice Mine to the Crystal Nest (130). The Crystal
 Nest and the Land of Nurwn have no way out. No monsters are authored for Stemple, the Heart of Fire, the Crystal Nest or
 the Land of Nurwn. The action fields are reached by no gate; a kill in `fall_game` drops its event item GF102 at 150 in
-10000 (`ItemEventDrops`), with no event running.
+10000 (`ItemEventDrops`), with no event running. Space there with nothing ahead swings at nothing
+(`FieldInstance.SwingAtNothing`: a player who may swing and holds no attack).
 
 | Member | Use |
 |---|---|

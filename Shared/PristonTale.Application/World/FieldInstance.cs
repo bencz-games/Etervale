@@ -552,6 +552,20 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         return tuning;
     }
 
+    // An action field's Space with nothing ahead: a player who may swing, holding no attack, swings at nothing (false
+    // otherwise).
+    internal bool SwingAtNothing(ulong entityId)
+    {
+        if (!_players.TryGetValue(entityId, out var player) || !player.MaySwing || player.AttackTargetId != 0)
+        {
+            return false;
+        }
+
+        var timing = PlayerSwingTiming(player);
+        player.BeginEmptySwing(timing.DurationMs, timing.HitAtMs);
+        return true;
+    }
+
     public (float DurationMs, float HitAtMs) PlayerSwingTiming(WorldPlayer player)
     {
         var rate = player.Character.AttackRate;
