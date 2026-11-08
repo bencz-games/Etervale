@@ -243,6 +243,14 @@ public abstract class RemoteEntityBase
             return;
         }
 
+        // A player standing up from death plays the restart clip, which the renderer ends in Stand, as the local player
+        // does (GameScene.RespawnAt).
+        if (Kind == EntityKind.Player && motion != MotionCode.Dead
+            && (_controller.IsDead || _controller.Current == MotionCode.Restart && motion == MotionCode.Stand))
+        {
+            motion = MotionCode.Restart;
+        }
+
         var command = _controller.ApplyAuthoritative(motion);
         if (command.Kind == MotionCommandKind.None
             && motion == MotionCode.Damage

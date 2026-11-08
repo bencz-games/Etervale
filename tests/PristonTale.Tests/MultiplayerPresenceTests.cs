@@ -59,7 +59,11 @@ internal static class MultiplayerPresenceTests
             "the running buff");
         Assert.True(arrived.Op == StatusEffectOp.Add && arrived.DurationMs == seen.DurationMs && arrived.RemainingMs < seen.RemainingMs
             && arrived.RemainingMs > seen.RemainingMs - 5000, $"the latecomer saw {arrived}");
-        Assert.True(!late.World.Read(world => world.Statuses.Any(status => status.EntityId == late.EntityId)), "the latecomer received statuses it does not have");
+        Assert.True(!late.World.Read(world => world.Statuses.Any(status => status.EntityId == late.EntityId && status.StatusCode != PlayerGrace.StatusCode)),
+            "the latecomer received statuses it does not have");
+        var grace = await late.WaitAsync(world => world.Statuses.FirstOrDefault(status => status.EntityId == late.EntityId && status.StatusCode == PlayerGrace.StatusCode),
+            "the latecomer's arrival grace");
+        Assert.True(grace.Op == StatusEffectOp.Add && grace.RemainingMs is > 0 and <= (int)PlayerGrace.ArrivalMs, $"the latecomer's grace was {grace}");
     }
 
     private static async Task SummonAsync()
@@ -131,8 +135,8 @@ internal static class MultiplayerPresenceTests
         await a.WaitUntilAsync(world => world.Owner!.InventoryRevision == firecracker.Revision, "the inventory after the firecracker");
         var scroll = await a.UseItemAsync("BI105");
         Assert.True(scroll.Ok, $"invulnerability scroll refused: {scroll.Status}");
-        var status = await b.WaitAsync(world => world.Statuses.FirstOrDefault(value => value.EntityId == a.EntityId && value.Op == StatusEffectOp.Add),
-            "the scroll's status");
+        var status = await b.WaitAsync(world => world.Statuses.FirstOrDefault(value => value.EntityId == a.EntityId && value.Op == StatusEffectOp.Add
+            && value.StatusCode != PlayerGrace.StatusCode), "the scroll's status");
         Assert.True(status.SourceKind == (byte)EffectSourceKind.Item, "the scroll status has another source");
     }
 
@@ -186,7 +190,7 @@ internal static class MultiplayerPresenceTests
         await b.WaitUntilAsync(world => world.Entities.ContainsKey(a.EntityId), "the victim");
 
         await b.WaitUntilAsync(world => world.Entities.TryGetValue(a.EntityId, out var victim) && victim.Life <= 0 && victim.Motion == MotionState.Dead,
-            "the victim dead", 9000);
+            "the victim dead", (int)PlayerGrace.ArrivalMs + 9000);
         var killing = b.World.Read(world => world.Combat.Select(entry => entry.Event).First(value => value.TargetId == a.EntityId && value.Killed));
         Assert.True(a.World.Read(world => world.Combat.Any(entry => entry.Event == killing)), "the victim saw another killing blow");
         await Task.Delay(500);

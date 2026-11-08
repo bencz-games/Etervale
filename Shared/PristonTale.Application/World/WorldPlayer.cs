@@ -401,8 +401,15 @@ public sealed class WorldPlayer
         _appearance = new PlayerAppearanceView(current.Name, current.Class, current.Tier, current.FaceIndex, hairIndex, current.ModelName, current.ModelName2);
     }
 
-    // Damage is ignored while the guard runs (revives, invulnerability items).
-    public void Guard(float durationMs) => GuardMsLeft = MathF.Max(GuardMsLeft, durationMs);
+    // Damage is ignored while the guard runs (arrivals, revives, invulnerability items).
+    public void Guard(float durationMs)
+    {
+        if (durationMs > GuardMsLeft)
+        {
+            GuardMsLeft = durationMs;
+            _guardChanged = true;
+        }
+    }
 
     public int Level => _character.Level;
     public int Life => _character.Life;
@@ -743,10 +750,33 @@ public sealed class WorldPlayer
         _budgetMs = -1;
     }
 
-    // Time after a revive in which no damage lands, as the original's restart grace.
     public float GuardMsLeft { get; private set; }
 
-    public void TickGuard(float dtMs) => GuardMsLeft = MathF.Max(0f, GuardMsLeft - dtMs);
+    public void TickGuard(float dtMs)
+    {
+        if (GuardMsLeft > 0f)
+        {
+            GuardMsLeft = MathF.Max(0f, GuardMsLeft - dtMs);
+            _guardChanged |= GuardMsLeft == 0f;
+        }
+    }
+
+    // Ends a running guard at once (its item left behind, a game master's kill).
+    public void EndGuard()
+    {
+        _guardChanged |= GuardMsLeft > 0f;
+        GuardMsLeft = 0f;
+    }
+
+    private bool _guardChanged;
+
+    // True once after the guard was granted, ran out or was cut short, for the field to publish it (PlayerGrace.StatusCode).
+    public bool TakeGuardChange()
+    {
+        var changed = _guardChanged;
+        _guardChanged = false;
+        return changed;
+    }
 
     // Brings a dead player back where it fell with this much life (a revive skill), guarded for a while.
     public void Revive(int life, float guardMs)
@@ -762,6 +792,7 @@ public sealed class WorldPlayer
         MoveState = MotionState.Stand;
         Action = PlayerActionState.Idle;
         GuardMsLeft = MathF.Max(0f, guardMs);
+        _guardChanged |= GuardMsLeft > 0f;
     }
 
     public EntityView ToView() => new(
@@ -785,7 +816,7 @@ public sealed class WorldPlayer
             return false;
         }
 
-        GuardMsLeft = 0f;
+        EndGuard();
         ApplyDamage(Math.Max(1, _character.Life));
         return IsDead;
     }

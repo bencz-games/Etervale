@@ -476,6 +476,16 @@ sounds: Chain Lance in order, Shadow Master, Lightning and Storm Javelin, Divine
 Chain Lightning, Watornado, Flame Wave and Dancing Sword at random, Vengeance in order, Divine Piercing on its final hit,
 Grand Cross with a swing on the first hit. Effect sounds take `variants` at random (Fire Bolt, Fire Ball, X-Rage).
 
+### Standing up and the grace
+
+A player standing up stands in a pillar of light (`vfx.player.restart`: `GameStart1.smd` at 35 frames a second, a
+grey light, `SkillPresentation.RestartEffect`) at every `Revive` event (restarts, revive skills, Restoration), the
+priestess's rise added when another player revived it, and the local player once on entering the world with the
+restart's sound (`GameScene.ArriveInWorld`). A remote player standing from death plays the Restart clip, which the
+renderer ends in Stand, as the local player does (`RemoteEntityBase.ApplySampleState`). While a player's grace runs
+(the `PlayerGrace.StatusCode` status the server publishes for `WorldPlayer.Guard`) its body blinks for every viewer: 80
+more red and blue light for 16 ticks of every 32 left (`ActorLookBook`).
+
 ### Costume wings
 
 The premium costume armours and robes show a wing at the wearer's back (`CostumeWings`, `Effect/Vfx/Costumes`):

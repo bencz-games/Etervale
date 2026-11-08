@@ -134,7 +134,7 @@ internal static class SkillPresentationTests
         var catalog = VfxCatalog.Load(root);
         Assert.True(catalog.Errors.Count == 0, string.Join("; ", catalog.Errors.Take(10)));
         var names = catalog.Definitions.Select(definition => definition.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        Assert.True(names.Contains(SkillPresentation.ReviveEffect), "the revive effect is missing");
+        Assert.True(names.Contains(SkillPresentation.ReviveEffect) && names.Contains(SkillPresentation.RestartEffect), "the revive or restart effect is missing");
         var problems = new List<string>();
         foreach (var hit in new[] { HitEffects.Critical, HitEffects.Normal, HitEffects.Bare, HitEffects.Blood }.Where(name => !names.Contains(name)))
         {

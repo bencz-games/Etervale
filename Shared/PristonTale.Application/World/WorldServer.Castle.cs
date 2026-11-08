@@ -1,4 +1,5 @@
 using PristonTale.Application.Castle;
+using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 using PristonTale.Simulation.Social.Castle;
 using PristonTale.Simulation.World;
@@ -98,8 +99,8 @@ public sealed partial class WorldServer : ICastleWorld
             return true;
         }, waitForCapacity: true);
 
-    // Living players in the castle field outside the owner clan go to a random start point of the castle (the dead rise
-    // there anyway).
+    // Living players in the castle field are guarded for PlayerGrace.SiegeEndMs, and those outside the owner clan go to a
+    // random start point of the castle (the dead rise there anyway).
     public Task<IReadOnlyList<CastleArrival>> EndSiegeAsync(long ownerClanId) =>
         EnqueueAsync<IReadOnlyList<CastleArrival>>(NoOwner, () =>
         {
@@ -113,7 +114,13 @@ public sealed partial class WorldServer : ICastleWorld
             foreach (var connection in _connections.Values.Where(connection => connection.FieldId == FieldCodes.Castle).ToList())
             {
                 var player = connection.Player;
-                if (player.IsDead || CastleSiegeRules.HoldsCastle(player.Clan?.ClanId ?? 0, ownerClanId)
+                if (player.IsDead)
+                {
+                    continue;
+                }
+
+                player.Guard(PlayerGrace.SiegeEndMs);
+                if (CastleSiegeRules.HoldsCastle(player.Clan?.ClanId ?? 0, ownerClanId)
                     || FieldArrival(FieldCodes.Castle, Random.Shared) is not { } arrival)
                 {
                     continue;

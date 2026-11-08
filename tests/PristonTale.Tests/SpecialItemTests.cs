@@ -594,7 +594,9 @@ internal static class SpecialItemTests
             Drain();
         }
 
-        public IEnumerable<uint> StatusCodes() => _snapshots.SelectMany(snapshot => snapshot.StatusEvents).Select(status => status.StatusCode);
+        public IEnumerable<StatusEventView> Statuses() => _snapshots.SelectMany(snapshot => snapshot.StatusEvents);
+
+        public IEnumerable<uint> StatusCodes() => Statuses().Select(status => status.StatusCode);
 
         public IEnumerable<ItemEffectView> ItemEffects() => _snapshots.SelectMany(snapshot => snapshot.ItemEffects);
 

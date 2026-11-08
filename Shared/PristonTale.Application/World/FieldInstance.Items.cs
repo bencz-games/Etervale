@@ -134,7 +134,7 @@ public sealed partial class FieldInstance
         }
     }
 
-    // Castle items end when their holder leaves the castle field.
+    // Castle items end when their holder leaves the castle field, Athanasia's guard with its status.
     private void LeaveCastleItems(WorldPlayer player)
     {
         if (FieldId != FieldCodes.Castle)
@@ -144,7 +144,11 @@ public sealed partial class FieldInstance
 
         foreach (var item in CastleItems.All)
         {
-            player.Character.Effects.Remove(item.StatusCode, player.EntityId, null);
+            if (player.Character.Effects.Remove(item.StatusCode, player.EntityId, null)
+                && item.Kind == CastleItemKind.Scroll && item.Target == (int)ScrollEffectKind.Invulnerability)
+            {
+                player.EndGuard();
+            }
         }
     }
 }

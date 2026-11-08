@@ -221,6 +221,7 @@ public sealed partial class WorldServer
             }
 
             player.EnterField(position, definition.State == FieldState.Village);
+            player.Guard(PlayerGrace.ArrivalMs);
             field.Add(player);
             _connections.Add(player.EntityId, new Connection(fieldId, player, outbound, session) { NextGiftTick = GiftTick(StarterGifts.FirstDelay) });
             _membershipChanged = true;
@@ -290,6 +291,7 @@ public sealed partial class WorldServer
             {
                 // Warp exits carry an authored height; settle on the floor at or just below it rather than on a roof.
                 player.EnterField(terrain.SettleNear(arrival.Position, FieldTerrain.ArrivalTolerance), inVillage);
+                player.Guard(PlayerGrace.ArrivalMs);
             }
             else
             {

@@ -303,7 +303,11 @@ attack meets the target's defence, block and flat absorption (`CombatProfileFact
 `CombatResolver.Resolve`: a player defender absorbs flat, a monster a percent), scaled by both sides' effects, with the
 attacker's enchant elements (`EnchantOnPlayer`) and Might Stone (`CastleItems.Strike`) and the target's absorbing
 shields (`DefendFromPlayer`; guards answer only monsters of their broods), then `WorldPlayer.ApplyDamage` (nothing
-during a revive guard or Athanasia). A hidden game master neither fights nor is fought. Damage skills reach players
+during a guard: entering the world or coming out of a warp gate for `PlayerGrace.ArrivalMs` (10 s), the living in the
+castle's field when a siege ends for `SiegeEndMs` (6 s), a restart or revive, the invulnerability items: Athanasia,
+ended with its status when its holder leaves the castle, the Eternal Life scroll, the ether core's return and the
+head-change foods). Each guard granted, run out or cut short is published with the field's next step as the status
+`PlayerGrace.StatusCode` (0xF0000600, source System), so viewers see it. A hidden game master neither fights nor is fought. Damage skills reach players
 there too (`FieldSkills.Players`): only the skills that can hurt one take a foe as their target
 (`SkillFormulas.ReachesPlayers`: weapon skills, bolts and areas of rolled damage that are not chains, never a charm;
 the client offers the same). A weapon skill rolls the player's evasion, then its accuracy, block, critical and flat

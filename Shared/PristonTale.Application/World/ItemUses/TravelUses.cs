@@ -51,8 +51,6 @@ internal sealed class TeleportCoreUse : ItemUseAction
 // guards the user for ten seconds when the return motion ends.
 internal sealed class ReturnToTownUse : ItemUseAction
 {
-    public const float GuardMs = 10_000f;
-
     public override ItemUseStatus Check(in ItemUseRequest use)
     {
         if (use.Here is null || use.Here.State == FieldState.Room || TravelRules.ReturnBlockedFields.Contains(use.Context.Field.FieldId))
@@ -68,7 +66,7 @@ internal sealed class ReturnToTownUse : ItemUseAction
 
     public override ItemUseEffect Apply(in ItemUseInWorld use)
     {
-        use.Player.Guard(GuardMs);
+        use.Player.Guard(PlayerGrace.ArrivalMs);
         return new ItemUseEffect(ItemEffectKind.Return);
     }
 }

@@ -137,6 +137,11 @@ internal sealed partial class FieldSkills
         _changes.Clear();
         foreach (var player in _host.Players)
         {
+            if (player.TakeGuardChange())
+            {
+                _statusEvents.Add(GraceView(player));
+            }
+
             if (player.IsDead)
             {
                 player.Character.Effects.ClearTimed(player.EntityId, _changes);
@@ -238,6 +243,14 @@ internal sealed partial class FieldSkills
                 monster.Life = Math.Clamp(monster.Life + amount, 1, monster.Def.Combat.MaxLife);
             }
         }
+    }
+
+    // The player's guard as a status its viewers see; a guard cut short removes it.
+    private static StatusEventView GraceView(WorldPlayer player)
+    {
+        var left = (int)player.GuardMsLeft;
+        return new StatusEventView(player.EntityId, player.EntityId, PlayerGrace.StatusCode, left > 0 ? StatusEffectOp.Add : StatusEffectOp.Remove, 0,
+            (byte)EffectSourceKind.System, 0, false, false, left, left, 0);
     }
 
     private StatusEventView StatusView(in EffectChange change, int stacks)

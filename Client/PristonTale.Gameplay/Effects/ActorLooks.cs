@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Client.Net.Presence;
+using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Skills;
 using PristonTale.Contracts.Units;
 
@@ -31,9 +32,9 @@ public readonly record struct EntityLook(
 }
 
 // Tracks, per entity, the skill looks the original draws: frost, poison and rage tints that ramp in 70 Hz ticks, the
-// distortion, vanish and vague bodies, shield swaps while a status lasts, and the enlarged weapon and afterimages of a
-// cast. Colour offsets are the original's 0..255 light units (255 = one white light), opacity the original's alpha
-// offset over 255.
+// distortion, vanish and vague bodies, shield swaps while a status lasts, the enlarged weapon and afterimages of a cast,
+// and a guarded player's blink (PlayerGrace: 80 more red and blue light for 16 ticks out of every 32 left). Colour
+// offsets are the original's 0..255 light units (255 = one white light), opacity the original's alpha offset over 255.
 public sealed class ActorLookBook
 {
     private const float FrostPeak = 160f;
@@ -41,6 +42,8 @@ public sealed class ActorLookBook
     private const float VanishAlpha = -160f;
     private const float OwnVagueAlpha = -60f;
     private const float DistortionLight = 80f;
+    private const float GraceLight = 80f;
+    private const int GraceBlinkTicks = 16;
     private const float GrowthStartTicks = 0f;
     // An enlarged weapon starts a quarter larger and grows 8/256 a tick up to the rank's percent; its opacity falls from
     // -96 by 2 a tick to -192, and its red light is 128.
@@ -111,7 +114,8 @@ public sealed class ActorLookBook
         _looks.Clear();
         foreach (var (entity, entry) in statuses.All())
         {
-            if (SkillRuleCatalog.TryGet(entry.Code, out var rule) && (rule.StatusLook != SkillLook.None || rule.ShieldModel.Length > 0))
+            if (entry.Code == PlayerGrace.StatusCode
+                || SkillRuleCatalog.TryGet(entry.Code, out var rule) && (rule.StatusLook != SkillLook.None || rule.ShieldModel.Length > 0))
             {
                 StateOf(entity);
             }
@@ -144,8 +148,18 @@ public sealed class ActorLookBook
         var vanish = false;
         var vague = false;
         var shield = "";
+        var grace = 0f;
+        var graced = false;
         foreach (var entry in entries)
         {
+            if (entry.Code == PlayerGrace.StatusCode)
+            {
+                var left = (int)(entry.RemainingMs(nowMs) * GameUnits.TicksPerSecond / 1000d);
+                graced = left > 0;
+                grace = graced && (left & GraceBlinkTicks) == 0 ? GraceLight : 0f;
+                continue;
+            }
+
             if (!SkillRuleCatalog.TryGet(entry.Code, out var rule))
             {
                 continue;
@@ -181,7 +195,7 @@ public sealed class ActorLookBook
         state.Poison = Ramp(state.Poison, poison, PoisonPeak, ticks);
         state.Rage = MathF.Max(0f, state.Rage - ticks);
         var ice = MathF.Abs(state.Frost);
-        var red = state.Rage + (distortion ? DistortionLight : 0f);
+        var red = state.Rage + (distortion ? DistortionLight : 0f) + grace;
         var green = -state.Rage / 2f + MathF.Abs(state.Poison) + (distortion ? DistortionLight : 0f);
         var alpha = -ice / 2f;
         if (vanish || vague)
@@ -191,7 +205,7 @@ public sealed class ActorLookBook
 
         var look = EntityLook.Normal with
         {
-            Tint = new Vector3(red, green, ice) / 255f,
+            Tint = new Vector3(red, green, ice + grace) / 255f,
             Opacity = Math.Clamp((255f + alpha) / 255f, 0f, 1f),
             Wobble = distortion,
             CastsShadow = !vanish && !vague,
@@ -211,7 +225,7 @@ public sealed class ActorLookBook
             }
         }
 
-        state.Idle = state.CastRule is null && state.Frost == 0f && state.Poison == 0f && state.Rage == 0f;
+        state.Idle = state.CastRule is null && state.Frost == 0f && state.Poison == 0f && state.Rage == 0f && !graced;
         return look;
     }
 

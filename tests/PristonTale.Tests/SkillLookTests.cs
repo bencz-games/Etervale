@@ -2,6 +2,7 @@ using PristonTale.Client.Net.Presence;
 using PristonTale.Effects.Vfx;
 using PristonTale.Gameplay.Effects;
 using PristonTale.Protocol.Packets;
+using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Skills;
 using PristonTale.Contracts.Skills;
 
@@ -35,6 +36,7 @@ internal static class SkillLookTests
         yield return ("frost and poison tints ramp in 70 Hz ticks, fade back and show only on harmful statuses", AfflictionsAsync);
         yield return ("vanish and vague bodies are translucent and shadowless; the own vague is clearer and overlaid", TranslucencyAsync);
         yield return ("distortion tints red-yellow and wobbles; a look that ends reports Normal once", DistortionAsync);
+        yield return ("a guarded player blinks with 80 more red and blue light for 16 ticks of every 32 left, until the grace ends", GraceAsync);
         yield return ("rage glows red at each impact and fades by 70 a second", RageAsync);
         yield return ("shield swaps wait for the cast's hit; thrown shields move bone and glow during the cast", ShieldsAsync);
         yield return ("expansion grows a red translucent weapon copy; shadow master trails six or four afterimages", CastLooksAsync);
@@ -123,6 +125,35 @@ internal static class SkillLookTests
         Assert.True(book.Looks.TryGetValue(Monster, out var ended) && ended.IsNormal, "the ended look was not reported as Normal");
         book.Update(0.1f, now += 100d, statuses, Self);
         Assert.True(!book.Looks.ContainsKey(Monster), "a normal entity kept being reported");
+        return Task.CompletedTask;
+    }
+
+    private static Task GraceAsync()
+    {
+        var book = new ActorLookBook();
+        var statuses = new StatusBook();
+        var now = 0d;
+        statuses.Apply(new StatusEffectInfo(Other, Other, PlayerGrace.StatusCode, StatusEffectOp.Add, 0, 0, 0, 0, 10_000, 10_000, 0), now);
+        var (lit, plain) = (0, 0);
+        for (var tick = 0; tick < 64; tick++)
+        {
+            var look = Step(book, statuses, ref now, 1f / 70f, Other);
+            if (look.IsNormal)
+            {
+                plain++;
+            }
+            else
+            {
+                Assert.True(MathF.Abs(look.Tint.X * 255f - 80f) < 0.5f && MathF.Abs(look.Tint.Z * 255f - 80f) < 0.5f && look.Tint.Y == 0f
+                    && look.Opacity == 1f, $"the blink looked {look}");
+                lit++;
+            }
+        }
+
+        Assert.True(lit is >= 30 and <= 34 && plain is >= 30 and <= 34, $"the grace blinked {lit} ticks lit and {plain} plain of 64");
+        Step(book, statuses, ref now, 10f, Other);
+        var after = Step(book, statuses, ref now, 0.1f, Other);
+        Assert.True(after.IsNormal, "the blink outlived the grace");
         return Task.CompletedTask;
     }
 

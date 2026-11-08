@@ -49,6 +49,8 @@ public interface ISkillSceneHost : IVfxAnchors
 public sealed class SkillPresentation : IVfxServices, IDisposable
 {
     public const string ReviveEffect = "vfx.priestess.resurrection.rise";
+    // The pillar of light of a player standing up: entering the world, a restart or any revival.
+    public const string RestartEffect = "vfx.player.restart";
     private const float ChainLinkSeconds = 0.08f;
     // Game-thread time per frame spent registering effect definitions until all are ready.
     private static readonly TimeSpan CompileBudget = TimeSpan.FromMilliseconds(2);
@@ -497,7 +499,11 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
         {
             if (_host.TryGetPosition(combat.TargetId, out var risen))
             {
-                Spawn(ReviveEffect, combat.AttackerId, combat.TargetId, risen);
+                Spawn(RestartEffect, combat.TargetId, combat.TargetId, risen);
+                if (combat.AttackerId != combat.TargetId)
+                {
+                    Spawn(ReviveEffect, combat.AttackerId, combat.TargetId, risen);
+                }
             }
 
             return;
