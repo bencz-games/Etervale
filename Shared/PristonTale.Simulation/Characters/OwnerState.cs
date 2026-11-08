@@ -134,7 +134,7 @@ public sealed record OwnerState(
         }
 
         var items = previous is not null && previous.InventoryRevision == character.InventoryRevision ? previous.Items : ProjectItems(character);
-        var damage = Combat.WeaponDamage.Compute(character);
+        var damage = Combat.WeaponDamage.ComputeForHit(character);
         var current = new OwnerState(character.Level, character.Experience,
             ExperienceTable.ForLevel(Math.Clamp(character.Level, 1, ExperienceTable.MaximumLevel)),
             ExperienceTable.ForLevel(Math.Clamp(character.Level + 1, 1, ExperienceTable.MaximumLevel)),

@@ -358,6 +358,10 @@ public sealed partial record SkillRule
     // makes every hit able to flinch the target.
     public bool StopAfterMiss { get; init; }
     public int[] NoCriticalHits { get; init; } = [];
+    // Used on monsters only (never on a player), and with RefusesBosses never on a boss or a castle's door, tower or
+    // crystal tower.
+    public bool MonstersOnly { get; init; }
+    public bool RefusesBosses { get; init; }
     // The force orbs the skill takes and its own share of their power in percent (0: its tier's, ForceOrbs.TierPercent).
     // OrbShare is what its hits take, the parts it strikes with (a full charge, a mode, a follow area) included: set when
     // the catalog loads, whole for a rule built elsewhere.

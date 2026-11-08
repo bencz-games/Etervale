@@ -840,6 +840,8 @@ seguem para a torre alta.</value></data>
   <data name="Stat.ForceOrbDamage" xml:space="preserve"><value>Poder da Force Orb</value></data>
   <data name="Stat.HealingTaken" xml:space="preserve"><value>Cura recebida</value></data>
   <data name="Stat.HitDamage" xml:space="preserve"><value>Dano por golpe</value></data>
+  <data name="Stat.HitDamageMax" xml:space="preserve"><value>Dano máximo por golpe</value></data>
+  <data name="Stat.HitDamageMin" xml:space="preserve"><value>Dano mínimo por golpe</value></data>
   <data name="Stat.LifeCostPerAttack" xml:space="preserve"><value>Custo de vida por ataque</value></data>
   <data name="Stat.LifeLeech" xml:space="preserve"><value>Roubo de vida</value></data>
   <data name="Stat.LifeRegen" xml:space="preserve"><value>Regeneração de vida (décimos/s)</value></data>

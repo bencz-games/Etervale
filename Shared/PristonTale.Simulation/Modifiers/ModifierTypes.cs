@@ -86,7 +86,11 @@ public enum StatKind : byte
     Agility = 53,
     // A weapon force orb's power, added to a normal attack whole and to a weapon skill's hit by the skill's share.
     ForceOrbDamage = 54,
-    Count = 55
+    // Percent added to each end of the attack range of a single-target hit (a normal attack or a weapon skill's hit),
+    // never an area's or a burst's.
+    HitDamageMin = 55,
+    HitDamageMax = 56,
+    Count = 57
 }
 
 public enum ModifierOp : byte

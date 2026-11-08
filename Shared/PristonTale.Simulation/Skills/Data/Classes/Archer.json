@@ -140,7 +140,7 @@
           {"stat": "CompanionDamage", "op": "Flat", "values": [22, 26, 30, 34, 38, 42, 46, 50, 54, 58], "othersPercent": 100} ] },
       "motionIndex": 92, "motionFrames": 57, "motionEvents": [26], "motionSpeed": 80,
       "buffEffect": "vfx.archer.nature.aura", "castSound": "wav/Effects/Skill/Tempskron/ForceOfNature 01.wav", "keepIcon": "Ac4_F_O_NATURE" },
-    { "code": "0x04100001", "name": "Evade Shot", "tier": "Job5", "category": "ActiveAttack", "icon": "TA80 E_Shot", "description": "Jump up and kick the enemy, leaving them stunned.", "requiredLevel": 80, "mouse": "Right", "mana": [40, 43, 46, 49, 52, 55, 58, 61, 64, 67], "stamina": [52, 2], "weapons": ["Bow"],
+    { "code": "0x04100001", "monstersOnly": true, "name": "Evade Shot", "tier": "Job5", "category": "ActiveAttack", "icon": "TA80 E_Shot", "description": "Jump up and kick the enemy, leaving them stunned.", "requiredLevel": 80, "mouse": "Right", "mana": [40, 43, 46, 49, 52, 55, 58, 61, 64, 67], "stamina": [52, 2], "weapons": ["Bow"],
       "kind": "WeaponAttack", "target": "Enemy", "masteryBase": 82, "masteryPerRank": 2,
       "range": [300, 300, 300, 300, 300, 300, 300, 300, 300, 300], "damage": {"percent": [65, 78, 91, 104, 117, 130, 143, 156, 169, 182]},
       "buff": { "durationTenths": [40, 60, 80, 100, 120, 130, 140, 150, 160, 170], "control": "Stun", "harmful": true, "sparesBosses": true },

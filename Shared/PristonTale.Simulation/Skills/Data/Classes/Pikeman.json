@@ -153,8 +153,8 @@
       "kind": "SelfBuff", "target": "Self", "masteryBase": 160, "masteryPerRank": 0, "exclusive": ["0x03100003"],
       "buff": { "durationTenths": [2400, 2800, 3200, 3600, 4000, 4400, 4800, 5200, 5600, 6000],
         "modifiers": [
-          {"stat": "DamageMin", "op": "Percent", "values": [30, 40, 50, 60, 70, 80, 90, 100, 110, 120]},
-          {"stat": "DamageMax", "op": "Percent", "values": [30, 40, 50, 60, 70, 80, 90, 100, 110, 120]},
+          {"stat": "HitDamageMin", "op": "Percent", "values": [30, 40, 50, 60, 70, 80, 90, 100, 110, 120]},
+          {"stat": "HitDamageMax", "op": "Percent", "values": [30, 40, 50, 60, 70, 80, 90, 100, 110, 120]},
           {"stat": "AttackRating", "op": "Percent", "values": [30, 35, 40, 45, 50, 55, 60, 65, 70, 75]},
           {"stat": "Absorption", "op": "Flat", "values": [-5, -7, -9, -11, -13, -15, -17, -19, -21, -23]} ] },
       "motionIndex": 98, "motionFrames": 53, "motionEvents": [29], "motionSpeed": 70, "castEffect": "vfx.pike.amplified.cast",

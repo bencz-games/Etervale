@@ -70,12 +70,17 @@ internal static class PikemanSkillTests
         var field = SkillFixtures.Field();
         var pikeman = SkillFixtures.Player(field, 1, PlayerClass.Pikeman, 90, Vector3.Zero, SkillFixtures.Weapon(ItemKind.Pole));
         WithMana(pikeman);
+        var areaBefore = Simulation.Combat.WeaponDamage.Compute(pikeman.Character);
         pikeman.Character.Skills.Restore(Amplified, 10);
         SkillFixtures.Accept("Amplified", field, pikeman, Amplified);
         SkillFixtures.Finish(field, pikeman);
         var totals = pikeman.Character.Effects.Totals;
-        Assert.True(totals.Percent(StatKind.DamageMin) == 120 && totals.Percent(StatKind.DamageMax) == 120 && totals.Percent(StatKind.AttackRating) == 75
+        Assert.True(totals.Percent(StatKind.HitDamageMin) == 120 && totals.Percent(StatKind.HitDamageMax) == 120 && totals.Percent(StatKind.AttackRating) == 75
             && totals.Flat(StatKind.Absorption) == -23, "amplified rank 10 values");
+        var area = Simulation.Combat.WeaponDamage.Compute(pikeman.Character);
+        var hit = Simulation.Combat.CombatProfileFactory.ForPlayerBasicAttack(pikeman.Character);
+        Assert.True(area == areaBefore && hit.DamageMin == area.Min + area.Min * 120 / 100 && hit.DamageMax == area.Max + area.Max * 120 / 100,
+            "amplified did not raise a single-target hit's attack range, or raised the attack areas read");
         SkillFixtures.Refuse(SkillCastVerdict.AlreadyActive, "amplified recast while running", field, pikeman, Amplified);
         return Task.CompletedTask;
     }

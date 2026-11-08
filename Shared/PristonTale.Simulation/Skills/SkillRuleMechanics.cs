@@ -46,6 +46,8 @@ public sealed record SkillAllyRule
     public int[] Radius { get; init; } = [];
     public bool IncludeCaster { get; init; } = true;
     public bool Party { get; init; }
+    // With Party: the clicked player may be anyone, only the players around being of the party.
+    public bool AnyClicked { get; init; }
     public bool RequiresParty { get; init; }
     // Strength of the effect on players other than the caster, in percent.
     public int OthersPercent { get; init; } = 100;

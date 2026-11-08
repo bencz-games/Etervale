@@ -209,7 +209,7 @@
       "castSound": "wav/Effects/Skill/Tempskron/vanish 02.wav" },
     { "code": "0x05100004", "name": "Holy Benedic", "tier": "Job5", "category": "Buff", "icon": "MN90 H_Benedic", "description": "Gives ability that adds additional damage to undead monsters.", "requiredLevel": 90, "mouse": "Right", "mana": [86, 90, 94, 98, 102, 106, 110, 114, 118, 122], "stamina": [93, 2], "weapons": ["Axe", "Claw", "Hammer", "Pole", "Sword", "Bow", "ThrowingWeapon"],
       "kind": "SelfBuff", "target": "Ally", "masteryBase": 400, "masteryPerRank": 0, "exclusive": ["0x05100004"],
-      "allies": { "party": true, "radius": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200], "height": 200 },
+      "allies": { "party": true, "anyClicked": true, "radius": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200], "height": 200 },
       "buff": { "durationTenths": [2400, 2800, 3200, 3600, 4000, 4400, 4800, 5200, 5600, 6000],
         "modifiers": [{ "stat": "DamageVsUndead", "op": "Flat", "values": [25, 30, 35, 40, 45, 50, 55, 60, 65, 70] }] },
       "motionIndex": 174, "motionFrames": 70, "motionEvents": [51], "motionSpeed": 70, "castEffect": "vfx.knight.holybenedic.cast",

@@ -65,6 +65,16 @@ public static class WeaponDamage
         return ModifierRules.ApplyDamage(character.Effects.Totals, minimum + mastery.Min, maximum + mastery.Max);
     }
 
+    // The attack range of a single-target hit (a normal attack, a weapon skill's hit) and of the status window: the
+    // attack range raised by HitDamageMin and HitDamageMax.
+    public static (int Min, int Max) ComputeForHit(PlayerCharacter character)
+    {
+        var (min, max) = Compute(character);
+        var totals = character.Effects.Totals;
+        min = totals.Apply(StatKind.HitDamageMin, min);
+        return (min, Math.Max(min, totals.Apply(StatKind.HitDamageMax, max)));
+    }
+
     // A percent of the weapon's own damage range, each end truncated (the percent applied before the multiplication).
     public static (int Min, int Max) PercentOfWeapon(ItemInstance weapon, int percent)
     {

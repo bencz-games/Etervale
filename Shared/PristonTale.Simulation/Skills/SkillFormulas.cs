@@ -479,7 +479,7 @@ public static partial class SkillFormulas
     // Whether an enemy skill may take a player of the castle's battle zone as its target: one that can hurt it (a weapon
     // skill, a bolt, or an area of rolled damage that is not a chain), never a charm.
     public static bool ReachesPlayers(SkillRule rule) =>
-        rule.Charm is null && (rule.Kind is SkillKind.WeaponAttack or SkillKind.MagicBolt
+        rule.Charm is null && !rule.MonstersOnly && (rule.Kind is SkillKind.WeaponAttack or SkillKind.MagicBolt
             || rule.Kind == SkillKind.Area && rule.AreaShape != SkillAreaShape.Chain && rule.Damage is { Mode: SkillDamageMode.Rolled });
 
     // Healing: the table plus the weapon's own damage / 3 and spirit / 8 (minimum) and / 6 (maximum).

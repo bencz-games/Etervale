@@ -840,6 +840,8 @@ go on to the high tower.</value></data>
   <data name="Stat.ForceOrbDamage" xml:space="preserve"><value>Force Orb power</value></data>
   <data name="Stat.HealingTaken" xml:space="preserve"><value>Healing taken</value></data>
   <data name="Stat.HitDamage" xml:space="preserve"><value>Hit damage</value></data>
+  <data name="Stat.HitDamageMax" xml:space="preserve"><value>Maximum hit damage</value></data>
+  <data name="Stat.HitDamageMin" xml:space="preserve"><value>Minimum hit damage</value></data>
   <data name="Stat.LifeCostPerAttack" xml:space="preserve"><value>Life cost per attack</value></data>
   <data name="Stat.LifeLeech" xml:space="preserve"><value>Life leech</value></data>
   <data name="Stat.LifeRegen" xml:space="preserve"><value>Life regeneration (tenths/s)</value></data>

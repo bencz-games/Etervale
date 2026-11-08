@@ -208,7 +208,7 @@
       "motionIndex": 75, "motionFrames": 43, "motionEvents": [19], "motionSpeed": 70, "castEffect": "vfx.magician.castcircle",
       "impactEffect": "vfx.magician.silraphim.hit", "castSound": "wav/Effects/Skill/Tempskron/MetalGolem 01.wav",
       "impactSound": "wav/Effects/Skill/Tempskron/Spark 03.wav" },
-    { "code": "0x08100002", "name": "Vis Tenus", "tier": "Job5", "category": "Debuff", "icon": "MM83 V_Tenus", "description": "Shrink the enemy, reducing their HP and damage.", "requiredLevel": 83, "mouse": "Right", "mana": [135, 139, 143, 147, 151, 155, 159, 163, 167, 171], "stamina": [50, 2], "weapons": ["Staff"],
+    { "code": "0x08100002", "monstersOnly": true, "refusesBosses": true, "name": "Vis Tenus", "tier": "Job5", "category": "Debuff", "icon": "MM83 V_Tenus", "description": "Shrink the enemy, reducing their HP and damage.", "requiredLevel": 83, "mouse": "Right", "mana": [135, 139, 143, 147, 151, 155, 159, 163, 167, 171], "stamina": [50, 2], "weapons": ["Staff"],
       "kind": "WeaponAttack", "target": "Enemy", "masteryBase": 460, "masteryPerRank": 0, "exclusive": ["0x08100002"],
       "damage": {},
       "buff": { "durationTenths": [100, 150, 200, 250, 300, 350, 400, 450, 500, 550], "harmful": true, "sparesBosses": true,

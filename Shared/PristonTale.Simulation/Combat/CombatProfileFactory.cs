@@ -12,7 +12,7 @@ public static class CombatProfileFactory
     public static AttackProfile ForPlayerBasicAttack(PlayerCharacter character, bool normalAttack = false)
     {
         ArgumentNullException.ThrowIfNull(character);
-        var damage = WeaponDamage.Compute(character);
+        var damage = WeaponDamage.ComputeForHit(character);
         var totals = character.Effects.Totals;
         if (normalAttack && character.GetEquipped(EquipmentSlot.Weapon) is { } weapon)
         {

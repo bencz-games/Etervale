@@ -27,7 +27,7 @@ internal static class KnightSkillTests
     {
         yield return ("soul breaker strikes as the cast starts with its flat attack rating", SoulBreakerAsync);
         yield return ("saint blade's second hit borrows grand cross's accuracy and both bite the undead harder", SaintBladeAsync);
-        yield return ("holy benedic reaches the caster or a clicked party member and the party within 200", HolyBenedicAsync);
+        yield return ("holy benedic reaches the caster and the party within 200, and a clicked player, in the party or not", HolyBenedicAsync);
     }
 
     private static Task SoulBreakerAsync()
@@ -97,6 +97,15 @@ internal static class KnightSkillTests
         SkillFixtures.Accept("Holy Benedic on a player", other, caster, HolyBenedic, friend.EntityId);
         SkillFixtures.Finish(other, caster);
         Assert.True(Undead(friend) == 25 && Undead(caster) == 25, "holy benedic on a clicked player missed that player or the caster");
+
+        var third = SkillFixtures.Field();
+        var knightThree = SkillFixtures.Player(third, 1, PlayerClass.Knight, 90, Vector3.Zero, SkillFixtures.Weapon(ItemKind.Sword));
+        var outsider = SkillFixtures.Player(third, 2, PlayerClass.Fighter, 80, new Vector3(40, 0, 0));
+        WithMana(knightThree);
+        knightThree.Character.Skills.Restore(HolyBenedic, 1);
+        SkillFixtures.Accept("Holy Benedic on a player outside the party", third, knightThree, HolyBenedic, outsider.EntityId);
+        SkillFixtures.Finish(third, knightThree);
+        Assert.True(Undead(outsider) == 25 && Undead(knightThree) == 25, "holy benedic on a clicked player outside the party missed that player or the caster");
         return Task.CompletedTask;
     }
 
