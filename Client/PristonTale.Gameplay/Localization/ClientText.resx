@@ -837,6 +837,7 @@ go on to the high tower.</value></data>
   <data name="Stat.DamageVsUndead" xml:space="preserve"><value>Damage vs undead</value></data>
   <data name="Stat.Defence" xml:space="preserve"><value>Defence</value></data>
   <data name="Stat.Evasion" xml:space="preserve"><value>Evasion</value></data>
+  <data name="Stat.ForceOrbDamage" xml:space="preserve"><value>Force Orb power</value></data>
   <data name="Stat.HealingTaken" xml:space="preserve"><value>Healing taken</value></data>
   <data name="Stat.HitDamage" xml:space="preserve"><value>Hit damage</value></data>
   <data name="Stat.LifeCostPerAttack" xml:space="preserve"><value>Life cost per attack</value></data>

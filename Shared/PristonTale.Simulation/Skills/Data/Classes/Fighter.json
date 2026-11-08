@@ -46,7 +46,7 @@
       "motionIndex": 69, "motionFrames": 45, "motionEvents": [20], "motionSpeed": 80, "impactEffect": "vfx.fighter.roar.cast",
       "buffEffect": "vfx.debuff.stun", "castSound": "wav/Effects/Skill/Tempskron/Roar 01.wav",
       "impactSound": "wav/Effects/Skill/Tempskron/Roar 02.wav" },
-    { "code": "0x02020004", "name": "Rage of Zechram", "tier": "Job2", "category": "ActiveAttack", "icon": "TF30 R_Zecram",
+    { "code": "0x02020004", "forceOrbs": "Magic", "name": "Rage of Zechram", "tier": "Job2", "category": "ActiveAttack", "icon": "TF30 R_Zecram",
       "description": "Borrows the skills of the legendary hero Zechram", "requiredLevel": 30, "mouse": "Right",
       "mana": [29, 31, 33, 36, 39, 42, 45, 49, 53, 58], "stamina": [45, 2], "weapons": ["Axe", "Hammer", "Sword"], "kind": "WeaponAttack",
       "target": "Enemy", "masteryBase": 84, "masteryPerRank": 4,

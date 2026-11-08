@@ -142,7 +142,7 @@ internal sealed partial class FieldSkills
     }
 
     // The fire burst of a weapon hit: the caster's rolled attack damage with the skill's percent, scaled by the burst's
-    // percent, to every enemy around the caster.
+    // percent, plus a magic force orb's share as an area's power, to every enemy around the caster.
     private void Burst(WorldPlayer caster, ActiveCast cast, SkillRule rule, Vector3 origin)
     {
         var burst = cast.Rule.Burst;
@@ -150,7 +150,7 @@ internal sealed partial class FieldSkills
         var weapon = WeaponDamage.Compute(character);
         var power = _rng.Range(weapon.Min, Math.Max(weapon.Min, weapon.Max));
         power += power * SkillFormulas.At(rule.Damage?.Percent, cast.Rank) / 100;
-        power = power * burst.Percent / 100;
+        power = power * burst.Percent / 100 + SkillFormulas.ForceOrbPower(character, rule, magic: true);
         var damage = new SkillDamageRule { Element = burst.Element };
         _targets.Clear();
         CollectCircle(caster, origin, burst.Radius, rule.MaxTargets);

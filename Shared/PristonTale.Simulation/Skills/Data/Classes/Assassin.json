@@ -46,7 +46,7 @@
       "motionIndex": 75, "motionFrames": 69, "motionEvents": [49], "motionSpeed": 70,
       "buffEffect": "vfx.assassin.alas.aura", "castSound": "wav/Effects/Skill/Tempskron/Alas 01.wav",
       "keepIcon": "As2_ALAS" },
-    { "code": "0x10020003", "name": "Soul Shock", "tier": "Job2", "category": "Debuff", "icon": "TA26 S_Shock",
+    { "code": "0x10020003", "forceOrbs": "Weapon", "name": "Soul Shock", "tier": "Job2", "category": "Debuff", "icon": "TA26 S_Shock",
       "description": "Stab the daggers into the ground and stun nearby enemies.", "requiredLevel": 26, "mouse": "Right",
       "mana": [26, 28, 30, 33, 36, 39, 42, 45, 49, 53], "stamina": [39, 2], "weapons": ["Dagger"], "kind": "Area",
       "target": "Self", "masteryBase": 82, "masteryPerRank": 4, "areaCenter": "Caster",

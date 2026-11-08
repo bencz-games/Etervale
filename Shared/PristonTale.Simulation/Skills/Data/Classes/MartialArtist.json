@@ -67,7 +67,7 @@
       "range": [150, 150, 150, 150, 150, 150, 150, 150, 150, 150], "damage": { "percent": [35, 43, 51, 59, 67, 75, 83, 91, 99, 107] },
       "motionIndex": 81, "motionFrames": 40, "motionEvents": [22], "motionSpeed": 70, "castEffect": "vfx.martial.tigercannon.cast",
       "impactEffect": "vfx.martial.tigercannon.hit", "impactSound": "wav/Effects/Skill/Tempskron/TCannon 01.wav" },
-    { "code": "0x20040003", "name": "War Cry", "tier": "Job3", "category": "Debuff", "icon": "TMA46 War Cry",
+    { "code": "0x20040003", "forceOrbs": "Weapon", "name": "War Cry", "tier": "Job3", "category": "Debuff", "icon": "TMA46 War Cry",
       "description": "Gather energy to release a powerful shout, reducing nearby enemies' abilities.", "requiredLevel": 46, "mouse": "Right",
       "mana": [32, 35, 38, 41, 44, 48, 52, 56, 60, 64], "stamina": [48, 2], "weapons": ["Vambrace"],
       "kind": "Area", "target": "Enemy", "masteryBase": 112, "masteryPerRank": 4, "areaCenter": "Target",

@@ -203,6 +203,10 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
   `allyClasses`: the classes another player must be to take an `Ally` rule.
   Bosses are not pushed or taunted.
 - Cast requirement: `requiresEffect` (codes: the cast is refused unless one of them runs on the caster).
+- Force orbs: `forceOrbs` (`All`, `Weapon`, `Magic`, `None`: the orb families the skill takes) and `forceOrbPercent` (0 to
+  300; 0 takes the tier's share, `ForceOrbs.TierPercent`). The share reaches the skill's full charge, modes and follow
+  area too (`SkillRule.OrbShare`, set when the catalog loads); a weapon orb adds to single-target weapon hits, a magic
+  orb to spells, areas and a burst.
 - Accuracy and critical: `attackRating[10]`, `attackRatingPlusLevel`, `attackRatingPercent[10]`, `criticalAdd[10]`,
   `criticalPercent[10]` (relative: crit + crit x pct / 100), `borrowedCritical` {`skill`, `values[10]` indexed by that
   skill's rank, `divisor`}, `borrowedRating` {`skill`, `values[10]`, `fromHit`}: attack rating percent from that

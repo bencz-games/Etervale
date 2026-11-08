@@ -95,7 +95,7 @@
       "description": "Optimizes the mechanic spec. items.", "requiredLevel": 46, "mouse": "None", "mana": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       "stamina": [0, 0], "weapons": [], "kind": "Passive", "target": "None",
       "passive": {"effect": "WeaponDamagePercent", "classWeapon": true, "values": [5, 9, 13, 17, 21, 25, 29, 33, 37, 41]} },
-    { "code": "0x01040004", "name": "Spark Shield", "tier": "Job3", "category": "Buff", "icon": "TM50 S_Shield",
+    { "code": "0x01040004", "forceOrbs": "None", "name": "Spark Shield", "tier": "Job3", "category": "Buff", "icon": "TM50 S_Shield",
       "description": "Forms invisible electric guard.", "requiredLevel": 50, "mouse": "Right", "mana": [34, 36, 38, 41, 44, 47, 51, 55, 59, 64],
       "stamina": [52, 2], "weapons": ["Shield"], "kind": "SelfBuff", "target": "Self", "masteryBase": 110, "masteryPerRank": 2, "exclusive": ["0x01040004"],
       "replaces": ["0x01010001"],

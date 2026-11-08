@@ -837,6 +837,7 @@ seguem para a torre alta.</value></data>
   <data name="Stat.DamageVsUndead" xml:space="preserve"><value>Dano contra mortos-vivos</value></data>
   <data name="Stat.Defence" xml:space="preserve"><value>Defesa</value></data>
   <data name="Stat.Evasion" xml:space="preserve"><value>Esquiva</value></data>
+  <data name="Stat.ForceOrbDamage" xml:space="preserve"><value>Poder da Force Orb</value></data>
   <data name="Stat.HealingTaken" xml:space="preserve"><value>Cura recebida</value></data>
   <data name="Stat.HitDamage" xml:space="preserve"><value>Dano por golpe</value></data>
   <data name="Stat.LifeCostPerAttack" xml:space="preserve"><value>Custo de vida por ataque</value></data>
