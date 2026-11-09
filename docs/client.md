@@ -75,7 +75,9 @@ rendering internals, skill presentation and VFX data have their own documents (s
 - Every asset path is relative to that root (`ScreenContext.AssetRoot`, `GameScreen.AssetPath`). `GameScreen.AssetPath` and the
   scene join with `AssetFiles.Combine`. Original assets are read through `AssetFiles`
   (`Shared/PristonTale.Assets/AssetFiles.cs`), which resolves separators and rebuilds the real casing component by
-  component, caching hits; use it (`Resolve`, `ResolveFile`, `Exists`, `ReadAllBytes`, `OpenRead`) instead of `File.*`
+  component, caching hits. On a case-sensitive file system (Linux, macOS) folders that differ only in case, such as
+  `char/npcXms` beside `char/npcxms`, are each tried, the exact spelling first, so a file in either is found without
+  copying one into the other; use it (`Resolve`, `ResolveFile`, `Exists`, `ReadAllBytes`, `OpenRead`) instead of `File.*`
   for any path into `assets/`.
 - Field definitions (stage `.smd`, scenery models, gates, warp gates, lighting, camera, music) come from the shared
   `WorldCatalog` in `Shared/PristonTale.Simulation/World/WorldDefinitions.cs`, not from the server. Monster and NPC
