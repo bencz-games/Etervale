@@ -116,6 +116,13 @@ git diff --check
   for an `assets/` directory with `Effect/Vfx`, checks that every effect, child, texture, animation, model and sound the
   rules and definitions use exists there, and prints `(skipped: no assets/Effect/Vfx next to the repository)` when none
   is found. The authored definitions are checked without assets from `tools/PristonTale.VfxImport/Authored/`.
+- The `GltfModelTests` case on the Mythcreature reads `char/npc/Mythcreature/Mythcreature.glb` from the assets root when
+  it is there, and skips otherwise.
+- Test-only models live in `tests/assets/` (ignored by git and not distributed: their licenses are not cleared for
+  redistribution), found by `TestAssets.Find` walking up from the runner; a case using them skips with a message when
+  the folder is absent. `tests/assets/gltf/` holds `Solus_the_knight.glb` (75 joints, 21 clips with step and linear
+  keys), `FrostfangOrcShaman.glb` (28 joints, tangents), `base_basic_pbr.glb` (static, normal and metallic-roughness
+  maps) and `base_basic_shaded.glb` (static, emissive map).
 
 ## Multiplayer propagation
 

@@ -16,6 +16,8 @@ internal static class GltfModelTests
             + "inverse binds as identity, keeps the four largest of eight weights, follows the first joint when none weighs, "
             + "reads a spec-gloss material as unmetallic with roughness 1 - glossiness, and refuses a triangle past its vertices", HandWrittenAsync);
         yield return ("the Mythcreature's GLB reads with its eight primitives, 145 joints, one animation and its eight materials", MythcreatureAsync);
+        yield return ("the test models read: the knight's 75 joints and 21 clips with step keys, the orc's tangents, the static props' "
+            + "normal, metallic-roughness and emissive maps", TestModelsAsync);
     }
 
     // A 1x1 opaque white PNG.
@@ -249,6 +251,29 @@ internal static class GltfModelTests
         var path = Path.Combine(directory, badIndex ? "bad.gltf" : "model.gltf");
         File.WriteAllText(path, json);
         return path;
+    }
+
+    private static Task TestModelsAsync()
+    {
+        if (TestAssets.Find(@"gltf\Solus_the_knight.glb") is not { } knightPath)
+        {
+            Console.WriteLine("  (skipped: no tests/assets/gltf)");
+            return Task.CompletedTask;
+        }
+
+        var knight = GltfModelReader.Read(knightPath);
+        Assert.True(knight.Skins is [{ Joints.Length: 75 }] && knight.Animations.Count == 21
+            && knight.Animations.Any(static clip => clip.Channels.Any(static channel => channel.Interpolation == GltfInterpolation.Step)),
+            "the knight's skin or clips differ");
+        var orc = GltfModelReader.Read(TestAssets.Find(@"gltf\FrostfangOrcShaman.glb")!);
+        Assert.True(orc.Skins is [{ Joints.Length: 28 }] && orc.Primitives.All(static primitive => primitive.Vertices.Any(static vertex => vertex.Tangent.W != 0f)),
+            "the orc's skin or tangents differ");
+        var pbr = GltfModelReader.Read(TestAssets.Find(@"gltf\base_basic_pbr.glb")!);
+        Assert.True(pbr.Skins.Count == 0 && pbr.Materials is [{ NormalTexture.IsSet: true, MetallicRoughnessTexture.IsSet: true }],
+            "the PBR prop's maps differ");
+        var shaded = GltfModelReader.Read(TestAssets.Find(@"gltf\base_basic_shaded.glb")!);
+        Assert.True(shaded.Materials is [{ EmissiveTexture.IsSet: true }], "the shaded prop's emissive map differs");
+        return Task.CompletedTask;
     }
 
     private static Task MythcreatureAsync()
