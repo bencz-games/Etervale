@@ -37,6 +37,12 @@ public sealed partial class PristonRenderer
 
     public Task PrepareActorResourcesAsync(PristonActor actor)
     {
+        // A glTF actor's geometry and textures are prepared with its source (GltfActorSource.Load).
+        if (actor.Gltf is not null)
+        {
+            return Task.CompletedTask;
+        }
+
         var textures = _textureLoader.PrepareTexturesAsync(
             Path.GetDirectoryName(actor.Mesh.Path) ?? ".",
             PristonMaterialUsage.ForActor(actor));

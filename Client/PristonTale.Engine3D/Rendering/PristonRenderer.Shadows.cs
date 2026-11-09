@@ -159,7 +159,9 @@ public sealed partial class PristonRenderer
             var casterUvOffset = batch.Material.AlphaTest ? ComputeUvScrollOffset(batch.Material) : Vector2.Zero;
             if (batch.IsSkinned)
             {
-                var effect = _shaders.SelectSkinnedShadow(batch.Material, casterTexture, batch.SkinPalette, casterUvOffset);
+                var effect = batch.Gltf is { } gltf
+                    ? _shaders.SelectGltfShadow(gltf, batch.SkinPalette)
+                    : _shaders.SelectSkinnedShadow(batch.Material, casterTexture, batch.SkinPalette, casterUvOffset);
                 effect.CurrentTechnique.Passes[0].Apply();
                 _graphicsDevice.SetVertexBuffer(batch.SkinnedBuffer);
                 _graphicsDevice.Indices = batch.SkinnedIndexBuffer;

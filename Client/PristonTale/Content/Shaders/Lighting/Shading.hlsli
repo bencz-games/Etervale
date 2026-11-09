@@ -375,9 +375,15 @@ float3 EnvironmentSpecular(float3 r, float roughness)
     return EnvironmentAtlasRadiance(EnvironmentMap, EnvironmentSampler, EnvironmentParams, r, roughness) * EnvironmentSh[9].x;
 }
 
+// The sky above and the ground below without an environment: the light from a direction, blended by its height.
+float3 HemisphereAmbient(float3 direction)
+{
+    return lerp(GroundAmbient, SkyAmbient, direction.y * 0.5 + 0.5);
+}
+
 // Image-based lighting: the sky's irradiance and its prefiltered radiance with the split-sum BRDF (Karis 2013), the
 // multiple-scattering energy of rough metals restored (Fdez-Aguera 2019), occluded by the ambient occlusion. Without an
-// environment, a hemispherical sky/ground ambient.
+// environment, a hemispherical sky/ground ambient (HemisphereAmbient).
 // ao occludes the sky's light, specularVisibility its reflections (ao and the authored light).
 void AddAmbient(float3 n, float3 v, float3 albedo, float3 f0, float metallic, float roughness, float ao, float specularVisibility,
                 inout Lighting lighting)
@@ -396,12 +402,10 @@ void AddAmbient(float3 n, float3 v, float3 albedo, float3 f0, float metallic, fl
         return;
     }
 
-    float up = n.y * 0.5 + 0.5;
-    float3 irradiance = lerp(GroundAmbient, SkyAmbient, up);
+    float3 irradiance = HemisphereAmbient(n);
     float nv = saturate(dot(n, v));
     float3 fresnel = F_SchlickRough(f0, nv, roughness);
-    float3 reflected = reflect(-v, n);
-    float3 environment = lerp(GroundAmbient, SkyAmbient, reflected.y * 0.5 + 0.5);
+    float3 environment = HemisphereAmbient(reflect(-v, n));
     lighting.Diffuse += irradiance * albedo * ((1.0 - metallic) * ao);
     lighting.Specular += environment * fresnel * SpecularOcclusion(nv, specularVisibility, roughness);
 }

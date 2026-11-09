@@ -21,6 +21,7 @@ internal static class PhotorealTests
         yield return ("shadow cascades keep their size as the camera turns", CascadesAsync);
         yield return ("lamp shadow rows stay with their lamps and refresh in turn", LampRowsAsync);
         yield return ("the split-sum BRDF table conserves energy and reflects fully at grazing smooth angles", BrdfAsync);
+        yield return ("the sheen's directional albedo stays within one, grows with its roughness and toward grazing views", SheenAsync);
     }
 
     private static Task PresetsAsync()
@@ -229,6 +230,17 @@ internal static class PhotorealTests
         Assert.True(smoothFacing.X + smoothFacing.Y > 0.9f, $"a smooth surface seen head-on reflects {smoothFacing}");
         var roughFacing = table[(size - 1) * size + size - 1];
         Assert.True(roughFacing.X + roughFacing.Y < smoothFacing.X + smoothFacing.Y, "rough surfaces do not lose single-scattering energy");
+        return Task.CompletedTask;
+    }
+
+    private static Task SheenAsync()
+    {
+        const int size = 16;
+        var table = PristonEnvironmentLighting.IntegrateSheen(size, 256);
+        Assert.True(table.All(static albedo => albedo is >= 0f and <= 1f), "a sheen albedo is outside [0, 1]");
+        float At(int nv, int roughness) => table[roughness * size + nv];
+        Assert.True(At(size / 2, size - 1) > At(size / 2, 1), $"rough sheen {At(size / 2, size - 1)} does not reflect more than smooth {At(size / 2, 1)}");
+        Assert.True(At(0, size / 2) > At(size - 1, size / 2), "the sheen does not grow toward grazing views");
         return Task.CompletedTask;
     }
 

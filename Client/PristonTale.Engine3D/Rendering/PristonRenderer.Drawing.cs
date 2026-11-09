@@ -183,10 +183,20 @@ public sealed partial class PristonRenderer
             var color = new Vector4(batch.Outline.X, batch.Outline.Y, batch.Outline.Z, 1f);
             foreach (var (x, y) in OutlineDirections)
             {
-                _shaders.SelectSkinnedSurface(batch.Material, batch.Material.SelectTexture(_renderTime), ComputeUvScrollOffset(batch.Material), batch.SkinPalette,
-                    Vector3.Zero, LayerOffset(batch.Material), false, batch.FloorLight, batch.Shade, 0f, WobblePhase, batch.IsActor);
                 var parameters = new Vector4(x * shift * 2f / _sceneTargets.Width, y * shift * 2f / _sceneTargets.Height, push, OutlineDepthPush);
-                _shaders.SelectSkinnedOutline(batch.Material.AlphaTest, parameters, color).CurrentTechnique.Passes[0].Apply();
+                if (batch.Gltf is { } gltf)
+                {
+                    _shaders.SelectGltfSurface(gltf, batch.SkinPalette, Vector3.Zero, false, batch.FloorLight, batch.Shade,
+                        wobblePhase: WobblePhase, actor: batch.IsActor);
+                    _shaders.SelectGltfOutline(batch.Material.AlphaTest, parameters, color).CurrentTechnique.Passes[0].Apply();
+                }
+                else
+                {
+                    _shaders.SelectSkinnedSurface(batch.Material, batch.Material.SelectTexture(_renderTime), ComputeUvScrollOffset(batch.Material),
+                        batch.SkinPalette, Vector3.Zero, LayerOffset(batch.Material), false, batch.FloorLight, batch.Shade, 0f, WobblePhase, batch.IsActor);
+                    _shaders.SelectSkinnedOutline(batch.Material.AlphaTest, parameters, color).CurrentTechnique.Passes[0].Apply();
+                }
+
                 _stateCache.SetVertexBuffer(batch.SkinnedBuffer);
                 _stateCache.SetIndexBuffer(batch.SkinnedIndexBuffer);
                 _graphicsDevice.DrawIndexedPrimitives(PrimitiveType.TriangleList, 0, 0, batch.SkinnedPrimitiveCount);
@@ -302,21 +312,24 @@ public sealed partial class PristonRenderer
 
         if (batch.IsSkinned)
         {
-            var uvScrollOffset = ComputeUvScrollOffset(batch.Material);
-            var texture = batch.Material.SelectTexture(_renderTime);
-            var effect = _shaders.SelectSkinnedSurface(
-                batch.Material,
-                texture,
-                uvScrollOffset,
-                batch.SkinPalette,
-                _neutralActorPass ? Vector3.Zero : batch.ActorColorAdd * SelectionRimScale,
-                LayerOffset(batch.Material),
-                _prepassMode,
-                _neutralActorPass ? 1f : batch.FloorLight,
-                _neutralActorPass ? null : batch.Shade,
-                batch.Shade is { Overlay: not null } overlaid ? TextureUOffset(overlaid.OverlayForm) : 0f,
-                WobblePhase,
-                batch.IsActor);
+            var rim = _neutralActorPass ? Vector3.Zero : batch.ActorColorAdd * SelectionRimScale;
+            var effect = batch.Gltf is { } gltf
+                ? _shaders.SelectGltfSurface(gltf, batch.SkinPalette, rim, _prepassMode, _neutralActorPass ? 1f : batch.FloorLight,
+                    _neutralActorPass ? null : batch.Shade,
+                    batch.Shade is { Overlay: not null } shown ? TextureUOffset(shown.OverlayForm) : 0f, WobblePhase, batch.IsActor)
+                : _shaders.SelectSkinnedSurface(
+                    batch.Material,
+                    batch.Material.SelectTexture(_renderTime),
+                    ComputeUvScrollOffset(batch.Material),
+                    batch.SkinPalette,
+                    rim,
+                    LayerOffset(batch.Material),
+                    _prepassMode,
+                    _neutralActorPass ? 1f : batch.FloorLight,
+                    _neutralActorPass ? null : batch.Shade,
+                    batch.Shade is { Overlay: not null } overlaid ? TextureUOffset(overlaid.OverlayForm) : 0f,
+                    WobblePhase,
+                    batch.IsActor);
             effect.CurrentTechnique.Passes[0].Apply();
             _stateCache.SetVertexBuffer(batch.SkinnedBuffer);
             _stateCache.SetIndexBuffer(batch.SkinnedIndexBuffer);

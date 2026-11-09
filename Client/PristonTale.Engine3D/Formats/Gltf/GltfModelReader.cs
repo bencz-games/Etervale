@@ -225,7 +225,8 @@ public static class GltfModelReader
         return accessor;
     }
 
-    // The four largest weights of up to eight, summing to 1; a vertex weighed by none follows its first joint.
+    // The four largest weights of up to eight, summing to 1; a vertex weighed by none follows its first joint (the skin's
+    // first when that is out of range).
     private static (Vector4 Joints, Vector4 Weights) Influences(System.Numerics.Vector4 joints0, System.Numerics.Vector4 weights0,
         System.Numerics.Vector4? joints1, System.Numerics.Vector4? weights1, int jointCount, Span<(float Weight, float Joint)> influences, string path)
     {
@@ -257,7 +258,7 @@ public static class GltfModelReader
         var jointsOut = new Vector4(set[0].Joint, set[1].Joint, set[2].Joint, set[3].Joint);
         return sum > 0f
             ? (jointsOut, new Vector4(set[0].Weight, set[1].Weight, set[2].Weight, set[3].Weight) / sum)
-            : (new Vector4(joints0.X, 0, 0, 0), Vector4.UnitX);
+            : (new Vector4(joints0.X < jointCount ? joints0.X : 0f, 0, 0, 0), Vector4.UnitX);
     }
 
     // Three vertices per triangle, each with the triangle's normal and no tangent.

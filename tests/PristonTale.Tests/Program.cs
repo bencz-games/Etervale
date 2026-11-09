@@ -200,6 +200,13 @@ if (args.Length >= 5 && args[0] == "--render-minimaps")
     return 0;
 }
 
+if (args.Length == 5 && args[0] == "--capture-gltf")
+{
+    using var probe = new GltfActorCaptureProbe(args[1], args[2], args[3], args[4].Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries));
+    probe.Run();
+    return 0;
+}
+
 if (args.Length == 4 && args[0] == "--capture-npcs")
 {
     using var probe = new ActorPresentationProbe(args[1], args[2], args[3]);

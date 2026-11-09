@@ -2,6 +2,7 @@ using PristonTale.Engine3D.IO;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.Units;
 using PristonTale.Assets;
+using PristonTale.Engine3D.Rendering.Gltf;
 
 namespace PristonTale.Engine3D.Formats;
 
@@ -21,6 +22,12 @@ public sealed class PristonActorLoader
     public PristonActor Load(string assetRoot, string inxPath)
     {
         var info = _inxReader.Read(inxPath);
+        if (IsGltf(info.ModelFile))
+        {
+            var source = GltfActorSource.Load(ResolveCachePath(assetRoot, info.ModelFile, Path.GetExtension(info.ModelFile)));
+            return new PristonActor(info, source.Mesh, source.Skeleton, []) { Gltf = source };
+        }
+
         var meshPath = ResolveCachePath(assetRoot, info.ModelFile, ".smd");
         var motionInfo = ResolveMotionInfo(assetRoot, info);
         var motionPath = ResolveMotionPath(assetRoot, motionInfo.MotionFile);
@@ -37,6 +44,18 @@ public sealed class PristonActorLoader
         var mesh = PristonPhysiqueRepair.Repair(_smdReader.ReadModel(meshSmdPath), skeleton);
         return new PristonActor(CreateSyntheticIdleInfo(skeleton.LastFrame), mesh, skeleton, []);
     }
+
+    // A glTF model without a model-info file: its first clip loops as Stand (the rest pose without clips).
+    public static PristonActor LoadGltf(string path)
+    {
+        var source = GltfActorSource.Load(path);
+        var end = source.Skeleton.FrameRanges.Count > 0 ? source.Skeleton.FrameRanges[0].EndFrame : GameUnits.FrameTicks;
+        return new PristonActor(CreateSyntheticIdleInfo(end), source.Mesh, source.Skeleton, []) { Gltf = source };
+    }
+
+    private static bool IsGltf(string path) =>
+        Path.GetExtension(path) is { } extension && (extension.Equals(".glb", StringComparison.OrdinalIgnoreCase)
+            || extension.Equals(".gltf", StringComparison.OrdinalIgnoreCase));
 
     public PristonActor LoadRigid(string smdPath)
     {

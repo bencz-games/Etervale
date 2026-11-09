@@ -1,5 +1,6 @@
-// Stage, scenery, sky and actor geometry (PristonShaderLibrary). Content.mgcb builds it twice: StaticSurface and
-// SkinnedSurface (SKINNED). Techniques:
+// Stage, scenery, sky and actor geometry (PristonShaderLibrary). Content.mgcb builds it three times: StaticSurface,
+// SkinnedSurface (SKINNED) and GltfSurface (SKINNED and GLTF: four weighted bones per vertex, tangents, linear vertex
+// colour and the glTF material of Materials/GltfMaterial.hlsli). Techniques:
 //  - Prepass / PrepassMasked: the depth pre-pass (depth, normal, motion);
 //  - Opaque / Masked: the lit HDR forward pass (Masked adds the alpha test). Besides the pre-exposed radiance they write
 //    SV_Target1 for the temporal anti-aliasing: the screen motion (uv now minus uv in the previous frame), the previous
@@ -16,6 +17,9 @@
 #include "../Atmosphere/FogDecl.hlsli"
 #include "../Lighting/LightingDecl.hlsli"
 #include "../Materials/MaterialDecl.hlsli"
+#ifdef GLTF
+#include "../Materials/GltfMaterialDecl.hlsli"
+#endif
 #ifdef SKINNED
 #include "../Vertex/SkinningDecl.hlsli"
 #else
@@ -49,11 +53,17 @@ cbuffer SurfacePixelConstants : register(b0)
     FOG_CONSTANTS
     LIGHTING_CONSTANTS
     MATERIAL_CONSTANTS
+#ifdef GLTF
+    GLTF_MATERIAL_CONSTANTS
+#endif
     float4 OutlineColor;              // skinned outline: display-referred colour, a its strength
     float4 CloudShadowParams;         // x one over the shadow's extent (world), yz its centre, w strength (0: none)
 };
 
 MATERIAL_RESOURCES
+#ifdef GLTF
+GLTF_MATERIAL_RESOURCES
+#endif
 LIGHTING_RESOURCES(2, 4, 5, 6, 7, 8, 9)
 FOG_RESOURCES(3)
 // The clouds' shadow (Passes/Atmosphere.fx CloudShadow): their transmittance toward the sun around the camera.
@@ -77,6 +87,9 @@ float CloudShadowAt(float3 world)
 #include "../Atmosphere/Fog.hlsli"
 #include "../Lighting/Shading.hlsli"
 #include "../Materials/Material.hlsli"
+#ifdef GLTF
+#include "../Materials/GltfMaterial.hlsli"
+#endif
 #ifdef SKINNED
 #include "../Vertex/Skinning.hlsli"
 #else
@@ -90,7 +103,11 @@ struct VSIn
     float4 Color : COLOR0;
     float2 Uv0 : TEXCOORD0;
     float2 Uv1 : TEXCOORD1;
-#ifdef SKINNED
+#ifdef GLTF
+    float4 Tangent : TANGENT0;
+    uint4 Bones : BLENDINDICES0;
+    float4 Weights : BLENDWEIGHT0;
+#elif defined(SKINNED)
     float BoneIndex : BLENDINDICES0;
 #endif
 };
@@ -105,6 +122,9 @@ struct VSOut
     float ViewDepth : TEXCOORD3;
     float3 ClipNow : TEXCOORD4;       // unjittered clip x, y, w of this frame
     float3 ClipPrevious : TEXCOORD5;  // clip x, y, w of the same point in the previous frame
+#ifdef GLTF
+    float4 Tangent : TEXCOORD6;       // world tangent, w the bitangent's sign
+#endif
 };
 
 struct SurfaceOut
@@ -118,7 +138,11 @@ struct CasterIn
     float4 Position : POSITION0;
     float4 Color : COLOR0;
     float2 Uv0 : TEXCOORD0;
-#ifdef SKINNED
+#ifdef GLTF
+    float2 Uv1 : TEXCOORD1;
+    uint4 Bones : BLENDINDICES0;
+    float4 Weights : BLENDWEIGHT0;
+#elif defined(SKINNED)
     float BoneIndex : BLENDINDICES0;
 #endif
 };
@@ -130,6 +154,9 @@ struct CasterOut
     float4 LampOffset : TEXCOORD3;    // lamp casters: (position - lamp) / radius, w 1
     float2 Uv : TEXCOORD1;
     float Alpha : TEXCOORD2;
+#ifdef GLTF
+    float2 Uv1 : TEXCOORD4;
+#endif
 };
 
 // The original reflection sphere map: the eye vector reflected about the normal, both in camera space, so the highlight
@@ -161,6 +188,17 @@ void PlaceVertex(float4 position, float3 normal, float bone, out float3 worldPos
 VSOut VS_Surface(VSIn i)
 {
     VSOut o;
+    float3 worldPosition;
+    float3 worldNormal;
+    float3 previousPosition;
+#ifdef GLTF
+    // glTF vertex colours are linear; the actor takes its floor's light as the legacy actors do.
+    float4 colour = float4(i.Color.rgb * DrawLight, i.Color.a);
+    worldPosition = SkinPositionWeighted(i.Position, i.Bones, i.Weights);
+    worldNormal = SafeNormalize(SkinNormalWeighted(i.Normal, i.Bones, i.Weights));
+    previousPosition = PreviousSkinPositionWeighted(i.Position, i.Bones, i.Weights);
+    o.Tangent = float4(SafeNormalize(SkinNormalWeighted(i.Tangent.xyz, i.Bones, i.Weights)), i.Tangent.w);
+#else
 #ifdef SKINNED
     float bone = i.BoneIndex;
     // Animated scenery carries the stage's authored light for its texture (PristonStageBakedLight); actors are white and
@@ -171,10 +209,8 @@ VSOut VS_Surface(VSIn i)
     // The authored stage colour (the original per-vertex light) tints the surface; its alpha is the opacity.
     float4 colour = float4(SrgbToLinear(i.Color.rgb), i.Color.a);
 #endif
-    float3 worldPosition;
-    float3 worldNormal;
-    float3 previousPosition;
     PlaceVertex(i.Position, i.Normal, bone, worldPosition, worldNormal, previousPosition);
+#endif
 #ifdef SKINNED
     // A distortion wobbles every vertex up to ActorParams.x along a sine of its own coordinate (32-unit waves).
     float3 phase = worldPosition * (2.0 * PI / 32.0) + ActorParams.y;
@@ -189,7 +225,9 @@ VSOut VS_Surface(VSIn i)
     o.ClipPrevious = MotionParams.w > 0.5 ? previous.xyw : o.ClipNow;
     o.WorldPosition = worldPosition;
     o.Normal = worldNormal;
-#ifdef SKINNED
+#ifdef GLTF
+    float2 layerUv = i.Uv1;
+#elif defined(SKINNED)
     float2 layerUv = ActorParams.z > 0.5 ? i.Uv0 : i.Uv1;
 #else
     float2 layerUv = i.Uv1;
@@ -264,7 +302,12 @@ SurfaceOut Output(VSOut i, float4 colour, bool masked)
 float4 ShadeSurface(VSOut i, bool masked)
 {
     float3 v = SafeNormalize(CameraPosition - i.WorldPosition);
+#ifdef GLTF
+    GltfLayers layers;
+    Surface s = SampleGltfSurface(i.Uv.xy, i.Uv.zw, i.Color, i.Normal, i.Tangent, VisibleFaceNormal(i.WorldPosition, v), layers);
+#else
     Surface s = SampleSurface(i.Uv.xy, i.Uv.zw, i.Color, i.Normal, VisibleFaceNormal(i.WorldPosition, v));
+#endif
     if (masked)
     {
         AlphaTest(s.Alpha);
@@ -300,27 +343,50 @@ float4 ShadeSurface(VSOut i, bool masked)
         float nl = saturate(dot(s.Normal, SunDirection));
         float back = saturate(-dot(s.Normal, SunDirection));
         float2 occlusion = ScreenOcclusion(i.Position.xy, i.ViewDepth);
+        float3 diffuseAlbedo = s.Albedo;
+#ifdef GLTF
+        // The share the surface transmits does not reflect diffusely; the material's occlusion joins the screen's.
+        diffuseAlbedo *= 1.0 - layers.Transmission;
+        occlusion.x *= layers.Occlusion;
+#endif
         // A translucent surface lit from behind looks up its shadow on the sun's side.
+#ifdef GLTF
+        bool transmits = (Translucency > 0.0 || layers.Transmission > 0.0) && back > nl;
+#else
         bool transmits = Translucency > 0.0 && back > nl;
+#endif
         float3 shadowNormal = transmits ? -s.Normal : s.Normal;
         // Actors take no contact shadows: a march across their own thin bodies would shade them by view and pose.
         bool actor = ActorReceiver > 0.5;
         float shadow = SunShadow(i.WorldPosition, shadowNormal, max(nl, transmits ? back : 0.0), i.ViewDepth, i.Position.xy,
             actor ? ActorShadowBias : 0.0, actor ? 1.0 : occlusion.y) * CloudShadowAt(i.WorldPosition);
-        AddDirectLight(SunDirection, SunColor * shadow, s.Normal, v, s.Albedo, s.F0, s.Metallic, a, lighting.Diffuse, lighting.Specular);
+        AddDirectLight(SunDirection, SunColor * shadow, s.Normal, v, diffuseAlbedo, s.F0, s.Metallic, a, lighting.Diffuse, lighting.Specular);
         // Transmission through leaves: diffuse through the blade, stronger looking toward the sun (forward scattering).
         float forward = pow(saturate(dot(-v, SunDirection)), 4.0);
-        lighting.Diffuse += s.Albedo * SunColor * (shadow * Translucency * back * (0.35 + 0.65 * forward));
-        AddLocalLights(i.WorldPosition, s.Normal, v, s.Albedo, s.F0, s.Metallic, a, i.Position.xy, ActorReceiver < 0.5, lighting);
+        lighting.Diffuse += diffuseAlbedo * SunColor * (shadow * Translucency * back * (0.35 + 0.65 * forward));
+        AddLocalLights(i.WorldPosition, s.Normal, v, diffuseAlbedo, s.F0, s.Metallic, a, i.Position.xy, ActorReceiver < 0.5, lighting);
+#ifdef GLTF
+        // A glTF vertex colour tints the surface (SampleGltfSurface); it is no light.
+        float visibility = occlusion.x;
+#else
         // The authored light (vertex colour) is the art's sky visibility: it occludes the sky's reflections too.
         float visibility = occlusion.x * saturate(Luminance(i.Color.rgb));
-        AddAmbient(s.Normal, v, s.Albedo, s.F0, s.Metallic, s.Roughness, occlusion.x, visibility, lighting);
+#endif
+        AddAmbient(s.Normal, v, diffuseAlbedo, s.F0, s.Metallic, s.Roughness, occlusion.x, visibility, lighting);
         // The original shine (a sphere-mapped reflection texture on armour and weapons) reflects the sky and a quarter of
         // the sun, occluded and shadowed like the surface itself: it does not glow in the shade.
         float3 environment = lerp(GroundAmbient, SkyAmbient, 0.75) * visibility + SunColor * (0.25 * shadow);
         lighting.Specular += s.Reflection * environment;
         radiance = lighting.Diffuse + lighting.Specular;
+#ifdef GLTF
+        radiance = radiance * GltfBaseAttenuation(layers, s.Normal, v)
+            + GltfLayerLight(layers, s.Normal, v, SunDirection, SunColor * shadow)
+            + GltfTransmittedLight(layers, s.Normal, SunDirection, SunColor * shadow)
+            + GltfAmbientLayers(layers, s.Normal, v, occlusion.x, visibility)
+            + layers.Emission * emission;
+#else
         radiance += s.Albedo * (EmissiveStrength * emission);
+#endif
     }
 
     radiance += RimColor * (rim / Exposure);
@@ -358,7 +424,11 @@ float4 PS_Sky(VSOut i) : SV_Target0
 CasterOut VS_Caster(CasterIn i)
 {
     CasterOut o;
-#ifdef SKINNED
+#ifdef GLTF
+    float3 worldPosition = SkinPositionWeighted(i.Position, i.Bones, i.Weights);
+    o.Alpha = i.Color.a;
+    o.Uv1 = i.Uv1;
+#elif defined(SKINNED)
     float3 worldPosition = SkinPosition(i.Position, (uint)i.BoneIndex);
     o.Alpha = 1.0;
 #else
@@ -389,7 +459,11 @@ float4 PS_Caster(CasterOut i) : SV_Target0
 // shadows agree.
 float4 PS_CasterMasked(CasterOut i) : SV_Target0
 {
+#ifdef GLTF
+    clip(GltfCoverage(i.Uv, i.Uv1, float4(1.0, 1.0, 1.0, i.Alpha)) - AlphaCutoff);
+#else
     clip(BaseColorMap.Sample(BaseColorSampler, i.Uv).a * i.Alpha - AlphaCutoff);
+#endif
     return CasterDepth(i);
 }
 
@@ -410,7 +484,11 @@ PrepassOut Prepass(VSOut i, bool masked)
     float3 n = OrientNormal(i.Normal, VisibleFaceNormal(i.WorldPosition, v));
     if (masked)
     {
+#ifdef GLTF
+        AlphaTest(GltfCoverage(i.Uv.xy, i.Uv.zw, i.Color));
+#else
         AlphaTest(SampleBaseColor(i.Uv.xy, i.Color).a);
+#endif
     }
 
     PrepassOut o;
@@ -446,7 +524,11 @@ float4 Outline(VSOut i, bool masked)
 {
     if (masked)
     {
+#ifdef GLTF
+        AlphaTest(GltfCoverage(i.Uv.xy, i.Uv.zw, i.Color));
+#else
         AlphaTest(SampleBaseColor(i.Uv.xy, i.Color).a);
+#endif
     }
 
     return float4(SrgbToLinear(OutlineColor.rgb) * (OutlineColor.a / Exposure), 1.0);

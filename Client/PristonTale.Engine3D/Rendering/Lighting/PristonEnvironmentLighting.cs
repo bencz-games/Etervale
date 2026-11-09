@@ -185,16 +185,72 @@ internal sealed class PristonEnvironmentLighting : IDisposable
         return table;
     }
 
+    // The directional albedo of the sheen lobe (glTF KHR_materials_sheen): Charlie's distribution (Estevez and Kulla 2017)
+    // with their fitted visibility, by n.v (x) and sheen roughness (y), integrated over the hemisphere; the share of light
+    // the sheen reflects and takes from the layer below.
+    internal static float[] IntegrateSheen(int size, int samples)
+    {
+        var table = new float[size * size];
+        for (var y = 0; y < size; y++)
+        {
+            var a = MathF.Max(MathF.Pow((y + 0.5f) / size, 2f), 1e-3f);
+            for (var x = 0; x < size; x++)
+            {
+                var nv = (x + 0.5f) / size;
+                var v = new Vector3(MathF.Sqrt(1f - nv * nv), 0f, nv);
+                var sum = 0f;
+                for (var i = 0; i < samples; i++)
+                {
+                    var phi = 2f * MathF.PI * (i + 0.5f) / samples;
+                    var nl = RadicalInverse((uint)i);
+                    var sinTheta = MathF.Sqrt(1f - nl * nl);
+                    var l = new Vector3(sinTheta * MathF.Cos(phi), sinTheta * MathF.Sin(phi), nl);
+                    var h = Vector3.Normalize(v + l);
+                    var sinH = MathF.Sqrt(MathF.Max(1f - h.Z * h.Z, 0f));
+                    var distribution = (2f + 1f / a) * MathF.Pow(sinH, 1f / a) / (2f * MathF.PI);
+                    // Uniform hemisphere samples: pdf 1 / (2 pi).
+                    sum += distribution * SheenVisibility(nl, nv, a) * nl * 2f * MathF.PI;
+                }
+
+                table[y * size + x] = MathF.Min(sum / samples, 1f);
+            }
+        }
+
+        return table;
+    }
+
+    private static float SheenVisibility(float nl, float nv, float a)
+    {
+        if (nl <= 0f || nv <= 0f)
+        {
+            return 0f;
+        }
+
+        return Math.Clamp(1f / ((1f + SheenLambda(nv, a) + SheenLambda(nl, a)) * 4f * nv * nl), 0f, 1f);
+    }
+
+    private static float SheenLambda(float cosine, float a) =>
+        cosine < 0.5f ? MathF.Exp(SheenLambdaFit(cosine, a)) : MathF.Exp(2f * SheenLambdaFit(0.5f, a) - SheenLambdaFit(1f - cosine, a));
+
+    private static float SheenLambdaFit(float x, float a)
+    {
+        var t = (1f - a) * (1f - a);
+        return MathHelper.Lerp(21.5473f, 25.3245f, t) / (1f + MathHelper.Lerp(3.82987f, 3.32435f, t) * MathF.Pow(x, MathHelper.Lerp(0.19823f, 0.16801f, t)))
+            + MathHelper.Lerp(-1.97760f, -1.27393f, t) * x + MathHelper.Lerp(-4.32054f, -4.85967f, t);
+    }
+
+    // rg the split-sum scale and bias, b the sheen's directional albedo.
     private static Texture2D CreateBrdfLut(GraphicsDevice device)
     {
         var table = IntegrateBrdf(BrdfSize, 256);
-        var packed = new HalfVector2[table.Length];
+        var sheen = IntegrateSheen(BrdfSize, 256);
+        var packed = new HalfVector4[table.Length];
         for (var i = 0; i < table.Length; i++)
         {
-            packed[i] = new HalfVector2(table[i]);
+            packed[i] = new HalfVector4(table[i].X, table[i].Y, sheen[i], 0f);
         }
 
-        var texture = new Texture2D(device, BrdfSize, BrdfSize, false, SurfaceFormat.HalfVector2) { Name = "Split-sum BRDF" };
+        var texture = new Texture2D(device, BrdfSize, BrdfSize, false, SurfaceFormat.HalfVector4) { Name = "Split-sum BRDF" };
         texture.SetData(packed);
         return texture;
     }

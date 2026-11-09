@@ -15,13 +15,15 @@ internal static class GltfModelTests
         yield return ("a hand-written .gltf with its buffer beside it places a child listed before its parent, binds a skin without "
             + "inverse binds as identity, keeps the four largest of eight weights, follows the first joint when none weighs, "
             + "reads a spec-gloss material as unmetallic with roughness 1 - glossiness, and refuses a triangle past its vertices", HandWrittenAsync);
+        yield return ("generated tangents follow the normal map's UV set, orthogonal to the normal, with the bitangent's sign from a "
+            + "mirrored V", TangentsAsync);
         yield return ("the Mythcreature's GLB reads with its eight primitives, 145 joints, one animation and its eight materials", MythcreatureAsync);
         yield return ("the test models read: the knight's 75 joints and 21 clips with step keys, the orc's tangents, the static props' "
             + "normal, metallic-roughness and emissive maps", TestModelsAsync);
     }
 
     // A 1x1 opaque white PNG.
-    private static readonly byte[] Png = Convert.FromBase64String(
+    internal static readonly byte[] Png = Convert.FromBase64String(
         "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=");
 
     private static Task SyntheticAsync()
@@ -268,11 +270,41 @@ internal static class GltfModelTests
         var orc = GltfModelReader.Read(TestAssets.Find(@"gltf\FrostfangOrcShaman.glb")!);
         Assert.True(orc.Skins is [{ Joints.Length: 28 }] && orc.Primitives.All(static primitive => primitive.Vertices.Any(static vertex => vertex.Tangent.W != 0f)),
             "the orc's skin or tangents differ");
+        // The tangents GltfTangents derives agree with the ones the orc's exporter wrote.
+        var authored = orc.Primitives[0].Vertices;
+        var derived = (GltfVertex[])authored.Clone();
+        GltfTangents.Generate(derived, orc.Primitives[0].Indices, uvSet: 0);
+        var agree = Enumerable.Range(0, authored.Length).Count(index => authored[index].Tangent.W == derived[index].Tangent.W
+            && Microsoft.Xna.Framework.Vector4.Dot(authored[index].Tangent with { W = 0 }, derived[index].Tangent with { W = 0 }) > 0.7f);
+        Assert.True(agree > authored.Length * 0.9, $"derived tangents agree with the authored ones on {agree} of {authored.Length} vertices");
         var pbr = GltfModelReader.Read(TestAssets.Find(@"gltf\base_basic_pbr.glb")!);
         Assert.True(pbr.Skins.Count == 0 && pbr.Materials is [{ NormalTexture.IsSet: true, MetallicRoughnessTexture.IsSet: true }],
             "the PBR prop's maps differ");
         var shaded = GltfModelReader.Read(TestAssets.Find(@"gltf\base_basic_shaded.glb")!);
         Assert.True(shaded.Materials is [{ EmissiveTexture.IsSet: true }], "the shaded prop's emissive map differs");
+        return Task.CompletedTask;
+    }
+
+    // A quad in the XY plane facing +Z: U grows along +X; V along +Y, or along -Y when mirrored.
+    private static Task TangentsAsync()
+    {
+        foreach (var (mirrored, sign) in new[] { (false, -1f), (true, 1f) })
+        {
+            var v = mirrored ? -1f : 1f;
+            var vertices = new[] { (0f, 0f), (1f, 0f), (1f, 1f), (0f, 1f) }
+                .Select(corner => new GltfVertex
+                {
+                    Position = new Microsoft.Xna.Framework.Vector3(corner.Item1, corner.Item2, 0),
+                    Normal = Microsoft.Xna.Framework.Vector3.UnitZ,
+                    Uv1 = new Microsoft.Xna.Framework.Vector2(corner.Item1, corner.Item2 * v)
+                })
+                .ToArray();
+            GltfTangents.Generate(vertices, [0, 1, 2, 0, 2, 3], uvSet: 1);
+            Assert.True(vertices.All(vertex => Microsoft.Xna.Framework.Vector3.Distance(new(vertex.Tangent.X, vertex.Tangent.Y, vertex.Tangent.Z),
+                Microsoft.Xna.Framework.Vector3.UnitX) < 1e-5f && vertex.Tangent.W == sign),
+                $"the tangents of the {(mirrored ? "mirrored" : "plain")} quad differ: {vertices[0].Tangent}");
+        }
+
         return Task.CompletedTask;
     }
 

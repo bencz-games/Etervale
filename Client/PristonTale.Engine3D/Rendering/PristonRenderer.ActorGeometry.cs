@@ -20,6 +20,22 @@ public sealed partial class PristonRenderer
     {
         var actor = instance.Actor;
         var runtime = new ActorRuntime(instance);
+        if (actor.Gltf is { } gltf)
+        {
+            BuildGltfBatches(runtime, gltf);
+            try
+            {
+                UpdateActor(runtime);
+            }
+            catch
+            {
+                ReleaseActorGpuResource(runtime);
+                throw;
+            }
+
+            return runtime;
+        }
+
         var meshDir = Path.GetDirectoryName(actor.Mesh.Path) ?? ".";
         var prepared = PreparedActorGeometries.GetValue(actor, PrepareActorGeometry);
         runtime.SetBoneMap(prepared.BoneMap);
@@ -156,6 +172,7 @@ public sealed partial class PristonRenderer
 
     private void ReleaseActorGpuResource(ActorRuntime runtime)
     {
+        ReleaseGltfGpuResource(runtime);
         var resource = runtime.GpuResource;
         if (resource is null)
         {
@@ -437,7 +454,10 @@ public sealed partial class PristonRenderer
             return;
         }
 
-        var skeletonTransforms = runtime.Parent.IsValid ? Array.Empty<Matrix>() : runtime.SamplePose(refresh);
+        // An attached legacy actor's parts are drawn in its own space, so its whole palette is its world; a glTF actor's
+        // vertices are in bind or node space and keep their own pose under it.
+        var gltf = runtime.GltfBatches.Count > 0;
+        var skeletonTransforms = runtime.Parent.IsValid && !gltf ? Array.Empty<Matrix>() : runtime.SamplePose(refresh);
         var world = runtime.World;
 
         var palette = runtime.Palette.Matrices;
@@ -446,12 +466,14 @@ public sealed partial class PristonRenderer
         PristonActorPalette.Fill(skeletonTransforms, boneMap, world, runtime.Parent.IsValid, palette);
 
         runtime.Palette.Pack(_motionFrame);
-        // Batches share the packed palette. Refresh their WORLD-space bounds from the
+        // Batches share the packed palette (a glTF actor's keep their own). Refresh their WORLD-space bounds from the
         // animated bone positions, so frustum culling follows the actor (otherwise the
         // bind-pose AABB sits at the origin and the actor pops out when the camera moves).
-        if (paletteSize > 0)
+        if (paletteSize > 0 || runtime.GltfBatches.Count > 0)
         {
-            var worldBounds = TransformBoundsByPalette(runtime.BindBounds, palette.AsSpan(0, paletteSize));
+            var worldBounds = gltf
+                ? UpdateGltfPalettes(runtime, skeletonTransforms, world)
+                : TransformBoundsByPalette(runtime.BindBounds, palette.AsSpan(0, paletteSize));
             ApplyWorldBounds(runtime.Batches, worldBounds);
             ApplyWorldBounds(runtime.ShadowBatches, worldBounds);
             runtime.WorldBounds = worldBounds;

@@ -111,6 +111,27 @@ checks.
   attached actor (a held weapon) hangs from that pose. The render statistics show the actors posed and the actors in the
   last update (`Pose n/m`, `LastAnimationCounts`). With 176 actors in Ricarten (`--benchmark-render` with a crowd of
   150, GTX 1050 Ti) the animation update costs about 1 ms of CPU a frame and allocates about 0.3 KB.
+- glTF actors (`PristonActor.Gltf`, `Rendering/Gltf`): `GltfActorSource.Load` reads the model, scales it by
+  `UnitsPerMetre` (30) into actor space, lays its clips one after another on the actor timeline (each from a whole
+  frame, as `Skeleton.FrameRanges`, so a motion entry with `MotionFrame` k + 1 plays clip k), takes the nodes as the
+  skeleton's objects (attachments by name), splits each primitive into batches of at most 64 bones with their own
+  compact palettes (a rigid primitive follows its node), derives missing tangents for normal-mapped primitives
+  (`GltfTangents`) and packs every material's maps (`GltfMaterialPacking`: six textures, the base colour sRGB with its
+  mips in linear light (an opaque material's alpha ignored), the normals, surface, emissive, sheen and transmission
+  with the clearcoat in the surface's and emissive's alpha; the maps of one texture share the first one's UV set, wraps
+  and transform, a map read otherwise is left out; colour averaged in linear light beside an alpha of data, data maps
+  as stored (`PristonMipChain.BuildData`, `BuildColourAndData`) and each packed normal pair as a whole direction made
+  unit length again (`BuildNormalPairs`)). The source keeps its model without images. `GltfTimelineAnimator` poses
+  the clip whose range holds the frame (`GltfAnimator`: step, linear with rotations by slerp, cubic spline) and gives
+  the nodes' worlds then every skin's joint matrices (inverse bind x joint world); each batch's palette takes those
+  times the actor's world; an attached glTF actor (held by another) keeps its own pose under that world. The GPU
+  buffers are shared per source and released with its last actor; the materials' textures (`GltfMaterialRuntime`) are
+  uploaded once and stay with the renderer, as the legacy textures stay in the texture loader's cache, and the source
+  drops its packed maps (packing them again from the file if another renderer asks); a gameplay overlay (`ActorShade`)
+  adds over the base colour as on a legacy actor; the queues read the material's legacy runtime (masked: alpha tested, blended:
+  transparent, double-sided: no culling). `PristonActorLoader.Load` takes a model-info file whose model is a `.glb` or
+  `.gltf`; `LoadGltf` loads one directly with its first clip as Stand. `--capture-gltf` draws glTF models beside a
+  legacy NPC (testing.md).
 - Materials: a TGA or opacity-mapped texture is a cut-out (alpha test at 60/255). Original blend types 2-6 draw late
   (blended queue) unless the material is an opaque cut-out; one layer above the base is carried over (multiply, add or
   sphere-map shine); there is no roughness or metalness in the data (`PristonMaterialAdapter` assigns 0.85 rough

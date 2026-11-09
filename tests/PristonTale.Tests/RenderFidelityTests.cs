@@ -10,6 +10,7 @@ internal static class RenderFidelityTests
         yield return ("mip chains reach 1x1 for every texture and average colour in linear light", MipChainLinearAsync);
         yield return ("mip chains weight colour by alpha so transparent key colours do not bleed", MipChainAlphaWeightedAsync);
         yield return ("cutout mip chains preserve the base alpha-test coverage", MipChainCoverageAsync);
+        yield return ("data mip chains average the stored values and keep each packed normal pair a unit direction", MipChainDataAsync);
         yield return ("vertex animation clock wraps on a common period without a phase jump", VertexClockAsync);
         yield return ("frame profiler accumulates CPU sections without GPU timers", ProfilerAsync);
         yield return ("original light levels map to illuminance by the calibrated power curve", LightLevelsAsync);
@@ -72,6 +73,20 @@ internal static class RenderFidelityTests
         // Half black, half white is 0.5 linear, which encodes as sRGB 188; a gamma-space box would give 127.
         var middle = levels[1][0];
         Assert.True(middle.R is >= 187 and <= 189 && middle.A == 255, $"linear average expected sRGB 188, got {middle}");
+        return Task.CompletedTask;
+    }
+
+    private static Task MipChainDataAsync()
+    {
+        var levels = PristonMipChain.BuildData([Color.Black, Color.White], 2, 1);
+        Assert.True(levels[1][0].R is 127 or 128, $"a data chain did not average the stored value: {levels[1][0]}");
+        // Two packed pairs: +X beside +Y (Z rebuilt as 0) average to 45 degrees once made unit length again, and two
+        // flat texels stay flat, X and Y 0.5.
+        var normal = PristonMipChain.BuildNormalPairs([new Color(255, 128, 128, 128), new Color(128, 255, 128, 128)], 2, 1)[1][0];
+        var xy = new Vector2(normal.R, normal.G) / 255f * 2f - Vector2.One;
+        Assert.True(MathF.Abs(xy.Length() - 1f) < 0.02f && MathF.Abs(xy.X - xy.Y) < 0.02f,
+            $"the first pair is not unit length or turned: {xy}");
+        Assert.True(normal.B is 127 or 128 && normal.A is 127 or 128, $"a flat second pair did not stay flat: {normal}");
         return Task.CompletedTask;
     }
 
