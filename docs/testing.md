@@ -75,7 +75,7 @@ Default case files by area (all `tests/PristonTale.Tests/<Name>.cs`):
 | HUD and screens | `HudInteractionTests`, `CharacterHeadTests`, `CharacterSelectTests` | 800x600 layout, hit tests |
 | Rendering | `RenderTests`, `RenderFidelityTests`, `PhotorealTests`, `MaterialAdapterTests`, `ShadowProjectionTests`, `SkyTests` | CPU-side renderer |
 | Meshes, effects | `SkinPaletteTests`, `ModelNormalTests`, `AnimationFallbackTests`, `TransientLightTests` | Skinning, lights |
-| Formats | `BinaryCursorTests`, `EffectLoadingTests`, `GltfExportTests` | Binary readers, shader load failure, glTF export |
+| Formats | `BinaryCursorTests`, `EffectLoadingTests`, `GltfExportTests`, `GltfModelTests` | Binary readers, shader load failure, glTF export, glTF reading |
 
 ## Running
 

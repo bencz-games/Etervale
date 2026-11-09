@@ -20,6 +20,7 @@ sources are in [shaders.md](shaders.md); option fields in [client-settings.md](c
 | Path | Responsibility |
 |---|---|
 | `Formats/PristonSmdReader.cs` | Binary stage and model files (`.smd` stage, `.smd`/`.smb` model and skeleton): header kinds, material group, vertices, faces, texture links, lights, area index, animation keys. |
+| `Formats/Gltf/GltfModelReader.cs`, `GltfModel.cs` | glTF 2.0 models (`.glb`, `.gltf`) through SharpGLTF: nodes, skins, primitives, animations, PBR materials, encoded images (below). |
 | `Formats/PristonInxReader.cs` | Model-info files (`.inx`): mesh and motion file names, the sub model (`SubModelFile`, an alternate model on its own skeleton for the motions the main one lacks: client.md), LOD groups, motion table, talk motions. |
 | `Formats/PristonActorLoader.cs` | Builds a `PristonActor` (mesh + skeleton + motions) from an `.inx`, or a skinned/rigid model without one. |
 | `Formats/PristonPhysiqueRepair.cs` | Moves a stray Physique vertex (bound four or more joints from the bone its edge neighbours follow, and twice as near that bone) to their bone, keeping its bind position, so it no longer pulls a spike out of a bending joint. |
@@ -78,9 +79,10 @@ float targets. Display limits of the platform (primary monitor only, desktop ref
   may reallocate the sun shadow atlas (releasing the old one first) and reload the colour-grade LUT from disk.
 - `ResetTemporalState()` after camera cuts and teleports: drops TAA history and snaps exposure.
 
-## Original formats
+## Original and glTF formats
 
-Described in Etervale's terms; readers keep every field, including padding, for round-trip checks.
+Described in Etervale's terms; the readers of the original formats keep every field, including padding, for round-trip
+checks.
 
 | Format | Reader | Contents and conventions |
 |---|---|---|
@@ -89,6 +91,7 @@ Described in Etervale's terms; readers keep every field, including padding, for 
 | Model info `.inx` | `PristonInxReader` | Mesh, motion and sub-model file names, high/default/low LOD object groups, 512 motion entries of 172 bytes, talk and NPC motions; two layouts differ only in the item-code list width. |
 | Camera path `.cam` | `PristonCameraPath.ReadCam` | Position and rotation keys of the opening cinematic, 160 ticks per frame. |
 | Textures `.bmp`, `.tga`, `.jpg` | `PristonImageDecoder` | BMP (always opaque; a variant stores its first 14 header bytes with i*i added to byte i), TGA (alpha; true colour stored or run-length, plain or with the same masked header over 18 bytes), others through StbImageSharp; a missing extension is retried as `.bmp`, `.tga`, `.jpg`, `.jpeg`. |
+| glTF `.glb`, `.gltf` | `GltfModelReader.Read` | Read in glTF space (right-handed, +Y up, metres); the `.gltf`'s external buffers and images are found through `AssetFiles`. The node hierarchy at rest (a sheared node matrix is refused); the triangle primitives of the default scene (strips and fans unrolled) with position, normal, tangent (w the bitangent sign), two UV sets, linear colour and four joints and weights (the four largest of `JOINTS_0`/`JOINTS_1`, summing 1; an unweighted vertex follows its first joint); a skinned primitive's vertices are in its skin's bind space, a rigid one's in its node's. Skins as joint nodes and inverse binds (identity when the file has none). `Bounds` is the extent drawn at rest. Animations keep translation, rotation and scale channels with their keys (step, linear, or cubic spline with in and out tangents per second). Materials: alpha mode and cutoff (masked only), double-sided, unlit, base colour, metallic-roughness (G roughness, B metallic), normal and scale, occlusion (R) and strength, emissive and strength (`KHR_materials_emissive_strength`), clearcoat with its roughness and normal, sheen colour and roughness, diffuse transmission and colour; spec-gloss materials take their diffuse as base colour, unmetallic, roughness 1 - glossiness. Each texture keeps its UV set (0 or 1; more is refused), wraps and `KHR_texture_transform`, and its PNG or JPEG image (the fallback when an extension put WebP, KTX2 or DDS first; none is refused). Images stay encoded. A primitive without normals takes flat ones and drops its tangents, as glTF requires; missing tangents stay zero. SharpGLTF's validation is skipped (exporters write cosmetic faults it refuses); data that would read out of range (an index past the vertices, an attribute shorter than the positions, a joint past the skin) is refused. Not read: morph targets and default weights, sampler filters, `EXT_mesh_gpu_instancing`, `KHR_materials_transmission`, `volume`, `ior`, `specular`, `anisotropy`, `iridescence`; Draco and meshopt compressed files do not load. |
 | Sky manifest | `PristonSkyManifest` | Latin-1 text: profiles in braces, layer lines `FileName: ... FadeDelay: ... RGBA: r g b a`. Profile numbers come from field backdrop codes (`PristonSkyProfiles.Resolve`). |
 
 - Fixed-point coordinates divide by `GameUnits.FixedScale` = 256. Distances are in Priston units (a map
