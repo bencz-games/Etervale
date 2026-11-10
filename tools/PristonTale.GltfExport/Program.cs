@@ -15,7 +15,9 @@ if (args.Length == 0 || args[0] is "-h" or "--help")
         + "  Stages use unlit materials because their lighting is baked into vertex colours; --lit-stage opts out.\n"
         + "  --stage-object plays model animation at the field-object rate (2 ticks/ms) over its [160, last] loop.\n"
         + "  Physique .smd models are skinned to the sibling .smb skeleton when one exists.\n"
-        + "  --t-pose rebinds an .inx biped with horizontal arms; use it for both the armor and its --anims-only file.");
+        + "  --t-pose rebinds an .inx biped with horizontal arms; use it for both the armor and its --anims-only file.\n"
+        + "  Missing or unreadable textures are listed on stderr; --strict-textures then exits 2 (the file is still written).\n"
+        + "  --verbose prints full exception stacks and cleanup failures.");
     return args.Length == 0 ? 1 : 0;
 }
 
@@ -27,9 +29,11 @@ if (!File.Exists(input))
 }
 
 string? temporaryDirectory = null;
+var remaining = new List<string>(args.Skip(1));
+var verbose = TakeFlag(remaining, "--verbose");
 try
 {
-    var remaining = new List<string>(args.Skip(1));
+    var strictTextures = TakeFlag(remaining, "--strict-textures");
     var flipWinding = TakeFlag(remaining, "--flip-winding");
     var flipV = TakeFlag(remaining, "--flip-v");
     var recenter = TakeFlag(remaining, "--recenter");
@@ -93,6 +97,7 @@ try
     var extension = Path.GetExtension(input);
     SceneBuilder scene;
     string summary;
+    int missingTextures;
 
     if (extension.Equals(".inx", StringComparison.OrdinalIgnoreCase))
     {
@@ -123,6 +128,7 @@ try
             temporaryDirectory,
             forceDoubleSided: true);
         scene = GltfSceneExport.BuildActor(actor, materials, options);
+        missingTextures = materials.MissingTextures;
         summary = options.AnimationsOnly
             ? $"actor animations: {actor.Skeleton.Objects.Count} bones"
             : $"actor: {actor.Mesh.Objects.Count} mesh objects, {actor.Skeleton.Objects.Count} bones, "
@@ -155,7 +161,8 @@ try
             temporaryDirectory,
             options,
             litStage,
-            out summary);
+            out summary,
+            out missingTextures);
     }
 
     var gltf = GltfSceneExport.ToModel(scene, options);
@@ -170,12 +177,12 @@ try
 
     Console.WriteLine($"wrote {output}");
     Console.WriteLine($"  {summary}");
-    return 0;
+    return strictTextures && missingTextures > 0 ? 2 : 0;
 }
 catch (Exception exception)
 {
     Console.Error.WriteLine($"error exporting {input}: {exception.Message}");
-    if (Environment.GetEnvironmentVariable("PTGLTF_DEBUG") == "1")
+    if (verbose)
     {
         Console.Error.WriteLine(exception);
     }
@@ -192,7 +199,7 @@ finally
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
         {
-            if (Environment.GetEnvironmentVariable("PTGLTF_DEBUG") == "1")
+            if (verbose)
             {
                 Console.Error.WriteLine(
                     $"temporary directory cleanup failed for '{temporaryDirectory}': {exception.Message}");
@@ -207,7 +214,8 @@ static SceneBuilder BuildSmdScene(
     string temporaryDirectory,
     ExportOptions options,
     bool litStage,
-    out string summary)
+    out string summary,
+    out int missingTextures)
 {
     var reader = new PristonSmdReader();
     PristonStage stage;
@@ -238,12 +246,14 @@ static SceneBuilder BuildSmdScene(
             // A stage object with physique binds to the bone file of the same name.
             var actor = new PristonActorLoader().LoadSkinned(input, skeletonPath);
             var actorScene = GltfSceneExport.BuildActor(actor, materials, options);
+            missingTextures = materials.MissingTextures;
             summary = $"skinned model: {model.Objects.Count} objects, {actor.Skeleton.Objects.Count} bones from {Path.GetFileName(skeletonPath)}, "
                 + $"{materials.GeneratedPngs} textures ({materials.MissingTextures} missing or invalid)";
             return actorScene;
         }
 
         var modelScene = GltfSceneExport.BuildModel(model, materials, options);
+        missingTextures = materials.MissingTextures;
         summary = $"model: {model.Objects.Count} objects, animated={model.IsAnimated}, "
             + $"{materials.GeneratedPngs} textures ({materials.MissingTextures} missing or invalid)";
         return modelScene;
@@ -251,6 +261,7 @@ static SceneBuilder BuildSmdScene(
 
     var stageMaterials = new MaterialFactory(inputDirectory, temporaryDirectory, unlit: !litStage);
     var stageScene = GltfSceneExport.BuildStage(stage, stageMaterials, options);
+    missingTextures = stageMaterials.MissingTextures;
     summary = $"stage: {stage.Vertices.Count} verts, {stage.Faces.Count} faces, "
         + $"{stageMaterials.GeneratedPngs} textures ({stageMaterials.MissingTextures} missing or invalid)";
     return stageScene;

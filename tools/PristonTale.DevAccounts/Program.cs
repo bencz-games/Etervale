@@ -18,11 +18,10 @@ using PristonTale.Assets;
 const string DefaultSqlitePath = "data/pristontale.db";
 
 var argv = new List<string>(args);
-var requestedConnection = TakeOption(argv, "--conn");
+var connection = TakeOption(argv, "--conn");
 var requestedSqlitePath = TakeOption(argv, "--sqlite");
-var connection = requestedConnection ?? (requestedSqlitePath is null ? Environment.GetEnvironmentVariable("PT_PG_CONN") : null);
 var sqlitePath = requestedSqlitePath ?? DefaultSqlitePath;
-if (requestedConnection is not null && requestedSqlitePath is not null)
+if (connection is not null && requestedSqlitePath is not null)
 {
     Console.Error.WriteLine("Use either --conn or --sqlite.");
     return 1;

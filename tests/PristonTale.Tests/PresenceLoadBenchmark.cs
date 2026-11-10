@@ -25,7 +25,7 @@ internal static class PresenceLoadBenchmark
     public static long ReadTicks;
     public static long EncodeTicks;
 
-    public static void Run(int[] counts, string[] layouts, int ticks)
+    public static void Run(int[] counts, string[] layouts, int ticks, bool allocations)
     {
         Console.WriteLine($"Presence pipeline: WorldServer tick + per-player PresenceEncoder; 20 Hz; runtime={Environment.Version}; CPUs={Environment.ProcessorCount}");
         Console.WriteLine("players layout | tick p50/p99 ms | encode p50/p99 ms | total p99 ms | CPU cores | out B/client/s | B/client/tick | alloc KiB/tick | gen0/1/2 | heap MiB");
@@ -33,12 +33,12 @@ internal static class PresenceLoadBenchmark
         {
             foreach (var count in counts)
             {
-                Measure(count, layout == "crowded", ticks);
+                Measure(count, layout == "crowded", ticks, allocations);
             }
         }
     }
 
-    private static void Measure(int count, bool crowded, int ticks)
+    private static void Measure(int count, bool crowded, int ticks, bool allocations)
     {
         var monster = new MonsterDefinition(1, "Load target", MonsterFaction.Enemy, MonsterClass.Normal, MonsterBrood.Normal,
             new MonsterCombatStats(40, 100, new MonsterRange(1, 1), 6, 50, 10, 0, 0, 100_000_000, ResistanceBlock.Zero), "")
@@ -101,8 +101,7 @@ internal static class PresenceLoadBenchmark
         var gcStart = (0, 0, 0);
         var cpuStart = TimeSpan.Zero;
         var wall = new Stopwatch();
-        // PRESENCE_ALLOCATIONS=1 prints what the measured ticks allocated, by type.
-        using var sampler = Environment.GetEnvironmentVariable("PRESENCE_ALLOCATIONS") == "1" ? new AllocationSampler() : null;
+        using var sampler = allocations ? new AllocationSampler() : null;
         for (uint tick = 1; tick <= WarmupTicks + ticks; tick++)
         {
             if (tick == WarmupTicks + 1)

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 using Microsoft.Xna.Framework;
 using PristonTale.Assets;
@@ -6,6 +7,9 @@ using PristonTale.Engine3D.Rendering;
 using PristonTale.AssetDump;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.Units;
+
+// The output is read by scripts: a comma decimal separator would be ambiguous inside "(x, y, z)".
+CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
 
 if (args.Length == 4 && args[0] == "--export-field-textures")
 {

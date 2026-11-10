@@ -228,9 +228,10 @@ if (args.Length == 3 && args[0] == "--inspect-actor")
     return 0;
 }
 
-if (args.Length == 4 && args[0] == "--benchmark-presence")
+if (args.Length is 4 or 5 && args[0] == "--benchmark-presence" && (args.Length == 4 || args[4] == "--allocations"))
 {
-    PresenceLoadBenchmark.Run(args[1].Split(',').Select(int.Parse).ToArray(), args[2].Split(','), int.Parse(args[3]));
+    PresenceLoadBenchmark.Run(args[1].Split(',').Select(int.Parse).ToArray(), args[2].Split(','), int.Parse(args[3]),
+        allocations: args.Length == 5);
     return 0;
 }
 

@@ -26,8 +26,6 @@ public sealed partial class PristonRenderer : IDisposable
     private const float SkyCameraCeiling = 150000f / GameUnits.FixedScale;
     private const float SkyCameraHeightDivisor = 8f;
 
-    private static readonly bool ShadowDiagnostics =
-        Environment.GetEnvironmentVariable("PRISTON_SHADOW_DIAG") == "1";
     private const int MinimumShadowMapSize = 1024;
     private const float ShadowTeleportRefreshDistance = 350f;
     private const uint TexFormScroll = 4;

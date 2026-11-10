@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!-- Dev CLI to seed accounts + characters into the dev database (SQLite by default; Postgres via the conn option or PT_PG_CONN)
+  <!-- Dev CLI to seed accounts + characters into the dev database (SQLite by default; Postgres via the conn option)
        for testing the login and character-select wire. NOT part of PristonTale.sln (keeps the main build clean); run directly
        via `dotnet run`. Reuses the real persistence layer + class registry so seeded data is identical
        to server-created data. -->

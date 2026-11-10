@@ -526,14 +526,6 @@ public sealed partial class PristonRenderer
                 shadowCollector.Add(runtimeMaterial, vertices);
             }
 
-            if (ShadowDiagnostics && !runtimeMaterial.CastsShadow)
-            {
-                _log.Info($"[ShadowDiag] non-caster tex='{material.TextureName}' opacity='{material.OpacityName}' " +
-                    $"blend={material.BlendType} transp={material.Transparency:0.###} " +
-                    $"alphaTest={runtimeMaterial.AlphaTest} transparent={runtimeMaterial.Transparent} " +
-                    $"selfIllum={runtimeMaterial.SelfIllum} dir='{Path.GetFileName(assetDirectory)}'");
-            }
-
             var mergeable = CanMerge(runtimeMaterial);
             if (mergeable)
             {

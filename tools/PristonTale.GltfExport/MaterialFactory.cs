@@ -303,10 +303,7 @@ internal sealed class MaterialFactory
     private void ReportTextureIssue(string textureName, string reason)
     {
         _missingTextures++;
-        if (Environment.GetEnvironmentVariable("PTGLTF_DEBUG") == "1")
-        {
-            Console.Error.WriteLine($"  texture fallback: '{textureName}' ({reason})");
-        }
+        Console.Error.WriteLine($"  texture fallback: '{textureName}' ({reason})");
     }
 
     private static void SetLuminanceAlpha(DecodedImage image)

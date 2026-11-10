@@ -1,6 +1,7 @@
 using System.Text;
 using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.IO;
+using PristonTale.Engine3D.Rendering;
 using PristonTale.Assets;
 
 namespace PristonTale.Tests;
@@ -46,7 +47,13 @@ internal static class BinaryAssetValidationProbe
             + $"binary-model={result.BinaryModelCount} stage-signature-model={result.StageSignatureModelCount} "
             + $"area-word={result.WordAreaCount} area-dword={result.DwordAreaCount} trailer={result.TrailerByteCount} "
             + $"truncated-materials={result.TruncatedMaterialCount} invalid-model-keywords={result.InvalidModelKeywordCount} "
-            + $"camera-positions={result.CameraPositionCount} camera-rotations={result.CameraRotationCount} failures={result.Failures.Count}");
+            + $"camera-positions={result.CameraPositionCount} camera-rotations={result.CameraRotationCount} "
+            + $"texture-references={result.TextureReferenceCount} missing-textures={result.MissingTextures.Count} failures={result.Failures.Count}");
+        foreach (var (texture, firstReference) in result.MissingTextures)
+        {
+            Console.WriteLine($"missing texture {texture} (first named by {firstReference})");
+        }
+
         foreach (var failure in result.Failures)
         {
             Console.Error.WriteLine(failure);
@@ -78,7 +85,7 @@ internal static class BinaryAssetValidationProbe
     {
         if (!HasStageSignature(path))
         {
-            AddModel(reader.ReadModel(path), result);
+            AddModel(path, reader.ReadModel(path), result);
             return;
         }
 
@@ -86,6 +93,7 @@ internal static class BinaryAssetValidationProbe
         {
             var stage = reader.ReadStage(path);
             result.StageCount++;
+            AddTextureReferences(path, stage.Materials, stage.Faces.Select(static face => face.MaterialIndex), result);
             result.TrailerByteCount += stage.SourceTrailer.ByteCount;
             result.TruncatedMaterialCount += stage.Materials.Count(static material => material.HasTruncatedStringTable);
             if (stage.AreaIndex.SerializedElementWidth == sizeof(ushort))
@@ -101,14 +109,16 @@ internal static class BinaryAssetValidationProbe
         }
         catch (InvalidDataException exception) when (exception.Message.Contains("Load it through ReadModel", StringComparison.Ordinal))
         {
-            AddModel(reader.ReadModel(path), result);
+            AddModel(path, reader.ReadModel(path), result);
             return;
         }
     }
 
-    private static void AddModel(PristonModel model, ValidationResult result)
+    private static void AddModel(string path, PristonModel model, ValidationResult result)
     {
         result.ModelCount++;
+        AddTextureReferences(path, model.Materials,
+            model.Objects.SelectMany(static modelObject => modelObject.Faces).Select(static face => face.MaterialIndex), result);
         result.TrailerByteCount += model.SourceTrailer.ByteCount;
         result.TruncatedMaterialCount += model.Materials.Count(static material => material.HasTruncatedStringTable);
         if (model.Header.Kind == PristonSmdHeaderKind.BinaryModel)
@@ -118,6 +128,45 @@ internal static class BinaryAssetValidationProbe
         else if (model.Header.Kind == PristonSmdHeaderKind.StageHeaderWithModelLayout)
         {
             result.StageSignatureModelCount++;
+        }
+    }
+
+    // Only materials some face draws count. A texture resolves as the renderer looks for it: in the file's own folder,
+    // under any of the texture extensions.
+    private static void AddTextureReferences(string path, IReadOnlyList<PristonMaterial> materials, IEnumerable<int> faceMaterials,
+        ValidationResult result)
+    {
+        var directory = Path.GetDirectoryName(path) ?? string.Empty;
+        foreach (var index in faceMaterials.Where(index => (uint)index < (uint)materials.Count).Distinct())
+        {
+            var material = materials[index];
+            for (var stage = 0; stage < material.RenderedStageCount; stage++)
+            {
+                AddTextureReference(path, directory, material.StageTextureName(stage), result);
+                AddTextureReference(path, directory, material.StageOpacityName(stage), result);
+            }
+
+            if (material.HasAnimatedTexture)
+            {
+                foreach (var frame in material.AnimationTextureNames)
+                {
+                    AddTextureReference(path, directory, frame, result);
+                }
+            }
+        }
+    }
+
+    private static void AddTextureReference(string path, string directory, string name, ValidationResult result)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return;
+        }
+
+        result.TextureReferenceCount++;
+        if (PristonTextureLoader.ResolvePath(directory, name).Length == 0)
+        {
+            result.MissingTextures.TryAdd(AssetFiles.Combine(directory, name), path);
         }
     }
 
@@ -150,6 +199,8 @@ internal static class BinaryAssetValidationProbe
         public long TrailerByteCount { get; set; }
         public int TruncatedMaterialCount { get; set; }
         public int InvalidModelKeywordCount { get; set; }
+        public int TextureReferenceCount { get; set; }
+        public SortedDictionary<string, string> MissingTextures { get; } = new(StringComparer.OrdinalIgnoreCase);
         public List<string> Failures { get; } = [];
     }
 }

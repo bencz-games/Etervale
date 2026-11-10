@@ -26,7 +26,7 @@ benchmarks, and the asset/GPU probes that read game data or create a Vulkan devi
 | `WorldPump.cs` | Ticks a `WorldServer` at 50 ms until an operation it serves completes (service and transaction cases) |
 | `WireRoundTrip.cs` | Snapshots through server `PresenceEncoder` and client `PresenceDecoder` over original packet bytes |
 | `MultiplayerServer.cs`, `MultiplayerClient.cs` | A whole server in the runner (real host, disposable SQLite, ephemeral port, synthetic world) and real TCP clients with the world each one observed |
-| `AllocationSampler.cs` | Allocation ticks by type for benchmarks (`PRESENCE_ALLOCATIONS=1`) |
+| `AllocationSampler.cs` | Allocation ticks by type for benchmarks (`--benchmark-presence ... --allocations`) |
 | `AbsoluteContentManager.cs` | `ContentManager` that opens `.xnb` files from an absolute content root (GPU probes) |
 | `*Probe.cs`, `*Probe.<Topic>.cs` | Opt-in probes (see Probes); never part of the default suite |
 | `*Benchmark.cs`, `RenderBenchmarkProbe.cs` | Opt-in benchmarks; `DomainTests.BenchmarkAsync` is the `--benchmark` tick benchmark |
@@ -163,7 +163,7 @@ All CPU-only; no GPU, assets or database unless stated.
 | --- | --- |
 | `--benchmark` | After the (filtered) suite: 5 runs of 128 players, 100 warmup and 1,000 measured 50 ms ticks; median, p95, max, bytes/tick |
 | `--benchmark-world` | 128 players + 512 monsters at 20 Hz (AI, combat, collision, snapshots, 128 drained outboxes); spacing 128 and 64 units, 5 runs each |
-| `--benchmark-presence <counts> <layouts> <ticks>` | The real `WorldServer` tick plus one `PresenceEncoder` per player (no sockets): e.g. `500,1000,2000,5000 spread,crowded 100`. Players walk, a quarter fight, a tenth cast; prints tick and encode p50/p99, CPU cores, bytes per client per second and per tick, allocations (tick and encode), collections and heap. `PRESENCE_ALLOCATIONS=1` adds the allocating types. Results: [protocol.md](protocol.md#measured-capacity) |
+| `--benchmark-presence <counts> <layouts> <ticks> [--allocations]` | The real `WorldServer` tick plus one `PresenceEncoder` per player (no sockets): e.g. `500,1000,2000,5000 spread,crowded 100`. Players walk, a quarter fight, a tenth cast; prints tick and encode p50/p99, CPU cores, bytes per client per second and per tick, allocations (tick and encode), collections and heap. `--allocations` adds the allocating types. Results: [protocol.md](protocol.md#measured-capacity) |
 | `--benchmark-parsing <assets>` | Binary cursor microbenchmarks and `Field/forest/fore-1.smd` parses; requires 752 materials, 35,519 faces |
 | `--profile-ricarten <assets>` | Ricarten stage and model parsing, collision build and texture preparation times |
 
@@ -220,7 +220,7 @@ when reading those assets is authorized. GPU probes:
 | `--verify-equipment <assets>` | no | Equipped attack clips against `PlayerEquipmentTiming` |
 | `--export-equipment-timings <assets> <output.json>` | no | Writes the generated `World/Motion/Data/PlayerEquipmentTiming.json` (see Pitfalls) |
 | `--verify-world-rewards <assets> <disposable.db>` | no | Real catalog checks on a copy of an imported database (see below) |
-| `--validate-binary-assets <assets>` | no | Parses every `.inx`, `.smd`, `.smb` and `.cam` under the root and lists failures |
+| `--validate-binary-assets <assets>` | no | Parses every `.inx`, `.smd`, `.smb` and `.cam` under the root and lists failures, and every texture a drawn material names that the renderer would not find (only listed, not a failure) |
 | `--inspect-actor <assets> <actor-path>` | no | Prints mesh, skeleton, material and bone details of one actor |
 | `--inspect-ricarten-ground <assets>` | no | Reads only the Ricarten stage: stacked floors near the entrance gate and high cameras with an occluded focus |
 
