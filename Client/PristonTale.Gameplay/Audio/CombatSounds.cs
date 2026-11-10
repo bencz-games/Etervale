@@ -99,7 +99,7 @@ public sealed class CombatSounds : IDisposable
             return;
         }
 
-        var pitch = scale <= 0f || MathF.Abs(scale - 1f) < 0.001f ? 0f : scale < 1f ? MathF.Log2(3600f / 2205f) : scale > 2f ? MathF.Log2(1400f / 2205f) : 0f;
+        var pitch = scale <= 0f || MathF.Abs(scale - 1f) < 0.001f ? 0f : scale < 1f ? SoundRates.Octaves(3600f) : scale > 2f ? SoundRates.Octaves(1400f) : 0f;
         _bank.Play(files[Random.Shared.Next(files.Length)], source, listener, 1f, pitch);
     }
 

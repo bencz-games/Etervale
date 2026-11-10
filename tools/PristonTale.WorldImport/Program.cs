@@ -58,13 +58,19 @@ if (command == "compile-models")
     foreach (var descriptor in argv)
     {
         var path = AssetFiles.Combine(requiredAssetsRoot, descriptor);
-        if (!PristonModelText.IsDescriptor(path) || !AssetFiles.Exists(path))
+        if (!PristonModelText.IsDescriptor(path))
         {
-            Console.Error.WriteLine($"not a descriptor: {descriptor}");
+            Console.Error.WriteLine($"not a descriptor (.ini, .inf): {descriptor}");
             return 1;
         }
 
-        Console.WriteLine($"compiled {Path.GetRelativePath(requiredAssetsRoot, PristonInxWriter.Compile(path))}");
+        if (!AssetFiles.Exists(path))
+        {
+            Console.Error.WriteLine($"not found: {descriptor}");
+            return 1;
+        }
+
+        Console.WriteLine($"compiled {Path.GetRelativePath(requiredAssetsRoot, PristonInxWriter.Compile(path, requiredAssetsRoot))}");
     }
 
     return 0;

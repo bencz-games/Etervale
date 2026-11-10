@@ -1,5 +1,6 @@
 using PristonTale.Assets;
 using PristonTale.Contracts.Motion;
+using PristonTale.Contracts.Units;
 using PristonTale.Engine3D.Formats.Gltf;
 
 namespace PristonTale.Engine3D.Formats;
@@ -25,11 +26,8 @@ namespace PristonTale.Engine3D.Formats;
 public static class PristonModelText
 {
     private const int LineCapacity = 511;
-    private const uint Tick = 160;
     private const int DeadEndFrames = 8;
     private const int RateCapacity = 100;
-    private const int TalkFile = 0;
-    private const int FacialFile = 1;
 
     // Read switches on the index in this list.
     private static readonly string[] Commands =
@@ -64,11 +62,12 @@ public static class PristonModelText
         Path.GetExtension(path) is { } extension
         && (extension.Equals(".ini", StringComparison.OrdinalIgnoreCase) || extension.Equals(".inf", StringComparison.OrdinalIgnoreCase));
 
-    // path: the descriptor on disk, under the assets root (its place there names the stored files' directory).
-    public static PristonModelInfo Read(string path)
+    // path: the descriptor on disk; its place under the assets root (root, PristonModelPaths.AssetPath) names the stored
+    // files' directory.
+    public static PristonModelInfo Read(string path, string root = null)
     {
         var data = Plain(AssetFiles.ReadAllBytes(path));
-        var canonical = PristonInxReader.ToCanonicalAssetPath(path);
+        var canonical = PristonModelPaths.AssetPath(path, root);
         var directory = canonical[..(canonical.LastIndexOf('\\') + 1)];
         var model = new Builder();
         var motionFiles = new List<string>();
@@ -231,7 +230,7 @@ public static class PristonModelText
                 break;
             }
 
-            motion.EventFrames[events++] = unchecked((uint)(Integer(word) - (int)motion.StartFrame) * Tick);
+            motion.EventFrames[events++] = unchecked((uint)(Integer(word) - (int)motion.StartFrame) * (uint)GameUnits.FrameTicks);
         }
 
         if (word == "반복")
@@ -300,24 +299,15 @@ public static class PristonModelText
     // The MotionFrame of the motions after a collection naming a glTF clip (0: by the collection's count).
     private static int ClipFrame(string descriptor, string file, string clip, int collection)
     {
-        var extension = Path.GetExtension(file);
-        if (!extension.Equals(".glb", StringComparison.OrdinalIgnoreCase) && !extension.Equals(".gltf", StringComparison.OrdinalIgnoreCase))
+        if (!PristonModelPaths.IsGltf(file) || clip.Length == 0)
         {
             return 0;
         }
 
-        if (clip.Length == 0)
+        var index = Array.IndexOf(GltfModelReader.ClipNames(AssetFiles.Combine(Path.GetDirectoryName(descriptor) ?? "", file)), clip);
+        if (index >= 0)
         {
-            return 0;
-        }
-
-        var model = GltfModelReader.Read(AssetFiles.Combine(Path.GetDirectoryName(descriptor) ?? "", file));
-        for (var index = 0; index < model.Animations.Count; index++)
-        {
-            if (model.Animations[index].Name.Equals(clip, StringComparison.Ordinal))
-            {
-                return index + 1;
-            }
+            return index + 1;
         }
 
         throw new InvalidDataException($"{descriptor}: {file} has no clip '{clip}' (collection {collection}).");
@@ -469,41 +459,14 @@ public static class PristonModelText
                 return;
             }
 
-            var (largest, at, sum) = (0, 0, 0);
-            for (var slot = first; slot < MotionCount; slot++)
+            var count = (int)MotionCount - first;
+            if (!Balance(Rates.AsSpan(first, count)))
             {
-                if (largest < Rates[slot])
-                {
-                    (largest, at) = (Rates[slot], slot);
-                }
-
-                sum += Rates[slot];
+                Rates[first] = 0;
+                return;
             }
 
-            if (sum > RateCapacity)
-            {
-                largest -= sum - RateCapacity;
-                if (largest <= 0)
-                {
-                    Rates[first] = 0;
-                    return;
-                }
-
-                Rates[at] = largest;
-            }
-            else if (sum < RateCapacity)
-            {
-                Rates[at] = largest + RateCapacity - sum;
-            }
-
-            var next = NpcSelection;
-            for (var slot = first; slot < MotionCount; slot++)
-            {
-                for (var share = 0; share < Rates[slot]; share++)
-                {
-                    Rates[next++] = slot;
-                }
-            }
+            Share(Rates.AsSpan(first, count), [.. Enumerable.Range(first, count)], Rates.AsSpan(NpcSelection));
         }
 
         // Each talk file shares its own 100 slots among its talk motions; the chances themselves stay as written.
@@ -515,62 +478,78 @@ public static class PristonModelText
                 return;
             }
 
-            var motions = new int[PristonFormatConstants.TalkMotionFileCount, PristonFormatConstants.TalkMotionInfoCount];
-            var chances = new int[PristonFormatConstants.TalkMotionFileCount, PristonFormatConstants.TalkMotionInfoCount];
-            int[] counts = [first, first];
-            for (var slot = first; slot < TalkMotionCount; slot++)
-            {
-                var file = TalkMotions[slot].MotionFrame;
-                if (file is TalkFile or FacialFile)
-                {
-                    motions[file, counts[file]] = slot;
-                    chances[file, counts[file]] = Rates[TalkRates + slot];
-                    counts[file]++;
-                }
-            }
-
             for (var file = 0; file < PristonFormatConstants.TalkMotionFileCount; file++)
             {
-                var (largest, at, sum) = (0, 0, 0);
-                for (var entry = first; entry < counts[file]; entry++)
+                var motions = new List<int>();
+                var chances = new List<int>();
+                for (var slot = first; slot < TalkMotionCount; slot++)
                 {
-                    if (largest < chances[file, entry])
+                    if (TalkMotions[slot].MotionFrame == file)
                     {
-                        (largest, at) = (chances[file, entry], entry);
-                    }
-
-                    sum += chances[file, entry];
-                }
-
-                if (sum > RateCapacity)
-                {
-                    largest -= sum - RateCapacity;
-                    if (largest <= 0)
-                    {
-                        Rates[TalkRates + first] = 0;
-                    }
-                    else
-                    {
-                        chances[file, at] = largest;
+                        motions.Add(slot);
+                        chances.Add(Rates[TalkRates + slot]);
                     }
                 }
-                else if (sum < RateCapacity)
+
+                var shares = chances.ToArray();
+                if (!Balance(shares))
                 {
-                    chances[file, at] = largest + RateCapacity - sum;
+                    Rates[TalkRates + first] = 0;
                 }
 
-                if (Rates[TalkRates + first] == 0)
+                if (Rates[TalkRates + first] != 0)
                 {
-                    continue;
+                    var selection = TalkSelection + file * PristonFormatConstants.MotionRateSelectionCount;
+                    Share(shares, [.. motions], Rates.AsSpan(selection));
+                }
+            }
+        }
+
+        // The largest chance takes what the chances leave of 100, or gives up what they pass it by; false when that
+        // leaves it nothing (the selection is off). With no chance above 0, none changes.
+        private static bool Balance(Span<int> chances)
+        {
+            var (largest, at, sum) = (0, -1, 0);
+            for (var index = 0; index < chances.Length; index++)
+            {
+                if (largest < chances[index])
+                {
+                    (largest, at) = (chances[index], index);
                 }
 
-                var next = TalkSelection + file * PristonFormatConstants.MotionRateSelectionCount;
-                for (var entry = first; entry < counts[file]; entry++)
+                sum += chances[index];
+            }
+
+            if (sum > RateCapacity)
+            {
+                largest -= sum - RateCapacity;
+                if (largest <= 0)
                 {
-                    for (var share = 0; share < chances[file, entry]; share++)
-                    {
-                        Rates[next++] = motions[file, entry];
-                    }
+                    return false;
+                }
+            }
+            else if (sum < RateCapacity)
+            {
+                largest += RateCapacity - sum;
+            }
+
+            if (at >= 0)
+            {
+                chances[at] = largest;
+            }
+
+            return true;
+        }
+
+        // Each slot fills as many entries of the selection as its chance.
+        private static void Share(ReadOnlySpan<int> chances, int[] slots, Span<int> selection)
+        {
+            var next = 0;
+            for (var index = 0; index < chances.Length; index++)
+            {
+                for (var share = 0; share < chances[index]; share++)
+                {
+                    selection[next++] = slots[index];
                 }
             }
         }

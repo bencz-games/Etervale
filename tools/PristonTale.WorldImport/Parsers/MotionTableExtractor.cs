@@ -121,11 +121,13 @@ public sealed class MotionTableExtractor
 
         try
         {
-            compiled = PristonInxWriter.Compile(compiled);
+            compiled = PristonInxWriter.Compile(compiled, _assetRoot);
             _compiled.Add(compiled);
             return true;
         }
-        catch (Exception exception) when (exception is InvalidDataException or IOException)
+        // A descriptor that cannot compile (bad text, a glTF it names that does not read, a read-only folder) leaves
+        // its model unresolved, as a missing one does.
+        catch (Exception exception) when (exception is not (OutOfMemoryException or StackOverflowException))
         {
             failure = $"cannot compile {Path.GetRelativePath(_assetRoot, compiled)}: {exception.Message}";
             return false;

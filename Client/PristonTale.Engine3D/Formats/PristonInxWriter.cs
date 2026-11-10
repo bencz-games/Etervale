@@ -2,32 +2,30 @@ using PristonTale.Assets;
 
 namespace PristonTale.Engine3D.Formats;
 
-// Writes a model-info file (.inx) PristonInxReader reads back: the layout with short item codes (95268 bytes), names in
+// Writes a model-info file (.inx) PristonInxReader reads back: the layout with short item codes (ModelInfoSize bytes), names in
 // CP949. Its keywords come from the hash of the path it is written to (char\...\name.inx, under the assets root): the
 // model keyword, with the linked model's own when it borrows one, and, when it has character motions and no talk
 // motions, every character motion's start and end frame split with it (a frame 0 stays plain).
 public static class PristonInxWriter
 {
-    private const int Size = 95268;
-    private const int NameSize = 64;
-    private const int GroupNameSize = 16;
-    private const int GroupNames = 4;
-    private const int EventFrames = 4;
+    private const int NameSize = PristonFormatConstants.ModelNameSize;
+    private const int EventFrames = PristonFormatConstants.MotionEventCount;
 
-    // Compiles a descriptor (.ini, .inf) to the model-info file beside it; returns that file.
-    public static string Compile(string descriptor)
+    // Compiles a descriptor (.ini, .inf) to the model-info file beside it; returns that file. root: the assets root
+    // (PristonModelPaths.AssetPath).
+    public static string Compile(string descriptor, string root = null)
     {
         // An .inx already there in another letter case is replaced, not doubled.
-        var path = AssetFiles.Resolve(PristonInxReader.CompiledPath(AssetFiles.Resolve(descriptor)));
-        File.WriteAllBytes(path, Write(PristonModelText.Read(descriptor), path));
+        var path = AssetFiles.Resolve(PristonModelPaths.CompiledPath(AssetFiles.Resolve(descriptor)));
+        File.WriteAllBytes(path, Write(PristonModelText.Read(descriptor, root), path, root));
         return path;
     }
 
-    public static byte[] Write(PristonModelInfo info, string path)
+    public static byte[] Write(PristonModelInfo info, string path, string root = null)
     {
-        var code = PristonInxReader.PathHash(PristonInxReader.ToCanonicalAssetPath(path));
+        var code = PristonInxReader.PathHash(PristonModelPaths.AssetPath(path, root));
         var protect = info.MotionCount > PristonFormatConstants.CharacterMotionBase && info.TalkMotionCount <= PristonFormatConstants.CharacterMotionBase;
-        using var stream = new MemoryStream(Size);
+        using var stream = new MemoryStream(PristonFormatConstants.ModelInfoSize);
         using var writer = new BinaryWriter(stream);
         Name(writer, info.ModelFile, NameSize);
         Name(writer, info.MotionFile, NameSize);
@@ -35,9 +33,9 @@ public static class PristonInxWriter
         foreach (var group in new[] { info.HighModel, info.DefaultModel, info.LowModel })
         {
             writer.Write(group.ModelNameCount);
-            for (var name = 0; name < GroupNames; name++)
+            for (var name = 0; name < PristonFormatConstants.ModelGroupNameCount; name++)
             {
-                Name(writer, group.ModelNames.ElementAtOrDefault(name) ?? "", GroupNameSize);
+                Name(writer, group.ModelNames.ElementAtOrDefault(name) ?? "", PristonFormatConstants.ModelGroupNameSize);
             }
         }
 
@@ -100,7 +98,7 @@ public static class PristonInxWriter
     {
         if (motion is null)
         {
-            writer.Write(new byte[172]);
+            writer.Write(new byte[PristonFormatConstants.MotionInfoSize]);
             return;
         }
 
@@ -150,7 +148,7 @@ public static class PristonInxWriter
                 info.LinkFileKeyword);
         }
 
-        var link = PristonInxReader.PathHash(PristonInxReader.CompiledPath(info.LinkFile));
+        var link = PristonInxReader.PathHash(PristonModelPaths.CompiledPath(info.LinkFile));
         return ((code & 0x00FF0000u) << 8 | (link & 0x000000FFu) << 16 | (code & 0x000000FFu) << 8 | (link & 0xFF000000u) >> 24,
             (code & 0xFF000000u) | (link & 0x0000FF00u) << 8 | (code & 0x0000FF00u) | (link & 0x00FF0000u) >> 16);
     }

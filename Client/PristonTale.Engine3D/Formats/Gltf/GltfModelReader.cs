@@ -16,6 +16,42 @@ public static class GltfModelReader
 {
     private const int UvSets = 2;
 
+    private const uint BinaryMagic = 0x46546C67;
+    private const uint JsonChunk = 0x4E4F534A;
+    private const int BinaryHeader = 12;
+
+    // The names of a model's clips in order (empty when unnamed, as Read names them), from its JSON alone: no buffer
+    // or image is read.
+    public static string[] ClipNames(string path)
+    {
+        var bytes = AssetFiles.ReadAllBytes(path);
+        var json = bytes.AsMemory();
+        if (bytes.Length >= 4 && BitConverter.ToUInt32(bytes, 0) == BinaryMagic)
+        {
+            if (bytes.Length < BinaryHeader + 8 || BitConverter.ToUInt32(bytes, BinaryHeader + 4) != JsonChunk)
+            {
+                throw new InvalidDataException($"{path}: a binary glTF without its JSON chunk.");
+            }
+
+            var length = (int)BitConverter.ToUInt32(bytes, BinaryHeader);
+            if (length < 0 || BinaryHeader + 8 + length > bytes.Length)
+            {
+                throw new InvalidDataException($"{path}: the JSON chunk runs past the file.");
+            }
+
+            json = bytes.AsMemory(BinaryHeader + 8, length);
+        }
+
+        using var document = System.Text.Json.JsonDocument.Parse(json);
+        if (!document.RootElement.TryGetProperty("animations", out var animations))
+        {
+            return [];
+        }
+
+        return [.. animations.EnumerateArray().Select(static animation =>
+            animation.TryGetProperty("name", out var name) ? name.GetString() ?? "" : "")];
+    }
+
     public static GltfModel Read(string path)
     {
         var resolved = AssetFiles.Resolve(path);

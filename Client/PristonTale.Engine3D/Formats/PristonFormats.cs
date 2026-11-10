@@ -15,6 +15,13 @@ public static class PristonFormatConstants
     public const int CharacterMotionBase = 10;
     public const int MotionItemCapacity = 52;
     public const int MotionSkillCapacity = 8;
+    public const int MotionEventCount = 4;
+    // The model-info layout with short item codes (PristonInxReader, PristonInxWriter).
+    public const int ModelInfoSize = 95268;
+    public const int MotionInfoSize = 172;
+    public const int ModelNameSize = 64;
+    public const int ModelGroupNameCount = 4;
+    public const int ModelGroupNameSize = 16;
 }
 
 public enum PristonSmdHeaderKind

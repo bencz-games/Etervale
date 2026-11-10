@@ -117,7 +117,7 @@ public static class EquipmentVisuals
 
         foreach (var carry in Carries)
         {
-            if (visuals.JobMask == CharacterClassDef.JobMaskOf(carry.Class) && visuals.WeaponKey.StartsWith(carry.Family, StringComparison.OrdinalIgnoreCase))
+            if (visuals.JobMask == PlayerClasses.JobMask(carry.Class) && visuals.WeaponKey.StartsWith(carry.Family, StringComparison.OrdinalIgnoreCase))
             {
                 return carry;
             }

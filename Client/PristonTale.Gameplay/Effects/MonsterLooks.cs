@@ -3,20 +3,22 @@ using PristonTale.Simulation.World.Npcs;
 
 namespace PristonTale.Gameplay.Effects;
 
-// The look a monster keeps while it is present: light added to its body (the original's 0..255 light units over 256, as
-// the presentation's status tints) and its opacity (1 + the original's alpha offset over 255).
-public readonly record struct MonsterLook(Vector3 Light, float Opacity)
+// The look a monster keeps while it is present: light added to its body (the original's light units over LightUnits, as
+// the presentation's status tints), its opacity (1 + the original's alpha offset over 255) and whether that light pulses
+// (a boss's, BossPulseTicks a wave).
+public readonly record struct MonsterLook(Vector3 Light, float Opacity, bool Pulses = false)
 {
     public static MonsterLook Normal => new(Vector3.Zero, 1f);
 }
 
 // Looks by family as the original sets them when a monster appears: the translucent Illusion Knight and Mr. Ghost, the
 // yellow wild Wolverine, the golden Guardian Saint and the coloured Furies of levels 118 (yellow), 119 (red) and 120
-// (blue), translucent too. A wild boss glows red-violet over any of them; a player's summon keeps the wild look only
-// where the original gives it regardless of side.
+// (blue), translucent too. A wild boss glows red-violet instead; any boss's light pulses, down from full to none and back
+// over 64 ticks of 70 Hz. A player's summon keeps the wild look only where the original gives it regardless of side.
 public static class MonsterLooks
 {
-    private const float Units = 256f;
+    public const float LightUnits = 256f;
+    public const int BossPulseTicks = 64;
     private const float AlphaUnits = 255f;
 
     public static MonsterLook Of(int soundCode, int level, bool boss, bool summoned)
@@ -42,6 +44,14 @@ public static class MonsterLooks
             light = new Vector3(130f, 50f, 70f);
         }
 
-        return new MonsterLook(light / Units, 1f + alpha / AlphaUnits);
+        return new MonsterLook(light / LightUnits, 1f + alpha / AlphaUnits, boss);
+    }
+
+    // The share of a pulsing light shown at a tick: 31/32 down to 0 over the wave's first half, then back up.
+    public static float Pulse(int tick)
+    {
+        const int half = BossPulseTicks / 2;
+        var phase = tick & (half - 1);
+        return ((tick & half) == 0 ? half - 1 - phase : phase) / (float)half;
     }
 }

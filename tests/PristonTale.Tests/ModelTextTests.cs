@@ -96,9 +96,18 @@ internal static class ModelTextTests
         var bytes = PristonInxWriter.Write(text, compiled);
         File.WriteAllBytes(compiled, bytes);
         var info = new PristonInxReader().Read(compiled);
-        Assert.True(bytes.Length == 95268 && info.Path == compiled && info.ModelKeywordsValid && info.MotionFramesWereProtected
+        Assert.True(bytes.Length == PristonFormatConstants.ModelInfoSize && info.Path == compiled && info.ModelKeywordsValid && info.MotionFramesWereProtected
             && !info.MotionKeywordsFromOtherPath && info.LinkFile == @"char\npc\Myth\M1bip.in", "the compiled file's keywords or link differ");
         Same(text, info, "compiled");
+
+        // Compiled under an assets root of another name, the file keeps its keywords once in the game's assets.
+        var other = Path.Combine(Path.GetDirectoryName(root)!, "pt");
+        var elsewhere = Write(other, @"char/npc/Myth/Myth.ini", Motions + "\n*파일연결\tM1bip.in\n");
+        var built = PristonInxWriter.Compile(elsewhere, other);
+        File.Copy(built, compiled, overwrite: true);
+        var moved = new PristonInxReader().Read(compiled);
+        Assert.True(moved.ModelKeywordsValid && moved.ModelFile == @"char\npc\Myth\Myth.ASE", "a file compiled under another root lost its keywords");
+        Same(text, moved, "compiled elsewhere");
     });
 
     private static Task ResolveAsync() => InAssets(root =>
@@ -122,8 +131,8 @@ internal static class ModelTextTests
         Assert.True(PristonModelPaths.Mesh(root, @"char\npc\Myth\Myth.glb").EndsWith("Myth.glb", StringComparison.Ordinal)
             && PristonModelPaths.Mesh(root, @"char\npc\Myth\Other.smd").EndsWith("Other.smd", StringComparison.Ordinal),
             "an explicit format was not kept");
-        Assert.True(PristonInxReader.WithExtension(@"char\a.b\c", ".inx") == @"char\a.b\c.inx"
-            && PristonInxReader.WithExtension("char/x/M1bip.in", ".inx") == "char/x/M1bip.inx", "an extension is not the last name's");
+        Assert.True(PristonModelPaths.WithExtension(@"char\a.b\c", ".inx") == @"char\a.b\c.inx"
+            && PristonModelPaths.WithExtension("char/x/M1bip.in", ".inx") == "char/x/M1bip.inx", "an extension is not the last name's");
     });
 
     // Edited after their model-info file was compiled: a folder renamed, motions added.
@@ -145,7 +154,7 @@ internal static class ModelTextTests
             foreach (var descriptor in Directory.EnumerateFiles(Path.Combine(root, "char"), "*.*", SearchOption.AllDirectories)
                          .Where(PristonModelText.IsDescriptor).Order(StringComparer.Ordinal))
             {
-                var compiled = PristonInxReader.CompiledPath(descriptor);
+                var compiled = PristonModelPaths.CompiledPath(descriptor);
                 var name = Path.GetRelativePath(root, descriptor).Replace('/', '\\');
                 if (!File.Exists(AssetFiles.Resolve(compiled)) || Revised.Contains(name, StringComparer.OrdinalIgnoreCase)
                     || Path.GetFileName(descriptor).Equals("desktop.ini", StringComparison.OrdinalIgnoreCase))
@@ -158,7 +167,7 @@ internal static class ModelTextTests
                 {
                     var text = PristonModelText.Read(descriptor);
                     Same(text, reader.Read(compiled), name);
-                    var copy = AssetFiles.Combine(copies, PristonInxReader.CompiledPath(name));
+                    var copy = AssetFiles.Combine(copies, PristonModelPaths.CompiledPath(name));
                     Directory.CreateDirectory(Path.GetDirectoryName(copy)!);
                     File.WriteAllBytes(copy, PristonInxWriter.Write(text, copy));
                     Same(text, reader.Read(copy), name + " compiled");

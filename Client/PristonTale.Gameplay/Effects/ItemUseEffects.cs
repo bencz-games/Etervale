@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Engine3D.Rendering.Lighting;
+using PristonTale.Gameplay.Audio;
 using PristonTale.Simulation.Items.Usable;
 
 namespace PristonTale.Gameplay.Effects;
@@ -15,9 +16,9 @@ public sealed class ItemUseEffects
     public const string LearnSound = "wav/Effects/Skill/Learn_Skill.wav";
     public const string DrinkSound = "Image/SinImage/Sound/drink2.wav";
     public const string EatSound = "Image/SinImage/Sound/drink1.wav";
-    // An aged copy reaching its level plays the level-up sound at 16000 of its 22050 Hz.
+    // An aged copy reaching its level plays the level-up sound at 16000 Hz.
     public const string AgingUpSound = "wav/Effects/event/level UP.wav";
-    private static readonly float AgingUpPitch = MathF.Log2(1600f / 2205f);
+    private static readonly float AgingUpPitch = SoundRates.Octaves(1600f);
     public static readonly string[] FirecrackerSounds = ["wav/Effects/event/firecracker01.wav", "wav/Effects/event/firecracker02.wav",
         "wav/Effects/event/firecracker03.wav"];
     private static readonly string[] Crackers = ["FireCrackerAll", "FireCrackerHeart", "FireCrackerMoon", "FireCrackerStar", "FireCrackerNormal"];

@@ -16,3 +16,9 @@ public enum PlayerClass
     Shaman = 10,
     MartialArtist = 11
 }
+
+public static class PlayerClasses
+{
+    // The class's bit in a motion's job mask.
+    public static uint JobMask(PlayerClass playerClass) => 1u << ((int)playerClass - 1);
+}

@@ -38,10 +38,9 @@ public sealed partial class GameScene : IMonsterScene
             {
                 _monsterFx.ObserveSwing(combatEvent.AttackerId, combatEvent.TargetId);
             }
-            else if (combatEvent.Kind == CombatEventKind.Hit && !combatEvent.Skill)
+            else if (combatEvent.Kind == CombatEventKind.Hit && !combatEvent.Skill || combatEvent.Kind == CombatEventKind.Block)
             {
-                var position = TryGetDrawnPosition(combatEvent.TargetId, out var drawn) ? drawn : Vector3.Zero;
-                _monsterFx.ObserveBlow(combatEvent.AttackerId, combatEvent.TargetId, position);
+                _monsterFx.ObserveBlow(combatEvent.AttackerId, combatEvent.TargetId);
             }
             else if (combatEvent.Kind == CombatEventKind.Hit && combatEvent.Skill)
             {
@@ -75,6 +74,8 @@ public sealed partial class GameScene : IMonsterScene
 
         return _renderer.TryGetActorMotion(actor, out motion, out ticks);
     }
+
+    bool IMonsterScene.TryGetEntityPosition(ulong entityId, out Vector3 position) => TryGetDrawnPosition(entityId, out position);
 
     void IMonsterScene.SetEntityTint(ulong entityId, Vector3 tint)
     {

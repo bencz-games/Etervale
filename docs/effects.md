@@ -247,7 +247,8 @@ apart from the skill looks (`PristonRenderer.SetActorCorpse`: a fade multiplying
 Some families keep a look while present (`MonsterLooks`, applied when the presentation first sees the monster): the
 Illusion Knight (alpha -180 of 255) and Mr. Ghost (-80) are translucent, a wild Wolverine is yellow (100 red and green
 light of 256), the Guardian Saint golden (80, 80, 20), the Furies of level 118 yellow (100, 100, 0), 119 red (100, 0, 0)
-and 120 blue (0, 0, 100) and translucent (-80); a wild boss glows red-violet (130, 50, 70) over its family's light.
+and 120 blue (0, 0, 100) and translucent (-80); a wild boss glows red-violet (130, 50, 70) instead of its family's light,
+and any boss's light pulses from full to none and back over 64 ticks (`MonsterLooks.Pulse`).
 Status tints add to that light and a corpse's fade multiplies that opacity (`IMonsterScene.SetEntityBody`). A Fury
 looks out of both eyes (`vfx.monster.fury.body`: `FuryEye` on `Bip EyeT01` and `Bip EyeT02`). When a Babel's blow
 splashes over several players (`MonsterPresentation.ObserveBlow`), the bolt reaching its target (at 500 a second)

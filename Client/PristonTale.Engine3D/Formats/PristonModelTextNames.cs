@@ -1,20 +1,18 @@
+using PristonTale.Contracts.Characters;
 using PristonTale.Engine3D.Equipment;
 
 namespace PristonTale.Engine3D.Formats;
 
 // The names the lines of a model descriptor (PristonModelText) give: the weapons a motion is worn with (item
 // categories, exact spelling, as the motion index the character motion files list), the classes it plays for (any
-// case, bit class - 1) and the skills it plays (any case, the code the model-info file stores).
+// case, PlayerClass names with Priest for the priestess, PlayerClasses.JobMask) and the skills it plays (any case, the
+// code the model-info file stores).
 public static class PristonModelTextNames
 {
     private static readonly Dictionary<string, int> Items = BuildItems();
 
-    private static readonly (string Name, uint Bit)[] Jobs =
-    [
-        ("Fighter", 0x0001), ("Mechanician", 0x0002), ("Archer", 0x0004), ("Pikeman", 0x0008), ("Atalanta", 0x0010),
-        ("Knight", 0x0020), ("Magician", 0x0040), ("Priest", 0x0080), ("Assassin", 0x0100), ("Shaman", 0x0200),
-        ("MartialArtist", 0x0400)
-    ];
+    // Descriptors name the priestess's class Priest.
+    private const string PriestName = "Priest";
 
     // In code order: code 0 names no skill.
     private static readonly string[] Skills =
@@ -54,15 +52,13 @@ public static class PristonModelTextNames
     // 0 when no class has the name.
     public static uint JobBit(string name)
     {
-        foreach (var (job, bit) in Jobs)
+        if (name.Equals(PriestName, StringComparison.OrdinalIgnoreCase))
         {
-            if (job.Equals(name, StringComparison.OrdinalIgnoreCase))
-            {
-                return bit;
-            }
+            return PlayerClasses.JobMask(PlayerClass.Priestess);
         }
 
-        return 0;
+        return name.Length > 0 && char.IsLetter(name[0]) && Enum.TryParse<PlayerClass>(name, ignoreCase: true, out var playerClass)
+            && Enum.IsDefined(playerClass) ? PlayerClasses.JobMask(playerClass) : 0u;
     }
 
     // -1 when no skill has the name.

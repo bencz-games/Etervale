@@ -8,6 +8,7 @@ namespace PristonTale.Engine3D.Formats;
 // beside it is read from its glTF, and model info with no .inx from its descriptor (PristonModelText).
 public static class PristonModelPaths
 {
+    private const string AssetsFolder = "assets";
     private static readonly string[] MeshFormats = [".smd", ".glb", ".gltf"];
     private static readonly string[] MotionFormats = [".smb", ".glb", ".gltf"];
     private static readonly string[] InfoFormats = [".inx", ".ini", ".inf"];
@@ -24,7 +25,37 @@ public static class PristonModelPaths
         Path.GetExtension(path) is { } extension
         && (extension.Equals(".glb", StringComparison.OrdinalIgnoreCase) || extension.Equals(".gltf", StringComparison.OrdinalIgnoreCase));
 
-    public static bool Exists(string path) => !string.IsNullOrWhiteSpace(path) && File.Exists(AssetFiles.Resolve(path));
+    // The model-info file a descriptor or model name compiles to.
+    public static string CompiledPath(string path) => WithExtension(path, ".inx");
+
+    // The name with its extension (after the last separator, either slash) replaced, as the data's paths are named on
+    // every platform.
+    public static string WithExtension(string path, string extension)
+    {
+        var separator = path.LastIndexOfAny(['/', '\\']);
+        var dot = path.LastIndexOf('.');
+        return (dot > separator ? path[..dot] : path) + extension;
+    }
+
+    // A file's path as the game data names it (char\npc\...\name.inx: backslashes, from the assets root), which model
+    // info hashes into its keywords. root: the assets root; without one, the path is taken from its last "assets" folder.
+    public static string AssetPath(string path, string root = null)
+    {
+        if (root is not null)
+        {
+            return Path.GetRelativePath(root, path).Replace('/', '\\');
+        }
+
+        var normalized = path.Replace('/', '\\');
+        var marker = "\\" + AssetsFolder + "\\";
+        var index = normalized.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
+        if (index >= 0)
+        {
+            return normalized[(index + marker.Length)..];
+        }
+
+        return normalized.StartsWith(AssetsFolder + "\\", StringComparison.OrdinalIgnoreCase) ? normalized[(AssetsFolder.Length + 1)..] : normalized;
+    }
 
     // The first format present; a name already in one of them is kept when explicitFormat (missing or not).
     private static string Resolve(string path, string[] formats, bool explicitFormat)
@@ -42,13 +73,13 @@ public static class PristonModelPaths
 
         foreach (var format in formats)
         {
-            var candidate = AssetFiles.Resolve(PristonInxReader.WithExtension(path, format));
+            var candidate = AssetFiles.Resolve(WithExtension(path, format));
             if (File.Exists(candidate))
             {
                 return candidate;
             }
         }
 
-        return AssetFiles.Resolve(PristonInxReader.WithExtension(path, formats[0]));
+        return AssetFiles.Resolve(WithExtension(path, formats[0]));
     }
 }

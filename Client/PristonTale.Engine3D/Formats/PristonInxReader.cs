@@ -7,7 +7,7 @@ public sealed class PristonInxReader
 {
     // INX variants differ only in the item code list width: modern uses short[52], original uses byte[52].
     // The remaining container layout is identical.
-    private const int ModelInfoSizeShortCodes = 95268; // 172-byte motion record (item code list = short[52])
+    private const int ModelInfoSizeShortCodes = PristonFormatConstants.ModelInfoSize; // item code list = short[52]
     private const int ModelInfoSizeByteCodes = 67084; // 120-byte motion record (item code list = byte[52])
     private const int ItemCodeListSizeShortCodes = 104;
     private const int ItemCodeListSizeByteCodes = 52;
@@ -59,14 +59,14 @@ public sealed class PristonInxReader
         };
 
         var cursor = new BinaryCursor(data);
-        var modelFile = cursor.FixedString(64);
-        var motionFile = cursor.FixedString(64);
-        var subModelFile = cursor.FixedString(64);
+        var modelFile = cursor.FixedString(PristonFormatConstants.ModelNameSize);
+        var motionFile = cursor.FixedString(PristonFormatConstants.ModelNameSize);
+        var subModelFile = cursor.FixedString(PristonFormatConstants.ModelNameSize);
         var highModel = ReadModelGroup(cursor);
         var defaultModel = ReadModelGroup(cursor);
         var lowModel = ReadModelGroup(cursor);
 
-        var fileCode = PathHash(ToCanonicalAssetPath(path));
+        var fileCode = PathHash(PristonModelPaths.AssetPath(path));
         var motions = new List<PristonMotionInfo>(PristonFormatConstants.MotionInfoCount);
         cursor.Position = MotionInfoOffset;
         for (var i = 0; i < PristonFormatConstants.MotionInfoCount; i++)
@@ -77,9 +77,9 @@ public sealed class PristonInxReader
         var motionCount = cursor.UInt32();
         var fileTypeKeyword = cursor.UInt32();
         var linkFileKeyword = cursor.UInt32();
-        var linkFile = cursor.FixedString(64);
-        var talkLinkFile = cursor.FixedString(64);
-        var talkMotionFile = cursor.FixedString(64);
+        var linkFile = cursor.FixedString(PristonFormatConstants.ModelNameSize);
+        var talkLinkFile = cursor.FixedString(PristonFormatConstants.ModelNameSize);
+        var talkMotionFile = cursor.FixedString(PristonFormatConstants.ModelNameSize);
 
         var talkMotions = new List<PristonMotionInfo>(PristonFormatConstants.TalkMotionInfoCount);
         for (var i = 0; i < PristonFormatConstants.TalkMotionInfoCount; i++)
@@ -227,15 +227,15 @@ public sealed class PristonInxReader
     private static PristonModelGroup ReadModelGroup(BinaryCursor cursor)
     {
         var count = cursor.Int32();
-        if (count is < 0 or > 4)
+        if (count is < 0 or > PristonFormatConstants.ModelGroupNameCount)
         {
             throw new InvalidDataException($"INX model group count {count} exceeds its Win32 capacity 4.");
         }
 
-        var names = new List<string>(4);
-        for (var i = 0; i < 4; i++)
+        var names = new List<string>(PristonFormatConstants.ModelGroupNameCount);
+        for (var i = 0; i < PristonFormatConstants.ModelGroupNameCount; i++)
         {
-            names.Add(cursor.FixedString(16));
+            names.Add(cursor.FixedString(PristonFormatConstants.ModelGroupNameSize));
         }
 
         return new PristonModelGroup(count, names);
@@ -250,8 +250,8 @@ public sealed class PristonInxReader
         var endFrame = cursor.UInt32();
         var rawStartFrame = startFrame;
         var rawEndFrame = endFrame;
-        var eventFrames = new List<uint>(4);
-        for (var i = 0; i < 4; i++)
+        var eventFrames = new List<uint>(PristonFormatConstants.MotionEventCount);
+        for (var i = 0; i < PristonFormatConstants.MotionEventCount; i++)
         {
             eventFrames.Add(cursor.UInt32());
         }
@@ -410,7 +410,7 @@ public sealed class PristonInxReader
             ((linkKeyword & 0x000000FFu) << 16) |
             ((linkKeyword & 0x00FF0000u) >> 8) |
             ((fileKeyword & 0x00FF0000u) >> 16);
-        var expectedLinkCode = PathHash(CompiledPath(linkFile));
+        var expectedLinkCode = PathHash(PristonModelPaths.CompiledPath(linkFile));
         return new ModelKeywordValidation(
             decodedFileCodeWithLink,
             decodedLinkCode,
@@ -482,36 +482,6 @@ public sealed class PristonInxReader
         }
 
         return unchecked((sum << 24) | ((uint)name.Length << 16) | sum2);
-    }
-
-    // The model-info file a descriptor or model name compiles to.
-    public static string CompiledPath(string path) => WithExtension(path, ".inx");
-
-    // The name with its extension (after the last separator, either slash) replaced, as the data's paths are named on
-    // every platform.
-    public static string WithExtension(string path, string extension)
-    {
-        var separator = path.LastIndexOfAny(['/', '\\']);
-        var dot = path.LastIndexOf('.');
-        return (dot > separator ? path[..dot] : path) + extension;
-    }
-
-    public static string ToCanonicalAssetPath(string path)
-    {
-        var normalized = path.Replace('/', '\\');
-        var marker = "\\assets\\";
-        var index = normalized.IndexOf(marker, StringComparison.OrdinalIgnoreCase);
-        if (index >= 0)
-        {
-            return normalized[(index + marker.Length)..];
-        }
-
-        if (normalized.StartsWith("assets\\", StringComparison.OrdinalIgnoreCase))
-        {
-            return normalized[7..];
-        }
-
-        return normalized;
     }
 
     private readonly record struct ModelKeywordValidation(uint FileCode, uint LinkCode, bool IsValid);

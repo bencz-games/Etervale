@@ -20,14 +20,15 @@ internal static class AuthoredEffects
         return null;
     }
 
-    // Every effect name defined under a subfolder of the authored folder.
-    public static HashSet<string> Names(string subfolder)
+    // Every effect defined under a subfolder of the authored folder.
+    public static IEnumerable<VfxDefinition> Definitions(string subfolder)
     {
         var folder = Folder();
         Assert.True(folder is not null, "the importer's Authored folder was not found");
         return Directory.EnumerateFiles(Path.Combine(folder!, subfolder), VfxCatalog.Pattern, SearchOption.AllDirectories)
-            .SelectMany(file => VfxDefinition.ParseFile(File.ReadAllText(file)))
-            .Select(definition => definition.Name)
-            .ToHashSet(StringComparer.Ordinal);
+            .SelectMany(file => VfxDefinition.ParseFile(File.ReadAllText(file)));
     }
+
+    public static HashSet<string> Names(string subfolder) =>
+        Definitions(subfolder).Select(static definition => definition.Name).ToHashSet(StringComparer.Ordinal);
 }

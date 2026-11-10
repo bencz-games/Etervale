@@ -36,7 +36,7 @@ internal static class QuestServiceTests
         yield return ("quest presence reaches the client and the arena shows only the player's own duel", PresenceAsync);
         yield return ("quest requests store once, replay idempotently and credit field kills", RequestsAsync);
         yield return ("the quest upkeep puts quest drops in the pack and stores them, and waits while the save gate is busy", UpkeepAsync);
-        yield return ("an upkeep giving an aged weapon its level shows the aging light on its owner to the players around", AgingUpAsync);
+        yield return ("an upkeep giving an aged weapon its level shows the aging light on its owner in the field's item effects", AgingUpAsync);
         yield return ("a quest item a monster drops reaches the special item box through the upkeep and the master takes it for the rank-up",
             KillToMasterAsync);
         yield return ("the master duel travels to the arena, yields at a sixteenth and promotes from the victory dialog", ArenaAsync);
