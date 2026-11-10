@@ -305,14 +305,14 @@ public sealed record VfxDefinition
         var ranges = new[] { part.Lifetime, part.Size, part.Height, part.Rotation, part.Width, part.Scale, part.Pulse, part.Ring, part.Radial, part.Rise, part.Burst,
             part.Gravity, part.Swirl, part.SwirlGrowth, part.MoveTime };
         var scalars = new[] { part.Delay, part.DelayStep, part.DelayRandom, part.FrameTime, part.ModelFrames, part.ModelSpeed, part.ModelStart, part.Growth,
-            part.Spin, part.FadeIn, part.FadeOut, part.PulsePeriod, part.BladeLength, part.LineSeconds, part.TrailFade, part.RingStart, part.RingStep,
+            part.Spin, part.FadeIn, part.FadeOut, part.StopFade, part.PulsePeriod, part.BladeLength, part.LineSeconds, part.TrailFade, part.RingStart, part.RingStep,
             part.Speed, part.Reach, part.Lift, part.OrbitRadius, part.OrbitSpeed, part.OrbitTilt, part.OrbitRise, part.OrbitGrowth, part.OrbitPhase,
             part.OrbitPhaseStep, part.Every, part.LoopFrom, part.SlideFrom };
         var drawn = part.Shape != VfxPartShape.Model || part.Model.Length > 0;
         return part.Count is >= 1 and <= 1024 && part.Delay >= 0f && part.DelayStep >= 0f && part.DelayRandom >= 0f && part.Frames >= 0 && part.FrameTime > 0f
             && part.TrailPoints is >= 2 and <= CompiledPart.MaxTrailPoints && part.Color.Length == 4 && part.Color.All(float.IsFinite)
             && vectors.All(Vec3Ok) && ranges.All(RangeOk)
-            && part.Lifetime[0] >= 0f && part.Lifetime[1] <= MaxDuration && scalars.All(float.IsFinite) && part.Speed >= 0f && part.Every >= 0f
+            && part.Lifetime[0] >= 0f && part.Lifetime[1] <= MaxDuration && scalars.All(float.IsFinite) && part.Speed >= 0f && part.Every >= 0f && part.StopFade >= 0f
             && (part.Goal == VfxPartGoal.None || part.Speed > 0f || part.Shape == VfxPartShape.Beam || part.OrbitRadius > 0f) && drawn
             && part.LoopFrom >= 0f && (part.LoopFrom < part.ModelFrames || part.LoopFrom == 0f) && (part.Shape != VfxPartShape.Blade || part.Bone.Length > 0);
     }

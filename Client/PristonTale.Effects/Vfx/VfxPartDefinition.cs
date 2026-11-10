@@ -101,6 +101,9 @@ public sealed record VfxPartDefinition
     public VfxPartFade Fade { get; init; } = VfxPartFade.None;
     public float FadeIn { get; init; }
     public float FadeOut { get; init; }
+    // A part that lasts until its effect stops (no lifetime) fades out over these seconds when it does, starting its
+    // EndEffect where it is (a companion leaving); 0 ends it at once.
+    public float StopFade { get; init; }
     // Model scale range, and a scale pulse between Pulse[0] and Pulse[1] over PulsePeriod seconds (triangle wave).
     public float[] Scale { get; init; } = [1f, 1f];
     public float[] Pulse { get; init; } = [1f, 1f];
@@ -165,7 +168,7 @@ public sealed record VfxPartDefinition
     // arrives on coming down to the goal's height.
     public float Lift { get; init; }
     public VfxPartEnd End { get; init; } = VfxPartEnd.Vanish;
-    // Effect started where a part ends (an impact).
+    // Effect started where a part ends (an impact), or where it starts fading as its effect stops (StopFade).
     public string EndEffect { get; init; } = "";
 
     // Orbit around the anchor: radius, degrees per second, tilt of the orbit plane about X, rise per second, radius
