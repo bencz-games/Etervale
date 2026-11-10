@@ -40,6 +40,7 @@ internal sealed class MonsterSkillCaptureProbe : Game, ISkillSceneHost, IMonster
         new("hypermachine-skill", 0x1530, 84, 1f, "char/monster/hyper/hyper.inx", 14, [0.5f, 1.0f, 1.6f]),
         new("hypermachine-death", 0x1530, 84, 1f, "char/monster/hyper/hyper.inx", 16, [0.3f, 0.8f, 1.4f]),
         new("guardiansaint-skill", 0x1470, 80, 1f, "char/monster/guardian/guardian.inx", 16, [1.0f, 1.8f, 2.6f]),
+        new("fury119-attack", 0x1310, 119, 1f, "char/monster/Monfury/Monfury.inx", 14, [0.3f, 0.7f, 1.1f], Distance: 1.4f),
         new("babel-skill", 0x1600, 104, 1f, "char/monster/bguardian/bguardian.inx", 15, [0.8f, 1.8f, 2.3f], Distance: 2f),
         new("coldeye-skill", 0x1630, 91, 1f, "char/monster/coldeye/coldeye.inx", 14, [0.5f, 1.2f, 2.0f]),
         new("chaoscara-skill", 0x1670, 100, 1.2f, "char/monster/chaoscara/chaoscara.inx", 14, [0.4f, 0.9f, 1.4f], Distance: 1.5f),
@@ -344,13 +345,21 @@ internal sealed class MonsterSkillCaptureProbe : Game, ISkillSceneHost, IMonster
 
     public bool TryGetActorMotion(ActorHandle actor, out PristonMotionInfo motion, out float ticks) => _renderer.TryGetActorMotion(actor, out motion, out ticks);
 
-    public void SetEntityCorpse(ulong entityId, float fade, float dim)
+    public void SetEntityBody(ulong entityId, float opacity, float dim)
     {
+        if (entityId == MonsterId)
+        {
+            _renderer.SetActorCorpse(_monster, opacity, dim);
+        }
     }
 
     public void SetEntityTint(ulong entityId, Vector3 tint)
     {
-        if (entityId == PlayerId)
+        if (entityId == MonsterId)
+        {
+            _renderer.SetActorColorAdd(_monster, tint);
+        }
+        else if (entityId == PlayerId)
         {
             _renderer.SetActorColorAdd(_player.Body, tint);
             _renderer.SetActorColorAdd(_player.Head, tint);

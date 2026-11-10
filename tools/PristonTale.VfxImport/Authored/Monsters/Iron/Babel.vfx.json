@@ -1336,5 +1336,63 @@
         "turn": true
       }
     ]
+  },
+  {
+    "name": "vfx.monster.babel.chain",
+    "duration": 0.8571,
+    "parts": [
+      {
+        "shape": "Beam",
+        "texture": "Effect/AssaEffect/BossRunic/R_e00.bmp",
+        "frames": 3,
+        "frameTime": 0.0143,
+        "loop": true,
+        "anchor": "Caster",
+        "follow": true,
+        "offset": [
+          0,
+          39.0625,
+          0
+        ],
+        "goal": "Target",
+        "goalOffset": [
+          0,
+          39.0625,
+          0
+        ],
+        "width": [
+          19.5313,
+          19.5313
+        ],
+        "lifetime": [
+          0.8571,
+          0.8571
+        ]
+      }
+    ],
+    "children": [
+      {
+        "effect": "particle.IronMonsterRunicGuardianLight3",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          39.0625,
+          0
+        ],
+        "follow": true,
+        "stopWithParent": true
+      },
+      {
+        "effect": "particle.IronMonsterRunicGuardianLight3",
+        "anchor": "Target",
+        "offset": [
+          0,
+          39.0625,
+          0
+        ],
+        "follow": true,
+        "stopWithParent": true
+      }
+    ]
   }
 ]

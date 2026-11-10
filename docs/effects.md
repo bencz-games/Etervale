@@ -244,6 +244,16 @@ ticks (`MonsterPresentation.CorpseDim`); the bodies of light (Figon, Stygian Lor
 Chaos Cara) fade by two alpha units of 256 a tick and are gone in about 1.8 s (`CorpseFade`). The renderer keeps this
 apart from the skill looks (`PristonRenderer.SetActorCorpse`: a fade multiplying the opacity and light taken away).
 
+Some families keep a look while present (`MonsterLooks`, applied when the presentation first sees the monster): the
+Illusion Knight (alpha -180 of 255) and Mr. Ghost (-80) are translucent, a wild Wolverine is yellow (100 red and green
+light of 256), the Guardian Saint golden (80, 80, 20), the Furies of level 118 yellow (100, 100, 0), 119 red (100, 0, 0)
+and 120 blue (0, 0, 100) and translucent (-80); a wild boss glows red-violet (130, 50, 70) over its family's light.
+Status tints add to that light and a corpse's fade multiplies that opacity (`IMonsterScene.SetEntityBody`). A Fury
+looks out of both eyes (`vfx.monster.fury.body`: `FuryEye` on `Bip EyeT01` and `Bip EyeT02`). When a Babel's blow
+splashes over several players (`MonsterPresentation.ObserveBlow`), the bolt reaching its target (at 500 a second)
+lights a chain from each struck player to the next in the order of the hits (`vfx.monster.babel.chain`: the `R_e00`
+lightning between them for 60 ticks, `IronMonsterRunicGuardianLight3` at both ends).
+
 Statuses that monster skills put on players and monsters (`MonsterStatuses`) show while they run: poison
 (`vfx.monster.status.poison` and a green tint), the bloody knight's stun (`vfx.monster.status.bloodyknightstun`), the
 lightning crystal's stun (`vfx.debuff.stun`), the defence and attack curses (`vfx.monster.status.cursedefence`,

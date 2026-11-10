@@ -1,5 +1,43 @@
 [
   {
+    "name": "vfx.monster.fury.body",
+    "duration": 600.0,
+    "parts": [
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip EyeT01",
+        "follow": true,
+        "carryEffect": "particle.FuryEye"
+      },
+      {
+        "color": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "size": [
+          1,
+          1
+        ],
+        "anchor": "Caster",
+        "bone": "Bip EyeT02",
+        "follow": true,
+        "carryEffect": "particle.FuryEye"
+      }
+    ]
+  },
+  {
     "name": "vfx.monster.fury.skill",
     "duration": 4.0,
     "parts": [
