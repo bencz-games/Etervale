@@ -42,6 +42,10 @@ public partial class GraphicsDeviceManager
         FillWindowCreateInfo(presentationParameters, requestedMultiSampleCount, ref windowCreateInfo);
 
         window.CreateWindow(windowCreateInfo);
+        // Etervale fork: the window takes the requested size before the device creates its swapchain from the window's
+        // surface (monogame/issues/018-window-size-before-swapchain.md).
+        if (PlatformInfo.GraphicsBackend != GraphicsBackend.OpenGL)
+            window.OnPresentationChanged(presentationParameters);
         presentationParameters.DeviceWindowHandle = window.Handle;
     }
 
