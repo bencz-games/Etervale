@@ -847,7 +847,8 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   and death play the class's sound, a `Revive` the restart chime. The local player's walk and run clips play the floor's
   footsteps (stone in towns and ruins, dungeon stone, soft ground in forests and deserts) on their first two event
   frames. Everything comes from the presence stream, so every client near the action plays it.
-- Equipment looks (`EquipmentVisuals`, `EquipmentVisualTables`): every item with a model has its motion index (the
+- Equipment looks (`EquipmentVisuals`, `EquipmentVisualTables` in Engine3D, where model descriptors also name weapons
+  through it): every item with a model has its motion index (the
   weapon index the character motion files list; items newer than those files take the first item of their family and
   hand class), model (`image/sinimage/Items/DropItem/it<model>.smd`, also its ground model), hand and village bone. An
   equipment item without an imported client model is kept by the server but omitted from the rendered look, so it cannot

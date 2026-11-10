@@ -19,20 +19,22 @@ public sealed class PristonActorLoader
         _smdReader = cache != null ? new PristonSmdReader(cache) : new PristonSmdReader();
     }
 
-    public PristonActor Load(string assetRoot, string inxPath)
+    // infoPath: the model info (.inx), or any name of it (PristonModelPaths.Info). Its model resolves through
+    // PristonModelPaths.Mesh: a glTF model is drawn with its own clips, a legacy one with its motion file's skeleton.
+    public PristonActor Load(string assetRoot, string infoPath)
     {
-        var info = _inxReader.Read(inxPath);
-        if (IsGltf(info.ModelFile))
+        var info = _inxReader.Read(infoPath);
+        var model = ResolveCachePath(PristonModelPaths.Mesh(assetRoot, RequirePath(info.ModelFile)), info.ModelFile);
+        if (PristonModelPaths.IsGltf(model))
         {
-            var source = GltfActorSource.Load(ResolveCachePath(assetRoot, info.ModelFile, Path.GetExtension(info.ModelFile)));
+            var source = GltfActorSource.Load(model);
             return new PristonActor(info, source.Mesh, source.Skeleton, []) { Gltf = source };
         }
 
-        var meshPath = ResolveCachePath(assetRoot, info.ModelFile, ".smd");
         var motionInfo = ResolveMotionInfo(assetRoot, info);
         var motionPath = ResolveMotionPath(assetRoot, motionInfo.MotionFile);
         var skeleton = _smdReader.ReadModel(motionPath);
-        var mesh = PristonPhysiqueRepair.Repair(_smdReader.ReadModel(meshPath), skeleton);
+        var mesh = PristonPhysiqueRepair.Repair(_smdReader.ReadModel(model), skeleton);
         // Shared armor meshes require the INX high-LOD filter; models without groups render all objects.
         var renderObjectNames = SelectRenderObjectNames(info);
         return new PristonActor(motionInfo, mesh, skeleton, renderObjectNames);
@@ -52,10 +54,6 @@ public sealed class PristonActorLoader
         var end = source.Skeleton.FrameRanges.Count > 0 ? source.Skeleton.FrameRanges[0].EndFrame : GameUnits.FrameTicks;
         return new PristonActor(CreateSyntheticIdleInfo(end), source.Mesh, source.Skeleton, []) { Gltf = source };
     }
-
-    private static bool IsGltf(string path) =>
-        Path.GetExtension(path) is { } extension && (extension.Equals(".glb", StringComparison.OrdinalIgnoreCase)
-            || extension.Equals(".gltf", StringComparison.OrdinalIgnoreCase));
 
     public PristonActor LoadRigid(string smdPath)
     {
@@ -108,21 +106,17 @@ public sealed class PristonActorLoader
         return names;
     }
 
+    // A motion file (.smb), or the motion file of the model info its name links to (an .in link names one).
     private string ResolveMotionPath(string assetRoot, string sourcePath)
     {
-        string directPath;
-        if (TryResolveCachePath(assetRoot, sourcePath, ".smb", out directPath))
-            return directPath;
+        var direct = PristonModelPaths.Motion(assetRoot, RequirePath(sourcePath));
+        if (File.Exists(direct))
+            return direct;
 
-        string linkPath;
-        if (TryResolveCachePath(assetRoot, sourcePath, ".inx", out linkPath))
-        {
-            var linkInfo = _inxReader.Read(linkPath);
-            if (!string.IsNullOrWhiteSpace(linkInfo.MotionFile))
-                return ResolveCachePath(assetRoot, linkInfo.MotionFile, ".smb");
-        }
+        if (LinkedInfo(assetRoot, sourcePath) is { } link && !string.IsNullOrWhiteSpace(link.MotionFile))
+            return ResolveCachePath(PristonModelPaths.Motion(assetRoot, link.MotionFile), link.MotionFile);
 
-        return ResolveCachePath(assetRoot, sourcePath, ".smb");
+        return ResolveCachePath(direct, sourcePath);
     }
 
     private PristonModelInfo ResolveMotionInfo(string assetRoot, PristonModelInfo visualInfo)
@@ -130,42 +124,22 @@ public sealed class PristonActorLoader
         if (visualInfo.HasUsableMotions)
             return visualInfo;
 
-        string linkPath;
-        if (TryResolveCachePath(assetRoot, visualInfo.MotionFile, ".inx", out linkPath))
-        {
-            var linkInfo = _inxReader.Read(linkPath);
-            if (linkInfo.HasUsableMotions)
-                return linkInfo;
-        }
-
-        return visualInfo;
+        return LinkedInfo(assetRoot, visualInfo.MotionFile) is { HasUsableMotions: true } link ? link : visualInfo;
     }
 
-    public static string ResolveCachePath(string assetRoot, string sourcePath, string extension)
+    // The model info a name links to, when one (compiled or a descriptor) exists.
+    private PristonModelInfo LinkedInfo(string assetRoot, string reference)
     {
-        if (string.IsNullOrWhiteSpace(sourcePath))
-            throw new InvalidDataException("Empty Priston actor source path.");
+        if (string.IsNullOrWhiteSpace(reference))
+            return null;
 
-        var changed = Path.ChangeExtension(sourcePath, extension);
-        var resolved = AssetFiles.Resolve(Path.Combine(assetRoot, changed));
-        if (File.Exists(resolved))
-            return resolved;
-
-        throw new FileNotFoundException($"Cannot resolve Priston actor cache '{sourcePath}' as '{extension}'.", resolved);
+        var path = PristonModelPaths.Info(AssetFiles.Combine(assetRoot, reference));
+        return File.Exists(path) ? _inxReader.Read(path) : null;
     }
 
-    private static bool TryResolveCachePath(string assetRoot, string sourcePath, string extension, out string path)
-    {
-        path = string.Empty;
-        if (string.IsNullOrWhiteSpace(sourcePath))
-            return false;
+    private static string RequirePath(string reference) =>
+        string.IsNullOrWhiteSpace(reference) ? throw new InvalidDataException("Empty Priston actor source path.") : reference;
 
-        var changed = Path.ChangeExtension(sourcePath, extension);
-        var resolved = AssetFiles.Resolve(Path.Combine(assetRoot, changed));
-        if (!File.Exists(resolved))
-            return false;
-
-        path = resolved;
-        return true;
-    }
+    private static string ResolveCachePath(string resolved, string reference) =>
+        File.Exists(resolved) ? resolved : throw new FileNotFoundException($"Cannot resolve Priston actor file '{reference}'.", resolved);
 }

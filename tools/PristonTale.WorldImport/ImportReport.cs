@@ -36,6 +36,8 @@ public sealed class ImportReport
     public int MotionTableRows { get; set; }
     public int MotionSlotRows { get; set; }
     public int MotionUnresolvedModels { get; set; }
+    // Model-info files compiled from descriptors that had none.
+    public int MotionCompiledModels { get; set; }
 
     // Cross-ref resolution.
     public int DropItemCodesResolved { get; set; }

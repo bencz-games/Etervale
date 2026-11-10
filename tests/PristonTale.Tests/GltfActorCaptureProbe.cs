@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PristonTale.Assets;
 using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Contracts.Motion;
@@ -9,7 +10,8 @@ namespace PristonTale.Tests;
 
 // Draws glTF models as actors in a row beside a legacy NPC (char/npc/TN-003, for scale), each playing its first clip,
 // and saves the row and a close view of each glTF actor, twice (--capture-gltf <assets> <content> <out directory> <model
-// paths, comma separated; "path*scale" for a model in other units than metres>). The model "layers" is four spheres built here: a plain red dielectric, the same under a
+// paths, comma separated: a glTF file, or model info relative to the assets root; "path*scale" for a model in other
+// units than metres>). The model "layers" is four spheres built here: a plain red dielectric, the same under a
 // smooth clearcoat, a dark blue with a pink sheen and a green that transmits yellow light.
 internal sealed class GltfActorCaptureProbe : Game
 {
@@ -53,7 +55,7 @@ internal sealed class GltfActorCaptureProbe : Game
             var reference = new PristonActorLoader().Load(_root, Path.Combine(_root, Reference));
             await _renderer.PrepareActorResourcesAsync(reference);
             actors.Add(reference);
-            actors.AddRange(_models.Select(model => PristonActorLoader.LoadGltf(model == LayersModel ? WriteLayers() : Scaled(model).Path)));
+            actors.AddRange(_models.Select(model => model == LayersModel ? PristonActorLoader.LoadGltf(WriteLayers()) : Load(Scaled(model).Path)));
             return actors.ToArray();
         });
     }
@@ -132,6 +134,10 @@ internal sealed class GltfActorCaptureProbe : Game
             Exit();
         }
     }
+
+    // A glTF model alone plays its first clip; its model info (a descriptor or .inx, relative to the assets root) its Stand.
+    private PristonActor Load(string path) =>
+        PristonModelPaths.IsGltf(path) ? PristonActorLoader.LoadGltf(path) : new PristonActorLoader().Load(_root, AssetFiles.Combine(_root, path));
 
     // "path*scale" draws a model authored in other units than metres at that scale (a centimetre model: 0.01).
     private static (string Path, float Scale) Scaled(string model) =>

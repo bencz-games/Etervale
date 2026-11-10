@@ -59,6 +59,7 @@ dotnet run --project tools/PristonTale.WorldImport -c Release --no-build -- veri
 | `export-monster-names` | no | `[{Id, Key, DisplayName, SourceFile}]`, first per identity; fails on a file without identity or `*Name` |
 | `export-npc-placements` | no | Fixed NPC placements of every `WorldCatalog` field (field code, NPC id and key, position, angle, source file) |
 | `export-npc-motions` | no | `{FormatVersion: 1, Models, Slots}` motion rows of NPC models; requires an assets root |
+| `compile-models <descriptor ...>` | no | Compiles the given descriptors (relative to the assets root) to the `.inx` beside them, replacing it; for a descriptor edited after its `.inx` |
 
 The usage text lists every command. Exit code 0 on success, 1 on any exception (message and stack trace on stderr)
 or an unknown command.
@@ -279,7 +280,8 @@ in the record is ignored, because it can be stale.
 (`CharacterClassRegistry` default visuals).
 
 - Key: `MotionTimingCatalog.NormalizeKey` (extension `.inx`, forward slashes, lower case); the file is
-  `<assets>/<key>`, opened through `AssetFiles`.
+  `<assets>/<key>`, opened through `AssetFiles`. A model with a descriptor (`.ini`, `.inf`) and no `.inx` is compiled
+  beside it first (`PristonInxWriter.Compile`; reported as a warning and in `compiled`), as is a linked model's.
 - Clips are motion entries from `PristonFormatConstants.CharacterMotionBase` on with `State != 0` and
   `EndFrame > StartFrame`; `slot` keeps the entry index. Up to four event frames and the repeat flag are stored.
 - A model INX without usable clips borrows the table of its linked motion file (player bodies share one biped table);

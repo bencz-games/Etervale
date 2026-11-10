@@ -9,7 +9,7 @@ namespace PristonTale.Gameplay.World.Remote;
 // model has no clip for (most often a death that breaks the model apart), and the main model again for the others.
 public static class AlternateModel
 {
-    // The sub model's INX, or null when the model has none or it is missing.
+    // The sub model's model info (its .inx or descriptor), or null when the model has none or it is missing.
     public static string Path(string assetRoot, PristonModelInfo info)
     {
         if (string.IsNullOrWhiteSpace(info.SubModelFile))
@@ -17,8 +17,8 @@ public static class AlternateModel
             return null;
         }
 
-        var path = AssetFiles.Combine(assetRoot, System.IO.Path.ChangeExtension(info.SubModelFile.Replace('\\', '/'), ".inx"));
-        return AssetFiles.Exists(path) ? path : null;
+        var path = PristonModelPaths.Info(AssetFiles.Combine(assetRoot, info.SubModelFile));
+        return File.Exists(path) ? path : null;
     }
 
     // A sub model on the main model's own skeleton is not an alternate.

@@ -5,6 +5,7 @@ using PristonTale.Persistence.Postgres;
 using PristonTale.Persistence.Sqlite;
 using PristonTale.WorldImport;
 using PristonTale.Assets;
+using PristonTale.Engine3D.Formats;
 
 Cp949.Encoding.GetType(); // force CP949 provider registration up front
 // The report names Korean keys and texts.
@@ -43,6 +44,29 @@ if (command == "export-npc-motions")
     var requiredAssetsRoot = assetsRoot
         ?? throw new DirectoryNotFoundException("export-npc-motions requires an assets root.");
     NpcMotionExport.Write(sourceRoot, requiredAssetsRoot, outputPath);
+    return 0;
+}
+
+if (command == "compile-models")
+{
+    var requiredAssetsRoot = assetsRoot ?? throw new DirectoryNotFoundException("compile-models requires an assets root.");
+    if (argv.Count == 0)
+    {
+        throw new ArgumentException("compile-models takes the descriptors (.ini, .inf) to compile, relative to the assets root.");
+    }
+
+    foreach (var descriptor in argv)
+    {
+        var path = AssetFiles.Combine(requiredAssetsRoot, descriptor);
+        if (!PristonModelText.IsDescriptor(path) || !AssetFiles.Exists(path))
+        {
+            Console.Error.WriteLine($"not a descriptor: {descriptor}");
+            return 1;
+        }
+
+        Console.WriteLine($"compiled {Path.GetRelativePath(requiredAssetsRoot, PristonInxWriter.Compile(path))}");
+    }
+
     return 0;
 }
 
@@ -123,7 +147,7 @@ static void PrintReport(ImportReport r)
     Console.WriteLine($"npcs:     {r.NpcRows,5} rows from {r.NpcFilesParsed} files  (shop {r.NpcShopRows}, services {r.NpcServiceRows}, with dialog {r.NpcDialogRows}, dialog lines {r.DialogLineRows})");
     Console.WriteLine($"fields:   {r.FieldRows,5} rows  (points {r.SpawnPointRows}, mon-spawns {r.MonsterSpawnRows}, bosses {r.BossSpawnRows}, fixed-npc {r.FixedNpcRows})");
     Console.WriteLine($"translations: {r.TranslatedNameRows} names, {r.TranslatedDialogRows} dialog lines");
-    Console.WriteLine($"motion:   {r.MotionModelRows,5} models → {r.MotionTableRows} tables ({r.MotionSlotRows} clip rows; unresolved {r.MotionUnresolvedModels})");
+    Console.WriteLine($"motion:   {r.MotionModelRows,5} models → {r.MotionTableRows} tables ({r.MotionSlotRows} clip rows; unresolved {r.MotionUnresolvedModels}; compiled {r.MotionCompiledModels})");
     Console.WriteLine();
     Console.WriteLine("=== cross-ref resolution (resolved / dangling) ===");
     Console.WriteLine($"drop item codes : {r.DropItemCodesResolved} / {r.DropItemCodesDangling}");
@@ -264,6 +288,9 @@ static void PrintUsage()
                               export item codes and names; no database access
           export-npc-placements --source <dir> --output <path>
                               export the fixed NPC placements of every field; no database access
+          compile-models --assets <dir> <descriptor ...>
+                              compile model descriptors (.ini, .inf, relative to the assets root) to the
+                              model-info files (.inx) beside them, replacing those; no database access
 
         Options:
           --sqlite <path>     use a SQLite DB at <path> (default: %TEMP%/pristontale-world.db)
@@ -271,7 +298,8 @@ static void PrintUsage()
           --source <dir>      GameServer config root (default: assets/GameServer/ or GameServer/
                               or an ancestor of the executable)
           --assets <dir>      game assets root for the INX motion-timing pass (default: nearest
-                              ancestor assets/; motion pass skipped when absent)
+                              ancestor assets/; motion pass skipped when absent); a model with a
+                              descriptor and no .inx is compiled beside it on the way
 
         Examples:
           dotnet run --project tools/PristonTale.WorldImport -- import --sqlite /tmp/world.db

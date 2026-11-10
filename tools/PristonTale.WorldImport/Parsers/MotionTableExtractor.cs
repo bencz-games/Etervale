@@ -34,6 +34,11 @@ public sealed class MotionTableExtractor
     public IReadOnlyDictionary<string, string> Models => _models;
     public IReadOnlyDictionary<string, IReadOnlyList<ExtractedMotionSlot>> Tables => _tables;
 
+    // The model-info files compiled from their descriptors on the way (a model with a descriptor and no .inx).
+    public IReadOnlyList<string> Compiled => _compiled;
+
+    private readonly List<string> _compiled = [];
+
     // Extract one model's motion table (idempotent per model). modelPath is the raw
     // config value (monster .inf *모델 / player class body path — any extension/casing). Returns
     // false (and reports why) when the INX cannot be resolved — the runtime falls back to default timing constants.
@@ -50,10 +55,8 @@ public sealed class MotionTableExtractor
         if (_models.ContainsKey(modelKey))
             return true;
 
-        var modelDiskPath = Path.Combine(_assetRoot, modelKey);
-        if (!AssetFiles.Exists(modelDiskPath))
+        if (!TryCompiled(Path.Combine(_assetRoot, modelKey), out var modelDiskPath, out failure))
         {
-            failure = $"inx not found: {modelKey}";
             return false;
         }
 
@@ -75,10 +78,9 @@ public sealed class MotionTableExtractor
             tableKey = MotionTimingCatalog.NormalizeKey(info.MotionFile);
             if (!_tables.ContainsKey(tableKey))
             {
-                var linkDiskPath = Path.Combine(_assetRoot, tableKey);
-                if (!AssetFiles.Exists(linkDiskPath))
+                if (!TryCompiled(Path.Combine(_assetRoot, tableKey), out var linkDiskPath, out failure))
                 {
-                    failure = $"motion table inx not found: {tableKey} (for {modelKey})";
+                    failure = $"motion table: {failure} (for {modelKey})";
                     return false;
                 }
 
@@ -99,6 +101,35 @@ public sealed class MotionTableExtractor
 
         _models[modelKey] = tableKey;
         return true;
+    }
+
+    // The model's .inx, compiled from its descriptor when it has none.
+    private bool TryCompiled(string path, out string compiled, out string failure)
+    {
+        compiled = PristonModelPaths.Info(path);
+        failure = string.Empty;
+        if (!File.Exists(compiled))
+        {
+            failure = $"no model info: {Path.GetRelativePath(_assetRoot, compiled)}";
+            return false;
+        }
+
+        if (!PristonModelText.IsDescriptor(compiled))
+        {
+            return true;
+        }
+
+        try
+        {
+            compiled = PristonInxWriter.Compile(compiled);
+            _compiled.Add(compiled);
+            return true;
+        }
+        catch (Exception exception) when (exception is InvalidDataException or IOException)
+        {
+            failure = $"cannot compile {Path.GetRelativePath(_assetRoot, compiled)}: {exception.Message}";
+            return false;
+        }
     }
 
     private bool TryReadInfo(string path, out PristonModelInfo info, out string failure)

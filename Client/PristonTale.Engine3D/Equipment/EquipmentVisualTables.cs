@@ -1,13 +1,13 @@
 // Generated from the original item catalog and its body and equipment-bone tables; edit with care, the values are data,
 // not code.
-namespace PristonTale.Gameplay.World.Remote;
+namespace PristonTale.Engine3D.Equipment;
 
-internal static class EquipmentVisualTables
+public static class EquipmentVisualTables
 {
     // Every item with a model: its motion index (the weapon index the character motion files list), its model, whether a
     // hand holds it on the left and the bone that carries it in a village. Items newer than the motion files take the
     // motion index of the first item of their family and hand class.
-    internal static readonly (string Key, int MotionIndex, string Mesh, bool LeftHand, string VillageBone)[] Items =
+    public static readonly (string Key, int MotionIndex, string Mesh, bool LeftHand, string VillageBone)[] Items =
     [
         ("WA101", 0, "WA101", false, "Bip in01"),
         ("WA102", 1, "WA102", false, "Bip in01"),
@@ -1236,7 +1236,7 @@ internal static class EquipmentVisualTables
     ];
 
     // The body slot each armour and robe wears: its catalog ordinal, the ordinals from 26 sixteen slots further.
-    internal static readonly Dictionary<string, int> ArmorSlots = new(StringComparer.OrdinalIgnoreCase)
+    public static readonly Dictionary<string, int> ArmorSlots = new(StringComparer.OrdinalIgnoreCase)
     {
         ["DA101"] = 1,
         ["DA102"] = 2,
@@ -1355,7 +1355,7 @@ internal static class EquipmentVisualTables
     };
 
     // The bodies by class row (CharacterVisualSet.ArmorTableIndex) and body slot: A, B, C, D, mA, mB, mC, mD, E, mE, f.
-    internal static readonly string[][] Armors =
+    public static readonly string[][] Armors =
     [
         [
             "A001.inx", "A001.inx", "A002.inx", "A003.inx", "A004.inx", "A005.inx", "A006.inx", "A007.inx",

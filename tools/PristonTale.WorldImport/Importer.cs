@@ -317,6 +317,12 @@ public sealed partial class Importer
             }
         }
 
+        report.MotionCompiledModels = extractor.Compiled.Count;
+        foreach (var compiled in extractor.Compiled)
+        {
+            report.Warnings.Add($"motion: compiled {Path.GetRelativePath(_assetRoot, compiled)} from its descriptor");
+        }
+
         foreach (var (modelKey, tableKey) in extractor.Models)
         {
             await conn.ExecuteAsync(new CommandDefinition(

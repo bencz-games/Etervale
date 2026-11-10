@@ -1,4 +1,3 @@
-using System.Text;
 using PristonTale.Engine3D.IO;
 using PristonTale.Assets;
 
@@ -31,14 +30,21 @@ public sealed class PristonInxReader
         _cache = cache;
     }
 
+    // path: a model-info file, or any name of it (PristonModelPaths.Info): without an .inx its descriptor is read.
     public PristonModelInfo Read(string path)
     {
         if (_cache != null)
         {
-            return _cache.GetOrAddModelInfo(path, Parse);
+            return _cache.GetOrAddModelInfo(path, Load);
         }
 
-        return Parse(path);
+        return Load(path);
+    }
+
+    private static PristonModelInfo Load(string path)
+    {
+        var source = PristonModelPaths.Info(path);
+        return PristonModelText.IsDescriptor(source) ? PristonModelText.Read(source) : Parse(source);
     }
 
     private static PristonModelInfo Parse(string path)
@@ -113,11 +119,8 @@ public sealed class PristonInxReader
         ValidateMotionSelections(path, npcMotionRates, npcMotionSelection, motionCount, "NPC");
         ValidateTalkSelections(path, talkMotionRates, talkMotionSelection, talkMotionCount);
         var keywordValidation = DecodeModelKeywords(fileCode, fileTypeKeyword, linkFileKeyword, linkFile);
-        var resolvedMotionFile = motionFile;
-        if (string.IsNullOrWhiteSpace(resolvedMotionFile))
-        {
-            resolvedMotionFile = FindEmbeddedMotionPath(data);
-        }
+        // Without a motion file, the model plays the motions of the model it links to.
+        var resolvedMotionFile = string.IsNullOrWhiteSpace(motionFile) ? linkFile : motionFile;
 
         return new PristonModelInfo(
             path,
@@ -219,41 +222,6 @@ public sealed class PristonInxReader
                 }
             }
         }
-    }
-
-    private static string FindEmbeddedMotionPath(byte[] data)
-    {
-        for (var i = 0; i < data.Length - 8; i++)
-        {
-            if (!IsEmbeddedAssetPathStart(data, i))
-            {
-                continue;
-            }
-
-            var end = i;
-            while (end < data.Length && data[end] >= 32 && data[end] <= 126)
-            {
-                end++;
-            }
-
-            var candidate = Encoding.ASCII.GetString(data, i, end - i);
-            if (candidate.EndsWith(".in", StringComparison.OrdinalIgnoreCase))
-            {
-                return candidate;
-            }
-        }
-
-        return string.Empty;
-    }
-
-    private static bool IsEmbeddedAssetPathStart(byte[] data, int index)
-    {
-        return
-            data[index] == (byte)'c' &&
-            data[index + 1] == (byte)'h' &&
-            data[index + 2] == (byte)'a' &&
-            data[index + 3] == (byte)'r' &&
-            (data[index + 4] == (byte)'\\' || data[index + 4] == (byte)'/');
     }
 
     private static PristonModelGroup ReadModelGroup(BinaryCursor cursor)
@@ -442,8 +410,7 @@ public sealed class PristonInxReader
             ((linkKeyword & 0x000000FFu) << 16) |
             ((linkKeyword & 0x00FF0000u) >> 8) |
             ((fileKeyword & 0x00FF0000u) >> 16);
-        var canonicalLinkFile = Path.ChangeExtension(linkFile, ".inx") ?? linkFile;
-        var expectedLinkCode = PathHash(canonicalLinkFile);
+        var expectedLinkCode = PathHash(CompiledPath(linkFile));
         return new ModelKeywordValidation(
             decodedFileCodeWithLink,
             decodedLinkCode,
@@ -515,6 +482,18 @@ public sealed class PristonInxReader
         }
 
         return unchecked((sum << 24) | ((uint)name.Length << 16) | sum2);
+    }
+
+    // The model-info file a descriptor or model name compiles to.
+    public static string CompiledPath(string path) => WithExtension(path, ".inx");
+
+    // The name with its extension (after the last separator, either slash) replaced, as the data's paths are named on
+    // every platform.
+    public static string WithExtension(string path, string extension)
+    {
+        var separator = path.LastIndexOfAny(['/', '\\']);
+        var dot = path.LastIndexOf('.');
+        return (dot > separator ? path[..dot] : path) + extension;
     }
 
     public static string ToCanonicalAssetPath(string path)
