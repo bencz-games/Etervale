@@ -88,7 +88,8 @@ Weapons (110) and its four gates to the Land of Nurwn (132); Lost Island to the 
 Stemple (116); Kelvezu's Lair to the Heart of Fire (125, three exits); the Ice Mine to the Crystal Nest (130). The Crystal
 Nest and the Land of Nurwn have no way out. No monsters are authored for Stemple, the Heart of Fire, the Crystal Nest or
 the Land of Nurwn. The action fields are reached by no gate; a kill in `fall_game` drops its event item GF102 at 150 in
-10000 (`ItemEventDrops`), with no event running.
+10000 (`ItemEventDrops`), with no event running. Space there with nothing ahead swings at nothing
+(`FieldInstance.SwingAtNothing`: a player who may swing and holds no attack).
 
 | Member | Use |
 |---|---|
@@ -588,7 +589,9 @@ stats the item tooltip marks (`AgedStats`; bows and javelins also mark mana, as 
   (`Critical` on a critical hit, else `Attack`); a block counts for the shield and a blow taken for the armour, orb,
   boots, gloves and armlets; a worn ring counts each second. Counts live on the worn copies (`AgingRevision`) and are
   saved with the character; a copy that reaches its goal waits for the upkeep (`QuestTransactions.PrepareUpkeep` calls
-  `MatureAgedItems`), which stores the level. A copy checked every five seconds asks again when a commit replaced it.
+  `MatureAgedItems`), which stores the level; its commit shows the aging light on the owner to the players around (item
+  effect `AgingUp`: a white light, `particle.Aging` 39 up and the level-up sound at 16000 of 22050 Hz, `ItemVfx.AgingUp`).
+  A copy checked every five seconds asks again when a commit replaced it.
 - A level (`LevelUp`): axes and hammers damage +1 (+2 from +10, +3 from +20), attack rating +10; claws, poles and swords
   damage, attack rating +5 and critical +1 on odd levels; staves damage, attack rating +10, mana +10; bows and javelins
   damage and critical on odd levels; shields block +1 on odd levels and absorb; orbs, boots and gloves defence +10%,

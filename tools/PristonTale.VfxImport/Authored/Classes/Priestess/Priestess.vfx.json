@@ -2354,7 +2354,11 @@
         "modelFrames": 160,
         "loopFrom": 80,
         "loop": true,
-        "modelSpeed": 30
+        "modelSpeed": 30,
+        "fade": "InOut",
+        "fadeIn": 0.3,
+        "stopFade": 0.35,
+        "endEffect": "particle.MuspellEnd"
       },
       {
         "anchor": "Caster",
@@ -2539,7 +2543,11 @@
         ],
         "modelFrames": 420,
         "loop": true,
-        "modelSpeed": 30
+        "modelSpeed": 30,
+        "fade": "InOut",
+        "fadeIn": 0.3,
+        "stopFade": 0.35,
+        "endEffect": "particle.Skill5PriestessRamielEnd"
       },
       {
         "anchor": "Caster",

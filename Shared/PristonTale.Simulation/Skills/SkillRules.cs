@@ -211,7 +211,23 @@ public sealed record SkillSummonRule
     public int MoveSpeedPercent { get; init; } = 100;
 }
 
+// The force orb families a skill takes.
+public enum SkillForceOrbs : byte
+{
+    All = 0,
+    Weapon = 1,
+    Magic = 2,
+    None = 3
+}
+
+// The share of a force orb's power a skill's hits take, in percent, a family each.
+public readonly record struct ForceOrbShare(int WeaponPercent, int MagicPercent)
+{
+    public static readonly ForceOrbShare Whole = new(100, 100);
+}
+
 // Critical chance a weapon skill borrows from another learned skill: Values indexed by that skill's rank, / Divisor.
+
 public sealed record SkillBorrowedCritical
 {
     public uint Skill { get; init; }
@@ -342,6 +358,16 @@ public sealed partial record SkillRule
     // makes every hit able to flinch the target.
     public bool StopAfterMiss { get; init; }
     public int[] NoCriticalHits { get; init; } = [];
+    // Used on monsters only (never on a player), and with RefusesBosses never on a boss or a castle's door, tower or
+    // crystal tower.
+    public bool MonstersOnly { get; init; }
+    public bool RefusesBosses { get; init; }
+    // The force orbs the skill takes and its own share of their power in percent (0: its tier's, ForceOrbs.TierPercent).
+    // OrbShare is what its hits take, the parts it strikes with (a full charge, a mode, a follow area) included: set when
+    // the catalog loads, whole for a rule built elsewhere.
+    public SkillForceOrbs ForceOrbs { get; init; } = SkillForceOrbs.All;
+    public int ForceOrbPercent { get; init; }
+    public ForceOrbShare OrbShare { get; internal set; } = ForceOrbShare.Whole;
     // Listed hits (1-based) skip the accuracy roll.
     public int[] NoAccuracyHits { get; init; } = [];
     public bool ForceFlinch { get; init; }
@@ -404,6 +430,34 @@ public sealed partial record SkillRule
 
 public static partial class SkillRuleCatalog
 {
+    // A skill's force orb share by its tier (or its own percent) and the families it takes, given to the parts it
+    // strikes with as well.
+    internal static void ShareForceOrbs(SkillRule rule, JobTier tier)
+    {
+        var percent = rule.ForceOrbPercent > 0 ? rule.ForceOrbPercent : Items.Usable.ForceOrbs.TierPercent(tier);
+        Share(rule, new ForceOrbShare(rule.ForceOrbs is SkillForceOrbs.All or SkillForceOrbs.Weapon ? percent : 0,
+            rule.ForceOrbs is SkillForceOrbs.All or SkillForceOrbs.Magic ? percent : 0));
+
+        static void Share(SkillRule part, ForceOrbShare share)
+        {
+            part.OrbShare = share;
+            if (part.Charge?.Full is { } full)
+            {
+                Share(full, share);
+            }
+
+            if (part.FollowArea is { } follow)
+            {
+                Share(follow, share);
+            }
+
+            foreach (var mode in part.Modes)
+            {
+                Share(mode, share);
+            }
+        }
+    }
+
     public static int Count => Rules.Count;
 
     public static IEnumerable<SkillRule> All => Rules.Values;
@@ -456,6 +510,7 @@ public static partial class SkillRuleCatalog
         && rule.MotionEvents.All(frame => frame > 0 && (rule.MotionFrames == 0 || frame <= rule.MotionFrames))
         && WellFormed(rule.Damage) && WellFormed(rule.MainHit) && WellFormed(rule.Buff) && WellFormed(rule.CasterBuff)
         && (rule.BorrowedCritical is null || rule.BorrowedCritical.Values.Length == SkillLearning.MaxRank && rule.BorrowedCritical.Divisor > 0)
+        && Enum.IsDefined(rule.ForceOrbs) && rule.ForceOrbPercent is >= 0 and <= 300
         && (rule.BorrowedRating is null || rule.BorrowedRating.Values.Length == SkillLearning.MaxRank && rule.BorrowedRating.FromHit >= 1);
 
     private static bool WellFormed(SkillDamageRule damage) => damage is null || Ranked(damage.Percent) && Ranked(damage.PercentAfter)

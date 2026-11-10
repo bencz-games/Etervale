@@ -4,20 +4,25 @@ using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.Rendering.Lighting;
 
+using PristonTale.Engine3D.Rendering.Gltf;
+
 namespace PristonTale.Engine3D.Rendering;
 
 internal enum ShaderVertexFactory
 {
     Static,
-    Skinned
+    Skinned,
+    // Four weighted bones and the glTF material (Surface.fx GLTF).
+    Gltf
 }
 
-// The surface effects of the SM 6 library (Content/Shaders/Passes/Surface.fx, built as StaticSurface and SkinnedSurface)
-// and the constants they share: the frame block, the fog, the lighting and the material model's inputs.
+// The surface effects of the SM 6 library (Content/Shaders/Passes/Surface.fx, built as StaticSurface, SkinnedSurface and
+// GltfSurface) and the constants they share: the frame block, the fog, the lighting and the material model's inputs.
 internal sealed class PristonShaderLibrary : IDisposable
 {
     public const string StaticSurfaceAsset = "Effects/StaticSurface";
     public const string SkinnedSurfaceAsset = "Effects/SkinnedSurface";
+    public const string GltfSurfaceAsset = "Effects/GltfSurface";
 
     // Tangent of the light's angular radius for the soft shadows: about twice the sun's, a slightly hazy sun.
     private const float LightRadiusTangent = 0.01f;
@@ -40,6 +45,7 @@ internal sealed class PristonShaderLibrary : IDisposable
 
     private readonly SurfaceEffect _static;
     private readonly SurfaceEffect _skinned;
+    private readonly SurfaceEffect _gltf;
     private readonly Vector4[] _lightPositions = new Vector4[MaxLocalLightCount];
     private readonly Vector4[] _lightColors = new Vector4[MaxLocalLightCount];
     private readonly CascadeConstants _cascades = new();
@@ -54,15 +60,17 @@ internal sealed class PristonShaderLibrary : IDisposable
         _noEnvironment = new StructuredBuffer(neutral.GraphicsDevice, 16, PristonEnvironmentLighting.ShEntries, BufferShaderAccess.ReadWrite);
         _static = new SurfaceEffect(LoadRequired(content, StaticSurfaceAsset, log), ShaderVertexFactory.Static, neutral, _allLights, _noEnvironment);
         _skinned = new SurfaceEffect(LoadRequired(content, SkinnedSurfaceAsset, log), ShaderVertexFactory.Skinned, neutral, _allLights, _noEnvironment);
+        _gltf = new SurfaceEffect(LoadRequired(content, GltfSurfaceAsset, log), ShaderVertexFactory.Gltf, neutral, _allLights, _noEnvironment);
     }
 
     // Material texture parameter changes since BeginFrame (identical rebinds are skipped and not counted).
-    public int TextureChanges => _static.TextureChanges + _skinned.TextureChanges;
+    public int TextureChanges => _static.TextureChanges + _skinned.TextureChanges + _gltf.TextureChanges;
 
     public void BeginFrame()
     {
         _static.TextureChanges = 0;
         _skinned.TextureChanges = 0;
+        _gltf.TextureChanges = 0;
     }
 
     internal static float VertexAnimationSeconds(uint renderTimeMs) =>
@@ -86,9 +94,10 @@ internal sealed class PristonShaderLibrary : IDisposable
         FillCascades(frame);
         _static.ApplyFrame(constants, _lightPositions, _lightColors, _cascades);
         _skinned.ApplyFrame(constants, _lightPositions, _lightColors, _cascades);
+        _gltf.ApplyFrame(constants, _lightPositions, _lightColors, _cascades);
     }
 
-    // The cascade constants of a frame, packed once for both effects.
+    // The cascade constants of a frame, packed once for every effect.
     private void FillCascades(PristonFrameContext frame)
     {
         var cascades = frame.Shadows.Cascades;
@@ -136,6 +145,7 @@ internal sealed class PristonShaderLibrary : IDisposable
         var animationTime = VertexAnimationSeconds(renderTimeMs);
         _static.ApplyCasterFrame(viewProjection, animationTime, casterLight);
         _skinned.ApplyCasterFrame(viewProjection, animationTime, casterLight);
+        _gltf.ApplyCasterFrame(viewProjection, animationTime, casterLight);
     }
 
     public Effect SelectStaticSurface(
@@ -208,10 +218,47 @@ internal sealed class PristonShaderLibrary : IDisposable
         return _skinned.Select(material.AlphaTest ? _skinned.CasterMasked : _skinned.Caster);
     }
 
+    // A glTF batch (four weighted bones, GltfMaterialRuntime) of an actor; the palette, floor light, shade and wobble as
+    // SelectSkinnedSurface.
+    public Effect SelectGltfSurface(
+        GltfMaterialRuntime material,
+        PristonSkinPalette palette,
+        Vector3 rimColor,
+        bool prepass = false,
+        float floorLight = 1f,
+        ActorShade shade = null,
+        float overlayOffset = 0f,
+        float wobblePhase = 0f,
+        bool actor = false)
+    {
+        _gltf.SetBonePalette(palette);
+        _gltf.SetDrawLight(floorLight);
+        _gltf.ApplyGltfMaterial(material, rimColor);
+        _gltf.ApplyGltfOverlay(shade?.Overlay, overlayOffset);
+        _gltf.ApplyActor(shade is null ? new Vector4(0f, 0f, 0f, 1f) : new Vector4(shade.ShownTint, shade.ShownOpacity),
+            new Vector4(shade is { Wobble: true } ? ActorShade.WobbleAmplitude : 0f, wobblePhase, 0f, 0f), actor);
+        return _gltf.Select(_gltf.SurfaceTechnique(material.Queue.AlphaTest, prepass));
+    }
+
+    // The hover outline of a glTF batch SelectGltfSurface just set up.
+    public Effect SelectGltfOutline(bool masked, Vector4 parameters, Vector4 color)
+    {
+        _gltf.ApplyOutline(parameters, color);
+        return _gltf.Select(masked ? _gltf.OutlineMasked : _gltf.Outline);
+    }
+
+    public Effect SelectGltfShadow(GltfMaterialRuntime material, PristonSkinPalette palette)
+    {
+        _gltf.SetBonePalette(palette);
+        _gltf.ApplyGltfMaterial(material, Vector3.Zero);
+        return _gltf.Select(material.Queue.AlphaTest ? _gltf.CasterMasked : _gltf.Caster);
+    }
+
     public void Dispose()
     {
         _static.Dispose();
         _skinned.Dispose();
+        _gltf.Dispose();
     }
 
     internal static Effect LoadRequired(ContentManager content, string assetName, IClientLog log)
@@ -372,6 +419,21 @@ internal sealed class PristonShaderLibrary : IDisposable
         private Texture2D _overlay;
         private readonly EffectParameter _baseColorMap;
         private readonly EffectParameter _layerMap;
+        // The glTF material (GLTF variant only; null elsewhere): its packed textures after base and normals, in
+        // GltfPackedTexture order from Surface, and its constants.
+        private readonly EffectParameter[] _gltfMaps;
+        private readonly Texture2D[] _boundGltfMaps;
+        private readonly EffectParameter _gltfOverlayMap;
+        private readonly EffectParameter _gltfOverlayParams;
+        private Texture2D _boundGltfOverlay;
+        private Vector2 _gltfOverlay;
+        private readonly EffectParameter _gltfTextureReads;
+        private readonly EffectParameter _gltfTextureSizes;
+        private readonly EffectParameter _gltfEmission;
+        private readonly EffectParameter _gltfNormalScales;
+        private readonly EffectParameter _gltfSheen;
+        private readonly EffectParameter _gltfTransmission;
+        private GltfMaterialRuntime _gltfMaterial;
         private Texture2D _boundBase;
         private Texture2D _boundLayer;
         private PristonMaterialDescription _description;
@@ -402,8 +464,8 @@ internal sealed class PristonShaderLibrary : IDisposable
             Caster = Technique("ShadowCaster");
             CasterMasked = Technique("ShadowCasterMasked");
             Sky = factory == ShaderVertexFactory.Static ? Technique("Sky") : null;
-            Outline = factory == ShaderVertexFactory.Skinned ? Technique("Outline") : null;
-            OutlineMasked = factory == ShaderVertexFactory.Skinned ? Technique("OutlineMasked") : null;
+            Outline = factory != ShaderVertexFactory.Static ? Technique("Outline") : null;
+            OutlineMasked = factory != ShaderVertexFactory.Static ? Technique("OutlineMasked") : null;
             _outlineParams = Parameter("OutlineParams");
             _outlineColor = Parameter("OutlineColor");
             _viewProjection = Parameter("ViewProjection");
@@ -489,6 +551,23 @@ internal sealed class PristonShaderLibrary : IDisposable
             _actorReceiver?.SetValue(0f);
             _baseColorMap = Parameter("BaseColorMap");
             _layerMap = Parameter("LayerMap");
+            _gltfMaps = [Parameter("GltfSurfaceMap"), Parameter("GltfEmissiveMap"), Parameter("GltfSheenMap"), Parameter("GltfTransmissionMap")];
+            _gltfOverlayMap = Parameter("GltfOverlayMap");
+            _gltfOverlayMap?.SetValue(neutral);
+            _gltfOverlayParams = Parameter("GltfOverlayParams");
+            _gltfOverlayParams?.SetValue(Vector4.Zero);
+            _boundGltfMaps = new Texture2D[_gltfMaps.Length];
+            foreach (var map in _gltfMaps)
+            {
+                map?.SetValue(neutral);
+            }
+
+            _gltfTextureReads = Parameter("GltfTextureReads");
+            _gltfTextureSizes = Parameter("GltfTextureSizes");
+            _gltfEmission = Parameter("GltfEmission");
+            _gltfNormalScales = Parameter("GltfNormalScales");
+            _gltfSheen = Parameter("GltfSheen");
+            _gltfTransmission = Parameter("GltfTransmission");
             _alphaCutoff?.SetValue(AlphaCutoff);
             _drawOpacity?.SetValue(1f);
             // The value caches start from these, so the effect must hold them too.
@@ -597,10 +676,11 @@ internal sealed class PristonShaderLibrary : IDisposable
             _tileLightMasks?.SetValue(tilesOn ? tiles.Masks : _allLights);
             _tileParams?.SetValue(new Vector4(tiles.TilesAcross, 1f / PristonLightCulling.TileSize, tilesOn ? 1f : 0f, 0f));
             var environment = frame.Environment;
+            // The BRDF table is a constant, bound even without the environment: glTF sheen reads its albedo from it.
             var environmentOn = environment.Atlas is not null && environment.Sh is not null && environment.BrdfLut is not null;
             _environmentMap?.SetValue(environmentOn ? environment.Atlas : _neutralTexture);
             _environmentSh?.SetValue(environmentOn ? environment.Sh : _noEnvironment);
-            _brdfLut?.SetValue(environmentOn ? environment.BrdfLut : _neutralTexture);
+            _brdfLut?.SetValue(environment.BrdfLut ?? _neutralTexture);
             var clouds = frame.CloudShadow;
             _cloudShadowMap?.SetValue(clouds.Map ?? _neutralTexture);
             _cloudShadowParams?.SetValue(clouds.Map is null ? Vector4.Zero : clouds.Params);
@@ -723,6 +803,72 @@ internal sealed class PristonShaderLibrary : IDisposable
 
             _overlay = null;
             ApplyDescription(description, layer);
+        }
+
+        // A gameplay overlay over a glTF batch, scrolled by offset along U (null: none; the last texture stays bound).
+        public void ApplyGltfOverlay(Texture2D overlay, float offset)
+        {
+            if (overlay is not null)
+            {
+                BindTexture(_gltfOverlayMap, ref _boundGltfOverlay, overlay);
+            }
+
+            var parameters = overlay is null ? Vector2.Zero : new Vector2(1f, offset);
+            if (parameters != _gltfOverlay)
+            {
+                _gltfOverlayParams?.SetValue(new Vector4(parameters, 0f, 0f));
+                _gltfOverlay = parameters;
+            }
+        }
+
+        // A glTF material's textures and constants; its UVs are its own (no scroll, no sphere map) and it draws at full opacity.
+        public void ApplyGltfMaterial(GltfMaterialRuntime material, Vector3 rimColor)
+        {
+            BindTexture(_baseColorMap, ref _boundBase, material.Textures[(int)GltfPackedTexture.BaseColor]);
+            BindTexture(_layerMap, ref _boundLayer, material.Textures[(int)GltfPackedTexture.Normals]);
+            for (var map = 0; map < _gltfMaps.Length; map++)
+            {
+                BindTexture(_gltfMaps[map], ref _boundGltfMaps[map], material.Textures[(int)GltfPackedTexture.Surface + map]);
+            }
+
+            if (_uv != Vector4.Zero)
+            {
+                _uvOffsets?.SetValue(Vector4.Zero);
+                _uv = Vector4.Zero;
+            }
+
+            if (_reflex != Vector2.Zero)
+            {
+                _reflexLayers?.SetValue(Vector2.Zero);
+                _reflex = Vector2.Zero;
+            }
+
+            if (_opacity != 1f)
+            {
+                _drawOpacity?.SetValue(1f);
+                _opacity = 1f;
+            }
+
+            if (rimColor != _rim)
+            {
+                _rimColor?.SetValue(rimColor);
+                _rim = rimColor;
+            }
+
+            if (ReferenceEquals(material, _gltfMaterial))
+            {
+                return;
+            }
+
+            ApplyDescription(material.Queue.Description, null);
+            _alphaCutoff?.SetValue(material.AlphaCutoff);
+            _gltfTextureReads?.SetValue(material.Reads);
+            _gltfTextureSizes?.SetValue(material.Sizes);
+            _gltfEmission?.SetValue(material.Emission);
+            _gltfNormalScales?.SetValue(material.NormalScales);
+            _gltfSheen?.SetValue(material.Sheen);
+            _gltfTransmission?.SetValue(material.Transmission);
+            _gltfMaterial = material;
         }
 
         private void ApplyDescription(PristonMaterialDescription description, PristonMaterialLayer layer)

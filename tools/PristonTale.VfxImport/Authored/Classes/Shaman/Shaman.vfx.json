@@ -303,7 +303,11 @@
         "modelFrames": 160,
         "loopFrom": 80,
         "loop": true,
-        "modelSpeed": 30
+        "modelSpeed": 30,
+        "fade": "InOut",
+        "fadeIn": 0.3,
+        "stopFade": 0.35,
+        "endEffect": "particle.MigalEnd"
       },
       {
         "anchor": "Caster",
@@ -609,7 +613,11 @@
         "modelFrames": 160,
         "loopFrom": 80,
         "loop": true,
-        "modelSpeed": 30
+        "modelSpeed": 30,
+        "fade": "InOut",
+        "fadeIn": 0.3,
+        "stopFade": 0.35,
+        "endEffect": "particle.MidrandaEnd"
       },
       {
         "anchor": "Caster",

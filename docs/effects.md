@@ -159,7 +159,7 @@ seconds; a zero lifetime lives as long as its animation, model clip or flight, o
 | Look | `shape`: `Billboard`, `Ground`, `Streak` (from where it started to where it is), `Line` (behind it along its velocity, `lineSeconds` long), `Ribbon` (through its last `trailPoints`, `trailFade` alpha off per point), `Blade` (band swept by a bone over `bladeLength` along its `bladeAxis`, Y by default), `Beam` (to its goal, or to `beamTo`), `Model` |
 | Image | `animation` (an `Effect/AnimationData` file: images, hold ticks, opacity, size, angle and blend come from it), `loop`, `sized` (start from `size` instead of the file's sizes), or `texture` with `frames`, `frameTime`, `pingPong`; `blend`, `color` (0..255), `size`, `height`, `growth`, `rotation`, `spin`, `width` (half width of strips) |
 | Model | `model`, `skeleton`, `modelStart`, `modelFrames`, `modelSpeed` (clip frames per second), `loopFrom`, `angles`, `tumble`, `scale`, `pulse` + `pulsePeriod`, `faceGoal` (face the velocity) |
-| Fade | `fade`: `Rise` (up over 25.5 % of the life, down at the same rate), `Fall` (down over the last 25.5 %), `InOut` (`fadeIn`, `fadeOut` seconds); `fadeOut` also times the fade after arriving |
+| Fade | `fade`: `Rise` (up over 25.5 % of the life, down at the same rate), `Fall` (down over the last 25.5 %), `InOut` (`fadeIn`, `fadeOut` seconds); `fadeOut` also times the fade after arriving; `stopFade`: a part without a lifetime fades over those seconds when its effect stops, starting its `endEffect` where it is (the Shaman's and the Priestess's companions leaving) |
 | Place | `anchor`, `bone`, `boneWorld` (full bone transform, offset in bone space), `offset`, `follow`, `turn` (true), `jitterMin`/`jitterMax`, `ring` radius with `ringStart` + `ringStep` x index or `ringRandom`, `shell` (ellipsoid radii), `slideFrom` (a billboard sliding on the screen from that many pixels of a 600-pixel-high view, negative left, closing like `VfxScreenSlide`: 35 px every fourth tick, 3 fewer each time down to 4, rising 2 px a tick 45 ticks after it closed) |
 | Motion | `radial` (outward along the ring angle), `rise`, `velocityMin`/`velocityMax`, `burst` (along the shell direction), `gravity`, `swirl` (deg/s about the vertical) + `swirlGrowth` (deg/s per second), `spiral` (the velocity turns too: the straight path turned about the origin), `moveTime` (stop after; with `end: Hold` the part then exits there, keeping its velocity for a line's length); `swirl`, `swirlGrowth` and `moveTime` are ranges drawn per part |
 | Goal | `goal` (Caster, Target, Point) + `goalOffset`, `speed`, `reach`, `lift` (lob under `gravity`), `end`: `Vanish`, `LastFrame` (keep flying through the last frame or `fadeOut`), `Hold` (stop and fade out) |
@@ -243,6 +243,16 @@ A corpse darkens from 200 70 Hz ticks after its death clip starts, by half a lig
 ticks (`MonsterPresentation.CorpseDim`); the bodies of light (Figon, Stygian Lord, Guardian Saint, the fire elemental,
 Chaos Cara) fade by two alpha units of 256 a tick and are gone in about 1.8 s (`CorpseFade`). The renderer keeps this
 apart from the skill looks (`PristonRenderer.SetActorCorpse`: a fade multiplying the opacity and light taken away).
+
+Some families keep a look while present (`MonsterLooks`, applied when the presentation first sees the monster): the
+Illusion Knight (alpha -180 of 255) and Mr. Ghost (-80) are translucent, a wild Wolverine is yellow (100 red and green
+light of 256), the Guardian Saint golden (80, 80, 20), the Furies of level 118 yellow (100, 100, 0), 119 red (100, 0, 0)
+and 120 blue (0, 0, 100) and translucent (-80); a wild boss glows red-violet (130, 50, 70) over its family's light.
+Status tints add to that light and a corpse's fade multiplies that opacity (`IMonsterScene.SetEntityBody`). A Fury
+looks out of both eyes (`vfx.monster.fury.body`: `FuryEye` on `Bip EyeT01` and `Bip EyeT02`). When a Babel's blow
+splashes over several players (`MonsterPresentation.ObserveBlow`), the bolt reaching its target (at 500 a second)
+lights a chain from each struck player to the next in the order of the hits (`vfx.monster.babel.chain`: the `R_e00`
+lightning between them for 60 ticks, `IronMonsterRunicGuardianLight3` at both ends).
 
 Statuses that monster skills put on players and monsters (`MonsterStatuses`) show while they run: poison
 (`vfx.monster.status.poison` and a green tint), the bloody knight's stun (`vfx.monster.status.bloodyknightstun`), the
@@ -476,6 +486,16 @@ sounds: Chain Lance in order, Shadow Master, Lightning and Storm Javelin, Divine
 Chain Lightning, Watornado, Flame Wave and Dancing Sword at random, Vengeance in order, Divine Piercing on its final hit,
 Grand Cross with a swing on the first hit. Effect sounds take `variants` at random (Fire Bolt, Fire Ball, X-Rage).
 
+### Standing up and the grace
+
+A player standing up stands in a pillar of light (`vfx.player.restart`: `GameStart1.smd` at 35 frames a second, a
+grey light, `SkillPresentation.RestartEffect`) at every `Revive` event (restarts, revive skills, Restoration), the
+priestess's rise added when another player revived it, and the local player once on entering the world with the
+restart's sound (`GameScene.ArriveInWorld`). A remote player standing from death plays the Restart clip, which the
+renderer ends in Stand, as the local player does (`RemoteEntityBase.ApplySampleState`). While a player's grace runs
+(the `PlayerGrace.StatusCode` status the server publishes for `WorldPlayer.Guard`) its body blinks for every viewer: 80
+more red and blue light for 16 ticks of every 32 left (`ActorLookBook`).
+
 ### Costume wings
 
 The premium costume armours and robes show a wing at the wearer's back (`CostumeWings`, `Effect/Vfx/Costumes`):
@@ -493,7 +513,20 @@ target they fly 7 frames more and end, as they do after 120 frames. Magicians an
 (`vfx.monster.imp.attack.hit`) with a staff; other classes strike with it. A glowing bow or javelin sheds about 3.5
 sparks a frame along its flight (`Effect/ImageData/Particle/cc.tga`, additive, half its glow colour plus 128, fading to
 half that colour and out over 0.7 s). The flying weapons and sparks go through `VfxRenderer.AddModel` and
-`AddBillboard`; `VfxContent.LoadModel` reads a model no effect definition names.
+`AddBillboard`; `VfxContent.LoadModel` reads a model no effect definition names. A status naming a `shotEffect`
+(Frost Javelin) throws that effect from the weapon to the target instead of the javelin, which stays in the hand, and
+the shot ends in the effect's own hit.
+
+### Hit bursts and blood
+
+`HitEffects` (`GameScene.Hits.cs`) watches the hits of each update. A player's basic hit (a hit event without the skill
+flag: not a skill's, not a pet's) bursts at the struck target: `vfx.hit.critical` (the critical flash and a strong red
+light) on a critical, `vfx.common.normalhit` (the weapon spark and a faint red light) otherwise, and `vfx.hit.bare`
+(the spark, unlit) for a player without a weapon. A holder of a status naming a `hitEffect` (Enchant Weapon) shows that
+effect in its element instead (`vfx.magician.enchant.hit.<element>`, with its light and one of two sounds), and a
+thrower of a `shotEffect` none. A player losing life to any hit bleeds (`vfx.hit.blood`, 16 above its feet, with a
+red light). A buff that defends its holder plays its `defenseEffect` on the holder at each `Defended` impact the server
+reports (Energy Shield, Holy Reflection, Divine Inhalation, Physical Absorption, Holy Body against the undead).
 
 ### Held item glow
 

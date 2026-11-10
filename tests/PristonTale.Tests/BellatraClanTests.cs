@@ -173,7 +173,7 @@ internal static class BellatraClanTests
         var full = state with { Top = [.. Enumerable.Range(0, Contracts.Social.BellatraLimits.TopClans).Select(static index => new BellatraClanRankWire(new string('W', 24), ulong.MaxValue))] };
         Assert.True(full.Write(buffer) <= BellatraClanStatePacket.MaxSize && BellatraClanStatePacket.Read(buffer.AsSpan(0, BellatraClanStatePacket.None.Write(buffer))) == BellatraClanStatePacket.None,
             "the largest state or the empty one differs");
-        var board = new BellatraBoardPacket(true, 7, 2, 1, 123_456, [1, 2, 3, ulong.MaxValue]);
+        var board = new BellatraBoardPacket(true, 7, 2, 1, 0b1011, 0b0010, 123_456, [1, 2, 3, ulong.MaxValue]);
         var readBoard = BellatraBoardPacket.Read(buffer.AsSpan(0, board.Write(buffer)));
         Assert.True(readBoard with { TeamScores = [] } == board with { TeamScores = [] } && readBoard.TeamScores.SequenceEqual(board.TeamScores)
             && board.Write(buffer) <= BellatraBoardPacket.MaxSize && BellatraBoardPacket.Read(buffer.AsSpan(0, BellatraBoardPacket.Hidden.Write(buffer))) == BellatraBoardPacket.Hidden,

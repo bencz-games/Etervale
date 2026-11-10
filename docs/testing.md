@@ -39,11 +39,12 @@ Default case files by area (all `tests/PristonTale.Tests/<Name>.cs`):
 | Domain | `DomainTests`, `ProgressionAndOwnershipTests`, `ProgressionDataTests`, `AuthTests`, `OutboxTests` | Attributes, ownership, mailbox, XP, login, outbox |
 | Transactions | `ProgressionTransactionTests`, `InventoryTransactionTests`, `GroundPickupTransactionTests`, `PotionTests` | Storage-first commit, replay |
 | Yahoo | `YahooTests` | Chat words, the Space window and its stamina, queued cheers, the capsule, motion and wire |
+| Action fields | `ActionFieldTests`, `ClientTests` | Space's swing at nothing in an action field only, never while busy or dead; the client's search ahead and the player a walk bumps into |
 | Weather | `WeatherTests` (with `ChatFixture`) | The rain schedule and its draws, the fields without rain, `/weather`, the snapshot and wire; the client's easing, lightning and thunder, the rain occlusion map; the realistic sky's coverage, rainbow, moon phase and noise tiling |
-| Usable items | `SpecialItemTests` | Item rules, premium timers and formulas, use flow, pets, persistence, wire |
+| Usable items | `SpecialItemTests` | Item rules, premium timers and formulas, force orbs by skill tier, use flow, pets, persistence, wire |
 | Crystals | `MonsterCrystalTests` | Crystal tables, pet summon and hunt, the pet following and recalled, its own status per pet and the crystal it shows, dismissal box and wire, its end with a dismissal, its death, the owner's death or field change, pets parting from one spot, the shared delay, clan, mercenary, soul and town refusals |
 | Castle items | `CastleItemTests` | Castle-only scrolls and stones, scroll exclusions and replacement, leaving the castle, Restoration |
-| Bellatra | `BellatraTests`, `BellatraGameTests`, `BellatraClanTests` | The open hours, tickets, fee and team levels, rooms, rounds and tables, score, prize, ranking, surprises and settings; a game from the booth through the rounds, a team's live and the game's final results, the best team going on, the end's prize and the return to Navisko, and the booth's refusals; the end's potions; the seals breaking at a surprise's pickup during a round, the team told, one refused before it and the arena's loot kept to entrants; the days, the clan storage, the operating clan and its income, the chief's redemption and the secretary's and the result window's wire |
+| Bellatra | `BellatraTests`, `BellatraGameTests`, `BellatraClanTests`, `BellatraShowTests` | The open hours, tickets, fee and team levels, rooms, rounds and tables, score, prize, ranking, surprises and settings; a game from the booth through the rounds, a team's live and the game's final results, the best team going on, the end's prize and the return to Navisko, and the booth's refusals; the end's potions; the seals breaking at a surprise's pickup during a round, the team told, one refused before it and the arena's loot kept to entrants; the days, the clan storage, the operating clan and its income, the chief's redemption and the secretary's and the result window's wire; the show's effect table and tracks, and its timeline of calls, fanfares, screens, music and seals |
 | Bless Castle | `CastleTests`, `CastleSiegeTests` | The schedule, league, tax day, owner, storage and its refusals, conquest, the wire and announcements, the owner's window, setup and treasury, the tax on fees and its credit, the soul fountain; the siege's defenders, damage board, PvP, fall, end and easy siege, the clan skill, the fountain's turns, mercenaries called with crystals |
 | Death and restart | `DeathPenaltyTests` | Death shares, the level 85 reduction, castle exemption, field rule, towns; town and field restarts stored and applied; the Resurrection Scroll; a refused field restart; saving while dead; the restart window's timing |
 | Event items | `EventItemTests` | Foods, gift boxes, chocolates, the soccer-ball head, boosters (offline pause), skill delay, item events |
@@ -74,7 +75,8 @@ Default case files by area (all `tests/PristonTale.Tests/<Name>.cs`):
 | HUD and screens | `HudInteractionTests`, `CharacterHeadTests`, `CharacterSelectTests` | 800x600 layout, hit tests |
 | Rendering | `RenderTests`, `RenderFidelityTests`, `PhotorealTests`, `MaterialAdapterTests`, `ShadowProjectionTests`, `SkyTests` | CPU-side renderer |
 | Meshes, effects | `SkinPaletteTests`, `ModelNormalTests`, `AnimationFallbackTests`, `TransientLightTests` | Skinning, lights |
-| Formats | `BinaryCursorTests`, `EffectLoadingTests`, `GltfExportTests` | Binary readers, shader load failure, glTF export |
+| Formats | `BinaryCursorTests`, `EffectLoadingTests`, `GltfExportTests`, `GltfModelTests`, `ModelTextTests` | Binary readers, shader load failure, glTF export, glTF reading, model descriptors compiled to model info and model path resolution |
+| glTF rendering | `GltfRenderingTests` | glTF animation sampling and skin matrices, material map packing, texture transform, batches of 64 bones and the clip timeline |
 
 ## Running
 
@@ -115,6 +117,16 @@ git diff --check
   for an `assets/` directory with `Effect/Vfx`, checks that every effect, child, texture, animation, model and sound the
   rules and definitions use exists there, and prints `(skipped: no assets/Effect/Vfx next to the repository)` when none
   is found. The authored definitions are checked without assets from `tools/PristonTale.VfxImport/Authored/`.
+- The `GltfModelTests` case on the Mythcreature reads `char/npc/Mythcreature/Mythcreature.glb` from the assets root when
+  it is there, and skips otherwise; the `ModelTextTests` case "every descriptor of the game's characters ..." reads
+  every descriptor under the assets root's `char/` with an `.inx` beside it (three edited after it listed as
+  `Revised`), compiles each into a temporary directory and reads it back, and skips without an assets root.
+- Test-only models live in `tests/assets/` (ignored by git and not distributed: their licenses are not cleared for
+  redistribution), found by `TestAssets.Find` walking up from the runner; a case using them skips with a message when
+  the folder is absent. `tests/assets/gltf/` holds `Solus_the_knight.glb` (75 joints, 21 clips with step and linear
+  keys), `FrostfangOrcShaman.glb` (28 joints, tangents), `base_basic_pbr.glb` (static, normal and metallic-roughness
+  maps), `base_basic_shaded.glb` (static, emissive map) and `cyber_warrior.glb` (53 joints with a static rock, normal,
+  occlusion and emissive maps; authored in centimetres, so drawn at 0.01).
 
 ## Multiplayer propagation
 
@@ -181,17 +193,18 @@ when reading those assets is authorized. GPU probes:
 | `--check-look <mode> <assets> <content> <output-dir>` | yes | Fails on look regressions; `mode` is `charselect`, `actor`, `opening`, `scenery` or `shade` |
 | `--profile-stream <assets> <content>` | yes | Incremental stage upload with the game's policy at a fixed 60 Hz |
 | `--profile-stream-baseline <assets> <content>` | yes | Same with an 8-step upload limit for comparison |
-| `--capture-hud <assets> <content> <output-dir> [<background.png>]` | yes | In-game HUD scenarios to PNG (scales 2 and 3, `npc-*` dialogs and service windows (shop, warehouse, aging, mix, alchemy, smelting, manufacture, mixture reset), `clan-*` the Clan Master's window, `siege-board-*` the castle's siege board, `castle-owner-*` the butler's window (chief, member, tax, towers and mercenaries pages), `bellatra-board-*` Bellatra's board, `bellatra-secretary-800` and `bellatra-ranking-800` the secretary's window, `bellatra-result-*` the final and the live result windows, `buffs-*` continuous-skill bar, `restart-*` restart window, `quest-*` quest dialog, boxes, window and timer, `help-*` help window, guide list and page, level guide notice and summary, `skill-right-select` prints the right socket after a right click, `skills-fifth*` and `skill-master-fifth` a fifth-tier class on both pages of the skill window) |
+| `--capture-hud <assets> <content> <output-dir> [<background.png>]` | yes | In-game HUD scenarios to PNG (scales 2 and 3, `npc-*` dialogs and service windows (shop, warehouse, aging, mix, alchemy, smelting, manufacture, mixture reset), `clan-*` the Clan Master's window, `siege-board-*` the castle's siege board, `siege-won-800`, `siege-ended-800` and `siege-ended-pt-800` the siege's end, `castle-owner-*` the butler's window (chief, member, tax, towers and mercenaries pages), `bellatra-board-*` Bellatra's board, `bellatra-secretary-800` and `bellatra-ranking-800` the secretary's window, `bellatra-result-*` the final and the live result windows, `bellatra-show-*` Bellatra's loading screen, round, START, stage complete and fail, closed screen with the teams' scores, the quake, stun, freeze, rabbit and points seals and congratulations, `buffs-*` continuous-skill bar, `restart-*` restart window, `quest-*` quest dialog, boxes, window and timer, `help-*` help window, guide list and page, level guide notice and summary, `skill-right-select` prints the right socket after a right click, `skills-fifth*` and `skill-master-fifth` a fifth-tier class on both pages of the skill window) |
 | `--capture-hud-target <assets> <content> <output-dir>` | yes | Ricarten at 14:00 with remote-roster entities; target frame, bar, resolutions; `crown-player-*` Bless Castle's crown over a player of the owner clan |
 | `--capture-chat <assets> <content> <output-dir> [<background.png>]` | yes | Chat window open, closed, unfocused, per tab, assistant split and page, shrunk beside the inventory, at 1280x720 and scale 2; speech bubbles over players, an NPC and a monster |
 | `--capture-item-hud <assets> <content> <output-dir>` | yes | Premium timer column, hover and blink, Teleport Core pages and confirmation, item tooltips (orb, package, crystal, gift box, chocolate, castle stone, lucky bag), item effects, castle items and boosters in the effects bar, the puzzle board, finished puzzle and collector question, an item carried over a free cell, another item and the weapon slot, and the count box for a carried stack set down above the window |
 | `--capture-shadows <assets> <content> <output-dir>` | yes | Two characters and Babel at Navisko's start by day (wide, close, and close without contact shadows, without shadows, and the occlusion view), beside the nearest lamp by night, a morning with the sun moving at the server clock's rate, a camera turning around them, and ten seconds of the mean brightness per frame with the sun moving (`Brightness <frame> <all> <ground>` lines, no images); Karina and Ariel where Navisko places them. At 1920x1080; consecutive frames with a change image (`-change.png`, eight times brighter) and the count of changed pixels |
-| `--capture-item-effects <assets> <content> <output-dir>` | yes | Ricarten at night: pets idle and striking, firecracker bursts, the skill-learn light, force orb glow and hit, a big head, crystal pets with their plates in the return sparkle, the soccer-ball head |
+| `--capture-item-effects <assets> <content> <output-dir>` | yes | Ricarten at night: pets idle and striking, firecracker bursts, the skill-learn light, force orb glow and hit, a big head, crystal pets with their plates in the return sparkle, the soccer-ball head, the aging light |
 | `--capture-login <assets> <content> <output-dir> <background.png>` | yes | Login screen edge cases (see below) |
 | `--capture-skills <assets> <content> <output-dir> [<hex,hex,...>]` | yes | Casts skills with the server timeline (see below) |
 | `--capture-sky <assets> <content> <output-dir>` | yes | One `sky-NN.png` per sky profile |
 | `--capture-weather <assets> <content> <output-dir>` | yes | Ricarten's start under each weather at 1920x1080 after two seconds: clear, overcast, light, heavy and storm rain, a lightning flash, rain at dusk and at night, close under the eaves, the clouds' shadows and a morning mist, a storm in the morning mist (`storm-dawn-mist`: the deck and the mist grey, not orange), also over the harbour toward the sunrise (`mist-harbour`: the water and the far quays must fade into the haze, without blue patches or bright silhouettes); the realistic sky toward the horizon at noon, at sunrise with and without the mist, in a broken afternoon, at sunset and dusk, under a full and a new moon, overcast, in a storm and its lightning, in a storm at night and at dawn, with a rainbow and the aurora, and the classic dome, also in the rain at noon, in the afternoon, at dusk and at night (`sky-classic-rain*`: the clouds must go on past the rain dome's rim, without a band of the hour's colour above it); `sky-drift`, eight frames of clouds in a strong wind with each frame's change from the last (`sky-drift-N-change.png`, and the count of pixels changed by more than 6 levels), where a wavering or flickering sky shows over the clouds' bodies (`WeatherCaptureProbe`) |
 | `--capture-npcs <assets> <content> <output.png>` | yes | NPC presentation capture |
+| `--capture-gltf <assets> <content> <output-dir> <model,model,...>` | yes | glTF models (a file, or model info relative to the assets root: its Stand) as actors beside a legacy NPC; `layers` is four built spheres (plain, clearcoat, sheen, diffuse transmission) |
 | `--capture-job-heads <assets> <content> <output.png>` | yes | Job-head presentation capture |
 | `--capture-equipment <assets> <content> <output-dir>` | yes | Equipment captures |
 | `--capture-ranged-equipment <assets> <content> <output-dir>` | yes | Bow and crossbow attachment captures |
@@ -284,6 +297,9 @@ Draws the static and skinned surface effects into a float target and checks agai
   of the same irradiance).
 - Shadow casters' depth (orthographic and perspective); skinning by a bone translation; motion target (camera, jitter,
   a skinned bone's previous pose).
+- glTF (`ShaderValidationProbe.Gltf.cs`): two weighted bones blended and one alone; the base colour through an offset,
+  a rotation (its sign), clamp and mirror wraps and the second UV set; the lit base surface with a flat normal map
+  against the legacy lit reference.
 - Post chain: HDR composition, automatic exposure (histogram, adaptation), bloom pyramid, the three display transforms
   and the colour grade against CPU references, temporal resolve of a still scene, display-referred output, mesopic
   vision in the final pass.

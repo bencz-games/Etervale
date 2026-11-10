@@ -47,6 +47,8 @@ public sealed class GameplayScreen : GameScreen
         _scene.PresenceObserved += _hud.StringEffect.Observe;
         _scene.PresenceObserved += _hud.ObserveQuests;
         _hud.QuestFanfare += _scene.PlayQuestFanfare;
+        _hud.SiegeEnded += _scene.PlaySiegeEnd;
+        _hud.SiegeClosed += _scene.RestoreFieldMusic;
         _hud.CraftResult += _scene.PlayCraftResult;
         _scene.NpcSelected += _hud.OpenNpc;
         _scene.ShopSellerSelected += _hud.ViewPersonalShop;
@@ -62,6 +64,7 @@ public sealed class GameplayScreen : GameScreen
         _hud.SendCastleOwner = _scene.SendCastleOwner;
         _hud.SendBellatraClan = _scene.SendBellatraClan;
         _hud.SendBellatraResult = _scene.SendBellatraResult;
+        _hud.BellatraStage = _scene;
         _hud.SendClanMark = _scene.SendClanMark;
         _scene.PresenceObserved += _hud.ObserveTrade;
         _hud.Trades = _scene;
@@ -282,6 +285,8 @@ public sealed class GameplayScreen : GameScreen
             _hud.ExitRequested -= RequestExit;
             _hud.Restart.ExitRequested -= RequestExit;
             _hud.QuestFanfare -= _scene.PlayQuestFanfare;
+            _hud.SiegeEnded -= _scene.PlaySiegeEnd;
+            _hud.SiegeClosed -= _scene.RestoreFieldMusic;
             _hud.CraftResult -= _scene.PlayCraftResult;
             _scene.NpcSelected -= _hud.OpenNpc;
             _scene.ShopSellerSelected -= _hud.ViewPersonalShop;

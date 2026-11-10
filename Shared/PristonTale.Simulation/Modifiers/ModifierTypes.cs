@@ -65,7 +65,7 @@ public enum StatKind : byte
     CriticalChanceTaken = 42,
     // Percent of the attack animation rate (faster swings).
     AttackMotionSpeed = 43,
-    // Damage added to every single-target hit after its skill percent.
+    // Damage added to every single-target hit after its skill percent (skill buffs).
     HitDamage = 44,
     // Normal attacks only: percent of the weapon's own maximum added to the maximum, and of its own range added to both
     // ends.
@@ -75,7 +75,7 @@ public enum StatKind : byte
     ArmorDefence = 47,
     // Damage added to every strike of the holder's familiar.
     CompanionDamage = 48,
-    // Damage added to the power roll of every spell (magic force orbs).
+    // A magic force orb's power, added to the power roll of a spell by the skill's share (SkillFormulas.ForceOrbPower).
     SpellDamage = 49,
     // Any positive value lifts the step limit of the move speed (Locomotion.StepLevel).
     MoveSpeedUnbound = 50,
@@ -84,7 +84,13 @@ public enum StatKind : byte
     Strength = 51,
     Spirit = 52,
     Agility = 53,
-    Count = 54
+    // A weapon force orb's power, added to a normal attack whole and to a weapon skill's hit by the skill's share.
+    ForceOrbDamage = 54,
+    // Percent added to each end of the attack range of a single-target hit (a normal attack or a weapon skill's hit),
+    // never an area's or a burst's.
+    HitDamageMin = 55,
+    HitDamageMax = 56,
+    Count = 57
 }
 
 public enum ModifierOp : byte

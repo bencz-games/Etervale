@@ -87,7 +87,7 @@ public sealed partial class GameScene
         {
             switch (combatEvent.Kind)
             {
-                case CombatEventKind.Hit or CombatEventKind.Miss when !combatEvent.Skill:
+                case CombatEventKind.Hit or CombatEventKind.Miss:
                     if (SwingOf(combatEvent.AttackerId) is { } swing)
                     {
                         var outcome = combatEvent.Kind == CombatEventKind.Miss ? WeaponSoundOutcome.Miss

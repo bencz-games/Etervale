@@ -77,9 +77,9 @@ Kinds: 0 server, 1 whisper, 2 system, 3 notice, 4 party, 5 clan, 6 trade, 9 assi
 - A line that is only `yahoo`, `/yahoo` or `Yes!` (any case) is not spoken: the player cheers (the Yahoo motion, the
   weapon on the back) from standing, walking or running. For a minute after, Space (`YahooKey`) cheers again for 3% of
   the maximum stamina, refused while stamina is not above that (`YahooRules`). A firecracker cheers after the motion in
-  progress, and the tiger capsule cheers at its eating event. A clan member's cheer heals up to three of the clan's
-  monsters (its clan pets) within range by a quarter of the player's level shared among them, at least 1 each
-  (`FieldInstance.HealClanMonsters`, `YahooRules`, `ClanRules.NearbyMonsters`).
+  progress, and the tiger capsule cheers at its eating event. A clan member's cheer (not one Bellatra's show plays for
+  it) heals up to three of the clan's monsters (its clan pets) within range by a quarter of the player's level shared
+  among them, at least 1 each (`FieldInstance.HealClanMonsters`, `YahooRules`, `ClanRules.NearbyMonsters`).
 - Party and clan lines go through `IPartyRoster` and `IClanRoster`: the party roster is the world's parties
   ([application.md](application.md#parties)), the clan roster the clan service's online members
   ([application.md](application.md#clans)); `/CLAN> text` reaches the online members of the speaker's clan.

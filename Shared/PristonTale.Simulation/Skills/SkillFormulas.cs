@@ -290,18 +290,26 @@ public static partial class SkillFormulas
             Element = damage.Element,
             CritChance = critical,
             SkillMultiplierPercent = rule.At(damage.Percent, rank),
-            SkillFlatAdd = flat + caster.Effects.Totals.Flat(StatKind.HitDamage),
+            SkillFlatAdd = flat + caster.Effects.Totals.Flat(StatKind.HitDamage) + ForceOrbPower(caster, rule, magic: false),
             ExtraPercent = rule.At(damage.PercentAfter, rank),
             ResistedPart = damage.ResistAddedOnly ? flat : -1
         };
     }
 
-    // Damage and accuracy of a normal attack: the basic profile plus the flat damage buffs of single-target hits.
+    // Damage and accuracy of a normal attack: the basic profile plus the flat damage buffs of single-target hits and the
+    // whole power of a weapon force orb.
     public static AttackProfile NormalAttack(PlayerCharacter caster)
     {
         var basic = CombatProfileFactory.ForPlayerBasicAttack(caster, normalAttack: true);
-        return basic with { SkillFlatAdd = caster.Effects.Totals.Flat(StatKind.HitDamage) };
+        var totals = caster.Effects.Totals;
+        return basic with { SkillFlatAdd = totals.Flat(StatKind.HitDamage) + totals.Flat(StatKind.ForceOrbDamage) };
     }
+
+    // A force orb's power on a skill's hit (magic: a magic orb's on a spell or an area's power, else a weapon orb's on a
+    // single-target weapon hit; areas take no weapon orb): the skill's share (SkillRule.OrbShare).
+    public static int ForceOrbPower(PlayerCharacter caster, SkillRule rule, bool magic) =>
+        caster.Effects.Totals.Flat(magic ? StatKind.SpellDamage : StatKind.ForceOrbDamage)
+        * (magic ? rule.OrbShare.MagicPercent : rule.OrbShare.WeaponPercent) / 100;
 
     private static int BorrowedCritical(PlayerCharacter caster, SkillRule rule)
     {
@@ -355,7 +363,7 @@ public static partial class SkillFormulas
     // weapon of the skill's caster).
     public static int RollPower(PlayerCharacter caster, SkillRule rule, SkillDamageRule damage, int rank, CombatRng rng, (int Min, int Max)? weaponItem = null)
     {
-        var spell = caster.Effects.Totals.Flat(StatKind.SpellDamage);
+        var spell = ForceOrbPower(caster, rule, magic: true);
         var tablePercent = At(damage.TablePercent, rank);
         var low = rule.At(damage.Min, rank);
         var high = rule.At(damage.Max, rank);
@@ -471,7 +479,7 @@ public static partial class SkillFormulas
     // Whether an enemy skill may take a player of the castle's battle zone as its target: one that can hurt it (a weapon
     // skill, a bolt, or an area of rolled damage that is not a chain), never a charm.
     public static bool ReachesPlayers(SkillRule rule) =>
-        rule.Charm is null && (rule.Kind is SkillKind.WeaponAttack or SkillKind.MagicBolt
+        rule.Charm is null && !rule.MonstersOnly && (rule.Kind is SkillKind.WeaponAttack or SkillKind.MagicBolt
             || rule.Kind == SkillKind.Area && rule.AreaShape != SkillAreaShape.Chain && rule.Damage is { Mode: SkillDamageMode.Rolled });
 
     // Healing: the table plus the weapon's own damage / 3 and spirit / 8 (minimum) and / 6 (maximum).

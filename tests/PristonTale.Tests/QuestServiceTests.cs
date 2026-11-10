@@ -9,6 +9,8 @@ using PristonTale.Protocol.Packets;
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Combat;
 using PristonTale.Simulation.Items;
+using PristonTale.Simulation.Items.Aging;
+using PristonTale.Simulation.Items.Usable;
 using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World;
 using PristonTale.Simulation.World.Fields;
@@ -34,6 +36,7 @@ internal static class QuestServiceTests
         yield return ("quest presence reaches the client and the arena shows only the player's own duel", PresenceAsync);
         yield return ("quest requests store once, replay idempotently and credit field kills", RequestsAsync);
         yield return ("the quest upkeep puts quest drops in the pack and stores them, and waits while the save gate is busy", UpkeepAsync);
+        yield return ("an upkeep giving an aged weapon its level shows the aging light on its owner to the players around", AgingUpAsync);
         yield return ("a quest item a monster drops reaches the special item box through the upkeep and the master takes it for the rank-up",
             KillToMasterAsync);
         yield return ("the master duel travels to the arena, yields at a sixteenth and promotes from the victory dialog", ArenaAsync);
@@ -278,6 +281,31 @@ internal static class QuestServiceTests
         CharacterStateCodec.Restore(record, world.Characters.Record, Items);
         Assert.True(QuestInventory.Has(record, QuestItems.SilverWolverineTrophy), "the stored trophy is missing from the record");
         Assert.True(await world.Advance(world.Quests.RunUpkeepAsync(world.Session)), "an idle upkeep failed");
+    }
+
+    private static async Task AgingUpAsync()
+    {
+        var world = await QuestWorld.CreateAsync(PlayerClass.Fighter, 60, 2, [new NpcService(NpcServiceKind.SkillMaster, 4)], [], null, strongWeapon: true);
+        var character = world.Session.Character!;
+        var weapon = character.Equipment[EquipmentSlot.Weapon]!;
+        weapon.Maturity = new AgingMaturity(100, 100, AgingStone.None);
+        Assert.True(await world.Advance(world.Quests.RunUpkeepAsync(world.Session)) && character.Equipment[EquipmentSlot.Weapon]!.UpgradeLevel == 1,
+            "the upkeep did not give the matured weapon its level");
+        var shown = world.WaitFor(snapshot => snapshot.ItemEffects.Any(effect => effect.Effect == ItemEffectKind.AgingUp
+            && effect.EntityId == world.Session.EntityId));
+        Assert.True(shown.ItemEffects.Count(effect => effect.Effect == ItemEffectKind.AgingUp) == 1, "the aging light was not shown once");
+        Assert.True(await world.Advance(world.Quests.RunUpkeepAsync(world.Session)), "an idle upkeep failed");
+        var again = true;
+        try
+        {
+            world.WaitFor(snapshot => snapshot.ItemEffects.Any(effect => effect.Effect == ItemEffectKind.AgingUp), 30);
+        }
+        catch (InvalidOperationException)
+        {
+            again = false;
+        }
+
+        Assert.True(!again, "an upkeep without a matured copy showed the aging light");
     }
 
     private static async Task ArenaAsync()

@@ -24,7 +24,7 @@
     "castSound": "wav/Effects/Skill/Morion/Casting_P.wav", "impactSound": "wav/Effects/Skill/Morion/HolyBolt 1.wav"
   },
   {
-    "code": "0x07010003", "name": "Multi Spark", "tier": "Job1", "category": "MultiHit", "icon": "MP14 M_Spark",
+    "code": "0x07010003", "forceOrbPercent": 50, "name": "Multi Spark", "tier": "Job1", "category": "MultiHit", "icon": "MP14 M_Spark",
     "description": "Releases magical sparks to attack enemies.", "requiredLevel": 14, "mouse": "Right",
     "mana": [16, 19, 22, 25, 29, 33, 37, 42, 47, 52], "stamina": [14, 1], "weapons": ["Staff"],
     "kind": "MagicBolt", "target": "Enemy", "masteryBase": 82, "masteryPerRank": 2,
@@ -75,7 +75,7 @@
       "reflect": { "percent": [20, 30, 40, 50, 60, 70, 80, 90, 100, 110], "broods": ["Undead"] } },
     "exclusive": ["0x07020003"],
     "motionIndex": 62, "motionFrames": 50, "motionEvents": [30],
-    "castEffect": "vfx.priestess.reflection.cast", "buffEffect": "vfx.priestess.reflection.aura",
+    "castEffect": "vfx.priestess.reflection.cast", "buffEffect": "vfx.priestess.reflection.aura", "defenseEffect": "vfx.priestess.reflection.defense",
     "castSound": "wav/Effects/Skill/Morion/HolyReflection 1.wav", "impactSound": "wav/Effects/Skill/Morion/HolyReflection 2.wav",
     "keepIcon": "Pr2_H_REFLECTION"
   },
@@ -185,7 +185,7 @@
     "castEffect": "vfx.priestess.chainlightning.cast", "impactEffect": "vfx.priestess.chainlightning.link", "castSound": "wav/Effects/Skill/Morion/Casting_P.wav",
       "impactSoundOrder": "Random", "impactSounds": ["wav/Effects/Skill/Morion/ChainLightning 01.wav", "wav/Effects/Skill/Morion/ChainLightning 02.wav"] },
   {
-    "code": "0x07080004", "name": "Summon Muspell", "tier": "Job4", "category": "Summon", "icon": "MP70 S_Muspell",
+    "code": "0x07080004", "forceOrbs": "None", "name": "Summon Muspell", "tier": "Job4", "category": "Summon", "icon": "MP70 S_Muspell",
     "description": "It absorbs undead monster's ATK, resurrects HP and has summoner's ability.", "requiredLevel": 70, "mouse": "Right",
     "mana": [110, 114, 118, 122, 126, 130, 134, 138, 140, 146], "stamina": [47, 1], "weapons": ["Staff"],
     "kind": "SelfBuff", "target": "Self", "masteryBase": 800, "masteryPerRank": 0,
@@ -216,7 +216,7 @@
       "motionIndex": 76, "motionFrames": 65, "motionEvents": [37], "motionSpeedSteps": 1, "castEffect": "vfx.priestess.castcircle",
       "impactEffect": "vfx.priestess.piercingice.shot", "castSound": "wav/Effects/Skill/Morion/GrandCross 2.wav",
       "impactSound": "wav/Effects/Skill/Tempskron/RoZ 02.wav" },
-    { "code": "0x07100003", "name": "Summon Ramiel", "tier": "Job5", "category": "Summon", "icon": "MP86 S_Ramiel", "description": "Summons an angel with a propensity to lighting attack properties.", "requiredLevel": 86, "mouse": "Right", "mana": [152, 156, 160, 164, 168, 172, 176, 180, 184, 188], "stamina": [54, 2], "weapons": ["Staff"],
+    { "code": "0x07100003", "forceOrbs": "None", "name": "Summon Ramiel", "tier": "Job5", "category": "Summon", "icon": "MP86 S_Ramiel", "description": "Summons an angel with a propensity to lighting attack properties.", "requiredLevel": 86, "mouse": "Right", "mana": [152, 156, 160, 164, 168, 172, 176, 180, 184, 188], "stamina": [54, 2], "weapons": ["Staff"],
       "kind": "SelfBuff", "target": "Self", "masteryBase": 800, "masteryPerRank": 0, "exclusive": ["0x07100003", "0x07080004"],
       "buff": { "durationTenths": [2400, 2800, 3200, 3600, 4000, 4400, 4800, 5200, 5600, 6000],
         "modifiers": [{ "stat": "Evasion", "op": "Flat", "values": [5, 6, 7, 8, 9, 10, 11, 12, 13, 14] }],

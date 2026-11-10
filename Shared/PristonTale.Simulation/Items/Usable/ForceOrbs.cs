@@ -1,9 +1,11 @@
 using PristonTale.Simulation.Modifiers;
+using PristonTale.Simulation.Skills;
 
 namespace PristonTale.Simulation.Items.Usable;
 
 // One force orb: its level window, duration, added power, and the extra percent of the average attack power the
-// strongest orbs add. Weapon orbs add their power to normal attacks and weapon skills; magic orbs add it to spells.
+// strongest orbs add. Weapon orbs add their power to normal attacks and weapon skills; magic orbs add it to spells; a
+// skill takes its tier's share (ForceOrbs.TierPercent) unless it sets its own or refuses the orb.
 public sealed record ForceOrbDefinition(int Index, bool Magic, string Name, int MinimumLevel, int MaximumLevel, int DurationSeconds, int Damage, int Percent)
 {
     // The status of a running orb (one orb of either family runs at a time): the base plus the icon number.
@@ -21,13 +23,22 @@ public sealed record ForceOrbDefinition(int Index, bool Magic, string Name, int 
 
     public EffectSpec Spec(int averageAttack)
     {
-        var stat = Magic ? StatKind.SpellDamage : StatKind.HitDamage;
+        var stat = Magic ? StatKind.SpellDamage : StatKind.ForceOrbDamage;
         return new EffectSpec(StatusCode, EffectSourceKind.Item, false, [StatModifier.Flat(stat, PowerFor(averageAttack))]);
     }
 }
 
 public static class ForceOrbs
 {
+    // The share of an orb's power a skill of the tier takes, in percent; the fifth tier takes the fourth's.
+    public static int TierPercent(JobTier tier) => tier switch
+    {
+        JobTier.Job1 => 80,
+        JobTier.Job2 => 90,
+        JobTier.Job3 => 100,
+        _ => 150
+    };
+
     private static readonly string[] Names = ["Lucidy", "Sereneo", "Fadeo", "Sparky", "Raident", "Transparo", "Murky", "Devine", "Celesto", "Mirage",
         "Inferna", "Enigma"];
     private static readonly int[] Seconds = [500, 500, 500, 500, 700, 900, 1800, 2400, 3600, 3600, 3600, 3600];

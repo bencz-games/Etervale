@@ -5,8 +5,16 @@
     "lights": [
       {
         "anchor": "Point",
-        "offset": [0, 32, 0],
-        "color": [0.588, 0.588, 0.588],
+        "offset": [
+          0,
+          32,
+          0
+        ],
+        "color": [
+          0.588,
+          0.588,
+          0.588
+        ],
         "power": 200,
         "decay": 1
       }
@@ -23,39 +31,78 @@
         "animation": "LevelUpParticle1.ini",
         "loop": true,
         "anchor": "Point",
-        "offset": [0, 28.09, 0],
+        "offset": [
+          0,
+          28.09,
+          0
+        ],
         "turn": false,
-        "ring": [82.03, 117.19],
+        "ring": [
+          82.03,
+          117.19
+        ],
         "ringStart": 0,
         "ringStep": 18,
-        "jitterMax": [0, 39.06, 0],
+        "jitterMax": [
+          0,
+          39.06,
+          0
+        ],
         "goal": "Point",
-        "goalOffset": [0, 28.09, 0],
+        "goalOffset": [
+          0,
+          28.09,
+          0
+        ],
         "speed": 218.75,
         "reach": 3.125,
         "lineSeconds": 0.1,
-        "width": [0.45, 0.45],
+        "width": [
+          0.45,
+          0.45
+        ],
         "end": "Hold"
       },
       {
         "count": 5,
         "animation": "LevelUp.ini",
         "sized": false,
-        "size": [1, 1],
+        "size": [
+          1,
+          1
+        ],
         "anchor": "Point",
-        "offset": [0, 28.09, 0],
+        "offset": [
+          0,
+          28.09,
+          0
+        ],
         "turn": false,
-        "jitterMax": [0.2, 0.2, 0.2],
+        "jitterMax": [
+          0.2,
+          0.2,
+          0.2
+        ],
         "delay": 0.3571,
         "delayStep": 0.0714
       },
       {
         "count": 5,
         "animation": "LevelUp1Left.ini",
-        "size": [40, 40],
-        "height": [10, 10],
+        "size": [
+          40,
+          40
+        ],
+        "height": [
+          10,
+          10
+        ],
         "anchor": "Point",
-        "offset": [0, 43.72, 0],
+        "offset": [
+          0,
+          43.72,
+          0
+        ],
         "turn": false,
         "delayStep": 0.0714,
         "slideFrom": -230
@@ -63,13 +110,66 @@
       {
         "count": 5,
         "animation": "LevelUp1Right.ini",
-        "size": [40, 40],
-        "height": [10, 10],
+        "size": [
+          40,
+          40
+        ],
+        "height": [
+          10,
+          10
+        ],
         "anchor": "Point",
-        "offset": [0, 43.72, 0],
+        "offset": [
+          0,
+          43.72,
+          0
+        ],
         "turn": false,
         "delayStep": 0.0714,
         "slideFrom": 230
+      }
+    ]
+  },
+  {
+    "name": "vfx.player.restart",
+    "duration": 2.0,
+    "parts": [
+      {
+        "shape": "Model",
+        "model": "Effect/ObjAnimationData/GameStart/GameStart1.smd",
+        "blend": "Additive",
+        "anchor": "Point",
+        "offset": [
+          0,
+          -3.9,
+          0
+        ],
+        "modelStart": 1,
+        "modelFrames": 40,
+        "modelSpeed": 35,
+        "lifetime": [
+          1.14,
+          1.14
+        ],
+        "fade": "InOut",
+        "fadeIn": 0.1,
+        "fadeOut": 0.21
+      }
+    ],
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          24,
+          0
+        ],
+        "color": [
+          0.3922,
+          0.3922,
+          0.3922
+        ],
+        "power": 200
       }
     ]
   }

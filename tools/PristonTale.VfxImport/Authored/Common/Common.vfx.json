@@ -757,5 +757,128 @@
         "fadeOut": 0.25
       }
     ]
+  },
+  {
+    "name": "vfx.hit.critical",
+    "duration": 1.5,
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          24,
+          0
+        ],
+        "color": [
+          0.3922,
+          0.0,
+          0.0
+        ],
+        "power": 400,
+        "decay": 10
+      }
+    ],
+    "children": [
+      {
+        "effect": "vfx.common.critflash",
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
+  },
+  {
+    "name": "vfx.hit.bare",
+    "duration": 1.0,
+    "parts": [
+      {
+        "animation": "NormalHit1.ini",
+        "offset": [
+          0,
+          24,
+          0
+        ],
+        "sized": false
+      }
+    ]
+  },
+  {
+    "name": "vfx.hit.blood",
+    "duration": 1.0,
+    "parts": [
+      {
+        "animation": "Blood1.ini",
+        "offset": [
+          0,
+          16,
+          0
+        ],
+        "sized": false
+      }
+    ],
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          16,
+          0
+        ],
+        "color": [
+          0.6275,
+          0.0,
+          0.0
+        ],
+        "power": 180,
+        "decay": 10
+      }
+    ]
+  },
+  {
+    "name": "vfx.defense.absorb",
+    "duration": 1.0,
+    "parts": [
+      {
+        "animation": "SkillPhysicalAbsorb1.ini",
+        "count": 4,
+        "delayStep": 0.0286,
+        "sized": false
+      }
+    ],
+    "lights": [
+      {
+        "anchor": "Point",
+        "offset": [
+          0,
+          0,
+          0
+        ],
+        "color": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "power": 50,
+        "decay": 1
+      }
+    ]
+  },
+  {
+    "name": "vfx.defense.absorb.body",
+    "duration": 1.0,
+    "children": [
+      {
+        "effect": "vfx.defense.absorb",
+        "anchor": "Caster",
+        "offset": [
+          0,
+          24,
+          0
+        ]
+      }
+    ]
   }
 ]

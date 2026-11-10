@@ -7,6 +7,7 @@
 
     <ItemGroup>
         <PackageReference Include="StbImageSharp" Version="2.30.16" />
+        <PackageReference Include="SharpGLTF.Core" Version="1.0.7" />
         <!-- MonoGame Native platform (Vulkan) from the fork in monogame/ (monogame/README.md). -->
         <ProjectReference Include="../../monogame/framework/MonoGame.Framework/MonoGame.Framework.Native.csproj" />
     </ItemGroup>

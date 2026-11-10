@@ -46,6 +46,8 @@ public sealed record SkillAllyRule
     public int[] Radius { get; init; } = [];
     public bool IncludeCaster { get; init; } = true;
     public bool Party { get; init; }
+    // With Party: the clicked player may be anyone, only the players around being of the party.
+    public bool AnyClicked { get; init; }
     public bool RequiresParty { get; init; }
     // Strength of the effect on players other than the caster, in percent.
     public int OthersPercent { get; init; } = 100;
@@ -151,6 +153,10 @@ public sealed partial record SkillBuffRule
     public SkillReflectRule Reflect { get; init; }
     public SkillGuardRule Guard { get; init; }
     public SkillPulseRule Pulse { get; init; }
+
+    // A helpful buff that only changes stats: no shield, reflection, guard, enchant, familiar, counter or pulse.
+    public bool StatsOnly => !Harmful && Absorb is null && Reflect is null && Guard is null && Enchant is null && Companion is null && Counter is null
+        && Pulse is null;
 
     // The resistance that shortens the effect on its target: the rule's element, else bionic for a bionic-resisted one,
     // else none.

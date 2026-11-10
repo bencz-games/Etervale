@@ -468,7 +468,9 @@ internal sealed partial class FieldSkills
                 return SkillCastVerdict.Accepted;
             case SkillTarget.Enemy:
                 if (!_host.TryGetMonster(request.TargetId, out var monster) || !Strikeable(player, monster)
-                    || rule.Charm is { } charm && !SkillFormulas.MatchesBrood(charm.Broods, monster.Def))
+                    || rule.Charm is { } charm && !SkillFormulas.MatchesBrood(charm.Broods, monster.Def)
+                    || rule.RefusesBosses && (monster.Def.IsBoss || monster.CastleRole is Simulation.Social.Castle.CastleObject.Door or Simulation.Social.Castle.CastleObject.Valhalla
+                        or Simulation.Social.Castle.CastleObject.Crystal))
                 {
                     return SkillCastVerdict.InvalidTarget;
                 }
@@ -488,7 +490,7 @@ internal sealed partial class FieldSkills
                     return SupportBlocked(player, rule) ? SkillCastVerdict.AlreadyActive : SkillCastVerdict.Accepted;
                 }
 
-                if (!_host.TryGetPlayer(request.TargetId, out var ally) || ally.IsDead || rule.Allies is { Party: true } && !player.SharesPartyWith(ally)
+                if (!_host.TryGetPlayer(request.TargetId, out var ally) || ally.IsDead || rule.Allies is { Party: true, AnyClicked: false } && !player.SharesPartyWith(ally)
                     || rule.AllyClasses.Length > 0 && !rule.AllyClasses.Contains(ally.Character.Class.Class))
                 {
                     return SkillCastVerdict.InvalidTarget;

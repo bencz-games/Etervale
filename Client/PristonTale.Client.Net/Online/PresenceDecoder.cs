@@ -257,7 +257,8 @@ internal sealed class PresenceDecoder : IEventHandleReader
 
     private static BellatraBoardInfo Bellatra(BellatraBoardPacket packet) => !packet.Shown ? BellatraBoardInfo.Hidden
         : new BellatraBoardInfo(true, packet.Round, packet.Team, (long)Math.Min(packet.Score, long.MaxValue),
-            [.. packet.TeamScores.Select(static score => (long)Math.Min(score, long.MaxValue))], (Contracts.Social.BellatraOutcome)packet.Outcome);
+            [.. packet.TeamScores.Select(static score => (long)Math.Min(score, long.MaxValue))], (Contracts.Social.BellatraOutcome)packet.Outcome,
+            packet.StageTeams, packet.GoingOn);
 
     private static BellatraResultInfo BellatraResult(BellatraResultPacket packet) =>
         new(packet.Final, [.. packet.Lines.Select(static line => new BellatraResultLineInfo(line.Name, (Contracts.Characters.PlayerClass)line.Class,

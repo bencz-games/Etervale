@@ -25,7 +25,8 @@
       "modifiers": [{ "stat": "AbsorptionVsUndead", "op": "Flat", "values": [8, 12, 16, 19, 22, 25, 27, 29, 31, 33] }] },
     "exclusive": ["0x05010002", "0x05020001", "0x05020004"],
     "motionIndex": 69, "motionFrames": 45, "motionEvents": [20], "motionSpeed": 70,
-    "castEffect": "vfx.knight.holybody.cast", "buffEffect": "vfx.knight.holybody.aura", "castSound": "wav/Effects/Skill/Morion/HolyBody 1.wav", "keepIcon": "Kt1_H_BODY"
+    "castEffect": "vfx.knight.holybody.cast", "buffEffect": "vfx.knight.holybody.aura", "castSound": "wav/Effects/Skill/Morion/HolyBody 1.wav", "keepIcon": "Kt1_H_BODY",
+    "defenseEffect": "vfx.defense.absorb.body", "defenseBroods": ["Undead"]
   },
   {
     "code": "0x05010003", "name": "Physical Training", "tier": "Job1", "category": "Passive", "icon": "MN14 P_Traning",
@@ -109,7 +110,7 @@
       "guard": { "healPercent": [9, 18, 27, 36, 45, 54, 63, 72, 81, 90], "broods": ["Undead"], "onBlock": true } },
     "exclusive": ["0x05040002"], "replaces": ["0x05080002"],
     "motionIndex": 71, "motionFrames": 45, "motionEvents": [22], "motionSpeed": 70,
-    "castEffect": "vfx.knight.divineinhalation.cast", "buffEffect": "vfx.knight.shield.aura",
+    "castEffect": "vfx.knight.divineinhalation.cast", "buffEffect": "vfx.knight.shield.aura", "defenseEffect": "vfx.knight.divineinhalation.defense",
     "castSound": "wav/Effects/Skill/Morion/DivineInhalation 1.wav", "keepIcon": "Kt3_D_INHALATION",
       "shieldModel": "weapons/Nt3_DivineI.smd" },
   {
@@ -209,7 +210,7 @@
       "castSound": "wav/Effects/Skill/Tempskron/vanish 02.wav" },
     { "code": "0x05100004", "name": "Holy Benedic", "tier": "Job5", "category": "Buff", "icon": "MN90 H_Benedic", "description": "Gives ability that adds additional damage to undead monsters.", "requiredLevel": 90, "mouse": "Right", "mana": [86, 90, 94, 98, 102, 106, 110, 114, 118, 122], "stamina": [93, 2], "weapons": ["Axe", "Claw", "Hammer", "Pole", "Sword", "Bow", "ThrowingWeapon"],
       "kind": "SelfBuff", "target": "Ally", "masteryBase": 400, "masteryPerRank": 0, "exclusive": ["0x05100004"],
-      "allies": { "party": true, "radius": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200], "height": 200 },
+      "allies": { "party": true, "anyClicked": true, "radius": [200, 200, 200, 200, 200, 200, 200, 200, 200, 200], "height": 200 },
       "buff": { "durationTenths": [2400, 2800, 3200, 3600, 4000, 4400, 4800, 5200, 5600, 6000],
         "modifiers": [{ "stat": "DamageVsUndead", "op": "Flat", "values": [25, 30, 35, 40, 45, 50, 55, 60, 65, 70] }] },
       "motionIndex": 174, "motionFrames": 70, "motionEvents": [51], "motionSpeed": 70, "castEffect": "vfx.knight.holybenedic.cast",

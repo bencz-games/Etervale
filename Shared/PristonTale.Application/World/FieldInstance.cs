@@ -288,7 +288,8 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
                     timing.DurationMs, timing.HitAtMs));
             }
 
-            if (player.HasPendingYahoo && !player.IsBusy && player.BeginPendingYahoo(PlayerActionTiming(player, MotionCode.Yahoo, 1f).DurationMs))
+            if (player.HasPendingYahoo && !player.IsBusy && player.BeginPendingYahoo(PlayerActionTiming(player, MotionCode.Yahoo, 1f).DurationMs)
+                && player.YahooHeals)
             {
                 HealClanMonsters(player);
             }
@@ -363,7 +364,7 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
     Dictionary<ulong, WorldPlayer>.ValueCollection IFieldSkillHost.Players => _players.Values;
 
     KillPayout? IFieldSkillHost.ApplyPlayerDamage(WorldPlayer player, MonsterInstance monster, int damage, bool crit, bool forceFlinch, ulong sourceEntityId) =>
-        _combat.ApplyPlayerDamage(player, monster, damage, crit, NowMs, forceFlinch, sourceEntityId);
+        _combat.ApplyPlayerDamage(player, monster, damage, crit, NowMs, forceFlinch, sourceEntityId, skill: true);
 
     bool IFieldSkillHost.TryFindMonsterDefinition(string name, [MaybeNullWhen(false)] out MonsterDefinition definition) =>
         _catalog.TryFind(name, out definition);
@@ -549,6 +550,20 @@ public sealed partial class FieldInstance : ISpawnSink, IPlayerProximity, IField
         }
 
         return tuning;
+    }
+
+    // An action field's Space with nothing ahead: a player who may swing, holding no attack, swings at nothing (false
+    // otherwise).
+    internal bool SwingAtNothing(ulong entityId)
+    {
+        if (!_players.TryGetValue(entityId, out var player) || !player.MaySwing || player.AttackTargetId != 0)
+        {
+            return false;
+        }
+
+        var timing = PlayerSwingTiming(player);
+        player.BeginEmptySwing(timing.DurationMs, timing.HitAtMs);
+        return true;
     }
 
     public (float DurationMs, float HitAtMs) PlayerSwingTiming(WorldPlayer player)

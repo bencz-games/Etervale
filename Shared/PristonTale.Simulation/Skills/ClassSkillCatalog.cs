@@ -69,6 +69,7 @@ public static class ClassSkillCatalog
             {
                 var rule = element.Deserialize<SkillRule>(SkillJson.Options);
                 SkillRuleCatalog.Validate(rule);
+                SkillRuleCatalog.ShareForceOrbs(rule, entry.Tier);
                 parsedRules.Add(rule);
             }
         }

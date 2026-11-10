@@ -35,6 +35,93 @@ internal static class PristonMipChain
         return levels.ToArray();
     }
 
+    // A chain of data rather than colour (roughness, metallic, occlusion): the stored values averaged as they are.
+    public static Color[][] BuildData(Color[] pixels, int width, int height)
+    {
+        var levels = new List<Color[]> { pixels };
+        var texels = new Vector4[pixels.Length];
+        for (var index = 0; index < pixels.Length; index++)
+        {
+            texels[index] = pixels[index].ToVector4();
+        }
+
+        while (width > 1 || height > 1)
+        {
+            var nextWidth = Math.Max(1, width / 2);
+            var nextHeight = Math.Max(1, height / 2);
+            texels = Downsample(texels, width, height, nextWidth, nextHeight);
+            levels.Add([.. texels.Select(static texel => new Color(texel))]);
+            width = nextWidth;
+            height = nextHeight;
+        }
+
+        return levels.ToArray();
+    }
+
+    // A chain of sRGB colour averaged in linear light beside an alpha of data (another map packed in it) averaged as
+    // stored; neither weights the other.
+    public static Color[][] BuildColourAndData(Color[] pixels, int width, int height)
+    {
+        var levels = new List<Color[]> { pixels };
+        var texels = ToLinear(pixels, premultiply: false);
+        while (width > 1 || height > 1)
+        {
+            var nextWidth = Math.Max(1, width / 2);
+            var nextHeight = Math.Max(1, height / 2);
+            texels = Downsample(texels, width, height, nextWidth, nextHeight);
+            levels.Add([.. texels.Select(static texel =>
+                new Color(LinearToSrgb(texel.X), LinearToSrgb(texel.Y), LinearToSrgb(texel.Z), (byte)(Math.Clamp(texel.W, 0f, 1f) * 255f + 0.5f)))]);
+            width = nextWidth;
+            height = nextHeight;
+        }
+
+        return levels.ToArray();
+    }
+
+    // A chain of two tangent-space normal maps packed as XY pairs (RG and BA; Z is rebuilt from them, as the shader
+    // does): each pair is averaged as a whole direction and made unit length again on every level.
+    public static Color[][] BuildNormalPairs(Color[] pixels, int width, int height)
+    {
+        var levels = new List<Color[]> { pixels };
+        var first = new Vector4[pixels.Length];
+        var second = new Vector4[pixels.Length];
+        for (var index = 0; index < pixels.Length; index++)
+        {
+            var texel = pixels[index].ToVector4();
+            first[index] = Direction(texel.X, texel.Y);
+            second[index] = Direction(texel.Z, texel.W);
+        }
+
+        while (width > 1 || height > 1)
+        {
+            var nextWidth = Math.Max(1, width / 2);
+            var nextHeight = Math.Max(1, height / 2);
+            first = Downsample(first, width, height, nextWidth, nextHeight);
+            second = Downsample(second, width, height, nextWidth, nextHeight);
+            var level = new Color[first.Length];
+            for (var index = 0; index < level.Length; index++)
+            {
+                first[index] = Unit(first[index]);
+                second[index] = Unit(second[index]);
+                level[index] = new Color(new Vector4(first[index].X, first[index].Y, second[index].X, second[index].Y) * 0.5f + new Vector4(0.5f));
+            }
+
+            levels.Add(level);
+            width = nextWidth;
+            height = nextHeight;
+        }
+
+        return levels.ToArray();
+
+        static Vector4 Direction(float x, float y)
+        {
+            var xy = new Vector2(x, y) * 2f - Vector2.One;
+            return new Vector4(xy, MathF.Sqrt(MathF.Max(0f, 1f - xy.LengthSquared())), 0f);
+        }
+
+        static Vector4 Unit(Vector4 direction) => direction.LengthSquared() > 1e-8f ? Vector4.Normalize(direction) : Vector4.UnitZ;
+    }
+
     public static int LevelCount(int width, int height)
     {
         var count = 1;

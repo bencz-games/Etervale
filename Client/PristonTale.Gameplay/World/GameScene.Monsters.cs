@@ -38,6 +38,11 @@ public sealed partial class GameScene : IMonsterScene
             {
                 _monsterFx.ObserveSwing(combatEvent.AttackerId, combatEvent.TargetId);
             }
+            else if (combatEvent.Kind == CombatEventKind.Hit && !combatEvent.Skill)
+            {
+                var position = TryGetDrawnPosition(combatEvent.TargetId, out var drawn) ? drawn : Vector3.Zero;
+                _monsterFx.ObserveBlow(combatEvent.AttackerId, combatEvent.TargetId, position);
+            }
             else if (combatEvent.Kind == CombatEventKind.Hit && combatEvent.Skill)
             {
                 var position = TryGetDrawnPosition(combatEvent.TargetId, out var drawn) ? drawn : Vector3.Zero;
@@ -92,7 +97,7 @@ public sealed partial class GameScene : IMonsterScene
         }
     }
 
-    void IMonsterScene.SetEntityCorpse(ulong entityId, float fade, float dim)
+    void IMonsterScene.SetEntityBody(ulong entityId, float opacity, float dim)
     {
         if (_renderer is null || _remote is null)
         {
@@ -103,7 +108,7 @@ public sealed partial class GameScene : IMonsterScene
         var count = _remote.CopyActorHandles(entityId, handles);
         for (var index = 0; index < count; index++)
         {
-            _renderer.SetActorCorpse(handles[index], fade, dim);
+            _renderer.SetActorCorpse(handles[index], opacity, dim);
         }
     }
 }

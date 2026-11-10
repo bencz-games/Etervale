@@ -16,6 +16,8 @@ public static class ItemVfx
     public const string FirecrackerRocket = "vfx.item.firecracker.rocket";
     public const string FirecrackerFlash = "vfx.item.firecracker.flash";
     public const string Return = "vfx.item.return";
+    // An aged copy reached its level: a white light at the feet and the Aging burst 39 units up.
+    public const string AgingUp = "vfx.item.agingup";
 
     private const float PerTick = GameUnits.TicksPerSecond / GameUnits.FixedScale;
     private const float PerTickSquared = GameUnits.TicksPerSecond * GameUnits.TicksPerSecond / GameUnits.FixedScale;
@@ -48,6 +50,7 @@ public static class ItemVfx
         library.Register(FirecrackerRocketDefinition());
         library.Register(FirecrackerFlashDefinition());
         library.Register(ReturnDefinition());
+        library.Register(AgingUpDefinition());
         for (var resource = 0; resource < 3; resource++)
         {
             library.Register(PotionDefinition(resource));
@@ -71,6 +74,20 @@ public static class ItemVfx
             Streaks(50, 0.7f, [13f, 15.5f], [0.9f, 1.05f], [18f, 22f], 1.6f) with { Delay = 0.2f }
         ],
         Lights = [new VfxLightDefinition { Anchor = VfxAnchor.Caster, Offset = [0f, 20f, 0f], Color = [0.78f, 0.78f, 0.78f], Power = 260, Decay = 1 }]
+    };
+
+    private static VfxDefinition AgingUpDefinition() => new()
+    {
+        Name = AgingUp,
+        Duration = 2f,
+        Lights = [new VfxLightDefinition { Anchor = VfxAnchor.Caster, Offset = [0f, 0f, 0f], Color = [1f, 1f, 1f], Power = 200, Decay = 1 }],
+        Children =
+        [
+            new VfxChildDefinition
+            {
+                Effect = "particle.Aging", Anchor = VfxAnchor.Caster, Offset = [0f, 10000f / GameUnits.FixedScale, 0f], StopWithParent = false
+            }
+        ]
     };
 
     private static VfxEmitterDefinition Streaks(int count, float emitSeconds, float[] radius, float[] lifetime, float[] speed, float width) => new()

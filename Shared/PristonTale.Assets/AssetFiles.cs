@@ -64,7 +64,9 @@ public static class AssetFiles
 
     private static bool Present(string path) => File.Exists(path) || Directory.Exists(path);
 
-    // Rebuilds the real casing component by component.
+    // Rebuilds the real casing component by component. A case-sensitive file system may hold several entries that differ
+    // only in case (npcXms beside npcxms): each is tried, the exact spelling first and then in ordinal order, until one
+    // leads to the whole path.
     private static string WalkCaseInsensitive(string normalized)
     {
         var separator = Path.DirectorySeparatorChar;
@@ -82,30 +84,36 @@ public static class AssetFiles
             startIndex = current.Split(separator, StringSplitOptions.RemoveEmptyEntries).Length;
         }
 
-        for (var index = startIndex; index < parts.Length; index++)
+        return Walk(current, parts, startIndex) ?? normalized;
+    }
+
+    private static string? Walk(string current, string[] parts, int index)
+    {
+        if (index == parts.Length)
         {
-            var direct = Path.Combine(current, parts[index]);
-            if (Present(direct))
-            {
-                current = direct;
-                continue;
-            }
-
-            if (!Directory.Exists(current))
-            {
-                return normalized;
-            }
-
-            var match = Directory.EnumerateFileSystemEntries(current)
-                .FirstOrDefault(entry => string.Equals(Path.GetFileName(entry), parts[index], StringComparison.OrdinalIgnoreCase));
-            if (match is null)
-            {
-                return normalized;
-            }
-
-            current = match;
+            return current;
         }
 
-        return current;
+        var direct = Path.Combine(current, parts[index]);
+        if (Present(direct) && Walk(direct, parts, index + 1) is { } exact)
+        {
+            return exact;
+        }
+
+        if (!Directory.Exists(current))
+        {
+            return null;
+        }
+
+        foreach (var entry in Directory.EnumerateFileSystemEntries(current).Order(StringComparer.Ordinal))
+        {
+            if (entry != direct && string.Equals(Path.GetFileName(entry), parts[index], StringComparison.OrdinalIgnoreCase)
+                && Walk(entry, parts, index + 1) is { } found)
+            {
+                return found;
+            }
+        }
+
+        return null;
     }
 }

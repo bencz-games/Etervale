@@ -88,6 +88,8 @@ internal struct VfxPart
     public float Age;
     public float Life;
     public float ExitAge;
+    // Seconds the exit fades over (FadeOut, or StopFade when the effect stopped it).
+    public float ExitFade;
     public Vector3 Origin;
     public Vector3 Local;
     public Vector3 Start;
@@ -469,6 +471,12 @@ internal sealed class PartState
             }
         }
 
+        if (!emitting && !part.Exiting && source.StopFade > 0f && part.Life <= 0f && Part.Animation is null)
+        {
+            Exit(ref part, source.StopFade);
+            End(ref part, instance, system);
+        }
+
         if (Ended(ref part, emitting))
         {
             if (source.Goal == VfxPartGoal.None && part.Life > 0f && part.Age >= part.Life)
@@ -489,7 +497,9 @@ internal sealed class PartState
         }
     }
 
-    private void Exit(ref VfxPart part)
+    private void Exit(ref VfxPart part) => Exit(ref part, Part.Source.FadeOut);
+
+    private void Exit(ref VfxPart part, float fade)
     {
         if (part.Exiting)
         {
@@ -498,6 +508,7 @@ internal sealed class PartState
 
         part.Exiting = true;
         part.ExitAge = part.Age;
+        part.ExitFade = fade;
         if (Part.Animation is { } animation)
         {
             part.Player.Exit(animation);
@@ -519,7 +530,7 @@ internal sealed class PartState
 
         if (part.Exiting)
         {
-            return Part.Animation is not null ? part.Player.Finished : part.Age - part.ExitAge >= source.FadeOut;
+            return Part.Animation is not null ? part.Player.Finished : part.Age - part.ExitAge >= part.ExitFade;
         }
 
         if (Part.Animation is not null && part.Player.Finished)
@@ -657,9 +668,9 @@ internal sealed class PartState
             }
         }
 
-        if (part.Exiting && Part.Animation is null && source.FadeOut > 0f)
+        if (part.Exiting && Part.Animation is null && part.ExitFade > 0f)
         {
-            fade = MathF.Min(fade, 1f - (part.Age - part.ExitAge) / source.FadeOut);
+            fade = MathF.Min(fade, 1f - (part.Age - part.ExitAge) / part.ExitFade);
         }
 
         return Math.Clamp(fade, 0f, 1f);

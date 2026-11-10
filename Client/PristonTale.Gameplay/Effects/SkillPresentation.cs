@@ -49,6 +49,8 @@ public interface ISkillSceneHost : IVfxAnchors
 public sealed class SkillPresentation : IVfxServices, IDisposable
 {
     public const string ReviveEffect = "vfx.priestess.resurrection.rise";
+    // The pillar of light of a player standing up: entering the world, a restart or any revival.
+    public const string RestartEffect = "vfx.player.restart";
     private const float ChainLinkSeconds = 0.08f;
     // Game-thread time per frame spent registering effect definitions until all are ready.
     private static readonly TimeSpan CompileBudget = TimeSpan.FromMilliseconds(2);
@@ -351,6 +353,16 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
             return;
         }
 
+        if ((skillEvent.Flags & SkillEventFlags.Defended) != 0)
+        {
+            if (rule.DefenseEffect.Length > 0)
+            {
+                Spawn(rule.DefenseEffect, skillEvent.CasterId, skillEvent.CasterId, Position(skillEvent.CasterId, skillEvent.Position), -skillEvent.Facing);
+            }
+
+            return;
+        }
+
         if ((skillEvent.Flags & (SkillEventFlags.Companion | SkillEventFlags.Counter)) != 0 && rule.CompanionEffect.Length > 0)
         {
             Strike(skillEvent, rule);
@@ -487,7 +499,11 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
         {
             if (_host.TryGetPosition(combat.TargetId, out var risen))
             {
-                Spawn(ReviveEffect, combat.AttackerId, combat.TargetId, risen);
+                Spawn(RestartEffect, combat.TargetId, combat.TargetId, risen);
+                if (combat.AttackerId != combat.TargetId)
+                {
+                    Spawn(ReviveEffect, combat.AttackerId, combat.TargetId, risen);
+                }
             }
 
             return;
@@ -552,8 +568,6 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
         }
     }
 
-    // Effects that draw an element (enchants, companions) report it as the status value; their aura has a variant per
-    // element ("<aura>.ice") when one is defined.
     private VfxHandle SpawnAura(ulong entityId, StatusEntry entry)
     {
         if (!SkillRuleCatalog.TryGet(entry.Code, out var rule) || rule.BuffEffect.Length == 0 || !_host.TryGetPosition(entityId, out var position))
@@ -561,36 +575,58 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
             return default;
         }
 
-        var name = rule.BuffEffect;
-        var element = (Simulation.Combat.Element)entry.Value;
-        if ((rule.Buff?.Enchant?.Choices ?? rule.Buff?.Companion?.Choices) is { Length: > 1 } && Enum.IsDefined(element))
-        {
-            var variant = name + "." + element.ToString().ToLowerInvariant();
-            name = Library.TryGet(variant, out _) ? variant : name;
-        }
-
-        return Spawn(name, entityId, entityId, position);
+        return Spawn(Variant(rule, rule.BuffEffect, entry.Value), entityId, entityId, position);
     }
 
-    // A familiar's strike in the element its status drew ("<effect>.ice"), when that variant is defined.
-    private string ElementVariant(SkillRule rule, string name, ulong casterId)
+    // The effect a running status of the entity names (pick: SkillRule.HitEffect or ShotEffect) in the element the status
+    // drew; empty when none names one.
+    public string StatusEffect(ulong entityId, Func<SkillRule, string> pick)
     {
-        if (rule.Buff?.Companion?.Choices is not { Length: > 1 })
+        foreach (var entry in Statuses.For(entityId))
         {
-            return name;
+            if (SkillRuleCatalog.TryGet(entry.Code, out var rule) && pick(rule) is { Length: > 0 } name)
+            {
+                return Variant(rule, name, entry.Value);
+            }
         }
 
+        return "";
+    }
+
+    // A familiar's strike in the element its status drew.
+    private string ElementVariant(SkillRule rule, string name, ulong casterId)
+    {
         foreach (var entry in Statuses.For(casterId))
         {
-            var element = (Simulation.Combat.Element)entry.Value;
-            if (entry.Code == rule.Code && Enum.IsDefined(element))
+            if (entry.Code == rule.Code)
             {
-                var variant = name + "." + element.ToString().ToLowerInvariant();
-                return Library.TryGet(variant, out _) ? variant : name;
+                return Variant(rule, name, entry.Value);
             }
         }
 
         return name;
+    }
+
+    private readonly Dictionary<(string Name, int Element), string> _variants = new();
+
+    // Effects that draw an element (enchants, companions) report it as the status value; their effects have a variant per
+    // element ("<effect>.ice") when one is defined, resolved once per name and element.
+    private string Variant(SkillRule rule, string name, int value)
+    {
+        var element = (Simulation.Combat.Element)value;
+        if ((rule.Buff?.Enchant?.Choices ?? rule.Buff?.Companion?.Choices) is not { Length: > 1 } || !Enum.IsDefined(element))
+        {
+            return name;
+        }
+
+        if (!_variants.TryGetValue((name, value), out var resolved))
+        {
+            var variant = name + "." + element.ToString().ToLowerInvariant();
+            resolved = Library.TryGet(variant, out _) ? variant : name;
+            _variants[(name, value)] = resolved;
+        }
+
+        return resolved;
     }
 
     private Vector3 Position(ulong entityId, Vector3 fallbackTransport)

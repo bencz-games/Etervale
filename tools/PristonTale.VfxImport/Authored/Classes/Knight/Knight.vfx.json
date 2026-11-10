@@ -1825,5 +1825,21 @@
         "follow": true
       }
     ]
+  },
+  {
+    "name": "vfx.knight.divineinhalation.defense",
+    "duration": 1.0,
+    "children": [
+      {
+        "effect": "vfx.defense.absorb",
+        "anchor": "Caster",
+        "bone": "Bip01 L Hand",
+        "offset": [
+          0,
+          0,
+          0
+        ]
+      }
+    ]
   }
 ]

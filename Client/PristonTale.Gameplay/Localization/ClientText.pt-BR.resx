@@ -15,6 +15,10 @@
   <data name="Attribute.Spirit" xml:space="preserve"><value>Espírito</value></data>
   <data name="Attribute.Strength" xml:space="preserve"><value>Força</value></data>
   <data name="Attribute.Talent" xml:space="preserve"><value>Talento</value></data>
+  <data name="Bellatra.AdvanceOne" xml:space="preserve"><value>{0}
+segue para a torre alta.</value></data>
+  <data name="Bellatra.AdvanceTwo" xml:space="preserve"><value>{0} e {1}
+seguem para a torre alta.</value></data>
   <data name="Bellatra.Back" xml:space="preserve"><value>Voltar</value></data>
   <data name="Bellatra.Chief" xml:space="preserve"><value>Chefe: {0}</value></data>
   <data name="Bellatra.ChiefOnly" xml:space="preserve"><value>Só o chefe do clã resgata a renda.</value></data>
@@ -33,6 +37,13 @@
   <data name="Bellatra.Ranking" xml:space="preserve"><value>Ranking</value></data>
   <data name="Bellatra.Redeem" xml:space="preserve"><value>Resgatar</value></data>
   <data name="Bellatra.Round" xml:space="preserve"><value>Rodada {0}</value></data>
+  <data name="Bellatra.Seal.Freeze" xml:space="preserve"><value>Selo do Gelo</value></data>
+  <data name="Bellatra.Seal.Guardian" xml:space="preserve"><value>Selo do Guardião</value></data>
+  <data name="Bellatra.Seal.Points" xml:space="preserve"><value>{0} pontos a mais</value></data>
+  <data name="Bellatra.Seal.Quake" xml:space="preserve"><value>Selo do Tremor</value></data>
+  <data name="Bellatra.Seal.Rabbit" xml:space="preserve"><value>Selo do Coelho</value></data>
+  <data name="Bellatra.Seal.Stun" xml:space="preserve"><value>Selo do Atordoamento</value></data>
+  <data name="Bellatra.Seal.Stygian" xml:space="preserve"><value>Selo Estígio</value></data>
   <data name="Bellatra.Secretary" xml:space="preserve"><value>Secretária da Bellatra</value></data>
   <data name="Bellatra.Status.Busy" xml:space="preserve"><value>Você está ocupado com outra coisa.</value></data>
   <data name="Bellatra.Status.NotChief" xml:space="preserve"><value>Só o chefe do clã resgata a renda.</value></data>
@@ -721,11 +732,13 @@
   <data name="Siege.DoorDown" xml:space="preserve"><value>Portão do castelo derrubado</value></data>
   <data name="Siege.DoorStands" xml:space="preserve"><value>Portão do castelo de pé</value></data>
   <data name="Siege.Ended" xml:space="preserve"><value>O cerco ao Bless Castle terminou.</value></data>
+  <data name="Siege.EndedText" xml:space="preserve"><value>Em instantes, todos cujo clã não domina o Bless Castle voltam ao início do campo do castelo.</value></data>
   <data name="Siege.HeldBy" xml:space="preserve"><value>Defendido por {0}</value></data>
   <data name="Siege.League" xml:space="preserve"><value>LIGA DO BLESS CASTLE</value></data>
   <data name="Siege.NoOwner" xml:space="preserve"><value>Nenhum clã domina o castelo</value></data>
   <data name="Siege.Title" xml:space="preserve"><value>BLESS CASTLE</value></data>
   <data name="Siege.Won" xml:space="preserve"><value>Seu clã domina o Bless Castle!</value></data>
+  <data name="Siege.WonText" xml:space="preserve"><value>Parabéns pela vitória! O castelo é do seu clã até o próximo cerco. O chefe do clã define o imposto e a habilidade do clã com o mordomo do castelo.</value></data>
   <data name="Skill.AlreadyActive" xml:space="preserve"><value>Esse efeito ainda está ativo.</value></data>
   <data name="Skill.CannotUse" xml:space="preserve"><value>A habilidade não pode ser usada agora.</value></data>
   <data name="Skill.InVillage" xml:space="preserve"><value>Habilidades não podem ser usadas na cidade.</value></data>
@@ -824,8 +837,11 @@
   <data name="Stat.DamageVsUndead" xml:space="preserve"><value>Dano contra mortos-vivos</value></data>
   <data name="Stat.Defence" xml:space="preserve"><value>Defesa</value></data>
   <data name="Stat.Evasion" xml:space="preserve"><value>Esquiva</value></data>
+  <data name="Stat.ForceOrbDamage" xml:space="preserve"><value>Poder da Force Orb</value></data>
   <data name="Stat.HealingTaken" xml:space="preserve"><value>Cura recebida</value></data>
   <data name="Stat.HitDamage" xml:space="preserve"><value>Dano por golpe</value></data>
+  <data name="Stat.HitDamageMax" xml:space="preserve"><value>Dano máximo por golpe</value></data>
+  <data name="Stat.HitDamageMin" xml:space="preserve"><value>Dano mínimo por golpe</value></data>
   <data name="Stat.LifeCostPerAttack" xml:space="preserve"><value>Custo de vida por ataque</value></data>
   <data name="Stat.LifeLeech" xml:space="preserve"><value>Roubo de vida</value></data>
   <data name="Stat.LifeRegen" xml:space="preserve"><value>Regeneração de vida (décimos/s)</value></data>

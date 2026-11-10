@@ -243,7 +243,7 @@ internal static class CastleTests
         fixture.World.Arrivals.Add(new CastleArrival(1, Simulation.World.FieldCodes.Castle, new System.Numerics.Vector3(1, 2, 3)));
         await fixture.TickAsync(Off, TimeSpan.FromSeconds(1));
         Assert.True(fixture.Castle.View() is { OwnerClanId: 8, Siege: SiegeState.Over } && fixture.Repository.Saved.OwnerClanId == 8
-            && fixture.Link.Lines[^1].Line is { Id: GameTextId.CastleTaken, Args: ["Tigers"] } && fixture.World.Calls is ["open", "close"],
+            && fixture.Link.Lines[^1].Line is { Id: GameTextId.CastleTaken, Args: ["Tigers"] } && fixture.World.Calls is ["open", "close 8"],
             "the tower's fall did not give the castle to the leading clan");
         await fixture.TickAsync(Off, TimeSpan.FromSeconds(CastleRules.OverSeconds));
         Assert.True(fixture.Castle.Siege == SiegeState.Peace && fixture.World.Calls is [.., "end 8"] && fixture.Link.Warps is [(Simulation.World.FieldCodes.Castle, _)],
@@ -258,7 +258,7 @@ internal static class CastleTests
         await fixture.Castle.StartSiegeAsync();
         fixture.World.Siege = fixture.World.Siege with { ValhallaFallen = true, Winner = 8 };
         fixture.Repository.Refuse = true;
-        Assert.True(await fixture.Castle.EndSiegeAsync() && fixture.Castle.OwnerClanId == 7 && fixture.World.Calls is ["open", "close"],
+        Assert.True(await fixture.Castle.EndSiegeAsync() && fixture.Castle.OwnerClanId == 7 && fixture.World.Calls is ["open", "close 7"],
             "a refused conquest changed the owner");
         fixture.Repository.Refuse = false;
         await fixture.TickAsync(Off, TimeSpan.FromMinutes(1));
@@ -753,9 +753,9 @@ internal static class CastleTests
             return Task.CompletedTask;
         }
 
-        public Task CloseSiegeAsync()
+        public Task CloseSiegeAsync(long ownerClanId)
         {
-            Calls.Add("close");
+            Calls.Add($"close {ownerClanId}");
             Siege = Siege with { Running = false };
             return Task.CompletedTask;
         }

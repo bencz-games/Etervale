@@ -93,6 +93,9 @@ public sealed class HudPainter : IDisposable
 
     public Texture2D Texture(string path) => _sprites.Get(path);
 
+    // One white pixel, for fills drawn outside the painter.
+    public Texture2D Pixel => _white;
+
     public void Sprite(string path, int x, int y, Color? tint = null)
     {
         var texture = _sprites.Get(path);

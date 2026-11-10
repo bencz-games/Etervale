@@ -51,6 +51,11 @@ public sealed partial class GameScene
             _forceOrbs = new ForceOrbPresentation(_skillFx, scripts, _renderer?.TransientLights);
         }
 
+        if (_hits is null && _skillFx is not null)
+        {
+            _hits = new HitEffects(_skillFx);
+        }
+
         if (_pets is null && _renderer is not null)
         {
             _pets = new PremiumPetPresentation(_actorScene, _actorLoader, _assetRoot ?? "", scripts, _renderer.TransientLights, _skillSounds, _log);
@@ -87,6 +92,10 @@ public sealed partial class GameScene
             else if (effect.Effect is ItemEffectKind.Learn or ItemEffectKind.ForceOrb or ItemEffectKind.HeadChange)
             {
                 _skillFx?.Spawn(ItemVfx.Learn, effect.Entity, effect.Entity, position);
+            }
+            else if (effect.Effect == ItemEffectKind.AgingUp)
+            {
+                _skillFx?.Spawn(ItemVfx.AgingUp, effect.Entity, effect.Entity, position);
             }
             else if (effect.Effect == ItemEffectKind.Return)
             {

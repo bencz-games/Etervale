@@ -17,7 +17,7 @@
 #---------------------------------- Content ---------------------------------#
 
 # The SM 6.0 shader library (Shaders/, see docs/shaders.md), compiled for Vulkan (vs_6_0/ps_6_0). Surface.fx is built for
-# the static and the skinned vertex factories (SKINNED); each effect selects its pass by technique.
+# the static, the skinned (SKINNED) and the glTF (SKINNED;GLTF) vertex factories; each effect selects its pass by technique.
 #begin Shaders/Passes/Surface.fx
 /importer:EffectImporter
 /processor:SpirvEffectProcessor
@@ -30,6 +30,13 @@
 /processorParam:DebugMode=Auto
 /processorParam:Defines=SKINNED
 /build:Shaders/Passes/Surface.fx;Effects/SkinnedSurface.fx
+
+#begin Shaders/Passes/Surface.fx
+/importer:EffectImporter
+/processor:SpirvEffectProcessor
+/processorParam:DebugMode=Auto
+/processorParam:Defines=SKINNED;GLTF
+/build:Shaders/Passes/Surface.fx;Effects/GltfSurface.fx
 
 #begin Shaders/Passes/Unlit.fx
 /importer:EffectImporter

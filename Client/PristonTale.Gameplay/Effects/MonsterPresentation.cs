@@ -14,7 +14,7 @@ namespace PristonTale.Gameplay.Effects;
 // server sends it).
 // Summoned: a player's summon (a crystal's pet, a mercenary).
 public readonly record struct MonsterActorView(ulong EntityId, ActorHandle Actor, int SoundCode, int Level, float Scale, Vector3 Position, float Facing,
-    bool IsDead, bool Hammer = false, bool Summoned = false);
+    bool IsDead, bool Hammer = false, bool Summoned = false, bool Boss = false);
 
 // The effects the monster presentation starts: named effect definitions, running instances it may stop and the statuses
 // of every visible entity.
@@ -57,8 +57,9 @@ public interface IMonsterScene
     // Adds a colour to every actor of an entity (players included); zero clears it.
     void SetEntityTint(ulong entityId, Vector3 tint);
 
-    // A corpse's look on every actor of an entity: fade multiplies its opacity, dim takes light away.
-    void SetEntityCorpse(ulong entityId, float fade, float dim);
+    // The body of every actor of an entity: opacity multiplies it (a translucent family, a fading corpse), dim takes light
+    // away (a corpse).
+    void SetEntityBody(ulong entityId, float opacity, float dim);
 }
 
 // Plays the visuals of monsters the way the original client did: it follows each monster's animation and starts the
@@ -75,6 +76,9 @@ public sealed class MonsterPresentation
     private const int SkillState = (int)MotionCode.Skill;
     private const int DeadState = (int)MotionCode.Dead;
     private const int MinigSound = 0x1030;
+    // Babel's bolt flies at this speed (vfx.monster.babel.attack.hit); the chain lights up when it reaches its target.
+    private const float BabelBoltSpeed = 500f;
+    private const string BabelChain = "vfx.monster.babel.chain";
 
     // A corpse darkens from DimStartTicks after its death clip starts, by half a light unit a tick, up to DimMost at
     // DimFullTicks; the bodies of light (Figon, Stygian Lord, Guardian Saint, the fire elemental, Chaos Cara) fade by two
@@ -95,6 +99,12 @@ public sealed class MonsterPresentation
     private readonly Dictionary<ulong, ulong> _targets = new();
     private readonly Dictionary<(ulong Entity, uint Code, ulong Source), IMonsterEffect> _statusEffects = new();
     private readonly Dictionary<ulong, (int Ice, int Poison)> _tints = new();
+    // The light of each tracked monster's look (MonsterLooks), under its status tints.
+    private readonly Dictionary<ulong, Vector3> _lights = new();
+    // The players a Babel blow struck this frame, in the order of its hits (its target first), and the chain links due.
+    private readonly Dictionary<ulong, List<(ulong Target, Vector3 Position)>> _blows = new();
+    private readonly List<(double Due, ulong From, ulong To)> _links = new();
+    private double _clock;
     private readonly HashSet<ulong> _seen = new();
     private readonly List<ulong> _gone = new();
     private readonly Dictionary<string, string> _names = new(StringComparer.Ordinal);
@@ -112,6 +122,24 @@ public sealed class MonsterPresentation
     // The target of a monster's latest swing, from the server's swing event.
     public void ObserveSwing(ulong attackerId, ulong targetId) => _targets[attackerId] = targetId;
 
+    // A monster's blow struck a player. When a Babel's blow splashes over several players, the bolt reaching its target
+    // lights a chain from each struck player to the next.
+    public void ObserveBlow(ulong attackerId, ulong targetId, Vector3 targetPosition)
+    {
+        if (SoundOf(attackerId) != CharacterSoundCodes.Babel)
+        {
+            return;
+        }
+
+        if (!_blows.TryGetValue(attackerId, out var struck))
+        {
+            struck = [];
+            _blows[attackerId] = struck;
+        }
+
+        struck.Add((targetId, targetPosition));
+    }
+
     // A monster skill struck someone besides its swing's target: the family's impact effect plays on that victim.
     public void ObserveSkillHit(ulong attackerId, ulong victimId, Vector3 victimPosition)
     {
@@ -126,6 +154,9 @@ public sealed class MonsterPresentation
 
     public void Update(IReadOnlyList<MonsterActorView> monsters, float seconds)
     {
+        QueueChains();
+        _clock += seconds;
+        LightChains();
         _seen.Clear();
         foreach (var monster in monsters)
         {
@@ -165,6 +196,9 @@ public sealed class MonsterPresentation
         _targets.Clear();
         _statusEffects.Clear();
         _tints.Clear();
+        _lights.Clear();
+        _blows.Clear();
+        _links.Clear();
     }
 
     private void Forget(ulong id)
@@ -177,6 +211,38 @@ public sealed class MonsterPresentation
 
         _targets.Remove(id);
         _soundById.Remove(id);
+        _lights.Remove(id);
+    }
+
+    // The links of the blows seen since the last frame, due when the bolt reaches the first struck player.
+    private void QueueChains()
+    {
+        foreach (var (attacker, struck) in _blows)
+        {
+            if (struck.Count > 1 && _tracked.TryGetValue(attacker, out var tracked))
+            {
+                var due = _clock + Vector3.Distance(tracked.Position, struck[0].Position) / BabelBoltSpeed;
+                for (var index = 0; index + 1 < struck.Count; index++)
+                {
+                    _links.Add((due, struck[index].Target, struck[index + 1].Target));
+                }
+            }
+
+            struck.Clear();
+        }
+    }
+
+    private void LightChains()
+    {
+        for (var index = _links.Count - 1; index >= 0; index--)
+        {
+            var (due, from, to) = _links[index];
+            if (due <= _clock)
+            {
+                _effects.Spawn(BabelChain, from, to, Vector3.Zero, 0f);
+                _links.RemoveAt(index);
+            }
+        }
     }
 
     private void Step(in MonsterActorView monster, float seconds)
@@ -185,7 +251,10 @@ public sealed class MonsterPresentation
         {
             tracked = new Tracked { Family = MonsterVisualFamilies.Of(monster.SoundCode, monster.Level, monster.Scale) };
             _tracked.Add(monster.EntityId, tracked);
+            Look(tracked, monster);
         }
+
+        tracked.Position = monster.Position;
 
         if (tracked.Family.Length == 0)
         {
@@ -202,7 +271,7 @@ public sealed class MonsterPresentation
             {
                 tracked.Fade = fade;
                 tracked.Dim = dim;
-                _scene.SetEntityCorpse(monster.EntityId, fade, dim);
+                _scene.SetEntityBody(monster.EntityId, fade * tracked.Opacity, dim);
             }
         }
 
@@ -288,7 +357,24 @@ public sealed class MonsterPresentation
     {
         var frames = seconds * GameUnits.TicksPerSecond;
         tracked.Anger = Math.Clamp(tracked.Anger + (state is AttackState or (int)MotionCode.Damage ? 2f : -1f) * frames, 0f, 100f);
-        _scene.SetEntityTint(entityId, new Vector3(tracked.Anger / 256f, -tracked.Anger / 512f, 0f));
+        _scene.SetEntityTint(entityId, _lights.GetValueOrDefault(entityId) + new Vector3(tracked.Anger / 256f, -tracked.Anger / 512f, 0f));
+    }
+
+    // The look the monster keeps while present: its light under any status tint, its opacity under a corpse's fade.
+    private void Look(Tracked tracked, in MonsterActorView monster)
+    {
+        var look = MonsterLooks.Of(monster.SoundCode, monster.Level, monster.Boss, monster.Summoned);
+        tracked.Opacity = look.Opacity;
+        if (look.Light != Vector3.Zero)
+        {
+            _lights[monster.EntityId] = look.Light;
+            ApplyTint(monster.EntityId);
+        }
+
+        if (look.Opacity != 1f)
+        {
+            _scene.SetEntityBody(monster.EntityId, look.Opacity, 0f);
+        }
     }
 
     private ulong Target(ulong attackerId) => _targets.TryGetValue(attackerId, out var target) ? target : 0;
@@ -460,7 +546,13 @@ public sealed class MonsterPresentation
             _tints[entityId] = (ice, poison);
         }
 
-        _scene.SetEntityTint(entityId, (ice > 0 ? IceTint : Vector3.Zero) + (poison > 0 ? PoisonTint : Vector3.Zero));
+        ApplyTint(entityId);
+    }
+
+    private void ApplyTint(ulong entityId)
+    {
+        var (ice, poison) = _tints.GetValueOrDefault(entityId);
+        _scene.SetEntityTint(entityId, _lights.GetValueOrDefault(entityId) + (ice > 0 ? IceTint : Vector3.Zero) + (poison > 0 ? PoisonTint : Vector3.Zero));
     }
 
     // Holders of a monster stun cannot move, attack or cast.
@@ -490,5 +582,7 @@ public sealed class MonsterPresentation
         public float Fade = 1f;
         public float Dim;
         public float Anger;
+        public float Opacity = 1f;
+        public Vector3 Position;
     }
 }

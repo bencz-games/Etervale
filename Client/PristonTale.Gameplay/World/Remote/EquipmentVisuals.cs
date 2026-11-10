@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using PristonTale.Contracts.Characters;
 using PristonTale.Contracts.Units;
+using PristonTale.Engine3D.Equipment;
 using PristonTale.Simulation.Characters;
 
 namespace PristonTale.Gameplay.World.Remote;

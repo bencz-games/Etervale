@@ -221,6 +221,7 @@ public sealed partial class WorldServer
             }
 
             player.EnterField(position, definition.State == FieldState.Village);
+            player.Guard(PlayerGrace.ArrivalMs);
             field.Add(player);
             _connections.Add(player.EntityId, new Connection(fieldId, player, outbound, session) { NextGiftTick = GiftTick(StarterGifts.FirstDelay) });
             _membershipChanged = true;
@@ -290,6 +291,7 @@ public sealed partial class WorldServer
             {
                 // Warp exits carry an authored height; settle on the floor at or just below it rather than on a roof.
                 player.EnterField(terrain.SettleNear(arrival.Position, FieldTerrain.ArrivalTolerance), inVillage);
+                player.Guard(PlayerGrace.ArrivalMs);
             }
             else
             {
@@ -340,6 +342,11 @@ public sealed partial class WorldServer
             return _fields.TryGetValue(fieldId, out var field) && field.SetAttackTarget(attackerEntityId, targetEntityId, sustained, sequence);
         });
     }
+
+    // Space with nothing ahead in an action field (FieldState.Action) swings at nothing; elsewhere it does nothing.
+    public Task<bool> SwingAtNothingAsync(int fieldId, ulong entityId) =>
+        EnqueueAsync(entityId, () => _catalog.TryGetFieldByCode(fieldId, out var definition) && definition.State == FieldState.Action
+            && _fields.TryGetValue(fieldId, out var field) && field.SwingAtNothing(entityId));
 
     public Task<CharacterSaveSnapshot?> CaptureForSaveAsync(PlayerSession session)
     {
@@ -738,6 +745,7 @@ public sealed partial class WorldServer
         LastPhases = new TickPhases(processed, Stopwatch.GetElapsedTime(started, commandsDone).TotalMilliseconds,
             Stopwatch.GetElapsedTime(commandsDone).TotalMilliseconds);
         PublishSiege(nowSeconds);
+        CheerCastleOwners(UnixNowMs);
         ApplyCastleTax();
         RenewClanSkill(nowSeconds);
         StepBellatra(UnixNowMs);

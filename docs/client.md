@@ -75,7 +75,9 @@ rendering internals, skill presentation and VFX data have their own documents (s
 - Every asset path is relative to that root (`ScreenContext.AssetRoot`, `GameScreen.AssetPath`). `GameScreen.AssetPath` and the
   scene join with `AssetFiles.Combine`. Original assets are read through `AssetFiles`
   (`Shared/PristonTale.Assets/AssetFiles.cs`), which resolves separators and rebuilds the real casing component by
-  component, caching hits; use it (`Resolve`, `ResolveFile`, `Exists`, `ReadAllBytes`, `OpenRead`) instead of `File.*`
+  component, caching hits. On a case-sensitive file system (Linux, macOS) folders that differ only in case, such as
+  `char/npcXms` beside `char/npcxms`, are each tried, the exact spelling first, so a file in either is found without
+  copying one into the other; use it (`Resolve`, `ResolveFile`, `Exists`, `ReadAllBytes`, `OpenRead`) instead of `File.*`
   for any path into `assets/`.
 - Field definitions (stage `.smd`, scenery models, gates, warp gates, lighting, camera, music) come from the shared
   `WorldCatalog` in `Shared/PristonTale.Simulation/World/WorldDefinitions.cs`, not from the server. Monster and NPC
@@ -399,8 +401,8 @@ destination. Renderer side of stage publication: [rendering.md](rendering.md).
 | `F9` | `Game1.Update` | Show or hide the diagnostics overlay (frame rate and timing, the screen's status; `GameClient.Diagnostics`) |
 | `Ctrl+F3` / `Ctrl+F5` / `Ctrl+F10` | `GameplayScreen.UpdateDebugKeys` | Add the render stats to the F9 diagnostics / toggle shadows / cycle `PristonDebugView` |
 | `Ctrl+1`..`Ctrl+7` | `GameplayScreen.UpdateMotionKeys` | Force Stand, Walk, Run, Attack, Damage, Dead, Skill on the local avatar |
-| Arrow keys (action field) | `GameScene.UpdateActionKeys` | Walk along x (left, right) and z (up, down), diagonals included; left or right pressed again within 500 ms of letting it go dashes (runs) until released or turned; letting go stops the walk and the attack |
-| `Space` (action field) | same | Attack the nearest monster ahead (within the attack range along x on the side faced, 32 units of the player's line; `RemoteEntityManager.FindAhead`), else pick up the nearest drop within 32 along x and 16 of the line (`GroundLootPresentation.FindNear`); it does not cheer there |
+| Arrow keys (action field) | `GameScene.UpdateActionKeys` | Walk along x (left, right) and z (up, down), diagonals included; left or right pressed again within 500 ms of letting it go dashes (runs) until released or turned; letting go stops the walk and the attack; walking into another player (within 16 of the next step and of its height, nearer there than before; `RemoteEntityManager.FindPlayerBumped`) stops there and makes it the target, its trade, party and friend buttons shown once a bump; walking away always goes |
+| `Space` (action field) | same | Attack the nearest monster ahead (within the attack range along x on the side faced, 32 units of the player's line; `RemoteEntityManager.FindAhead`), else pick up the nearest drop within 32 along x and 16 of the line (`GroundLootPresentation.FindNear`), else swing at nothing (`SwingRequest`); it does not cheer there |
 | `Ctrl` (action field) | same | The right socket skill: at once when it takes no target, else on the nearest monster ahead, or for a skill on allies the nearest player or summon ahead (the caster when none); the basic attack in the socket attacks as `Space` does |
 
 An action field (`FieldState.Action`, [world.md](world.md#fields)) is seen side-on (`GameScene.UpdateCamera`): the
@@ -454,7 +456,13 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   `particle.water` half a unit over the surface at each step 8 units ahead and every 64 frames of 70 per second standing,
   32 walking (8 ahead), 16 running (14 ahead), attacking or casting. Out of the water, each step in an ice field leaves a
   footprint on an ice floor (`image/mk-r.tga` 3 units right and 5 ahead, `mk-l.tga` left), 12 x 12 units, tilted with
-  the ice, fading to a fifth over five seconds; at most 20 lie at a time. Local player only, as in the original.
+  the ice, fading to a fifth over five seconds; at most 20 lie at a time. Running on a ruin or desert field (Bellatra
+  aside) while no rain falls puffs dust every eighth frame, 4 units to either side in turn and 12 up, 10 to 25 across
+  (`FieldDust`, `vfx.ground.dust`); landing from a fall puffs 20 across on either side, 8 up (`vfx.ground.dust.landing`).
+  Local player only, as in the original.
+- Fireflies (`Fireflies`, `GameScene.Weather.cs`): in a forest at night (`GameHours.IsNight`), every 512 frames of 70
+  per second one time in two, twenty fireflies (`vfx.ambient.fireflies`: `BanDi1.ini`, 3 units, drifting for 8 to 12
+  seconds) within 430 units across and 117 up of the player.
 - Bless Castle's tax (from `CastleState`) is added to the prices the client works out itself: the skill window's
   training price (`HudSkillsPanel.Tax`), the wing warp map's fees and fee table (`HudWingGate.Tax`, the table made
   again for a new tax) and the aging and mixing benches' prices after their percents (`HudWorkbench.Tax`); the shop
@@ -560,10 +568,12 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   player is in the castle field, a board on the right under the target frame (below the windows) shows the time left
   (counted down on the HUD clock, set again only when the server's drifts by more than 1.5 s), the clan holding the
   castle, the castle door, the crystal towers standing and the best clans with their share of the damage (the player's
-  own clan in gold). When a siege ends, players in the castle field see a notice that their clan holds the castle or
-  that the siege is over. While the server runs the league mode, clicks on other players never attack
-  (`GameScene.CastleLeague`), as the server lets nobody fight then. The siege board and Bellatra's draw their lines the
-  same way (`HudSideBoard`).
+  own clan in gold). When a siege ends, players in the castle field hear its fanfare over silence
+  (`GameScene.PlaySiegeEnd`, the castle's music back once the siege closes, `RestoreFieldMusic`) and see
+  `HudSiegeResult` in the NPC panel's box: their clan's victory and what its chief may set, or that the siege is over
+  and they go back to the start of the castle's field; another window in that box hides it. While the server runs the
+  league mode, clicks on other players never attack (`GameScene.CastleLeague`), as the server lets nobody fight then.
+  The siege board and Bellatra's draw their lines the same way (`HudSideBoard`).
 - Bellatra (`GameplayHud.Bellatra`): a team booth answers its refusal or the ticket's price in the notice strip and
   offers the ticket as the NPC panel's one destination (a click buys it with `EnterBellatra`). While the server shows
   the board (`BellatraBoard`, the player in the arena), `HudBellatraBoard` on the right under the target frame shows
@@ -576,6 +586,24 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   says the game is over, and a team booth asks its team's live result, shown beside the NPC panel while a game is
   played, asked again every 12 s and closed with the panel or once nobody is left in the game. Only the answer the
   window still waits for opens it, a live answer never replaces the final result, and Escape closes it.
+- Bellatra's show (`HudBellatraShow`, `BellatraEffects`): the original's banners and screen changes read from
+  `image/Bellatra/Bellatra.dat` (`BellatraEffectTable`: 50 tracks of keys at 70 frames a second, each moving an image's
+  offset, half size, angle and alpha, a key held until the effect stops or looping; 40 effects of layered tracks) and
+  drawn over the screen in its 800x600 space, scaled evenly and centred, over black bars while a screen-sized image
+  shows (its black is see-through). The table's screen images keep a slot at index 1 that no effect draws; a seal's name
+  is the localized text twice the HUD's size (the four room seals' name effects name textures 21 to 24, images that are
+  not their art, which are not drawn). The art is asked when the player first stands in the arena. From the board: a
+  ticket's arrival shows the loading screen 3 s, while coming back to a game in play (a relog) only plays its music; a
+  round's start shows ROUND n and START 3 s later with its call, the music (`IBellatraStage`,
+  `FieldAudioController.SetEventMusic`, played only in the arena) changing at rounds 1, 4 and 7 (`BGM_CODE_SOD1` to
+  `SOD3`, the arena's own music being custom); a team going on hears its fanfare under STAGE COMPLETE, the screen closes
+  3 s before the server's move (`BellatraRules.BannerMs`) over the scores of the teams that played the stage and who
+  goes on (the board's `StageTeams` and `GoingOn`) and opens 1 s after it, the round's call 1 s later; a team out hears
+  its fall under STAGE FAIL and the screen closes 2 s before its move and stays closed until it leaves the arena; the
+  end plays the ending under CONGRATULATIONS. A seal notice of the team (`BellatraRules.TrySealOfNotice`) shows the
+  seal's emblem and name over an earlier seal's, with the pickup sound, the room's seals shaking the camera (50, every 4
+  frames) with the Diastrophism skill's impact sound, taken from its rule. The sounds are `wav/Sod` (`EventCue`,
+  `EventSounds`), the castle's siege end sharing the stage's fanfare.
 - Status window: attribute buttons send `ProgressionCommand` with `ProgressionRevision`; the organic, poison, fire,
   lightning and ice resistance boxes show the owner's resistances; the Clan box shows the owner's clan mark and name.
 - Block feedback (`HudStringEffect`): when the player blocks a blow, the original `block.tga` word shows at (354, 488)
@@ -825,7 +853,8 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   and death play the class's sound, a `Revive` the restart chime. The local player's walk and run clips play the floor's
   footsteps (stone in towns and ruins, dungeon stone, soft ground in forests and deserts) on their first two event
   frames. Everything comes from the presence stream, so every client near the action plays it.
-- Equipment looks (`EquipmentVisuals`, `EquipmentVisualTables`): every item with a model has its motion index (the
+- Equipment looks (`EquipmentVisuals`, `EquipmentVisualTables` in Engine3D, where model descriptors also name weapons
+  through it): every item with a model has its motion index (the
   weapon index the character motion files list; items newer than those files take the first item of their family and
   hand class), model (`image/sinimage/Items/DropItem/it<model>.smd`, also its ground model), hand and village bone. An
   equipment item without an imported client model is kept by the server but omitted from the rendered look, so it cannot

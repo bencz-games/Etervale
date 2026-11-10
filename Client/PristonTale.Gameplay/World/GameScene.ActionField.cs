@@ -12,9 +12,10 @@ namespace PristonTale.Gameplay.World;
 // An action field plays side-on, as in the original. The camera stands at the field's height and depth, follows the
 // player along x within the field's bounds and looks along +z; every actor is drawn facing left or right. The arrow keys
 // walk, and pressing left or right again within half a second of letting it go dashes until it is released or turned.
-// Space attacks the nearest monster ahead on the player's line, or else picks up the nearest drop; Ctrl uses the right
-// skill, at once when it needs no target, else on the nearest monster ahead (or, for a skill on allies, the nearest
-// player). Letting the keys go stops the walk and the attack. The mouse keeps its usual clicks.
+// Space attacks the nearest monster ahead on the player's line, or else picks up the nearest drop, or else swings at
+// nothing; Ctrl uses the right skill, at once when it needs no target, else on the nearest monster ahead (or, for a
+// skill on allies, the nearest player). Walking into another player stops there and shows that player's trade, party
+// and friend buttons. Letting the keys go stops the walk and the attack. The mouse keeps its usual clicks.
 public sealed partial class GameScene
 {
     private const double DashTapMs = 500;
@@ -26,6 +27,16 @@ public sealed partial class GameScene
 
     // The key walk heads this far ahead of the player, every frame the key is held.
     private const float KeyWalkLead = 64f;
+
+    // Another player within BumpReach of where the walk steps next (BumpStep ahead), at about the same height, that the
+    // step comes closer to, stops it; walking away from a player always goes.
+    private const float BumpReach = 16f;
+    private const float BumpStep = 8f;
+    private const float BumpHeight = 16f;
+
+    // The player the walk last bumped into, and whether its buttons were shown for that bump.
+    private ulong _bumpedPlayer;
+    private bool _bumpShown;
 
     private const int KeyUp = 1;
     private const int KeyDown = 2;
@@ -176,6 +187,11 @@ public sealed partial class GameScene
         var across = (direction & KeyRight) != 0 ? 1f : (direction & KeyLeft) != 0 ? -1f : side * 0.001f;
         var along = (direction & KeyUp) != 0 ? 1f : (direction & KeyDown) != 0 ? -1f : 0f;
         var heading = Vector2.Normalize(WorldSpace.Planar(across, along));
+        if (Bump(heading))
+        {
+            return;
+        }
+
         _moveTarget = _playerBody.PlanarPosition + heading * KeyWalkLead;
         _hasMoveTarget = true;
         _followCursor = false;
@@ -185,9 +201,50 @@ public sealed partial class GameScene
         }
     }
 
+    // A player the walk steps into stops it and becomes the target, its buttons shown once the target frame follows it
+    // (once a bump), as the original's action game opened them; the walk going on again reports at once.
+    private bool Bump(Vector2 heading)
+    {
+        var from = _playerBody.Position;
+        var step = _playerBody.PlanarPosition + heading * BumpStep;
+        var player = _remote?.FindPlayerBumped(_remote.SelfEntityId, from, new Vector3(step.X, from.Y, step.Y), BumpReach, BumpHeight) ?? 0;
+        if (player == 0)
+        {
+            if (_bumpedPlayer != 0)
+            {
+                _bumpedPlayer = 0;
+                _reports.Request();
+            }
+
+            return false;
+        }
+
+        if (player != _bumpedPlayer || _hasMoveTarget)
+        {
+            StopPredictedMovement();
+            _hasMoveTarget = false;
+            _reports.Request();
+        }
+
+        if (player != _bumpedPlayer)
+        {
+            (_bumpedPlayer, _bumpShown) = (player, false);
+            _targetSelection.Trace(player);
+        }
+
+        if (!_bumpShown && SelectedTargetId == player)
+        {
+            ReachedPlayerId = player;
+            _bumpShown = true;
+        }
+
+        return true;
+    }
+
     private void StopKeyWalk()
     {
         _actionDirection = 0;
+        _bumpedPlayer = 0;
         ClearAttackTarget();
         StopPredictedMovement();
         _reports.Request();
@@ -245,6 +302,12 @@ public sealed partial class GameScene
             _moveTarget = new Vector2(position.X, position.Z);
             _hasMoveTarget = true;
             _reports.Request();
+        }
+        else if (skill is null && !_selfAttacking && !SelfCasting && !SelfStunned && !_playerController.LocomotionFrozen && _playChannel is not null)
+        {
+            StopPredictedMovement();
+            _hasMoveTarget = false;
+            SendUpstream(_playChannel.SendSwingAsync(_presenceCts.Token), "swing at nothing");
         }
     }
 }

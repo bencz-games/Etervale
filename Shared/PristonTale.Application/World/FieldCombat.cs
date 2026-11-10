@@ -104,7 +104,7 @@ internal sealed class FieldCombat
     // waits for that position.
     private void SwingAt(WorldPlayer player, ulong targetId, Vector3 target)
     {
-        if (player.IsBusy || player.Character.Effects.Has(ControlFlags.Stun) || !player.InAttackRange(target))
+        if (!player.MaySwing || !player.InAttackRange(target))
         {
             return;
         }
@@ -151,10 +151,10 @@ internal sealed class FieldCombat
 
     // A player's blow or skill reaches another player for this damage: the attacker's Might Stone, the target's absorbing
     // shields, then the life it takes (PlayerHurtPlayer) and the hit's event.
-    public void HurtPlayer(WorldPlayer attacker, WorldPlayer foe, int damage, bool crit)
+    public void HurtPlayer(WorldPlayer attacker, WorldPlayer foe, int damage, bool crit, bool skill = false)
     {
         damage = CastleItems.Strike(attacker.Character.Effects, foe.Character.Class.Class, damage);
-        damage = SkillCombat?.DefendFromPlayer(foe, damage) ?? damage;
+        damage = SkillCombat?.DefendFromPlayer(attacker, foe, damage) ?? damage;
         var lifeBefore = foe.Life;
         foe.ApplyDamage(damage);
         if (lifeBefore > foe.Life)
@@ -163,7 +163,7 @@ internal sealed class FieldCombat
         }
 
         _host.EmitCombatEvent(new CombatEventView(attacker.EntityId, foe.EntityId, CombatEventKind.Hit, damage: lifeBefore - foe.Life, crit: crit,
-            killed: foe.IsDead));
+            killed: foe.IsDead) { Skill = skill });
     }
 
     // A player's blow that took another's life, for the siege's board.
@@ -217,8 +217,9 @@ internal sealed class FieldCombat
     // hurt by it.
     public static bool OwnClan(WorldPlayer player, MonsterInstance monster) => monster.ClanId != 0 && player.Clan?.ClanId == monster.ClanId;
 
+    // skill: the hit is not the player's basic attack (a skill's, or a pet's strike), reported on its event.
     public KillPayout? ApplyPlayerDamage(WorldPlayer player, MonsterInstance monster, int damage, bool crit, long nowMs, bool forceFlinch = false,
-        ulong sourceEntityId = 0)
+        ulong sourceEntityId = 0, bool skill = false)
     {
         if (damage <= 0 || !monster.IsAlive || monster.DuelPlayerId != 0 && monster.DuelPlayerId != player.EntityId || OwnClan(player, monster))
         {
@@ -242,7 +243,7 @@ internal sealed class FieldCombat
 
         _host.EmitCombatEvent(new CombatEventView(
             sourceEntityId != 0 ? sourceEntityId : player.EntityId, monster.EntityId, CombatEventKind.Hit,
-            damage: damage, crit: crit, killed: !monster.IsAlive));
+            damage: damage, crit: crit, killed: !monster.IsAlive) { Skill = skill });
 
         if (!monster.IsAlive)
             return OnMonsterDeath(monster, nowMs);

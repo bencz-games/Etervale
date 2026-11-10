@@ -95,7 +95,7 @@ Bodies start with `uint16 Version = 1`; text is UTF-8 with a `uint16` byte lengt
 | Step | Packet | Notes |
 | --- | --- | --- |
 | Connect | S→C `ServerHello` (`0x45540F00`) | `{uint16 Version, uint16 0, uint32 Protocol, MinimumProtocol, int32 FullPlayers, text ServerName (32 B)}`: `FullPlayers` = players in the world when the player limit (`server.max_users` or `/user_limit`) is reached, else 0 (then only game masters may log in); `ServerName` is `server.name`. |
-| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (22); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
+| Log in | C→S `Login` (`0x45540F01`) | `{uint16 Version, uint16 0, uint32 Protocol, text Account (64 B), text Password (128 B), text Language (16 B)}`. `Protocol` is `ProtocolVersion.Current` (26); a change of any message's layout raises it and `ProtocolVersion.Minimum`, so a client built before it is refused instead of misreading the world (a login without the language, from a client before protocol 4, is still read so the server can answer it is outdated). `Language` is the client's language (`en` or `pt-BR`; any other value is English): the server sends names and NPC dialog in it, falling back to English. |
 | Result | S→C `CharacterList` (`0x45540F03`), then `LoginResult` (`0x45540F02`) | `LoginResult` = `{uint16 Version, uint8 Status, uint8 0}`: 0 ok, 1 bad credentials (also unknown accounts), 2 account blocked, 3 already logged in on this connection, 4 busy (throttled, full or storage failure), 5 client protocol older than the server's minimum. A failed login sends no list. |
 | Character list | S→C `CharacterList` | `{uint16 Version, uint16 0, int32 Count (at most 6)}`, then `{text Name, uint32 Class (PlayerClass), int32 Level, uint8 Tier, Face, Hair, Flags (1 in a village), uint32 WeaponCode, ArmorCode, OffHandCode, uint32 0, text ClanName (48 B; empty out of a clan)}`. |
 | Create, delete | C→S `CharacterCommand` (`0x45540F04`), S→C `CharacterResult` (`0x45540F05`) | Command `{uint16 Version, uint8 Action (1 create, 2 delete), uint8 0, int32 Class (PlayerClass), FaceIndex, text Name}`; result `{uint16 Version, uint8 Action, uint8 Ok, int32 Failure (CreateCharacterFailure), text Name}`. |
@@ -121,6 +121,7 @@ closing.
 | `CloseRequest` (`0x45540D03`) | S→C | Asks the client to quit (the end of a game master's shutdown countdown). |
 | `WingGateRequest` / `WingGateResult` (`0x45540D04` / `0x45540D05`) | C→S / S→C | A trip from a warp stone to a stone of the wing warp map, correlated by operation id; a trip that warped also sends a forced `FieldWarp` ([world.md](world.md#wing-warp-gates)). |
 | `YahooKey` (`0x45540D06`) | C→S | Space within the minute a yahoo word opened; the server checks the window, the motion and the stamina, and the cheer shows as the presence motion `yahoo` ([chat-and-gm.md](chat-and-gm.md#server-routing)). |
+| `SwingRequest` (`0x45540D07`) | C→S | Space with nothing ahead in an action field; the server swings at nothing, the way the player faces, when it may swing and holds no attack (`WorldServer.SwingAtNothingAsync`), and the swing shows as the presence motion `attack`. |
 
 ### Player actions
 
@@ -133,6 +134,7 @@ Bodies start with `uint16 Version = 1`; positions are fixed point (x256), entity
 | `FieldWarp` | `uint8 Flags (1 forced), uint8 0, int32 Field, int32 X, Y, Z` (the client puts the owner on the floor nearest Y) | 28 |
 | `CloseRequest` | `uint16 0` | 12 |
 | `YahooKey` | `uint16 0` | 12 |
+| `SwingRequest` | `uint16 0` | 12 |
 | `WingGateRequest` | `uint16 0, Guid OperationId, uint8 Destination (map index 0..8), uint8 0, uint16 0` | 32 |
 | `WingGateResult` | `uint16 0, Guid OperationId, uint8 Status (WingGateStatus: 0 warped, 1 rejected, 2 not at a stone, 3 beyond the wing, 4 level too low, 5 not enough gold, 6 busy, 7 storage failed), uint8 Destination, uint16 0, int64 Fee` | 40 |
 
@@ -261,7 +263,7 @@ MoveSpeed, LifeRegen, ManaRegen, StaminaRegen, MagicMastery, SpecAbsorb, SpecMov
 SpecLifeRegen, SpecManaRegen, SpecStaminaRegen, int16 Resistances[8]}` (`ItemDetailEntry`). The client attaches the
 entries to the inventory of the same revision (`OwnedItemView.Details`) and folds the status into the owner state.
 
-A combat entry is `{uint8 Kind, uint8 Flags (1 critical, 2 killed, 4 monster skill), uint8 Fields, entity Attacker}`, then
+A combat entry is `{uint8 Kind, uint8 Flags (1 critical, 2 killed, 4 dealt by a skill or a pet rather than a basic attack), uint8 Fields, entity Attacker}`, then
 what `Fields` names in its bit order: 1 entity Target, 2 time DurationMs and HitAtMs, 4 varint Damage, 8 varint Resources,
 16 varint SoundCode, 32 point X, Y, Z, 64 varint Angle, 128 varint Clip (absent: Target 0, times 0, values 0, Clip -1). `Kind` is
 `CombatEventKind` (Contracts): 1 swing begin, 2 hit, 3 potion begin, 4 potion applied, 5 monster skill impact, 6 heal (amount
@@ -297,7 +299,8 @@ writes 0 in `SkillCastResult.ServerTick`.
 A skill entry is `{uint8 Phase (1 start, 2 impact, 3 cancel, 4 release), uint8 Fields, varuint Flags (1 area, 2
 projectile, 4 self, 8 chain link from X, Y, Z to Target, 16 familiar strike, 32 support reaching another player, 64
 counter strike, 128 full charge, bits 8-9 the resolution mode drawn for the cast, 1024 an enemy an area struck at
-X, Y, Z, for a rule with a `targetEffect`), uint32 SkillCode, uint8 Rank, entity
+X, Y, Z, for a rule with a `targetEffect`, 2048 the caster's buff defended it from Target, for a rule with a
+`defenseEffect`), uint32 SkillCode, uint8 Rank, entity
 Caster}`, then what `Fields` names: 1 entity Target, 2 time DurationMs and HitAtMs, 4 point X, Y, Z, 8 varint Angle, 16
 varuint TargetCount, 32 varint Radius. A release entry gives the shortened remaining motion in `DurationMs` and the time
 to its next hit in `HitAtMs`. A status entry is `{uint8 Op (1 add, 2 refresh, 3 remove, 4 tick), uint8 Fields, uint32
@@ -351,7 +354,8 @@ Every body starts with `{uint16 Version = 1, uint16 Flags = 0}`; text is UTF-8 w
 `Status` is `ItemUseStatus`; `Kind` is `PremiumEffectKind`; `Effect` is `ItemEffectKind` (1 firecracker with its roll
 in `Variant`, 2 mastery, 3 force orb, 4 learn, 5 pet strike with the pet kind in `ItemCode` and the struck entity in
 `Target`, 6 return sparkle at the given position, 7 head change, 8 drink, 9 gift box, 10 a new character's starter gift
-with its order in `Variant`, for its owner's beginner's guide). Player descriptions carry the
+with its order in `Variant`, for its owner's beginner's guide, 11 an aged copy of its owner reached its level, since
+protocol 26). Player descriptions carry the
 Phoenix flag, the helper pet and the head look (1-2 big head, 3 soccer ball). A sealed puzzle piece travels as the PZ100
 code with the name "Lucky Bag". The puzzle
 collector's exchange is the NPC service action `Exchange` (40) on `QuestEvent`.
@@ -540,7 +544,7 @@ at most 48 bytes (`ClanWire.MaxClanNameBytes`: 16 characters), a character's 64.
 | `BellatraClanState` | `uint8 HasView`; with one `varuint OperatingClanId` (0 none), `text OperatingName` (48 bytes), `text Chief` (64 bytes), `uint8 Tax`, `varuint Balance` (the player's clan's income), `uint8 CanRedeem` (its chief), `uint8 Count` (at most 10, `BellatraLimits.TopClans`), then per clan `text Name, varuint Points` (yesterday's) |
 | `BellatraResultRequest` | `uint8 Team` (0 the player's game or every team, 1 to 4 a team booth's) |
 | `BellatraResult` | `uint8 Final` (0 live), `uint8 Count` (at most `BellatraLimits.ResultLines`, 10), `{text Name (64 bytes), uint8 Class (`PlayerClass`), varuint Score, varuint Kills} x Count` |
-| `BellatraBoard` | `uint8 Shown`; with it `uint8 Round` (0 between rounds), `uint8 Team` (0 to 3), `uint8 Outcome` (0 playing, 1 the team goes on, 2 out, 3 the game is over), `varuint Score`, `varuint x4 TeamScores` (`BellatraLimits.Teams`) |
+| `BellatraBoard` | `uint8 Shown`; with it `uint8 Round` (0 between rounds), `uint8 Team` (0 to 3), `uint8 Outcome` (0 playing, 1 the team goes on, 2 out, 3 the game is over), `uint8 StageTeams`, `uint8 GoingOn` (at the last round start that sent teams on, the teams that played it and those going on, a bit a team), `varuint Score`, `varuint x4 TeamScores` (`BellatraLimits.Teams`) |
 | `BellatraClanResult` | `uint8 Action, uint8 Status` (`BellatraClanStatus`: 0 done, 1 not the chief, 2 not enough income, 3 out of reach, 4 too much gold, 5 busy, 6 unavailable) |
 | `CastleOwnerResult` | `uint8 Action, uint8 Status` (`CastleOwnerStatus`: 0 done, 1 not the owner clan, 2 not the chief, 3 out of reach, 4 busy, 5 not enough gold, 6 invalid setup, 7 during a siege, 8 not enough in the treasury, 9 too much gold, 10 unavailable) |
 

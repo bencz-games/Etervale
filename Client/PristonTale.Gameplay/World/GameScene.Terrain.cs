@@ -2,6 +2,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Effects.Vfx;
 using PristonTale.Engine3D.Formats;
+using PristonTale.Gameplay.Effects;
 using PristonTale.Simulation.World;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.Units;
@@ -13,7 +14,8 @@ namespace PristonTale.Gameplay.World;
 // frames of 70 per second standing, every 32 walking (8 ahead) and every 16 running (14 ahead), attacking or casting.
 // Out of the water, each step in an ice field leaves a footprint on an ice floor (image/mk-r.tga for the right foot 3
 // units right and 5 ahead, mk-l.tga for the left), 12 x 12 units, tilted with the ice and turned with the player,
-// fading to a fifth over five seconds before it goes; at most 20 lie at a time.
+// fading to a fifth over five seconds before it goes; at most 20 lie at a time. Running on a ruin or desert field and
+// landing from a fall raise dust (FieldDust).
 public sealed partial class GameScene
 {
     public const string WaterSplash = "particle.water";
@@ -37,7 +39,7 @@ public sealed partial class GameScene
             return;
         }
 
-        var feet = _playerBody.Position + Vector3.Up * GroundTraversal.VisualOffset;
+        var feet = PlayerFeet;
         var forward = PlanarForward();
         if (TryWaterSurface(feet, out var surface))
         {
@@ -71,7 +73,13 @@ public sealed partial class GameScene
         {
             _terrainFrames -= 1f;
             _terrainCounter++;
-            var feet = _playerBody.Position + Vector3.Up * GroundTraversal.VisualOffset;
+            var feet = PlayerFeet;
+            if (_playerController.Current == MotionCode.Run && _currentField is not null && FieldDust.Kicks(_currentField, _weather.Rain)
+                && FieldDust.Puffs(_terrainCounter, out var side))
+            {
+                Dust(FieldDust.Running, feet, side, FieldDust.RunningHeight);
+            }
+
             if (!TryWaterSurface(feet, out var surface))
             {
                 continue;
@@ -123,6 +131,20 @@ public sealed partial class GameScene
         surface = 0f;
         return _activeField is not null && _activeField.Collision.TryGetWaterHeight(feet, out surface) && surface > feet.Y
             && surface < feet.Y + WaterDepth;
+    }
+
+    private void Dust(string effect, Vector3 feet, float side, float height) =>
+        _skillFx?.SpawnAt(effect, feet + Vector3.Cross(PlanarForward(), Vector3.Up) * (side * FieldDust.Side) + Vector3.Up * height, Matrix.Identity);
+
+    private void LandingDust()
+    {
+        if (_playerBody is null)
+        {
+            return;
+        }
+
+        Dust(FieldDust.Landing, PlayerFeet, 1f, FieldDust.LandingHeight);
+        Dust(FieldDust.Landing, PlayerFeet, -1f, FieldDust.LandingHeight);
     }
 
     private void Splash(Vector3 at, float surface) => _skillFx?.SpawnAt(WaterSplash, new Vector3(at.X, surface + 0.5f, at.Z), Matrix.Identity);

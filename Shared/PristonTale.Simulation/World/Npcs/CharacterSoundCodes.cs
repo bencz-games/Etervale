@@ -4,7 +4,9 @@ namespace PristonTale.Simulation.World.Npcs;
 // behaviour (see docs/world.md). Every named code lives here; Resolve maps a model's sound name to its code.
 public static class CharacterSoundCodes
 {
+    public const int IllusionKnight = 0x11B0;
     public const int Wolverine = 0x11E0;
+    public const int MrGhost = 0x1390;
     public const int SummonedWolverine = 0x3010;
     public const int Fury = 0x1310;
     public const int Morif = 0x2010;
@@ -124,7 +126,7 @@ public static class CharacterSoundCodes
             "FIGON" => Figon,
             "GOLEM" => 0x1190,
             "GREVEN" => Greven,
-            "ILLUSIONKNIGHT" => 0x11B0,
+            "ILLUSIONKNIGHT" => IllusionKnight,
             "SKELETONRANGE" => SkeletonRanger,
             "SKELETONMELEE" => 0x11D0,
             "WOLVERLIN" => Wolverine,
@@ -153,7 +155,7 @@ public static class CharacterSoundCodes
             "OMICRON" => 0x1360,
             "D-MACHINE" => DMachine,
             "METRON" => 0x1380,
-            "MRGHOST" => 0x1390,
+            "MRGHOST" => MrGhost,
             "VAMPIRICBAT" => 0x13A0,
             "MIREKEEPER" => 0x13B0,
             "MUFFIN" => 0x13C0,

@@ -10,6 +10,7 @@ using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.Physics;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Gameplay.Combat;
+using PristonTale.Gameplay.Effects;
 using PristonTale.Gameplay.UI.Widgets;
 using PristonTale.Gameplay.Audio;
 using PristonTale.Gameplay.World.Remote;
@@ -31,6 +32,8 @@ namespace PristonTale.Gameplay.World;
 // The local player's motion: the server's state and events for it, and the clips its body and head play.
 public sealed partial class GameScene
 {
+    private bool _selfArrived;
+
     private void SetPlayerMotion(MotionCode motion)
     {
         if (_renderer == null || !_playerBodyActor.IsValid)
@@ -71,6 +74,19 @@ public sealed partial class GameScene
     {
         OnSelfState(new EntityStateInfo(spawn.EntityId, spawn.Position, spawn.Facing, spawn.MoveState,
             spawn.Life, spawn.MoveSpeed, spawn.AttackRate, spawn.AttackTargetId, spawn.AttackSequence));
+        if (!_selfArrived && _playerBody is not null)
+        {
+            _selfArrived = true;
+            ArriveInWorld(spawn.EntityId);
+        }
+    }
+
+    // The first description of the local player after entering the world stands it up in the pillar of light, with the
+    // restart's sound.
+    private void ArriveInWorld(ulong selfId)
+    {
+        _skillFx?.Spawn(SkillPresentation.RestartEffect, selfId, selfId, _playerBody.Position);
+        _combatSounds?.PlayRestart(_playerBody.Position, _playerBody.Position);
     }
 
     private void OnSelfState(EntityStateInfo state)

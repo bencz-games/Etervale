@@ -100,6 +100,8 @@ appsettings.*.local.json
 
 assets/*
 assets_n/
+# Test-only models (glTF) the tests read when present; they are not distributed (docs/testing.md).
+/tests/assets/
 /GameServer/
 3d/
 *.7z

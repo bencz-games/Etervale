@@ -525,7 +525,11 @@ public sealed record PristonActor(
     PristonModel Mesh,
     PristonModel Skeleton,
     // Empty renders all objects; shared armor meshes require the INX high-LOD names.
-    IReadOnlyList<string> RenderObjectNames);
+    IReadOnlyList<string> RenderObjectNames)
+{
+    // A glTF actor: drawn from the model, Mesh and Skeleton its stand-ins (Rendering.Gltf.GltfActorSource).
+    public Rendering.Gltf.GltfActorSource Gltf { get; init; }
+}
 
 public sealed record PristonActorInstance(
     PristonActor Actor,

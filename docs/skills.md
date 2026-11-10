@@ -88,29 +88,30 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 - The Mechanician's fifth tier: Land Mining strikes up to its rank's count of enemies around the caster (no target
   needed) with its mine damage raised by its rate plus the attack damage, half more on mechanic monsters; Hyper Sonic
   speeds the attack only while one of its weapons is held; Rolling Smash strikes four times with a flat then percent
-  attack rating; Power Enhancement raises both ends of the caster's attack damage and half as much of the maximum of
-  the party members within its range, and ends on a Mechanician holding none of its weapons.
+  attack rating; Power Enhancement raises both ends of the caster's single-target hits' attack range and half as much
+  of the maximum of the party members within its range (`HitDamageMin`, `HitDamageMax`: normal attacks and weapon skills'
+  hits, never areas or bursts), and ends on a Mechanician holding none of its weapons.
 - The Fighter's fifth tier: Down Hit strikes three times with a percent attack rating; Power Dash reaches 190 and
   stuns the monster it struck for 10 to 37 s, which its hits do not end; Mortal Blow strikes its target with the attack
   raised by its percent and up to its rank's count of enemies around the caster with its table, once, on the clip's
   first event; Bloody Berserker adds flat damage to single-target hits and lowers absorption, and it and the Berserker
   end each other. Down Hit and Mortal Blow shake the camera of the players near the caster (`cameraShake`).
 - The Pikeman's fifth tier: Dancing Reaper is one strong strike; Final Spear strikes up to six enemies around the caster
-  without missing, with a spear rising under each (`targetEffect`); Amplified raises both ends of the attack damage and
-  the attack rating and lowers absorption; Side Spin Attack strikes twice and each landed strike drains 10 to 37% of
-  the monster's maximum life (lowered by its bionic resistance) from a monster above half its life, bosses too but never
-  the undead, giving back up to 40% of the caster's maximum life.
+  without missing, with a spear rising under each (`targetEffect`); Amplified raises both ends of the single-target
+  hits' attack range (as Power Enhancement) and the attack rating and lowers absorption; Side Spin Attack strikes twice
+  and each landed strike drains 10 to 37% of the monster's maximum life (lowered by its bionic resistance) from a
+  monster above half its life, bosses too but never the undead, giving back up to 40% of the caster's maximum life.
 - The Archer's fifth tier: Evade Shot reaches 300 and its arrow, at the clip's second event, stuns the monster it struck
   for 4 to 17 s; Thunder Roop shoots twice, as the cast starts and at its event, with a percent attack rating and 20 to
-  65 beyond the bow's reach; Nature Splash and Circle Trap strike every enemy around their target with the attack
-  raised by their rate, Circle Trap slowing them by 10 to 28% for 0.5 to 5 s. Stuns of monster holds (Power Dash,
-  Evade Shot) spare bosses.
+  65 beyond the bow's reach; Nature Splash and Circle Trap strike every enemy around their target with the attack raised
+  by their rate, Circle Trap slowing them by 10 to 28% for 0.5 to 5 s. Stuns of monster holds (Power Dash, Evade Shot)
+  spare bosses, and both are cast on monsters only (`monstersOnly`).
 - The Knight's fifth tier: Soul Breaker strikes as the cast starts with a flat attack rating; Crescent Moon strikes
   every enemy around its target with the attack raised by its rate; Saint Blade strikes as the cast starts and at its
   first event, the second hit borrowing Grand Cross's attack rating percent by its rank (`borrowedRating`), both raised
-  against the undead; Holy Benedic adds damage against the undead to the caster or a clicked party member, and to the
-  caster and the party members within 200 (an `Ally` rule whose `allies` has a radius reaches them too). The Knight's
-  fifth-tier clips are tagged 99 to 102, past its twentieth tag.
+  against the undead; Holy Benedic adds damage against the undead to the caster and the party members within 200, and to
+  a clicked player, in the party or not (`allies` with `anyClicked`). The Knight's fifth-tier clips are tagged 99 to
+  102, past its twentieth tag.
 - The Atalanta's fifth tier: Talaria adds 1 to 4 move speed and lifts the step limit (`MoveSpeedUnbound`) of the caster
   or a clicked player (any player, no party); Galaxy Coup strikes the enemies around its target that its accuracy,
   raised by its percent, reaches, with the attack raised by its rate; Summon Arcuda calls the bear (`Arcuda`) for
@@ -123,10 +124,11 @@ Monster skills are a separate system (see [world.md](world.md)); they share only
 - The Magician's fifth tier: Silraphim strikes the enemies around its target with a spell roll (level x 100%); Vis
   Tenus's hit shrinks the monster it struck for 10 to 55 s (`lifeCut`, `FieldSkills.Shrink`): it loses 10 to 55% of its
   maximum life (a monster with no more life dies at once) and 10 to 37% of its damage and draws at half its size, all
-  given back when it ends, bosses spared; the caster waits for it to end (`casterBuff` with `exclusive`); Prima Ignis
-  never misses, rolling its table plus the attack raised 200 to 830%; Third Anima adds 15 to 150 spell power (plus 8 to
-  35 by Spirit Elemental's rank) and takes 5 to 50% of the maximum mana on the caster or a clicked Magician, Priestess
-  or Shaman (`allyClasses`), and it and Spirit Elemental replace each other.
+  given back when it ends, bosses spared; the caster waits for it to end (`casterBuff` with `exclusive`), and it is cast
+  on monsters only, never a boss or a castle's door, tower or crystal tower (`monstersOnly`, `refusesBosses`); Prima
+  Ignis never misses, rolling its table plus the attack raised 200 to 830%; Third Anima adds 15 to 150 spell power (plus
+  8 to 35 by Spirit Elemental's rank) and takes 5 to 50% of the maximum mana on the caster or a clicked Magician,
+  Priestess or Shaman (`allyClasses`), and it and Spirit Elemental replace each other.
 - The Assassin's fifth tier: Shadow Bomb strikes up to its rank's count of enemies around the caster with its table
   raised by Land Mining's rate (as the original server raises it) plus the attack damage; Rising Slash, Violent Stab
   (two hits) and Storm are strong strikes.
@@ -202,7 +204,12 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
   `requiresEffect` strike the same area around themselves, with their level and spirit and the caster's weapon).
   `allyClasses`: the classes another player must be to take an `Ally` rule.
   Bosses are not pushed or taunted.
-- Cast requirement: `requiresEffect` (codes: the cast is refused unless one of them runs on the caster).
+- Cast requirement: `requiresEffect` (codes: the cast is refused unless one of them runs on the caster); `monstersOnly`
+  (never cast on a player) and `refusesBosses` (never on a boss or a castle's door, tower or crystal tower).
+- Force orbs: `forceOrbs` (`All`, `Weapon`, `Magic`, `None`: the orb families the skill takes) and `forceOrbPercent` (0 to
+  300; 0 takes the tier's share, `ForceOrbs.TierPercent`). The share reaches the skill's full charge, modes and follow
+  area too (`SkillRule.OrbShare`, set when the catalog loads); a weapon orb adds to single-target weapon hits, a magic
+  orb to spells, areas and a burst.
 - Accuracy and critical: `attackRating[10]`, `attackRatingPlusLevel`, `attackRatingPercent[10]`, `criticalAdd[10]`,
   `criticalPercent[10]` (relative: crit + crit x pct / 100), `borrowedCritical` {`skill`, `values[10]` indexed by that
   skill's rank, `divisor`}, `borrowedRating` {`skill`, `values[10]`, `fromHit`}: attack rating percent from that
@@ -241,7 +248,14 @@ means absent); `SkillRule.At` clamps the rank into the table. Distances are worl
   shield moves to that body bone and glows during the cast), `weaponOrbit` (two effects, a light and its trail, circling
   the holder's weapon while the status lasts), `cameraShake` (each impact shakes the camera of the players within 400
   of the caster by (400 - distance) / 15 units of view distance, `PristonCameraWave`), `targetEffect` (an effect on
-  each enemy an area struck; the server reports each with a `Struck` impact).
+  each enemy an area struck; the server reports each with a `Struck` impact), `defenseEffect` (an effect on the holder
+  each time its buff defends it: an absorbing shield takes its share, a reflection strikes back, a guard returns life,
+  or, for a buff of stats alone, a hit reaches the holder from a monster of `defenseBroods`, from any attacker when the
+  list is empty; the server reports each with a `Defended` impact: Energy Shield, Holy Reflection, Divine Inhalation,
+  Physical Absorption, and Holy Body against the undead), `hitEffect` (the holder's basic hits show it on the struck
+  target instead of the weapon's spark, `<effect>.<element>` for the element the status drew: Enchant Weapon) and
+  `shotEffect` (the holder's thrown basic attacks fly as it from the weapon to the target instead of the javelin: Frost
+  Javelin). The hit bursts of basic attacks and the blood of players hit are in effects.md (`HitEffects`).
 
 ### Damage rule (`damage`, `mainHit`, `damage.main`)
 
@@ -304,7 +318,7 @@ owner's target while the owner fights) or `radius` (300, nearest enemy around th
 
 - `allies`: `radius[10]`, `includeCaster` (true), `othersPercent` (100; 0..100 strength on other players), `height`
   (80), `excludeWith` (codes whose holders are skipped), `party` (only the caster's party members, an ally target
-  too), `requiresParty` (a cast without a party is refused). Allies are the other living players of the field within
+  too unless `anyClicked`), `requiresParty` (a cast without a party is refused). Allies are the other living players of the field within
   the radius. As in the original, Holy Valor, Grand Healing (which needs a party) and Enchant Weapon are party skills;
   Force of Nature, Triumph and Hall of Valhalla, Virtual Life and Regeneration Field reach any player.
 - `passive`: `effect` with `values[10]`: `Resistance` (with `element`), `WeaponDamagePercent`, `MaxStaminaPercent`,

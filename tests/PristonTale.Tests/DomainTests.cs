@@ -25,7 +25,7 @@ internal static class DomainTests
         yield return ("a character saved in a field its level does not open logs in at its home town", EntryLevelAsync);
         yield return ("monster ids are 64-bit and start above every player id", MonsterIdsAsync);
         yield return ("world mailbox defers mutations and protects writer ownership", MailboxAsync);
-        yield return ("field transfers use catalog placement and refresh respawn/village", TransfersAsync);
+        yield return ("field transfers use catalog placement and refresh respawn/village; entering the world and a warp guard the player, a gate does not", TransfersAsync);
         yield return ("authoritative field transfer keeps a ground move in progress", RunningTransferAsync);
         yield return ("movement rejects non-finite vectors and ignores client height", MovementAsync);
         yield return ("AI integrates each time interval once", AiAsync);
@@ -228,11 +228,13 @@ internal static class DomainTests
         var player = Player();
         var writer = Channel.CreateUnbounded<WorldSnapshot>().Writer;
         await Tick(world, world.JoinAsync(3, player, writer));
+        Assert.True(player.GuardMsLeft > PlayerGrace.ArrivalMs - 100f, "entering the world did not guard the player");
+        player.TickGuard(PlayerGrace.ArrivalMs);
         Assert.True(!await Tick(world, world.MoveToFieldAsync(3, int.MaxValue, player, Vector3.Zero, writer)), "unknown field accepted");
         Assert.True(!await Tick(world, world.MoveToFieldAsync(3, 3, player, new Vector3(9000), writer)), "same-field teleport accepted");
         Assert.True(!await Tick(world, world.MoveToFieldAsync(3, 5, player, Vector3.Zero, writer)), "level gate bypassed");
         Assert.True(await Tick(world, world.MoveToFieldAsync(3, 4, player, new Vector3(99999), writer)), "valid gate rejected");
-        Assert.True(player.Position == new Vector3(100, 0, 100), "gate trusted requested placement");
+        Assert.True(player.Position == new Vector3(100, 0, 100) && player.GuardMsLeft == 0f, "gate trusted requested placement or guarded the player");
         Assert.True(await Tick(world, world.MoveToFieldAsync(3, 4, player, new Vector3(99999), writer)) && player.Position == new Vector3(100, 0, 100),
             "a report still naming the field the player already moved to was refused or moved it again");
         Assert.True(player.ReportMovement(new Vector3(150, 0, 100), 0f, true, false, 0, 1000) == MovementVerdict.Accepted && player.Position.X == 150,
@@ -244,7 +246,9 @@ internal static class DomainTests
         var highWriter = Channel.CreateUnbounded<WorldSnapshot>().Writer;
         await Tick(world, world.JoinAsync(3, high, highWriter));
         var origin = high.Position;
-        Assert.True(await Tick(world, world.MoveToFieldAsync(3, 5, high, Vector3.Zero, highWriter)), "valid warp rejected");
+        high.TickGuard(PlayerGrace.ArrivalMs);
+        Assert.True(await Tick(world, world.MoveToFieldAsync(3, 5, high, Vector3.Zero, highWriter)) && high.GuardMsLeft > PlayerGrace.ArrivalMs - 100f,
+            "valid warp rejected or the warp did not guard the player");
         Assert.True(high.Position == new Vector3(9000, 77, 8000), "warp did not preserve the catalog exit height");
         Assert.True(high.ReportMovement(origin, 0f, true, true, 0, 100) == MovementVerdict.Rejected, "warp accepted a pre-warp position");
     }

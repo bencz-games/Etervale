@@ -7,6 +7,7 @@ using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World;
 using PristonTale.Contracts.World;
 using PristonTale.Contracts.Characters;
+using PristonTale.Contracts.Skills;
 
 namespace PristonTale.Tests;
 
@@ -17,7 +18,8 @@ internal static class DeathPenaltyTests
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
         yield return ("death penalty shares, the level 85 reduction, the castle exemption, the field rule and the restart towns", RulesAsync);
-        yield return ("a dead player stays down until it restarts; town and field restarts take their shares and store the place", RestartsAsync);
+        yield return ("a dead player stays down until it restarts; town and field restarts take their shares and store the place; the arrival "
+            + "and restart graces are shown and end when they run out or a death cuts them short", RestartsAsync);
         yield return ("a carried Resurrection Scroll is used up and waives both shares; a refused field restart changes nothing", ScrollAndRefusalAsync);
         yield return ("leaving while dead stores the town restart with the death's share", LeaveDeadAsync);
         yield return ("the restart window opens after the death motion, keeps a closed field shut, chooses the town after twenty seconds", WindowAsync);
@@ -67,11 +69,16 @@ internal static class DeathPenaltyTests
         character.RestoreProgress(0, 0, tier: 3);
         character.AwardExperience(ExperienceTable.ForLevel(level) + above);
         Assert.True(character.TryChangeMoney(gold), "fixture gold");
-        harness.Player.ApplyDamage(character.MaxLife * 100);
+        harness.Player.Kill();
         harness.Tick(20 * 30);
         Assert.True(harness.Player.IsDead, "the player stood up by itself");
+        Assert.True(Graces(harness) is [{ Op: StatusEffectOp.Add, RemainingMs: > 9000 }, { Op: StatusEffectOp.Remove }],
+            "the arrival grace was not shown, or the death that cut it short did not end it");
         return harness;
     }
+
+    private static StatusEventView[] Graces(SpecialItemTests.Harness harness) =>
+        [.. harness.Statuses().Where(status => status.StatusCode == PlayerGrace.StatusCode && status.EntityId == harness.Player.EntityId)];
 
     private static async Task<RestartReply> Restart(SpecialItemTests.Harness harness, RestartChoice choice)
     {
@@ -94,6 +101,10 @@ internal static class DeathPenaltyTests
         Assert.True(town.FieldId == FieldCodes.Ricarten && harness.Repository.Record.FieldId == FieldCodes.Ricarten
             && harness.Repository.Record.Exp == (long)character.Experience, "the town restart was not stored in Ricarten");
         Assert.True(harness.Session.FieldId == FieldCodes.Ricarten, "the player did not move to Ricarten");
+        harness.Tick(1);
+        Assert.True(Graces(harness) is [.., { Op: StatusEffectOp.Add, RemainingMs: > 9000 }], "the restart's grace was not shown");
+        harness.Tick((int)(DeathPenalty.RestartGuardMs / 50f) + 2);
+        Assert.True(harness.Player.GuardMsLeft == 0f && Graces(harness) is [.., { Op: StatusEffectOp.Remove }], "the grace that ran out was not ended");
 
         var field = await Fallen(20, Span(20) / 2, 3300);
         var fallen = field.Player.Position;

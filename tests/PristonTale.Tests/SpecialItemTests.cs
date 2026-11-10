@@ -36,6 +36,8 @@ internal static class SpecialItemTests
         yield return ("a Union Core binds to a registered clan's member, then takes another member of that clan to it and is spent", UnionCoreAsync);
         yield return ("stones reset stats and skills, hair tints refuse the same hair, skill masters train the tier", ProgressionItemsAsync);
         yield return ("scrolls and force orbs start item effects; Eternal Life guards and Fatal Edge excludes Avert", ScrollsAndOrbsAsync);
+        yield return ("a force orb's power reaches a skill's hits by its tier (four fifths, nine tenths, whole, half again) or its own share, its full "
+            + "charge, mode and follow area alike, a normal attack whole, and none for a skill refusing the orb's family", OrbTiersAsync);
         yield return ("a firecracker publishes its effect to the field and cheers, and the mobile shop sells without an NPC", FirecrackerAndShopAsync);
         yield return ("item use, result, premium timer and item effect messages round-trip", WireAsync);
         yield return ("vampiric items heal per attack and helper pets and the Phoenix strike the owner's target", PetsAndLeechAsync);
@@ -293,6 +295,52 @@ internal static class SpecialItemTests
         Assert.True((await red).Outcome.Ok && character.Skills.Ranks.Count == 0 && character.SkillPoints == points + 1, "skill reset did not refund");
     }
 
+    private static Task OrbTiersAsync()
+    {
+        var classes = new CharacterClassRegistry();
+        ForceOrbs.TryGet("FO106", out var weaponOrb);
+        ForceOrbs.TryGet("FO126", out var magicOrb);
+        Assert.True(weaponOrb!.Damage == 25 && magicOrb!.Damage == 25, "the orbs' power differs");
+        PlayerCharacter Caster(PlayerClass owner, bool orbs)
+        {
+            var caster = classes.CreatePlayer(owner, "Orbs", 120);
+            if (orbs)
+            {
+                caster.Effects.Apply(weaponOrb.Spec(0), 1, 60_000);
+                caster.Effects.Apply(magicOrb.Spec(0), 1, 60_000);
+            }
+
+            return caster;
+        }
+
+        SkillRule Rule(PlayerClass owner, string name) =>
+            SkillRuleCatalog.TryGet(ClassSkillCatalog.For(owner).Single(skill => skill.Name == name).Code, out var rule) ? rule : throw new InvalidOperationException(name);
+        int Hit(PlayerClass owner, SkillRule rule) =>
+            SkillFormulas.WeaponAttack(Caster(owner, true), rule, 1, ChatFixture.Hopy, new CombatRng(5)).SkillFlatAdd
+            - SkillFormulas.WeaponAttack(Caster(owner, false), rule, 1, ChatFixture.Hopy, new CombatRng(5)).SkillFlatAdd;
+        int Power(PlayerClass owner, SkillRule rule) =>
+            SkillFormulas.RollPower(Caster(owner, true), rule, 1, new CombatRng(5)) - SkillFormulas.RollPower(Caster(owner, false), rule, 1, new CombatRng(5));
+
+        Assert.True(Hit(PlayerClass.Fighter, Rule(PlayerClass.Fighter, "Impact")) == 20, "a first-tier weapon hit did not take four fifths of the weapon orb");
+        Assert.True(Hit(PlayerClass.Fighter, Rule(PlayerClass.Fighter, "Triple Impact")) == 22, "a second-tier weapon hit did not take nine tenths");
+        Assert.True(Hit(PlayerClass.Fighter, Rule(PlayerClass.Fighter, "Avenging Crash")) == 25, "a third-tier weapon hit did not take the whole orb");
+        Assert.True(Hit(PlayerClass.Fighter, Rule(PlayerClass.Fighter, "Cyclone Strike")) == 37, "a fourth-tier weapon hit did not take half again");
+        Assert.True(Hit(PlayerClass.Pikeman, Rule(PlayerClass.Pikeman, "Charging Strike").Charge.Full) == 37,
+            "a fourth-tier skill's full charge did not take its skill's share");
+        Assert.True(Power(PlayerClass.MartialArtist, Rule(PlayerClass.MartialArtist, "Line Break").FollowArea) == 37,
+            "a fifth-tier skill's follow area did not take half again of the magic orb");
+        Assert.True(Power(PlayerClass.Priestess, Rule(PlayerClass.Priestess, "Multi Spark")) is 36 or 48,
+            "Multi Spark's sparks (three or four at rank 1) did not each take half of the magic orb");
+        Assert.True(Power(PlayerClass.Archer, Rule(PlayerClass.Archer, "Elemental Shot").Modes.Single(static mode => mode.Kind == SkillKind.Area)) == 0,
+            "Elemental Shot's area took the magic orb it refuses");
+        Assert.True(Power(PlayerClass.Pikeman, Rule(PlayerClass.Pikeman, "Expansion")) == 0, "Expansion's area took the magic orb it refuses");
+        var zechram = Rule(PlayerClass.Fighter, "Rage of Zechram");
+        Assert.True(Hit(PlayerClass.Fighter, zechram) == 0 && SkillFormulas.ForceOrbPower(Caster(PlayerClass.Fighter, true), zechram, magic: true) == 22,
+            "Rage of Zechram's hit took the weapon orb, or its burst would not take nine tenths of the magic orb");
+        Assert.True(SkillFormulas.NormalAttack(Caster(PlayerClass.Fighter, true)).SkillFlatAdd == 25, "a normal attack did not take the weapon orb whole");
+        return Task.CompletedTask;
+    }
+
     private static async Task ScrollsAndOrbsAsync()
     {
         var harness = await Harness.CreateAsync(20, "BI105", "BI106", "BI107", "FO104");
@@ -317,7 +365,7 @@ internal static class SpecialItemTests
         var orb = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("FO104")));
         await harness.AdvanceAsync(orb);
         harness.Tick(2);
-        Assert.True((await orb).Outcome.Ok && character.Effects.Totals.Flat(StatKind.HitDamage) == 10, "force orb damage missing");
+        Assert.True((await orb).Outcome.Ok && character.Effects.Totals.Flat(StatKind.ForceOrbDamage) == 10, "force orb damage missing");
     }
 
     private static async Task FirecrackerAndShopAsync()
@@ -546,7 +594,9 @@ internal static class SpecialItemTests
             Drain();
         }
 
-        public IEnumerable<uint> StatusCodes() => _snapshots.SelectMany(snapshot => snapshot.StatusEvents).Select(status => status.StatusCode);
+        public IEnumerable<StatusEventView> Statuses() => _snapshots.SelectMany(snapshot => snapshot.StatusEvents);
+
+        public IEnumerable<uint> StatusCodes() => Statuses().Select(status => status.StatusCode);
 
         public IEnumerable<ItemEffectView> ItemEffects() => _snapshots.SelectMany(snapshot => snapshot.ItemEffects);
 

@@ -124,7 +124,7 @@ internal static class QuestTransactions
         var candidate = original.CloneForInventoryOperation();
         var context = new QuestContext(candidate, QuestNpc.None, new CatalogQuestItemSource(items), rng, nowUnixMs, field.FieldId);
         QuestDrops.Upkeep(context, drops);
-        candidate.MatureAgedItems();
+        var agedUp = candidate.MatureAgedItems();
         var outcome = new QuestOutcome(true, QuestStatus.Ok, GameText.None, candidate.Quests.Revision, null, context.Notices);
         if (candidate.Quests.Revision == original.Quests.Revision && candidate.InventoryRevision == original.InventoryRevision)
         {
@@ -136,7 +136,8 @@ internal static class QuestTransactions
         {
             Tier = candidate.Tier,
             Drops = drops,
-            Upkeep = true
+            Upkeep = true,
+            AgedUp = agedUp
         };
     }
 

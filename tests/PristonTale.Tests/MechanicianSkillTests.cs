@@ -138,11 +138,12 @@ internal static class MechanicianSkillTests
         SkillFixtures.Finish(field, mechanician);
         // Rank 10: 58% on both ends for the caster, 29% on the maximum for the party members within 380.
         var caster = mechanician.Character.Effects.Totals;
-        Assert.True(caster.Percent(StatKind.DamageMin) == 58 && caster.Percent(StatKind.DamageMax) == 58, "power enhancement on the caster");
+        Assert.True(caster.Percent(StatKind.HitDamageMin) == 58 && caster.Percent(StatKind.HitDamageMax) == 58 && caster.Percent(StatKind.DamageMax) == 0,
+            "power enhancement on the caster, or beyond its single-target hits");
         var share = member.Character.Effects.Totals;
-        Assert.True(share.Percent(StatKind.DamageMin) == 0 && share.Percent(StatKind.DamageMax) == 29, "power enhancement on a party member");
-        Assert.True(distant.Character.Effects.Totals.Percent(StatKind.DamageMax) == 0, "power enhancement reached a member beyond its range");
-        Assert.True(stranger.Character.Effects.Totals.Percent(StatKind.DamageMax) == 0, "power enhancement reached a player outside the party");
+        Assert.True(share.Percent(StatKind.HitDamageMin) == 0 && share.Percent(StatKind.HitDamageMax) == 29, "power enhancement on a party member");
+        Assert.True(distant.Character.Effects.Totals.Percent(StatKind.HitDamageMax) == 0, "power enhancement reached a member beyond its range");
+        Assert.True(stranger.Character.Effects.Totals.Percent(StatKind.HitDamageMax) == 0, "power enhancement reached a player outside the party");
         SkillFixtures.Refuse(SkillCastVerdict.AlreadyActive, "power enhancement recast while running", field, mechanician, PowerEnhancement);
 
         mechanician.Character.Equip(EquipmentSlot.Weapon, SkillFixtures.Weapon(ItemKind.Staff));

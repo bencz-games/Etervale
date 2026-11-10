@@ -42,7 +42,8 @@ internal static class CastleSiegeTests
             CalledMercenariesAsync);
         yield return ("the soul fountain's turns go round the owner clan's members at it, and a recipient that left gets nothing", FountainTurnsAsync);
         yield return ("the owner clan's members hold the clan skill in force, renewed every minute; others and an old skill lose it", ClanSkillAsync);
-        yield return ("the easy siege weakens the defenders, closing a siege removes them, ending it sends players outside the owner clan to the arrival area",
+        yield return ("the easy siege weakens the defenders, closing a siege removes them while the owner clan's members cheer until its end is over, ending "
+            + "it guards the living in the field and sends players outside the owner clan to the arrival area",
             EndAsync);
     }
 
@@ -362,7 +363,7 @@ internal static class CastleSiegeTests
         var soldiers = field.MonstersForInspection.Where(static monster => monster.Def.Key == KillSummons.DoorSoldier).ToList();
         Assert.True(soldiers.Count == KillSummons.DoorSoldierCount && soldiers.All(soldier => Planar(soldier.Position, KillSummons.GuardPosts[0]) <= KillSummons.Spread * 1.5f),
             "the fallen door did not call six soldiers at its post");
-        await harness.AdvanceAsync(harness.World.CloseSiegeAsync());
+        await harness.AdvanceAsync(harness.World.CloseSiegeAsync(0));
         harness.Tick(1);
         Assert.True(!field.MonstersForInspection.Any(static monster => KillSummons.CrystalGuards.Contains(monster.Def.Key) || monster.Def.Key == KillSummons.DoorSoldier),
             "the called guards outlived the siege");
@@ -422,7 +423,7 @@ internal static class CastleSiegeTests
         var easy = field.MonstersForInspection.Last(static monster => monster.CastleRole == CastleObject.Mercenary);
         Assert.True(weak is not null && easy.Def.Key == CastleSiegeRules.MercenaryKeys[1] && easy.Life == 1 && easy.Potions == 0,
             "a mercenary called in an easy siege kept its life");
-        await harness.AdvanceAsync(harness.World.CloseSiegeAsync());
+        await harness.AdvanceAsync(harness.World.CloseSiegeAsync(0));
         harness.Tick(1);
         Assert.True(!field.MonstersForInspection.Any(static monster => monster.CastleRole == CastleObject.Mercenary)
             && field.CallMercenary(members[^1], guard) is null, "the called mercenaries outlived the siege");
@@ -491,21 +492,44 @@ internal static class CastleSiegeTests
         harness.World.TryGetOpenField(FieldCodes.Castle, out var field);
         var member = await harness.JoinAsync("Member", FieldCodes.Castle, 2);
         member.Clan = new ClanTag(7, "Lions", 0, Registered: true);
+        var lying = await harness.JoinAsync("Lying", FieldCodes.Castle, 4);
+        lying.Clan = member.Clan;
         await harness.AdvanceAsync(harness.World.OpenSiegeAsync(new CastleSiegeOrder(7, [], [1, 1, 1])));
         harness.Tick(1);
         var weakened = harness.World.WeakenSiegeAsync();
         await harness.AdvanceAsync(weakened);
         Assert.True(await weakened && field.MonstersForInspection.Where(static monster => monster.CastleRole is CastleObject.Door or CastleObject.Crystal)
             .All(static monster => monster.Life == 1 && monster.VirtualLives == 0), "the easy siege did not weaken the door and the crystal towers");
-        await harness.AdvanceAsync(harness.World.CloseSiegeAsync());
+        lying.Kill();
+        await harness.AdvanceAsync(harness.World.CloseSiegeAsync(7));
         Assert.True(!field.MonstersForInspection.Any() && harness.World.Siege.Running == false, "closing kept the defenders");
+        harness.Tick(1);
+        Assert.True(member.MoveState == Contracts.Motion.MotionState.Yahoo && !member.YahooHeals && harness.Player.MoveState != Contracts.Motion.MotionState.Yahoo
+            && !harness.Player.HasPendingYahoo && !lying.HasPendingYahoo && lying.MoveState != Contracts.Motion.MotionState.Yahoo,
+            "the owner clan's member did not cheer as the siege closed, or its cheer healed, or an outsider or a dead member cheered");
+        var cheers = 0;
+        for (var tick = 0; tick < 80 && cheers < 2; tick++)
+        {
+            var was = member.MoveState;
+            harness.Tick(1);
+            cheers += was != Contracts.Motion.MotionState.Yahoo && member.MoveState == Contracts.Motion.MotionState.Yahoo ? 1 : 0;
+        }
+
+        Assert.True(cheers >= 1, "the owner clan's member did not cheer again while the siege's end lasted");
+        harness.Clock.Now += TimeSpan.FromSeconds(CastleRules.OverSeconds + 1);
+        harness.Tick(60);
+        Assert.True(member.MoveState != Contracts.Motion.MotionState.Yahoo && !member.HasPendingYahoo, "the owner clan still cheered after the siege's end was over");
         var memberAt = member.Position;
         var fallen = await harness.JoinAsync("Fallen", FieldCodes.Castle, 3);
-        fallen.ApplyDamage(int.MaxValue / 2);
+        fallen.Kill();
+        member.TickGuard(PlayerGrace.ArrivalMs);
+        harness.Player.TickGuard(PlayerGrace.ArrivalMs);
         var ended = harness.World.EndSiegeAsync(7);
         await harness.AdvanceAsync(ended);
         Assert.True(await ended is [{ } arrival] && arrival.EntityId == harness.Player.EntityId && arrival.FieldId == FieldCodes.Castle
             && member.Position == memberAt && harness.World.Siege == CastleSiegeView.None, "the end did not send only the living outsiders back");
+        Assert.True(member.GuardMsLeft > 0f && harness.Player.GuardMsLeft > 0f && fallen.GuardMsLeft == 0f
+            && member.GuardMsLeft <= PlayerGrace.SiegeEndMs, "the end did not guard the living in the castle's field");
         var after = harness.World.WeakenSiegeAsync();
         await harness.AdvanceAsync(after);
         Assert.True(!await after, "an easy siege ran without a siege");

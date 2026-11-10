@@ -2,6 +2,8 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using PristonTale.Engine3D.Formats;
 
+using PristonTale.Engine3D.Rendering.Gltf;
+
 namespace PristonTale.Engine3D.Rendering;
 
 internal sealed record RenderBatch(
@@ -19,7 +21,9 @@ internal sealed record RenderBatch(
     int SkinnedIndexCount = 0,
     BoundingBox SkinnedBounds = default,
     int BoneCount = 0,
-    bool IsActor = false)
+    bool IsActor = false,
+    // A glTF batch's material (Material is its Queue): drawn with the GLTF variant of Surface.fx.
+    GltfMaterialRuntime Gltf = null)
 {
     // For non-skinned batches use the static mesh bounds or compute from vertices.
     // For skinned batches use SkinnedBounds (bind-pose AABB — may be slightly off

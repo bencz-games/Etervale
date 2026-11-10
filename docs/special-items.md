@@ -109,7 +109,7 @@ running kind is refused, so timers never stack.
 | Strength..Health stones BI145-149 | One attribute back to its start value |
 | Eternal Life BI105 | 30 s no damage taken, damage dealt -50% |
 | Fatal Edge BI106, Avert Scroll BI107 | 1 h critical chance +15, evasion +15 |
-| Force orbs FO101-112, magic FO121-132 | Added power on single-target hits (magic: on spell power), with +10/15/20% of the average attack for the strongest orbs |
+| Force orbs FO101-112, magic FO121-132 | Added power with +10/15/20% of the average attack for the strongest orbs: a weapon orb (`ForceOrbDamage`) on normal attacks whole and on single-target weapon hits, a magic orb (`SpellDamage`) on spells, areas and Rage of Zechram's burst; a skill's hits take its tier's share (`ForceOrbs.TierPercent`: 80, 90, 100, 150% for tiers 1 to 4, the fifth as the fourth) or its own (`forceOrbPercent`: each of Multi Spark's sparks 50%), its full charge, modes and follow area alike (`SkillFormulas.ForceOrbPower`). Spark Shield, Falcon, Golden Falcon, Dancing Sword, Summon Muspell and Ramiel take neither family, Rage of Zechram no weapon orb, and Elemental Shot, Soul Sucker, X-Rage, Soul Shock, Inertia, Chasing Hunt, War Cry and Expansion no magic orb (`forceOrbs`); familiars strike with their own power, never an orb |
 | Teleport Core BI108 | One of 37 fields by level; ether cores EC101/102/104 return to Ricarten, Navisko, Pillai |
 | Hair tints BI116-118, BI213-222 | Hair 0..12, refused for the current hair |
 | Skill masters BI139-141 | Learned skills of class tier 1..3 fully trained |
@@ -254,7 +254,8 @@ quest arena. Like the Teleport Core, the place is the one the use was checked at
   skill-learn light of hair tints and force orbs (`ItemVfx.Learn`, rising streaks registered in code), the agony glow
   of skill masters, and pet strikes.
 - A running force orb keeps a flare glow in the orb's colour on the holder's weapon bone, renewed every 29 s until the
-  status ends, and each hit the holder lands bursts the weapon-hit spark on the target with a white light.
+  status ends, and each basic hit the holder lands (not a skill's or a pet's) bursts the weapon-hit spark on the target
+  with a white light.
 - The big head replaces the head model with the oversized one of the class (tier-0 head prefix, hair 1..3, look `b`
   or `t`); the descriptor carries it, so every client sees it.
 - Pets are client actors driven by the player's description (the Phoenix flag, the helper pet and the head look);

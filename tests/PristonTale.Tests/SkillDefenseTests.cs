@@ -23,7 +23,87 @@ internal static class SkillDefenseTests
         yield return ("a divine shield turns blocked undead attacks into life and evasion skips attacks", GuardAsync);
         yield return ("evasion mastery evades about its rank's share of normal attacks", EvasionMasteryAsync);
         yield return ("a spark shield strikes back from the spark table when its shield blocks", CounterAsync);
+        yield return ("an energy shield's share, a reflection, a divine inhalation's life and the hits on a physical absorption or, from the undead "
+            + "only, on a holy body report a Defended impact for their defence effect; a guard without a defence effect "
+            + "and a player without these report nothing", DefendedAsync);
     }
+
+    private static Task DefendedAsync()
+    {
+        var (field, mage, monster) = Duel(PlayerClass.Magician, SkillFixtures.Weapon(ItemKind.Staff), null);
+        mage.Character.Skills.Restore(0x08040001, 10);
+        SkillFixtures.Accept("Energy Shield", field, mage, 0x08040001);
+        SkillFixtures.Finish(field, mage);
+        field.Step(0.001f);
+        Attack(field, mage, monster, out _);
+        Assert.True(Defended(field, 0x08040001, mage, monster.EntityId) == 1, "the energy shield's share did not report its defence");
+
+        var undead = SkillFixtures.Monster(MonsterBrood.Undead, life: 1_000_000, damage: 100);
+        var crypt = SkillFixtures.Field(11, undead);
+        var priest = SkillFixtures.Player(crypt, 1, PlayerClass.Priestess, 40, Vector3.Zero, SkillFixtures.Weapon(ItemKind.Staff));
+        var ghoul = SkillFixtures.Spawn(crypt, undead, new Vector3(40, 0, 0));
+        priest.Character.Effects.Apply(new EffectSpec(0x07020003, EffectSourceKind.PlayerSkill, false, []), 1, 60000f);
+        SkillFixtures.Strike(crypt, ghoul, priest);
+        Assert.True(Defended(crypt, 0x07020003, priest, ghoul.EntityId) == 1, "the reflection did not report its defence");
+        crypt.Step(0.001f);
+
+        var knight = SkillFixtures.Player(crypt, 2, PlayerClass.Knight, 80, new Vector3(0, 0, 30), SkillFixtures.Weapon(ItemKind.Sword), SkillFixtures.Shield());
+        knight.Character.Skills.Restore(0x05040002, 10);
+        SkillFixtures.Accept("Divine Inhalation", crypt, knight, 0x05040002);
+        SkillFixtures.Finish(crypt, knight);
+        crypt.Step(0.001f);
+        var (heals, inhaled) = (0, 0);
+        for (var attack = 0; attack < 200; attack++)
+        {
+            knight.Character.Life = knight.Character.MaxLife / 2;
+            SkillFixtures.Strike(crypt, ghoul, knight);
+            heals += (crypt.SnapshotEvents() ?? []).Count(value => value.Kind == CombatEventKind.Heal && value.TargetId == knight.EntityId);
+            inhaled += Defended(crypt, 0x05040002, knight, ghoul.EntityId);
+            crypt.Step(0.001f);
+        }
+
+        Assert.True(heals > 0 && inhaled == heals, $"{inhaled} defences reported for {heals} lives a divine inhalation returned");
+
+        var summoner = SkillFixtures.Player(crypt, 4, PlayerClass.Priestess, 80, new Vector3(30, 0, 0), SkillFixtures.Weapon(ItemKind.Staff));
+        summoner.Character.Effects.Apply(new EffectSpec(0x07080004, EffectSourceKind.PlayerSkill, false, []), 1, 60000f);
+        for (var attack = 0; attack < 20; attack++)
+        {
+            summoner.Character.Life = summoner.Character.MaxLife / 2;
+            SkillFixtures.Strike(crypt, ghoul, summoner);
+        }
+
+        Assert.True(crypt.SnapshotSkillEvents().Count(value => (value.Flags & SkillEventFlags.Defended) != 0) == 0,
+            "a guard without a defence effect (Summon Muspell) reported one");
+        crypt.Step(0.001f);
+
+        var holy = SkillFixtures.Player(crypt, 3, PlayerClass.Knight, 80, new Vector3(0, 0, -30), SkillFixtures.Weapon(ItemKind.Sword));
+        holy.Character.Effects.Apply(new EffectSpec(0x05010002, EffectSourceKind.PlayerSkill, false, []), 1, 60000f);
+        Attack(crypt, holy, ghoul, out _);
+        Assert.True(Defended(crypt, 0x05010002, holy, ghoul.EntityId) == 1, "a holy body hit by the undead did not report its defence");
+        crypt.Step(0.001f);
+
+        var (plain, mechanic, beast) = Duel(PlayerClass.Mechanician, SkillFixtures.Weapon(ItemKind.Claw), null);
+        mechanic.Character.Effects.Apply(new EffectSpec(0x01010003, EffectSourceKind.PlayerSkill, false, []), 1, 60000f);
+        var body = SkillFixtures.Player(plain, 2, PlayerClass.Knight, 70, new Vector3(0, 0, 30), SkillFixtures.Weapon(ItemKind.Sword));
+        body.Character.Effects.Apply(new EffectSpec(0x05010002, EffectSourceKind.PlayerSkill, false, []), 1, 60000f);
+        var bare = SkillFixtures.Player(plain, 3, PlayerClass.Fighter, 70, new Vector3(0, 0, -30), SkillFixtures.Weapon(ItemKind.Axe));
+        Attack(plain, mechanic, beast, out _);
+        Attack(plain, body, beast, out _);
+        Attack(plain, bare, beast, out _);
+        Assert.True(Defended(plain, 0x01010003, mechanic, beast.EntityId) == 1 && Defended(plain, 0x05010002, body, beast.EntityId) == 0
+            && plain.SnapshotSkillEvents().Count(value => (value.Flags & SkillEventFlags.Defended) != 0) == 1,
+            "a physical absorption did not report its defence, a holy body reported one from a living monster or a player without either did");
+        plain.Step(0.001f);
+
+        plain.Combat.HurtPlayer(bare, mechanic, 50, false);
+        plain.Combat.HurtPlayer(bare, body, 50, false);
+        Assert.True(Defended(plain, 0x01010003, mechanic, bare.EntityId) == 1 && Defended(plain, 0x05010002, body, bare.EntityId) == 0,
+            "another player's hit did not show the physical absorption or showed the holy body");
+        return Task.CompletedTask;
+    }
+
+    private static int Defended(FieldInstance field, uint code, WorldPlayer holder, ulong attackerId) => field.SnapshotSkillEvents().Count(value =>
+        (value.Flags & SkillEventFlags.Defended) != 0 && value.SkillCode == code && value.CasterId == holder.EntityId && value.TargetId == attackerId);
 
     private static int Evaded(int rank)
     {

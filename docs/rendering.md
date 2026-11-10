@@ -20,8 +20,13 @@ sources are in [shaders.md](shaders.md); option fields in [client-settings.md](c
 | Path | Responsibility |
 |---|---|
 | `Formats/PristonSmdReader.cs` | Binary stage and model files (`.smd` stage, `.smd`/`.smb` model and skeleton): header kinds, material group, vertices, faces, texture links, lights, area index, animation keys. |
-| `Formats/PristonInxReader.cs` | Model-info files (`.inx`): mesh and motion file names, the sub model (`SubModelFile`, an alternate model on its own skeleton for the motions the main one lacks: client.md), LOD groups, motion table, talk motions. |
-| `Formats/PristonActorLoader.cs` | Builds a `PristonActor` (mesh + skeleton + motions) from an `.inx`, or a skinned/rigid model without one. |
+| `Formats/Gltf/GltfModelReader.cs`, `GltfModel.cs` | glTF 2.0 models (`.glb`, `.gltf`) through SharpGLTF: nodes, skins, primitives, animations, PBR materials, encoded images (below). |
+| `Formats/PristonInxReader.cs` | Model-info files (`.inx`): mesh and motion file names, the sub model (`SubModelFile`, an alternate model on its own skeleton for the motions the main one lacks: client.md), LOD groups, motion table, talk motions; without an `.inx`, the descriptor beside it. |
+| `Formats/PristonModelText.cs`, `PristonModelTextNames.cs` | Model descriptors in text (`.ini`, `.inf`) read into the same model info (below). |
+| `Formats/PristonInxWriter.cs` | Writes model info as an `.inx` (`Compile`: a descriptor to the `.inx` beside it). |
+| `Formats/PristonModelPaths.cs` | Which file a model, its motions or its model info is read from, whatever name the data gives. |
+| `Formats/PristonActorLoader.cs` | Builds a `PristonActor` (mesh + skeleton + motions) from model info, or a skinned/rigid model without one. |
+| `Equipment/EquipmentVisualTables.cs` | Generated item, body and equipment-bone tables (client.md); descriptors name weapons through it. |
 | `Formats/PristonPhysiqueRepair.cs` | Moves a stray Physique vertex (bound four or more joints from the bone its edge neighbours follow, and twice as near that bone) to their bone, keeping its bind position, so it no longer pulls a spike out of a bending joint. |
 | `Formats/PristonCameraPath.cs` | Cinematic camera paths (`.cam`) of the opening. |
 | `Formats/PristonFormats.cs` | Format records (`PristonStage`, `PristonModel`, `PristonMaterial`, `PristonStageLight`, motions) and `PristonFormatConstants`. |
@@ -78,17 +83,20 @@ float targets. Display limits of the platform (primary monitor only, desktop ref
   may reallocate the sun shadow atlas (releasing the old one first) and reload the colour-grade LUT from disk.
 - `ResetTemporalState()` after camera cuts and teleports: drops TAA history and snaps exposure.
 
-## Original formats
+## Original and glTF formats
 
-Described in Etervale's terms; readers keep every field, including padding, for round-trip checks.
+Described in Etervale's terms; the readers of the original formats keep every field, including padding, for round-trip
+checks.
 
 | Format | Reader | Contents and conventions |
 |---|---|---|
 | Stage `.smd` | `PristonSmdReader.ReadStage` | Header string `SMD Stage data Ver 0.72` (also 0.73), material group, vertices (fixed-point position, BGRA 16-bit colour = authored light), faces (three indices, material, texture-link pointer), texture links (per-corner UVs, chained for extra layers), lights (28-byte records: type flags, position, range, colour), the area index, a source trailer. Positions convert as (x, y, -z). |
 | Model `.smd`, skeleton `.smb` | `PristonSmdReader.ReadModel` | Header `SMD Model data Ver 0.62` or a binary model layout; objects with parent names, base transform, rotation/position/scale keys and frame ranges; physique bone per vertex. Positions convert as (x, z, -y). |
-| Model info `.inx` | `PristonInxReader` | Mesh, motion and sub-model file names, high/default/low LOD object groups, 512 motion entries of 172 bytes, talk and NPC motions; two layouts differ only in the item-code list width. |
+| Model info `.inx` | `PristonInxReader`, `PristonInxWriter` | Mesh, motion and sub-model file names, high/default/low LOD object groups, 512 motion entries of 172 bytes, talk and NPC motions; two layouts differ only in the item-code list width (written with short codes, names in CP949). Keywords from the path hash of the file's own path under the assets root (and the linked model's `.inx`) protect the model and, with character motions and no talk motions, each motion's start and end frame. Without a motion file a model plays the motions of the model it links to (`LinkFile`). |
+| Model descriptor `.ini`, `.inf` | `PristonModelText` | CP949 text the model info is compiled from (some shipped ones keep every byte XOR 0x82). Words split by spaces and tabs (a quoted word to its closing quote), lines of at most 511 bytes. `*모양파일` model, `*동작파일` motion file, `*보조동작파일` sub model, `*파일연결` linked model, `*표정파일`/`*표정파일연결` talk motions, each stored with the descriptor's directory; `*정밀모양`/`*보통모양`/`*저질모양` LOD names; `*동작모음` (and `*표정모음`) adds a motion file, the motions after it playing from it (`MotionFrame`; a glTF file may name a clip after it, its index + 1). Any other command naming 동작 is a motion: start, end, up to four events (ticks from the start), then 반복 (loops) or a key character, then a chance `(n)` (lost when it follows the frames directly); its state from the words of its name, a death ending 8 frames early; `*착용무기` (모두, 없음, item categories), `*적용직업`, `*해당위치` (마을, 필드) and `*적용기술` restrict the motion before them. A command naming 표정 is a talk motion. The idle and talk chances fill the 100-slot selection tables, the largest taking the rest. Every descriptor of the game's characters reads as its shipped `.inx` (ModelTextTests) but three edited after it. |
 | Camera path `.cam` | `PristonCameraPath.ReadCam` | Position and rotation keys of the opening cinematic, 160 ticks per frame. |
 | Textures `.bmp`, `.tga`, `.jpg` | `PristonImageDecoder` | BMP (always opaque; a variant stores its first 14 header bytes with i*i added to byte i), TGA (alpha; true colour stored or run-length, plain or with the same masked header over 18 bytes), others through StbImageSharp; a missing extension is retried as `.bmp`, `.tga`, `.jpg`, `.jpeg`. |
+| glTF `.glb`, `.gltf` | `GltfModelReader.Read` | Read in glTF space (right-handed, +Y up, metres); the `.gltf`'s external buffers and images are found through `AssetFiles`. The node hierarchy at rest (a sheared node matrix is refused); the triangle primitives of the default scene (strips and fans unrolled) with position, normal, tangent (w the bitangent sign), two UV sets, linear colour and four joints and weights (the four largest of `JOINTS_0`/`JOINTS_1`, summing 1; an unweighted vertex follows its first joint); a skinned primitive's vertices are in its skin's bind space, a rigid one's in its node's. Skins as joint nodes and inverse binds (identity when the file has none). `Bounds` is the extent drawn at rest. Animations keep translation, rotation and scale channels with their keys (step, linear, or cubic spline with in and out tangents per second). Materials: alpha mode and cutoff (masked only), double-sided, unlit, base colour, metallic-roughness (G roughness, B metallic), normal and scale, occlusion (R) and strength, emissive and strength (`KHR_materials_emissive_strength`), clearcoat with its roughness and normal, sheen colour and roughness, diffuse transmission and colour; spec-gloss materials take their diffuse as base colour, unmetallic, roughness 1 - glossiness. Each texture keeps its UV set (0 or 1; more is refused), wraps and `KHR_texture_transform`, and its PNG or JPEG image (the fallback when an extension put WebP, KTX2 or DDS first; none is refused). Images stay encoded. A primitive without normals takes flat ones and drops its tangents, as glTF requires; missing tangents stay zero. SharpGLTF's validation is skipped (exporters write cosmetic faults it refuses); data that would read out of range (an index past the vertices, an attribute shorter than the positions, a joint past the skin) is refused. Not read: morph targets and default weights, sampler filters, `EXT_mesh_gpu_instancing`, `KHR_materials_transmission`, `volume`, `ior`, `specular`, `anisotropy`, `iridescence`; Draco and meshopt compressed files do not load. |
 | Sky manifest | `PristonSkyManifest` | Latin-1 text: profiles in braces, layer lines `FileName: ... FadeDelay: ... RGBA: r g b a`. Profile numbers come from field backdrop codes (`PristonSkyProfiles.Resolve`). |
 
 - Fixed-point coordinates divide by `GameUnits.FixedScale` = 256. Distances are in Priston units (a map
@@ -108,6 +116,28 @@ Described in Etervale's terms; readers keep every field, including padding, for 
   attached actor (a held weapon) hangs from that pose. The render statistics show the actors posed and the actors in the
   last update (`Pose n/m`, `LastAnimationCounts`). With 176 actors in Ricarten (`--benchmark-render` with a crowd of
   150, GTX 1050 Ti) the animation update costs about 1 ms of CPU a frame and allocates about 0.3 KB.
+- glTF actors (`PristonActor.Gltf`, `Rendering/Gltf`): `GltfActorSource.Load` reads the model, scales it by
+  `UnitsPerMetre` (30) into actor space, lays its clips one after another on the actor timeline (each from a whole
+  frame, as `Skeleton.FrameRanges`, so a motion entry with `MotionFrame` k + 1 plays clip k), takes the nodes as the
+  skeleton's objects (attachments by name), splits each primitive into batches of at most 64 bones with their own
+  compact palettes (a rigid primitive follows its node), derives missing tangents for normal-mapped primitives
+  (`GltfTangents`) and packs every material's maps (`GltfMaterialPacking`: six textures, the base colour sRGB with its
+  mips in linear light (an opaque material's alpha ignored), the normals, surface, emissive, sheen and transmission
+  with the clearcoat in the surface's and emissive's alpha; the maps of one texture share the first one's UV set, wraps
+  and transform, a map read otherwise is left out; colour averaged in linear light beside an alpha of data, data maps
+  as stored (`PristonMipChain.BuildData`, `BuildColourAndData`) and each packed normal pair as a whole direction made
+  unit length again (`BuildNormalPairs`)). The source keeps its model without images. `GltfTimelineAnimator` poses
+  the clip whose range holds the frame (`GltfAnimator`: step, linear with rotations by slerp, cubic spline) and gives
+  the nodes' worlds then every skin's joint matrices (inverse bind x joint world); each batch's palette takes those
+  times the actor's world; an attached glTF actor (held by another) keeps its own pose under that world. The GPU
+  buffers are shared per source and released with its last actor; the materials' textures (`GltfMaterialRuntime`) are
+  uploaded once and stay with the renderer, as the legacy textures stay in the texture loader's cache, and the source
+  drops its packed maps (packing them again from the file if another renderer asks); a gameplay overlay (`ActorShade`)
+  adds over the base colour as on a legacy actor; the queues read the material's legacy runtime (masked: alpha tested, blended:
+  transparent, double-sided: no culling). `PristonActorLoader.Load` takes model info whose model resolves to a `.glb` or
+  `.gltf` (a descriptor's `*동작모음` names the clip its motions play); `LoadGltf` loads one directly with its first
+  clip as Stand. `--capture-gltf` draws glTF models beside a
+  legacy NPC (testing.md).
 - Materials: a TGA or opacity-mapped texture is a cut-out (alpha test at 60/255). Original blend types 2-6 draw late
   (blended queue) unless the material is an opaque cut-out; one layer above the base is carried over (multiply, add or
   sphere-map shine); there is no roughness or metalness in the data (`PristonMaterialAdapter` assigns 0.85 rough

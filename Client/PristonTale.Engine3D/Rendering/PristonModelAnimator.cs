@@ -4,7 +4,7 @@ using PristonTale.Engine3D.Formats;
 
 namespace PristonTale.Engine3D.Rendering;
 
-public sealed class PristonModelAnimator
+public sealed class PristonModelAnimator : IActorAnimator
 {
     private static readonly ConditionalWeakTable<PristonModel, PreparedRig> PreparedRigs = new();
 

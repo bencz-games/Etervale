@@ -65,7 +65,7 @@ internal static class VfxImportTests
     // Converted names ("script.", "particle.") need the game data and are checked by the game data case.
     private static Task AuthoredAsync()
     {
-        var source = FindAuthored();
+        var source = AuthoredEffects.Folder();
         Assert.True(source is not null, "the importer's Authored folder was not found");
         var names = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var definitions = new List<VfxDefinition>();
@@ -104,20 +104,6 @@ internal static class VfxImportTests
             .ToArray();
         Assert.True(missing.Length == 0, "skills reference undefined effects: " + string.Join(", ", missing));
         return Task.CompletedTask;
-    }
-
-    private static string? FindAuthored()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
-        {
-            var candidate = Path.Combine(directory.FullName, "tools", "PristonTale.VfxImport", VfxImporter.AuthoredFolder);
-            if (Directory.Exists(candidate))
-            {
-                return candidate;
-            }
-        }
-
-        return null;
     }
 
     private static Task ParticleScriptAsync()

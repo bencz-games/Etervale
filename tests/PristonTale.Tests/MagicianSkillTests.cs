@@ -26,7 +26,7 @@ internal static class MagicianSkillTests
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
         yield return ("silraphim and prima ignis roll their spell terms and the raised attack", SpellsAsync);
-        yield return ("vis tenus shrinks a monster's life, size and damage while it lasts, kills a weak one and spares bosses", VisTenusAsync);
+        yield return ("vis tenus shrinks a monster's life, size and damage while it lasts and kills a weak one; it, power dash and evade shot are cast on monsters only, vis tenus never on a boss", VisTenusAsync);
         yield return ("third anima strengthens spells by its rank and spirit elemental's, lowers maximum mana and replaces it", ThirdAnimaAsync);
     }
 
@@ -72,8 +72,17 @@ internal static class MagicianSkillTests
 
         var (_, _, weak) = Shrinking(definition, 5_000);
         Assert.True(!weak.IsAlive, "a monster with less life than vis tenus takes survived it");
-        var (_, _, boss) = Shrinking(definition with { Class = MonsterClass.Boss }, 100_000);
-        Assert.True(!boss.Effects.TryGet(VisTenus, out _) && boss.ModelScale == 0f, "vis tenus shrank a boss");
+        var bossDefinition = definition with { Class = MonsterClass.Boss };
+        var bossField = SkillFixtures.Field(61, bossDefinition);
+        var bossCaster = SkillFixtures.Player(bossField, 1, PlayerClass.Magician, 90, Vector3.Zero, SkillFixtures.Weapon(ItemKind.Staff));
+        WithMana(bossCaster);
+        bossCaster.Character.Skills.Restore(VisTenus, 1);
+        var boss = SkillFixtures.Spawn(bossField, bossDefinition, new Vector3(30, 0, 0));
+        SkillFixtures.Refuse(SkillCastVerdict.InvalidTarget, "vis tenus cast on a boss", bossField, bossCaster, VisTenus, boss.EntityId);
+        Assert.True(SkillRuleCatalog.TryGet(VisTenus, out var rule) && !SkillFormulas.ReachesPlayers(rule)
+            && SkillRuleCatalog.TryGet(0x02100002, out var powerDash) && !SkillFormulas.ReachesPlayers(powerDash)
+            && SkillRuleCatalog.TryGet(0x04100001, out var evadeShot) && !SkillFormulas.ReachesPlayers(evadeShot),
+            "vis tenus, power dash or evade shot reached players");
         return Task.CompletedTask;
     }
 

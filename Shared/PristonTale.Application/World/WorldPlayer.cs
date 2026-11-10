@@ -13,6 +13,8 @@ using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.World;
 using PristonTale.Simulation.Physics;
 
+using PristonTale.Simulation.Modifiers;
+
 namespace PristonTale.Application.World;
 
 public enum MovementVerdict
@@ -92,6 +94,10 @@ public sealed class WorldPlayer
 
     public bool HasPendingYahoo => _yahooPending;
 
+    // Whether the cheer begun last heals the player's clan's monsters (a cheer the player asked for); one the world
+    // plays for it does not.
+    public bool YahooHeals { get; private set; }
+
     // Quest work waiting for the next upkeep, notices and dialogs for the owner, and duel bookkeeping.
     public PlayerQuestState QuestState { get; } = new();
 
@@ -109,13 +115,16 @@ public sealed class WorldPlayer
         }
     }
 
-    public void QueueYahoo()
+    public void QueueYahoo(bool heals)
     {
         if (!IsDead)
         {
             _yahooPending = true;
+            _yahooQueuedHeals = heals;
         }
     }
+
+    private bool _yahooQueuedHeals;
 
     // A yahoo word in the chat (key false) opens the Space window and cheers; Space (key true) cheers inside the window
     // for its stamina. Either one cheers only from standing, walking or running.
@@ -146,7 +155,7 @@ public sealed class WorldPlayer
             _character.Stamina -= cost;
         }
 
-        _yahooPending = true;
+        QueueYahoo(heals: true);
         return true;
     }
 
@@ -158,6 +167,7 @@ public sealed class WorldPlayer
         }
 
         _yahooPending = false;
+        YahooHeals = _yahooQueuedHeals;
         Action = PlayerActionState.Yahoo;
         MoveState = MotionState.Yahoo;
         _timeline = ActionTimeline.Start(durationMs);
@@ -193,7 +203,7 @@ public sealed class WorldPlayer
             if (_potionCheers)
             {
                 _timeline.End();
-                _yahooPending = true;
+                QueueYahoo(heals: true);
             }
         }
 
@@ -391,8 +401,15 @@ public sealed class WorldPlayer
         _appearance = new PlayerAppearanceView(current.Name, current.Class, current.Tier, current.FaceIndex, hairIndex, current.ModelName, current.ModelName2);
     }
 
-    // Damage is ignored while the guard runs (revives, invulnerability items).
-    public void Guard(float durationMs) => GuardMsLeft = MathF.Max(GuardMsLeft, durationMs);
+    // Damage is ignored while the guard runs (arrivals, revives, invulnerability items).
+    public void Guard(float durationMs)
+    {
+        if (durationMs > GuardMsLeft)
+        {
+            GuardMsLeft = durationMs;
+            _guardChanged = true;
+        }
+    }
 
     public int Level => _character.Level;
     public int Life => _character.Life;
@@ -582,15 +599,27 @@ public sealed class WorldPlayer
         return DistanceSqTo(worldPos) <= range * range && MathF.Abs(worldPos.Y - Position.Y) <= MonsterAttackReach.VerticalEntryLimit;
     }
 
+    // Whether a swing may start now: alive, idle, not stunned and no personal shop open.
+    public bool MaySwing => !IsDead && !IsBusy && !_character.Effects.Has(ControlFlags.Stun) && Shop is null;
+
     public void BeginSwing(ulong targetId, Vector3 targetPos, float durationMs, float hitAtMs)
     {
         Facing = Planar.Heading(Position, targetPos);
+        CombatTargetId = targetId;
+        StartSwing(targetId, durationMs, hitAtMs);
+    }
+
+    // A swing at nothing, the way the player faces: its hit strikes no one, and the monster last attacked stays the one
+    // the player's summons and familiar fight.
+    public void BeginEmptySwing(float durationMs, float hitAtMs) => StartSwing(0, durationMs, hitAtMs);
+
+    private void StartSwing(ulong targetId, float durationMs, float hitAtMs)
+    {
         Action = PlayerActionState.Swing;
         MoveState = MotionState.Attack;
         _timeline = ActionTimeline.Start(durationMs, hitAtMs);
         _swingTargetId = targetId;
         _swingAttackSequence = AttackSequence;
-        CombatTargetId = targetId;
     }
 
     public bool TickAction(float dtMs, out ulong hitTargetId)
@@ -721,10 +750,33 @@ public sealed class WorldPlayer
         _budgetMs = -1;
     }
 
-    // Time after a revive in which no damage lands, as the original's restart grace.
     public float GuardMsLeft { get; private set; }
 
-    public void TickGuard(float dtMs) => GuardMsLeft = MathF.Max(0f, GuardMsLeft - dtMs);
+    public void TickGuard(float dtMs)
+    {
+        if (GuardMsLeft > 0f)
+        {
+            GuardMsLeft = MathF.Max(0f, GuardMsLeft - dtMs);
+            _guardChanged |= GuardMsLeft == 0f;
+        }
+    }
+
+    // Ends a running guard at once (its item left behind, a game master's kill).
+    public void EndGuard()
+    {
+        _guardChanged |= GuardMsLeft > 0f;
+        GuardMsLeft = 0f;
+    }
+
+    private bool _guardChanged;
+
+    // True once after the guard was granted, ran out or was cut short, for the field to publish it (PlayerGrace.StatusCode).
+    public bool TakeGuardChange()
+    {
+        var changed = _guardChanged;
+        _guardChanged = false;
+        return changed;
+    }
 
     // Brings a dead player back where it fell with this much life (a revive skill), guarded for a while.
     public void Revive(int life, float guardMs)
@@ -740,6 +792,7 @@ public sealed class WorldPlayer
         MoveState = MotionState.Stand;
         Action = PlayerActionState.Idle;
         GuardMsLeft = MathF.Max(0f, guardMs);
+        _guardChanged |= GuardMsLeft > 0f;
     }
 
     public EntityView ToView() => new(
@@ -763,7 +816,7 @@ public sealed class WorldPlayer
             return false;
         }
 
-        GuardMsLeft = 0f;
+        EndGuard();
         ApplyDamage(Math.Max(1, _character.Life));
         return IsDead;
     }

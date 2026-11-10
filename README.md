@@ -186,3 +186,12 @@ source-sharing requirement.
 
 This license does not grant rights to separately supplied game assets, original reference source, or third-party
 dependencies. Those remain subject to their own terms.
+
+### Third-party models
+
+Models in the separately supplied assets that require attribution:
+
+- Mythcreature NPC (`char/npc/Mythcreature/Mythcreature.glb`): "Mythcreature round 4 - 3D Editor (with Sound)" by
+  Carl Damy (https://sketchfab.com/Escou), from
+  https://sketchfab.com/3d-models/mythcreature-round-4-3d-editor-with-sound-571ef25a0bcd4972bcb941098edc85b4, licensed
+  under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); used unmodified.

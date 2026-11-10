@@ -293,7 +293,11 @@ Profiles decouple the formulas from entities. `CombatProfileFactory` builds them
   then the `CriticalChance` totals; none with a staff or a phantom in hand, `WeaponCanCritical`, so their wielders'
   normal attacks, weapon skills and spells never crit), `CritBonusPercent` from `CriticalDamage`. With
   `normalAttack`, `NormalAttackWeaponDamage`/`NormalAttackWeaponMax` add a share of the weapon's own damage.
-  `SkillFormulas.NormalAttack` wraps it and adds `HitDamage` as the flat add.
+  Its attack range is `WeaponDamage.ComputeForHit` (the attack range raised by `HitDamageMin` and `HitDamageMax`, the
+  single-target hits' percents of Power Enhancement and Amplified, shown in the status window too; areas, bursts and
+  spells read `WeaponDamage.Compute`).
+  `SkillFormulas.NormalAttack` wraps it and adds `HitDamage` and a weapon force orb's `ForceOrbDamage` as the flat add;
+  a weapon skill's hit adds `HitDamage` and the orb's share for the skill (`SkillFormulas.ForceOrbPower`).
 - `ForPlayerDefender`: derived defence and absorption; block from every worn item's block rating (weapons included)
   and specialization plus totals and passives; `Resistances(character)`: worn items and specializations, the element
   passives, then the resistance totals.

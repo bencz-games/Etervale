@@ -132,7 +132,7 @@ internal sealed class HudCaptureProbe : Game
         ProbeQuest Quest = ProbeQuest.None, bool Dead = false, bool FieldOpen = true, ProbeCarry Carry = ProbeCarry.None,
         ProbeHelp Help = ProbeHelp.None, bool TrainingEnter = false, bool FifthTier = false, bool SecondPage = false, bool Clan = false, ProbePlates Plates = ProbePlates.None, bool ClanPage = false,
         bool Siege = false, int CastleButton = -1, bool CastleChief = true, bool Bellatra = false, int BellatraButton = -1,
-        ProbeBellatraResult BellatraResult = ProbeBellatraResult.None);
+        ProbeBellatraResult BellatraResult = ProbeBellatraResult.None, ProbeBellatraShow BellatraShow = ProbeBellatraShow.None, ProbeSiegeEnd SiegeEnd = ProbeSiegeEnd.None, bool Portuguese = false);
 
     private static readonly Scenario[] Scenarios =
     [
@@ -170,6 +170,9 @@ internal sealed class HudCaptureProbe : Game
         new("plates-clan-classic-800", 800, 600, Clan: true, Plates: ProbePlates.Classic),
         new("siege-board-800", 800, 600, Clan: true, Siege: true),
         new("siege-board-1280x720", 1280, 720, Clan: true, Siege: true),
+        new("siege-won-800", 800, 600, Clan: true, Siege: true, SiegeEnd: ProbeSiegeEnd.Won),
+        new("siege-ended-800", 800, 600, Clan: true, Siege: true, SiegeEnd: ProbeSiegeEnd.Ended),
+        new("siege-ended-pt-800", 800, 600, Clan: true, Siege: true, SiegeEnd: ProbeSiegeEnd.Ended, Portuguese: true),
         new("party-clan-800", 800, 600, Keys.D, Clan: true),
         new("party-clan-page-800", 800, 600, Keys.D, Clan: true, ClanPage: true),
         new("status-arrow-hover-800", 800, 600, Keys.C, Hover.AllocateArrow),
@@ -226,6 +229,19 @@ internal sealed class HudCaptureProbe : Game
         new("bellatra-result-800", 800, 600, Bellatra: true, BellatraResult: ProbeBellatraResult.Final),
         new("bellatra-result-live-800", 800, 600, Npc: true, NpcId: TeamBoothNpc, ServiceButton: 0, ServiceCount: 1, BellatraResult: ProbeBellatraResult.Live),
         new("bellatra-result-1280x720", 1280, 720, Bellatra: true, BellatraResult: ProbeBellatraResult.Final),
+        new("bellatra-show-loading-800", 800, 600, BellatraShow: ProbeBellatraShow.Loading),
+        new("bellatra-show-round-800", 800, 600, BellatraShow: ProbeBellatraShow.Round),
+        new("bellatra-show-start-800", 800, 600, BellatraShow: ProbeBellatraShow.Start),
+        new("bellatra-show-complete-800", 800, 600, BellatraShow: ProbeBellatraShow.Complete),
+        new("bellatra-show-fail-800", 800, 600, BellatraShow: ProbeBellatraShow.Fail),
+        new("bellatra-show-closed-800", 800, 600, BellatraShow: ProbeBellatraShow.Closed),
+        new("bellatra-show-closed-1280x720", 1280, 720, BellatraShow: ProbeBellatraShow.Closed),
+        new("bellatra-show-quake-800", 800, 600, BellatraShow: ProbeBellatraShow.Quake),
+        new("bellatra-show-stun-800", 800, 600, BellatraShow: ProbeBellatraShow.Stun),
+        new("bellatra-show-freeze-800", 800, 600, BellatraShow: ProbeBellatraShow.Freeze),
+        new("bellatra-show-rabbit-800", 800, 600, BellatraShow: ProbeBellatraShow.Rabbit),
+        new("bellatra-show-points-800", 800, 600, BellatraShow: ProbeBellatraShow.Points),
+        new("bellatra-show-congratulations-1280x720", 1280, 720, BellatraShow: ProbeBellatraShow.Congratulations),
         new("system-menu-800", 800, 600, SystemMenu: true),
         new("settings-800", 800, 600, Hover: Hover.SettingsRow, Settings: true),
         new("settings-1600x1200-scale2", 1600, 1200, Settings: true),
@@ -435,20 +451,27 @@ internal sealed class HudCaptureProbe : Game
                 });
             }
 
+            Gameplay.Localization.ClientText.Use(scenario.Portuguese ? Engine3D.Rendering.ClientSettings.BrazilianPortugueseLanguage : Engine3D.Rendering.ClientSettings.EnglishLanguage);
+
             // Boards of an earlier scenario stay on the shared HUD otherwise.
             _hud.InCastleField = false;
             _hud.ObserveBellatra(new PresenceUpdate(1, [], [], [], []) { Bellatra = BellatraBoardInfo.Hidden });
             if (scenario.Siege)
             {
                 _hud.InCastleField = true;
-                _hud.ObserveCastle(new PresenceUpdate(1, [], [], [], [])
+                var castle = new CastleInfo(8, "Eagles", 5, Simulation.Social.Castle.SiegeState.Running, false, 75 * 60 + 12, true, 4,
+                [
+                    new CastleClanInfo(9, "Tigers", 52_000), new CastleClanInfo(7, "Lions", 31_000), new CastleClanInfo(11, "Wolves", 9_500),
+                    new CastleClanInfo(12, "Hawks", 4_100)
+                ], 96_600);
+                _hud.ObserveCastle(new PresenceUpdate(1, [], [], [], []) { Castle = castle });
+                if (scenario.SiegeEnd != ProbeSiegeEnd.None)
                 {
-                    Castle = new CastleInfo(8, "Eagles", 5, Simulation.Social.Castle.SiegeState.Running, false, 75 * 60 + 12, true, 4,
-                    [
-                        new CastleClanInfo(9, "Tigers", 52_000), new CastleClanInfo(7, "Lions", 31_000), new CastleClanInfo(11, "Wolves", 9_500),
-                        new CastleClanInfo(12, "Hawks", 4_100)
-                    ], 96_600)
-                });
+                    _hud.ObserveCastle(new PresenceUpdate(1, [], [], [], [])
+                    {
+                        Castle = castle with { OwnerClanId = scenario.SiegeEnd == ProbeSiegeEnd.Won ? 7 : 8, Siege = Simulation.Social.Castle.SiegeState.Over }
+                    });
+                }
             }
 
             if (scenario.Bellatra)
@@ -457,6 +480,11 @@ internal sealed class HudCaptureProbe : Game
                 {
                     Bellatra = new BellatraBoardInfo(true, 5, 1, 48_250, [31_200, 96_400, 12_050, 0], Contracts.Social.BellatraOutcome.GoesOn)
                 });
+            }
+
+            if (scenario.BellatraShow != ProbeBellatraShow.None)
+            {
+                Show(state, scenario.BellatraShow);
             }
 
             if (scenario.ClanPage)
@@ -589,8 +617,10 @@ internal sealed class HudCaptureProbe : Game
                 _helpReady = true;
             }
 
-            // A carry keeps the HUD clock at the frame rate, so the notice its refusal shows is still up when captured.
-            _hud.Update(ScenarioState(scenario), default, Pointer(scenario), scenario.Carry == ProbeCarry.None ? 1 : 1d / 60);
+            // A carry keeps the HUD clock at the frame rate, so the notice its refusal shows is still up when captured; Bellatra's
+            // show stays at the moment it was stepped to.
+            _hud.Update(ScenarioState(scenario), default, Pointer(scenario),
+                scenario.BellatraShow != ProbeBellatraShow.None ? 0 : scenario.Carry == ProbeCarry.None ? 1 : 1d / 60);
             if (scenario.Block)
             {
                 _hud.StringEffect.Show(HudArt.BlockText);
@@ -773,6 +803,68 @@ internal sealed class HudCaptureProbe : Game
         };
     }
 
+    // Bellatra's show at a moment of its timeline: the boards and seal notices the server would send, then the HUD
+    // stepped to that moment.
+    private void Show(OwnerState state, ProbeBellatraShow show)
+    {
+        long[] scores = [31_200, 96_400, 12_050, 48_250];
+        void Board(int round, Contracts.Social.BellatraOutcome outcome) => _hud.ObserveBellatra(new PresenceUpdate(1, [], [], [], [])
+        {
+            Bellatra = new BellatraBoardInfo(true, round, 1, 48_250, scores, outcome, StageTeams: 0b1111, GoingOn: 0b1010)
+        });
+        void Seal(GameTextId text) => _hud.ObserveBellatra(new PresenceUpdate(1, [], [], [], [])
+        {
+            Chat = [new ChatLineInfo(Contracts.Social.ChatKind.System, 0, "", GameText.Of(text, "Hammer"))]
+        });
+        void Wait(double seconds)
+        {
+            for (var step = 0; step < (int)(seconds * 20); step++)
+            {
+                _hud.Update(state, default, default, 0.05);
+            }
+        }
+
+        switch (show)
+        {
+            case ProbeBellatraShow.Loading:
+                Board(0, Contracts.Social.BellatraOutcome.Playing);
+                Wait(0.6);
+                break;
+            case ProbeBellatraShow.Round or ProbeBellatraShow.Start:
+                Board(2, Contracts.Social.BellatraOutcome.Playing);
+                Board(3, Contracts.Social.BellatraOutcome.Playing);
+                Wait(show == ProbeBellatraShow.Round ? 3.9 : 5.3);
+                break;
+            case ProbeBellatraShow.Complete or ProbeBellatraShow.Closed:
+                Board(3, Contracts.Social.BellatraOutcome.Playing);
+                Board(4, Contracts.Social.BellatraOutcome.GoesOn);
+                Wait(show == ProbeBellatraShow.Complete ? 1.4 : 7);
+                break;
+            case ProbeBellatraShow.Fail:
+                Board(3, Contracts.Social.BellatraOutcome.Playing);
+                Board(3, Contracts.Social.BellatraOutcome.Out);
+                Wait(1.4);
+                break;
+            case ProbeBellatraShow.Quake or ProbeBellatraShow.Stun or ProbeBellatraShow.Freeze or ProbeBellatraShow.Rabbit or ProbeBellatraShow.Points:
+                Board(2, Contracts.Social.BellatraOutcome.Playing);
+                Seal(show switch
+                {
+                    ProbeBellatraShow.Quake => GameTextId.BellatraQuake,
+                    ProbeBellatraShow.Stun => GameTextId.BellatraStun,
+                    ProbeBellatraShow.Freeze => GameTextId.BellatraFreeze,
+                    ProbeBellatraShow.Rabbit => GameTextId.BellatraRabbit,
+                    _ => GameTextId.BellatraPoints
+                });
+                Wait(0.6);
+                break;
+            case ProbeBellatraShow.Congratulations:
+                Board(8, Contracts.Social.BellatraOutcome.Playing);
+                Board(0, Contracts.Social.BellatraOutcome.Cleared);
+                Wait(0.8);
+                break;
+        }
+    }
+
     private ProbeQuest _quest;
 
     // The server's answer to the probe's quest talk.
@@ -889,9 +981,33 @@ internal sealed class HudCaptureProbe : Game
     }
 }
 
+internal enum ProbeBellatraShow
+{
+    None,
+    Loading,
+    Round,
+    Start,
+    Complete,
+    Fail,
+    Closed,
+    Quake,
+    Stun,
+    Freeze,
+    Rabbit,
+    Points,
+    Congratulations
+}
+
 internal enum ProbeBellatraResult
 {
     None,
     Final,
     Live
+}
+
+internal enum ProbeSiegeEnd
+{
+    None,
+    Won,
+    Ended
 }

@@ -15,14 +15,14 @@ conventions and the C# classes that own each effect. The frame graph that runs t
 
 | Path | Responsibility |
 |---|---|
-| `Client/PristonTale/Content/Content.mgcb` | Content project: `/platform:DesktopVK`, `/profile:HiDef`, one `#begin` block per effect with `SpirvEffectProcessor`; `Surface.fx` is built twice. |
+| `Client/PristonTale/Content/Content.mgcb` | Content project: `/platform:DesktopVK`, `/profile:HiDef`, one `#begin` block per effect with `SpirvEffectProcessor`; `Surface.fx` is built three times. |
 | `Shaders/Core/` | `Common.hlsli` (constants, `SafeNormalize`, half-float cap, `SkyDepth` written for sky pixels and `SkyDepthThreshold` beyond which a view depth is sky, the sky's motion marker `SkyMotionMarker` and its test `SkyMotionThreshold`; passes never declare their own; `InterleavedGradientNoise`, the one per-pixel jitter; `Luminance`; `CameraRay`, the view ray of a screen uv; `HenyeyGreenstein`), `Color.hlsli` (exact sRGB curves, PBR Neutral, `DisplayEncode`), `Frame.hlsli` (`FRAME_CONSTANTS`), `Fullscreen.hlsli` (full-screen triangle). |
 | `Shaders/Lighting/` | `Octahedral.hlsli` (direction mapping), `CubeFaces.hlsli` (the six cube view faces, a direction's face and its place on it, the table of `PristonCubeFaces`), `Environment.hlsli` (the prefiltered environment atlas lookup, for the lit passes and the reflections), `SphericalHarmonics.hlsli` (bands 0-2 and their cosine-convolved irradiance), `Brdf.hlsli` (GGX, height-correlated Smith visibility, Schlick, specular anti-aliasing), `LightingDecl.hlsli` (`LIGHTING_CONSTANTS`, `LIGHTING_RESOURCES`), `Shading.hlsli` (cascaded sun shadows PCF/PCSS, lamp cube shadows, screen-space occlusion, tiled local lights, image-based and hemispherical ambient, specular occlusion). |
 | `Shaders/Atmosphere/` | `FogDecl.hlsli`, `Fog.hlsli`: distance fog toward the captured sky with a forward-scattering sun term. |
-| `Shaders/Materials/` | `MaterialDecl.hlsli` (`MATERIAL_CONSTANTS`, `MATERIAL_RESOURCES`, shading model and layer mode codes), `Material.hlsli` (`SampleSurface`: base colour, second layer, alpha test, visible-face normal). |
-| `Shaders/Vertex/` | `SkinningDecl.hlsli` + `Skinning.hlsli` (rigid one-bone skinning, current and previous pose, `MAX_BONES 64`), `VertexAnimationDecl.hlsli` + `VertexAnimation.hlsli` (water ripple and wind). |
+| `Shaders/Materials/` | `MaterialDecl.hlsli` (`MATERIAL_CONSTANTS`, `MATERIAL_RESOURCES`, shading model and layer mode codes), `Material.hlsli` (`SampleSurface`: base colour, second layer, alpha test, visible-face normal), `GltfMaterialDecl.hlsli` and `GltfMaterial.hlsli` (the glTF material of the `GLTF` variant, below). |
+| `Shaders/Vertex/` | `SkinningDecl.hlsli` + `Skinning.hlsli` (rigid one-bone skinning and four weighted bones, current and previous pose, `MAX_BONES 64`), `VertexAnimationDecl.hlsli` + `VertexAnimation.hlsli` (water ripple and wind). |
 | `Shaders/Passes/*.fx` | One file per effect asset (table below). |
-| `Client/PristonTale.Engine3D/Rendering/PristonShaderLibrary.cs` | Owner of the two surface effects: frame block upload (`ApplyFrame`), technique selection (`SelectStaticSurface`, `SelectSkinnedSurface`, `SelectSky`, shadow casters), white-texture slot binding, `LoadRequired`. |
+| `Client/PristonTale.Engine3D/Rendering/PristonShaderLibrary.cs` | Owner of the three surface effects: frame block upload (`ApplyFrame`), technique selection (`SelectStaticSurface`, `SelectSkinnedSurface`, `SelectGltfSurface`, `SelectSky`, shadow casters and outlines), white-texture slot binding, `LoadRequired`. |
 | `Client/PristonTale.Engine3D/Rendering/Post/PristonDisplayTransform.cs`, `PristonColorGrading.cs` | CPU references of the display transforms, mesopic vision and the colour grade. |
 | `Client/PristonTale.Engine3D/Rendering/Post/Smaa/` | SMAA area and search tables (gzip, embedded) and `CREDITS.md` (MIT licence). |
 | `tests/PristonTale.Tests/ShaderValidationProbe*.cs` | `--verify-shaders`: GPU checks of every technique against C# formulas. |
@@ -33,7 +33,7 @@ Each `.fx` in `Passes/` builds to `Effects/<Name>` (the asset name the C# owner 
 
 | Asset | Source | Techniques | C# owner | Computes |
 |---|---|---|---|---|
-| `Effects/StaticSurface`, `Effects/SkinnedSurface` | `Surface.fx` (`SKINNED` define for the second) | `Prepass`, `PrepassMasked`, `Opaque`, `Masked`, `Sky` and `ShadowClear` (static only), `Outline` and `OutlineMasked` (skinned only), `ShadowCaster`, `ShadowCasterMasked` | `PristonShaderLibrary` | Stage, scenery, sky-layer and actor surfaces: depth pre-pass, lit HDR forward pass with motion output, sun and lamp shadow casters, and the hover outline (the actor flat in `OutlineColor`, shifted on screen by `OutlineParams.xy` and pushed back `OutlineParams.w` world units). |
+| `Effects/StaticSurface`, `Effects/SkinnedSurface`, `Effects/GltfSurface` | `Surface.fx` (`SKINNED` for the second, `SKINNED;GLTF` for the third) | `Prepass`, `PrepassMasked`, `Opaque`, `Masked`, `Sky` and `ShadowClear` (static only), `Outline` and `OutlineMasked` (skinned and glTF), `ShadowCaster`, `ShadowCasterMasked` | `PristonShaderLibrary` | Stage, scenery, sky-layer and actor surfaces: depth pre-pass, lit HDR forward pass with motion output, sun and lamp shadow casters, and the hover outline (the actor flat in `OutlineColor`, shifted on screen by `OutlineParams.xy` and pushed back `OutlineParams.w` world units). |
 | `Effects/Unlit` | `Unlit.fx` | `Unlit` | `PristonUnlitEffect` (`GlowRenderer`, `PristonMeshEffect`) | Unlit textured `VertexPositionColorTexture` geometry; vertex colour sRGB decode, `Tint` scales into radiance. |
 | `Effects/Atmosphere` | `Atmosphere.fx` | `Transmittance`, `Multiple`, `SkyView`, `Clouds`, `CloudMerge`, `CloudShadow`, `Sky` | `Atmosphere/PristonPhysicalSky` | The realistic sky: atmosphere lookup tables, the volumetric clouds' hemisphere (a quarter marched each frame into a packed target, merged into its reprojected history) and shadow, and the sky with the sun, moon, stars, aurora, cirrus, clouds and rainbow into the sky target ([rendering.md](rendering.md#realistic-sky)). |
 | `Effects/Rain` | `Rain.fx` | `Drops`, `Splashes` | `Weather/PristonRain` | Rain streaks placed, wrapped, stretched and widened to a least pixel width in the vertex shader from seeds and time; streak parts under the occlusion map's surface discarded; procedural splash rings and sprays ([rendering.md](rendering.md#weather)). |
@@ -70,6 +70,22 @@ the radiance (clamped at 0) and multiplies the output alpha by `a` after the alp
 | t6 | Tile light masks (`StructuredBuffer<uint>`) |
 | t7 / t8 / t9 | Prefiltered environment atlas, SH irradiance (`StructuredBuffer<float4>`, entry 9 holds the atlas scale and fill), split-sum BRDF table |
 | t10 | The clouds' shadow map (`CloudShadowMap`, linear, clamp) |
+| t11 - t14 | `GLTF` only: the packed surface (R occlusion, G roughness, B metallic, A clearcoat), emissive (sRGB, A clearcoat roughness), sheen (sRGB, A roughness) and diffuse transmission (sRGB colour, A share) maps; there t1 holds the packed normals (RG the surface's XY, BA the clearcoat's) |
+| t15 | `GLTF` only: a gameplay overlay (`GltfOverlayParams`) |
+
+The `GLTF` variant (glTF actors, `GltfMaterialRuntime`) reads `BLENDINDICES0` as `uint4` with `BLENDWEIGHT0` (four
+bones of the batch's palette), `TANGENT0` (w the bitangent's sign) and a linear `COLOR0`; its pixel cbuffer adds
+`GLTF_MATERIAL_CONSTANTS` after the material's: `GltfTextureReads` (per packed texture its UV transform's 2x2 part,
+offset, UV set, -1 when absent, and wraps S + 3 T, applied in the shader since the samplers repeat: clamp and mirror
+stop half the filter's footprint short of the edges, `GltfTextureSizes` giving each texture's size), `GltfEmission`,
+`GltfNormalScales` (normal and clearcoat normal scales, clearcoat and its roughness; a normal's Z is rebuilt before its
+XY is scaled, as glTF does), `GltfSheen`, `GltfTransmission` and `GltfOverlayParams` (x 1 when a gameplay overlay adds
+over the base colour, y its U scroll on the first UV set). A back face turns its whole tangent frame; a glTF vertex
+colour tints and is no sky visibility; a transmitting surface lit from behind looks up its shadow on the sun's side.
+Over the base surface it adds the clearcoat (GGX, F0 0.04, on its own normal), the sheen (Charlie
+with Estevez and Kulla's visibility, its directional albedo in the BRDF table's b) and the diffuse transmission, lit by
+the sun and the sky; the lamps light the base surface only. The BRDF table is `HalfVector4`: rg the split-sum scale and
+bias, b the sheen albedo; it is bound even without image-based lighting, for the sheen.
 
 Material codes (`MaterialDecl.hlsli`, mirrored by `PristonMaterialDescription.cs`): `ShadingModel` 0 lit
 (metallic-roughness), 1 emissive (self-illuminated or additive: the albedo is emitted radiance), 2 colour factor

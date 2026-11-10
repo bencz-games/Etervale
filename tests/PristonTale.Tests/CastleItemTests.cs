@@ -13,7 +13,7 @@ internal static class CastleItemTests
     {
         yield return ("castle scrolls and stones work only in the castle, exclude their premium scroll and replace their own kind", ScrollsAsync);
         yield return ("Defiance and Might stones halve their tower's blows and strengthen strikes on their class", StonesAsync);
-        yield return ("castle items end when their holder leaves the castle field", LeaveAsync);
+        yield return ("castle items end when their holder leaves the castle field, Athanasia's guard with them", LeaveAsync);
         yield return ("a Restoration holds its dead owner in a castle field and revives him after ten seconds", RestorationAsync);
     }
 
@@ -71,15 +71,20 @@ internal static class CastleItemTests
 
     private static async Task LeaveAsync()
     {
-        var harness = await SpecialItemTests.Harness.CreateAsync(FieldCodes.Castle, "BC109");
+        var harness = await SpecialItemTests.Harness.CreateAsync(FieldCodes.Castle, "BC109", "BC101");
         var character = harness.Session.Character!;
         var stone = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("BC109")));
         await harness.AdvanceAsync(stone);
         harness.Tick(1);
         Assert.True((await stone).Outcome.Ok && character.Effects.TryGet(CastleItems.StatusBase + 9, out _), "Might Stone did not start");
+        var athanasia = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("BC101")));
+        await harness.AdvanceAsync(athanasia);
+        harness.Tick(1);
+        Assert.True((await athanasia).Outcome.Ok && harness.Player.GuardMsLeft > PlayerGrace.ArrivalMs, "Athanasia did not guard");
         Assert.True(harness.World.TryGetOpenField(FieldCodes.Castle, out var castle), "castle field missing");
         castle.Remove(harness.Player.EntityId);
-        Assert.True(!character.Effects.TryGet(CastleItems.StatusBase + 9, out _), "the stone outlived leaving the castle");
+        Assert.True(!character.Effects.TryGet(CastleItems.StatusBase + 9, out _) && harness.Player.GuardMsLeft == 0f,
+            "the stone or Athanasia's guard outlived leaving the castle");
     }
 
     private static async Task RestorationAsync()
@@ -90,7 +95,7 @@ internal static class CastleItemTests
         await harness.AdvanceAsync(alive);
         Assert.True((await alive).Outcome.Status == ItemUseStatus.NotUsable && harness.Item("BC105") is not null, "Restoration was used alive");
 
-        harness.Player.ApplyDamage(character.MaxLife * 10);
+        harness.Player.Kill();
         harness.Tick(20 * 5);
         var early = harness.Use(new ItemUseCommand(Guid.NewGuid(), character.InventoryRevision, harness.Id("BC105")));
         await harness.AdvanceAsync(early);
@@ -103,9 +108,9 @@ internal static class CastleItemTests
             && harness.Player.GuardMsLeft > 4000f, "Restoration did not revive in place at half life");
 
         var field = await SpecialItemTests.Harness.CreateAsync(20, "BC105");
-        field.Player.ApplyDamage(field.Session.Character!.MaxLife * 10);
+        field.Player.Kill();
         field.Tick(20 * 11);
-        var outside = field.Use(new ItemUseCommand(Guid.NewGuid(), field.Session.Character.InventoryRevision, field.Id("BC105")));
+        var outside = field.Use(new ItemUseCommand(Guid.NewGuid(), field.Session.Character!.InventoryRevision, field.Id("BC105")));
         await field.AdvanceAsync(outside);
         Assert.True((await outside).Outcome.Status == ItemUseStatus.NotHere && field.Player.IsDead && field.Item("BC105") is not null,
             "a Restoration revived a player outside the castle");

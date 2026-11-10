@@ -25,6 +25,9 @@ internal static class MonsterPresentationTests
         yield return ("the later monsters trace their body scripts but a summon does not, a summoned Draxos, Greedy or Midranda strikes with the Hulk's hit, and a death clip asks its key", LaterMonstersAsync);
         yield return ("corpses darken after their death clip starts and a Figon's body of light fades away", CorpsesAsync);
         yield return ("monster statuses show their effect and tint on the holder until removed", StatusesAsync);
+        yield return ("monsters keep their family's look: the coloured translucent Furies, the yellow wild Wolverine, the boss glow, "
+            + "under status tints and corpse fades", LooksAsync);
+        yield return ("a Babel blow splashing over several players lights a chain between them when its bolt arrives", BabelChainAsync);
         yield return ("authored monster effects use known families and cover every family the client draws", DataAsync);
     }
 
@@ -37,6 +40,53 @@ internal static class MonsterPresentationTests
         Assert.True(MonsterVisualFamilies.Of(0x1460, 64, 1f) == "" && MonsterVisualFamilies.Of(0x1460, 69, 1f) == "doomguard"
             && MonsterVisualFamilies.Of(0x1460, 100, 1.6f) == "doomlord", "dark knight split");
         Assert.True(MonsterVisualFamilies.Of(0x10D0, 50, 1f) == "evilsnail" && MonsterVisualFamilies.Of(0x10D0, 70, 1f) == "", "scorpion split");
+        return Task.CompletedTask;
+    }
+
+    private static Task LooksAsync()
+    {
+        var fury = MonsterLooks.Of(CharacterSoundCodes.Fury, 119, boss: false, summoned: false);
+        Assert.True(fury.Light == new Vector3(100f, 0f, 0f) / 256f && MathF.Abs(fury.Opacity - 175f / 255f) < 1e-5f, $"the level 119 Fury differs: {fury}");
+        Assert.True(MonsterLooks.Of(CharacterSoundCodes.Fury, 110, false, false) == MonsterLook.Normal, "a plain Fury is not plain");
+        Assert.True(MonsterLooks.Of(CharacterSoundCodes.Wolverine, 30, false, false).Light.X > 0f
+            && MonsterLooks.Of(CharacterSoundCodes.Wolverine, 30, false, summoned: true) == MonsterLook.Normal, "only a wild Wolverine is yellow");
+        var boss = MonsterLooks.Of(CharacterSoundCodes.Fury, 118, boss: true, summoned: false);
+        Assert.True(boss.Light == new Vector3(130f, 50f, 70f) / 256f && boss.Opacity < 1f, "a wild boss does not glow over its family's colour");
+
+        var sink = new Sink();
+        var scene = new Scene();
+        var presentation = new MonsterPresentation(sink, scene);
+        var view = new MonsterActorView(5, new ActorHandle(1, 1), CharacterSoundCodes.Fury, 120, 1f, Vector3.Zero, 0f, false);
+        presentation.Update([view], 1f / 60f);
+        Assert.True(scene.Tints[5] == new Vector3(0f, 0f, 100f) / 256f && MathF.Abs(scene.Corpses[5].Fade - 175f / 255f) < 1e-5f,
+            "the Fury's look was not applied");
+        sink.Statuses.Apply(Status(5, 7, MonsterStatuses.Poison, StatusEffectOp.Add), 0);
+        Assert.True(scene.Tints[5] == new Vector3(0f, 100f, 100f) / 256f, $"the status tint replaced the look: {scene.Tints[5]}");
+        return Task.CompletedTask;
+    }
+
+    private static Task BabelChainAsync()
+    {
+        var sink = new Sink();
+        var scene = new Scene();
+        var presentation = new MonsterPresentation(sink, scene);
+        var babel = new MonsterActorView(9, new ActorHandle(1, 1), CharacterSoundCodes.Babel, 100, 1f, Vector3.Zero, 0f, false);
+        presentation.Update([babel], 1f / 60f);
+        presentation.ObserveBlow(9, 21, new Vector3(250f, 0f, 0f));
+        presentation.Update([babel], 1f / 60f);
+        Assert.True(!sink.Spawned.Contains("vfx.monster.babel.chain"), "one struck player lit a chain");
+
+        foreach (var target in new ulong[] { 21, 22, 23 })
+        {
+            presentation.ObserveBlow(9, target, new Vector3(250f, 0f, 0f));
+        }
+
+        presentation.Update([babel], 0.1f);
+        Assert.True(!sink.Spawned.Contains("vfx.monster.babel.chain"), "the chain lit before the bolt reached its target (250 / 500 s)");
+        presentation.Update([babel], 0.45f);
+        var links = sink.Spawned.Select((name, index) => (name, index)).Where(static link => link.name == "vfx.monster.babel.chain")
+            .Select(link => (sink.Casters[link.index], sink.Targets[link.index])).Order().ToArray();
+        Assert.True(links.SequenceEqual([(21UL, 22UL), (22UL, 23UL)]), $"the chain links differ: {string.Join(", ", links)}");
         return Task.CompletedTask;
     }
 
@@ -189,7 +239,7 @@ internal static class MonsterPresentationTests
 
     private static Task DataAsync()
     {
-        var source = FindAuthored();
+        var source = AuthoredEffects.Folder();
         Assert.True(source is not null, "the importer's Authored folder was not found");
         var names = Directory.EnumerateFiles(Path.Combine(source!, "Monsters"), VfxCatalog.Pattern, SearchOption.AllDirectories)
             .SelectMany(file => VfxDefinition.ParseFile(File.ReadAllText(file)))
@@ -226,20 +276,6 @@ internal static class MonsterPresentationTests
 
         Assert.True(names.Contains("vfx.monster.status.bloodyknightstun"), "the bloody knight stun has no effect");
         return Task.CompletedTask;
-    }
-
-    private static string? FindAuthored()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
-        {
-            var candidate = Path.Combine(directory.FullName, "tools", "PristonTale.VfxImport", VfxImporter.AuthoredFolder);
-            if (Directory.Exists(candidate))
-            {
-                return candidate;
-            }
-        }
-
-        return null;
     }
 
     private sealed class Sink(params string[] defined) : IMonsterEffectSink
@@ -286,6 +322,6 @@ internal static class MonsterPresentationTests
 
         public Dictionary<ulong, (float Fade, float Dim)> Corpses { get; } = new();
 
-        public void SetEntityCorpse(ulong entityId, float fade, float dim) => Corpses[entityId] = (fade, dim);
+        public void SetEntityBody(ulong entityId, float opacity, float dim) => Corpses[entityId] = (opacity, dim);
     }
 }

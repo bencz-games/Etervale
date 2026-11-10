@@ -6,9 +6,11 @@ using PristonTale.Simulation.World.Monsters;
 
 namespace PristonTale.Application.World;
 
-// What an entrant's board shows: the round, its team (0 to 3), its score, every team's score, and how its last round
-// start or the end went for it.
-public sealed record BellatraView(int Round, int Team, long Score, IReadOnlyList<long> TeamScores, BellatraOutcome Outcome);
+// What an entrant's board shows: the round, its team (0 to 3), its score, every team's score, how its last round start or
+// the end went for it, and at the last start that sent teams on, the teams that played it and those going on (a bit a
+// team).
+public sealed record BellatraView(int Round, int Team, long Score, IReadOnlyList<long> TeamScores, BellatraOutcome Outcome, int StageTeams,
+    int GoingOn);
 
 public sealed record BellatraResultLine(string Name, PlayerClass Class, long Score, int Kills);
 
@@ -60,6 +62,10 @@ internal sealed class BellatraGame
     // The game clock's hour the last tick saw (none yet: -1).
     public int LastHour { get; set; } = -1;
 
+    // At the last round start that sent teams on: the teams with somebody left and those going on, a bit a team.
+    public int StageTeams { get; set; }
+    public int GoingOn { get; set; }
+
     // The result of the game that ended, kept until the game resets.
     public BellatraResult? Final { get; set; }
 
@@ -89,7 +95,7 @@ internal sealed class BellatraGame
                 _scoresRevision = Revision;
             }
 
-            entrant.View = new BellatraView(Round, entrant.Team, entrant.Score, _scores, entrant.Outcome);
+            entrant.View = new BellatraView(Round, entrant.Team, entrant.Score, _scores, entrant.Outcome, StageTeams, GoingOn);
             entrant.ViewRevision = Revision;
         }
 
@@ -109,5 +115,7 @@ internal sealed class BellatraGame
         Next = 0;
         OutAtMs = 0;
         Final = null;
+        StageTeams = 0;
+        GoingOn = 0;
     }
 }

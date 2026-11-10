@@ -79,6 +79,7 @@ internal sealed partial class ShaderValidationProbe : Game
         }
 
         VerifySkinning();
+        VerifyGltf();
         VerifyRim();
         VerifySky();
         VerifyDisplayOutput();

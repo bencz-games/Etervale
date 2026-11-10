@@ -100,6 +100,7 @@ public sealed class PristonAudioLibrary : IDisposable
     private readonly Dictionary<uint, SoundEffect> _talkSounds = [];
     private readonly List<SoundEffect> _owned = [];
     private readonly Dictionary<string, SoundEffect> _itemSounds = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<EventCue, SoundEffect> _events = [];
     private readonly Dictionary<LoginCue, SoundEffect> _loginCues = [];
     private readonly List<(SoundEffect Sound, float Volume)> _characterSelectLoops = [];
     private int _npcSoundCount;
@@ -178,6 +179,11 @@ public sealed class PristonAudioLibrary : IDisposable
                 library._itemSounds[file] = library.Load(assetRoot, ItemSoundRules.Directory + file, byPath);
             }
 
+            foreach (var (cue, path) in EventSounds.Files)
+            {
+                library._events[cue] = library.Load(assetRoot, path, byPath);
+            }
+
             library.LoadNpcSoundBanks(assetRoot, byPath);
             library.LoadTalkSounds(assetRoot, byPath, log);
 
@@ -199,6 +205,8 @@ public sealed class PristonAudioLibrary : IDisposable
     public SoundEffect Cue(LoginCue cue) => _loginCues.GetValueOrDefault(cue);
 
     public SoundEffect CoinSound => _itemSounds.GetValueOrDefault(ItemSoundRules.Coin);
+
+    public SoundEffect Event(EventCue cue) => _events.GetValueOrDefault(cue);
 
     public bool TryGetFieldMusic(string code, out SoundEffect music)
     {

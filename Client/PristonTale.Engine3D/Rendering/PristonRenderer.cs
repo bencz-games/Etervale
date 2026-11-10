@@ -11,6 +11,7 @@ using PristonTale.Engine3D.Rendering.Lighting;
 using PristonTale.Engine3D.Rendering.Post;
 using PristonTale.Contracts.Motion;
 using PristonTale.Contracts.Units;
+using PristonTale.Engine3D.Rendering.Gltf;
 
 namespace PristonTale.Engine3D.Rendering;
 
@@ -383,6 +384,7 @@ public sealed partial class PristonRenderer : IDisposable
     {
         RemoveAllStages();
         ClearActors();
+        DisposeAllGltfMaterials();
         AddStage(stage, models);
         foreach (var actor in actors)
             AddActor(actor);
@@ -660,6 +662,11 @@ public sealed partial class PristonRenderer : IDisposable
 
             frame = frame with { Environment = new PristonEnvironmentFrame(_environment.Atlas, _environment.Sh, _environment.BrdfLut) };
         }
+        else
+        {
+            frame = frame with { Environment = new PristonEnvironmentFrame(null, null, _environment.BrdfLut) };
+        }
+
         Profiler.Begin(RenderSection.Sky);
         if (skyVisible)
         {
@@ -984,8 +991,9 @@ public sealed partial class PristonRenderer : IDisposable
         {
             Instance = instance;
             World = instance.World;
-            Animator = new PristonModelAnimator(instance.Actor.Skeleton);
-            var defaultCount = Math.Min(Animator.ObjectCount, PristonShaderLibrary.MaxBones);
+            Animator = instance.Actor.Gltf is { } gltf ? new GltfTimelineAnimator(gltf) : new PristonModelAnimator(instance.Actor.Skeleton);
+            // A glTF actor's batches keep their own palettes (GltfBatches).
+            var defaultCount = instance.Actor.Gltf is null ? Math.Min(Animator.ObjectCount, PristonShaderLibrary.MaxBones) : 0;
             BoneMap = new int[defaultCount];
             for (var i = 0; i < defaultCount; i++)
                 BoneMap[i] = i;
@@ -995,7 +1003,7 @@ public sealed partial class PristonRenderer : IDisposable
         }
 
         public PristonActorInstance Instance { get; }
-        public PristonModelAnimator Animator { get; }
+        public IActorAnimator Animator { get; }
         private float _sampledFrame = float.NaN;
         private Matrix[] _sampledTransforms;
         private float _paletteFrame = float.NaN;
@@ -1044,6 +1052,9 @@ public sealed partial class PristonRenderer : IDisposable
         public Matrix AttachOffset { get; set; } = Matrix.Identity;
         public float AttachLift { get; set; }
         public ActorGpuResource GpuResource { get; set; }
+        public GltfGpuResource GltfResource { get; set; }
+        // The glTF batches with the animator's transforms their palette slots take.
+        public List<(RenderBatch Batch, int[] Bones)> GltfBatches { get; } = [];
 
         public bool Alive { get; set; } = true;
         // Kept with its clip and world but not drawn (a model's alternate between the motions it plays).
@@ -1110,6 +1121,12 @@ public sealed partial class PristonRenderer : IDisposable
         public void AddShadowBatch(RenderBatch batch)
         {
             ShadowBatches.Add(batch);
+        }
+
+        public void AddGltfBatch(RenderBatch batch, int[] bones)
+        {
+            AddBatch(batch);
+            GltfBatches.Add((batch, bones));
         }
 
         public void SetMotion(MotionCode motion)

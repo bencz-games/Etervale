@@ -303,7 +303,11 @@ attack meets the target's defence, block and flat absorption (`CombatProfileFact
 `CombatResolver.Resolve`: a player defender absorbs flat, a monster a percent), scaled by both sides' effects, with the
 attacker's enchant elements (`EnchantOnPlayer`) and Might Stone (`CastleItems.Strike`) and the target's absorbing
 shields (`DefendFromPlayer`; guards answer only monsters of their broods), then `WorldPlayer.ApplyDamage` (nothing
-during a revive guard or Athanasia). A hidden game master neither fights nor is fought. Damage skills reach players
+during a guard: entering the world or coming out of a warp gate for `PlayerGrace.ArrivalMs` (10 s), the living in the
+castle's field when a siege ends for `SiegeEndMs` (6 s), a restart or revive, the invulnerability items: Athanasia,
+ended with its status when its holder leaves the castle, the Eternal Life scroll, the ether core's return and the
+head-change foods). Each guard granted, run out or cut short is published with the field's next step as the status
+`PlayerGrace.StatusCode` (0xF0000600, source System), so viewers see it. A hidden game master neither fights nor is fought. Damage skills reach players
 there too (`FieldSkills.Players`): only the skills that can hurt one take a foe as their target
 (`SkillFormulas.ReachesPlayers`: weapon skills, bolts and areas of rolled damage that are not chains, never a charm;
 the client offers the same). A weapon skill rolls the player's evasion, then its accuracy, block, critical and flat
@@ -732,31 +736,32 @@ longer exists (a dissolved one) is dropped at load and on the next minute.
   the castle has no owner; on shutdown, after the game server, the last of it is stored (`FlushTaxAsync`), and what
   storage then refuses is lost.
 
-The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the
-owner and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its
-spawns and places the defenders (`CastleSiegeRules`): the door, the Tower of Valhalla and six crystal towers of the
-chosen elements stand still at their places with their potion count as lives (`MonsterLifeRules`; the crystal towers
-and the tower strike what comes into their reach without turning), and up to twenty mercenaries of each kind wander
-around their posts with all their potions. A castle without an owner gets twenty of each and crystal towers of random
-elements. The owner clan's members call more mercenaries with crystals during the siege (GP114-116: one a character,
-five of a kind, twenty of the clan; `FieldInstance.CallMercenary`, [special-items.md](special-items.md)), each one a
-defender as the others are; a fallen crystal tower or the door calls guards at the posts near it
+The siege runs in the castle field (`ICastleWorld`, implemented by `WorldServer`). Opening it gives the world the owner
+and its setup (`CastleSiegeOrder`); the castle field, now or when it opens, removes its wild monsters, holds its spawns
+and places the defenders (`CastleSiegeRules`): the door, the Tower of Valhalla and six crystal towers of the chosen
+elements stand still at their places with their potion count as lives (`MonsterLifeRules`; the crystal towers and the
+tower strike what comes into their reach without turning), and up to twenty mercenaries of each kind wander around their
+posts with all their potions. A castle without an owner gets twenty of each and crystal towers of random elements. The
+owner clan's members call more mercenaries with crystals during the siege (GP114-116: one a character, five of a kind,
+twenty of the clan; `FieldInstance.CallMercenary`, [special-items.md](special-items.md)), each one a defender as the
+others are; a fallen crystal tower or the door calls guards at the posts near it
 ([world.md](world.md#loot-and-kill-rewards)). Every defender belongs to the owner clan (`MonsterInstance.ClanId`,
-`CastleRole`): the defenders and its players never hurt each other (`FieldCombat.OwnClan`, also for clan pets: no
-attack target, no blow or area skill, no skill or summon of theirs on them) and the defenders never pick its players;
-clan pet rules (the cheer, the pets nearby) leave the defenders out. Each player hit (summons' too) on a crystal
-tower, or on the tower once no crystal tower stands, adds the life it took to the player's clan on the damage board
-(`CastleDamageBoard`); while a crystal tower stands the tower is made whole every tick. A player's blow on another
-(see Combat resolution) scores a tenth of the life it took, at least 1 (`CastleSiegeRules.PkScore`), while the tower
-stands, unless the target has no clan and neither side is the owner clan. The world publishes `CastleSiegeView` (door,
-crystal towers and mercenaries standing, the ten best clans and the total) at most once a second while it changes.
-When the tower falls, the castle goes to the board's leader (no owner when no clan dealt damage, and any clan may
-win), with a notice naming the clan; a conquest storage refuses is kept and stored on a later minute (a game master's
-`/end_castle` after the fall still gives it). The siege then closes: its defenders leave. At peace, living players in
-the castle field outside the owner clan are sent to a random start point of the castle, and the owner's towers and
-mercenaries are spent (they serve one siege). While a crystal tower stands no blow takes the tower's life
-(`MonsterInstance.MinimumLife`). `/easy_castle` leaves every defender one life, no lives in reserve and no potions;
-the tower keeps that one life while a crystal tower stands.
+`CastleRole`): the defenders and its players never hurt each other (`FieldCombat.OwnClan`, also for clan pets: no attack
+target, no blow or area skill, no skill or summon of theirs on them) and the defenders never pick its players; clan pet
+rules (the cheer, the pets nearby) leave the defenders out. Each player hit (summons' too) on a crystal tower, or on the
+tower once no crystal tower stands, adds the life it took to the player's clan on the damage board
+(`CastleDamageBoard`); while a crystal tower stands the tower is made whole every tick. A player's blow on another (see
+Combat resolution) scores a tenth of the life it took, at least 1 (`CastleSiegeRules.PkScore`), while the tower stands,
+unless the target has no clan and neither side is the owner clan. The world publishes `CastleSiegeView` (door, crystal
+towers and mercenaries standing, the ten best clans and the total) at most once a second while it changes. When the
+tower falls, the castle goes to the board's leader (no owner when no clan dealt damage, and any clan may win), with a
+notice naming the clan; a conquest storage refuses is kept and stored on a later minute (a game master's `/end_castle`
+after the fall still gives it). The siege then closes: its defenders leave, and the living members of the clan holding
+the castle in its field cheer one cheer after another until its end is over (`WorldServer.CheerCastleOwners`, a cheer
+that heals no clan monster). At peace, living players in the castle field outside the owner clan are sent to a random
+start point of the castle, and the owner's towers and mercenaries are spent (they serve one siege). While a crystal
+tower stands no blow takes the tower's life (`MonsterInstance.MinimumLife`). `/easy_castle` leaves every defender one
+life, no lives in reserve and no potions; the tower keeps that one life while a crystal tower stands.
 
 ## Bellatra
 
@@ -797,14 +802,14 @@ characters, so a relog keeps a player's place and score.
   as the lightning stun and the ice's slow), the rabbit turns about half the room's round monsters but its bosses into
   Rabies and opens a Mutant Rabie boss of the round at the room's centre, the Stygian Lord (level 85) and the Guardian
   Saint fight for the picker 4 minutes from the room's centre, and the points add 5,000 to the picker and its team.
-- Teams: before round 4 the two best teams with somebody left go on (the best to the fifth room, the second to the
-  sixth), before round 7 the best to the top room, `BellatraRules.BannerMs` after the round's start; the others are
-  paid and go to Navisko's centre as long. A move waits while its player lies dead, and is dropped once the player
-  left the arena.
-- The end: every entrant in the arena is paid its score less `bellatra.tax` percent (`BellatraRules.Prize`), and 30 s
-  later every entrant still there goes to Navisko and the game resets. When the game ends after its last round (the final
-  skipped too) every round monster still standing falls leaving a Mystic mana potion (PM104, `BellatraRules.EndPotion`);
-  a game ending with nobody left leaves none.
+- Teams: before round 4 the two best teams with somebody left cheer (`WorldPlayer.QueueYahoo`, a cheer that heals no
+  clan monster) and go on (the best to the fifth room, the second to the sixth), before round 7 the best to the top
+  room, `BellatraRules.BannerMs` after the round's start; the others are paid and go to Navisko's centre as long. A move
+  waits while its player lies dead, and is dropped once the player left the arena.
+- The end: every entrant in the arena cheers and is paid its score less `bellatra.tax` percent (`BellatraRules.Prize`),
+  and 30 s later every entrant still there goes to Navisko and the game resets. When the game ends after its last round
+  (the final skipped too) every round monster still standing falls leaving a Mystic mana potion (PM104,
+  `BellatraRules.EndPotion`); a game ending with nobody left leaves none.
 - The operating clan (`BellatraClanAppService`, `IBellatraRepository`), by the server's local day (`BellatraDays`):
   every paid prize gives its entrant's registered clan the score as the points of the day it was won and the clan
   operating Bellatra the prize's tax as income (a `castle_treasury` movement of kind `Bellatra`); the paid prizes wait
@@ -821,10 +826,12 @@ characters, so a relog keeps a player's place and score.
   name, class, score and kills, `BellatraGame.Final`) until the game resets, and answers it to an entrant who asks for its
   own game; otherwise a request answers the live result of every team, or of a team booth's team (1 to 4), among the
   entrants in the arena.
-- Boards: a player in the arena is sent its board in its snapshot (`WorldSnapshot.Bellatra`, `BellatraView`: the
-  round, its team, its score, the teams' scores and how its last round start or the end went), made again only when
-  the game's revision changed (`BellatraGame.ViewOf`); a player who left the game keeps its last board until it leaves
-  the arena (`BellatraGame.Leaving`). Each round start sets every entrant playing, and those going on to a new room.
+- Boards: a player in the arena is sent its board in its snapshot (`WorldSnapshot.Bellatra`, `BellatraView`: the round,
+  its team, its score, the teams' scores and how its last round start or the end went, and at the last round start that
+  sent teams on, the teams that played the stage and those going on, `BellatraGame.StageTeams`, `GoingOn`), made again
+  only when the game's revision changed (`BellatraGame.ViewOf`); a player who left the game keeps its last board until
+  it leaves the arena (`BellatraGame.Leaving`). Each round start sets every entrant playing, and those going on to a new
+  room.
 - Prizes are paid off the tick (`WorldServer.BellatraPrizes`, `BellatraAppService`, `BellatraService`) through the
   path of every character change, a fixed gold amount, tried again a few times while the player is busy with another
   change; the player is told the prize, the gold limit that refused it or why it failed. A prize still waiting when the

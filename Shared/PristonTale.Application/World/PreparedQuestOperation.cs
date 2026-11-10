@@ -26,4 +26,6 @@ public sealed record PreparedQuestOperation(
     // Upkeep only: the pending drops it took, returned to the player when storage fails.
     public PendingQuestDrop[] Drops { get; init; } = [];
     public bool Upkeep { get; init; }
+    // Upkeep only: an aged copy reached its level; the commit shows it to the players around.
+    public bool AgedUp { get; init; }
 }

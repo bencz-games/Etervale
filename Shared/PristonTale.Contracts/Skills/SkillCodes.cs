@@ -63,7 +63,10 @@ public enum SkillEventFlags : ushort
     ModeMask = Mode1 | Mode2,
 
     // An enemy an area struck, for a rule that shows an effect on each (SkillRule.TargetEffect).
-    Struck = 1024
+    Struck = 1024,
+
+    // The caster's buff defended it from the target (SkillRule.DefenseEffect).
+    Defended = 2048
 }
 
 public static class SkillEventFlagsExtensions

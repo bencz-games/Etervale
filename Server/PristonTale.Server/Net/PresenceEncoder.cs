@@ -380,7 +380,8 @@ internal sealed partial class PresenceEncoder : IEventHandleWriter
                 teams[team] = (ulong)Math.Max(0, board.TeamScores[team]);
             }
 
-            packet = new BellatraBoardPacket(true, (byte)board.Round, (byte)board.Team, (byte)board.Outcome, (ulong)Math.Max(0, board.Score), teams);
+            packet = new BellatraBoardPacket(true, (byte)board.Round, (byte)board.Team, (byte)board.Outcome, (byte)board.StageTeams, (byte)board.GoingOn,
+                (ulong)Math.Max(0, board.Score), teams);
         }
         connection.Send(_scratch.AsSpan(0, packet.Write(_scratch)));
     }

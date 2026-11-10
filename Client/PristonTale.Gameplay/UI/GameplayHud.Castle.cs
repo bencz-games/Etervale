@@ -9,12 +9,23 @@ using PristonTale.Simulation.Social.Castle;
 namespace PristonTale.Gameplay.UI;
 
 // Bless Castle on the HUD: the server's castle state, the siege board while a siege runs in the castle field, at a
-// siege's end a notice to the players there that their clan holds the castle or that the siege is over, and the window of
-// the castle's butler for the owner clan (a refused request shows its reason in the notice strip).
+// siege's end (SiegeEnded, the scene's fanfare) a window to the players there telling their clan's victory or that the
+// siege is over, the castle's music back once the siege closes (SiegeClosed), and the window of the castle's butler for
+// the owner clan (a refused request shows its reason in the notice strip).
 public sealed partial class GameplayHud
 {
     private readonly HudSiegeBoard _siegeBoard = new();
     private readonly HudCastleWindow _castleWindow = new();
+    private readonly HudSiegeResult _siegeResult = new();
+
+    // A siege ended with the player in the castle: the scene stops the music and plays the fanfare; once the siege has
+    // closed it plays the field's music again.
+    public event Action SiegeEnded;
+    public event Action SiegeClosed;
+
+    // The siege's result shows unless another window holds the NPC panel's box.
+    private bool SiegeResultShown => _siegeResult.IsOpen && !_npcOpen && !_castleWindow.IsOpen && !_clanWindow.IsOpen && !_bellatraWindow.IsOpen
+        && _quests.Dialog is null;
 
     // Sends the butler window's requests; set by the screen.
     public Action<CastleOwnerAction, ulong, CastleSetup, long> SendCastleOwner
@@ -48,6 +59,7 @@ public sealed partial class GameplayHud
         }
 
         var ended = _siegeBoard.Castle.Siege == SiegeState.Running && castle.Siege != SiegeState.Running;
+        var closed = _siegeBoard.Castle.Siege == SiegeState.Over && castle.Siege == SiegeState.Peace;
         _siegeBoard.Apply(castle, _clock.Elapsed.TotalMilliseconds);
         _wingGate.CastleOwner = HoldsCastle;
         _wingGate.Tax = castle.Tax;
@@ -56,7 +68,13 @@ public sealed partial class GameplayHud
         _mix.Tax = castle.Tax;
         if (ended && InCastleField)
         {
-            _notice.Show(ClientText.Get(HoldsCastle ? "Siege.Won" : "Siege.Ended"));
+            _siegeResult.Show(HoldsCastle);
+            SiegeEnded?.Invoke();
+        }
+
+        if (closed)
+        {
+            SiegeClosed?.Invoke();
         }
     }
 
@@ -69,7 +87,7 @@ public sealed partial class GameplayHud
     private void AskWithdrawal(long maximum, Action<int> accepted) =>
         _countBox.Open(ClientText.Get("Castle.HowMuch"), ClientText.Get("Castle.ToWithdraw"), maximum, accepted);
 
-    private bool ClickCastle(Point pointer) => _castleWindow.Click(pointer);
+    private bool ClickCastle(Point pointer) => _castleWindow.Click(pointer) || SiegeResultShown && _siegeResult.Click(pointer);
 
-    private bool CapturesCastle(Point pointer) => _castleWindow.Contains(pointer);
+    private bool CapturesCastle(Point pointer) => _castleWindow.Contains(pointer) || SiegeResultShown && _siegeResult.Contains(pointer);
 }

@@ -86,7 +86,7 @@
         { "element": "Fire", "min": [4, 8, 12, 16, 20, 24, 28, 32, 36, 40], "max": [10, 16, 22, 28, 34, 40, 46, 52, 58, 64] }] } },
     "exclusive": ["0x08020003"],
     "motionIndex": 69, "motionFrames": 50, "motionEvents": [36], "motionSpeed": 70,
-    "castEffect": "vfx.magician.enchant.cast", "buffEffect": "vfx.magician.enchant.aura", "castSound": "wav/Effects/Skill/Morion/EnchantWpn_cast.wav",
+    "castEffect": "vfx.magician.enchant.cast", "buffEffect": "vfx.magician.enchant.aura", "hitEffect": "vfx.magician.enchant.hit", "castSound": "wav/Effects/Skill/Morion/EnchantWpn_cast.wav",
     "keepIcon": "Mg2_E_WEAPON",
       "statusLook": "Frost" },
   {
@@ -108,7 +108,7 @@
     "buff": { "durationTenths": [900, 1100, 1300, 1500, 1700, 1900, 2100, 2300, 2500, 2700],
       "absorb": { "percent": [10, 13, 16, 19, 21, 24, 26, 28, 29, 30], "resource": "Mana" } },
     "motionIndex": 69, "motionFrames": 50, "motionEvents": [36], "motionSpeed": 80,
-    "castEffect": "vfx.magician.energyshield.cast", "buffEffect": "vfx.magician.energyshield.aura",
+    "castEffect": "vfx.magician.energyshield.cast", "buffEffect": "vfx.magician.energyshield.aura", "defenseEffect": "vfx.magician.energyshield.absorb",
     "castSound": "wav/Effects/Skill/Morion/Casting_M.wav", "keepIcon": "Mg3_E_SHIELD"
   },
   {
@@ -137,7 +137,7 @@
     "castSound": "wav/Effects/Skill/Morion/Casting_M.wav", "keepIcon": "Mg3_S_ELEMENTAL"
   },
   {
-    "code": "0x08040004", "name": "Dancing Sword", "tier": "Job3", "category": "Buff", "icon": "MM50 D_Sword",
+    "code": "0x08040004", "forceOrbs": "None", "name": "Dancing Sword", "tier": "Job3", "category": "Buff", "icon": "MM50 D_Sword",
     "description": "A phantom of sword appears and uses the power of element to attack enemies.", "requiredLevel": 50, "mouse": "Right",
     "mana": [35, 37, 39, 42, 45, 48, 52, 56, 61, 66], "stamina": [30, 1], "weapons": ["Staff"],
     "kind": "SelfBuff", "target": "Self", "masteryBase": 150, "masteryPerRank": 1,
@@ -208,7 +208,7 @@
       "motionIndex": 75, "motionFrames": 43, "motionEvents": [19], "motionSpeed": 70, "castEffect": "vfx.magician.castcircle",
       "impactEffect": "vfx.magician.silraphim.hit", "castSound": "wav/Effects/Skill/Tempskron/MetalGolem 01.wav",
       "impactSound": "wav/Effects/Skill/Tempskron/Spark 03.wav" },
-    { "code": "0x08100002", "name": "Vis Tenus", "tier": "Job5", "category": "Debuff", "icon": "MM83 V_Tenus", "description": "Shrink the enemy, reducing their HP and damage.", "requiredLevel": 83, "mouse": "Right", "mana": [135, 139, 143, 147, 151, 155, 159, 163, 167, 171], "stamina": [50, 2], "weapons": ["Staff"],
+    { "code": "0x08100002", "monstersOnly": true, "refusesBosses": true, "name": "Vis Tenus", "tier": "Job5", "category": "Debuff", "icon": "MM83 V_Tenus", "description": "Shrink the enemy, reducing their HP and damage.", "requiredLevel": 83, "mouse": "Right", "mana": [135, 139, 143, 147, 151, 155, 159, 163, 167, 171], "stamina": [50, 2], "weapons": ["Staff"],
       "kind": "WeaponAttack", "target": "Enemy", "masteryBase": 460, "masteryPerRank": 0, "exclusive": ["0x08100002"],
       "damage": {},
       "buff": { "durationTenths": [100, 150, 200, 250, 300, 350, 400, 450, 500, 550], "harmful": true, "sparesBosses": true,

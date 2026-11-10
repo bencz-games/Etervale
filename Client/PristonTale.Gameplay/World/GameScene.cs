@@ -553,6 +553,7 @@ public sealed partial class GameScene : IDisposable, IHudPortraitScene
 
         ObserveMonsterSwings(update);
         ObservePlayerSwings(update);
+        ObserveHits(update);
         foreach (var effect in update.Events)
         {
             if (effect.Kind != CombatEventKind.PotionApplied || _itemEffects is null)

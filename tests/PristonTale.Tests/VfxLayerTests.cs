@@ -15,6 +15,7 @@ internal static class VfxLayerTests
         yield return ("component and sequence updates allocate nothing once warmed up", AllocationsAsync);
         yield return ("parts wait for their delays, start on their ring and end with their life", PartRingAsync);
         yield return ("parts fly to their goal, start their end effect there and fade out", PartGoalAsync);
+        yield return ("a part lasting until its effect stops fades over its stop fade then, starting its end effect where it is", PartStopFadeAsync);
         yield return ("orbiting parts with a goal sweep at the goal's distance and bearing", PartOrbitAsync);
         yield return ("spiral parts follow their straight path turned by the swirl, settle at their move time and fade", PartSpiralAsync);
         yield return ("a handle reaches only its own effect once the pooled instance runs another", HandleAsync);
@@ -119,6 +120,43 @@ internal static class VfxLayerTests
         Assert.True(Vector3.Distance(part.Position, anchors.Target) < 0.01f && shot.PartStates[0].Fade(part) < 1f, "the part holds and fades");
         Run(system, 0.25f);
         Assert.True(!shot.Alive, "the part ended after its fade");
+        return Task.CompletedTask;
+    }
+
+    private static Task PartStopFadeAsync()
+    {
+        var anchors = new Anchors { Caster = new Vector3(5f, 0f, 0f) };
+        var library = new VfxLibrary(_ => null, null!);
+        library.Register(new VfxDefinition
+        {
+            Name = "test.companion",
+            Duration = 60f,
+            Parts =
+            [
+                new VfxPartDefinition
+                {
+                    Texture = "x.bmp", Anchor = VfxAnchor.Caster, Follow = true, Offset = [0f, 39f, 0f], StopFade = 0.3f, EndEffect = "test.leave"
+                }
+            ]
+        });
+        library.Register(new VfxDefinition { Name = "test.leave", Duration = 1f, Parts = [new VfxPartDefinition { Texture = "x.bmp", Lifetime = [0.4f, 0.4f] }] });
+        var system = new VfxSystem(anchors, null, library);
+        library.TryGet("test.companion", out var effect);
+        var handle = system.Spawn(effect, new VfxSpawn(1, 0, Vector3.Zero, 0f));
+        var companion = handle.Instance!;
+        Run(system, 0.5f);
+        Assert.True(companion.Alive && companion.PartStates[0].Fade(companion.PartStates[0].Parts[0]) == 1f
+            && system.Instances.All(static instance => instance.Effect.Name != "test.leave"), "the part did not last at full opacity until the stop");
+
+        handle.Stop();
+        Run(system, 0.15f);
+        var leave = system.Instances.FirstOrDefault(static instance => instance.Effect.Name == "test.leave");
+        var fade = companion.PartStates[0].Fade(companion.PartStates[0].Parts[0]);
+        Assert.True(leave is not null && Vector3.Distance(leave.Spawn.Point, new Vector3(5f, 39f, 0f)) < 0.01f,
+            "the end effect does not start where the part was when its effect stopped");
+        Assert.True(companion.Alive && fade is > 0.3f and < 0.7f, $"the part does not fade over its stop fade: {fade}");
+        Run(system, 0.2f);
+        Assert.True(!companion.Alive, "the part did not end after its stop fade");
         return Task.CompletedTask;
     }
 

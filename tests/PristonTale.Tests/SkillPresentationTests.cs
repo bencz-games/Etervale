@@ -119,7 +119,7 @@ internal static class SkillPresentationTests
     private static IEnumerable<string> Effects(SkillRule rule)
     {
         var rules = new[] { rule }.Concat(rule.Modes).Concat(rule.Charge?.Full is { } full ? [full] : Array.Empty<SkillRule>());
-        return rules.SelectMany(static item => new[] { item.CastEffect, item.ImpactEffect, item.ProjectileEffect, item.BuffEffect, item.CompanionEffect }.Concat(item.ImpactEffects)).Where(static name => name != SkillRule.Silent);
+        return rules.SelectMany(static item => new[] { item.CastEffect, item.ImpactEffect, item.ProjectileEffect, item.BuffEffect, item.CompanionEffect, item.TargetEffect, item.DefenseEffect, item.ShotEffect }.Concat(item.ImpactEffects)).Where(static name => name != SkillRule.Silent);
     }
 
     private static Task GameDataAsync()
@@ -134,10 +134,25 @@ internal static class SkillPresentationTests
         var catalog = VfxCatalog.Load(root);
         Assert.True(catalog.Errors.Count == 0, string.Join("; ", catalog.Errors.Take(10)));
         var names = catalog.Definitions.Select(definition => definition.Name).ToHashSet(StringComparer.OrdinalIgnoreCase);
-        Assert.True(names.Contains(SkillPresentation.ReviveEffect), "the revive effect is missing");
+        Assert.True(names.Contains(SkillPresentation.ReviveEffect) && names.Contains(SkillPresentation.RestartEffect), "the revive or restart effect is missing");
         var problems = new List<string>();
+        foreach (var hit in new[] { HitEffects.Critical, HitEffects.Normal, HitEffects.Bare, HitEffects.Blood }.Where(name => !names.Contains(name)))
+        {
+            problems.Add($"the hit effect {hit} is missing");
+        }
+
         foreach (var rule in SkillRuleCatalog.All)
         {
+            // A hit effect is shown in the element the status drew: each of its choices needs its variant or the base.
+            var elements = (rule.Buff?.Enchant?.Choices.Select(static choice => choice.Element) ?? rule.Buff?.Companion?.Choices.Select(static choice => choice.Element))?.ToArray();
+            var hitNames = rule.HitEffect.Length == 0 ? [] : elements is { Length: > 1 }
+                ? elements.Select(element => rule.HitEffect + "." + element.ToString().ToLowerInvariant()).ToArray()
+                : new[] { rule.HitEffect };
+            foreach (var hit in hitNames.Where(name => !names.Contains(name) && !names.Contains(rule.HitEffect)))
+            {
+                problems.Add($"{rule.Name} references missing hit effect {hit}");
+            }
+
             foreach (var effect in Effects(rule))
             {
                 if (effect.Length > 0 && !names.Contains(effect))

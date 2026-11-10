@@ -2,6 +2,7 @@ using System.Numerics;
 using System.Threading.Channels;
 using PristonTale.Application.Sessions;
 using PristonTale.Simulation.Combat;
+using PristonTale.Simulation.Items.Usable;
 using PristonTale.Simulation.Quests;
 using PristonTale.Simulation.World;
 
@@ -70,6 +71,11 @@ public sealed partial class WorldServer
             }
 
             var state = connection.Player.QuestState;
+            if (operation.AgedUp && _fields.TryGetValue(connection.FieldId, out var agingField))
+            {
+                agingField.ItemEvents.Add(new ItemEffectView(connection.Player.EntityId, 0, ItemEffectKind.AgingUp, connection.Player.Position, 0));
+            }
+
             if (operation.Upkeep)
             {
                 state.Post(operation.Outcome.Notices);

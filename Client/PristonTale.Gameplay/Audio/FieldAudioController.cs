@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using PristonTale.Contracts.World;
 using PristonTale.Simulation.World;
 
 namespace PristonTale.Gameplay.Audio;
@@ -7,6 +8,9 @@ namespace PristonTale.Gameplay.Audio;
 public sealed class FieldAudioController : IDisposable
 {
     internal const float MusicVolume = 0.6f;
+
+    // The original's 360 of 400: the whisper chime and Bellatra's seal pickup.
+    internal const float SoftVolume = 0.9f;
     internal const float FieldAmbientVolume = 0.65f;
     internal const float PositionalAmbientVolume = 1f;
     internal const float MusicFadeSeconds = 3.6f;
@@ -116,12 +120,11 @@ public sealed class FieldAudioController : IDisposable
         }
     }
 
-    // The whisper chime plays at nine tenths of full volume, as the original's 360 of 400.
     public void PlayWhisper()
     {
         if (_library.SoundEnabled)
         {
-            _library.WhisperSound.Play(0.9f, 0f, 0f);
+            _library.WhisperSound.Play(SoftVolume, 0f, 0f);
         }
     }
 
@@ -152,6 +155,38 @@ public sealed class FieldAudioController : IDisposable
         }
     }
 
+    public void PlayEvent(EventCue cue)
+    {
+        if (_library.SoundEnabled && _library.Event(cue) is { } sound)
+        {
+            sound.Play(EventSounds.Volume(cue), 0f, 0f);
+        }
+    }
+
+    // Bellatra's music over its arena, whose own is custom (empty: none, stopped at once); the next field's music
+    // replaces it.
+    public void SetEventMusic(string code)
+    {
+        if (string.IsNullOrEmpty(code))
+        {
+            StopMusic();
+            _selectedMusicCode = string.Empty;
+            _selectedMusic = null;
+            return;
+        }
+
+        SelectMusic(code);
+    }
+
+    // The field's own music again after an event's.
+    public void RestoreFieldMusic()
+    {
+        if (_field is not null)
+        {
+            SelectMusic(_field.BackMusicCode);
+        }
+    }
+
     public void PlayCraftResult(bool success)
     {
         if (_library.SoundEnabled)
@@ -173,7 +208,7 @@ public sealed class FieldAudioController : IDisposable
             FieldState.Ruin => 3,
             FieldState.Desert => 4,
             FieldState.Dungeon or FieldState.QuestArena => SelectDungeonAmbientCode(field.FieldCode),
-            FieldState.Forest => timeOfDay < 4f || timeOfDay >= 23f ? 2 : 1,
+            FieldState.Forest => GameHours.IsNight(timeOfDay) ? 2 : 1,
             FieldState.Village => 0,
             FieldState.Room => -1,
             FieldState.Iron => 9,
