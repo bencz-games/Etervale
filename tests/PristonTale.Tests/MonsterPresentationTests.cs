@@ -239,7 +239,7 @@ internal static class MonsterPresentationTests
 
     private static Task DataAsync()
     {
-        var source = FindAuthored();
+        var source = AuthoredEffects.Folder();
         Assert.True(source is not null, "the importer's Authored folder was not found");
         var names = Directory.EnumerateFiles(Path.Combine(source!, "Monsters"), VfxCatalog.Pattern, SearchOption.AllDirectories)
             .SelectMany(file => VfxDefinition.ParseFile(File.ReadAllText(file)))
@@ -276,20 +276,6 @@ internal static class MonsterPresentationTests
 
         Assert.True(names.Contains("vfx.monster.status.bloodyknightstun"), "the bloody knight stun has no effect");
         return Task.CompletedTask;
-    }
-
-    private static string? FindAuthored()
-    {
-        for (var directory = new DirectoryInfo(AppContext.BaseDirectory); directory is not null; directory = directory.Parent)
-        {
-            var candidate = Path.Combine(directory.FullName, "tools", "PristonTale.VfxImport", VfxImporter.AuthoredFolder);
-            if (Directory.Exists(candidate))
-            {
-                return candidate;
-            }
-        }
-
-        return null;
     }
 
     private sealed class Sink(params string[] defined) : IMonsterEffectSink

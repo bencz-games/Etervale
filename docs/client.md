@@ -456,7 +456,13 @@ come from the window's text input (`Game1` to `GameClient.TypeCharacter` to `Scr
   `particle.water` half a unit over the surface at each step 8 units ahead and every 64 frames of 70 per second standing,
   32 walking (8 ahead), 16 running (14 ahead), attacking or casting. Out of the water, each step in an ice field leaves a
   footprint on an ice floor (`image/mk-r.tga` 3 units right and 5 ahead, `mk-l.tga` left), 12 x 12 units, tilted with
-  the ice, fading to a fifth over five seconds; at most 20 lie at a time. Local player only, as in the original.
+  the ice, fading to a fifth over five seconds; at most 20 lie at a time. Running on a ruin or desert field (Bellatra
+  aside) while no rain falls puffs dust every eighth frame, 4 units to either side in turn and 12 up, 10 to 25 across
+  (`FieldDust`, `vfx.ground.dust`); landing from a fall puffs 20 across on either side, 8 up (`vfx.ground.dust.landing`).
+  Local player only, as in the original.
+- Fireflies (`Fireflies`, `GameScene.Weather.cs`): in a forest at night (`GameHours.IsNight`), every 512 frames of 70
+  per second one time in two, twenty fireflies (`vfx.ambient.fireflies`: `BanDi1.ini`, 3 units, drifting for 8 to 12
+  seconds) within 430 units across and 117 up of the player.
 - Bless Castle's tax (from `CastleState`) is added to the prices the client works out itself: the skill window's
   training price (`HudSkillsPanel.Tax`), the wing warp map's fees and fee table (`HudWingGate.Tax`, the table made
   again for a new tax) and the aging and mixing benches' prices after their percents (`HudWorkbench.Tax`); the shop

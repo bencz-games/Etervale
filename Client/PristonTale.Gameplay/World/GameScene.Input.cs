@@ -185,7 +185,7 @@ public sealed partial class GameScene
             return false;
         }
 
-        var feet = _playerBody.Position + Vector3.Up * GroundTraversal.VisualOffset;
+        var feet = PlayerFeet;
         if (!GroundTraversal.CanReachSurface(feet, position, _groundFloorQuery))
         {
             return true;
@@ -212,7 +212,7 @@ public sealed partial class GameScene
             return false;
         }
 
-        var feet = _playerBody.Position + Vector3.Up * GroundTraversal.VisualOffset;
+        var feet = PlayerFeet;
         if (!GroundTraversal.CanReachSurface(feet, point, _groundFloorQuery))
         {
             return false;

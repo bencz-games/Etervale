@@ -146,8 +146,15 @@ public sealed partial class GameScene
         if (_playerController.Current == MotionCode.FallDown)
         {
             ApplyPlayerCommand(_playerController.ApplyAuthoritative(landed ? GroundFall.Landing(fallen) : MotionCode.Stand));
+            if (landed)
+            {
+                LandingDust();
+            }
         }
     }
+
+    // The local player's feet: the body stands VisualOffset under them.
+    private Vector3 PlayerFeet => _playerBody.Position + Vector3.Up * GroundTraversal.VisualOffset;
 
     private void TrackBodyHeight(PhysicsBody body)
     {
@@ -159,7 +166,7 @@ public sealed partial class GameScene
 
     private void CommitGroundMovement(Vector2 destination)
     {
-        var feet = _playerBody.Position + Vector3.Up * GroundTraversal.VisualOffset;
+        var feet = PlayerFeet;
         GroundTraversal.TryFollow(feet, destination, _groundFloorQuery, out var reached, out var largestDrop);
         _playerBody.PlanarPosition = new Vector2(reached.X, reached.Z);
         // Walking off a ledge keeps the height: the fall takes the body down (KeepOnFloor). A slope is followed whatever

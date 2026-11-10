@@ -1,3 +1,4 @@
+using Microsoft.Xna.Framework;
 using PristonTale.Client.Net.Presence;
 using PristonTale.Contracts.World;
 using PristonTale.Engine3D.Rendering.Weather;
@@ -9,8 +10,8 @@ namespace PristonTale.Gameplay.World;
 
 // The weather of the local player's field: the server's (clear until it sends one) eased in by WeatherPresentation,
 // unless the Weather setting is off or the field shown takes no rain; the renderer's sky, light and fog, the rain and
-// its splashes (PristonRain, drawn after the opaque scene), the rain's sound, softer under a roof, and the thunder; and the
-// falling snow of the snow skies (FieldSnow).
+// its splashes (PristonRain, drawn after the opaque scene), the rain's sound, softer under a roof, and the thunder; the
+// falling snow of the snow skies (FieldSnow); and the fireflies of a forest night (Fireflies).
 public sealed partial class GameScene
 {
     // A roof this far above the player shelters it from the rain's sound.
@@ -20,6 +21,7 @@ public sealed partial class GameScene
     private PristonRain _rain;
     private FieldSnow _snow;
     private bool _weatherSeen;
+    private readonly Fireflies _fireflies = new(Random.Shared);
 
     public WeatherState ServerWeather { get; private set; }
 
@@ -78,6 +80,10 @@ public sealed partial class GameScene
         var sheltered = _rain is not null && _playerBody is not null && _rain.Occlusion.Sheltered(_playerBody.Position, ShelterClearance);
         _fieldAudio?.UpdateWeather(_weather.Rain, sheltered, seconds);
         UpdateSnow(seconds);
+        if (_playerBody is not null && _currentField is not null && _fireflies.Update(seconds, _currentField, TimeOfDay))
+        {
+            _skillFx?.SpawnAt(Fireflies.Effect, PlayerFeet, Matrix.Identity);
+        }
     }
 
     // The snow belongs to the field's sky, not to the server's weather: the Weather setting leaves it falling.

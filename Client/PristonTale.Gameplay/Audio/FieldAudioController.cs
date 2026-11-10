@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
+using PristonTale.Contracts.World;
 using PristonTale.Simulation.World;
 
 namespace PristonTale.Gameplay.Audio;
@@ -207,7 +208,7 @@ public sealed class FieldAudioController : IDisposable
             FieldState.Ruin => 3,
             FieldState.Desert => 4,
             FieldState.Dungeon or FieldState.QuestArena => SelectDungeonAmbientCode(field.FieldCode),
-            FieldState.Forest => timeOfDay < 4f || timeOfDay >= 23f ? 2 : 1,
+            FieldState.Forest => GameHours.IsNight(timeOfDay) ? 2 : 1,
             FieldState.Village => 0,
             FieldState.Room => -1,
             FieldState.Iron => 9,

@@ -1,0 +1,72 @@
+[
+  {
+    "name": "vfx.ground.dust",
+    "duration": 1.0,
+    "parts": [
+      {
+        "animation": "dust1.ini",
+        "size": [
+          10,
+          25
+        ],
+        "anchor": "Point"
+      }
+    ]
+  },
+  {
+    "name": "vfx.ground.dust.landing",
+    "duration": 1.0,
+    "parts": [
+      {
+        "animation": "dust1.ini",
+        "size": [
+          20,
+          20
+        ],
+        "anchor": "Point"
+      }
+    ]
+  },
+  {
+    "name": "vfx.ambient.fireflies",
+    "duration": 12.0,
+    "parts": [
+      {
+        "count": 20,
+        "animation": "BanDi1.ini",
+        "loop": true,
+        "size": [
+          3,
+          3
+        ],
+        "anchor": "Point",
+        "jitterMin": [
+          -430,
+          0,
+          -430
+        ],
+        "jitterMax": [
+          430,
+          117,
+          430
+        ],
+        "velocityMin": [
+          -20,
+          -6,
+          -20
+        ],
+        "velocityMax": [
+          20,
+          6,
+          20
+        ],
+        "lifetime": [
+          8,
+          12
+        ],
+        "fade": "InOut",
+        "fadeOut": 2.0
+      }
+    ]
+  }
+]
