@@ -19,5 +19,7 @@ public enum ItemEffectKind : byte
     GiftBox = 9,
     // A new character's starter gift came (its order in Variant, its item in ItemCode); its owner's client shows the
     // beginner's guide to it.
-    StarterGift = 10
+    StarterGift = 10,
+    // An aged copy reached its level (the upkeep): the aging light on its owner, with the level-up sound lowered.
+    AgingUp = 11
 }

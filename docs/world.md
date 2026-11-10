@@ -589,7 +589,9 @@ stats the item tooltip marks (`AgedStats`; bows and javelins also mark mana, as 
   (`Critical` on a critical hit, else `Attack`); a block counts for the shield and a blow taken for the armour, orb,
   boots, gloves and armlets; a worn ring counts each second. Counts live on the worn copies (`AgingRevision`) and are
   saved with the character; a copy that reaches its goal waits for the upkeep (`QuestTransactions.PrepareUpkeep` calls
-  `MatureAgedItems`), which stores the level. A copy checked every five seconds asks again when a commit replaced it.
+  `MatureAgedItems`), which stores the level; its commit shows the aging light on the owner to the players around (item
+  effect `AgingUp`: a white light, `particle.Aging` 39 up and the level-up sound at 16000 of 22050 Hz, `ItemVfx.AgingUp`).
+  A copy checked every five seconds asks again when a commit replaced it.
 - A level (`LevelUp`): axes and hammers damage +1 (+2 from +10, +3 from +20), attack rating +10; claws, poles and swords
   damage, attack rating +5 and critical +1 on odd levels; staves damage, attack rating +10, mana +10; bows and javelins
   damage and critical on odd levels; shields block +1 on odd levels and absorb; orbs, boots and gloves defence +10%,

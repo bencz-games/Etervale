@@ -93,6 +93,10 @@ public sealed partial class GameScene
             {
                 _skillFx?.Spawn(ItemVfx.Learn, effect.Entity, effect.Entity, position);
             }
+            else if (effect.Effect == ItemEffectKind.AgingUp)
+            {
+                _skillFx?.Spawn(ItemVfx.AgingUp, effect.Entity, effect.Entity, position);
+            }
             else if (effect.Effect == ItemEffectKind.Return)
             {
                 // The sparkle stands where the server placed it: the user, the called monster or the revived player.

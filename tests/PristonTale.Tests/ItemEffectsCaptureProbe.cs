@@ -52,7 +52,9 @@ internal sealed class ItemEffectsCaptureProbe : Game
         new("force-orb-hit", 12.75, probe => probe.ForceOrbHit()),
         new("crystal-summon", 14.25, probe => probe.CrystalPets()),
         new("crystal-pets", 15.5),
-        new("soccer-head", 16.0)
+        new("soccer-head", 16.0),
+        new("aging-up", 17.0, probe => probe.AgingUp()),
+        new("aging-up-late", 17.5)
     ];
 
     private readonly string _assetRoot;
@@ -190,6 +192,12 @@ internal sealed class ItemEffectsCaptureProbe : Game
     {
         _items.Play(ItemEffectKind.Learn, SelfId, 0, _focus, _eye, _seconds * 1000d);
         _skills.Spawn(ItemVfx.Learn, SelfId, SelfId, _focus);
+    }
+
+    private void AgingUp()
+    {
+        _items.Play(ItemEffectKind.AgingUp, SelfId, 0, _focus, _eye, _seconds * 1000d);
+        _skills.Spawn(ItemVfx.AgingUp, SelfId, SelfId, _focus);
     }
 
     private void ForceOrb()
