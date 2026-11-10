@@ -7,7 +7,7 @@ float* MGA_Voice_CalculatePanMatrix(float pan, float scale, float* matrix, int s
 	if (srcChannels == 1)
 	{
 		matrix[0] = (pan >= 0 ? (1.f - pan) : 1.f) * scale; // Left
-		matrix[1] = (pan <= 0 ? (-pan - 1.f) : 1.f) * scale; // Right
+		matrix[1] = (pan <= 0 ? (pan + 1.f) : 1.f) * scale; // Right
 	}
 	else if (srcChannels == 2)
 	{
