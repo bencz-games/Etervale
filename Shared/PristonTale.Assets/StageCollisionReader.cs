@@ -18,11 +18,17 @@ public static class StageCollisionReader
     // Material record: 104 bytes of texture slots and states, eleven scalars and the diffuse colour, then UseState at 164.
     private const int MaterialMeshStateOffset = 168;
 
+    // A masked stage (AssetMask) is unmasked in place.
     public static CollisionMesh Read(byte[] data)
     {
         if (data.Length < SmdLayout.FileHeaderSize + SmdLayout.StageHeaderSize)
         {
             throw new InvalidDataException("Stage SMD is shorter than its headers.");
+        }
+
+        if (AssetMask.IsMaskedSmd(data))
+        {
+            AssetMask.Unmask(data);
         }
 
         var signature = Encoding.ASCII.GetString(data, 0, SmdLayout.SignatureSize).TrimEnd('\0');

@@ -50,6 +50,11 @@ public sealed class PristonInxReader
     private static PristonModelInfo Parse(string path)
     {
         var data = AssetFiles.ReadAllBytes(path);
+        if (AssetMask.IsMaskedPadding(data))
+        {
+            AssetMask.Unmask(data);
+        }
+
         var itemCodeListSize = data.Length switch
         {
             ModelInfoSizeShortCodes => ItemCodeListSizeShortCodes,

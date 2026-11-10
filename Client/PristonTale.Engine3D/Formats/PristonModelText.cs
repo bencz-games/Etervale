@@ -313,24 +313,16 @@ public static class PristonModelText
         throw new InvalidDataException($"{descriptor}: {file} has no clip '{clip}' (collection {collection}).");
     }
 
-    // Some shipped descriptors keep every byte XOR Masked: such a file opens with a masked comment, command or blank.
-    private const byte Masked = 0x82;
-
+    // A masked descriptor (AssetMask) opens with a masked comment, command or blank.
     private static byte[] Plain(byte[] data)
     {
         static bool Opening(int value) => value is '/' or '*' or '\r' or '\n' or ' ' or '\t';
-        if (data.Length == 0 || Opening(data[0]) || !Opening(data[0] ^ Masked))
+        if (data.Length > 0 && !Opening(data[0]) && Opening(data[0] ^ AssetMask.Key))
         {
-            return data;
+            AssetMask.Unmask(data);
         }
 
-        var plain = new byte[data.Length];
-        for (var index = 0; index < data.Length; index++)
-        {
-            plain[index] = (byte)(data[index] ^ Masked);
-        }
-
-        return plain;
+        return data;
     }
 
     // C's atoi: leading spaces, a sign, digits.

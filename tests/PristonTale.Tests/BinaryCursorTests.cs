@@ -1,6 +1,7 @@
 using System.Buffers.Binary;
 using System.Text;
 using Microsoft.Xna.Framework;
+using PristonTale.Assets;
 using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.Contracts.Motion;
@@ -18,6 +19,7 @@ internal static class BinaryCursorTests
         yield return ("INX reader preserves complete fixed-width motion records", InxLayoutAsync);
         yield return ("SMD reader accepts verified model signatures and preserves stale file trailers", ModelLayoutsAsync);
         yield return ("SMD stage reader decodes classic WORD and EU DWORD area indexes", StageAreaLayoutsAsync);
+        yield return ("models, model infos and stages masked with XOR 0x82 read as their plain bytes", MaskedAssetsAsync);
         yield return ("CAM reader preserves Win32 rotation records and uses incremental quaternions", CameraLayoutAsync);
     }
 
@@ -110,6 +112,70 @@ internal static class BinaryCursorTests
 
     private static Task InxLayoutAsync()
     {
+        var path = WriteTemporaryAsset(".inx", InxFixture());
+        try
+        {
+            var info = new PristonInxReader().Read(path);
+            var parsedMotion = info.Motions[0];
+            Assert.True(info.HighModel.ModelNameCount == 1 && info.HighModel.ModelNames[0] == "BodyH", "INX model group changed");
+            Assert.True(info.FileTypeKeyword == 0xAABBCCDDu && info.LinkFileKeyword == 0x10203040u, "INX keyword fields were discarded");
+            Assert.True(parsedMotion.ItemIndices.SequenceEqual([-1, 725]), "signed modern ItemCodeList entries changed");
+            Assert.True(parsedMotion.ItemCodeTable.Count == PristonFormatConstants.MotionItemCapacity, "fixed ItemCodeList tail was discarded");
+            Assert.True(parsedMotion.SkillCodes.Count == PristonFormatConstants.MotionSkillCapacity && parsedMotion.SkillCodes[0] == 3 && parsedMotion.SkillCodes[7] == 9,
+                "SkillCode table changed");
+            Assert.True(parsedMotion.MotionKeyword1 == 0x11223344u && parsedMotion.MotionKeyword2 == 0x55667788u, "motion keywords were discarded");
+            Assert.True(parsedMotion.RawStartFrame == 7 && parsedMotion.RawEndFrame == 13, "raw frame words were discarded");
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static Task MaskedAssetsAsync()
+    {
+        static byte[] Masked(byte[] plain)
+        {
+            var masked = (byte[])plain.Clone();
+            AssetMask.Unmask(masked);
+            return masked;
+        }
+
+        var model = CreateMinimalModel(Encoding.ASCII.GetBytes(SmdLayout.ModelSignature + "\0"), [0xDE, 0xAD, 0xBE, 0xEF]);
+        Assert.True(AssetMask.SmdSignature(Masked(model)) == SmdLayout.ModelSignature && !AssetMask.IsMaskedSmd(model),
+            "the masked signature was not read through the mask");
+        var plainInx = InxFixture();
+        Assert.True(AssetMask.IsMaskedPadding(Masked(plainInx)) && !AssetMask.IsMaskedPadding(plainInx), "masked INX padding was not recognised");
+        var paths = new List<string>();
+        try
+        {
+            var modelPath = WriteTemporaryAsset(".smd", Masked(model));
+            var inxPath = WriteTemporaryAsset(".inx", Masked(plainInx));
+            var stagePath = WriteTemporaryAsset(".smd", Masked(CreateMinimalStage(sizeof(ushort))));
+            paths.AddRange([modelPath, inxPath, stagePath]);
+            var maskedModel = new PristonSmdReader().ReadModel(modelPath);
+            Assert.True(maskedModel.Objects.Count == 1 && maskedModel.Objects[0].Name == "Root" && maskedModel.SourceTrailer.Fnv1a32 == 0x045D4BB3u,
+                "a masked model did not read as its plain bytes");
+            var info = new PristonInxReader().Read(inxPath);
+            Assert.True(info.HighModel.ModelNames[0] == "BodyH" && info.Motions[0].MotionKeyword1 == 0x11223344u,
+                "a masked model info did not read as its plain bytes");
+            Assert.True(new PristonSmdReader().ReadStage(stagePath).Faces.Count > 0, "a masked stage did not read");
+        }
+        finally
+        {
+            paths.ForEach(File.Delete);
+        }
+
+        var stage = TerrainTests.Stage([new(0, 10, 0), new(200, 10, 0), new(200, 30, 200)], [(0, 1, 2)]);
+        Assert.True(StageCollisionReader.Read(Masked(stage)).CollisionTriangleCount == StageCollisionReader.Read(stage).CollisionTriangleCount,
+            "a masked stage lost its collision");
+        return Task.CompletedTask;
+    }
+
+    private static byte[] InxFixture()
+    {
         const int motionOffset = 396;
         const int motionSize = 172;
         var bytes = new byte[95_268];
@@ -136,27 +202,7 @@ internal static class BinaryCursorTests
         WriteUInt32(bytes, motionCountOffset + 8, 0x10203040u);
         var talkMotionCountOffset = motionCountOffset + 12 + 3 * 64 + PristonFormatConstants.TalkMotionInfoCount * motionSize;
         WriteUInt32(bytes, talkMotionCountOffset, 10);
-
-        var path = WriteTemporaryAsset(".inx", bytes);
-        try
-        {
-            var info = new PristonInxReader().Read(path);
-            var parsedMotion = info.Motions[0];
-            Assert.True(info.HighModel.ModelNameCount == 1 && info.HighModel.ModelNames[0] == "BodyH", "INX model group changed");
-            Assert.True(info.FileTypeKeyword == 0xAABBCCDDu && info.LinkFileKeyword == 0x10203040u, "INX keyword fields were discarded");
-            Assert.True(parsedMotion.ItemIndices.SequenceEqual([-1, 725]), "signed modern ItemCodeList entries changed");
-            Assert.True(parsedMotion.ItemCodeTable.Count == PristonFormatConstants.MotionItemCapacity, "fixed ItemCodeList tail was discarded");
-            Assert.True(parsedMotion.SkillCodes.Count == PristonFormatConstants.MotionSkillCapacity && parsedMotion.SkillCodes[0] == 3 && parsedMotion.SkillCodes[7] == 9,
-                "SkillCode table changed");
-            Assert.True(parsedMotion.MotionKeyword1 == 0x11223344u && parsedMotion.MotionKeyword2 == 0x55667788u, "motion keywords were discarded");
-            Assert.True(parsedMotion.RawStartFrame == 7 && parsedMotion.RawEndFrame == 13, "raw frame words were discarded");
-        }
-        finally
-        {
-            File.Delete(path);
-        }
-
-        return Task.CompletedTask;
+        return bytes;
     }
 
     private static Task ModelLayoutsAsync()

@@ -313,7 +313,8 @@ dotnet run --project tools/PristonTale.DataImport -c Release --no-build -- copy 
   already in `assets/` is kept untouched.
 - Refuses (and reports) an SMD whose signature is not one the game's reader knows (`SmdLayout`), a bitmap
   without a `BM`/`A8`/`C8` header, a TGA that is not true colour (stored or run-length) and other damaged headers; exits
-  1 when anything was refused.
+  1 when anything was refused. A file still masked with 0x82 is judged through the mask (`AssetMask`) and copied as it
+  is, since the game reads it.
 - The deep fields' stages that the archive lacked (Stemple, the Heart of Fire, the Crystal Nest and the Land of Nurwn)
   came from a client that masks its data with 0x82: `copy <client> assets --mask 0x82 Field/HeartOfFire Field/CrystalNest
   Field/LandofNurwn Field/SeaA Field/AncientW`.

@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using PristonTale.Assets;
 using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.Rendering;
 using PristonTale.GltfExport;
@@ -15,7 +16,7 @@ internal static class RenderTests
         yield return ("static mesh preparation computes topology and normals without a GPU", MeshAsync);
         yield return ("stage normals are smoothed across materials and faces sharing a position, not across a wall", StageNormalsAsync);
         yield return ("a stage face that is never drawn does not bend the drawn ground's normals", HiddenStageNormalsAsync);
-        yield return ("CPU image decoding handles invalid data without GPU resources", DecodeAsync);
+        yield return ("CPU image decoding handles invalid data without GPU resources and reads images masked with XOR 0x82", DecodeAsync);
         yield return ("run-length TGAs decode repeated and stored packets, plain or with the masked header", RunLengthTgaAsync);
         yield return ("UI bitmaps of 32 bits keep their coverage and skip the black key; zeroed coverage stays opaque", BmpCoverageAsync);
         yield return ("PNG export cache separates opacity variants and basename collisions", ExportAsync);
@@ -202,6 +203,18 @@ internal static class RenderTests
         huge[14] = 255;
         huge[15] = 255;
         Assert.True(!PristonImageDecoder.Decode(huge, ".tga").IsValid, "oversized/truncated TGA accepted");
+
+        static byte[] Masked(byte[] plain)
+        {
+            var masked = (byte[])plain.Clone();
+            AssetMask.Unmask(masked);
+            return masked;
+        }
+
+        var tga = PristonImageDecoder.Decode(Masked(Tga(20, 40, 60)), ".tga");
+        Assert.True(tga.IsValid && tga.Pixels[0] == new Color(20, 40, 60, 255), "a TGA masked whole with XOR 0x82 did not decode");
+        var bmp = PristonImageDecoder.Decode(Masked(Bmp32((90, 60, 30, 255))), ".bmp");
+        Assert.True(bmp.IsValid && bmp.Pixels[0] == new Color(90, 60, 30, 255), "a BMP masked whole with XOR 0x82 did not decode");
         return Task.CompletedTask;
     }
 

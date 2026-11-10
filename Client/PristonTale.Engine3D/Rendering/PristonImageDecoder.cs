@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using PristonTale.Assets;
 using StbImageSharp;
 
 namespace PristonTale.Engine3D.Rendering;
@@ -17,6 +18,12 @@ public static class PristonImageDecoder
     // data) or 255. World BMPs stay opaque.
     public static DecodedPristonImage Decode(byte[] bytes, string extension, bool bmpCoverage = false)
     {
+        if (AssetMask.IsMaskedImage(bytes, extension))
+        {
+            bytes = (byte[])bytes.Clone();
+            AssetMask.Unmask(bytes);
+        }
+
         if (extension.Equals(".tga", StringComparison.OrdinalIgnoreCase))
         {
             return LoadTga(bytes, out _);

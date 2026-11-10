@@ -1,5 +1,4 @@
 using System.Globalization;
-using System.Text;
 using Microsoft.Xna.Framework;
 using PristonTale.Assets;
 using PristonTale.Engine3D.Formats;
@@ -106,7 +105,7 @@ static string? DetectSmdKind(string path)
     Span<byte> head = stackalloc byte[SmdLayout.SignatureSize];
     using var fs = File.OpenRead(path);
     var read = fs.Read(head);
-    var name = Encoding.ASCII.GetString(head[..read]);
+    var name = AssetMask.SmdSignature(head[..read]);
     if (name.StartsWith(SmdLayout.StagePrefix, StringComparison.Ordinal)) return "stage";
     if (name.StartsWith(SmdLayout.ModelPrefix, StringComparison.Ordinal)) return "model";
     return null;

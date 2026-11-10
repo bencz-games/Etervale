@@ -80,6 +80,12 @@ internal static class DataCopier
     // Why the game could not read the file, or null when it can.
     private static string? Problem(string extension, byte[] bytes)
     {
+        if (AssetMask.IsMaskedImage(bytes, extension))
+        {
+            bytes = (byte[])bytes.Clone();
+            AssetMask.Unmask(bytes);
+        }
+
         switch (extension.ToLowerInvariant())
         {
             case ".smd":
@@ -90,7 +96,7 @@ internal static class DataCopier
                         return "shorter than its signature";
                     }
 
-                    var signature = Encoding.ASCII.GetString(bytes, 0, SmdLayout.SignatureSize).TrimEnd('\0');
+                    var signature = AssetMask.SmdSignature(bytes);
                     return signature is SmdLayout.StageSignature or SmdLayout.StageSignature73 or SmdLayout.ModelSignature
                         ? null
                         : $"signature \"{Printable(signature)}\"";

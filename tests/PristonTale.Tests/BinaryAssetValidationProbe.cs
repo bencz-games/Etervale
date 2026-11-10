@@ -1,4 +1,3 @@
-using System.Text;
 using PristonTale.Engine3D.Formats;
 using PristonTale.Engine3D.IO;
 using PristonTale.Engine3D.Rendering;
@@ -175,13 +174,7 @@ internal static class BinaryAssetValidationProbe
         Span<byte> header = stackalloc byte[SmdLayout.SignatureSize];
         using var stream = AssetFiles.OpenRead(path);
         stream.ReadExactly(header);
-        var terminator = header.IndexOf((byte)0);
-        if (terminator < 0)
-        {
-            terminator = header.Length;
-        }
-
-        return Encoding.ASCII.GetString(header[..terminator]).StartsWith(SmdLayout.StagePrefix, StringComparison.Ordinal);
+        return AssetMask.SmdSignature(header).StartsWith(SmdLayout.StagePrefix, StringComparison.Ordinal);
     }
 
     private sealed class ValidationResult
