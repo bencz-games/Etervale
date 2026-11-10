@@ -10,7 +10,8 @@ root="$(cd "$here/../.." && pwd)"
 base="$(git -C "$root" log -1 --format=%H -- monogame/runtime/monogame-v3.8.6.patch)"
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
-files=(premake5.lua vulkan/MGG_Vulkan.cpp sdl/MGP_sdl.cpp include/api_enums.h faudio/MGA_faudio.cpp)
+files=(premake5.lua vulkan/MGG_Vulkan.cpp sdl/MGP_sdl.cpp include/api_enums.h faudio/MGA_faudio.cpp common/mg_audio.cpp)
+mkdir -p "$tmp/a/native/monogame/common" "$tmp/b/native/monogame/common"
 mkdir -p "$tmp/a/native/monogame/faudio" "$tmp/b/native/monogame/faudio" "$tmp/a/native/monogame/vulkan" "$tmp/b/native/monogame/vulkan" "$tmp/a/native/monogame/sdl" "$tmp/b/native/monogame/sdl" "$tmp/a/native/monogame/include" "$tmp/b/native/monogame/include"
 for f in "${files[@]}"; do
   git -C "$root" show "$base:monogame/runtime/src/$f" > "$tmp/a/native/monogame/$f"

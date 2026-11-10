@@ -50,6 +50,10 @@ Every change is marked `Etervale fork` in the source and has a document in `../i
   fields (`PresentationParameters.disposed`, `Shader._bytecode`).
 - `CS1591`: XML comments on the `Dispose` overrides and finalizers that lacked them.
 
+**Fixes:**
+- `Platform/Native/GraphicsDeviceManager.Native.cs` (issue 018): the native window takes the requested size before the
+  device creates its swapchain.
+
 **The fork's additions:**
 - `Platform/Native/Graphics.Interop.Etervale.cs`: the P/Invokes of the runtime fork's own exports, and the interface
   version check that runs before anything else (`MGG.EnsureRuntimeVersion`, issue 002).

@@ -29,3 +29,5 @@ upstream notes, in `../upstream/`.
 | 015 | [msaa-keeps-samples](015-msaa-keeps-samples.md) | runtime |
 | 016 | [depth-surface-targets](016-depth-surface-targets.md) | runtime, framework |
 | 017 | [window-maximize](017-window-maximize.md) | runtime, framework |
+| 018 | [window-size-before-swapchain](018-window-size-before-swapchain.md) | framework |
+| 019 | [mono-pan](019-mono-pan.md) | runtime |
