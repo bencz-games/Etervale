@@ -118,6 +118,12 @@ public static class HudInventoryLayout
     public static Rectangle PageButton(Point origin, int page) => new(origin.X + 26 + 22 * page, origin.Y + 572, 22, 19);
     public static Rectangle PairButton(Point origin, int pair) => new(origin.X + 524 + 22 * pair, origin.Y + 525, 19, 19);
 
+    // Original Inven.bmp has a third small button immediately before the A/B weapon-pair buttons.
+    // This opens the optional costume view, not a new EquipmentSlot.Armor.
+    public static Rectangle CostumeButton(Point origin) => new(origin.X + 502, origin.Y + 525, 19, 19);
+    public static Rectangle CostumeArea(Point origin) => new(origin.X + 572, origin.Y + 429, 216, 119);
+    public static Rectangle CostumeSlot(Point origin) => new(origin.X + 648, origin.Y + 434, 66, 110);
+
     public static Rectangle Close(Point origin) => new(origin.X + 266, origin.Y + 572, 22, 19);
 
     // The special item box's button, left of the shop button.

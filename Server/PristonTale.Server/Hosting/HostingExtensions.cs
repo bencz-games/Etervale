@@ -1,3 +1,4 @@
+using PristonTale.Simulation.Items;
 using PristonTale.Application.Contacts;
 using PristonTale.Application.Chat;
 using PristonTale.Application.GameMasters;
@@ -31,6 +32,15 @@ public static class HostingExtensions
     {
         builder.Services.AddSingleton<ISessionRegistry, SessionRegistry>();
         builder.Services.AddSingleton<CharacterClassRegistry>();
+        // Opt-in explícito: sem caminho configurado, os costumes permanecem desativados.
+        // Com caminho configurado, resolver a partir da raiz do checkout (e não do content root do servidor).
+        builder.Services.AddSingleton(_ =>
+        {
+            var manifest = builder.Configuration["Summit:CostumesManifest"];
+            return string.IsNullOrWhiteSpace(manifest)
+                ? CostumeCatalog.Empty
+                : CostumeCatalog.Load(DataPath.Resolve(manifest));
+        });
 
         builder.Services.AddSingleton<AuthAppService>();
         builder.Services.AddSingleton<CharacterAppService>();
@@ -97,6 +107,7 @@ public static class HostingExtensions
             options: worldOptions,
             saves: services.GetRequiredService<ICharacterSaves>(),
             log: services.GetRequiredService<IGameLog>(),
+            costumes: services.GetRequiredService<CostumeCatalog>(),
             localizedData: services.GetRequiredService<WorldDataLanguagesHolder>()));
         builder.Services.AddHostedService<WorldTickService>();
         AddChat(builder);

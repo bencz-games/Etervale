@@ -1,3 +1,4 @@
+#nullable enable annotations
 using PristonTale.Simulation.Characters;
 using PristonTale.Simulation.Items;
 
@@ -57,10 +58,17 @@ public static class NpcShopRules
     public static bool IsValidCount(ItemDefinition definition, int count) =>
         count >= 1 && (definition.IsStackable ? count <= definition.MaxStack : count == 1);
 
-    public static NpcServiceStatus TryBuy(PlayerCharacter character, ItemDefinition definition, int count, int anchor, out long cost, int tax = 0)
+    // Only gender constrains cosmetics; model availability does not constrain purchase.
+    // Ordinary combat equipment retains the original class rules.
+    public static bool CanBuy(PlayerCharacter character, ItemDefinition definition, CostumeCatalog? costumes = null) =>
+        CostumeItemPolicy.IsCosmetic(definition.CatalogKey)
+            ? costumes is not null && costumes.Allows(definition.CatalogKey, ClassProfiles.Of(character.Class.Class).Female)
+            : ItemUsability.ClassAllowed(character, definition);
+
+    public static NpcServiceStatus TryBuy(PlayerCharacter character, ItemDefinition definition, int count, int anchor, out long cost, int tax = 0, CostumeCatalog? costumes = null)
     {
         cost = 0;
-        if (!IsValidCount(definition, count))
+        if (!IsValidCount(definition, count) || !CanBuy(character, definition, costumes))
         {
             return NpcServiceStatus.Rejected;
         }

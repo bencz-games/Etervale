@@ -838,7 +838,7 @@ public sealed partial class RemoteEntityManager
             CharacterHead.Apply(defaults, appearance.Class, appearance.Tier, appearance.FaceIndex, appearance.HairIndex),
             appearance.Class, appearance.BigHead);
         uint jobMask = _classRegistry.Get(appearance.Class).Definition.MotionJobMask;
-        return EquipmentVisuals.Apply(head, appearance.ArmorKey, appearance.WeaponKey, appearance.OffHandKey, appearance.InVillage, jobMask);
+        return EquipmentVisuals.Apply(head, appearance.ArmorKey, appearance.WeaponKey, appearance.OffHandKey, appearance.InVillage, jobMask, appearance.CostumeKey);
     }
 
     private bool TryResolveVisuals(PlayerClass playerClass, out CharacterVisualSet visuals)

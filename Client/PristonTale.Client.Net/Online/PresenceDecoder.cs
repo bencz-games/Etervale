@@ -726,6 +726,8 @@ internal sealed class PresenceDecoder : IEventHandleReader
             EliteSkillPoints = status.EliteSkillPoints,
             BagPage = status.BagPage,
             WeaponSet = status.WeaponSet,
+            CostumeItemId = status.CostumeItemId,
+            CostumeKey = ItemCodes.KeyOf(status.CostumeCode),
             Skills = _skills
         };
         return new PresenceUpdate(_tick, [], [], [], [], FieldId) { Owner = _ownerItems.Apply(owner) };
@@ -759,7 +761,8 @@ internal sealed class PresenceDecoder : IEventHandleReader
                 ShopSign = looks.ShopSign,
                 ClanId = (long)looks.ClanId,
                 ClanName = looks.ClanName,
-                ClanMark = looks.ClanMark
+                ClanMark = looks.ClanMark,
+                CostumeKey = ItemCodes.KeyOf(looks.Costume)
             };
         }
 

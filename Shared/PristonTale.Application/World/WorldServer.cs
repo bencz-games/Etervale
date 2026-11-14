@@ -59,6 +59,8 @@ public sealed partial class WorldServer
     private WorldServerOptions _options;
     private readonly ICharacterSaves? _saves;
     private readonly IGameLog? _log;
+    private readonly CostumeCatalog _costumes;
+    public CostumeCatalog Costumes => _costumes;
     // Commands each player has waiting in the shared queue; entries are dropped when the player leaves the world.
     private readonly ConcurrentDictionary<ulong, PendingCommands> _pendingByPlayer = new();
 
@@ -94,10 +96,12 @@ public sealed partial class WorldServer
         WorldServerOptions? options = null,
         ICharacterSaves? saves = null,
         IGameLog? log = null,
-        WorldDataLanguagesHolder? localizedData = null)
+        WorldDataLanguagesHolder? localizedData = null,
+        CostumeCatalog? costumes = null)
     {
         _saves = saves;
         _log = log;
+        _costumes = costumes ?? CostumeCatalog.Empty;
         _localizedData = localizedData ?? new WorldDataLanguagesHolder();
         _options = (options ?? WorldServerOptions.Default).Validated();
         _worldData = worldData;
@@ -512,7 +516,7 @@ public sealed partial class WorldServer
             }
 
             var candidate = original.CloneForInventoryOperation();
-            if (!InventoryCommands.Apply(candidate, command))
+            if (!InventoryCommands.Apply(candidate, command, _costumes))
             {
                 return new PreparedCharacterOperation<InventoryOutcome>(original, null, null,
                     new InventoryOutcome(false, original.InventoryRevision,
@@ -795,7 +799,7 @@ public sealed partial class WorldServer
         {
             if (_connections.TryGetValue(entityId, out var connection))
             {
-                var owner = OwnerState.Capture(connection.Player.Character, connection.LastOwner, nowSeconds);
+                var owner = OwnerState.Capture(connection.Player.Character, connection.LastOwner, nowSeconds, _costumes);
                 connection.LastOwner = owner;
                 var cooldowns = connection.Player.Cooldowns.SnapshotIfChanged(connection.CooldownRevision, field.NowMs);
                 connection.CooldownRevision = connection.Player.Cooldowns.Revision;

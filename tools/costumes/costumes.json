@@ -1,0 +1,1549 @@
+{
+  "version": 1,
+  "costumes": [
+    {
+      "itemKey": "CA131",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA133",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA135",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA137",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA143",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA145",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA166",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA167",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA168",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA169",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA185",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA186",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA187",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA188",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA189",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA190",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA191",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA192",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA193",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA194",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA195",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA196",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA232",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA234",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA235",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA237",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA243",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA245",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA266",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA267",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA268",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA269",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA285",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA286",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA287",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA288",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA289",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA290",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA291",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA292",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA293",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA294",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA295",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA296",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA501",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA502",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA503",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA504",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA505",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA506",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA507",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA508",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA509",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA510",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA511",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA512",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA515",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA516",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA517",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA518",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA519",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA520",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA521",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA522",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA523",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA524",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA525",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA526",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA527",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA528",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA531",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA532",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA533",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA534",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA535",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA536",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA537",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA538",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA539",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA540",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA541",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA542",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA543",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA544",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA545",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA546",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA547",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca040.inx",
+        "1": "char/tmABCD/Cb040.inx",
+        "2": "char/tmABCD/Cc040.inx",
+        "4": "char/tmABCD/Cma040.inx",
+        "7": "char/tmABCD/Cmd040.inx",
+        "9": "char/tmABCD/Cme040.inx"
+      }
+    },
+    {
+      "itemKey": "CA548",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd040.inx",
+        "5": "char/tmABCD/Cmb040.inx",
+        "6": "char/tmABCD/Cmc040.inx",
+        "8": "char/tmABCD/Ce040.inx",
+        "10": "char/tmABCD/Cf040.inx"
+      }
+    },
+    {
+      "itemKey": "CA601",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA602",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA603",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA604",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA605",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA606",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA607",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA608",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA609",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA610",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA611",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA612",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA615",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA616",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA617",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA618",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA619",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA620",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA621",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA622",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA623",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA624",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA625",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA626",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA627",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA628",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA631",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA632",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA633",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA634",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA635",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA636",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA637",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA638",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA639",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA640",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA641",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA642",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA643",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA644",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA645",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA646",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "CA647",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca040.inx",
+        "1": "char/tmABCD/Cb040.inx",
+        "2": "char/tmABCD/Cc040.inx",
+        "4": "char/tmABCD/Cma040.inx",
+        "7": "char/tmABCD/Cmd040.inx",
+        "9": "char/tmABCD/Cme040.inx"
+      }
+    },
+    {
+      "itemKey": "CA648",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd040.inx",
+        "5": "char/tmABCD/Cmb040.inx",
+        "6": "char/tmABCD/Cmc040.inx",
+        "8": "char/tmABCD/Ce040.inx",
+        "10": "char/tmABCD/Cf040.inx"
+      }
+    },
+    {
+      "itemKey": "DA130",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA131",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca001.inx",
+        "1": "char/tmABCD/Cb001.inx",
+        "2": "char/tmABCD/Cc001.inx",
+        "4": "char/tmABCD/Cma001.inx",
+        "7": "char/tmABCD/Cmd001.inx",
+        "9": "char/tmABCD/Cme001.inx"
+      }
+    },
+    {
+      "itemKey": "DA132",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca001.inx",
+        "1": "char/tmABCD/Cb001.inx",
+        "2": "char/tmABCD/Cc001.inx",
+        "4": "char/tmABCD/Cma001.inx",
+        "7": "char/tmABCD/Cmd001.inx",
+        "9": "char/tmABCD/Cme001.inx"
+      }
+    },
+    {
+      "itemKey": "DA133",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd001.inx",
+        "5": "char/tmABCD/Cmb001.inx",
+        "6": "char/tmABCD/Cmc001.inx",
+        "8": "char/tmABCD/Ce001.inx",
+        "10": "char/tmABCD/Cf001.inx"
+      }
+    },
+    {
+      "itemKey": "DA134",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd001.inx",
+        "5": "char/tmABCD/Cmb001.inx",
+        "6": "char/tmABCD/Cmc001.inx",
+        "8": "char/tmABCD/Ce001.inx",
+        "10": "char/tmABCD/Cf001.inx"
+      }
+    },
+    {
+      "itemKey": "DA135",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca002.inx",
+        "1": "char/tmABCD/Cb002.inx",
+        "2": "char/tmABCD/Cc002.inx",
+        "4": "char/tmABCD/Cma002.inx",
+        "7": "char/tmABCD/Cmd002.inx",
+        "9": "char/tmABCD/Cme002.inx"
+      }
+    },
+    {
+      "itemKey": "DA136",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca002.inx",
+        "1": "char/tmABCD/Cb002.inx",
+        "2": "char/tmABCD/Cc002.inx",
+        "4": "char/tmABCD/Cma002.inx",
+        "7": "char/tmABCD/Cmd002.inx",
+        "9": "char/tmABCD/Cme002.inx"
+      }
+    },
+    {
+      "itemKey": "DA137",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd002.inx",
+        "5": "char/tmABCD/Cmb002.inx",
+        "6": "char/tmABCD/Cmc002.inx",
+        "8": "char/tmABCD/Ce002.inx",
+        "10": "char/tmABCD/Cf002.inx"
+      }
+    },
+    {
+      "itemKey": "DA138",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd002.inx",
+        "5": "char/tmABCD/Cmb002.inx",
+        "6": "char/tmABCD/Cmc002.inx",
+        "8": "char/tmABCD/Ce002.inx",
+        "10": "char/tmABCD/Cf002.inx"
+      }
+    },
+    {
+      "itemKey": "DA139",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca003.inx",
+        "1": "char/tmABCD/Cb003.inx",
+        "2": "char/tmABCD/Cc003.inx",
+        "4": "char/tmABCD/Cma003.inx",
+        "7": "char/tmABCD/Cmd003.inx",
+        "9": "char/tmABCD/Cme003.inx"
+      }
+    },
+    {
+      "itemKey": "DA140",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca003.inx",
+        "1": "char/tmABCD/Cb003.inx",
+        "2": "char/tmABCD/Cc003.inx",
+        "4": "char/tmABCD/Cma003.inx",
+        "7": "char/tmABCD/Cmd003.inx",
+        "9": "char/tmABCD/Cme003.inx"
+      }
+    },
+    {
+      "itemKey": "DA141",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd003.inx",
+        "5": "char/tmABCD/Cmb003.inx",
+        "6": "char/tmABCD/Cmc003.inx",
+        "8": "char/tmABCD/Ce003.inx",
+        "10": "char/tmABCD/Cf003.inx"
+      }
+    },
+    {
+      "itemKey": "DA142",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd003.inx",
+        "5": "char/tmABCD/Cmb003.inx",
+        "6": "char/tmABCD/Cmc003.inx",
+        "8": "char/tmABCD/Ce003.inx",
+        "10": "char/tmABCD/Cf003.inx"
+      }
+    },
+    {
+      "itemKey": "DA143",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca004.inx",
+        "1": "char/tmABCD/Cb004.inx",
+        "2": "char/tmABCD/Cc004.inx",
+        "4": "char/tmABCD/Cma004.inx",
+        "7": "char/tmABCD/Cmd004.inx",
+        "9": "char/tmABCD/Cme004.inx"
+      }
+    },
+    {
+      "itemKey": "DA144",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca004.inx",
+        "1": "char/tmABCD/Cb004.inx",
+        "2": "char/tmABCD/Cc004.inx",
+        "4": "char/tmABCD/Cma004.inx",
+        "7": "char/tmABCD/Cmd004.inx",
+        "9": "char/tmABCD/Cme004.inx"
+      }
+    },
+    {
+      "itemKey": "DA145",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd004.inx",
+        "5": "char/tmABCD/Cmb004.inx",
+        "6": "char/tmABCD/Cmc004.inx",
+        "8": "char/tmABCD/Ce004.inx",
+        "10": "char/tmABCD/Cf004.inx"
+      }
+    },
+    {
+      "itemKey": "DA146",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd004.inx",
+        "5": "char/tmABCD/Cmb004.inx",
+        "6": "char/tmABCD/Cmc004.inx",
+        "8": "char/tmABCD/Ce004.inx",
+        "10": "char/tmABCD/Cf004.inx"
+      }
+    },
+    {
+      "itemKey": "DA147",
+      "gender": "any",
+      "bodies": {
+        "0": "char/tmABCD/Ca005.inx",
+        "1": "char/tmABCD/Cb005.inx",
+        "2": "char/tmABCD/Cc005.inx",
+        "3": "char/tmABCD/Cd005.inx",
+        "4": "char/tmABCD/Cma005.inx",
+        "5": "char/tmABCD/Cmb005.inx",
+        "6": "char/tmABCD/Cmc005.inx",
+        "7": "char/tmABCD/Cmd005.inx",
+        "8": "char/tmABCD/Ce005.inx",
+        "9": "char/tmABCD/Cme005.inx",
+        "10": "char/tmABCD/Cf005.inx"
+      }
+    },
+    {
+      "itemKey": "DA148",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/cd006.inx",
+        "5": "char/tmABCD/cmb006.inx",
+        "6": "char/tmABCD/cmc006.inx",
+        "8": "char/tmABCD/Ce006.inx",
+        "10": "char/tmABCD/Cf006.inx"
+      }
+    },
+    {
+      "itemKey": "DA149",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca007.inx",
+        "1": "char/tmABCD/Cb007.inx",
+        "2": "char/tmABCD/Cc007.inx",
+        "4": "char/tmABCD/Cma007.inx",
+        "7": "char/tmABCD/Cmd007.inx",
+        "9": "char/tmABCD/Cme007.inx"
+      }
+    },
+    {
+      "itemKey": "DA150",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd008.inx",
+        "5": "char/tmABCD/Cmb008.inx",
+        "6": "char/tmABCD/Cmc008.inx",
+        "8": "char/tmABCD/Ce008.inx",
+        "10": "char/tmABCD/Cf008.inx"
+      }
+    },
+    {
+      "itemKey": "DA151",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca009.inx",
+        "1": "char/tmABCD/Cb009.inx",
+        "2": "char/tmABCD/Cc009.inx",
+        "4": "char/tmABCD/Cma009.inx",
+        "7": "char/tmABCD/Cmd009.inx",
+        "9": "char/tmABCD/Cme009.inx"
+      }
+    },
+    {
+      "itemKey": "DA152",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd010.inx",
+        "5": "char/tmABCD/Cmb010.inx",
+        "6": "char/tmABCD/Cmc010.inx",
+        "8": "char/tmABCD/Ce010.inx",
+        "10": "char/tmABCD/Cf010.inx"
+      }
+    },
+    {
+      "itemKey": "DA153",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA154",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca012.inx",
+        "1": "char/tmABCD/Cb012.inx",
+        "2": "char/tmABCD/Cc012.inx",
+        "4": "char/tmABCD/Cma012.inx",
+        "7": "char/tmABCD/Cmd012.inx",
+        "9": "char/tmABCD/Cme012.inx"
+      }
+    },
+    {
+      "itemKey": "DA155",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd012.inx",
+        "5": "char/tmABCD/Cmb012.inx",
+        "6": "char/tmABCD/Cmc012.inx",
+        "8": "char/tmABCD/Ce012.inx",
+        "10": "char/tmABCD/Cf012.inx"
+      }
+    },
+    {
+      "itemKey": "DA156",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA157",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/cd013.inx",
+        "5": "char/tmABCD/cmb013.inx",
+        "6": "char/tmABCD/cmc013.inx",
+        "8": "char/tmABCD/Ce013.inx",
+        "10": "char/tmABCD/Cf013.inx"
+      }
+    },
+    {
+      "itemKey": "DA158",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA159",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd014.inx",
+        "5": "char/tmABCD/Cmb014.inx",
+        "6": "char/tmABCD/Cmc014.inx",
+        "8": "char/tmABCD/Ce014.inx",
+        "10": "char/tmABCD/Cf014.inx"
+      }
+    },
+    {
+      "itemKey": "DA160",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/ca015.inx",
+        "1": "char/tmABCD/cb015.inx",
+        "2": "char/tmABCD/cc015.inx",
+        "4": "char/tmABCD/cma015.inx",
+        "7": "char/tmABCD/cmd015.inx",
+        "9": "char/tmABCD/Cme015.inx"
+      }
+    },
+    {
+      "itemKey": "DA161",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/cd015.inx",
+        "5": "char/tmABCD/cmb015.inx",
+        "6": "char/tmABCD/cmc015.inx",
+        "8": "char/tmABCD/Ce015.inx",
+        "10": "char/tmABCD/Cf015.inx"
+      }
+    },
+    {
+      "itemKey": "DA162",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA163",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA164",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca029.inx",
+        "1": "char/tmABCD/Cb029.inx",
+        "2": "char/tmABCD/Cc029.inx",
+        "4": "char/tmABCD/Cma029.inx",
+        "7": "char/tmABCD/Cmd029.inx",
+        "9": "char/tmABCD/Cme029.inx"
+      }
+    },
+    {
+      "itemKey": "DA165",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd029.inx",
+        "5": "char/tmABCD/Cmb029.inx",
+        "6": "char/tmABCD/Cmc029.inx",
+        "8": "char/tmABCD/Ce029.inx",
+        "10": "char/tmABCD/Cf029.inx"
+      }
+    },
+    {
+      "itemKey": "DA171",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA172",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA173",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA174",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA175",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA176",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA177",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA182",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA183",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA184",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA230",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA231",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca001.inx",
+        "1": "char/tmABCD/Cb001.inx",
+        "2": "char/tmABCD/Cc001.inx",
+        "4": "char/tmABCD/Cma001.inx",
+        "7": "char/tmABCD/Cmd001.inx",
+        "9": "char/tmABCD/Cme001.inx"
+      }
+    },
+    {
+      "itemKey": "DA232",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca001.inx",
+        "1": "char/tmABCD/Cb001.inx",
+        "2": "char/tmABCD/Cc001.inx",
+        "4": "char/tmABCD/Cma001.inx",
+        "7": "char/tmABCD/Cmd001.inx",
+        "9": "char/tmABCD/Cme001.inx"
+      }
+    },
+    {
+      "itemKey": "DA233",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd001.inx",
+        "5": "char/tmABCD/Cmb001.inx",
+        "6": "char/tmABCD/Cmc001.inx",
+        "8": "char/tmABCD/Ce001.inx",
+        "10": "char/tmABCD/Cf001.inx"
+      }
+    },
+    {
+      "itemKey": "DA234",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd001.inx",
+        "5": "char/tmABCD/Cmb001.inx",
+        "6": "char/tmABCD/Cmc001.inx",
+        "8": "char/tmABCD/Ce001.inx",
+        "10": "char/tmABCD/Cf001.inx"
+      }
+    },
+    {
+      "itemKey": "DA235",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca002.inx",
+        "1": "char/tmABCD/Cb002.inx",
+        "2": "char/tmABCD/Cc002.inx",
+        "4": "char/tmABCD/Cma002.inx",
+        "7": "char/tmABCD/Cmd002.inx",
+        "9": "char/tmABCD/Cme002.inx"
+      }
+    },
+    {
+      "itemKey": "DA236",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca002.inx",
+        "1": "char/tmABCD/Cb002.inx",
+        "2": "char/tmABCD/Cc002.inx",
+        "4": "char/tmABCD/Cma002.inx",
+        "7": "char/tmABCD/Cmd002.inx",
+        "9": "char/tmABCD/Cme002.inx"
+      }
+    },
+    {
+      "itemKey": "DA237",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd002.inx",
+        "5": "char/tmABCD/Cmb002.inx",
+        "6": "char/tmABCD/Cmc002.inx",
+        "8": "char/tmABCD/Ce002.inx",
+        "10": "char/tmABCD/Cf002.inx"
+      }
+    },
+    {
+      "itemKey": "DA238",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd002.inx",
+        "5": "char/tmABCD/Cmb002.inx",
+        "6": "char/tmABCD/Cmc002.inx",
+        "8": "char/tmABCD/Ce002.inx",
+        "10": "char/tmABCD/Cf002.inx"
+      }
+    },
+    {
+      "itemKey": "DA239",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca003.inx",
+        "1": "char/tmABCD/Cb003.inx",
+        "2": "char/tmABCD/Cc003.inx",
+        "4": "char/tmABCD/Cma003.inx",
+        "7": "char/tmABCD/Cmd003.inx",
+        "9": "char/tmABCD/Cme003.inx"
+      }
+    },
+    {
+      "itemKey": "DA240",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca003.inx",
+        "1": "char/tmABCD/Cb003.inx",
+        "2": "char/tmABCD/Cc003.inx",
+        "4": "char/tmABCD/Cma003.inx",
+        "7": "char/tmABCD/Cmd003.inx",
+        "9": "char/tmABCD/Cme003.inx"
+      }
+    },
+    {
+      "itemKey": "DA241",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd003.inx",
+        "5": "char/tmABCD/Cmb003.inx",
+        "6": "char/tmABCD/Cmc003.inx",
+        "8": "char/tmABCD/Ce003.inx",
+        "10": "char/tmABCD/Cf003.inx"
+      }
+    },
+    {
+      "itemKey": "DA242",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd003.inx",
+        "5": "char/tmABCD/Cmb003.inx",
+        "6": "char/tmABCD/Cmc003.inx",
+        "8": "char/tmABCD/Ce003.inx",
+        "10": "char/tmABCD/Cf003.inx"
+      }
+    },
+    {
+      "itemKey": "DA243",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca004.inx",
+        "1": "char/tmABCD/Cb004.inx",
+        "2": "char/tmABCD/Cc004.inx",
+        "4": "char/tmABCD/Cma004.inx",
+        "7": "char/tmABCD/Cmd004.inx",
+        "9": "char/tmABCD/Cme004.inx"
+      }
+    },
+    {
+      "itemKey": "DA244",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca004.inx",
+        "1": "char/tmABCD/Cb004.inx",
+        "2": "char/tmABCD/Cc004.inx",
+        "4": "char/tmABCD/Cma004.inx",
+        "7": "char/tmABCD/Cmd004.inx",
+        "9": "char/tmABCD/Cme004.inx"
+      }
+    },
+    {
+      "itemKey": "DA245",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd004.inx",
+        "5": "char/tmABCD/Cmb004.inx",
+        "6": "char/tmABCD/Cmc004.inx",
+        "8": "char/tmABCD/Ce004.inx",
+        "10": "char/tmABCD/Cf004.inx"
+      }
+    },
+    {
+      "itemKey": "DA246",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd004.inx",
+        "5": "char/tmABCD/Cmb004.inx",
+        "6": "char/tmABCD/Cmc004.inx",
+        "8": "char/tmABCD/Ce004.inx",
+        "10": "char/tmABCD/Cf004.inx"
+      }
+    },
+    {
+      "itemKey": "DA247",
+      "gender": "any",
+      "bodies": {
+        "0": "char/tmABCD/Ca005.inx",
+        "1": "char/tmABCD/Cb005.inx",
+        "2": "char/tmABCD/Cc005.inx",
+        "3": "char/tmABCD/Cd005.inx",
+        "4": "char/tmABCD/Cma005.inx",
+        "5": "char/tmABCD/Cmb005.inx",
+        "6": "char/tmABCD/Cmc005.inx",
+        "7": "char/tmABCD/Cmd005.inx",
+        "8": "char/tmABCD/Ce005.inx",
+        "9": "char/tmABCD/Cme005.inx",
+        "10": "char/tmABCD/Cf005.inx"
+      }
+    },
+    {
+      "itemKey": "DA248",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/cd006.inx",
+        "5": "char/tmABCD/cmb006.inx",
+        "6": "char/tmABCD/cmc006.inx",
+        "8": "char/tmABCD/Ce006.inx",
+        "10": "char/tmABCD/Cf006.inx"
+      }
+    },
+    {
+      "itemKey": "DA249",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca007.inx",
+        "1": "char/tmABCD/Cb007.inx",
+        "2": "char/tmABCD/Cc007.inx",
+        "4": "char/tmABCD/Cma007.inx",
+        "7": "char/tmABCD/Cmd007.inx",
+        "9": "char/tmABCD/Cme007.inx"
+      }
+    },
+    {
+      "itemKey": "DA250",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd008.inx",
+        "5": "char/tmABCD/Cmb008.inx",
+        "6": "char/tmABCD/Cmc008.inx",
+        "8": "char/tmABCD/Ce008.inx",
+        "10": "char/tmABCD/Cf008.inx"
+      }
+    },
+    {
+      "itemKey": "DA251",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca009.inx",
+        "1": "char/tmABCD/Cb009.inx",
+        "2": "char/tmABCD/Cc009.inx",
+        "4": "char/tmABCD/Cma009.inx",
+        "7": "char/tmABCD/Cmd009.inx",
+        "9": "char/tmABCD/Cme009.inx"
+      }
+    },
+    {
+      "itemKey": "DA252",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd010.inx",
+        "5": "char/tmABCD/Cmb010.inx",
+        "6": "char/tmABCD/Cmc010.inx",
+        "8": "char/tmABCD/Ce010.inx",
+        "10": "char/tmABCD/Cf010.inx"
+      }
+    },
+    {
+      "itemKey": "DA253",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA254",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca012.inx",
+        "1": "char/tmABCD/Cb012.inx",
+        "2": "char/tmABCD/Cc012.inx",
+        "4": "char/tmABCD/Cma012.inx",
+        "7": "char/tmABCD/Cmd012.inx",
+        "9": "char/tmABCD/Cme012.inx"
+      }
+    },
+    {
+      "itemKey": "DA255",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd012.inx",
+        "5": "char/tmABCD/Cmb012.inx",
+        "6": "char/tmABCD/Cmc012.inx",
+        "8": "char/tmABCD/Ce012.inx",
+        "10": "char/tmABCD/Cf012.inx"
+      }
+    },
+    {
+      "itemKey": "DA256",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA257",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/cd013.inx",
+        "5": "char/tmABCD/cmb013.inx",
+        "6": "char/tmABCD/cmc013.inx",
+        "8": "char/tmABCD/Ce013.inx",
+        "10": "char/tmABCD/Cf013.inx"
+      }
+    },
+    {
+      "itemKey": "DA258",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA259",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd014.inx",
+        "5": "char/tmABCD/Cmb014.inx",
+        "6": "char/tmABCD/Cmc014.inx",
+        "8": "char/tmABCD/Ce014.inx",
+        "10": "char/tmABCD/Cf014.inx"
+      }
+    },
+    {
+      "itemKey": "DA260",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/ca015.inx",
+        "1": "char/tmABCD/cb015.inx",
+        "2": "char/tmABCD/cc015.inx",
+        "4": "char/tmABCD/cma015.inx",
+        "7": "char/tmABCD/cmd015.inx",
+        "9": "char/tmABCD/Cme015.inx"
+      }
+    },
+    {
+      "itemKey": "DA261",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/cd015.inx",
+        "5": "char/tmABCD/cmb015.inx",
+        "6": "char/tmABCD/cmc015.inx",
+        "8": "char/tmABCD/Ce015.inx",
+        "10": "char/tmABCD/Cf015.inx"
+      }
+    },
+    {
+      "itemKey": "DA262",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA263",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA264",
+      "gender": "male",
+      "bodies": {
+        "0": "char/tmABCD/Ca029.inx",
+        "1": "char/tmABCD/Cb029.inx",
+        "2": "char/tmABCD/Cc029.inx",
+        "4": "char/tmABCD/Cma029.inx",
+        "7": "char/tmABCD/Cmd029.inx",
+        "9": "char/tmABCD/Cme029.inx"
+      }
+    },
+    {
+      "itemKey": "DA265",
+      "gender": "female",
+      "bodies": {
+        "3": "char/tmABCD/Cd029.inx",
+        "5": "char/tmABCD/Cmb029.inx",
+        "6": "char/tmABCD/Cmc029.inx",
+        "8": "char/tmABCD/Ce029.inx",
+        "10": "char/tmABCD/Cf029.inx"
+      }
+    },
+    {
+      "itemKey": "DA271",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA272",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA273",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA274",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA275",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA276",
+      "gender": "male",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA277",
+      "gender": "female",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA282",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA283",
+      "gender": "any",
+      "bodies": {}
+    },
+    {
+      "itemKey": "DA284",
+      "gender": "any",
+      "bodies": {}
+    }
+  ]
+}

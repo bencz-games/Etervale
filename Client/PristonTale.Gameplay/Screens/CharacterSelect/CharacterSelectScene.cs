@@ -103,6 +103,7 @@ internal sealed class CharacterSelectScene
         _assetRoot = assetRoot;
         _camera = camera;
         _log = log;
+        EquipmentVisuals.SetCostumeCatalog(CostumeVisualCatalog.Load(assetRoot, log));
         _collision = BuildCollision(stage);
     }
 
@@ -558,7 +559,8 @@ internal sealed class CharacterSelectScene
             weapon: "",
             offHand: "",
             summary.InVillage,
-            definition.MotionJobMask);
+            definition.MotionJobMask,
+            summary.CostumeKey);
         return true;
     }
 

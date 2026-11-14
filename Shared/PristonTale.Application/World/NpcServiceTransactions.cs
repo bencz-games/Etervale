@@ -55,7 +55,7 @@ internal static class NpcServiceTransactions
 
     // booth: Bellatra as it stands, for its team booths.
     public static PreparedNpcOperation Prepare(PlayerSession session, WorldPlayer player, FieldInstance field, NpcServiceCommand command,
-        ItemCatalog items, WorldCatalog world, BellatraBooth? booth = null)
+        ItemCatalog items, WorldCatalog world, BellatraBooth? booth = null, CostumeCatalog? costumes = null)
     {
         if (MobileShopTransactions.Handles(command))
         {
@@ -82,7 +82,7 @@ internal static class NpcServiceTransactions
             var answer = command.Service == NpcServiceKind.EventBooth && command.Action == NpcServiceAction.Open && booth is not null && team >= 0
                 ? booth.Answer(original, team, world, out ticket)
                 : GameText.None;
-            var shown = Show(command, npc!, service!, original, storage, items, world, Done(original, storage, answer), field.CastleTax);
+            var shown = Show(command, npc!, service!, original, storage, items, world, Done(original, storage, answer), field.CastleTax, costumes);
             if (ticket is not null)
             {
                 shown = shown with { Destinations = [ticket] };
@@ -91,7 +91,7 @@ internal static class NpcServiceTransactions
             return new PreparedNpcOperation(original, null, null, shown);
         }
 
-        return Settled(original, storage, command) ?? Apply(session, player, field, command, npc!, service!, items, world, booth);
+        return Settled(original, storage, command) ?? Apply(session, player, field, command, npc!, service!, items, world, booth, costumes);
     }
 
     // A durable request already answered: its replay (the same command) or an identity conflict, and a request made
@@ -129,7 +129,7 @@ internal static class NpcServiceTransactions
     };
 
     private static PreparedNpcOperation Apply(PlayerSession session, WorldPlayer player, FieldInstance field, NpcServiceCommand command,
-        WorldNpc npc, NpcService service, ItemCatalog items, WorldCatalog world, BellatraBooth? booth)
+        WorldNpc npc, NpcService service, ItemCatalog items, WorldCatalog world, BellatraBooth? booth, CostumeCatalog? costumes)
     {
         var original = player.Character;
         var candidate = original.CloneForInventoryOperation();
@@ -143,7 +143,7 @@ internal static class NpcServiceTransactions
         {
             case NpcServiceAction.Buy:
                 status = npc.Definition.Shop.Contains(command.ItemCode) && items.TryGet(command.ItemCode, out var definition)
-                    ? NpcShopRules.TryBuy(candidate, definition, command.Count, command.Anchor, out _, field.CastleTax)
+                    ? NpcShopRules.TryBuy(candidate, definition, command.Count, command.Anchor, out _, field.CastleTax, costumes)
                     : NpcServiceStatus.Rejected;
                 break;
             case NpcServiceAction.Sell or NpcServiceAction.Repair or NpcServiceAction.RepairAll:
@@ -252,7 +252,7 @@ internal static class NpcServiceTransactions
     }
 
     private static NpcServiceReply Show(NpcServiceCommand command, WorldNpc npc, NpcService service, PlayerCharacter character,
-        WarehouseStorage? storage, ItemCatalog items, WorldCatalog world, NpcServiceOutcome outcome, int tax)
+        WarehouseStorage? storage, ItemCatalog items, WorldCatalog world, NpcServiceOutcome outcome, int tax, CostumeCatalog? costumes)
     {
         if (command.Action == NpcServiceAction.Close)
         {
@@ -263,7 +263,7 @@ internal static class NpcServiceTransactions
         {
             NpcServiceKind.Shop => new NpcServiceReply(outcome)
             {
-                Catalog = command.Action == NpcServiceAction.Open ? Catalog(npc.Definition.Shop, items, tax) : null,
+                Catalog = command.Action == NpcServiceAction.Open ? Catalog(npc.Definition.Shop, items, tax, character, costumes) : null,
                 Quotes = Quotes(character)
             },
             NpcServiceKind.Warehouse => new NpcServiceReply(outcome) { Warehouse = storage!.View() },
@@ -308,7 +308,8 @@ internal static class NpcServiceTransactions
             _ => new NpcServiceReply(outcome)
         };
 
-    public static IReadOnlyList<ShopOffer> Catalog(NpcShopStock stock, ItemCatalog items, int tax = 0)
+    public static IReadOnlyList<ShopOffer> Catalog(NpcShopStock stock, ItemCatalog items, int tax = 0,
+        PlayerCharacter? buyer = null, CostumeCatalog? costumes = null)
     {
         var offers = new List<ShopOffer>();
         for (var tab = 0; tab < 3; tab++)
@@ -316,9 +317,13 @@ internal static class NpcServiceTransactions
             var codes = stock.Tab(tab);
             for (var ordinal = 0; ordinal < codes.Count; ordinal++)
             {
-                if (items.TryGet(codes[ordinal], out var definition))
+                if (items.TryGet(codes[ordinal], out var definition)
+                    && (buyer is null || NpcShopRules.CanBuy(buyer, definition, costumes)))
                 {
-                    offers.Add(new ShopOffer(definition.Code, tab, ordinal, definition.Name, definition.Kind, NpcShopRules.BuyPrice(definition, 1, tax),
+                    // Legacy NPC stock can put costumes in Weapon (tab 0). Present them under Armor (tab 1).
+                    // Neither the original shop stock nor the database is changed.
+                    var displayTab = tab == 0 && CostumeItemPolicy.IsCosmetic(definition.CatalogKey) ? 1 : tab;
+                    offers.Add(new ShopOffer(definition.Code, displayTab, ordinal, definition.Name, definition.Kind, NpcShopRules.BuyPrice(definition, 1, tax),
                         definition.GridWidth, definition.GridHeight, definition.MaxStack, definition.CatalogKey));
                 }
             }

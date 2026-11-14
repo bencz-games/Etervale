@@ -371,6 +371,12 @@ public sealed partial class PlayerCharacter
             return false;
         }
 
+        // Hopy is exclusively cosmetic, including on auto-equip, direct Equip and saved equipment.
+        if (CostumeCatalog.IsExclusiveCosmeticKey(item.Definition.CatalogKey))
+        {
+            return false;
+        }
+
         if (!ItemEquipmentMetadata.Fits(item.Definition.Kind, item.Definition.EquipSlot, slot))
         {
             return false;
@@ -632,6 +638,49 @@ public sealed partial class PlayerCharacter
         return matured;
     }
 
+    // Vanity attachment, NOT an EquipmentSlot; the equipped armour continues to determine all combat stats.
+    public Guid CostumeItemId { get; private set; }
+
+    private ItemInstance CostumeBagItem(Guid id) => Inventory.Items().Concat(HiddenBag.Items())
+        .FirstOrDefault(item => item.InstanceId == id);
+
+    public void RestoreCostume(Guid itemId) => CostumeItemId = itemId != Guid.Empty && CostumeBagItem(itemId) is not null
+        ? itemId : Guid.Empty;
+
+    public Guid ActiveCostumeItemId(CostumeCatalog catalog = null)
+    {
+        if (CostumeItemId == Guid.Empty) return Guid.Empty;
+        var item = CostumeBagItem(CostumeItemId);
+        return item is not null && item.Count == 1 && (catalog is null ||
+            catalog.Allows(item.Definition.CatalogKey, ClassProfiles.Of(Class.Class).Female))
+            ? CostumeItemId : Guid.Empty;
+    }
+
+    public string ActiveCostumeKey(CostumeCatalog catalog)
+    {
+        var id = ActiveCostumeItemId(catalog);
+        return id == Guid.Empty ? "" : CostumeBagItem(id)!.Definition.CatalogKey;
+    }
+
+    public bool TryWearCostume(Guid itemId, CostumeCatalog catalog)
+    {
+        if (itemId == Guid.Empty || itemId == CostumeItemId || catalog is null) return false;
+        var item = CostumeBagItem(itemId);
+        if (item is null || item.Count != 1
+            || !catalog.Allows(item.Definition.CatalogKey, ClassProfiles.Of(Class.Class).Female)) return false;
+        CostumeItemId = itemId;
+        TouchInventory();
+        return true;
+    }
+
+    public bool TryClearCostume()
+    {
+        if (CostumeItemId == Guid.Empty) return false;
+        CostumeItemId = Guid.Empty;
+        TouchInventory();
+        return true;
+    }
+
     public ItemInstance FindOwnedItem(Guid instanceId) => OwnedItems().FirstOrDefault(item => item.InstanceId == instanceId);
 
     public IEnumerable<ItemInstance> OwnedItems()
@@ -708,6 +757,7 @@ public sealed partial class PlayerCharacter
         clone.Quests = Quests.Clone();
         clone.RestoreStarterGifts(StarterGiftsReceived);
         clone.RestoreHelpPet(HelpPet, HelpPetHidden);
+        clone.RestoreCostume(ActiveCostumeItemId());
         clone.Premium.CopyFrom(Premium);
         clone.ItemUses.CopyFrom(ItemUses);
         clone.Recompute();
@@ -862,6 +912,7 @@ public sealed partial class PlayerCharacter
         (_storedWeapon, _storedOffHand) = (candidate._storedWeapon, candidate._storedOffHand);
         (BagPage, WeaponSet) = (candidate.BagPage, candidate.WeaponSet);
         Held = candidate.Held;
+        CostumeItemId = candidate.ActiveCostumeItemId();
 
         RestoreInventoryHistory(candidate.InventoryRevision, candidate.InventoryOperations);
         RestoreServiceHistory(candidate.ServiceOperations);
