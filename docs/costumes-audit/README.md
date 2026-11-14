@@ -40,6 +40,14 @@ hover label uses the existing original Costume BMP, rather than separately drawn
 - `SHA256SUMS-assets.txt`: expected final manifest and existing HUD bitmap hashes relative to the installation root.
 - `../../tools/costumes/costumes.json`: reviewed manifest; install as `assets/summit/costumes.json` in the game data.
 
+## Combat contribution correction
+
+The original wardrobe implementation excluded costumes from the equipment totals. The revised contract adds the
+active, server-authorized costume's rolled bonuses to the ordinary gear totals without using an armour slot. A visual
+mapping is not required for the bonus. Regression coverage checks additive defence, absorption, resources, damage,
+class specialization, switching and clearing, bag-page changes, persistence, removal and denied authorization.
+No extra assets, database record changes or new bonus values are required by this correction.
+
 ## Verification record
 
 Release build with warnings as errors succeeded after the HUD change. The cosmetic filter passed 6/6 and the costume

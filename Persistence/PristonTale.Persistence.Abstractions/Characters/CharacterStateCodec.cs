@@ -47,7 +47,8 @@ public static class CharacterStateCodec
         MaxDepth = 16
     };
 
-    public static void Restore(PlayerCharacter character, CharacterRecord record, ItemCatalog catalog)
+    public static void Restore(PlayerCharacter character, CharacterRecord record, ItemCatalog catalog,
+        CostumeCatalog? costumes = null)
     {
         var inventory = ReadItems(record.Inventory, JsonValueKind.Array);
         var equipment = ReadEquipment(record.Equipment);
@@ -141,7 +142,7 @@ public static class CharacterStateCodec
         character.RestoreServiceHistory(inventory.ServiceOperations ?? []);
         character.RestorePurchaseHistory(inventory.ShopPurchases ?? []);
         character.RestoreProgressionHistory(skills.Revision, skills.Operations ?? []);
-        character.RestoreCostume(inventory.CostumeItemId);
+        character.RestoreCostume(inventory.CostumeItemId, costumes);
     }
 
     public static SavedItems ReadInventory(JsonText inventory) => ReadItems(inventory, JsonValueKind.Array);

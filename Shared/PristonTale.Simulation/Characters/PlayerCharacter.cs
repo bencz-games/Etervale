@@ -29,6 +29,7 @@ public sealed partial class PlayerCharacter
         Stamina = MaxStamina;
         Class.OnSpawn(this);
         Inventory.Changed += OnInventoryChanged;
+        HiddenBag.Changed += OnHiddenBagChanged;
     }
 
     public CharacterClass Class { get; }
@@ -638,23 +639,40 @@ public sealed partial class PlayerCharacter
         return matured;
     }
 
-    // Vanity attachment, NOT an EquipmentSlot; the equipped armour continues to determine all combat stats.
+    // A separate wardrobe attachment: its bonuses add to combat equipment without replacing armour.
+    private CostumeCatalog _costumeCatalog = CostumeCatalog.Empty;
     public Guid CostumeItemId { get; private set; }
+
+    // The active item must still be owned in a bag and allowed by the authoritative manifest.
+    internal ItemInstance ActiveCostumeItem => AllowedCostume(CostumeItemId, _costumeCatalog);
+
+    private void OnHiddenBagChanged()
+    {
+        if (CostumeItemId != Guid.Empty)
+            OnInventoryChanged();
+    }
 
     private ItemInstance CostumeBagItem(Guid id) => Inventory.Items().Concat(HiddenBag.Items())
         .FirstOrDefault(item => item.InstanceId == id);
 
-    public void RestoreCostume(Guid itemId) => CostumeItemId = itemId != Guid.Empty && CostumeBagItem(itemId) is not null
-        ? itemId : Guid.Empty;
-
-    public Guid ActiveCostumeItemId(CostumeCatalog catalog = null)
+    private ItemInstance AllowedCostume(Guid id, CostumeCatalog catalog)
     {
-        if (CostumeItemId == Guid.Empty) return Guid.Empty;
-        var item = CostumeBagItem(CostumeItemId);
-        return item is not null && item.Count == 1 && (catalog is null ||
-            catalog.Allows(item.Definition.CatalogKey, ClassProfiles.Of(Class.Class).Female))
-            ? CostumeItemId : Guid.Empty;
+        if (id == Guid.Empty) return null;
+        var item = CostumeBagItem(id);
+        return item is not null && item.Count == 1 &&
+            catalog.Allows(item.Definition.CatalogKey, ClassProfiles.Of(Class.Class).Female) ? item : null;
     }
+
+    public void RestoreCostume(Guid itemId, CostumeCatalog catalog = null)
+    {
+        _costumeCatalog = catalog ?? CostumeCatalog.Empty;
+        CostumeItemId = AllowedCostume(itemId, _costumeCatalog) is not null ? itemId : Guid.Empty;
+        _derivedStale = true;
+    }
+
+    public Guid ActiveCostumeItemId(CostumeCatalog catalog = null) =>
+        ActiveCostumeItem is not null && (catalog is null || AllowedCostume(CostumeItemId, catalog) is not null)
+            ? CostumeItemId : Guid.Empty;
 
     public string ActiveCostumeKey(CostumeCatalog catalog)
     {
@@ -668,6 +686,7 @@ public sealed partial class PlayerCharacter
         var item = CostumeBagItem(itemId);
         if (item is null || item.Count != 1
             || !catalog.Allows(item.Definition.CatalogKey, ClassProfiles.Of(Class.Class).Female)) return false;
+        _costumeCatalog = catalog;
         CostumeItemId = itemId;
         TouchInventory();
         return true;
@@ -757,7 +776,7 @@ public sealed partial class PlayerCharacter
         clone.Quests = Quests.Clone();
         clone.RestoreStarterGifts(StarterGiftsReceived);
         clone.RestoreHelpPet(HelpPet, HelpPetHidden);
-        clone.RestoreCostume(ActiveCostumeItemId());
+        clone.RestoreCostume(ActiveCostumeItemId(), _costumeCatalog);
         clone.Premium.CopyFrom(Premium);
         clone.ItemUses.CopyFrom(ItemUses);
         clone.Recompute();
@@ -908,11 +927,14 @@ public sealed partial class PlayerCharacter
 
         Belt.CopyFrom(candidate.Belt);
         QuestBox.CopyFrom(candidate.QuestBox);
+        HiddenBag.Changed -= OnHiddenBagChanged;
+        candidate.HiddenBag.Changed -= candidate.OnHiddenBagChanged;
         HiddenBag = candidate.HiddenBag;
+        HiddenBag.Changed += OnHiddenBagChanged;
         (_storedWeapon, _storedOffHand) = (candidate._storedWeapon, candidate._storedOffHand);
         (BagPage, WeaponSet) = (candidate.BagPage, candidate.WeaponSet);
         Held = candidate.Held;
-        CostumeItemId = candidate.ActiveCostumeItemId();
+        RestoreCostume(candidate.ActiveCostumeItemId(), candidate._costumeCatalog);
 
         RestoreInventoryHistory(candidate.InventoryRevision, candidate.InventoryOperations);
         RestoreServiceHistory(candidate.ServiceOperations);
