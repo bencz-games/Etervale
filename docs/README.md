@@ -33,6 +33,7 @@ where to look. Setup, build and run commands are in the root [README.md](../READ
 | [world-import.md](world-import.md) | `tools/PristonTale.WorldImport`: authored data formats, parsers, catalog import, verify |
 | [client.md](client.md) | Client app, screens, game scene, HUD and windows, remote actors, audio, client networking |
 | [rendering.md](rendering.md) | `Client/PristonTale.Engine3D`: original formats, renderer passes, lighting, shadows, post-processing |
+| [modern-forest.md](modern-forest.md) | Experimental 99-tree visual overlay for fore-1, staging and rollback |
 | [shaders.md](shaders.md) | Shader library under `Client/PristonTale/Content/Shaders` |
 | [effects.md](effects.md) | `Client/PristonTale.Effects` and the VFX JSON format |
 | [client-settings.md](client-settings.md) | Every `client-settings.json` field, presets and validation |
