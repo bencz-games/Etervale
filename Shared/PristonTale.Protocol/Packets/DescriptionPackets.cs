@@ -8,7 +8,7 @@ namespace PristonTale.Protocol.Packets;
 internal static class DescriptionWire
 {
     // Version 2 carries the player's shop sign after the fields of version 1; version 3 then the player's clan.
-    public const ushort Version = 3;
+    public const ushort Version = 4;
     public const int MaxNameBytes = 64;
     public const int MaxModelBytes = 160;
 
@@ -65,6 +65,7 @@ public sealed record DescribedPlayer(
     public ulong ClanId { get; init; }
     public string ClanName { get; init; } = "";
     public int ClanMark { get; init; }
+    public uint Costume { get; init; }
 }
 
 // A held item's glow: {int8 Blink (0 none, below 0 steady), int16 R, G, B, A, float32 Scale, int8 Mix (-1 none), uint8
@@ -138,7 +139,7 @@ public sealed record EntityDescriptionPacket(
 {
     // The player part (four varuints, the head model, three codes, three bytes, two glows, the sign, the clan) is the larger tail.
     private const int PlayerPart = 5 * 4 + 2 + DescriptionWire.MaxModelBytes + 4 * 3 + 3 + 2 * DescribedGlow.Size + 2 + PersonalShopLimits.MaxSignBytes
-        + VarInt.MaxBytes64 + 2 + ClanWire.MaxClanNameBytes + 5;
+        + VarInt.MaxBytes64 + 2 + ClanWire.MaxClanNameBytes + 5 + 4;
     public const int MaximumSize = 8 + 4 + VarInt.MaxBytes64 + 2 + 5 * 2 + 4 + (2 + DescriptionWire.MaxNameBytes) + (2 + DescriptionWire.MaxModelBytes)
         + PlayerPart;
 
@@ -174,6 +175,7 @@ public sealed record EntityDescriptionPacket(
             writer.VarUInt(player.ClanId);
             NpcWire.Text(ref writer, player.ClanName, ClanWire.MaxClanNameBytes);
             writer.VarUInt((ulong)Math.Max(0, player.ClanMark));
+            writer.UInt32(player.Costume);
         }
         else
         {
@@ -227,6 +229,7 @@ public sealed record EntityDescriptionPacket(
                 var clanId = version >= 3 ? reader.VarUInt() : 0UL;
                 var clanName = version >= 3 ? NpcWire.Text(ref reader, ClanWire.MaxClanNameBytes) : "";
                 var clanMark = version >= 3 ? reader.VarUInt31() : 0;
+                var costume = version >= 4 ? reader.UInt32() : 0u;
                 return new EntityDescriptionPacket(entityId, revision, kind, level, moveSpeed, attackRate, name, model,
                     new DescribedPlayer(playerClass, tier, face, hair, head, weapon, armor, offHand, (flags & 1) != 0, (flags & 2) != 0, pet, bigHead)
                     {
@@ -235,7 +238,8 @@ public sealed record EntityDescriptionPacket(
                         ShopSign = sign,
                         ClanId = clanId,
                         ClanName = clanName,
-                        ClanMark = clanMark
+                        ClanMark = clanMark,
+                        Costume = costume
                     });
             }
             case EntityKind.Monster or EntityKind.Npc:

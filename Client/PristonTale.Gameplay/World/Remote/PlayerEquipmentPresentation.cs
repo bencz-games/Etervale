@@ -105,7 +105,7 @@ public sealed class PlayerEquipmentPresentation
             }
 
             ArmorKey = armor;
-            var desired = EquipmentVisuals.Apply(_basePlayerVisuals, armor, weapon, offHand, village, _jobMask);
+            var desired = EquipmentVisuals.Apply(_basePlayerVisuals, armor, weapon, offHand, village, _jobMask, owner.CostumeKey);
             if (desired != _requestedPlayerVisuals)
             {
                 _requestedPlayerVisuals = desired;

@@ -33,6 +33,7 @@ public sealed partial class GameScene
 {
     public void LoadEntered(string assetRoot, EnteredCharacter entered)
     {
+        EquipmentVisuals.SetCostumeCatalog(CostumeVisualCatalog.Load(assetRoot, _log));
         if (!_worldCatalog.TryGetFieldByCode(entered.FieldCode, out var field))
             field = _worldCatalog.Ricarten;
 

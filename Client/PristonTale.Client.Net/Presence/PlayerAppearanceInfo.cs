@@ -17,6 +17,7 @@ public sealed record PlayerAppearanceInfo(
     public int HelperPet { get; init; }
     public bool Phoenix { get; init; }
     public int BigHead { get; init; }
+    public string CostumeKey { get; init; } = "";
 
     // How the held weapon and off-hand item glow.
     public Simulation.Items.HeldItemGlow WeaponGlow { get; init; } = Simulation.Items.HeldItemGlow.None;

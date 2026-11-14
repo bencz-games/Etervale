@@ -1,3 +1,4 @@
+using PristonTale.Gameplay.World.Remote;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using PristonTale.Gameplay.Screens.Framework;
@@ -135,6 +136,9 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
     // Whether the special item box shows over the bag (the bag's items hidden), and the bag's item count it closes on
     // when the bag gains an item, as the original closes it to show what was received.
     public bool QuestBoxShown { get; private set; }
+    // The costume page is a local UI choice; ownership/which item is worn stay server-authoritative.
+    public bool CostumePage { get; private set; }
+    public void ToggleCostumePage() => CostumePage = !CostumePage;
     private (long Revision, int Count) _bagCount = (-1, 0);
 
     // A right click on a carried usable item (premium, travel and effect items).
@@ -253,6 +257,11 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
         _hovered = visible && state is not null && _dragging == Guid.Empty
             ? HudInventoryLayout.ItemAt(_origin, state.Items, layout.ToLogical(mouse.Position), QuestBoxShown)
             : null;
+        if (_hovered is { Equipped: true } && CostumePage)
+        {
+            // Equipment underneath the costume overlay must not receive input.
+            _hovered = null;
+        }
         if (_hovered is not null && Hides(_hovered))
         {
             _hovered = null;
@@ -291,6 +300,11 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
         // The side buttons take their clicks with an item on the cursor too, which is never set down on them.
         if (clicked)
         {
+            if (HudInventoryLayout.CostumeButton(_origin).Contains(pointer))
+            {
+                ToggleCostumePage();
+                return;
+            }
             for (var side = 0; side < PlayerCharacter.Sides; side++)
             {
                 if (HudInventoryLayout.PageButton(_origin, side).Contains(pointer))
@@ -316,6 +330,22 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
             }
             else if (clicked)
             {
+                if (CostumePage && HudInventoryLayout.CostumeSlot(_origin).Contains(pointer))
+                {
+                    if (carried.InBag && carried.Count == 1 && CostumeItemPolicy.IsCosmetic(carried.CatalogKey))
+                    {
+                        var clearing = _state.CostumeItemId == carried.InstanceId;
+                        _dragging = Guid.Empty;
+                        SendInventory(new InventoryCommand(Guid.NewGuid(), _state.InventoryRevision,
+                            clearing ? InventoryAction.ClearCostume : InventoryAction.WearCostume,
+                            clearing ? Guid.Empty : carried.InstanceId, 0, 0, default));
+                    }
+                    else
+                    {
+                        Message = "This item cannot be worn as a costume.";
+                    }
+                    return;
+                }
                 SetDown(carried, pointer, keyboard.IsKeyDown(Keys.LeftShift) || keyboard.IsKeyDown(Keys.RightShift));
             }
 
@@ -341,6 +371,17 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
                 ShopRequested?.Invoke();
                 return;
             }
+        }
+
+        if (CostumePage && HudInventoryLayout.CostumeSlot(_origin).Contains(pointer))
+        {
+            var rightClick = mouse.RightButton == ButtonState.Pressed && _previousMouse.RightButton == ButtonState.Released;
+            if ((clicked || rightClick) && _state.CostumeItemId != Guid.Empty)
+            {
+                SendInventory(new InventoryCommand(Guid.NewGuid(), _state.InventoryRevision,
+                    InventoryAction.ClearCostume, Guid.Empty, 0, 0, default));
+            }
+            return;
         }
 
         var hovered = _hovered;
@@ -407,6 +448,12 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
         switch (placement.Kind)
         {
             case HudPlacementKind.Fits or HudPlacementKind.Exchange when placement.Slot is { } slot:
+                // Hopy cannot be worn as an ordinary armour by dragging it onto that slot.
+                if (CostumeItemPolicy.IsCosmetic(carried.CatalogKey))
+                {
+                    Message = "Use the costume button and slot to wear Hopy.";
+                    break;
+                }
                 Send(InventoryAction.Equip, carried, 0, 0, slot, placement.Covered);
                 break;
             case HudPlacementKind.Fits when placement.Anchor == carried.Anchor:
@@ -658,6 +705,32 @@ public sealed class HudInventoryController(ScreenContext context, Func<Inventory
     // Right click: a usable item is used, a potion drunk, and an item worn or taken off.
     private void Use(OwnedItemView item)
     {
+        // Hopy is exclusively cosmetic even if the optional visual catalog is missing.
+        if (item.InBag && CostumeCatalog.IsExclusiveCosmeticKey(item.CatalogKey))
+        {
+            var clearing = _state.CostumeItemId == item.InstanceId;
+            SendInventory(new InventoryCommand(Guid.NewGuid(), _state.InventoryRevision,
+                clearing ? InventoryAction.ClearCostume : InventoryAction.WearCostume,
+                clearing ? Guid.Empty : item.InstanceId, 0, 0, default));
+            return;
+        }
+
+        if (item.InBag && (EquipmentVisuals.IsCostume(item.CatalogKey)
+            || string.Equals(item.CatalogKey, "CA547", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(item.CatalogKey, "CA647", StringComparison.OrdinalIgnoreCase)))
+        {
+            if (!EquipmentVisuals.IsCostume(item.CatalogKey))
+            {
+                Message = "Costume model is not configured. The original armour was not changed.";
+                return;
+            }
+            var clearing = _state.CostumeItemId == item.InstanceId;
+            SendInventory(new InventoryCommand(Guid.NewGuid(), _state.InventoryRevision,
+                clearing ? InventoryAction.ClearCostume : InventoryAction.WearCostume,
+                clearing ? Guid.Empty : item.InstanceId, 0, 0, default));
+            return;
+        }
+
         if (!item.Equipped && QuestItemUse?.Invoke(item) == true)
         {
             return;

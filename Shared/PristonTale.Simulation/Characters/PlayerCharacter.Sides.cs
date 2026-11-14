@@ -47,8 +47,10 @@ public sealed partial class PlayerCharacter
         }
 
         Inventory.Changed -= OnInventoryChanged;
+        HiddenBag.Changed -= OnHiddenBagChanged;
         (Inventory, HiddenBag) = (HiddenBag, Inventory);
         Inventory.Changed += OnInventoryChanged;
+        HiddenBag.Changed += OnHiddenBagChanged;
         BagPage = page;
         OnInventoryChanged();
         return true;
