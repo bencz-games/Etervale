@@ -1,0 +1,726 @@
+{
+  "CA547": {
+    "gender": "male",
+    "variants": {
+      "40": {
+        "0": {
+          "inx": "char/tmABCD/Ca040.inx",
+          "mesh": "char/tmABCD/CtmbA40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        },
+        "1": {
+          "inx": "char/tmABCD/Cb040.inx",
+          "mesh": "char/tmABCD/CtmbB40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        },
+        "2": {
+          "inx": "char/tmABCD/Cc040.inx",
+          "mesh": "char/tmABCD/CtmbC40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        },
+        "4": {
+          "inx": "char/tmABCD/Cma040.inx",
+          "mesh": "char/tmABCD/CmmbA40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        },
+        "7": {
+          "inx": "char/tmABCD/Cmd040.inx",
+          "mesh": "char/tmABCD/CmmbD40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme040.inx",
+          "mesh": "char/tmABCD/CmmbE40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        }
+      }
+    }
+  },
+  "CA647": {
+    "gender": "male",
+    "variants": {
+      "40": {
+        "0": {
+          "inx": "char/tmABCD/Ca040.inx",
+          "mesh": "char/tmABCD/CtmbA40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        },
+        "1": {
+          "inx": "char/tmABCD/Cb040.inx",
+          "mesh": "char/tmABCD/CtmbB40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        },
+        "2": {
+          "inx": "char/tmABCD/Cc040.inx",
+          "mesh": "char/tmABCD/CtmbC40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        },
+        "4": {
+          "inx": "char/tmABCD/Cma040.inx",
+          "mesh": "char/tmABCD/CmmbA40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        },
+        "7": {
+          "inx": "char/tmABCD/Cmd040.inx",
+          "mesh": "char/tmABCD/CmmbD40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme040.inx",
+          "mesh": "char/tmABCD/CmmbE40.smd",
+          "texturas": "char\\tmABCD\\man_hopy.tga"
+        }
+      }
+    }
+  },
+  "CA548": {
+    "gender": "female",
+    "variants": {
+      "40": {
+        "3": {
+          "inx": "char/tmABCD/Cd040.inx",
+          "mesh": "char/tmABCD/CtfbD40.smd",
+          "texturas": "char\\tmABCD\\ar_qupy.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/Cmb040.inx",
+          "mesh": "char/tmABCD/CmfbB40.smd",
+          "texturas": "char\\tmABCD\\ar_qupy.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/Cmc040.inx",
+          "mesh": "char/tmABCD/CmfbC40.smd",
+          "texturas": "char\\tmABCD\\ar_qupy.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce040.inx",
+          "mesh": "char/tmABCD/CtfbE40.smd",
+          "texturas": "char\\tmABCD\\as_qupy.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf040.inx",
+          "mesh": "char/tmABCD/CtfbF40.smd",
+          "texturas": "char\\tmABCD\\ar_qupy.tga | char\\tmABCD\\gr_qupy.tga"
+        }
+      }
+    }
+  },
+  "CA648": {
+    "gender": "female",
+    "variants": {
+      "40": {
+        "3": {
+          "inx": "char/tmABCD/Cd040.inx",
+          "mesh": "char/tmABCD/CtfbD40.smd",
+          "texturas": "char\\tmABCD\\ar_qupy.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/Cmb040.inx",
+          "mesh": "char/tmABCD/CmfbB40.smd",
+          "texturas": "char\\tmABCD\\ar_qupy.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/Cmc040.inx",
+          "mesh": "char/tmABCD/CmfbC40.smd",
+          "texturas": "char\\tmABCD\\ar_qupy.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce040.inx",
+          "mesh": "char/tmABCD/CtfbE40.smd",
+          "texturas": "char\\tmABCD\\as_qupy.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf040.inx",
+          "mesh": "char/tmABCD/CtfbF40.smd",
+          "texturas": "char\\tmABCD\\ar_qupy.tga | char\\tmABCD\\gr_qupy.tga"
+        }
+      }
+    }
+  },
+  "DA148": {
+    "gender": "female",
+    "variants": {
+      "6": {
+        "3": {
+          "inx": "char/tmABCD/cd006.inx",
+          "mesh": "char/tmABCD/CtfbD006.smd",
+          "texturas": "char\\tmABCD\\girl_new.bmp"
+        },
+        "5": {
+          "inx": "char/tmABCD/cmb006.inx",
+          "mesh": "char/tmABCD/CmfbB06.smd",
+          "texturas": "char\\tmABCD\\girl_new.bmp"
+        },
+        "6": {
+          "inx": "char/tmABCD/cmc006.inx",
+          "mesh": "char/tmABCD/CmfbC06.smd",
+          "texturas": "char\\tmABCD\\girl_new.bmp"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce006.inx",
+          "mesh": "char/tmABCD/CtfbE06.smd",
+          "texturas": "char\\tmABCD\\girl_new.bmp"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf006.inx",
+          "mesh": "char/tmABCD/CtfbF06.smd",
+          "texturas": "char\\tmABCD\\girl_new.bmp"
+        }
+      }
+    }
+  },
+  "DA248": {
+    "gender": "female",
+    "variants": {
+      "6": {
+        "3": {
+          "inx": "char/tmABCD/cd006.inx",
+          "mesh": "char/tmABCD/CtfbD006.smd",
+          "texturas": "char\\tmABCD\\girl_new.bmp"
+        },
+        "5": {
+          "inx": "char/tmABCD/cmb006.inx",
+          "mesh": "char/tmABCD/CmfbB06.smd",
+          "texturas": "char\\tmABCD\\girl_new.bmp"
+        },
+        "6": {
+          "inx": "char/tmABCD/cmc006.inx",
+          "mesh": "char/tmABCD/CmfbC06.smd",
+          "texturas": "char\\tmABCD\\girl_new.bmp"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce006.inx",
+          "mesh": "char/tmABCD/CtfbE06.smd",
+          "texturas": "char\\tmABCD\\girl_new.bmp"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf006.inx",
+          "mesh": "char/tmABCD/CtfbF06.smd",
+          "texturas": "char\\tmABCD\\girl_new.bmp"
+        }
+      }
+    }
+  },
+  "DA157": {
+    "gender": "female",
+    "variants": {
+      "13": {
+        "3": {
+          "inx": "char/tmABCD/cd013.inx",
+          "mesh": "char/tmABCD/CtfbD13.smd",
+          "texturas": "char\\tmABCD\\ar_weding.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/cmb013.inx",
+          "mesh": "char/tmABCD/CmfbB13.smd",
+          "texturas": "char\\tmABCD\\atal_wedding.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/cmc013.inx",
+          "mesh": "char/tmABCD/CmfbC13.smd",
+          "texturas": "char\\tmABCD\\pr_wedding.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce013.inx",
+          "mesh": "char/tmABCD/CtfbE13.smd",
+          "texturas": "char\\tmABCD\\as_wedding.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf013.inx",
+          "mesh": "char/tmABCD/CtfbF13.smd",
+          "texturas": "char\\tmABCD\\gr_wedding.tga"
+        }
+      }
+    }
+  },
+  "DA257": {
+    "gender": "female",
+    "variants": {
+      "13": {
+        "3": {
+          "inx": "char/tmABCD/cd013.inx",
+          "mesh": "char/tmABCD/CtfbD13.smd",
+          "texturas": "char\\tmABCD\\ar_weding.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/cmb013.inx",
+          "mesh": "char/tmABCD/CmfbB13.smd",
+          "texturas": "char\\tmABCD\\atal_wedding.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/cmc013.inx",
+          "mesh": "char/tmABCD/CmfbC13.smd",
+          "texturas": "char\\tmABCD\\pr_wedding.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce013.inx",
+          "mesh": "char/tmABCD/CtfbE13.smd",
+          "texturas": "char\\tmABCD\\as_wedding.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf013.inx",
+          "mesh": "char/tmABCD/CtfbF13.smd",
+          "texturas": "char\\tmABCD\\gr_wedding.tga"
+        }
+      }
+    }
+  },
+  "DA159": {
+    "gender": "female",
+    "variants": {
+      "14": {
+        "3": {
+          "inx": "char/tmABCD/Cd014.inx",
+          "mesh": "char/tmABCD/CtfbD14.smd",
+          "texturas": "char\\tmABCD\\ar_chinadress.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/Cmb014.inx",
+          "mesh": "char/tmABCD/CmfbB14.smd",
+          "texturas": "char\\tmABCD\\atal_chinadress.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/Cmc014.inx",
+          "mesh": "char/tmABCD/CmfbC14.smd",
+          "texturas": "char\\tmABCD\\pr_chinadress.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce014.inx",
+          "mesh": "char/tmABCD/CtfbE14.smd",
+          "texturas": "char\\tmABCD\\as_chinadress.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf014.inx",
+          "mesh": "char/tmABCD/CtfbF14.smd",
+          "texturas": "char\\tmABCD\\gr_chinadress.tga"
+        }
+      }
+    }
+  },
+  "DA259": {
+    "gender": "female",
+    "variants": {
+      "14": {
+        "3": {
+          "inx": "char/tmABCD/Cd014.inx",
+          "mesh": "char/tmABCD/CtfbD14.smd",
+          "texturas": "char\\tmABCD\\ar_chinadress.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/Cmb014.inx",
+          "mesh": "char/tmABCD/CmfbB14.smd",
+          "texturas": "char\\tmABCD\\atal_chinadress.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/Cmc014.inx",
+          "mesh": "char/tmABCD/CmfbC14.smd",
+          "texturas": "char\\tmABCD\\pr_chinadress.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce014.inx",
+          "mesh": "char/tmABCD/CtfbE14.smd",
+          "texturas": "char\\tmABCD\\as_chinadress.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf014.inx",
+          "mesh": "char/tmABCD/CtfbF14.smd",
+          "texturas": "char\\tmABCD\\gr_chinadress.tga"
+        }
+      }
+    }
+  },
+  "DA160": {
+    "gender": "male",
+    "variants": {
+      "15": {
+        "0": {
+          "inx": "char/tmABCD/ca015.inx",
+          "mesh": "char/tmABCD/CtmbA15.smd",
+          "texturas": "char\\tmABCD\\meca_kimono.tga"
+        },
+        "1": {
+          "inx": "char/tmABCD/cb015.inx",
+          "mesh": "char/tmABCD/CtmbB15.smd",
+          "texturas": "char\\tmABCD\\fig_kimono.tga"
+        },
+        "2": {
+          "inx": "char/tmABCD/cc015.inx",
+          "mesh": "char/tmABCD/CtmbC15.smd",
+          "texturas": "char\\tmABCD\\pike_kimono.tga"
+        },
+        "4": {
+          "inx": "char/tmABCD/cma015.inx",
+          "mesh": "char/tmABCD/CmmbA15.smd",
+          "texturas": "char\\tmABCD\\knight_kimono.tga"
+        },
+        "7": {
+          "inx": "char/tmABCD/cmd015.inx",
+          "mesh": "char/tmABCD/CmmbD15.smd",
+          "texturas": "char\\tmABCD\\megi_kimono.tga"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme015.inx",
+          "mesh": "char/tmABCD/CmmbE15.smd",
+          "texturas": "char\\tmABCD\\sh_kimono.tga"
+        }
+      }
+    }
+  },
+  "DA260": {
+    "gender": "male",
+    "variants": {
+      "15": {
+        "0": {
+          "inx": "char/tmABCD/ca015.inx",
+          "mesh": "char/tmABCD/CtmbA15.smd",
+          "texturas": "char\\tmABCD\\meca_kimono.tga"
+        },
+        "1": {
+          "inx": "char/tmABCD/cb015.inx",
+          "mesh": "char/tmABCD/CtmbB15.smd",
+          "texturas": "char\\tmABCD\\fig_kimono.tga"
+        },
+        "2": {
+          "inx": "char/tmABCD/cc015.inx",
+          "mesh": "char/tmABCD/CtmbC15.smd",
+          "texturas": "char\\tmABCD\\pike_kimono.tga"
+        },
+        "4": {
+          "inx": "char/tmABCD/cma015.inx",
+          "mesh": "char/tmABCD/CmmbA15.smd",
+          "texturas": "char\\tmABCD\\knight_kimono.tga"
+        },
+        "7": {
+          "inx": "char/tmABCD/cmd015.inx",
+          "mesh": "char/tmABCD/CmmbD15.smd",
+          "texturas": "char\\tmABCD\\megi_kimono.tga"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme015.inx",
+          "mesh": "char/tmABCD/CmmbE15.smd",
+          "texturas": "char\\tmABCD\\sh_kimono.tga"
+        }
+      }
+    }
+  },
+  "DA161": {
+    "gender": "female",
+    "variants": {
+      "15": {
+        "3": {
+          "inx": "char/tmABCD/cd015.inx",
+          "mesh": "char/tmABCD/CtfbD15.smd",
+          "texturas": "char\\tmABCD\\ar_kimono.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/cmb015.inx",
+          "mesh": "char/tmABCD/CmfbB15.smd",
+          "texturas": "char\\tmABCD\\atal_kimono.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/cmc015.inx",
+          "mesh": "char/tmABCD/CmfbC15.smd",
+          "texturas": "char\\tmABCD\\pr_kimono.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce015.inx",
+          "mesh": "char/tmABCD/CtfbE15.smd",
+          "texturas": "char\\tmABCD\\as_kimono.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf015.inx",
+          "mesh": "char/tmABCD/CtfbF15.smd",
+          "texturas": "char\\tmABCD\\gr_kimono.tga"
+        }
+      }
+    }
+  },
+  "DA261": {
+    "gender": "female",
+    "variants": {
+      "15": {
+        "3": {
+          "inx": "char/tmABCD/cd015.inx",
+          "mesh": "char/tmABCD/CtfbD15.smd",
+          "texturas": "char\\tmABCD\\ar_kimono.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/cmb015.inx",
+          "mesh": "char/tmABCD/CmfbB15.smd",
+          "texturas": "char\\tmABCD\\atal_kimono.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/cmc015.inx",
+          "mesh": "char/tmABCD/CmfbC15.smd",
+          "texturas": "char\\tmABCD\\pr_kimono.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce015.inx",
+          "mesh": "char/tmABCD/CtfbE15.smd",
+          "texturas": "char\\tmABCD\\as_kimono.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf015.inx",
+          "mesh": "char/tmABCD/CtfbF15.smd",
+          "texturas": "char\\tmABCD\\gr_kimono.tga"
+        }
+      }
+    }
+  },
+  "DA164": {
+    "gender": "male",
+    "variants": {
+      "28": {
+        "0": {
+          "inx": "char/tmABCD/Ca028.inx",
+          "mesh": "char/tmABCD/CtmbA28.smd",
+          "texturas": "char\\tmABCD\\meca_hanbok01.tga | char\\tmABCD\\sh_hanbok01.tga"
+        },
+        "1": {
+          "inx": "char/tmABCD/Cb028.inx",
+          "mesh": "char/tmABCD/CtmbB28.smd",
+          "texturas": "char\\tmABCD\\fig_hanbok01.tga"
+        },
+        "2": {
+          "inx": "char/tmABCD/Cc028.inx",
+          "mesh": "char/tmABCD/CtmbC28.smd",
+          "texturas": "char\\tmABCD\\pike_hanbok01.tga"
+        },
+        "4": {
+          "inx": "char/tmABCD/Cma028.inx",
+          "mesh": "char/tmABCD/CmmbA28.smd",
+          "texturas": "char\\tmABCD\\kni_hanbok01.tga"
+        },
+        "7": {
+          "inx": "char/tmABCD/Cmd028.inx",
+          "mesh": "char/tmABCD/CmmbD28.smd",
+          "texturas": "char\\tmABCD\\megi_hanbok01.tga"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme028.inx",
+          "mesh": "char/tmABCD/CmmbE28.smd",
+          "texturas": "char\\tmABCD\\sh_hanbok01.tga"
+        }
+      },
+      "29": {
+        "0": {
+          "inx": "char/tmABCD/Ca029.inx",
+          "mesh": "char/tmABCD/CtmbA29.smd",
+          "texturas": "char\\tmABCD\\meca_hanbok02.tga"
+        },
+        "1": {
+          "inx": "char/tmABCD/Cb029.inx",
+          "mesh": "char/tmABCD/CtmbB29.smd",
+          "texturas": "char\\tmABCD\\fig_hanbok02.tga"
+        },
+        "2": {
+          "inx": "char/tmABCD/Cc029.inx",
+          "mesh": "char/tmABCD/CtmbC29.smd",
+          "texturas": "char\\tmABCD\\pike_hanbok02.tga"
+        },
+        "4": {
+          "inx": "char/tmABCD/Cma029.inx",
+          "mesh": "char/tmABCD/CmmbA29.smd",
+          "texturas": "char\\tmABCD\\kni_hanbok02.tga"
+        },
+        "7": {
+          "inx": "char/tmABCD/Cmd029.inx",
+          "mesh": "char/tmABCD/CmmbD29.smd",
+          "texturas": "char\\tmABCD\\megi_hanbok02.tga"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme029.inx",
+          "mesh": "char/tmABCD/CmmbE29.smd",
+          "texturas": "char\\tmABCD\\sh_hanbok01.tga | char\\tmABCD\\sh_hanbok02.tga"
+        }
+      }
+    }
+  },
+  "DA264": {
+    "gender": "male",
+    "variants": {
+      "28": {
+        "0": {
+          "inx": "char/tmABCD/Ca028.inx",
+          "mesh": "char/tmABCD/CtmbA28.smd",
+          "texturas": "char\\tmABCD\\meca_hanbok01.tga | char\\tmABCD\\sh_hanbok01.tga"
+        },
+        "1": {
+          "inx": "char/tmABCD/Cb028.inx",
+          "mesh": "char/tmABCD/CtmbB28.smd",
+          "texturas": "char\\tmABCD\\fig_hanbok01.tga"
+        },
+        "2": {
+          "inx": "char/tmABCD/Cc028.inx",
+          "mesh": "char/tmABCD/CtmbC28.smd",
+          "texturas": "char\\tmABCD\\pike_hanbok01.tga"
+        },
+        "4": {
+          "inx": "char/tmABCD/Cma028.inx",
+          "mesh": "char/tmABCD/CmmbA28.smd",
+          "texturas": "char\\tmABCD\\kni_hanbok01.tga"
+        },
+        "7": {
+          "inx": "char/tmABCD/Cmd028.inx",
+          "mesh": "char/tmABCD/CmmbD28.smd",
+          "texturas": "char\\tmABCD\\megi_hanbok01.tga"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme028.inx",
+          "mesh": "char/tmABCD/CmmbE28.smd",
+          "texturas": "char\\tmABCD\\sh_hanbok01.tga"
+        }
+      },
+      "29": {
+        "0": {
+          "inx": "char/tmABCD/Ca029.inx",
+          "mesh": "char/tmABCD/CtmbA29.smd",
+          "texturas": "char\\tmABCD\\meca_hanbok02.tga"
+        },
+        "1": {
+          "inx": "char/tmABCD/Cb029.inx",
+          "mesh": "char/tmABCD/CtmbB29.smd",
+          "texturas": "char\\tmABCD\\fig_hanbok02.tga"
+        },
+        "2": {
+          "inx": "char/tmABCD/Cc029.inx",
+          "mesh": "char/tmABCD/CtmbC29.smd",
+          "texturas": "char\\tmABCD\\pike_hanbok02.tga"
+        },
+        "4": {
+          "inx": "char/tmABCD/Cma029.inx",
+          "mesh": "char/tmABCD/CmmbA29.smd",
+          "texturas": "char\\tmABCD\\kni_hanbok02.tga"
+        },
+        "7": {
+          "inx": "char/tmABCD/Cmd029.inx",
+          "mesh": "char/tmABCD/CmmbD29.smd",
+          "texturas": "char\\tmABCD\\megi_hanbok02.tga"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme029.inx",
+          "mesh": "char/tmABCD/CmmbE29.smd",
+          "texturas": "char\\tmABCD\\sh_hanbok01.tga | char\\tmABCD\\sh_hanbok02.tga"
+        }
+      }
+    }
+  },
+  "DA165": {
+    "gender": "female",
+    "variants": {
+      "28": {
+        "3": {
+          "inx": "char/tmABCD/Cd028.inx",
+          "mesh": "char/tmABCD/CtfbD28.smd",
+          "texturas": "char\\tmABCD\\ar_hanbok01.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/Cmb028.inx",
+          "mesh": "char/tmABCD/CmfbB28.smd",
+          "texturas": "char\\tmABCD\\atal_hanbok01.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/Cmc028.inx",
+          "mesh": "char/tmABCD/CmfbC28.smd",
+          "texturas": "char\\tmABCD\\pr_hanbok01.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce028.inx",
+          "mesh": "char/tmABCD/CtfbE28.smd",
+          "texturas": "char\\tmABCD\\as_hanbok01.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf028.inx",
+          "mesh": "char/tmABCD/CtfbF28.smd",
+          "texturas": "char\\tmABCD\\gr_hanbok01.tga"
+        }
+      },
+      "29": {
+        "3": {
+          "inx": "char/tmABCD/Cd029.inx",
+          "mesh": "char/tmABCD/CtfbD29.smd",
+          "texturas": "char\\tmABCD\\ar_hanbok02.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/Cmb029.inx",
+          "mesh": "char/tmABCD/CmfbB29.smd",
+          "texturas": "char\\tmABCD\\atal_hanbok02.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/Cmc029.inx",
+          "mesh": "char/tmABCD/CmfbC29.smd",
+          "texturas": "char\\tmABCD\\pr_hanbok02.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce029.inx",
+          "mesh": "char/tmABCD/CtfbE29.smd",
+          "texturas": "char\\tmABCD\\as_hanbok02.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf029.inx",
+          "mesh": "char/tmABCD/CtfbF29.smd",
+          "texturas": "char\\tmABCD\\gr_hanbok02.tga"
+        }
+      }
+    }
+  },
+  "DA265": {
+    "gender": "female",
+    "variants": {
+      "28": {
+        "3": {
+          "inx": "char/tmABCD/Cd028.inx",
+          "mesh": "char/tmABCD/CtfbD28.smd",
+          "texturas": "char\\tmABCD\\ar_hanbok01.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/Cmb028.inx",
+          "mesh": "char/tmABCD/CmfbB28.smd",
+          "texturas": "char\\tmABCD\\atal_hanbok01.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/Cmc028.inx",
+          "mesh": "char/tmABCD/CmfbC28.smd",
+          "texturas": "char\\tmABCD\\pr_hanbok01.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce028.inx",
+          "mesh": "char/tmABCD/CtfbE28.smd",
+          "texturas": "char\\tmABCD\\as_hanbok01.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf028.inx",
+          "mesh": "char/tmABCD/CtfbF28.smd",
+          "texturas": "char\\tmABCD\\gr_hanbok01.tga"
+        }
+      },
+      "29": {
+        "3": {
+          "inx": "char/tmABCD/Cd029.inx",
+          "mesh": "char/tmABCD/CtfbD29.smd",
+          "texturas": "char\\tmABCD\\ar_hanbok02.tga"
+        },
+        "5": {
+          "inx": "char/tmABCD/Cmb029.inx",
+          "mesh": "char/tmABCD/CmfbB29.smd",
+          "texturas": "char\\tmABCD\\atal_hanbok02.tga"
+        },
+        "6": {
+          "inx": "char/tmABCD/Cmc029.inx",
+          "mesh": "char/tmABCD/CmfbC29.smd",
+          "texturas": "char\\tmABCD\\pr_hanbok02.tga"
+        },
+        "8": {
+          "inx": "char/tmABCD/Ce029.inx",
+          "mesh": "char/tmABCD/CtfbE29.smd",
+          "texturas": "char\\tmABCD\\as_hanbok02.tga"
+        },
+        "10": {
+          "inx": "char/tmABCD/Cf029.inx",
+          "mesh": "char/tmABCD/CtfbF29.smd",
+          "texturas": "char\\tmABCD\\gr_hanbok02.tga"
+        }
+      }
+    }
+  }
+}

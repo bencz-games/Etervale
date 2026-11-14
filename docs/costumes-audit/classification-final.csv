@@ -1,0 +1,225 @@
+﻿itemKey;name;source;gender;combat_exception;body_count;body_indices;final_gender;final_body_count;final_body_indices
+CA131;Male Party Armor(1Day);CA;male;False;0;;male;0;
+CA133;Female Party Armor(1Day);CA;female;False;0;;female;0;
+CA135;Male Apus Armor(7Days);CA;male;False;0;;male;0;
+CA137;Female Apus Armor(7Days);CA;female;False;0;;female;0;
+CA143;Male Sirius Armor(7Days);CA;male;False;0;;male;0;
+CA145;Female Sirius Armor(7Days);CA;female;False;0;;female;0;
+CA166;Male cygnus Armor(7Days);CA;male;False;0;;male;0;
+CA167;Male cygnus Armor(30Days);CA;male;False;0;;male;0;
+CA168;Female cygnus Armor(7Days);CA;female;False;0;;female;0;
+CA169;Female cygnus Armor(30Days);CA;female;False;0;;female;0;
+CA185;Male Aquila Armor(7Days);CA;male;False;0;;male;0;
+CA186;Male Aquila Armor(30Days);CA;male;False;0;;male;0;
+CA187;Female Aquila Armor(7Days);CA;female;False;0;;female;0;
+CA188;Female Aquila Armor(30Days);CA;female;False;0;;female;0;
+CA189;Male Corvus Armor(7Days);CA;male;False;0;;male;0;
+CA190;Male Corvus Armor(30Days);CA;male;False;0;;male;0;
+CA191;Female Corvus Armor(7Days);CA;female;False;0;;female;0;
+CA192;Female Corvus Armor(30Days);CA;female;False;0;;female;0;
+CA193;Male Caribbean Armor(7Days);CA;male;False;0;;male;0;
+CA194;Male Caribbean Armor(30Days);CA;male;False;0;;male;0;
+CA195;Female Caribbean Armor(7Days);CA;female;False;0;;female;0;
+CA196;Female Caribbean Armor(30Days);CA;female;False;0;;female;0;
+CA232;Male Party Robe(1Day);CA;male;False;0;;male;0;
+CA234;Female Party Robe(1Day);CA;female;False;0;;female;0;
+CA235;Male Apus Robe(7Days);CA;male;False;0;;male;0;
+CA237;Female Apus Robe(7Days);CA;female;False;0;;female;0;
+CA243;Male Sirius Robe(7Days);CA;male;False;0;;male;0;
+CA245;Female Sirius Robe(7Days);CA;female;False;0;;female;0;
+CA266;Male cygnus Robe(7Days);CA;male;False;0;;male;0;
+CA267;Male cygnus Robe(30Days);CA;male;False;0;;male;0;
+CA268;Female cygnus Robe(7Days);CA;female;False;0;;female;0;
+CA269;Female cygnus Robe(30Days);CA;female;False;0;;female;0;
+CA285;Male Aquila Robe(7Days);CA;male;False;0;;male;0;
+CA286;Male Aquila Robe(30Days);CA;male;False;0;;male;0;
+CA287;Female Aquila Robe(7Days);CA;female;False;0;;female;0;
+CA288;Female Aquila Robe(30Days);CA;female;False;0;;female;0;
+CA289;Male Corvus Robe(7Days);CA;male;False;0;;male;0;
+CA290;Male Corvus Robe(30Days);CA;male;False;0;;male;0;
+CA291;Female Corvus Robe(7Days);CA;female;False;0;;female;0;
+CA292;Female Corvus Robe(30Days);CA;female;False;0;;female;0;
+CA293;Male Caribbean Robe(7Days);CA;male;False;0;;male;0;
+CA294;Male Caribbean Robe(30Days);CA;male;False;0;;male;0;
+CA295;Female Caribbean Robe(7Days);CA;female;False;0;;female;0;
+CA296;Female Caribbean Robe(30Days);CA;female;False;0;;female;0;
+CA501;Male Elegance Hanbok Armor(1Day);CA;male;False;0;;male;0;
+CA502;Female Elegance Hanbok Armor(1Day);CA;female;False;0;;female;0;
+CA503;Male Beautiful Hanbok Armor(1Day);CA;male;False;0;;male;0;
+CA504;Male Beautiful Hanbok Armor(7Days);CA;male;False;0;;male;0;
+CA505;Female Beautiful Hanbok Armor(1Day);CA;female;False;0;;female;0;
+CA506;Female Beautiful Hanbok Armor(7Days);CA;female;False;0;;female;0;
+CA507;Black Tuxedo(1Day);CA;male;False;0;;male;0;
+CA508;Black Dress(1Day);CA;female;False;0;;female;0;
+CA509;Vampire Armor(7Days);CA;male;False;0;;male;0;
+CA510;Vampire Armor(30Days);CA;male;False;0;;male;0;
+CA511;Succubus Armor(7Days);CA;female;False;0;;female;0;
+CA512;Succubus Armor(30Days);CA;female;False;0;;female;0;
+CA515;Male Dandy Santa Armor(7Days);CA;male;False;0;;male;0;
+CA516;Female Sexy Santa Armor(7Days);CA;female;False;0;;female;0;
+CA517;Romantic Tuxedo(7Days);CA;male;False;0;;male;0;
+CA518;Romantic Tuxedo(30Days);CA;male;False;0;;male;0;
+CA519;Romantic Dress(7Days);CA;female;False;0;;female;0;
+CA520;Romantic Dress(30Days);CA;female;False;0;;female;0;
+CA521;Male Mechanic Amor(7Days);CA;male;False;0;;male;0;
+CA522;Male Mechanic Amor(30Days);CA;male;False;0;;male;0;
+CA523;Female Mechanic Amor(7Days);CA;female;False;0;;female;0;
+CA524;Female Mechanic Amor(30Days);CA;female;False;0;;female;0;
+CA525;Male Fighting Armor(3Days);CA;male;False;0;;male;0;
+CA526;Male Fighting Armor(30Days);CA;male;False;0;;male;0;
+CA527;Female Fighting Armor(3Days);CA;female;False;0;;female;0;
+CA528;Female Fighting Armor(30Days);CA;female;False;0;;female;0;
+CA531;Male Schoolook Armor(7Days);CA;male;False;0;;male;0;
+CA532;Male Schoolook Armor(30Days);CA;male;False;0;;male;0;
+CA533;Female Schoolook Armor(7Days);CA;female;False;0;;female;0;
+CA534;Female Schoolook Armor(30Days);CA;female;False;0;;female;0;
+CA535;Male Old Schoolook Armor(7Days);CA;male;False;0;;male;0;
+CA536;Male Old Schoolook Armor(30Days);CA;male;False;0;;male;0;
+CA537;Female Old Schoolook Armor(7Days);CA;female;False;0;;female;0;
+CA538;Female Old Schoolook Armor(30Days);CA;female;False;0;;female;0;
+CA539;Male Battle Dress Armor(7Days);CA;male;False;0;;male;0;
+CA540;Male Battle Dress Armor(30Days);CA;male;False;0;;male;0;
+CA541;Female Battle Dress Armor(7Days);CA;female;False;0;;female;0;
+CA542;Female Battle Dress Armor(30Days);CA;female;False;0;;female;0;
+CA543;Male Battle Uniform Armor(7Days);CA;male;False;0;;male;0;
+CA544;Male Battle Uniform Armor(30Days);CA;male;False;0;;male;0;
+CA545;Female Battle Uniform Armor(7Days);CA;female;False;0;;female;0;
+CA546;Female Battle Uniform Armor(30Days);CA;female;False;0;;female;0;
+CA547;Hopy Costume(1Day);CA;any;False;1;7;male;6;0,1,2,4,7,9
+CA548;Cupy Costume(1Day);CA;any;False;0;;female;5;3,5,6,8,10
+CA601;Male Elegance Hanbok Armor(1Day);CA;male;False;0;;male;0;
+CA602;Female Elegance Hanbok Armor(1Day);CA;female;False;0;;female;0;
+CA603;Male Beautiful Hanbok Robe(1Day);CA;male;False;0;;male;0;
+CA604;Male Beautiful Hanbok Robe(7Days);CA;male;False;0;;male;0;
+CA605;Female Beautiful Hanbok Robe(1Day);CA;female;False;0;;female;0;
+CA606;Female Beautiful Hanbok Robe(7Days);CA;female;False;0;;female;0;
+CA607;Black Tuxedo(1Day);CA;male;False;0;;male;0;
+CA608;Black Dress(1Day);CA;female;False;0;;female;0;
+CA609;Vampire Robe(7Days);CA;male;False;0;;male;0;
+CA610;Vampire Robe(30Days);CA;male;False;0;;male;0;
+CA611;Succubus Robe(7Days);CA;female;False;0;;female;0;
+CA612;Succubus Robe(30Days);CA;female;False;0;;female;0;
+CA615;Male Dandy Santa Robe(7Days);CA;male;False;0;;male;0;
+CA616;Female Sexy Santa Robe(7Days);CA;female;False;0;;female;0;
+CA617;Romantic Tuxedo(7Days);CA;male;False;0;;male;0;
+CA618;Romantic Tuxedo(30Days);CA;male;False;0;;male;0;
+CA619;Romantic Dress(7Days);CA;female;False;0;;female;0;
+CA620;Romantic Dress(30Days);CA;female;False;0;;female;0;
+CA621;Male Mechanic Robe(7Days);CA;male;False;0;;male;0;
+CA622;Male Mechanic Robe(30Days);CA;male;False;0;;male;0;
+CA623;Female Mechanic Robe(7Days);CA;female;False;0;;female;0;
+CA624;Female Mechanic Robe(30Days);CA;female;False;0;;female;0;
+CA625;Male Fighting Robe(3Days);CA;male;False;0;;male;0;
+CA626;Male Fighting Robe(30Days);CA;male;False;0;;male;0;
+CA627;Female Fighting Robe(3Days);CA;female;False;0;;female;0;
+CA628;Female Fighting Robe(30Days);CA;female;False;0;;female;0;
+CA631;Male Schoolook Robe(7Days);CA;male;False;0;;male;0;
+CA632;Male Schoolook Robe(30Days);CA;male;False;0;;male;0;
+CA633;Female Schoolook Robe(7Days);CA;female;False;0;;female;0;
+CA634;Female Schoolook Robe(30Days);CA;female;False;0;;female;0;
+CA635;Male Old Schoolook Robe(7Days);CA;male;False;0;;male;0;
+CA636;Male Old Schoolook Robe(30Days);CA;male;False;0;;male;0;
+CA637;Female Old Schoolook Robe(7Days);CA;female;False;0;;female;0;
+CA638;Female Old Schoolook Robe(30Days);CA;female;False;0;;female;0;
+CA639;Male Military Dress Robe(7Days);CA;male;False;0;;male;0;
+CA640;Male Military Dress Robe(30Days);CA;male;False;0;;male;0;
+CA641;Female Military Dress Robe(7Days);CA;female;False;0;;female;0;
+CA642;Female Military Dress Robe(30Days);CA;female;False;0;;female;0;
+CA643;Male Military Uniform Robe(7Days);CA;male;False;0;;male;0;
+CA644;Male Military Uniform Robe(30Days);CA;male;False;0;;male;0;
+CA645;Female Military Uniform Robe(7Days);CA;female;False;0;;female;0;
+CA646;Female Military Uniform Robe(30Days);CA;female;False;0;;female;0;
+CA647;Hopy Costume(1Day);CA;any;False;1;7;male;6;0,1,2,4,7,9
+CA648;Cupy Costume(1Day);CA;any;False;0;;female;5;3,5,6,8,10
+DA130;Imperial Armor;DA;any;True;0;;any;0;
+DA131;Party Costume(7Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA132;Party Costume(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA133;Party Costume(7Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA134;Party Costume(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA135;Idas Armor(7Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA136;Idas Armor(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA137;Idas Armor(7Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA138;Idas Armor(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA139;Silver Party Costume(7Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA140;Silver Party Costume(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA141;Silver Party Costume(7Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA142;Silver Party Costume(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA143;Taless Armor(7Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA144;Taless Armor(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA145;Taless Armor(7Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA146;Taless Armor(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA147;Korea replica;DA;any;False;11;0,1,2,3,4,5,6,7,8,9,10;any;11;0,1,2,3,4,5,6,7,8,9,10
+DA148;Korean dress;DA;female;False;2;8,10;female;5;3,5,6,8,10
+DA149;Gaia Armor;DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA150;Iris Armor;DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA151;Black Gaia Armor;DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA152;Black Iris Armor;DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA153;Soccer Armor;DA;any;False;0;;any;0;
+DA154;Beach Costume(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA155;Beach Costume(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA156;Tuxedo Armor(30Days);DA;male;False;0;;male;0;
+DA157;Weddingdress Armor(30Days);DA;female;False;0;;female;5;3,5,6,8,10
+DA158;Changpao Armor(30Days);DA;male;False;0;;male;0;
+DA159;Chipao Armor(30Days);DA;female;False;0;;female;5;3,5,6,8,10
+DA160;Male Kimono Armor(30Days);DA;male;False;0;;male;6;0,1,2,4,7,9
+DA161;Female Kimono Armor(30Days);DA;female;False;0;;female;5;3,5,6,8,10
+DA162;Red Male Santa Armor;DA;male;False;0;;male;0;
+DA163;Red Female Santa Armor;DA;female;False;0;;female;0;
+DA164;Male Korean Armor(30Days);DA;male;False;0;;male;6;0,1,2,4,7,9
+DA165;Female Korean Armor(30Days);DA;female;False;0;;female;5;3,5,6,8,10
+DA171;Lucy Khan Armor;DA;any;True;0;;any;0;
+DA172;Nox Khan Armor;DA;any;True;0;;any;0;
+DA173;Cealum Khan Armor;DA;any;True;0;;any;0;
+DA174;Ira Khan Armor;DA;any;True;0;;any;0;
+DA175;Vir Khan Armor;DA;any;True;0;;any;0;
+DA176;Green Male Santa Armor;DA;male;False;0;;male;0;
+DA177;Female Green Santa Armor;DA;female;False;0;;female;0;
+DA182;Wyvern Armor(5H);DA;any;True;0;;any;0;
+DA183;PhoeniX Armor(5H);DA;any;True;0;;any;0;
+DA184;Frenzy Armor(5H);DA;any;True;0;;any;0;
+DA230;Imperial Robe;DA;any;True;0;;any;0;
+DA231;Party Costume(7Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA232;Party Costume(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA233;Party Costume(7Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA234;Party Costume(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA235;Mardanos Robe(7Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA236;Mardanos Robe(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA237;Mardanos Robe(7Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA238;Mardanos Robe(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA239;Silver Party Costume(7Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA240;Silver Party Costume(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA241;Silver Party Costume(7Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA242;Silver Party Costume(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA243;Migal Robe(7Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA244;Migal Robe(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA245;Migal Robe(7Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA246;Migal Robe(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA247;Korea replica;DA;any;False;11;0,1,2,3,4,5,6,7,8,9,10;any;11;0,1,2,3,4,5,6,7,8,9,10
+DA248;Korean dress;DA;female;False;2;8,10;female;5;3,5,6,8,10
+DA249;Gaia Robe;DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA250;Iris Robe;DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA251;Black Gaia Robe;DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA252;Black Iris Robe;DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA253;Soccer Robe;DA;any;False;0;;any;0;
+DA254;Beach Costume(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
+DA255;Beach Costume(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
+DA256;Tuxedo Robe(30Days);DA;male;False;0;;male;0;
+DA257;Weddingdress Robe(30Days);DA;female;False;0;;female;5;3,5,6,8,10
+DA258;Changpao Robe(30Days);DA;male;False;0;;male;0;
+DA259;Chipao Robe(30Days);DA;female;False;0;;female;5;3,5,6,8,10
+DA260;Male Kimono Robe(30Days);DA;male;False;0;;male;6;0,1,2,4,7,9
+DA261;Female Kimono Robe(30Days);DA;female;False;0;;female;5;3,5,6,8,10
+DA262;Red Male Santa Robe;DA;male;False;0;;male;0;
+DA263;Red Female Santa Robe;DA;female;False;0;;female;0;
+DA264;Male Korean Robe(30Days);DA;male;False;0;;male;6;0,1,2,4,7,9
+DA265;Female Korean Robe(30Days);DA;female;False;0;;female;5;3,5,6,8,10
+DA271;Lucy Khan Robe;DA;any;True;0;;any;0;
+DA272;Nox Khan Robe;DA;any;True;0;;any;0;
+DA273;Cealum Khan Robe;DA;any;True;0;;any;0;
+DA274;Ira Khan Robe;DA;any;True;0;;any;0;
+DA275;Vir Khan Robe;DA;any;True;0;;any;0;
+DA276;Green Male Santa Robe;DA;male;False;0;;male;0;
+DA277;Green Female Santa Robe;DA;female;False;0;;female;0;
+DA282;Archon Robe(5H);DA;any;True;0;;any;0;
+DA283;Ruah Robe(5H);DA;any;True;0;;any;0;
+DA284;Eternal Robe(5H);DA;any;True;0;;any;0;

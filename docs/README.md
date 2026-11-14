@@ -24,6 +24,7 @@ where to look. Setup, build and run commands are in the root [README.md](../READ
 | [skills.md](skills.md) | Skill system end to end: class skill data, server resolution, opcodes, client skill UI and VFX hooks |
 | [quests.md](quests.md) | Quests end to end: quest families, rank-ups and the class tier, server authority, arena duels, quest UI |
 | [special-items.md](special-items.md) | Usable items end to end: premium timers, pets, travel items, scrolls, force orbs, firecrackers, item HUD |
+| [costumes.md](costumes.md) | Cosmetic wardrobe, gender policy, body mappings and inventory presentation |
 | [chat-and-gm.md](chat-and-gm.md) | Chat end to end: window, bubbles, routing, whispers, notices; game-master levels, commands and audit |
 | [application.md](application.md) | `Shared/PristonTale.Application`: use cases, sessions, `WorldServer`, tick, transactions, NPC services |
 | [server.md](server.md) | `Server/PristonTale.Server`: startup, hosted services, TCP edge, settings |

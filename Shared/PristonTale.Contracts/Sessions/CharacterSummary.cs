@@ -13,4 +13,7 @@ public sealed record CharacterSummary(
     string WeaponKey = "",
     string OffHandKey = "",
     bool InVillage = true,
-    string ClanName = "");
+    string ClanName = "")
+{
+    public string CostumeKey { get; init; } = "";
+}

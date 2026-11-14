@@ -508,7 +508,7 @@ internal sealed partial class ClientSession : IMovementVerdictSink
             throw new InvalidOperationException("JoinWorld before a successful EnterWorld.");
         }
 
-        var player = WorldPlayerFactory.Create(session);
+        var player = WorldPlayerFactory.Create(session, _services.World.Costumes);
         var outbox = new WorldOutbox();
         bool joined;
         try

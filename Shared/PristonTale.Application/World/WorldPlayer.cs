@@ -47,6 +47,7 @@ public sealed class WorldPlayer
     public int GameMasterLevel { get; init; }
 
     private readonly PlayerCharacter _character;
+    private readonly CostumeCatalog _costumes;
     private bool _inVillage;
 
     // The client owns locomotion and reports it with MovementReport. Reports spend a distance budget that refills at
@@ -263,7 +264,7 @@ public sealed class WorldPlayer
         _ => RegenerationPosture.Acting
     };
 
-    public WorldPlayer(ulong entityId, Vector3 position, PlayerCharacter character, bool inVillage, PlayerAppearanceView appearance)
+    public WorldPlayer(ulong entityId, Vector3 position, PlayerCharacter character, bool inVillage, PlayerAppearanceView appearance, CostumeCatalog? costumes = null)
     {
         if (!WorldPosition.IsValid(position))
         {
@@ -273,6 +274,7 @@ public sealed class WorldPlayer
         EntityId = entityId;
         Position = position;
         _character = character;
+        _costumes = costumes ?? CostumeCatalog.Empty;
         FlinchMs = MotionTiming.DurationMs(PlayerMotionFallback.GetClip(character.Class.Class, MotionCode.Damage).Frames, MotionCodes.DamageAndEatRate);
         _inVillage = inVillage;
         _appearance = appearance;
@@ -377,6 +379,7 @@ public sealed class WorldPlayer
     {
         WeaponKey = _character.GetEquipped(EquipmentSlot.Weapon)?.Definition.CatalogKey ?? "",
         ArmorKey = _character.GetEquipped(EquipmentSlot.Armor)?.Definition.CatalogKey ?? "",
+        CostumeKey = _character.ActiveCostumeKey(_costumes),
         OffHandKey = _character.GetEquipped(EquipmentSlot.OffHand)?.Definition.CatalogKey ?? "",
         WeaponGlow = HeldItemGlow.For(_character.GetEquipped(EquipmentSlot.Weapon)),
         OffHandGlow = HeldItemGlow.For(_character.GetEquipped(EquipmentSlot.OffHand)),

@@ -1,0 +1,2 @@
+6297a06e13b756ef0417248d8c969b1fc01582f27329ca4e32e42392f9d4d474  assets/summit/costumes.json
+984a78f347f45e17371dc3fb3b101083e9ecb73336fb9128fb0149c2d0af0988  assets/image/Sinimage/Inven/InfoBox/Costume.bmp
