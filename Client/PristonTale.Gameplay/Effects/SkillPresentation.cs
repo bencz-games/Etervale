@@ -238,6 +238,11 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
             case PendingKind.Launch:
                 Launch(skillEvent, rule);
                 break;
+            case PendingKind.PreImpact:
+                // Resolve the target position when the falling effect starts ahead of its chosen hit.
+                Spawn(rule.PreImpactEffect, skillEvent.CasterId, skillEvent.TargetId,
+                    Position(skillEvent.TargetId, skillEvent.Position), -skillEvent.Facing);
+                break;
         }
     }
 
@@ -262,6 +267,26 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
         }
 
         _sounds.Play(rule.CastSound, position, _host.ListenerPosition);
+        if (rule.PreImpactEffect.Length > 0)
+        {
+            // The Start event gives the first hit offset and total cast duration. Start the falling
+            // effect ahead of the configured hit without delaying authoritative damage.
+            var hitAtMs = (double)skillEvent.HitAtMs;
+            if (rule.PreImpactHitIndex > 0)
+            {
+                var motion = SkillFormulas.Plan(rule, skillEvent.Rank);
+                // The Start packet carries the real full duration. Use the authored event's share of the clip
+                // to align later hits even when the casting speed differs between players.
+                if (motion.Motion != SkillMotion.Attack && motion.Frames > 0 && rule.PreImpactHitIndex < motion.Events.Length)
+                {
+                    hitAtMs = (double)skillEvent.DurationMs * motion.Events[rule.PreImpactHitIndex] / motion.Frames;
+                }
+            }
+
+            var delay = Math.Max(0d, hitAtMs - rule.PreImpactLeadMs);
+            _pending.Add(new Pending(nowMs + delay, PendingKind.PreImpact, skillEvent, 0));
+        }
+
         if (rule.Projectile && rule.ProjectileEffect.Length > 0)
         {
             _pending.Add(new Pending(nowMs + skillEvent.HitAtMs, PendingKind.Launch, skillEvent, 0));
@@ -461,6 +486,8 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
 
     private void Cancel(ulong casterId)
     {
+        // A cancelled cast must not start its pending falling effect later.
+        _pending.RemoveAll(pending => pending.Kind == PendingKind.PreImpact && pending.Event.CasterId == casterId);
         Looks.Cancel(casterId);
         if (_projectiles.Remove(casterId, out var projectile))
         {
@@ -662,7 +689,8 @@ public sealed class SkillPresentation : IVfxServices, IDisposable
     {
         Event,
         Loop,
-        Launch
+        Launch,
+        PreImpact
     }
 
     private readonly record struct Pending(double AtMs, PendingKind Kind, SkillEventInfo Event, int Loop);

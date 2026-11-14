@@ -156,6 +156,7 @@ public sealed class GameMasterCommands
         new("/player_location", GameMasterLevel.Moderator, GmPlayerCommands.Location),
         new("/expup", TestOrAdministrator, GmItemCommands.ExperienceUp),
         new("/GiveMeExp!", TestOrAdministrator, GmItemCommands.Experience),
+        new("/unlocktier", GameMasterLevel.Administrator, GmProgressionCommands.UnlockTier),
         new("/GiveMeMoney!", TestOrAdministrator, GmItemCommands.Gold),
         new("/user", GameMasterLevel.Guide, GmInformationCommands.Users),
         new("/sockets", GameMasterLevel.Guide, GmInformationCommands.Sockets),

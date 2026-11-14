@@ -247,11 +247,17 @@ internal static class SkillLookTests
         Assert.True(SkillPresentation.ImpactEffectOf(cross, start, 0) == "vfx.knight.grandcross.hit"
             && SkillPresentation.ImpactEffectOf(cross, start, 1) == "vfx.knight.grandcross.hit2"
             && SkillPresentation.ImpactEffectOf(cross, start, 5) == "vfx.knight.grandcross.hit2", "grand cross per-hit effects");
-        // Meteo's meteors fall, and sound, on both of its clip's events.
+        // The first Meteo strike has immediate feedback; the meteor starts falling ahead of
+        // the second authoritative strike, rather than spawning another fall at that hit.
         var meteo = Rule(Meteo);
-        Assert.True(SkillPresentation.ImpactEffectOf(meteo, start, 0) == "vfx.magician.meteo.fall" && SkillPresentation.ImpactEffectOf(meteo, start, 1) == "vfx.magician.meteo.fall"
-            && SkillPresentation.ImpactSoundFor(meteo, 0, 1, 5, random).Length > 0 && SkillPresentation.ImpactSoundFor(meteo, 1, 1, 5, random).Length > 0,
-            "meteo's meteors or sound are missing on one of its two strikes");
+        var meteoStart = Cast(Self, Meteo);
+        Assert.True(SkillPresentation.ImpactEffectOf(meteo, meteoStart, 0) == "vfx.magician.meteo.hit"
+            && SkillPresentation.ImpactEffectOf(meteo, meteoStart, 1).Length == 0
+            && SkillPresentation.ImpactSoundFor(meteo, 0, 1, 5, random).Length > 0
+            && SkillPresentation.ImpactSoundFor(meteo, 1, 1, 5, random).Length == 0
+            && meteo.PreImpactEffect == "vfx.magician.meteo.fall"
+            && meteo.PreImpactHitIndex == 1 && meteo.PreImpactLeadMs == 970f,
+            "meteo must show and sound its first strike, then fall before the silent second strike");
         return Task.CompletedTask;
     }
 

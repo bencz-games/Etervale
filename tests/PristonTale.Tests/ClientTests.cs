@@ -399,6 +399,10 @@ internal static class ClientTests
 
         var enclosingRay = new Ray(Vector3.Zero, Vector3.Forward);
         Assert.True(CursorPicking.IntersectSphere(enclosingRay, Vector3.Zero, 40f) is null, "camera inside an NPC volume made every cursor direction a hit");
+        Assert.True(CursorPicking.IntersectActor(centerRay, new Vector3(0f, -4f, 0f), 4f) is not null,
+            "torso picking missed an actor centred under the pointer");
+        Assert.True(CursorPicking.IntersectActor(cornerRay, new Vector3(0f, -4f, 0f), 4f) is null,
+            "torso picking caught an actor outside the pointer");
         return Task.CompletedTask;
     }
 

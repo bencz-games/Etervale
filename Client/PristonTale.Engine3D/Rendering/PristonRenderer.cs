@@ -17,6 +17,15 @@ namespace PristonTale.Engine3D.Rendering;
 
 public sealed partial class PristonRenderer : IDisposable
 {
+    // Register a texture source fallback before the scene starts loading.
+    // This mapping belongs to a renderer instance, not to the global asset resolver.
+    public void SetTextureFallbackDirectory(string sourceDirectory, string fallbackDirectory) =>
+        _textureLoader.SetFallbackDirectory(sourceDirectory, fallbackDirectory);
+
+    // A single named material in a shared source folder may use its proven original texture family.
+    public void SetTextureFallbackForName(string sourceDirectory, string textureName, string fallbackDirectory) =>
+        _textureLoader.SetFallbackTextureDirectory(sourceDirectory, textureName, fallbackDirectory);
+
     private static readonly ConditionalWeakTable<PristonActor, PreparedActorGeometry> PreparedActorGeometries = new();
 
     // The original game advances stage-object animation by two ticks per millisecond.
@@ -81,6 +90,7 @@ public sealed partial class PristonRenderer : IDisposable
     private readonly PristonRenderClock _renderClock = new();
     private uint _renderTime => _renderClock.Milliseconds;
     private bool _disposed;
+    private bool _m143GpuTimerAttempted;
     private readonly PristonDayNightCycle _dayNight = new();
 
     // Stage lamps (Shaders/Lighting/Shading.hlsli): the illuminance at the reference distance (150 units), in units of the
@@ -533,6 +543,20 @@ public sealed partial class PristonRenderer : IDisposable
         var prepass = _multiSampleCount == 0 && DebugView != PristonDebugView.Overdraw;
         // Binding the scene target ends the caller's render pass, so the profiler can reset its timestamps outside one.
         _sceneTargets.Begin(_multiSampleCount, temporal, prepass);
+        // M1.4.3 GPU timings are opt-in and only started on the rendering thread.
+        if (!_m143GpuTimerAttempted && Environment.GetEnvironmentVariable("ETV_FOREST_GPU_TIMERS") == "1")
+        {
+            _m143GpuTimerAttempted = true;
+            try
+            {
+                var enabled = Profiler.EnableGpuTimers(_graphicsDevice);
+                _log.Info($"[ETV] M1.4.3 GPU timers: {(enabled ? "enabled" : "unavailable")}");
+            }
+            catch (Exception error)
+            {
+                _log.Info($"[ETV] M1.4.3 GPU timers unavailable: {error.GetType().Name}");
+            }
+        }
         Profiler.BeginFrame();
         Profiler.Begin(RenderSection.Frame);
         EnsureBatchLists();
@@ -626,6 +650,7 @@ public sealed partial class PristonRenderer : IDisposable
             frame,
             sunShadowRedraw || _lampShadowRedraw != 0);
         Profiler.End(RenderSection.Queue);
+        PrepareInstancedForest(frame.View * frame.Projection);
         if (sunShadowRedraw)
         {
             Profiler.Begin(RenderSection.SunShadow);
@@ -969,6 +994,7 @@ public sealed partial class PristonRenderer : IDisposable
         }
 
         _shadowMap.Dispose();
+        DisposeInstancedForestGroups();
         Profiler.Dispose();
         _glowRenderer.Dispose();
         _skyCapture.Dispose();

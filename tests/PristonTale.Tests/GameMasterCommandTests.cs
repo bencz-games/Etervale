@@ -27,7 +27,7 @@ internal static class GameMasterCommandTests
         ("//netlog", 1), ("/user_limit", 2), ("/kick", 2), ("/kill", 2), ("/open_warehouse", 2), ("/shutdown", 2), ("/weather", 2),
         ("/reload_settings", 4), ("/setting", 4), ("/insert", 2),
         ("/usercode", 1), ("/userid", 1), ("/username", 1), ("/near", 2), ("/call", 2), ("/where", 2), ("/field", 2),
-        ("/player_location", 2), ("/expup", 4), ("/GiveMeExp!", 4), ("/GiveMeMoney!", 4),
+        ("/player_location", 2), ("/expup", 4), ("/GiveMeExp!", 4), ("/unlocktier", 4), ("/GiveMeMoney!", 4),
         ("/user", 1), ("/sockets", 1), ("/talk", 1), ("/set_absorb", 4), ("/area_users", 1), ("/monster", 1), ("/mymonster", 1),
         ("/event_monster", 1), ("/area_monster", 1), ("/show_blackuser", 1), ("/reset_blackuser", 1), ("/free_blackuser", 1), ("/hide", 1),
         ("/show", 1), ("/get_money", 3), ("/dm_info", 1), ("/get_guid", 1), ("/grant", 1),
@@ -46,6 +46,7 @@ internal static class GameMasterCommandTests
         yield return ("event monsters, field reports, absorption and monster speech", MonsterDetailsAsync);
         yield return ("item commands drop rolled, perfect and specialized copies and gold, and gifts are stored before delivery", ItemsAsync);
         yield return ("experience, premium resets, force orb and premium reports", CharacterAsync);
+        yield return ("administrator unlocks class tier and skills via chat, persists and preserves ranks", UnlockTierAsync);
         yield return ("server commands set the player limit, start the shutdown, release refused logins and move characters", ServerCommandsAsync);
         yield return ("a lent level opens commands until the borrower leaves, and test servers open the gift commands", GrantAsync);
     }
@@ -368,6 +369,54 @@ internal static class GameMasterCommandTests
         await fixture.SayAsync(gm, "/get_forceorb");
         Assert.True(gm.Link.Last.StartsWith($"0> Force Orb - [{orb.IconNumber}] ( 29 sec )", StringComparison.Ordinal)
             || gm.Link.Last.StartsWith($"0> Force Orb - [{orb.IconNumber}] ( 30 sec )", StringComparison.Ordinal), gm.Link.Last);
+    }
+
+    private static async Task UnlockTierAsync()
+    {
+        var fixture = new ChatFixture();
+        var priestess = await fixture.JoinAsync("Sacer", 0, 0, GameMasterLevel.Administrator, PlayerClass.Priestess);
+        await fixture.SayAsync(priestess, "/unlocktier 4");
+        var character = priestess.Session.Character!;
+        Assert.True(character.Tier == 3 && character.Level == 79 && character.Skills.Ranks.Count == 16,
+            "visible Tier 4 must raise a novice to level 79 and teach its sixteen skills");
+        Assert.True(fixture.Characters.Records["Sacer"].Tier == 3 && fixture.Characters.Records["Sacer"].Level == 79,
+            "tier and level did not reach the same character snapshot");
+
+        var existingCode = character.Class.Skills[0].Code;
+        // Restore only inserts a previously unlearned skill. To simulate an existing
+        // rank 3 with 250 uses, restore a complete skill snapshot after clearing it.
+        var existingSkills = character.Skills.Ranks
+            .Select(entry => (entry.Key, entry.Value, Uses: character.Skills.UsesOf(entry.Key))).ToArray();
+        character.Skills.Clear();
+        foreach (var (code, rank, uses) in existingSkills)
+        {
+            character.Skills.Restore(code, code == existingCode ? 3 : rank, code == existingCode ? 250 : uses);
+        }
+        await fixture.SayAsync(priestess, "/unlocktier 4");
+        Assert.True(character.Skills.RankOf(existingCode) == 3 && character.Skills.UsesOf(existingCode) == 250,
+            "a repeated unlock must retain rank and proficiency");
+
+        await fixture.SayAsync(priestess, "/unlocktier");
+        Assert.True(character.Tier == 3 && character.Level == 79 && priestess.Link.Last.Contains("Already Tier", StringComparison.Ordinal),
+            "the automatic tier must follow the current level without adding experience");
+        await fixture.SayAsync(priestess, "/unlocktier 2");
+        Assert.True(character.Tier == 3 && priestess.Link.Last.Contains("Cannot lower", StringComparison.Ordinal),
+            "a visible tier must not downgrade a character");
+        await fixture.SayAsync(priestess, "/unlocktier 5");
+        Assert.True(character.Tier == 4 && character.Level == ExperienceTable.MaximumLevel && character.Skills.Ranks.Count == 20,
+            "visible Tier 5 must open all skills at the final level");
+        Assert.True(fixture.Audit.Entries.Any(entry => entry.Command == "/unlocktier 4" && entry.Accepted),
+            "GM commands must be audited");
+
+        var automatic = await fixture.JoinAsync("Auto", 0, 0, GameMasterLevel.Administrator, PlayerClass.Priestess);
+        await fixture.SayAsync(automatic, "/GiveMeExp! 70");
+        await fixture.SayAsync(automatic, "/unlocktier");
+        Assert.True(automatic.Session.Character!.Tier == 3 && automatic.Session.Character.Level == 70
+            && automatic.Session.Character.Skills.Ranks.Count == 16, "automatic tier should use level 70 without raising it");
+
+        var normal = await fixture.JoinAsync("Normal", 0, 0, 0, PlayerClass.Priestess, 100);
+        await fixture.SayAsync(normal, "/unlocktier 4");
+        Assert.True(normal.Session.Character!.Tier == 0, "ordinary players must not unlock tiers");
     }
 
     private static async Task ServerCommandsAsync()

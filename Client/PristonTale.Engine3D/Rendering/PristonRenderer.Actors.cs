@@ -72,6 +72,17 @@ public sealed partial class PristonRenderer
         }
     }
 
+    // M1.4.4: per-instance cast-shadow control for scenery only when explicitly called.
+    public void SetActorShadowCasting(ActorHandle handle, bool enabled)
+    {
+        if (!TryResolveActor(handle, out var runtime))
+            return;
+        foreach (var batch in runtime.Batches)
+            batch.SuppressShadow = !enabled;
+        foreach (var batch in runtime.ShadowBatches)
+            batch.SuppressShadow = !enabled;
+    }
+
     public void SetActorPlaybackRate(ActorHandle handle, float rateFactor)
     {
         if (!TryResolveActor(handle, out var runtime))

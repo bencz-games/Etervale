@@ -80,7 +80,7 @@ public sealed partial class GameScene
         {
             EndFall(landed: false);
             ApplyPlayerWorld();
-            _camera?.SnapFollow(_playerBody.Position, _fieldCollision);
+            _camera?.SnapFollow(_playerBody.Position, CameraCollisionQuery);
         }
         else if (float.IsFinite(_fallTop))
         {
@@ -232,6 +232,12 @@ public sealed partial class GameScene
         {
             if (field.Collision.TryRaycastFloor(ray, out var p))
             {
+                var feet = _playerBody.Position + Vector3.Up * GroundTraversal.VisualOffset;
+                if (!GroundTraversal.CanReachSurface(feet, p, _groundFloorQuery))
+                {
+                    continue;
+                }
+
                 var distance = Vector3.DistanceSquared(ray.Position, p);
                 if (distance < bestDistance)
                 {

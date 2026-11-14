@@ -14,9 +14,10 @@ public sealed class HudLevelGuide(HudTextFiles texts, Action<string> requestArt)
     public const double BlinkMs = 700;
     public const int SummaryLines = 6;
     public static string More => ClientText.Get("Guide.More");
-    private static readonly Rectangle Icon = new(9, 12, 64, 64);
-    private static readonly Point LabelAt = new(49, 19);
-    private static readonly Rectangle IconArea = new(9, 12, 104, 64);
+    private const int NoticeY = 84;
+    private static readonly Rectangle Icon = new(9, NoticeY, 64, 64);
+    private static readonly Point LabelAt = new(49, NoticeY + 7);
+    private static readonly Rectangle IconArea = new(9, NoticeY, 104, 64);
     // The summary's guide box at 5,5, 28 columns wide and as many rows as its text and footer need; its picture beside
     // the text, Close and >>more... under it.
     private const int BoxX = 5;

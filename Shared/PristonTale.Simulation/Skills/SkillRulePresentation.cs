@@ -38,6 +38,12 @@ public sealed partial record SkillRule
     // list plays ImpactEffect. Silent ("-") in either list plays nothing at that impact.
     public const string Silent = "-";
     public string[] ImpactEffects { get; init; } = [];
+    // Start a visual effect before a selected server impact. Index 0 uses Start.HitAtMs; later
+    // impacts use the authored event's fraction of Start.DurationMs. Never changes damage timing.
+    public string PreImpactEffect { get; init; } = "";
+    public float PreImpactLeadMs { get; init; }
+    // Zero-based impact event to align the falling effect with (0 = first).
+    public int PreImpactHitIndex { get; init; }
     public SkillLook StatusLook { get; init; }
     // Red glow (0..255 of light) on the caster at each impact, fading by 70 a second.
     public int RageGlow { get; init; }
@@ -77,6 +83,10 @@ public static partial class SkillRuleCatalog
         rule.ImpactSounds.All(static sound => sound.Length > 0) && rule.RageGlow is >= 0 and <= 255 && Ranked(rule.WeaponGrowth)
         && rule.WeaponGrowth.All(static percent => percent >= 0) && rule.Afterimages is >= 0 and <= 8 && Enum.IsDefined(rule.StatusLook)
         && Enum.IsDefined(rule.ImpactSoundOrder) && rule.CastShieldGlow.Length is 0 or 3
+        && rule.PreImpactLeadMs is >= 0f and <= 10000f
+        && rule.PreImpactHitIndex is >= 0 and <= 16
+        && (rule.PreImpactHitIndex == 0 || rule.PreImpactHitIndex < rule.MotionEvents.Length)
+        && (rule.PreImpactEffect.Length > 0 || rule.PreImpactLeadMs == 0f)
         && (rule.WeaponOrbit.Length == 0 || rule.WeaponOrbit.Length == 2 && rule.WeaponOrbit.All(static name => name.Length > 0))
         && (rule.DefenseEffect.Length == 0 && rule.HitEffect.Length == 0 && rule.ShotEffect.Length == 0 || rule.Buff is not null)
         && (rule.DefenseBroods.Length == 0 || rule.DefenseEffect.Length > 0 && rule.Buff is { StatsOnly: true }) && rule.DefenseBroods.All(Enum.IsDefined);

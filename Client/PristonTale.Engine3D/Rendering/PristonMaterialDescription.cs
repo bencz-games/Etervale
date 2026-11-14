@@ -1,4 +1,5 @@
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace PristonTale.Engine3D.Rendering;
 
@@ -39,6 +40,9 @@ internal sealed record PristonMaterialDescription(
     bool Blink,
     float Translucency = 0f)
 {
+    public Texture2D PbrNormal { get; init; }
+    public Texture2D PbrOrm { get; init; }
+
     public static PristonMaterialDescription Default { get; } = new(
         PristonShadingModel.Lit,
         Vector4.One,

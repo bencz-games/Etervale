@@ -1,6 +1,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using PristonTale.Client.Net;
 using PristonTale.Engine3D.Diagnostics;
 using PristonTale.Engine3D.Rendering;
@@ -28,6 +29,8 @@ public sealed class GameClient : IDisposable
     private SpriteFont _font;
     private HudAtlas _uiAtlas;
     private HudCursor _cursor;
+
+    public bool HasGameCursor => _cursor?.HasDefaultArt == true;
     private PristonSkyLibrary _sky;
     private PristonTale.Gameplay.Effects.EffectLibrary _effects;
     private PristonAudioLibrary _audio;
@@ -64,7 +67,6 @@ public sealed class GameClient : IDisposable
         _font = font;
         _uiAtlas = HudAtlas.LoadBootstrap(_graphicsDevice, _assetRoot, ConsoleClientLog.Instance);
         _cursor = HudCursor.Load(_graphicsDevice, _assetRoot, ConsoleClientLog.Instance);
-        _cursor.Show(HudCursorKind.Default);
         _sky = PristonSkyLibrary.LoadBootstrap(_graphicsDevice, _assetRoot, ConsoleClientLog.Instance);
         _effects = PristonTale.Gameplay.Effects.EffectLibrary.LoadBootstrap(_graphicsDevice, _content, _assetRoot, ConsoleClientLog.Instance);
         _audio = PristonAudioLibrary.LoadBootstrap(_assetRoot, ConsoleClientLog.Instance);
@@ -114,7 +116,6 @@ public sealed class GameClient : IDisposable
 
         _displayConfirmation?.Update();
         _screen?.Update(gameTime);
-        _cursor?.Show(_screen?.Cursor ?? HudCursorKind.Default);
         if (_pendingScreen != null)
         {
             var next = _pendingScreen;
@@ -130,6 +131,8 @@ public sealed class GameClient : IDisposable
             _screen?.Draw();
             _displayConfirmation?.Draw();
             DrawDiagnostics();
+            // Draw after every dialog and overlay, using the source cursor pixels rather than an SDL cursor.
+            _cursor?.Draw(_spriteBatch, Mouse.GetState().Position, _screen?.Cursor ?? HudCursorKind.Default);
             return;
         }
 

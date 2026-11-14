@@ -11,7 +11,8 @@ internal sealed class RenderQueueBuilder
 
     // A visible batch that draws into shadow maps on its own (not through a static aggregate).
     public static bool CastsShadow(RenderBatch batch) =>
-        !batch.ShadowCoveredByAggregate
+        !batch.SuppressShadow
+        && !batch.ShadowCoveredByAggregate
         && batch.Shade is null or { Shadowed: true }
         && (batch.Material.CastsShadow || batch.ForceCastsShadow);
 
@@ -55,7 +56,7 @@ internal sealed class RenderQueueBuilder
             for (var i = 0; i < shadowBatches.Count; i++)
             {
                 var batch = shadowBatches[i];
-                if (batch.Shade is { Shadowed: false })
+                if (batch.SuppressShadow || batch.Shade is { Shadowed: false })
                 {
                     continue;
                 }

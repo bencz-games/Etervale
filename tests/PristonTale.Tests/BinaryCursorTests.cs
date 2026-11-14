@@ -170,8 +170,21 @@ internal static class BinaryCursorTests
 
         foreach (var header in headers)
         {
+            var binaryModel = header[0] == 0xA5;
+            Assert.True(PristonSmdReader.HasBinaryModelSignature(header) == binaryModel,
+                "binary model signature detection differs from the model reader");
+            if (binaryModel)
+            {
+                Assert.True(!PristonSmdReader.HasBinaryModelSignature(header.AsSpan(0, header.Length - 1)),
+                    "a truncated binary signature was accepted");
+                var corrupted = (byte[])header.Clone();
+                corrupted[0] ^= 0x01;
+                Assert.True(!PristonSmdReader.HasBinaryModelSignature(corrupted),
+                    "a damaged binary signature was accepted");
+            }
+
             var bytes = CreateMinimalModel(header, [0xDE, 0xAD, 0xBE, 0xEF]);
-            var path = WriteTemporaryAsset(".smd", bytes);
+            var path = WriteTemporaryAsset(binaryModel ? ".smb" : ".smd", bytes);
             try
             {
                 var model = new PristonSmdReader().ReadModel(path);

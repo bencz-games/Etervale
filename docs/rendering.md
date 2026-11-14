@@ -513,3 +513,9 @@ they took the domes.
 - [world.md](world.md): server-side stage collision and the shared geometry.
 - [testing.md](testing.md): regression runner, probes, benchmark arguments.
 - [architecture.md](architecture.md): projects and threading model.
+
+## Camera collision option
+
+`cameraSceneryCollision` passes `FieldCollisionQuery` to `PristonCamera`'s follow/orbit collision sweep when
+true (the default), or disables that sweep when false. It does not modify entity collision or server movement
+authority. With it off, the world can visually occlude the camera.

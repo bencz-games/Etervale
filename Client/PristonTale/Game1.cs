@@ -58,6 +58,8 @@ public class Game1 : Game
         _presentationController = new PresentationController(_presentation, _settingsStore, _graphics, Window);
         _client = new GameClient(GraphicsDevice, Content, ResolveAssetRoot(), ResolveServerAddress(_presentation.Requested.ServerAddress), _presentation);
         _client.LoadContent();
+        // SDL/desktop cursor scaling can blur the original 32x32 TGA; the client draws it with PointClamp.
+        IsMouseVisible = !_client.HasGameCursor;
         Window.TextInput += (_, args) => _client.TypeCharacter(args.Character);
         ConsoleClientLog.Instance.Info($"[Presentation] GPU={GraphicsDevice.Adapter.DeviceName}; variable timestep; VSync={_presentation.VerticalSync}; maxFps={_presentation.Requested.MaxFps} (0=unlimited).");
     }
@@ -183,6 +185,7 @@ public class Game1 : Game
 
     protected override void UnloadContent()
     {
+        IsMouseVisible = true;
         _client?.Dispose();
         base.UnloadContent();
     }

@@ -1,4 +1,8 @@
 using System.Numerics;
+using PristonTale.Engine3D.Rendering;
+using PristonTale.Gameplay.Localization;
+using PristonTale.Gameplay.UI.Widgets;
+using PristonTale.Simulation.Progression;
 using PristonTale.Application.World;
 using PristonTale.Protocol.Binary;
 using PristonTale.Protocol.Packets;
@@ -24,6 +28,7 @@ internal static class SkillSystemTests
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
         yield return ("skill rules cover all 32 first-tier skills of the eight original classes with consistent kinds", RulesAsync);
+        yield return ("skill descriptions quote the next rank's gold price, castle tax and no rank beyond ten", TrainingPriceTooltipAsync);
         yield return ("skill cooldown follows the original mastery gauge from 0.49 s to 17.15 s", CooldownAsync);
         yield return ("skill formulas: weapon bonuses, magic power, area share, heal and buff rolls", FormulasAsync);
         yield return ("modifier engine stacks, refreshes, keeps the strongest, removes by source and feeds derived stats", ModifierEngineAsync);
@@ -37,6 +42,28 @@ internal static class SkillSystemTests
     }
 
     private static readonly CharacterClassRegistry Classes = new();
+
+    private static Task TrainingPriceTooltipAsync()
+    {
+        var previousLanguage = ClientText.Language;
+        try
+        {
+            ClientText.Use(ClientSettings.EnglishLanguage);
+            Assert.True(HudSkillsPanel.NextTrainingPrice(0, 0, 0) == "Rank 1: 500 gold", "first-rank price missing from skill description");
+            Assert.True(HudSkillsPanel.NextTrainingPrice(0, 1, 0) == "Rank 2: 1,000 gold", "next-rank price did not rise");
+            Assert.True(HudSkillsPanel.NextTrainingPrice(0, 0, 10) == "Rank 1: 550 gold", "castle tax is missing from skill description");
+            Assert.True(HudSkillsPanel.NextTrainingPrice(0, 10, 0) == "", "a max-rank skill was offered another purchase");
+
+            ClientText.Use(ClientSettings.BrazilianPortugueseLanguage);
+            Assert.True(HudSkillsPanel.NextTrainingPrice(0, 0, 0) == "Rank 1: 500 de ouro", "Portuguese training price differs from the confirmation");
+        }
+        finally
+        {
+            ClientText.Use(previousLanguage);
+        }
+
+        return Task.CompletedTask;
+    }
 
     private static Task RulesAsync()
     {

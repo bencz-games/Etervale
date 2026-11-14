@@ -341,6 +341,12 @@ public sealed partial class GameplayHud : IDisposable
 
     public void PickupAnswered(bool ok, long revision) => _inventory.PickupAnswered(ok, revision);
 
+    public void OpenSettings()
+    {
+        _systemMenu = false;
+        _settingsOpen = true;
+    }
+
     public bool ClosePanel()
     {
         if (_countBox.IsOpen)

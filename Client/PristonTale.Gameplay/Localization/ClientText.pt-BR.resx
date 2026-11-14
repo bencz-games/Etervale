@@ -948,4 +948,22 @@ seguem para a torre alta.</value></data>
   <data name="WingGate.MoveThere" xml:space="preserve"><value>ir para lá?</value></data>
   <data name="WingGate.Title" xml:space="preserve"><value>Portal</value></data>
   <data name="Workbench.TakeBack" xml:space="preserve"><value>Clique direito: retirar</value></data>
+  <data name="Settings.PageGraphics" xml:space="preserve"><value>Gráficos / câmara</value></data>
+  <data name="Settings.PageKeys" xml:space="preserve"><value>Atalhos de teclado / rato</value></data>
+  <data name="Settings.PrevPage" xml:space="preserve"><value>Anterior</value></data>
+  <data name="Settings.NextPage" xml:space="preserve"><value>Seguinte</value></data>
+  <data name="Settings.ReferenceOnly" xml:space="preserve"><value>Referência de atalhos (apenas leitura)</value></data>
+  <data name="Settings.CameraCollisionOn" xml:space="preserve"><value>Colisão da câmara: ligada</value></data>
+  <data name="Settings.CameraCollisionOff" xml:space="preserve"><value>Colisão da câmara: desligada</value></data>
+  <data name="Settings.Keys1" xml:space="preserve"><value>Clique esq.: mover / atacar / recolher</value></data>
+  <data name="Settings.Keys2" xml:space="preserve"><value>Clique dir.: habilidade / ataque</value></data>
+  <data name="Settings.Keys3" xml:space="preserve"><value>Arrastar botão do meio: rodar câmara</value></data>
+  <data name="Settings.Keys4" xml:space="preserve"><value>Roda do rato: aproximar / afastar</value></data>
+  <data name="Settings.Keys5" xml:space="preserve"><value>X: menu; Esc: fechar / opções</value></data>
+  <data name="Settings.Keys6" xml:space="preserve"><value>I / V: inventário; C: estado</value></data>
+  <data name="Settings.Keys7" xml:space="preserve"><value>S: habilidades; Q: missões; D: grupo</value></data>
+  <data name="Settings.Keys8" xml:space="preserve"><value>R: correr; E: saco; W: trocar armas</value></data>
+  <data name="Settings.Keys9" xml:space="preserve"><value>A: mostrar nomes dos itens no chão</value></data>
+  <data name="Settings.Keys10" xml:space="preserve"><value>1-3: consumíveis no cinto</value></data>
+  <data name="Settings.Keys11" xml:space="preserve"><value>Shift: ação alternativa</value></data>
 </root>

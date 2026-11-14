@@ -17,6 +17,7 @@ internal static class SkillPresentationTests
 {
     public static IEnumerable<(string, Func<Task>)> Cases()
     {
+        yield return ("meteo starts its fall before the later server hit without shifting either damage event", MeteoAnticipationAsync);
         yield return ("effect definitions validate every layer and reject unknown builtin textures", DefinitionsAsync);
         yield return ("the effect catalog reads Effect/Vfx recursively, skips broken files and reports replaced names", CatalogAsync);
         yield return ("a numbered effect frame puts its number before the last dot", FrameNamesAsync);
@@ -25,6 +26,20 @@ internal static class SkillPresentationTests
         yield return ("cooldown and status books follow the server's messages", BooksAsync);
         yield return ("skill sockets offer learned active skills and drop lost ones", BindingsAsync);
         yield return ("floating combat text keeps a bounded ring", FloatingTextAsync);
+    }
+
+    private static Task MeteoAnticipationAsync()
+    {
+        Assert.True(SkillRuleCatalog.TryGet(0x08080004, out var rule), "meteo skill missing");
+        Assert.True(rule.PreImpactEffect == "vfx.magician.meteo.fall" && rule.PreImpactLeadMs == 970f && rule.PreImpactHitIndex == 1,
+            "meteo must start its fall ahead of the second hit, not the first early hit");
+        Assert.True(rule.ImpactEffects.SequenceEqual(["vfx.magician.meteo.hit", SkillRule.Silent]),
+            "meteo must give the first hit immediate feedback and not repeat the fall at the second");
+        var timing = SkillFormulas.Timing(rule, 1, 1f, (0f, 0f));
+        Assert.True(rule.MotionFrames == 117 && rule.MotionEvents.SequenceEqual([17, 83]) && timing.HitsAtMs.Length == 2
+            && timing.HitsAtMs[0] > 0f && timing.HitsAtMs[1] > timing.HitsAtMs[0] + rule.PreImpactLeadMs,
+            "meteo's current two authoritative hit frames or its pre-impact travel window changed");
+        return Task.CompletedTask;
     }
 
     private static Task FrameNamesAsync()

@@ -58,6 +58,19 @@ public sealed partial class Importer
             {
                 if (!npcIds.TryGetValue(placement.SourceFile, out var placed))
                 {
+                    // A .spc can contain a visual character-asset placement, not just a .npc definition.
+                    // Preserve the authored path as an unimported visual reference; do not invent an NPC
+                    // or count a present char/*.inf model as a missing GameServer/NPC/*.npc file.
+                    var sourcePath = placement.RawSourcePath.Replace('\\', '/');
+                    if (sourcePath.StartsWith("char/", StringComparison.OrdinalIgnoreCase)
+                        && Path.GetExtension(sourcePath).Equals(".inf", StringComparison.OrdinalIgnoreCase))
+                    {
+                        await RecordUnresolvedAsync(conn, tx, "field_character_asset", f.AseBase, placement.RawSourcePath,
+                            new { placement.Index, placement.SourceFile, placement.Class, placement.SizeLevel,
+                                placement.X, placement.Y, placement.Z, placement.Angle }, report, ct);
+                        continue;
+                    }
+
                     report.FixedNpcRefsDangling++;
                     await RecordUnresolvedAsync(conn, tx, "field_fixed_npc", f.AseBase, placement.SourceFile,
                         new { placement.Index, placement.X, placement.Z, placement.Angle, placement.Y }, report, ct);

@@ -120,3 +120,7 @@ monogame/runtime/build/
 monogame/runtime/work/
 monogame/runtime/bin/
 monogame/pipeline/bin/
+
+# Python scripts and test bytecode
+__pycache__/
+*.py[cod]

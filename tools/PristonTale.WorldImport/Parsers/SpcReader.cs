@@ -9,7 +9,8 @@ namespace PristonTale.WorldImport.Parsers;
 // definition file does not always set:
 //
 //   +4    int32     live when non-zero
-//   +104  char[60]  CP949 path of the NPC definition file (the NPC is the file, matched by name)
+//   +104  char[60]  CP949 authored source path. NPC sources are matched by filename; a char/*.inf
+//                    source is a character asset, not a GameServer/NPC/*.npc definition.
 //   +180  int32     shadow size level (1 in every record)
 //   +392  uint16    class, the *계급 of a file that has none: a quest code from 1000 (0 none)
 //   +476/+480/+484  int32 x, y, z in 1/256 world units; +492 int32 heading (4096 per turn)
@@ -30,18 +31,19 @@ public sealed class SpcReader
     public void Read(string path, ParsedField field)
     {
         var bytes = File.ReadAllBytes(path);
-        foreach (var (index, source) in Records(bytes))
+        foreach (var (index, sourcePath) in Records(bytes))
         {
             var record = bytes.AsSpan(index * RecordSize, RecordSize);
             field.FixedNpcs.Add(new ParsedNpcPlacement(
                 index,
-                source,
+                Path.GetFileName(sourcePath.Replace('\\', '/')),
                 BinaryPrimitives.ReadInt32LittleEndian(record[OffX..]),
                 BinaryPrimitives.ReadInt32LittleEndian(record[OffY..]),
                 BinaryPrimitives.ReadInt32LittleEndian(record[OffZ..]),
                 BinaryPrimitives.ReadInt32LittleEndian(record[OffHeading..]),
                 BinaryPrimitives.ReadUInt16LittleEndian(record[OffClass..]),
-                BinaryPrimitives.ReadInt32LittleEndian(record[OffSizeLevel..])));
+                BinaryPrimitives.ReadInt32LittleEndian(record[OffSizeLevel..]),
+                sourcePath));
         }
     }
 
@@ -58,5 +60,5 @@ public sealed class SpcReader
     }
 
     private static string SourceOf(byte[] bytes, int index) =>
-        Path.GetFileName(Cp949.GetNullTerminated(bytes.AsSpan(index * RecordSize + OffSource, SourceLength)).Replace('\\', '/'));
+        Cp949.GetNullTerminated(bytes.AsSpan(index * RecordSize + OffSource, SourceLength));
 }

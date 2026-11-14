@@ -81,7 +81,9 @@ internal static partial class LocalizationTests
             }
         }
 
-        var unknown = asked.Where(key => !english.ContainsKey(key)).ToArray();
+        // Settings.Keys is a runtime-generated prefix (Keys1..Keys11), not a stand-alone phrase.
+        // BuiltKeysAsync checks every concrete key in both language catalogs (via CompleteAsync).
+        var unknown = asked.Where(key => !english.ContainsKey(key) && key != "Settings.Keys").ToArray();
         Assert.True(asked.Count > 0 && unknown.Length == 0, "keys without a phrase: " + string.Join(", ", unknown));
         return Task.CompletedTask;
     }
@@ -91,6 +93,7 @@ internal static partial class LocalizationTests
         Enum.GetNames<WindowMode>().Select(static name => "Settings.WindowMode." + name)
             .Concat(Enum.GetNames<GraphicsQuality>().Select(static name => "Settings.Quality." + name))
             .Concat(Enum.GetNames<CloudQuality>().Select(static name => "Settings.Clouds." + name))
+            .Concat(Enumerable.Range(1, 11).Select(static n => "Settings.Keys" + n))
             .Concat(ClientSettings.SupportedLanguages.Select(static language => "Language." + language))
             .Concat(Enum.GetValues<StatKind>().Where(static stat => stat is not StatKind.None and not StatKind.Count).Select(static stat => "Stat." + stat))
             .Concat(Enum.GetNames<Element>().Select(static name => "Element." + name))

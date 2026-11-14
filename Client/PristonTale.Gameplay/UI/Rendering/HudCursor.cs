@@ -1,6 +1,5 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using PristonTale.Assets;
 using PristonTale.Contracts.World;
 using PristonTale.Engine3D.Diagnostics;
@@ -22,23 +21,20 @@ public enum HudCursorKind
     Hidden
 }
 
-// The original pointer: the yellow arrow, its gem red over a monster the player can attack, a speech balloon over an
-// NPC and an open hand over a drop on the ground, closed while the left button is held; in a shop, the buy, sell or
-// repair pointer of the shop's mode; none while an item is dragged. Each image becomes a system cursor, so it follows
-// the mouse without waiting for a frame; the tip is the image's top-left pixel. A missing image leaves the system arrow.
+// The original pointer: the yellow arrow, its gem red over an attackable monster, a speech balloon over an NPC,
+// and the hand variants over drops and shop items. Render the original TGA as an in-game overlay with point sampling:
+// native SDL colour cursors can be rescaled/filtered by the desktop compositor (notably under fractional DPI), and
+// also force a GPU readback while they are being created. The top-left pixel remains the pointer hotspot.
 public sealed class HudCursor : IDisposable
 {
     private const string Folder = "image/Sinimage/Cursor/";
 
-    private readonly MouseCursor[] _cursors;
     private readonly Texture2D[] _textures;
-    private HudCursorKind? _shown;
 
-    private HudCursor(MouseCursor[] cursors, Texture2D[] textures)
-    {
-        _cursors = cursors;
-        _textures = textures;
-    }
+    private HudCursor(Texture2D[] textures) => _textures = textures;
+
+    // If the original default image is absent, leave the native system arrow visible.
+    public bool HasDefaultArt => _textures[(int)HudCursorKind.Default] is not null;
 
     // A summon (a monster with an owner) and other players keep the arrow, as the original only changed it for
     // monsters of the field and NPCs.
@@ -68,12 +64,7 @@ public sealed class HudCursor : IDisposable
     public static HudCursor Load(GraphicsDevice device, string assetRoot, IClientLog log)
     {
         var kinds = Enum.GetValues<HudCursorKind>();
-        var cursors = new MouseCursor[kinds.Length];
         var textures = new Texture2D[kinds.Length];
-        var blank = new Texture2D(device, 1, 1, false, SurfaceFormat.Color);
-        blank.SetData([Color.Transparent]);
-        textures[(int)HudCursorKind.Hidden] = blank;
-        cursors[(int)HudCursorKind.Hidden] = MouseCursor.FromTexture2D(blank, 0, 0);
         foreach (var kind in kinds)
         {
             if (kind == HudCursorKind.Hidden)
@@ -91,7 +82,7 @@ public sealed class HudCursor : IDisposable
                 }
 
                 var image = PristonImageDecoder.Decode(AssetFiles.ReadAllBytes(path), Path.GetExtension(path));
-                if (image.Width <= 0 || image.Height <= 0)
+                if (!image.IsValid)
                 {
                     log.Warn($"[Cursor] unreadable {ArtPath(kind)}; the system arrow stays.");
                     continue;
@@ -100,7 +91,6 @@ public sealed class HudCursor : IDisposable
                 var texture = new Texture2D(device, image.Width, image.Height, false, SurfaceFormat.Color);
                 texture.SetData(image.Pixels);
                 textures[(int)kind] = texture;
-                cursors[(int)kind] = MouseCursor.FromTexture2D(texture, 0, 0);
             }
             catch (Exception exception) when (exception is IOException or ArgumentException or InvalidOperationException)
             {
@@ -108,29 +98,27 @@ public sealed class HudCursor : IDisposable
             }
         }
 
-        return new HudCursor(cursors, textures);
+        return new HudCursor(textures);
     }
 
-    public void Show(HudCursorKind kind)
+    public void Draw(SpriteBatch batch, Point pointer, HudCursorKind kind)
     {
-        var cursor = _cursors[(int)kind] ?? _cursors[(int)HudCursorKind.Default];
-        if (_shown == kind || cursor is null)
+        // Item dragging draws its own icon at the pointer. An unavailable cursor falls back to the original arrow.
+        if (kind == HudCursorKind.Hidden || !HasDefaultArt)
         {
             return;
         }
 
-        Mouse.SetCursor(cursor);
-        _shown = kind;
+        var texture = _textures[(int)kind] ?? _textures[(int)HudCursorKind.Default];
+        // TGA colour channels contain straight (non-premultiplied) alpha. Never bilinearly blur 32-pixel pixel art.
+        batch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp,
+            DepthStencilState.None, RasterizerState.CullNone);
+        batch.Draw(texture, new Vector2(pointer.X, pointer.Y), Color.White);
+        batch.End();
     }
 
     public void Dispose()
     {
-        Mouse.SetCursor(MouseCursor.Arrow);
-        foreach (var cursor in _cursors)
-        {
-            cursor?.Dispose();
-        }
-
         foreach (var texture in _textures)
         {
             texture?.Dispose();

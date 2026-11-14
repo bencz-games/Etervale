@@ -76,6 +76,8 @@ public sealed record ClientSettings
     // Classic: the name boxes over monsters and NPCs use the speech bubble frame and the HUD text size, and a monster's
     // life bar shows while the cursor is on it; otherwise a compact box, the bar once the monster was clicked or attacked.
     public bool ClassicNamePlates { get; init; }
+    // Only camera scenery sweep; server-authoritative player collision is unchanged.
+    public bool CameraSceneryCollision { get; init; } = true;
     // The level guide's notice on reaching a level it has a guide for (its On/Off switch in the guide window).
     public bool LevelGuide { get; init; } = true;
     // The weather the server sends: clouds, rain, lightning and their sounds; off keeps the sky clear.

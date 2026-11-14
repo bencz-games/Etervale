@@ -80,7 +80,7 @@ try
         else
         {
             Console.Error.WriteLine(
-                "error: unrecognized header (not 'SMD Stage data' / 'SMD Model data'). " +
+                "error: unrecognized SMD/SMB header (not a known stage, model or binary model signature). " +
                 "For .inx files keep the .inx extension.");
             return 1;
         }
@@ -95,8 +95,8 @@ catch (Exception ex)
 
 // ---- detection ----------------------------------------------------------------------------
 
-// The SMD header opens with a 24-byte name string (PristonSmdReader.ReadHeader). We only need
-// the leading bytes to tell a stage from a model; the reader itself validates the full prefix.
+// The SMD header starts with a 24-byte signature. Some model assets use a binary
+// signature instead of an ASCII model name; the reader validates the full header.
 static string? DetectSmdKind(string path)
 {
     Span<byte> head = stackalloc byte[SmdLayout.SignatureSize];
@@ -105,6 +105,7 @@ static string? DetectSmdKind(string path)
     var name = Encoding.ASCII.GetString(head[..read]);
     if (name.StartsWith(SmdLayout.StagePrefix, StringComparison.Ordinal)) return "stage";
     if (name.StartsWith(SmdLayout.ModelPrefix, StringComparison.Ordinal)) return "model";
+    if (read == SmdLayout.SignatureSize && PristonSmdReader.HasBinaryModelSignature(head)) return "model";
     return null;
 }
 

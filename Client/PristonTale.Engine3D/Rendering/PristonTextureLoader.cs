@@ -15,6 +15,11 @@ public sealed class PristonTextureLoader : IDisposable
     private readonly SurfaceFormat _format;
     private readonly ConcurrentDictionary<string, Texture2D> _cache = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, Lazy<Task<PreparedTexture>>> _preparing = new(StringComparer.OrdinalIgnoreCase);
+    // Optional, explicit directory-scoped source fallback. Set up before loading scene textures.
+    // Never search the whole assets tree by basename: unrelated stages reuse filenames.
+    private readonly ConcurrentDictionary<string, string> _fallbackDirectories = new(StringComparer.OrdinalIgnoreCase);
+    // Per-texture override for shared directories: an opening NPC must not redirect other NPC materials.
+    private readonly ConcurrentDictionary<string, string> _namedFallbackDirectories = new(StringComparer.OrdinalIgnoreCase);
     private static readonly SemaphoreSlim DecodeSlots = new(2, 2);
     // The classic alpha-test reference value.
     internal const byte AlphaCutoffByte = 60;
@@ -33,6 +38,16 @@ public sealed class PristonTextureLoader : IDisposable
     public Texture2D White => _white;
     public bool RequirePreparedTextures { get; set; }
 
+    public void SetFallbackDirectory(string sourceDirectory, string fallbackDirectory)
+    {
+        _fallbackDirectories[Path.GetFullPath(sourceDirectory)] = Path.GetFullPath(fallbackDirectory);
+    }
+
+    public void SetFallbackTextureDirectory(string sourceDirectory, string textureName, string fallbackDirectory)
+    {
+        _namedFallbackDirectories[CacheKey(sourceDirectory, textureName, string.Empty)] = Path.GetFullPath(fallbackDirectory);
+    }
+
     public void Initialize()
     {
         _white = new Texture2D(_graphicsDevice, 1, 1);
@@ -42,7 +57,7 @@ public sealed class PristonTextureLoader : IDisposable
     public Task PrepareTexturesAsync(string directory, IEnumerable<PristonMaterial> materials)
     {
         var pending = new List<Task>();
-        foreach (var request in TextureRequests(materials))
+        foreach (var request in RequestsWithPbr(directory, materials))
         {
             pending.Add(PrepareAsync(directory, request.Name, request.Opacity));
         }
@@ -57,7 +72,7 @@ public sealed class PristonTextureLoader : IDisposable
     // an upload costs per call rather than per byte, so slicing it would not shorten the worst step.
     internal IEnumerable<long> UploadPreparedTextures(string directory, IEnumerable<PristonMaterial> materials)
     {
-        foreach (var request in TextureRequests(materials))
+        foreach (var request in RequestsWithPbr(directory, materials))
         {
             var key = CacheKey(directory, request.Name, request.Opacity);
             if (_cache.ContainsKey(key))
@@ -79,6 +94,21 @@ public sealed class PristonTextureLoader : IDisposable
         }
 
         return bytes;
+    }
+
+    private static bool IsPbrData(string name) => name.EndsWith(".etv-normal.bmp", StringComparison.OrdinalIgnoreCase) || name.EndsWith(".etv-orm.bmp", StringComparison.OrdinalIgnoreCase);
+
+    private static IEnumerable<(string Name, string Opacity)> RequestsWithPbr(string directory, IEnumerable<PristonMaterial> materials)
+    {
+        var list = materials.ToArray();
+        var seen = new HashSet<(string, string)>();
+        foreach (var request in TextureRequests(list)) if (seen.Add(request)) yield return request;
+        foreach (var material in list)
+        {
+            if (PristonMaterialRuntimeFactory.PbrMaps(directory, material) is not { } maps) continue;
+            if (seen.Add((maps.Normal, string.Empty))) yield return (maps.Normal, string.Empty);
+            if (seen.Add((maps.Surface, string.Empty))) yield return (maps.Surface, string.Empty);
+        }
     }
 
     internal static IEnumerable<(string Name, string Opacity)> TextureRequests(IEnumerable<PristonMaterial> materials)
@@ -174,7 +204,7 @@ public sealed class PristonTextureLoader : IDisposable
             prepared = Prepare(assetDirectory, textureName, opacityName);
         }
 
-        var texture = Upload(key, prepared, _format);
+        var texture = Upload(key, prepared, IsPbrData(textureName) ? SurfaceFormat.Color : _format);
         _cache[key] = texture;
         _preparing.TryRemove(key, out _);
         return texture;
@@ -260,7 +290,7 @@ public sealed class PristonTextureLoader : IDisposable
 
     private PreparedTexture PrepareUi(string directory, string name, PristonUiColorKey colorKey)
     {
-        var path = ResolvePath(directory, name);
+        var path = ResolveTexturePath(directory, name);
         if (path.Length == 0)
         {
             _log.Warn($"UI texture '{name}' in '{directory}' is missing; using shared white fallback.");
@@ -280,7 +310,7 @@ public sealed class PristonTextureLoader : IDisposable
 
     private PreparedTexture Prepare(string directory, string name, string opacity)
     {
-        var path = ResolvePath(directory, name);
+        var path = ResolveTexturePath(directory, name);
         if (path.Length == 0)
         {
             _log.Warn($"Texture '{name}' in '{directory}' is missing; using shared white fallback.");
@@ -288,6 +318,7 @@ public sealed class PristonTextureLoader : IDisposable
         }
 
         var image = ReadImage(path);
+        if (IsPbrData(name) && (!image.IsValid || image.Width > 2048 || image.Height > 2048)) throw new InvalidDataException("Invalid PBR data: " + path);
         if (!image.IsValid)
         {
             _log.Warn($"Texture '{path}' is invalid; using shared white fallback.");
@@ -296,7 +327,7 @@ public sealed class PristonTextureLoader : IDisposable
 
         if (!image.HasSourceAlpha && !string.IsNullOrWhiteSpace(opacity))
         {
-            var alphaPath = ResolvePath(directory, opacity);
+            var alphaPath = ResolveTexturePath(directory, opacity);
             var mask = alphaPath.Length > 0 && !string.Equals(path, alphaPath, StringComparison.OrdinalIgnoreCase) ? ReadImage(alphaPath) : null;
             if (mask is { IsValid: true } && PristonOpacityMask.Applies(path, alphaPath, image.Width, image.Height, mask.Width, mask.Height))
             {
@@ -310,7 +341,7 @@ public sealed class PristonTextureLoader : IDisposable
         }
 
         var cutout = PristonMaterialRuntimeFactory.IsCutOut(path, opacity);
-        var levels = PristonMipChain.Build(image.Pixels, image.Width, image.Height, cutout ? AlphaCutoffByte : (byte)0);
+        var levels = IsPbrData(name) ? PristonMipChain.BuildData(image.Pixels, image.Width, image.Height) : PristonMipChain.Build(image.Pixels, image.Width, image.Height, cutout ? AlphaCutoffByte : (byte)0);
         return new PreparedTexture(image.Width, image.Height, levels);
     }
 
@@ -322,6 +353,29 @@ public sealed class PristonTextureLoader : IDisposable
     private static string CacheKey(string directory, string name, string opacity)
     {
         return Path.GetFullPath(directory).Replace('\\', '/') + "|" + name.Replace('\\', '/') + "|" + opacity.Replace('\\', '/');
+    }
+
+    internal string ResolveTexturePath(string directory, string name)
+    {
+        if (!_namedFallbackDirectories.TryGetValue(CacheKey(directory, name, string.Empty), out var fallbackDirectory))
+        {
+            _fallbackDirectories.TryGetValue(Path.GetFullPath(directory), out fallbackDirectory);
+        }
+
+        return ResolvePathWithFallback(directory, name, fallbackDirectory);
+    }
+
+    // The source model's folder always wins. Only the configured directory is tried next;
+    // never choose among unrelated same-named textures in other fields.
+    internal static string ResolvePathWithFallback(string directory, string name, string fallbackDirectory)
+    {
+        var found = ResolvePath(directory, name);
+        if (found.Length > 0 || string.IsNullOrWhiteSpace(fallbackDirectory))
+        {
+            return found;
+        }
+
+        return ResolvePath(fallbackDirectory, name);
     }
 
     // A texture a model names with another extension than the one shipped is looked for under these, in its own folder.

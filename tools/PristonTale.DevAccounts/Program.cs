@@ -78,8 +78,13 @@ catch (Exception ex)
 async Task<int> CreateAccount(List<string> a)
 {
     if (a.Count < 3)
-        return Usage("usage: create-account <user> <password>");
-    var (user, password) = (a[1], a[2]);
+        return Usage("usage: create-account <user> <password|--password-stdin>");
+    var user = a[1];
+    // The launch script sends the password via stdin so it is absent from shell history and process arguments.
+    // Preserve the existing positional-password form for other development workflows.
+    var password = a[2] == "--password-stdin" ? Console.In.ReadLine() : a[2];
+    if (string.IsNullOrEmpty(password))
+        return Usage("account password must not be empty");
 
     if (await accounts.FindByUserIdAsync(user) is not null)
     {
@@ -253,7 +258,7 @@ static void PrintUsage()
         ptdevaccounts — seed dev accounts/characters into the online server database.
 
         Commands:
-          create-account <user> <password>            create a login account (hashed)
+          create-account <user> <password|--password-stdin>  create a login account (hashed)
           create-bots <prefix> <count> <password>     create load-test accounts <prefix>0001..<prefix>NNNN
               [--class C --field F --at x,z]            ... each with a character Lt<prefix>NNNN placed in field F around (x, z)
               [--spacing S] [--level N]                 grid spacing (0: a 500-unit crowd) and level
@@ -268,7 +273,7 @@ static void PrintUsage()
           --conn "<npgsql connection string>"         use Postgres instead of SQLite
 
         Examples:
-          dotnet run --project tools/PristonTale.DevAccounts -- create-account demo change-me
+          printf '%s\n' 'change-me' | dotnet run --project tools/PristonTale.DevAccounts -- create-account demo --password-stdin
           dotnet run --project tools/PristonTale.DevAccounts -- add-char demo Hero Knight 20
           dotnet run --project tools/PristonTale.DevAccounts -- list demo
           dotnet run --project tools/PristonTale.DevAccounts -- set-gm demo 4

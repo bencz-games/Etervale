@@ -16,6 +16,8 @@ internal static class ClientSettingsTests
         yield return ("settings write failures are observable without faulting gameplay", WriteFailureAsync);
         yield return ("frame pacing has no catch-up bursts and separates foreground limits", PacingAsync);
         yield return ("a texture named with another extension is found in the subfolder its name points to", TextureExtensionAsync);
+        yield return ("opening textures use only a configured Ricarten directory fallback after the source folder", TextureScopedFallbackAsync);
+        yield return ("opening NPC E resolves only mm.bmp through the original TN-006 model directory", OpeningNpcTextureFallbackAsync);
     }
 
     private static Task ValidationAsync()
@@ -47,6 +49,11 @@ internal static class ClientSettingsTests
         settings = new ClientSettings { WindowWidth = 3440, WindowHeight = 1440, RefreshRate = 165, MaxFps = 237, Monitor = 2 };
         Assert.True(settings.Validate(NullClientLog.Instance) == settings, "valid custom mode or frame limit was lost");
         Assert.True(settings.HasSameDisplay(settings with { MaxFps = 60, UiScale = 1.2f, MusicEnabled = false, SoundEnabled = false }), "non-device settings triggered display reset");
+        Assert.True(new ClientSettings().CameraSceneryCollision, "camera collision should default on");
+        Assert.True((settings with { CameraSceneryCollision = false }).Validate(NullClientLog.Instance).CameraSceneryCollision == false,
+            "camera collision option was not persisted by validation");
+        Assert.True(settings.HasSameDisplay(settings with { CameraSceneryCollision = false }),
+            "camera-only option triggered a display reset");
         Assert.True(!settings.HasSameDisplay(settings with { RefreshRate = 144 }), "refresh change missed display reset");
         return Task.CompletedTask;
     }
@@ -66,6 +73,88 @@ internal static class ClientSettingsTests
         finally
         {
             Directory.Delete(directory, recursive: true);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static Task TextureScopedFallbackAsync()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "priston-opening-textures-" + Guid.NewGuid().ToString("N"));
+        var opening = Path.Combine(root, "StartImage", "Opening", "Map");
+        var ricarten = Path.Combine(root, "Field", "Ricarten");
+        var castle = Path.Combine(root, "Field", "castle");
+        try
+        {
+            Directory.CreateDirectory(opening);
+            Directory.CreateDirectory(ricarten);
+            Directory.CreateDirectory(castle);
+            var ricartenTexture = Path.Combine(ricarten, "riy-w017.bmp");
+            var castleTexture = Path.Combine(castle, "riy-w017.bmp");
+            File.WriteAllBytes(ricartenTexture, [1]);
+            File.WriteAllBytes(castleTexture, [2]);
+
+            Assert.True(PristonTextureLoader.ResolvePath(opening, "riy-w017.bmp") == "",
+                "unconfigured opening unexpectedly searched other fields");
+            var found = PristonTextureLoader.ResolvePathWithFallback(opening, "riy-w017.bmp", ricarten);
+            Assert.True(found == ricartenTexture, $"opening did not choose the explicit Ricarten fallback: {found}");
+            Assert.True(found != castleTexture, "opening chose the similarly named castle texture");
+
+            var openingTexture = Path.Combine(opening, "riy-w017.bmp");
+            File.WriteAllBytes(openingTexture, [3]);
+            Assert.True(PristonTextureLoader.ResolvePathWithFallback(opening, "riy-w017.bmp", ricarten) == openingTexture,
+                "fallback overrode an authentic local opening texture");
+
+            var alternate = Path.Combine(ricarten, "eye_roof.tga");
+            File.WriteAllBytes(alternate, [4]);
+            Assert.True(PristonTextureLoader.ResolvePathWithFallback(opening, "eye_roof.BMP", ricarten) == alternate,
+                "fallback lost existing case/extension resolution");
+            Assert.True(PristonTextureLoader.ResolvePathWithFallback(opening, "unknown.bmp", ricarten) == "",
+                "missing assets should remain missing, not silently substitute a different texture");
+            Assert.True(PristonTextureLoader.ResolvePathWithFallback(opening, "mm.bmp", null) == "",
+                "an unrelated opening NPC must not inherit the map fallback");
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
+        }
+
+        return Task.CompletedTask;
+    }
+
+    private static Task OpeningNpcTextureFallbackAsync()
+    {
+        var root = Path.Combine(Path.GetTempPath(), "priston-opening-npc-" + Guid.NewGuid().ToString("N"));
+        var opening = Path.Combine(root, "StartImage", "Opening", "npc");
+        var tn006 = Path.Combine(root, "char", "npc", "TN-006");
+        var sod = Path.Combine(root, "Field", "Sod");
+        try
+        {
+            Directory.CreateDirectory(opening);
+            Directory.CreateDirectory(tn006);
+            Directory.CreateDirectory(sod);
+            var original = Path.Combine(tn006, "mm.bmp");
+            File.WriteAllBytes(original, [1]);
+            File.WriteAllBytes(Path.Combine(tn006, "TN-006-b.BMP"), [2]);
+            File.WriteAllBytes(Path.Combine(sod, "mm.bmp"), [3]);
+
+            using var loader = new PristonTextureLoader(null, NullClientLog.Instance);
+            loader.SetFallbackTextureDirectory(opening, "mm.bmp", tn006);
+            Assert.True(loader.ResolveTexturePath(opening, "MM.BMP") == original,
+                "opening NPC E did not resolve its original TN-006 texture by case-insensitive name");
+            Assert.True(loader.ResolveTexturePath(opening, "TN-006-b.BMP") == "",
+                "another opening NPC material incorrectly inherited the mm.bmp fallback");
+            Assert.True(loader.ResolveTexturePath(Path.Combine(root, "StartImage", "Opening", "Map"), "mm.bmp") == "",
+                "the NPC texture fallback leaked into the opening stage");
+
+            var local = Path.Combine(opening, "mm.bmp");
+            File.WriteAllBytes(local, [4]);
+            Assert.True(loader.ResolveTexturePath(opening, "mm.bmp") == local,
+                "an opening-local original texture was overridden by the TN-006 fallback");
+        }
+        finally
+        {
+            Directory.Delete(root, recursive: true);
         }
 
         return Task.CompletedTask;

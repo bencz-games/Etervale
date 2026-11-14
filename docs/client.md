@@ -109,9 +109,9 @@ OpeningScreen --login ok--> CharacterSelectScreen --enter world ok--> GameplaySc
   field code, spawn x/z, tier, hair) and requests `GameplayScreen`. The Exit button returns to `OpeningScreen`; the next
   login opens a new connection.
 - `GameplayScreen` has no transition out; leaving it means quitting.
-- Escape: `Game1` calls `GameClient.HandleEscape` -> `GameScreen.HandleEscape`. `GameplayScreen` closes the open HUD
-  panels (`GameplayHud.ClosePanel`) and returns true if anything was open; every other case exits the game. While a
-  display change awaits confirmation, Escape reverts it and Enter confirms it instead.
+- Escape: `Game1` calls `GameClient.HandleEscape` -> `GameScreen.HandleEscape`. In gameplay, Escape closes
+  open HUD panels; when none is open, it opens Settings. The system Exit action and the normal window close still
+  exit the game. While a display change awaits confirmation, Escape reverts it and Enter confirms it instead.
 
 ### Shutdown
 
@@ -999,3 +999,13 @@ budget; never read files in `Update`/`Draw` after `BeginRemotePresence`. Resolve
 - [protocol.md](protocol.md) — opcodes, packets, framing and TLS.
 - [application.md](application.md), [server.md](server.md) — the authority behind each request.
 - [testing.md](testing.md) — regression runner and capture probes.
+
+## Gameplay usability (Fedora phase 1)
+
+- Settings has three pages: display/audio; graphics and camera; and a read-only reference of mouse/keyboard shortcuts.
+  The existing language switch remains available. The optional scenery-collision toggle affects only the camera.
+- The level guide's transient notice sits below the top-left quest information.
+- Actor selection uses torso pick volumes; ground-item labels take precedence over overlapping 3D item bounds.
+  Ground navigation ignores floors not reachable from the current surface.
+- The optional streaming trace reports portal/seam distances when unloading a neighbouring field. It changes no
+  loading distances, movement physics or authoritative warp behaviour.

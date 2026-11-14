@@ -34,6 +34,7 @@ internal sealed class FieldResourceStreamer : IDisposable
         PristonStage Stage,
         PristonModel[] Models,
         PristonCollisionWorld Collision,
+        PristonActorInstance[] ModernScenery,
         long Started);
     private readonly Dictionary<string, Task<PreparedField>> _fieldLoads = new();
     private readonly Dictionary<string, CancellationTokenSource> _fieldCancellations = new();
@@ -105,12 +106,13 @@ internal sealed class FieldResourceStreamer : IDisposable
             var stage = _reader.ReadStage(AssetFiles.Combine(root, field.StageSmd));
             var models = field.StageObjectSmds.Select(path => _reader.ReadModel(AssetFiles.Combine(root, path))).ToArray();
             var collision = new PristonCollisionWorld(stage);
+            var modernScenery = ModernForestOverlay.Prepare(root, stage.Path, _log);
             token.ThrowIfCancellationRequested();
             await renderer.PrepareStageTexturesAsync(stage, models, token);
             token.ThrowIfCancellationRequested();
             var elapsed = System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds;
             _log.Info($"[Stream] CPU ready {field.Id}: {elapsed:F1} ms; {stage.Faces.Count} faces, {models.Length} models.");
-            return new PreparedField(field, stage, models, collision, started);
+            return new PreparedField(field, stage, models, collision, modernScenery, started);
         }));
     }
 
@@ -221,7 +223,7 @@ internal sealed class FieldResourceStreamer : IDisposable
                 var handle = _stageUpload.Current;
                 if (handle is not null)
                 {
-                    var loaded = new LoadedField(_uploadingField.Definition, _uploadingField.Stage, _uploadingField.Collision, handle);
+                    var loaded = new LoadedField(_uploadingField.Definition, _uploadingField.Stage, _uploadingField.Collision, handle, _uploadingField.ModernScenery);
                     _maximumFieldUploadMilliseconds = Math.Max(
                         _maximumFieldUploadMilliseconds,
                         System.Diagnostics.Stopwatch.GetElapsedTime(started).TotalMilliseconds);

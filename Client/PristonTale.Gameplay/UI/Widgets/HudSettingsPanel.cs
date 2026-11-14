@@ -23,7 +23,12 @@ internal sealed class HudSettingsPanel
     private static readonly GraphicsQuality[] Presets = [GraphicsQuality.Low, GraphicsQuality.Medium, GraphicsQuality.High, GraphicsQuality.Ultra];
     private static readonly int[] ShadowUpdateRates = [30, 60, 120, 0];
     private readonly PresentationSettings _settings;
-    private readonly string[] _labels = new string[20];
+    private const int RowsPerPage = 11;
+    private const int PageCount = 3; // Display/audio, graphics/camera, shortcut reference.
+    private readonly string[] _labels = new string[21];
+    private int _page;
+    private static Rectangle PreviousPage => new(BoxX + 22, BoxY + 294, 105, 25);
+    private static Rectangle NextPage => new(BoxX + 208, BoxY + 294, 105, 25);
     private ClientSettings _labelSettings;
 
     public HudSettingsPanel(PresentationSettings settings) => _settings = settings;
@@ -41,14 +46,32 @@ internal sealed class HudSettingsPanel
             return;
         }
 
-        var current = _settings.Requested;
-        for (var row = 0; row < _labels.Length; row++)
+        if (PreviousPage.Contains(pointer))
         {
-            if (!Row(row).Contains(pointer))
+            _page = (_page - 1 + PageCount) % PageCount;
+            return;
+        }
+
+        if (NextPage.Contains(pointer))
+        {
+            _page = (_page + 1) % PageCount;
+            return;
+        }
+
+        if (_page >= 2)
+        {
+            return;
+        }
+
+        var current = _settings.Requested;
+        for (var localRow = 0; localRow < RowsPerPage; localRow++)
+        {
+            if (!Row(localRow).Contains(pointer))
             {
                 continue;
             }
 
+            var row = _page * RowsPerPage + localRow;
             var direction = backwards ? -1 : 1;
             _settings.Requested = row switch
             {
@@ -72,6 +95,7 @@ internal sealed class HudSettingsPanel
                 17 => current with { RealisticSky = !current.RealisticSky },
                 18 => current with { Quality = GraphicsQuality.Custom, CloudQuality = (CloudQuality)(((int)current.CloudQuality + direction + CloudQualities) % CloudQualities) },
                 19 => current with { Language = NextLanguage(current.Language, direction) },
+                20 => current with { CameraSceneryCollision = !current.CameraSceneryCollision },
                 _ => current
             };
             return;
@@ -84,21 +108,44 @@ internal sealed class HudSettingsPanel
         painter.HelpBox(BoxX, BoxY, SizeW, SizeH);
         var title = Title;
         painter.Sprite(HudArt.HelpTitle, title.X, title.Y);
-        painter.TextCentered(ClientText.Get("Settings.Title"), title.Left, title.Right, title.Y + 7, HudTextColors.BoxTitle);
-        for (var index = 0; index < _labels.Length; index++)
+        var titleKey = _page switch
         {
-            var row = Row(index);
-            if (row.Contains(pointer))
+            0 => "Settings.Title",
+            1 => "Settings.PageGraphics",
+            _ => "Settings.PageKeys"
+        };
+        painter.TextCentered(ClientText.Get(titleKey), title.Left, title.Right, title.Y + 7, HudTextColors.BoxTitle);
+        for (var localRow = 0; localRow < RowsPerPage; localRow++)
+        {
+            var row = Row(localRow);
+            var index = _page * RowsPerPage + localRow;
+            string text = _page switch
+            {
+                0 or 1 when index < _labels.Length => _labels[index],
+                2 => ClientText.Get("Settings.Keys" + (localRow + 1)),
+                _ => null
+            };
+            if (text is null)
+            {
+                continue;
+            }
+
+            if (_page < 2 && row.Contains(pointer))
             {
                 painter.Fill(row, Color.FromNonPremultiplied(255, 200, 0, 64));
             }
 
-            painter.Text(painter.Fit(_labels[index], row.Width - 8), row.X + 6, row.Y + 1);
+            painter.Text(painter.Fit(text, row.Width - 8), row.X + 6, row.Y + 1);
         }
 
-        var notes = Row(_labels.Length);
+        painter.Text(ClientText.Get("Settings.PrevPage") + $" ({_page + 1}/{PageCount})", PreviousPage.X, PreviousPage.Y + 3,
+            PreviousPage.Contains(pointer) ? HudTextColors.Marked : HudTextColors.Hint);
+        painter.Text(ClientText.Get("Settings.NextPage"), NextPage.X, NextPage.Y + 3,
+            NextPage.Contains(pointer) ? HudTextColors.Marked : HudTextColors.Hint);
+        var notes = Row(18);
         painter.Text(painter.Fit(_settings.EffectiveDisplay, notes.Width - 8), notes.X + 6, notes.Y + 6, HudTextColors.Hint);
-        var hint = ClientText.Get(_settings.Message.Length > 0 ? "Settings.NeedsAttention" : "Settings.Hint");
+        var hint = ClientText.Get(_settings.Message.Length > 0 ? "Settings.NeedsAttention" :
+            _page == 2 ? "Settings.ReferenceOnly" : "Settings.Hint");
         painter.Text(hint, notes.X + 6, notes.Y + 6 + RowHeight, _settings.Message.Length > 0 ? Color.Orange : HudTextColors.Hint);
         var ok = OkButton;
         painter.Sprite(HudArt.HelpButton, ok.X - 9, ok.Y - 4);
@@ -228,6 +275,7 @@ internal sealed class HudSettingsPanel
         _labels[17] = ClientText.Get(settings.RealisticSky ? "Settings.SkyRealistic" : "Settings.SkyClassic");
         _labels[18] = ClientText.Format("Settings.Clouds", ClientText.Get("Settings.Clouds." + settings.CloudQuality));
         _labels[19] = ClientText.Format("Settings.Language", ClientText.Get("Language." + settings.Language));
+        _labels[20] = ClientText.Get(settings.CameraSceneryCollision ? "Settings.CameraCollisionOn" : "Settings.CameraCollisionOff");
     }
 
     private static string NextLanguage(string language, int direction)

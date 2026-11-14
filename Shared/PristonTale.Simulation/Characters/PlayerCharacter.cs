@@ -865,6 +865,41 @@ public sealed partial class PlayerCharacter
         EliteSkillPoints += eliteSkillPoints;
     }
 
+    // Game-master testing: open a class tier and grant only the skills the character can use at the
+    // resulting level. A target level never lowers a character's level, ranks, or proficiency.
+    public int UnlockTierForGameMaster(int tier, int targetLevel)
+    {
+        if (tier < Tier || tier > LastTier || targetLevel < Level || targetLevel > ExperienceTable.MaximumLevel)
+        {
+            throw new ArgumentOutOfRangeException(nameof(tier));
+        }
+
+        ApplyQuestProgress((short)tier, 0, 0, 0);
+        var targetExperience = ExperienceTable.ForLevel(targetLevel);
+        if (targetExperience > Experience)
+        {
+            AwardExperience(targetExperience - Experience);
+        }
+
+        var skills = Class.Skills;
+        var count = Math.Min(skills.Count, SkillLearning.OpenedBy(tier));
+        var learned = 0;
+        for (var index = 0; index < count; index++)
+        {
+            var skill = skills[index];
+            if (skill.Code == 0 || skill.RequiredLevel > Level || Skills.RankOf(skill.Code) != 0)
+            {
+                continue;
+            }
+
+            Skills.Restore(skill.Code, 1);
+            learned++;
+        }
+
+        Recompute();
+        return learned;
+    }
+
     // The free redistribution a rank-up offers: every learned rank returns to its pool (the first twelve window skills to
     // the skill points, the fourth and fifth tiers' to the elite points) and the proficiency is forgotten.
     public void ResetLearnedSkills()

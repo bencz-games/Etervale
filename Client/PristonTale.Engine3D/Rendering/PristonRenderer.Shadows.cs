@@ -73,6 +73,7 @@ public sealed partial class PristonRenderer
             var viewProjection = _cascades.ViewProjections[cascade];
             _shaders.ApplyShadowFrame(viewProjection, _renderTime);
             DrawShadowQueueItems(_renderQueueBuilder.Queue.ShadowCasters, viewProjection);
+            DrawInstancedForestSunShadows();
         }
 
         _graphicsDevice.SetRenderTarget(null);
@@ -129,7 +130,7 @@ public sealed partial class PristonRenderer
         for (var i = 0; i < _shadowBatches.Count; i++)
         {
             var batch = _shadowBatches[i];
-            if (batch.IsSkinned && batch.Shade is not { Shadowed: false } && sphere.Intersects(batch.Bounds))
+            if (batch.IsSkinned && !batch.SuppressShadow && batch.Shade is not { Shadowed: false } && sphere.Intersects(batch.Bounds))
             {
                 return true;
             }

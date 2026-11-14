@@ -104,6 +104,15 @@ internal sealed class OpeningCinematic : IDisposable
     public void Load()
     {
         var stage = _reader.ReadStage(_assetPath(StagePath));
+        // The original opening stage references Ricarten's texture names, while the
+        // SMD itself is in StartImage/Opening/Map. Prefer an opening-local texture;
+        // only this scene's map materials may fall back to Field/Ricarten.
+        // NPC meshes have independent sources; do not give them the stage fallback.
+        _renderer.SetTextureFallbackDirectory(Path.GetDirectoryName(stage.Path) ?? ".", _assetPath("Field/Ricarten"));
+        // opening_NPC_E.smd references TN-00-h.BMP and TN-006-b.BMP alongside mm.bmp;
+        // the original TN-006.smd also references mm.bmp. Only that name may fall back
+        // to the existing TN-006 texture, leaving every other opening NPC material alone.
+        _renderer.SetTextureFallbackForName(_assetPath("StartImage/Opening/npc"), "mm.bmp", _assetPath("char/npc/TN-006"));
         if (_effects is not null)
         {
             var collision = new PristonCollisionWorld(stage);

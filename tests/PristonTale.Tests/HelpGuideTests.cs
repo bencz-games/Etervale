@@ -102,9 +102,10 @@ internal static class HelpGuideTests
         var requested = new List<string>();
         var notice = new HudLevelGuide(new HudTextFiles(AppContext.BaseDirectory, Encoding.ASCII, ConsoleClientLog.Instance, "Help"), requested.Add);
         notice.Offer(new LevelGuidePage("PristonTale.Tests.dll", "a.tga"), atOnce: false);
-        var icon = new Point(20, 20);
+        var icon = new Point(20, 100); // Fedora phase 1: the notice is below the top-left quest information.
         Assert.True(requested.SequenceEqual(["a.tga"]) && notice.Captures(icon, blocked: false) && !notice.Captures(icon, blocked: true),
             "the notice did not ask for its picture, or took clicks while the pet's box holds its corner");
+        Assert.True(!notice.Captures(new Point(20, 20), blocked: false), "the guide notice still overlaps the old top-left area");
         Assert.True(notice.Click(icon, blocked: false, out var more) && more is null && notice.Summary, "a click on the notice did not open its summary");
         var close = new Point(HudPainter.GuideBoxRight(5, 28) - 16, 98);
         Assert.True(notice.Click(close, blocked: false, out _) && !notice.Showing, "Close did not close the summary");

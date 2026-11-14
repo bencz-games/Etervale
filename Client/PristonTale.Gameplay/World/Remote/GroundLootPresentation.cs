@@ -203,6 +203,17 @@ public sealed class GroundLootPresentation(IActorScene scene, PristonActorLoader
     {
         id = Guid.Empty;
         position = default;
+        // An explicit label click takes precedence over a drop's 3D pick volume.
+        foreach (var entry in _entries.Values)
+        {
+            if (entry.FloorFound && (showAllLabels || entry.Drop.Id == _hovered) && entry.LabelBounds.Contains(cursor))
+            {
+                id = entry.Drop.Id;
+                position = entry.Position;
+                return true;
+            }
+        }
+
         float nearest = float.MaxValue;
         foreach (var entry in _entries.Values)
         {
@@ -211,14 +222,7 @@ public sealed class GroundLootPresentation(IActorScene scene, PristonActorLoader
                 continue;
             }
 
-            if ((showAllLabels || entry.Drop.Id == _hovered) && entry.LabelBounds.Contains(cursor))
-            {
-                id = entry.Drop.Id;
-                position = entry.Position;
-                return true;
-            }
-
-            var hit = ray.Intersects(new BoundingSphere(entry.Position + Vector3.Up * 7, 12));
+            var hit = ray.Intersects(new BoundingSphere(entry.Position + Vector3.Up * 7, 16));
             if (hit.HasValue && hit.Value < nearest)
             {
                 nearest = hit.Value;

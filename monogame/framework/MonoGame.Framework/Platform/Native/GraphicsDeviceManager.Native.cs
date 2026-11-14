@@ -42,6 +42,13 @@ public partial class GraphicsDeviceManager
         FillWindowCreateInfo(presentationParameters, requestedMultiSampleCount, ref windowCreateInfo);
 
         window.CreateWindow(windowCreateInfo);
+        // MonoGame initially creates the SDL window at 800x480. Size it to the requested
+        // presentation *before* GraphicsDevice.PlatformInitialize creates the Vulkan
+        // swapchain; otherwise Vulkan sees the old SDL surface extent even though the
+        // managed backbuffer already reports the new dimensions. A later manual resize
+        // works because ClientResize resizes SDL before recreating the swapchain.
+        if (PlatformInfo.GraphicsBackend != GraphicsBackend.OpenGL)
+            window.OnPresentationChanged(presentationParameters);
         presentationParameters.DeviceWindowHandle = window.Handle;
     }
 

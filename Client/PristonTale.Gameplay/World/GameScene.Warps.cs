@@ -249,7 +249,7 @@ public sealed partial class GameScene
             PlaceAtHeight(_playerBody, warp.Position.Y);
             EndFall(landed: false);
             ApplyPlayerWorld();
-            _camera?.SnapFollow(_playerBody.Position, _fieldCollision);
+            _camera?.SnapFollow(_playerBody.Position, CameraCollisionQuery);
             _reports.Request();
         }
     }
@@ -275,7 +275,7 @@ public sealed partial class GameScene
         UpdateBodyHeight(_playerBody);
         EndFall(landed: false);
         ApplyPlayerWorld();
-        _camera?.SnapFollow(_playerBody.Position, _fieldCollision);
+        _camera?.SnapFollow(_playerBody.Position, CameraCollisionQuery);
         ApplyPlayerCommand(_playerController.ApplyAuthoritative(MotionCode.Restart));
     }
 }

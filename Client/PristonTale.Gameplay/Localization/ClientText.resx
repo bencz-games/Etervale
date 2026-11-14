@@ -948,4 +948,22 @@ go on to the high tower.</value></data>
   <data name="WingGate.MoveThere" xml:space="preserve"><value>move there?</value></data>
   <data name="WingGate.Title" xml:space="preserve"><value>Warp gate</value></data>
   <data name="Workbench.TakeBack" xml:space="preserve"><value>Right-click: take back</value></data>
+  <data name="Settings.PageGraphics" xml:space="preserve"><value>Graphics / camera</value></data>
+  <data name="Settings.PageKeys" xml:space="preserve"><value>Keyboard / mouse shortcuts</value></data>
+  <data name="Settings.PrevPage" xml:space="preserve"><value>Previous</value></data>
+  <data name="Settings.NextPage" xml:space="preserve"><value>Next</value></data>
+  <data name="Settings.ReferenceOnly" xml:space="preserve"><value>Shortcut reference (read only)</value></data>
+  <data name="Settings.CameraCollisionOn" xml:space="preserve"><value>Camera collision: on</value></data>
+  <data name="Settings.CameraCollisionOff" xml:space="preserve"><value>Camera collision: off</value></data>
+  <data name="Settings.Keys1" xml:space="preserve"><value>Left click: move / attack / loot</value></data>
+  <data name="Settings.Keys2" xml:space="preserve"><value>Right click: selected skill / attack</value></data>
+  <data name="Settings.Keys3" xml:space="preserve"><value>Middle drag: orbit camera</value></data>
+  <data name="Settings.Keys4" xml:space="preserve"><value>Mouse wheel: zoom</value></data>
+  <data name="Settings.Keys5" xml:space="preserve"><value>X: system menu; Esc: close / settings</value></data>
+  <data name="Settings.Keys6" xml:space="preserve"><value>I / V: inventory; C: status</value></data>
+  <data name="Settings.Keys7" xml:space="preserve"><value>S: skills; Q: quests; D: party</value></data>
+  <data name="Settings.Keys8" xml:space="preserve"><value>R: run; E: bag; W: weapon pair</value></data>
+  <data name="Settings.Keys9" xml:space="preserve"><value>A: show ground loot names</value></data>
+  <data name="Settings.Keys10" xml:space="preserve"><value>1-3: potion belt</value></data>
+  <data name="Settings.Keys11" xml:space="preserve"><value>Shift: alternate action</value></data>
 </root>

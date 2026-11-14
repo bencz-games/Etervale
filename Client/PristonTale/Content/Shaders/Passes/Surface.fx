@@ -53,6 +53,9 @@ cbuffer SurfacePixelConstants : register(b0)
     FOG_CONSTANTS
     LIGHTING_CONSTANTS
     MATERIAL_CONSTANTS
+#ifndef GLTF
+    float EtvPbrEnabled;
+#endif
 #ifdef GLTF
     GLTF_MATERIAL_CONSTANTS
 #endif
@@ -61,6 +64,14 @@ cbuffer SurfacePixelConstants : register(b0)
 };
 
 MATERIAL_RESOURCES
+#ifndef GLTF
+Texture2D<float4> EtvPbrNormalMap : register(t11);
+SamplerState EtvPbrNormalSampler : register(s11) = sampler_state
+{ Texture = (EtvPbrNormalMap); MinFilter = Linear; MagFilter = Linear; MipFilter = Linear; AddressU = Wrap; AddressV = Wrap; };
+Texture2D<float4> EtvPbrOrmMap : register(t12);
+SamplerState EtvPbrOrmSampler : register(s12) = sampler_state
+{ Texture = (EtvPbrOrmMap); MinFilter = Linear; MagFilter = Linear; MipFilter = Linear; AddressU = Wrap; AddressV = Wrap; };
+#endif
 #ifdef GLTF
 GLTF_MATERIAL_RESOURCES
 #endif
@@ -87,6 +98,26 @@ float CloudShadowAt(float3 world)
 #include "../Atmosphere/Fog.hlsli"
 #include "../Lighting/Shading.hlsli"
 #include "../Materials/Material.hlsli"
+// M166: legacy opaque PBR overlays use the original UVs. Data maps are linear.
+#ifndef GLTF
+float3 EtvPbrNormal(float3 n, float3 world, float2 uv, float3 encoded)
+{
+    float3 dp1 = ddx(world), dp2 = ddy(world);
+    float2 du1 = ddx(uv), du2 = ddy(uv);
+    float det = du1.x * du2.y - du1.y * du2.x;
+    if (abs(det) < 1e-12) return n;
+    float3 t0 = (dp1 * du2.y - dp2 * du1.y) / det;
+    float3 b0 = (-dp1 * du2.x + dp2 * du1.x) / det;
+    float3 t = t0 - n * dot(n, t0);
+    if (dot(t,t) < 1e-12) return n;
+    t = normalize(t);
+    float3 b = cross(n,t) * (dot(cross(n,t),b0) < 0.0 ? -1.0 : 1.0);
+    float3 mapped = encoded * 2.0 - 1.0;
+    // Source normal maps follow OpenGL/glTF (green points toward decreasing image V).
+    return SafeNormalize(t * mapped.x - b * mapped.y + n * max(mapped.z, 0.001));
+}
+#endif
+
 #ifdef GLTF
 #include "../Materials/GltfMaterial.hlsli"
 #endif
@@ -307,6 +338,16 @@ float4 ShadeSurface(VSOut i, bool masked)
     Surface s = SampleGltfSurface(i.Uv.xy, i.Uv.zw, i.Color, i.Normal, i.Tangent, VisibleFaceNormal(i.WorldPosition, v), layers);
 #else
     Surface s = SampleSurface(i.Uv.xy, i.Uv.zw, i.Color, i.Normal, VisibleFaceNormal(i.WorldPosition, v));
+    float etvAO = 1.0;
+    if (EtvPbrEnabled > 0.5)
+    {
+        float3 orm = EtvPbrOrmMap.Sample(EtvPbrOrmSampler, i.Uv.xy).rgb;
+        s.Normal = EtvPbrNormal(s.Normal, i.WorldPosition, i.Uv.xy, EtvPbrNormalMap.Sample(EtvPbrNormalSampler, i.Uv.xy).rgb);
+        s.Roughness = clamp(orm.g, 0.045, 1.0);
+        s.Metallic = saturate(orm.b);
+        s.F0 = lerp(Reflectance.xxx, s.Albedo, s.Metallic);
+        etvAO = orm.r;
+    }
 #endif
     if (masked)
     {
@@ -348,6 +389,8 @@ float4 ShadeSurface(VSOut i, bool masked)
         // The share the surface transmits does not reflect diffusely; the material's occlusion joins the screen's.
         diffuseAlbedo *= 1.0 - layers.Transmission;
         occlusion.x *= layers.Occlusion;
+#else
+        occlusion.x *= etvAO;
 #endif
         // A translucent surface lit from behind looks up its shadow on the sun's side.
 #ifdef GLTF
@@ -495,7 +538,15 @@ PrepassOut Prepass(VSOut i, bool masked)
     o.Color = 0.0;
     o.Depth = i.ViewDepth;
     // Alpha: the smoothness the screen-space reflections read (Passes/Reflections.fx).
-    o.Normal = float4(n * 0.5 + 0.5, 1.0 - Roughness);
+    float prepassRoughness = Roughness;
+#ifndef GLTF
+    if (EtvPbrEnabled > 0.5)
+    {
+        n = EtvPbrNormal(n, i.WorldPosition, i.Uv.xy, EtvPbrNormalMap.Sample(EtvPbrNormalSampler, i.Uv.xy).rgb);
+        prepassRoughness = EtvPbrOrmMap.Sample(EtvPbrOrmSampler, i.Uv.xy).g;
+    }
+#endif
+    o.Normal = float4(n * 0.5 + 0.5, 1.0 - prepassRoughness);
     o.Motion = MotionOutput(i, masked);
     return o;
 }

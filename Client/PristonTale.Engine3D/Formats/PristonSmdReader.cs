@@ -32,6 +32,10 @@ public sealed class PristonSmdReader
         0x8F, 0x42, 0x8F, 0xA8, 0x1B, 0x84, 0xAA, 0x00
     ];
 
+    // The inspector needs the same signature check the game reader uses for binary-header models.
+    public static bool HasBinaryModelSignature(ReadOnlySpan<byte> header) =>
+        header.SequenceEqual(BinaryModelHeader);
+
     private readonly PristonAssetCache _cache;
 
     public PristonSmdReader()
