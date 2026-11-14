@@ -18,11 +18,12 @@ internal static class CostumeWardrobeTests
     {
         yield return ("cosmetic server manifest refuses deferred CA and duplicates", CatalogAsync);
         yield return ("Hopy costumes require explicit opt-in and keep combat equipment unchanged", HopyAsync);
-        yield return ("cosmetic operation requires ownership, server permission and current revision, without combat changes", OwnershipAsync);
+        yield return ("cosmetic operation requires ownership, server permission and current revision", OwnershipAsync);
         yield return ("Hopy costume cannot replace armour equipment slot", HopyArmorAsync);
         yield return ("cosmetic binding survives a clone and a saved inventory relog", PersistenceAsync);
         yield return ("cosmetic identity round trips across roster, owner status and remote description with clan fields", WireAsync);
         yield return ("cosmetic binding expires when its item leaves the bag", RemovalAsync);
+        yield return ("costume combat bonuses add to armour, survive storage and disappear on removal", AdditiveStatsAsync);
     }
 
     private static Task CatalogAsync()
@@ -86,7 +87,7 @@ internal static class CostumeWardrobeTests
         var item = new ItemInstance(cosmetic);
         Assert.True(character.Inventory.TryPlace(item, 0), "test costume does not fit in bag");
         character.Equip(EquipmentSlot.Armor, new ItemInstance(armor));
-        return (character, cosmetic, armor, item);
+        return (character, cosmetic, armor, character.Inventory[0]);
     }
 
     private static Task HopyArmorAsync()
@@ -141,7 +142,7 @@ internal static class CostumeWardrobeTests
         var record = CharacterRecordFactory.NewStarter(classes, 1, "Wardrobe", 0, PlayerClass.Fighter, 3);
         var stored = CharacterRecordFactory.Capture(record, clone, 3, Vector3.Zero).Encode();
         var restored = classes.CreatePlayer(PlayerClass.Fighter, "Wardrobe", 50);
-        CharacterStateCodec.Restore(restored, stored, new ItemCatalog([cosmetic, armor]));
+        CharacterStateCodec.Restore(restored, stored, new ItemCatalog([cosmetic, armor]), catalog);
         Assert.True(restored.ActiveCostumeKey(catalog) == "DA147" && restored.GetEquipped(EquipmentSlot.Armor)?.Definition.Code == armor.Code,
             "relog lost the cosmetic or swapped armor");
         Assert.True(restored.ActiveCostumeKey(CostumeCatalog.Empty) == "", "a disabled catalog still displayed a cosmetic");
@@ -156,6 +157,96 @@ internal static class CostumeWardrobeTests
         Assert.True(character.Inventory.TakeAt(0)?.InstanceId == item.InstanceId, "test item removal failed");
         Assert.True(character.ActiveCostumeItemId(catalog) == Guid.Empty && character.ActiveCostumeKey(catalog) == "",
             "a removed item was still worn");
+        return Task.CompletedTask;
+    }
+
+    private static Task AdditiveStatsAsync()
+    {
+        var (character, cosmetic, armor, item) = Setup();
+        var equipped = character.GetEquipped(EquipmentSlot.Armor);
+        equipped.Roll = equipped.Roll with { Defence = 100, Absorb = 4, AddLife = 20 };
+        item.Roll = item.Roll with
+        {
+            Defence = 120, Absorb = 9, AddLife = 50, AddMana = 20, AddStamina = 30,
+            DamageMin = 7, DamageMax = 12, AttackRating = 40, LifeRegen = 2,
+            SpecJob = (uint)character.Definition.JobBitCode,
+            Spec = ItemSpecBonus.None with { Defence = 15, Absorb = 2, LevelLife = 10 }
+        };
+        character.TouchInventory();
+        var baseline = character.Derived;
+        var totals = character.EquipmentTotals;
+        var catalog = CostumeCatalog.FromJson(Manifest);
+        Assert.True(!character.TryWearCostume(item.InstanceId, CostumeCatalog.Empty)
+            && character.Derived == baseline, "unlisted costume granted bonuses");
+        Assert.True(character.TryWearCostume(item.InstanceId, catalog), "costume was refused");
+        var added = character.Derived;
+        Assert.True(ReferenceEquals(character.GetEquipped(EquipmentSlot.Armor), equipped), "armour was replaced");
+        Assert.True(character.EquipmentTotals.Defence == totals.Defence + 135
+            && added.Defence == baseline.Defence + 135 && added.Absorption > baseline.Absorption,
+            "costume defence/specialization was not added to armour");
+        Assert.Near(totals.Absorb + 11, character.EquipmentTotals.Absorb);
+        Assert.True(added.MaxLife == baseline.MaxLife + 55 && added.MaxMana == baseline.MaxMana + 20
+            && added.MaxStamina == baseline.MaxStamina + 30 && added.AttackRating == baseline.AttackRating + 40,
+            "costume pools or rating did not add to existing values");
+        Assert.True(added.AttackDamageMin == baseline.AttackDamageMin + 7
+            && added.AttackDamageMax == baseline.AttackDamageMax + 12, "bare-hand damage lost the costume bonus");
+        Assert.Near(totals.LifeRegen + 2, character.EquipmentTotals.LifeRegen);
+        var owner = OwnerState.Capture(character, costumes: catalog);
+        Assert.True(owner.Defence == added.Defence && owner.DamageMin == added.AttackDamageMin
+            && owner.MaxLife == added.MaxLife && owner.CostumeItemId == item.InstanceId,
+            "owner status did not publish the server bonuses");
+        Assert.True(character.TrySwitchBagPage(1) && character.Derived == added, "hidden costume lost its bonuses");
+
+        var clone = character.CloneForInventoryOperation();
+        Assert.True(clone.Derived == added, "clone lost or doubled bonuses");
+        var classes = new CharacterClassRegistry();
+        var record = CharacterRecordFactory.NewStarter(classes, 1, "Wardrobe", 0, PlayerClass.Fighter, 3);
+        var stored = CharacterRecordFactory.Capture(record, clone, 3, Vector3.Zero).Encode();
+        var restored = classes.CreatePlayer(PlayerClass.Fighter, "Wardrobe", 50);
+        CharacterStateCodec.Restore(restored, stored, new ItemCatalog([cosmetic, armor]), catalog);
+        Assert.True(restored.Derived == added, "saved roll or wardrobe bonus was lost at relog");
+        var denied = classes.CreatePlayer(PlayerClass.Fighter, "Wardrobe", 50);
+        CharacterStateCodec.Restore(denied, stored, new ItemCatalog([cosmetic, armor]), CostumeCatalog.Empty);
+        Assert.True(denied.Derived == baseline && denied.ActiveCostumeItemId() == Guid.Empty,
+            "disabled catalog granted bonuses on relog");
+
+        var wrongSpec = clone.HiddenBag.Items().Single(i => i.InstanceId == item.InstanceId);
+        wrongSpec.Roll = wrongSpec.Roll with { SpecJob = 0 };
+        clone.TouchInventory();
+        Assert.True(clone.Derived.Defence == baseline.Defence + 120,
+            "non-matching specialization was applied");
+        var modelLess = CostumeCatalog.FromJson("""
+            {"version":1,"costumes":[{"itemKey":"DA147","gender":"any","bodies":{}},
+                                     {"itemKey":"CA547","gender":"any","bodies":{}}]}
+            """);
+        var replacement = new ItemInstance(new ItemDefinition(ItemCodes.Parse("CA547"), "Model-less", ItemKind.Misc)
+            { CatalogKey = "CA547", RequiredLevel = 999 });
+        replacement.Roll = replacement.Roll with { Defence = 60 };
+        Assert.True(clone.Inventory.TryPlaceFirstFree(replacement), "replacement did not fit");
+        Assert.True(clone.TryWearCostume(replacement.InstanceId, modelLess)
+            && clone.Derived.Defence == baseline.Defence + 60, "model-less costume refused or two costumes stacked");
+        Assert.True(clone.TryClearCostume() && clone.Derived == baseline, "cleared costume retained stats");
+        character.CommitInventoryOperation(clone);
+        Assert.True(character.Derived == baseline && character.ActiveCostumeItemId() == Guid.Empty,
+            "committed clear did not remove the bonus");
+        Assert.True(character.TryWearCostume(item.InstanceId, catalog), "hidden costume could not be attached again");
+        // Remove an active item from the hidden bag; cached stats must be invalidated as on the shown page.
+        Assert.True(character.HiddenBag.TakeAt(0)?.InstanceId == item.InstanceId, "hidden item removal failed");
+        Assert.True(character.Derived == baseline && character.ActiveCostumeItemId() == Guid.Empty,
+            "removed costume retained stats");
+
+        var weapon = new ItemInstance(new ItemDefinition(ItemCodes.Parse("WA101"), "Axe", ItemKind.Axe, EquipmentSlot.Weapon)
+            { CatalogKey = "WA101" });
+        weapon.Roll = weapon.Roll with { DamageMin = 15, DamageMax = 25 };
+        character.Equip(EquipmentSlot.Weapon, weapon);
+        var armed = PristonTale.Simulation.Combat.WeaponDamage.ComputeForHit(character);
+        var fresh = item.Copy(1);
+        Assert.True(character.Inventory.TryPlaceFirstFree(fresh) && character.TryWearCostume(fresh.InstanceId, catalog),
+            "could not wear costume with a weapon equipped");
+        var armedWithCostume = PristonTale.Simulation.Combat.WeaponDamage.ComputeForHit(character);
+        Assert.True(armedWithCostume.Min > armed.Min && armedWithCostume.Max > armed.Max
+            && ReferenceEquals(character.GetEquipped(EquipmentSlot.Weapon), weapon),
+            "armed damage omitted the costume's bonus or replaced the weapon");
         return Task.CompletedTask;
     }
 

@@ -15,6 +15,9 @@ public sealed record EquipmentTotals
     public int LevelAttackRating { get; init; }
     public int DamageMin { get; init; }
     public int DamageMax { get; init; }
+    // Bare hands gain the costume's own flat damage, without changing the existing normal-equipment formula.
+    public int CostumeDamageMin { get; init; }
+    public int CostumeDamageMax { get; init; }
     public int LevelDamage { get; init; }
     public int Critical { get; init; }
     public int Defence { get; init; }
@@ -52,6 +55,15 @@ public sealed record EquipmentTotals
                 continue;
             }
 
+            Add(item, costume: false);
+        }
+
+        var activeCostume = character.ActiveCostumeItem;
+        if (activeCostume is not null)
+            Add(activeCostume, costume: true);
+
+        void Add(ItemInstance item, bool costume)
+        {
             if (item.Definition.Set is { } set)
             {
                 sets ??= new Dictionary<int, (ItemSetDefinition, int)>();
@@ -74,7 +86,11 @@ public sealed record EquipmentTotals
             totals.ManaRegen += roll.ManaRegen;
             totals.StaminaRegen += roll.StaminaRegen;
             // The last worn item with a magic mastery sets it; the specialization bonuses add to that.
-            if (item.MagicMastery != 0)
+            if (costume)
+            {
+                totals.MagicMastery += item.MagicMastery;
+            }
+            else if (item.MagicMastery != 0)
             {
                 totals.MagicMastery = item.MagicMastery;
             }
@@ -82,7 +98,7 @@ public sealed record EquipmentTotals
             totals.AddLife += roll.AddLife;
             totals.AddMana += roll.AddMana;
             totals.AddStamina += roll.AddStamina;
-            if (item.Definition.PotionSpace != 0)
+            if (!costume && item.Definition.PotionSpace != 0)
             {
                 totals.PotionSpace = item.Definition.PotionSpace;
             }
@@ -125,7 +141,11 @@ public sealed record EquipmentTotals
             }
         }
 
-        return totals.Build();
+        return totals.Build() with
+        {
+            CostumeDamageMin = activeCostume?.Roll.DamageMin ?? 0,
+            CostumeDamageMax = activeCostume?.Roll.DamageMax ?? 0
+        };
     }
 
     // Each copy's absorb is cut to one decimal before it is summed, with a tiny bias against float error.

@@ -102,8 +102,8 @@ public readonly record struct DerivedStats(
             dmgMin = 1 + (str + 200) / 200 + (tal + dex) / 50;
             dmgMax = 2 + (str + 200) / 200 + (tal + dex) / 45;
         }
-        dmgMin += 1;
-        dmgMax += 1 + items.LevelDamage;
+        dmgMin += 1 + items.CostumeDamageMin;
+        dmgMax += 1 + items.LevelDamage + items.CostumeDamageMax;
 
         int attackSpeed = items.AttackSpeed;
 

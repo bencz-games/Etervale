@@ -30,12 +30,20 @@ costume manifest with the game-data archive.
 The policy uses explicit catalog keys, not a blanket rule for every DA or CA item. The audited catalog distinguishes
 64 ordinary armour/robe keys (32 of each) from 92 cosmetic DA keys. It also includes 132 named CA entries, and leaves
 24 unidentified CA entries outside the policy. Other item families are not affected. The 224 cosmetic keys include some
-formerly combat-capable DA entries: they are intentionally cosmetic under the project rule and do not contribute combat
-stats when worn as costumes. Normal armour and robes preserve their combat and class rules.
+formerly combat-capable DA entries: they occupy the separate wardrobe slot under the project rule. Their actual
+item bonuses add to normal combat equipment. Normal armour and robes preserve their combat and class rules.
 
 Cosmetic purchase and wear use the configured gender (`male`, `female`, `any`), not whether a body exists for the class.
 The server rejects cosmetic items in ordinary equipment slots. The selected costume is an inventory-backed vanity
-attachment rather than a second combat armour. Normal armour continues to determine combat stats.
+attachment rather than a second armour slot. The server adds the authorised costume's real item roll through
+`EquipmentTotals.Sum`, exactly once, even if the class has no body mapping. Defence, absorption, damage, attack
+rating, critical, block, speed, resistances, regeneration and resource bonuses feed the usual derived-stat formulas.
+Specialization bonuses apply only when the character's job matches the item roll. Costume eligibility remains the
+manifest gender rule, independent of normal armour requirements and class restrictions. Normal equipment caps and
+skill formulas still apply. Magic mastery adds to the normal value; potion-belt capacity remains normal-equipment-only.
+Bare-hand attacks receive the costume's flat damage, while armed attacks use the existing weapon formula.
+The authoritative catalog is supplied when restoring the saved costume before saved resource pools are clamped.
+Changing the active costume, clearing it, or losing the item invalidates its derived bonus on either bag page.
 
 The shop can present a cosmetic offer originating in the weapon stock under the armour tab without rewriting the
 stock database. A goods-tab offer remains under goods. Ordinary weapons are unaffected. The wardrobe page is a
@@ -92,7 +100,7 @@ No replacement font, new bitmap, or change to the costume page hit area is neces
 
 1. Preserve the explicit policy and check that the manifest keys match it; do not enable unnamed CA items as a side effect.
 2. Resolve each body and its model/texture dependencies from the assets root, retaining exact case on Linux.
-3. Build and run the regression runner, then verify purchase, equip/clear, normal armour stats, appearance, movement,
+3. Build and run the regression runner, then verify purchase, equip/clear, additive armour and costume stats, movement,
    remote visibility and relogging in the game.
 4. Distribute the final manifest and existing HUD art with the separately managed game-data archive. The repository ignores
    `assets/` as a whole; do not force-add the original game binaries or local databases.
