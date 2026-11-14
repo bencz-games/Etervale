@@ -46,6 +46,7 @@ internal sealed class PristonShaderLibrary : IDisposable
     private readonly SurfaceEffect _static;
     private readonly SurfaceEffect _skinned;
     private readonly SurfaceEffect _gltf;
+    private readonly SurfaceEffect _forestInstanced;
     private readonly Vector4[] _lightPositions = new Vector4[MaxLocalLightCount];
     private readonly Vector4[] _lightColors = new Vector4[MaxLocalLightCount];
     private readonly CascadeConstants _cascades = new();
@@ -61,16 +62,20 @@ internal sealed class PristonShaderLibrary : IDisposable
         _static = new SurfaceEffect(LoadRequired(content, StaticSurfaceAsset, log), ShaderVertexFactory.Static, neutral, _allLights, _noEnvironment);
         _skinned = new SurfaceEffect(LoadRequired(content, SkinnedSurfaceAsset, log), ShaderVertexFactory.Skinned, neutral, _allLights, _noEnvironment);
         _gltf = new SurfaceEffect(LoadRequired(content, GltfSurfaceAsset, log), ShaderVertexFactory.Gltf, neutral, _allLights, _noEnvironment);
+        if (Environment.GetEnvironmentVariable("ETV_FOREST_RENDERER") == "INSTANCED")
+            _forestInstanced = new SurfaceEffect(LoadRequired(content, "Effects/ForestInstanced", log),
+                ShaderVertexFactory.Gltf, neutral, _allLights, _noEnvironment);
     }
 
     // Material texture parameter changes since BeginFrame (identical rebinds are skipped and not counted).
-    public int TextureChanges => _static.TextureChanges + _skinned.TextureChanges + _gltf.TextureChanges;
+    public int TextureChanges => _static.TextureChanges + _skinned.TextureChanges + _gltf.TextureChanges + (_forestInstanced?.TextureChanges ?? 0);
 
     public void BeginFrame()
     {
         _static.TextureChanges = 0;
         _skinned.TextureChanges = 0;
         _gltf.TextureChanges = 0;
+        if (_forestInstanced is not null) _forestInstanced.TextureChanges = 0;
     }
 
     internal static float VertexAnimationSeconds(uint renderTimeMs) =>
@@ -95,6 +100,7 @@ internal sealed class PristonShaderLibrary : IDisposable
         _static.ApplyFrame(constants, _lightPositions, _lightColors, _cascades);
         _skinned.ApplyFrame(constants, _lightPositions, _lightColors, _cascades);
         _gltf.ApplyFrame(constants, _lightPositions, _lightColors, _cascades);
+        _forestInstanced?.ApplyFrame(constants, _lightPositions, _lightColors, _cascades);
     }
 
     // The cascade constants of a frame, packed once for every effect.
@@ -146,6 +152,7 @@ internal sealed class PristonShaderLibrary : IDisposable
         _static.ApplyCasterFrame(viewProjection, animationTime, casterLight);
         _skinned.ApplyCasterFrame(viewProjection, animationTime, casterLight);
         _gltf.ApplyCasterFrame(viewProjection, animationTime, casterLight);
+        _forestInstanced?.ApplyCasterFrame(viewProjection, animationTime, casterLight);
     }
 
     public Effect SelectStaticSurface(
@@ -240,6 +247,27 @@ internal sealed class PristonShaderLibrary : IDisposable
         return _gltf.Select(_gltf.SurfaceTechnique(material.Queue.AlphaTest, prepass));
     }
 
+    // M1.5.2 uses the existing glTF PBR material code and the hidden actor's
+    // static model-space palette; the instance vertex stream supplies its world.
+    public Effect SelectForestSurface(GltfMaterialRuntime material, PristonSkinPalette palette, bool prepass)
+    {
+        if (_forestInstanced is null) throw new InvalidOperationException("Instanced forest shader not enabled");
+        _forestInstanced.SetBonePalette(palette);
+        _forestInstanced.SetDrawLight(1f);
+        _forestInstanced.ApplyGltfMaterial(material, Vector3.Zero);
+        _forestInstanced.ApplyGltfOverlay(null, 0f);
+        _forestInstanced.ApplyActor(new Vector4(0f, 0f, 0f, 1f), Vector4.Zero, true);
+        return _forestInstanced.Select(_forestInstanced.SurfaceTechnique(material.Queue.AlphaTest, prepass));
+    }
+
+    public Effect SelectForestShadow(GltfMaterialRuntime material, PristonSkinPalette palette)
+    {
+        if (_forestInstanced is null) throw new InvalidOperationException("Instanced forest shader not enabled");
+        _forestInstanced.SetBonePalette(palette);
+        _forestInstanced.ApplyGltfMaterial(material, Vector3.Zero);
+        return _forestInstanced.Select(material.Queue.AlphaTest ? _forestInstanced.CasterMasked : _forestInstanced.Caster);
+    }
+
     // The hover outline of a glTF batch SelectGltfSurface just set up.
     public Effect SelectGltfOutline(bool masked, Vector4 parameters, Vector4 color)
     {
@@ -259,6 +287,7 @@ internal sealed class PristonShaderLibrary : IDisposable
         _static.Dispose();
         _skinned.Dispose();
         _gltf.Dispose();
+        _forestInstanced?.Dispose();
     }
 
     internal static Effect LoadRequired(ContentManager content, string assetName, IClientLog log)
@@ -419,6 +448,8 @@ internal sealed class PristonShaderLibrary : IDisposable
         private Texture2D _overlay;
         private readonly EffectParameter _baseColorMap;
         private readonly EffectParameter _layerMap;
+        private readonly EffectParameter _etvPbrEnabled, _etvPbrNormalMap, _etvPbrOrmMap;
+        private Texture2D _etvBoundNormal, _etvBoundOrm;
         // The glTF material (GLTF variant only; null elsewhere): its packed textures after base and normals, in
         // GltfPackedTexture order from Surface, and its constants.
         private readonly EffectParameter[] _gltfMaps;
@@ -551,6 +582,12 @@ internal sealed class PristonShaderLibrary : IDisposable
             _actorReceiver?.SetValue(0f);
             _baseColorMap = Parameter("BaseColorMap");
             _layerMap = Parameter("LayerMap");
+            _etvPbrEnabled = Parameter("EtvPbrEnabled");
+            _etvPbrNormalMap = Parameter("EtvPbrNormalMap");
+            _etvPbrOrmMap = Parameter("EtvPbrOrmMap");
+            _etvPbrEnabled?.SetValue(0f);
+            _etvPbrNormalMap?.SetValue(neutral);
+            _etvPbrOrmMap?.SetValue(neutral);
             _gltfMaps = [Parameter("GltfSurfaceMap"), Parameter("GltfEmissiveMap"), Parameter("GltfSheenMap"), Parameter("GltfTransmissionMap")];
             _gltfOverlayMap = Parameter("GltfOverlayMap");
             _gltfOverlayMap?.SetValue(neutral);
@@ -876,6 +913,10 @@ internal sealed class PristonShaderLibrary : IDisposable
 
             _baseColorFactor?.SetValue(description.BaseColorFactor);
             _roughness?.SetValue(description.Roughness);
+            var etvPbr = description.PbrNormal is not null && description.PbrOrm is not null;
+            _etvPbrEnabled?.SetValue(etvPbr ? 1f : 0f);
+            BindTexture(_etvPbrNormalMap, ref _etvBoundNormal, description.PbrNormal ?? _neutralTexture);
+            BindTexture(_etvPbrOrmMap, ref _etvBoundOrm, description.PbrOrm ?? _neutralTexture);
             _metallic?.SetValue(description.Metallic);
             _reflectance?.SetValue(description.Reflectance);
             _shadingModel?.SetValue((float)description.ShadingModel);

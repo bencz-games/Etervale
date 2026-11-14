@@ -38,6 +38,13 @@
 /processorParam:Defines=SKINNED;GLTF
 /build:Shaders/Passes/Surface.fx;Effects/GltfSurface.fx
 
+#begin Shaders/Passes/ForestInstanced.fx
+/importer:EffectImporter
+/processor:SpirvEffectProcessor
+/processorParam:DebugMode=Auto
+/processorParam:Defines=SKINNED;GLTF;FOREST_INSTANCED
+/build:Shaders/Passes/ForestInstanced.fx;Effects/ForestInstanced.fx
+
 #begin Shaders/Passes/Unlit.fx
 /importer:EffectImporter
 /processor:SpirvEffectProcessor

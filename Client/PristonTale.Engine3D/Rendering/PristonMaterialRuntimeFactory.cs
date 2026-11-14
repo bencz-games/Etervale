@@ -19,6 +19,13 @@ internal sealed class PristonMaterialRuntimeFactory
         // Multi-texture slots carry independent form states; a single-slot material takes the first authored one.
         var formState = material.RenderedStageCount > 1 ? material.StageFormState(0) : FirstTextureFormState(material);
         var layers = LoadLayers(assetDirectory, material);
+        var description = PristonMaterialAdapter.WithShape(
+            PristonMaterialAdapter.Describe(material, layers.Length > 0 ? layers[0] : null), alphaTest, material.TwoSided);
+        if (PbrMaps(assetDirectory, material) is { } maps && description.ShadingModel == PristonShadingModel.Lit)
+        {
+            description = description with { PbrNormal = _textureLoader.LoadTexture(assetDirectory, maps.Normal), PbrOrm = _textureLoader.LoadTexture(assetDirectory, maps.Surface) };
+            Console.WriteLine($"[ETV PBR] native {material.TextureName}: normal + ORM loaded");
+        }
         return new PristonMaterialRuntime(
             LoadMaterialTextures(assetDirectory, material),
             material.TwoSided,
@@ -38,10 +45,26 @@ internal sealed class PristonMaterialRuntimeFactory
             windZ,
             PristonMaterialLayer.Decode(material.StageState(0)),
             layers,
-            PristonMaterialAdapter.WithShape(
-                PristonMaterialAdapter.Describe(material, layers.Length > 0 ? layers[0] : null),
-                alphaTest,
-                material.TwoSided));
+            description);
+    }
+
+    // M166: opt-in maps stored beside an existing opaque Field texture.
+    internal static (string Normal, string Surface)? PbrMaps(string directory, PristonMaterial material)
+    {
+        if (material.IsInvisible || material.HasNoRenderableTexture || material.HasAnimatedTexture ||
+            material.IsWater || material.IsSelfIllum || material.IsBlinking ||
+            Classify(material).AlphaTest || Classify(material).Transparent || (material.RenderedStageCount > 1 ? material.StageFormState(0) : FirstTextureFormState(material)) != 0 ||
+            !PristonBlendType.Covers(material.BlendType)) return null;
+        var full = Path.GetFullPath(directory).Replace('\\', '/');
+        if (!full.Contains("/assets/Field/", StringComparison.OrdinalIgnoreCase)) return null;
+        var path = PristonTextureLoader.ResolvePath(directory, material.TextureName);
+        if (string.IsNullOrEmpty(path) || !path.EndsWith(".bmp", StringComparison.OrdinalIgnoreCase) ||
+            !string.Equals(Path.GetFullPath(Path.GetDirectoryName(path) ?? "."), Path.GetFullPath(directory), StringComparison.OrdinalIgnoreCase)) return null;
+        var name = Path.GetFileName(path);
+        var normal = name + ".etv-normal.bmp";
+        var surface = name + ".etv-orm.bmp";
+        return File.Exists(Path.Combine(directory, normal)) && File.Exists(Path.Combine(directory, surface))
+            ? (normal, surface) : null;
     }
 
     private PristonMaterialLayer[] LoadLayers(string assetDirectory, PristonMaterial material)

@@ -57,7 +57,7 @@ public sealed class PristonTextureLoader : IDisposable
     public Task PrepareTexturesAsync(string directory, IEnumerable<PristonMaterial> materials)
     {
         var pending = new List<Task>();
-        foreach (var request in TextureRequests(materials))
+        foreach (var request in RequestsWithPbr(directory, materials))
         {
             pending.Add(PrepareAsync(directory, request.Name, request.Opacity));
         }
@@ -72,7 +72,7 @@ public sealed class PristonTextureLoader : IDisposable
     // an upload costs per call rather than per byte, so slicing it would not shorten the worst step.
     internal IEnumerable<long> UploadPreparedTextures(string directory, IEnumerable<PristonMaterial> materials)
     {
-        foreach (var request in TextureRequests(materials))
+        foreach (var request in RequestsWithPbr(directory, materials))
         {
             var key = CacheKey(directory, request.Name, request.Opacity);
             if (_cache.ContainsKey(key))
@@ -94,6 +94,21 @@ public sealed class PristonTextureLoader : IDisposable
         }
 
         return bytes;
+    }
+
+    private static bool IsPbrData(string name) => name.EndsWith(".etv-normal.bmp", StringComparison.OrdinalIgnoreCase) || name.EndsWith(".etv-orm.bmp", StringComparison.OrdinalIgnoreCase);
+
+    private static IEnumerable<(string Name, string Opacity)> RequestsWithPbr(string directory, IEnumerable<PristonMaterial> materials)
+    {
+        var list = materials.ToArray();
+        var seen = new HashSet<(string, string)>();
+        foreach (var request in TextureRequests(list)) if (seen.Add(request)) yield return request;
+        foreach (var material in list)
+        {
+            if (PristonMaterialRuntimeFactory.PbrMaps(directory, material) is not { } maps) continue;
+            if (seen.Add((maps.Normal, string.Empty))) yield return (maps.Normal, string.Empty);
+            if (seen.Add((maps.Surface, string.Empty))) yield return (maps.Surface, string.Empty);
+        }
     }
 
     internal static IEnumerable<(string Name, string Opacity)> TextureRequests(IEnumerable<PristonMaterial> materials)
@@ -189,7 +204,7 @@ public sealed class PristonTextureLoader : IDisposable
             prepared = Prepare(assetDirectory, textureName, opacityName);
         }
 
-        var texture = Upload(key, prepared, _format);
+        var texture = Upload(key, prepared, IsPbrData(textureName) ? SurfaceFormat.Color : _format);
         _cache[key] = texture;
         _preparing.TryRemove(key, out _);
         return texture;
@@ -303,6 +318,7 @@ public sealed class PristonTextureLoader : IDisposable
         }
 
         var image = ReadImage(path);
+        if (IsPbrData(name) && (!image.IsValid || image.Width > 2048 || image.Height > 2048)) throw new InvalidDataException("Invalid PBR data: " + path);
         if (!image.IsValid)
         {
             _log.Warn($"Texture '{path}' is invalid; using shared white fallback.");
@@ -325,7 +341,7 @@ public sealed class PristonTextureLoader : IDisposable
         }
 
         var cutout = PristonMaterialRuntimeFactory.IsCutOut(path, opacity);
-        var levels = PristonMipChain.Build(image.Pixels, image.Width, image.Height, cutout ? AlphaCutoffByte : (byte)0);
+        var levels = IsPbrData(name) ? PristonMipChain.BuildData(image.Pixels, image.Width, image.Height) : PristonMipChain.Build(image.Pixels, image.Width, image.Height, cutout ? AlphaCutoffByte : (byte)0);
         return new PreparedTexture(image.Width, image.Height, levels);
     }
 

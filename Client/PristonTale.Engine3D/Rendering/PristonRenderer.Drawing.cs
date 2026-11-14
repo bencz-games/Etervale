@@ -54,6 +54,7 @@ public sealed partial class PristonRenderer
             ref normalBatches,
             ref twoSidedBatches,
             ref visibleStaticMeshDiagnostics);
+        if (intoScene) DrawInstancedForestSurface(0, ref drawCalls, ref triangles);
         Profiler.End(RenderSection.Opaque);
         Profiler.Begin(RenderSection.Masked);
         DrawQueueItems(
@@ -67,6 +68,7 @@ public sealed partial class PristonRenderer
             ref normalBatches,
             ref twoSidedBatches,
             ref visibleStaticMeshDiagnostics);
+        if (intoScene) DrawInstancedForestSurface(1, ref drawCalls, ref triangles);
         Profiler.End(RenderSection.Masked);
         if (_temporalTargetsBound)
         {
@@ -107,6 +109,7 @@ public sealed partial class PristonRenderer
             ref normalBatches,
             ref twoSidedBatches,
             ref visibleStaticMeshDiagnostics);
+        if (intoScene) DrawInstancedForestSurface(2, ref drawCalls, ref triangles);
         Profiler.End(RenderSection.Transparent);
         _drawingTransparent = false;
     }
@@ -279,11 +282,12 @@ public sealed partial class PristonRenderer
                     continue;
                 }
 
-                _smoothSurfaceVisible |= batch.Material.Description.Roughness < SmoothRoughness;
+                _smoothSurfaceVisible |= batch.Material.Description.PbrOrm is not null || batch.Material.Description.Roughness < SmoothRoughness;
                 DrawBatch(batch, ref unused, ref unused, ref unused, ref unused, ref unused, ref unused, ref unused, ref unused, ref diagnostics);
             }
         }
 
+        DrawInstancedForestSurface(3, ref unused, ref unused);
         _prepassMode = false;
     }
 

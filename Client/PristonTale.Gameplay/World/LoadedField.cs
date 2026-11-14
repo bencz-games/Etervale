@@ -11,12 +11,14 @@ internal sealed class LoadedField
         FieldDef definition,
         PristonStage stage,
         PristonCollisionWorld collision,
-        RenderStageHandle renderHandle)
+        RenderStageHandle renderHandle,
+        PristonActorInstance[] modernScenery = null)
     {
         Definition = definition;
         Stage = stage;
         Collision = collision;
         RenderHandle = renderHandle;
+        ModernScenery = modernScenery ?? [];
     }
 
     public FieldDef Definition { get; }
@@ -26,4 +28,6 @@ internal sealed class LoadedField
     public PristonCollisionWorld Collision { get; }
 
     public RenderStageHandle RenderHandle { get; }
+
+    public PristonActorInstance[] ModernScenery { get; }
 }

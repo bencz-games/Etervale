@@ -85,6 +85,7 @@ public sealed partial class GameScene
 
         _renderer.ClearActors();
         AddPlayerActors(assetRoot, entered?.FaceIndex ?? 0, entered?.Tier ?? 0, entered?.HairIndex ?? 0);
+        QueueModernForest(loaded);
 
         _camera = new PristonCamera(_playerBody.Position, _playerForward, ToCameraSettings(field.Camera));
         Status = $"Loaded {field.Name}: {loaded.Stage.Vertices.Count} vertices, {loaded.Stage.Faces.Count} faces, " +
@@ -145,13 +146,18 @@ public sealed partial class GameScene
             .Select(_reader.ReadModel)
             .ToArray();
         var collision = new PristonCollisionWorld(stage);
+        var modernScenery = ModernForestOverlay.Prepare(assetRoot, stage.Path, _log);
         ConfigureFieldLighting(field.Lighting);
         var handle = _renderer.AddStage(stage, animationModels);
-        return new LoadedField(field, stage, collision, handle);
+        return new LoadedField(field, stage, collision, handle, modernScenery);
     }
 
     private void UnloadAllFields()
     {
+        foreach (var field in _fields)
+        {
+            ReleaseModernForest(field);
+        }
         foreach (var field in _fields)
             _renderer.RemoveStage(field.RenderHandle);
         _fields.Clear();
@@ -321,6 +327,7 @@ public sealed partial class GameScene
 
     private void UnloadField(LoadedField field)
     {
+        ReleaseModernForest(field);
         _renderer.RemoveStage(field.RenderHandle);
         _fields.Remove(field);
         InvalidateGround();

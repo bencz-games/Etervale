@@ -410,7 +410,8 @@ public sealed partial class PristonRenderer
 
     private static bool CanMerge(PristonMaterialRuntime material)
     {
-        return material.TextureFormState == 0
+        return material.Description.PbrNormal is null && material.Description.PbrOrm is null
+            && material.TextureFormState == 0
             && !material.Transparent
             && !material.Water
             && !material.Blinking
