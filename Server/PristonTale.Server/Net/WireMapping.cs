@@ -45,7 +45,8 @@ internal static class WireMapping
                     ShopSign = appearance.ShopSign,
                     ClanId = (ulong)Math.Max(0, appearance.ClanId),
                     ClanName = appearance.ClanName,
-                    ClanMark = appearance.ClanMark
+                    ClanMark = appearance.ClanMark,
+                    Costume = ItemCode(appearance.CostumeKey)
                 };
                 return new EntityDescriptionPacket(view.EntityId, revision, EntityKind.Player, view.Level, view.MoveSpeed, view.AttackRate,
                     appearance.Name ?? "", appearance.ModelName ?? "", looks);
@@ -86,7 +87,7 @@ internal static class WireMapping
         ItemCode(summary.ArmorKey),
         ItemCode(summary.OffHandKey),
         summary.InVillage,
-        summary.ClanName);
+        summary.ClanName) { CostumeCode = ItemCode(summary.CostumeKey) };
 
     public static OwnerStatusPacket Status(OwnerState owner) => new(
         owner.Level, owner.Experience, owner.LevelStart, owner.NextLevel, owner.Money,
@@ -94,7 +95,7 @@ internal static class WireMapping
         owner.StatPoints, owner.SkillPoints, owner.Strength, owner.Spirit, owner.Talent, owner.Agility, owner.Health,
         owner.DamageMin, owner.DamageMax, owner.Defence, owner.Absorption, owner.AttackRating, owner.MoveSpeed, owner.AttackRange,
         owner.InventoryRevision, owner.ProgressionRevision, owner.SkillsRevision, owner.EliteSkillPoints, owner.Tier, (byte)owner.BagPage,
-        (byte)owner.WeaponSet);
+        (byte)owner.WeaponSet, owner.CostumeItemId, ItemCode(owner.CostumeKey));
 
     public static InventoryItemEntry Item(OwnedItemView item) => new(
         item.InstanceId, item.Code, (int)item.Kind, item.Count, item.Anchor, item.Slot, (short)item.Width, (short)item.Height, item.Name, item.Link);

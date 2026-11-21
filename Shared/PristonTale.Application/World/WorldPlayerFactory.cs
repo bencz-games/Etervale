@@ -1,3 +1,4 @@
+using PristonTale.Simulation.Items;
 using PristonTale.Application.Sessions;
 using PristonTale.Persistence.Abstractions.Characters;
 using PristonTale.Contracts.Characters;
@@ -6,7 +7,7 @@ namespace PristonTale.Application.World;
 
 public static class WorldPlayerFactory
 {
-    public static WorldPlayer Create(PlayerSession session)
+    public static WorldPlayer Create(PlayerSession session, CostumeCatalog? costumes = null)
     {
         ArgumentNullException.ThrowIfNull(session);
         if (session.Character is null || session.Loaded is null)
@@ -14,7 +15,7 @@ public static class WorldPlayerFactory
 
         var appearance = ToAppearance(session.Loaded);
         return new WorldPlayer(
-            session.EntityId, session.SpawnPosition, session.Character, session.InVillage, appearance)
+            session.EntityId, session.SpawnPosition, session.Character, session.InVillage, appearance, costumes)
         {
             GameMasterLevel = session.GmLevel
         };

@@ -704,7 +704,7 @@ public sealed class GameServerConnection : IGameBackend
     {
         var summaries = list.Characters.Select(entry => new CharacterSummary(entry.Name, entry.Class, entry.Level, entry.FaceIndex, entry.Tier,
             entry.HairIndex, ItemCodes.KeyOf(entry.ArmorCode), ItemCodes.KeyOf(entry.WeaponCode), ItemCodes.KeyOf(entry.OffHandCode), entry.InVillage,
-            entry.ClanName)).ToArray();
+            entry.ClanName) { CostumeKey = ItemCodes.KeyOf(entry.CostumeCode) }).ToArray();
         Volatile.Write(ref _characters, summaries);
     }
 

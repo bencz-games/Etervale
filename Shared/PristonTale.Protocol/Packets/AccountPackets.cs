@@ -8,8 +8,8 @@ namespace PristonTale.Protocol.Packets;
 // of any message's layout raises both.
 public static class ProtocolVersion
 {
-    public const uint Current = 26;
-    public const uint Minimum = 26;
+    public const uint Current = 27;
+    public const uint Minimum = 27;
 }
 
 // Account messages: the server greets every connection, the client logs in, manages its characters and keeps the
@@ -113,6 +113,7 @@ public sealed record CharacterListEntry(string Name, PlayerClass Class, int Leve
 {
     public const int MaxSize = 2 + AccountWire.MaxNameBytes + 4 + 4 + 4 + 12 + 4 + 2 + ClanWire.MaxClanNameBytes;
     private const byte VillageFlag = 1;
+    public uint CostumeCode { get; init; }
 
     public void Write(ref PacketWriter writer)
     {
@@ -126,7 +127,7 @@ public sealed record CharacterListEntry(string Name, PlayerClass Class, int Leve
         writer.UInt32(WeaponCode);
         writer.UInt32(ArmorCode);
         writer.UInt32(OffHandCode);
-        writer.Zero(4);
+        writer.UInt32(CostumeCode);
         Utf8Text.Write(ref writer, ClanName, ClanWire.MaxClanNameBytes);
     }
 
@@ -142,9 +143,10 @@ public sealed record CharacterListEntry(string Name, PlayerClass Class, int Leve
         var weapon = reader.UInt32();
         var armor = reader.UInt32();
         var offHand = reader.UInt32();
-        reader.Skip(4);
+        var costume = reader.UInt32();
         var clan = Utf8Text.Read(ref reader, ClanWire.MaxClanNameBytes, "Character list");
-        return new CharacterListEntry(name, playerClass, level, tier, face, hair, weapon, armor, offHand, (flags & VillageFlag) != 0, clan);
+        return new CharacterListEntry(name, playerClass, level, tier, face, hair, weapon, armor, offHand, (flags & VillageFlag) != 0, clan)
+        { CostumeCode = costume };
     }
 }
 

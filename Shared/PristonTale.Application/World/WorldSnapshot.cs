@@ -26,6 +26,7 @@ public readonly struct PlayerAppearanceView
 
     public string WeaponKey { get; init; } = "";
     public string ArmorKey { get; init; } = "";
+    public string CostumeKey { get; init; } = "";
     public string OffHandKey { get; init; } = "";
     public bool InVillage { get; init; }
 

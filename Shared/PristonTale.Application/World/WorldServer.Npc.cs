@@ -76,7 +76,7 @@ public sealed partial class WorldServer
             }
 
             return NpcServiceTransactions.Prepare(session, connection.Player, field, command, _worldData.Current.Items, _catalog,
-                command.Service == NpcServiceKind.EventBooth ? Booth() : null);
+                command.Service == NpcServiceKind.EventBooth ? Booth() : null, _costumes);
         });
     }
 

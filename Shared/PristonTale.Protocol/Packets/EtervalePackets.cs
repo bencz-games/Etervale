@@ -38,9 +38,11 @@ public sealed record OwnerStatusPacket(
     int EliteSkillPoints = 0,
     int Tier = 0,
     byte BagPage = 0,
-    byte WeaponSet = 0)
+    byte WeaponSet = 0,
+    Guid CostumeItemId = default,
+    uint CostumeCode = 0)
 {
-    public const int Size = 8 + 4 + 8 * 4 + 4 * 19 + 4 + 8 * 3 + 4 * 2 + 2;
+    public const int Size = 8 + 4 + 8 * 4 + 4 * 19 + 4 + 8 * 3 + 4 * 2 + 2 + 16 + 4;
 
     public int Write(Span<byte> destination)
     {
@@ -77,6 +79,8 @@ public sealed record OwnerStatusPacket(
         writer.Int32(Tier);
         writer.Byte(BagPage);
         writer.Byte(WeaponSet);
+        writer.Guid(CostumeItemId);
+        writer.UInt32(CostumeCode);
         return writer.Finish();
     }
 
@@ -85,7 +89,7 @@ public sealed record OwnerStatusPacket(
         var r = new PacketReader(packet, Size);
         return new OwnerStatusPacket(r.Int32(), r.UInt64(), r.UInt64(), r.UInt64(), r.Int64(), r.Int32(), r.Int32(), r.Int32(), r.Int32(),
             r.Int32(), r.Int32(), r.Int32(), r.Int32(), r.Int32(), r.Int32(), r.Int32(), r.Int32(), r.Int32(), r.Int32(), r.Int32(),
-            r.Int32(), r.Int32(), r.Int32(), r.Int32(), r.Single(), r.Int64(), r.Int64(), r.Int64(), r.Int32(), r.Int32(), r.Byte(), r.Byte());
+            r.Int32(), r.Int32(), r.Int32(), r.Int32(), r.Single(), r.Int64(), r.Int64(), r.Int64(), r.Int32(), r.Int32(), r.Byte(), r.Byte(), r.Guid(), r.UInt32());
     }
 }
 
