@@ -76,17 +76,21 @@ retained when the active costume has no class-specific mapping. The client resol
 | Hopy | CA547, CA647 | 040 | Male |
 | Cupy | CA548, CA648 | 040 | Female |
 | Korean dress | DA148, DA248 | 006 | Female |
+| Tuxedo | DA156, DA256 | 013 | Male |
 | Weddingdress | DA157, DA257 | 013 | Female |
+| Changpao | DA158, DA258 | 014 | Male |
 | Chipao | DA159, DA259 | 014 | Female |
 | Male Kimono | DA160, DA260 | 015 | Male |
 | Female Kimono | DA161, DA261 | 015 | Female |
 | Male Korean | DA164, DA264 | 029 | Male |
 | Female Korean | DA165, DA265 | 029 | Female |
 
-The manifest contains 224 keys: 64 have body mappings, 160 have none, with 360 associations over 136 distinct
-case-insensitive paths. The 18 keys have 96 class-specific associations over 48 distinct INX files. The two CA keys within each pair are item
-variants, not separate genders. Family 040 references `man_hopy.tga` for male bodies and `qupy` textures for female
-bodies. The current gender rule follows that distinction. Korean family 029 is the selected visual variant; 028 also
+The manifest contains 224 keys: 68 have body mappings, 156 have none, with 384 associations over 148 distinct
+case-insensitive paths. The 22 documented outfit keys have 120 class-specific associations over 60 distinct INX
+files. The two CA keys within each pair are item variants, not separate genders. Family 040 references `man_hopy.tga` for male bodies and `qupy` textures for female
+bodies. The current gender rule follows that distinction. Tuxedo uses masculine family 013 with `man_wedding` textures,
+and Changpao uses masculine family 014 with class-specific `chinadress` textures; both outfits were seen in game.
+Korean family 029 is the selected visual variant; 028 also
 exists but the exact original item-to-variant mapping was not established. Changing gender or body definitions is a
 manifest change, not an item-code arithmetic rule.
 

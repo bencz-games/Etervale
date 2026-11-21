@@ -22,11 +22,52 @@ internal static class EquipmentTests
         yield return ("original catalog metadata enables armor and weapons without allowing two-handed shield combinations", CatalogMetadataAsync);
         yield return ("equipment resources preserve original indices, armor aliases and village bones", ResourcesAsync);
         yield return ("optional costume body mappings reject deferred codes and unsafe paths", CostumeCatalogAsync);
+        yield return ("Tuxedo and Changpao production manifest maps six male classes", TuxedoChangpaoManifestAsync);
         yield return ("the assassin holds a dagger in each hand and the shaman's phantom hovers at its back", NewClassWeaponsAsync);
         yield return ("an item key's family names its kind without allocating", KindOfAsync);
         yield return ("motion selection respects item lists, class and map masks", MotionAsync);
         yield return ("equipment changes refresh public appearance over TCP", PresenceAsync);
         yield return ("remote equipment preparation preserves old actors and discards superseded swaps", ReplacementAsync);
+    }
+
+    private static Task TuxedoChangpaoManifestAsync()
+    {
+        DirectoryInfo? root = new(Directory.GetCurrentDirectory());
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "PristonTale.sln")))
+            root = root.Parent;
+        root ??= new DirectoryInfo(AppContext.BaseDirectory);
+        while (root is not null && !File.Exists(Path.Combine(root.FullName, "PristonTale.sln")))
+            root = root.Parent;
+        Assert.True(root is not null, "test repository root was not found");
+        var manifest = Path.Combine(root!.FullName, "tools", "costumes", "costumes.json");
+        using var document = System.Text.Json.JsonDocument.Parse(File.ReadAllText(manifest));
+        var entries = document.RootElement.GetProperty("costumes").EnumerateArray()
+            .ToDictionary(entry => entry.GetProperty("itemKey").GetString()!, StringComparer.Ordinal);
+        var classes = new[] { "0", "1", "2", "4", "7", "9" };
+        var families = new[]
+        {
+            (Keys: new[] { "DA156", "DA256" }, Files: new[] {
+                "ca013.inx", "cb013.inx", "cc013.inx", "cma013.inx", "cmd013.inx", "Cme013.inx" }),
+            (Keys: new[] { "DA158", "DA258" }, Files: new[] {
+                "Ca014.inx", "Cb014.inx", "Cc014.inx", "Cma014.inx", "Cmd014.inx", "Cme014.inx" })
+        };
+        foreach (var family in families)
+        {
+            foreach (var key in family.Keys)
+            {
+                Assert.True(entries.TryGetValue(key, out var entry), $"missing production costume {key}");
+                Assert.True(entry.GetProperty("gender").GetString() == "male", $"{key} changed gender");
+                var bodies = entry.GetProperty("bodies");
+                Assert.True(bodies.EnumerateObject().Count() == 6, $"{key} must map six male classes");
+                for (var i = 0; i < classes.Length; i++)
+                {
+                    var expected = "char/tmABCD/" + family.Files[i];
+                    Assert.True(bodies.TryGetProperty(classes[i], out var model)
+                        && model.GetString() == expected, $"{key} class {classes[i]} changed visual model");
+                }
+            }
+        }
+        return Task.CompletedTask;
     }
 
     private static Task CostumeCatalogAsync()

@@ -981,7 +981,14 @@
     {
       "itemKey": "DA156",
       "gender": "male",
-      "bodies": {}
+      "bodies": {
+        "0": "char/tmABCD/ca013.inx",
+        "1": "char/tmABCD/cb013.inx",
+        "2": "char/tmABCD/cc013.inx",
+        "4": "char/tmABCD/cma013.inx",
+        "7": "char/tmABCD/cmd013.inx",
+        "9": "char/tmABCD/Cme013.inx"
+      }
     },
     {
       "itemKey": "DA157",
@@ -997,7 +1004,14 @@
     {
       "itemKey": "DA158",
       "gender": "male",
-      "bodies": {}
+      "bodies": {
+        "0": "char/tmABCD/Ca014.inx",
+        "1": "char/tmABCD/Cb014.inx",
+        "2": "char/tmABCD/Cc014.inx",
+        "4": "char/tmABCD/Cma014.inx",
+        "7": "char/tmABCD/Cmd014.inx",
+        "9": "char/tmABCD/Cme014.inx"
+      }
     },
     {
       "itemKey": "DA159",
@@ -1410,7 +1424,14 @@
     {
       "itemKey": "DA256",
       "gender": "male",
-      "bodies": {}
+      "bodies": {
+        "0": "char/tmABCD/ca013.inx",
+        "1": "char/tmABCD/cb013.inx",
+        "2": "char/tmABCD/cc013.inx",
+        "4": "char/tmABCD/cma013.inx",
+        "7": "char/tmABCD/cmd013.inx",
+        "9": "char/tmABCD/Cme013.inx"
+      }
     },
     {
       "itemKey": "DA257",
@@ -1426,7 +1447,14 @@
     {
       "itemKey": "DA258",
       "gender": "male",
-      "bodies": {}
+      "bodies": {
+        "0": "char/tmABCD/Ca014.inx",
+        "1": "char/tmABCD/Cb014.inx",
+        "2": "char/tmABCD/Cc014.inx",
+        "4": "char/tmABCD/Cma014.inx",
+        "7": "char/tmABCD/Cmd014.inx",
+        "9": "char/tmABCD/Cme014.inx"
+      }
     },
     {
       "itemKey": "DA259",

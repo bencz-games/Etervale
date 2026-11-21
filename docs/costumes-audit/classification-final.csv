@@ -157,9 +157,9 @@ DA152;Black Iris Armor;DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
 DA153;Soccer Armor;DA;any;False;0;;any;0;
 DA154;Beach Costume(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
 DA155;Beach Costume(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
-DA156;Tuxedo Armor(30Days);DA;male;False;0;;male;0;
+DA156;Tuxedo Armor(30Days);DA;male;False;0;;male;6;0,1,2,4,7,9
 DA157;Weddingdress Armor(30Days);DA;female;False;0;;female;5;3,5,6,8,10
-DA158;Changpao Armor(30Days);DA;male;False;0;;male;0;
+DA158;Changpao Armor(30Days);DA;male;False;0;;male;6;0,1,2,4,7,9
 DA159;Chipao Armor(30Days);DA;female;False;0;;female;5;3,5,6,8,10
 DA160;Male Kimono Armor(30Days);DA;male;False;0;;male;6;0,1,2,4,7,9
 DA161;Female Kimono Armor(30Days);DA;female;False;0;;female;5;3,5,6,8,10
@@ -203,9 +203,9 @@ DA252;Black Iris Robe;DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
 DA253;Soccer Robe;DA;any;False;0;;any;0;
 DA254;Beach Costume(30Day);DA;male;False;6;0,1,2,4,7,9;male;6;0,1,2,4,7,9
 DA255;Beach Costume(30Day);DA;female;False;5;3,5,6,8,10;female;5;3,5,6,8,10
-DA256;Tuxedo Robe(30Days);DA;male;False;0;;male;0;
+DA256;Tuxedo Robe(30Days);DA;male;False;0;;male;6;0,1,2,4,7,9
 DA257;Weddingdress Robe(30Days);DA;female;False;0;;female;5;3,5,6,8,10
-DA258;Changpao Robe(30Days);DA;male;False;0;;male;0;
+DA258;Changpao Robe(30Days);DA;male;False;0;;male;6;0,1,2,4,7,9
 DA259;Chipao Robe(30Days);DA;female;False;0;;female;5;3,5,6,8,10
 DA260;Male Kimono Robe(30Days);DA;male;False;0;;male;6;0,1,2,4,7,9
 DA261;Female Kimono Robe(30Days);DA;female;False;0;;female;5;3,5,6,8,10

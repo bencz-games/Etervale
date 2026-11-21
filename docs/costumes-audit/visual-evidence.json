@@ -201,6 +201,43 @@
       }
     }
   },
+  "DA156": {
+    "gender": "male",
+    "variants": {
+      "13": {
+        "0": {
+          "inx": "char/tmABCD/ca013.inx",
+          "mesh": "char/tmABCD/CtmbA13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        },
+        "1": {
+          "inx": "char/tmABCD/cb013.inx",
+          "mesh": "char/tmABCD/CtmbB13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        },
+        "2": {
+          "inx": "char/tmABCD/cc013.inx",
+          "mesh": "char/tmABCD/CtmbC13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        },
+        "4": {
+          "inx": "char/tmABCD/cma013.inx",
+          "mesh": "char/tmABCD/CmmbA13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        },
+        "7": {
+          "inx": "char/tmABCD/cmd013.inx",
+          "mesh": "char/tmABCD/CmmbD13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme013.inx",
+          "mesh": "char/tmABCD/CmmbE13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        }
+      }
+    }
+  },
   "DA157": {
     "gender": "female",
     "variants": {
@@ -229,6 +266,43 @@
           "inx": "char/tmABCD/Cf013.inx",
           "mesh": "char/tmABCD/CtfbF13.smd",
           "texturas": "char\\tmABCD\\gr_wedding.tga"
+        }
+      }
+    }
+  },
+  "DA256": {
+    "gender": "male",
+    "variants": {
+      "13": {
+        "0": {
+          "inx": "char/tmABCD/ca013.inx",
+          "mesh": "char/tmABCD/CtmbA13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        },
+        "1": {
+          "inx": "char/tmABCD/cb013.inx",
+          "mesh": "char/tmABCD/CtmbB13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        },
+        "2": {
+          "inx": "char/tmABCD/cc013.inx",
+          "mesh": "char/tmABCD/CtmbC13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        },
+        "4": {
+          "inx": "char/tmABCD/cma013.inx",
+          "mesh": "char/tmABCD/CmmbA13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        },
+        "7": {
+          "inx": "char/tmABCD/cmd013.inx",
+          "mesh": "char/tmABCD/CmmbD13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme013.inx",
+          "mesh": "char/tmABCD/CmmbE13.smd",
+          "texturas": "char\\tmABCD\\man_wedding.tga | char\\tmABCD\\neck-man.bmp"
         }
       }
     }
@@ -265,6 +339,43 @@
       }
     }
   },
+  "DA158": {
+    "gender": "male",
+    "variants": {
+      "14": {
+        "0": {
+          "inx": "char/tmABCD/Ca014.inx",
+          "mesh": "char/tmABCD/CtmbA14.smd",
+          "texturas": "char\\tmABCD\\meca_chinadress.tga"
+        },
+        "1": {
+          "inx": "char/tmABCD/Cb014.inx",
+          "mesh": "char/tmABCD/CtmbB14.smd",
+          "texturas": "char\\tmABCD\\fig_chinadress.tga"
+        },
+        "2": {
+          "inx": "char/tmABCD/Cc014.inx",
+          "mesh": "char/tmABCD/CtmbC14.smd",
+          "texturas": "char\\tmABCD\\pike_chinadress.tga"
+        },
+        "4": {
+          "inx": "char/tmABCD/Cma014.inx",
+          "mesh": "char/tmABCD/CmmbA14.smd",
+          "texturas": "char\\tmABCD\\knight_chinadress.tga"
+        },
+        "7": {
+          "inx": "char/tmABCD/Cmd014.inx",
+          "mesh": "char/tmABCD/CmmbD14.smd",
+          "texturas": "char\\tmABCD\\megi_chinadress.tga"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme014.inx",
+          "mesh": "char/tmABCD/CmmbE14.smd",
+          "texturas": "char\\tmABCD\\sh_chinadress.tga"
+        }
+      }
+    }
+  },
   "DA159": {
     "gender": "female",
     "variants": {
@@ -293,6 +404,43 @@
           "inx": "char/tmABCD/Cf014.inx",
           "mesh": "char/tmABCD/CtfbF14.smd",
           "texturas": "char\\tmABCD\\gr_chinadress.tga"
+        }
+      }
+    }
+  },
+  "DA258": {
+    "gender": "male",
+    "variants": {
+      "14": {
+        "0": {
+          "inx": "char/tmABCD/Ca014.inx",
+          "mesh": "char/tmABCD/CtmbA14.smd",
+          "texturas": "char\\tmABCD\\meca_chinadress.tga"
+        },
+        "1": {
+          "inx": "char/tmABCD/Cb014.inx",
+          "mesh": "char/tmABCD/CtmbB14.smd",
+          "texturas": "char\\tmABCD\\fig_chinadress.tga"
+        },
+        "2": {
+          "inx": "char/tmABCD/Cc014.inx",
+          "mesh": "char/tmABCD/CtmbC14.smd",
+          "texturas": "char\\tmABCD\\pike_chinadress.tga"
+        },
+        "4": {
+          "inx": "char/tmABCD/Cma014.inx",
+          "mesh": "char/tmABCD/CmmbA14.smd",
+          "texturas": "char\\tmABCD\\knight_chinadress.tga"
+        },
+        "7": {
+          "inx": "char/tmABCD/Cmd014.inx",
+          "mesh": "char/tmABCD/CmmbD14.smd",
+          "texturas": "char\\tmABCD\\megi_chinadress.tga"
+        },
+        "9": {
+          "inx": "char/tmABCD/Cme014.inx",
+          "mesh": "char/tmABCD/CmmbE14.smd",
+          "texturas": "char\\tmABCD\\sh_chinadress.tga"
         }
       }
     }
